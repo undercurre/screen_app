@@ -1,0 +1,10 @@
+{
+  "@meta": {
+    "comments": {
+      "name": "名字"
+    },
+    "nullable": false,
+    "ignore": false
+  },
+  "name": "wendux"
+}
