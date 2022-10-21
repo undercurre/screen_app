@@ -17,6 +17,9 @@ github_client_app
 │     ├── models // Json文件对应的Dart Model类会在此目录下   
 │     ├── states // 保存APP中需要跨组件共享的状态类
 │     ├── routes // 存放所有路由页面类
+│     │     ├── index.dart // 注册路由表
+│     │     └── login // 登录页面模块
+│     │          └── index.dart // 入口文件
 │     └── widgets //APP内封装的一些Widget组件都在该目录下
 └── test
 ```
@@ -44,10 +47,16 @@ github_client_app
 1. 创建或拷贝Json文件到"jsons" 目录中 ;
 2. 运行 `flutter packages pub run json_model` 命令生成Dart model类，生成的文件默认在"lib/models"目录下
 
+
+### 日志打印工具
+可引入`Global`类,调用`logger`进行打印
+[文档地址](https://pub.flutter-io.cn/packages/logger)
+
 ## 全局变量及共享状态
 
 全局变量-Global类
 > 在“lib/common”目录下创建一个Global类，它主要管理APP的全局变量
+
 
 
 

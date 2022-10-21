@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class CounterWidget extends StatefulWidget {
-  const CounterWidget({Key? key, this.initValue = 0});
+class Home extends StatefulWidget {
+  const Home({Key? key, this.initValue = 0});
 
   final int initValue;
 
   @override
-  _CounterWidgetState createState() => _CounterWidgetState();
+  _HomeState createState() => _HomeState();
 }
 
-class _CounterWidgetState extends State<CounterWidget> {
+class _HomeState extends State<Home> {
   int _counter = 0;
 
   @override
@@ -32,11 +32,9 @@ class _CounterWidgetState extends State<CounterWidget> {
             Builder(builder: (context) {
               return ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("我是SnackBar")),
-                  );
+                  Navigator.pop(context, '返回值');
                 },
-                child: Text('显示SnackBar'),
+                child: Text('返回'),
               );
             }),
           ],
@@ -47,7 +45,7 @@ class _CounterWidgetState extends State<CounterWidget> {
   }
 
   @override
-  void didUpdateWidget(CounterWidget oldWidget) {
+  void didUpdateWidget(Home oldWidget) {
     super.didUpdateWidget(oldWidget);
     print("didUpdateWidget ");
   }

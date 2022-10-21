@@ -3,10 +3,10 @@ import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'api.dart';
+import 'api/api.dart';
 import '../models/index.dart';
 
-// 提供五套可选主题色
+/// 提供五套可选主题色
 const _themes = <MaterialColor>[
   Colors.blue,
   Colors.cyan,
@@ -21,15 +21,14 @@ var logger = Logger(
 );
 
 class Global {
+  static var productCode = 'MSP-A101D-01';
   static late SharedPreferences _prefs;
   static Profile profile = Profile();
 
-
-
-  // 可选的主题列表
+  /// 可选的主题列表
   static List<MaterialColor> get themes => _themes;
 
-  // 是否为release版
+  /// 是否为release版
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
 
   //初始化全局信息，会在APP启动时执行
@@ -53,17 +52,11 @@ class Global {
       profile = Profile()..theme = 0;
     }
 
-    // 如果没有缓存策略，设置默认缓存策略
-    profile.cache = profile.cache ?? CacheConfig()
-      ..enable = true
-      ..maxAge = 3600
-      ..maxCount = 100;
-
     //初始化网络请求相关配置
     Api.init();
   }
 
-  // 持久化Profile信息
+  /// 持久化Profile信息
   static saveProfile() =>
       _prefs.setString("profile", jsonEncode(profile.toJson()));
 }

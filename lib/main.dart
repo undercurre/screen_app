@@ -1,5 +1,9 @@
 import 'package:provider/provider.dart';
-import 'index.dart';
+import 'package:flutter/material.dart';
+import 'common/index.dart';
+import 'states/index.dart';
+import 'routes/index.dart';
+
 
 void main() {
   Global.init().then((e) => runApp(const App()));
@@ -18,21 +22,7 @@ class App extends StatelessWidget {
         theme: ThemeData.fallback(),
         darkTheme: ThemeData.dark(),
         //注册路由表
-        routes: <String, WidgetBuilder>{
-          '/': (context) => const LinkNetwork(),
-          "ScanCode": (context) => const ScanCode(),
-        },
-        onGenerateRoute: (RouteSettings settings) {
-          return MaterialPageRoute(builder: (context) {
-            String? routeName = settings.name;
-
-            debugPrint('onGenerateRoute: $routeName');
-
-            return const ScanCode();
-            // 如果访问的路由页需要登录，但当前未登录，则直接返回登录页路由，
-            // 引导用户登录；其他情况则正常打开路由。
-          });
-        },
+        routes: routes,
       ),
     );
   }

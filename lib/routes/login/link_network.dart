@@ -11,75 +11,6 @@ class _LinkNetwork extends State<LinkNetwork> {
 
   @override
   Widget build(BuildContext context) {
-    const stepNum = Positioned(
-      top: 10,
-      left: -15,
-      child: Text(
-        '01',
-        textAlign: TextAlign.left,
-        style: TextStyle(
-          color: Colors.white24,
-          fontSize: 60.0,
-          height: 1,
-          fontFamily: "MideaType-Bold",
-          decoration: TextDecoration.none,
-        ),
-      ),
-    );
-
-    var title = Padding(
-      padding: const EdgeInsets.fromLTRB(0, 18, 0, 6),
-      child: Text(
-        '连接网络 ${context.watch<UserModel>().user?.name}',
-        textAlign: TextAlign.left,
-        style: const TextStyle(
-          color: Colors.white24,
-          fontSize: 26.0,
-          height: 1,
-          fontFamily: "MideaType-Bold",
-          decoration: TextDecoration.none,
-        ),
-      )
-    );
-
-      var stepBar = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Image(
-          image: AssetImage("assets/imgs/scanCode/step-active.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/line-passive.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/step-passive.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/line-passive.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/step-passive.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/line-passive.png"),
-        ),
-        Image(
-          image: AssetImage("assets/imgs/scanCode/step-passive.png"),
-        ),
-      ],
-    );
-
-    var header = DecoratedBox(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/imgs/scanCode/header-bg.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          children: [title, stepBar],
-        ));
-
     var wifiSwitch = Padding(
         padding: const EdgeInsets.fromLTRB(36, 16, 36, 16),
         child: Row(
@@ -153,7 +84,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                 logger.i("item: $index  onPointerDown, $event");
                 var userModel = context.read<UserModel>();
 
-                userModel.user = User.fromJson({ "name": "test $index"});
+                userModel.user = User.fromJson({"name": "test $index"});
               },
               child: Container(
                   decoration: const BoxDecoration(
@@ -183,51 +114,16 @@ class _LinkNetwork extends State<LinkNetwork> {
                   )));
         });
 
-    return Center(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              width: 5,
-              color: Colors.white,
+    return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            wifiSwitch,
+            wifiListTitle,
+            Expanded(
+              child: wifiList,
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-                  children: [header, stepNum]),
-              wifiSwitch,
-              wifiListTitle,
-              Expanded(
-                child: wifiList,
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 58,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-                    padding: const EdgeInsets.all(20.0),
-                    textStyle: const TextStyle(
-                        fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
-                  ),
-                  onPressed: () async {
-                    debugPrint('pressNextButton');
-                    //导航到新路由
-                    var result = await Navigator.pushNamed(
-                      context,
-                      'ScanCode',
-                    );
-                  },
-                  child: const Text('下一步',
-                      style: TextStyle(
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                      )),
-                ),
-              )
-            ],
-          ),
-        ));
+          ],
+        );
   }
 }
 
