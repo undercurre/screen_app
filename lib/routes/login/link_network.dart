@@ -65,8 +65,6 @@ class _LinkNetwork extends State<LinkNetwork> {
     var wifiList = ListView.builder(
         itemCount: list.length,
         itemBuilder: (BuildContext context, int index) {
-          debugPrint('index: $index');
-
           if (list[index] == "loadingTag") {
             //已经加载了100条数据，不再获取数据。
             return Container(

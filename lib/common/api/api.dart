@@ -5,9 +5,9 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:archive/archive.dart';
-import '../global.dart';
 import 'dart:developer';
 import 'dart:math';
+import '../global.dart';
 
 class Api {
   String baseUrl = '';
@@ -39,11 +39,11 @@ class Api {
           var random = Random();
           var data = options.data;
           var extra = options.extra;
+          var headers = options.headers;
 
-          logger.i('onRequest: ${options.path}');
           // 公共header
-          options.headers['random'] = '${random.nextInt(10000)}';
-          options.headers['sign'] = '${random.nextInt(10000)}';
+          headers['random'] = '${random.nextInt(10000)}';
+          headers['sign'] = '${random.nextInt(10000)}';
 
           // 公共data
           data['openId'] = 'zhinengjiadian';
@@ -52,7 +52,6 @@ class Api {
 
           // isEncrypt用于判断是否需要加密请求，默认是
           if (extra['isEncrypt'] != false ) {
-            logger.i('data: ${data.toString()}');
             var enCodedJson = utf8.encode(data.toString());
             var gZipJson = GZipEncoder().encode(enCodedJson);
             logger.i('enCodedJson: ${enCodedJson}');
@@ -64,9 +63,10 @@ class Api {
             //设置cbc模式
             final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
 
-            options.data = encrypter.encrypt(data.toString(), iv: iv).base64;
+            data = encrypter.encrypt(data.toString(), iv: iv).base64;
           }
 
+          logger.i('onRequest: ${options.path} \n $headers \n $data');
           // Do something before request is sent
           return handler.next(options); //continue
           // 如果你想完成请求并返回一些自定义数据，你可以resolve一个Response对象 `handler.resolve(response)`。
@@ -114,7 +114,7 @@ class Api {
   /// IOT接口发起公共接口
   static Future<IotResult> requestIot<T>(
     String path, {
-    T? data,
+    data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -137,18 +137,20 @@ class Api {
   }
 }
 
-class IotResult {
+class IotResult<T> {
   IotResult();
+
+  IotResult.translate(this.code, this.msg, this.data);
 
   late int code;
   late String msg;
-  late dynamic data;
+  late T data;
 
   get isSuccess => code == 0;
 
   factory IotResult.fromJson(Map<String,dynamic> json) => IotResult()
     ..msg = json['msg'] as String
-    ..data = json['data'] as dynamic
+    ..data = json['data']
   ..code = json['code'] as int;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
