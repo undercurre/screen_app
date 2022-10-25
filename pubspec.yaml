@@ -74,8 +74,6 @@ flutter:
     - assets/imgs/weather/
     - assets/imgs/
     - assets/
-    - assets/fonts/
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -89,9 +87,14 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: MideaType-Bold
+    - family: MideaType
       fonts:
+        - asset: assets/fonts/MideaType-Regular.otf
+        - asset: assets/fonts/MideaType-Light.otf
+          weight: 100
         - asset: assets/fonts/MideaType-Bold.otf
+          weight: 900
+
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

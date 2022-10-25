@@ -37,7 +37,7 @@ class _LoginPage extends State<LoginPage> {
   void nextStep() async {
     if (stepNum == 4) {
       //导航到新路由
-      var result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         'Home',
       );
