@@ -37,7 +37,7 @@ class _LoginPage extends State<LoginPage> {
   void nextStep() async {
     if (stepNum == 4) {
       //导航到新路由
-      var result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         'Home',
       );
@@ -153,8 +153,9 @@ class LoginHeader extends StatelessWidget {
             height: 1,
             fontFamily: "MideaType-Bold",
             decoration: TextDecoration.none,
-          ),
-        ));
+          )
+        ),
+    );
 
     const stepActiveImg =
         Image(image: AssetImage("assets/imgs/scanCode/step-active.png"));
@@ -189,6 +190,14 @@ class LoginHeader extends StatelessWidget {
       children: stepList,
     );
 
+    var tempIcon = TextButton.icon(
+      onPressed: () => {
+        Navigator.of(context).pushNamed('Weather')
+      },
+      label: const Text(''),
+      icon: const Icon(Icons.sunny_snowing),
+    );
+
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -201,6 +210,10 @@ class LoginHeader extends StatelessWidget {
         ));
 
     return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [headerView, stepNumView]);
+        children: [headerView, stepNumView, Positioned(
+          right: 18.0,
+          top: 18.0,
+          child: tempIcon,
+        )]);
   }
 }
