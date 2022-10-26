@@ -32,4 +32,23 @@ class IotApi {
 
     return res;
   }
+
+  /// 获取用户的家庭列表
+  static Future<IotResult<HomegroupList>> getHomegroup() async {
+    final now = DateTime.now();
+    var res =
+    await Api.requestIot<HomegroupList>("/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
+        data: {'stamp': now.microsecondsSinceEpoch.toString()},
+        options: Options(method: 'POST', extra: {
+          'isEncrypt': false
+        }, headers: {
+          'sign':
+          'b8915169907a00b7f707d0c107627256208e6995165d254081d0f6708dbc7aff',
+          'accessToken': 'T1d6sx09vrwg5tbl3',
+          'Content-Type': 'application/json'
+        }));
+
+    return IotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
+  }
+
 }

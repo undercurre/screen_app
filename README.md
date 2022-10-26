@@ -38,10 +38,23 @@ github_client_app
 ### 状态 (State) 管理-Provider
 [文档地址](https://pub.flutter-io.cn/packages/provider)
 
-### json_model 
+### json_model
 > 一行命令，Json文件转为Dart model类。
 
 [文档地址](https://pub.flutter-io.cn/packages/json_model)
+
+注：
+`src` 的[默认值](https://github.com/flutterchina/json_model/blob/master/bin/json_model.dart#L21) 为 `./Json`
+windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src` 指定目录
+
+```bash
+# 命令格式(windows)
+pub run json_model src=jsons  dist=data
+
+# Linux 下参数格式稍不同，作者文档未提及
+pub run json_model --src=jsons --dist=data
+
+```
 
 #### 使用
 1. 创建或拷贝Json文件到"jsons" 目录中 ;
@@ -56,10 +69,3 @@ github_client_app
 
 全局变量-Global类
 > 在“lib/common”目录下创建一个Global类，它主要管理APP的全局变量
-
-
-
-
-
-
-

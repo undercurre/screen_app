@@ -1,3 +1,5 @@
 export 'profile.dart' ; 
-export 'qrCode.dart' ; 
 export 'user.dart' ; 
+export 'homegroupList.dart' ; 
+export 'qrCode.dart' ; 
+export 'homeList.dart' ; 

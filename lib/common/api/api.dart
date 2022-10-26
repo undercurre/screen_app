@@ -143,15 +143,15 @@ class IotResult<T> {
   IotResult.translate(this.code, this.msg, this.data);
 
   late int code;
-  late String msg;
+  late String? msg;
   late T data;
 
   get isSuccess => code == 0;
 
   factory IotResult.fromJson(Map<String,dynamic> json) => IotResult()
-    ..msg = json['msg'] as String
+    ..msg = json['msg']
     ..data = json['data']
-  ..code = json['code'] as int;
+    ..code = json['code'] as int;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'code': code,

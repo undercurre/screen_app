@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../../common/api/iot_api.dart';
 
 class WeatherPageState extends State<WeatherPage> {
   @override
@@ -48,7 +50,8 @@ class WeatherPageState extends State<WeatherPage> {
               spacing: 10,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Image.asset("assets/imgs/weather/icon-snowy.png",
+                Image.asset(
+                  "assets/imgs/weather/icon-snowy.png",
                   width: 26,
                 ),
                 const Text("下雪 室外空气 中",
@@ -59,6 +62,16 @@ class WeatherPageState extends State<WeatherPage> {
                       fontWeight: FontWeight.normal,
                       decoration: TextDecoration.none,
                     )),
+                TextButton.icon(
+                  onPressed: () async {
+                    var res = await IotApi.getHomegroup();
+                    if (kDebugMode) {
+                      print(res.data.homeList.first.address);
+                    }
+                  },
+                  label: const Text('接口测试'),
+                  icon: const Icon(Icons.sunny_snowing),
+                )
               ],
             ))
       ],
