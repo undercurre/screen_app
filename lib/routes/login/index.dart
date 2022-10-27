@@ -197,6 +197,10 @@ class LoginHeader extends StatelessWidget {
       label: const Text(''),
       icon: const Icon(Icons.sunny_snowing),
     );
+    
+    var tempDeviceEnter = TextButton.icon(onPressed: () => {
+      Navigator.of(context).pushNamed('Scene')
+    }, icon: const Icon(Icons.accessible,color: Colors.green), label: const Text('设备'));
 
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(
@@ -214,6 +218,10 @@ class LoginHeader extends StatelessWidget {
           right: 18.0,
           top: 18.0,
           child: tempIcon,
+        ), Positioned(
+          left: 18.0,
+          top: 18.0,
+          child: tempDeviceEnter,
         )]);
   }
 }
