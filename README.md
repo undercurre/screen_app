@@ -67,5 +67,8 @@ pub run json_model --src=jsons --dist=data
 
 ## 全局变量及共享状态
 
-全局变量-Global类
-> 在“lib/common”目录下创建一个Global类，它主要管理APP的全局变量
+### 全局状态变量
+在`lib/common`目录下创建一个Global类，它主要管理APP的全局状态变量
+
+### 用户信息
+在`lib/common/api/api.dart`维护：`Api`类的静态变量`tokenInfo`

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../common/api/index.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
 
@@ -35,6 +36,10 @@ class _LoginPage extends State<LoginPage> {
 
   /// 下一步
   void nextStep() async {
+    if (stepNum == 2) {
+      IotApi.getHomeList();
+    }
+
     if (stepNum == 4) {
       //导航到新路由
       await Navigator.pushNamed(
