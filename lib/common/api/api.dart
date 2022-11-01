@@ -7,6 +7,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:math';
 import '../../models/accessToken.dart';
 import '../global.dart';
@@ -15,13 +16,10 @@ class Api {
   String baseUrl = '';
 
   /// iot中台Url
-  static String iotUrl = Global.isRelease
-      ? 'https://mp-prod.smartmidea.net'
-      : 'https://mp-sit.smartmidea.net';
+  static String iotUrl = dotenv.get('IOT_URL');
 
   /// 密钥
-  static var secret =
-      Global.isRelease ? 'Q06HU5bm4owAeDcH' : 'Q06HU5bm4owAeDcH';
+  static var secret = dotenv.get('SECRET');
 
   static AccessToken tokenInfo = AccessToken.fromJson({
     "accessToken": "",
