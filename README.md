@@ -76,3 +76,6 @@ pub run json_model --src=jsons --dist=data
 ## 全局配置
 使用dotenv读取配置，可以在sit环境使用release打包，也可以在prod环境使用debug模式启动，开发和调试更方便，生产环境出问题也可以使用debug模式启动定位问题。
 用法：在android studio的启动配置-additional run args加入：`--dart-define=env=sit`或者`--dart-define=env=prod`选择使用的环境。
+
+## 自定义 widget
+Cell [文档地址](./docs/cell.md)
