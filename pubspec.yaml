@@ -75,6 +75,7 @@ flutter:
   assets:
     - assets/imgs/scanCode/
     - assets/imgs/weather/
+    - assets/imgs/icon/
     - assets/imgs/
     - assets/
     - .sit.env

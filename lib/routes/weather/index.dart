@@ -67,6 +67,7 @@ class WeatherPageState extends State<WeatherPage> {
                     var res = await IotApi.getHomegroup();
                     if (kDebugMode) {
                       print(res.data.homeList.first.address);
+                      print(res.data.homeList.first.areaid);
                     }
                   },
                   label: const Text('接口测试'),
