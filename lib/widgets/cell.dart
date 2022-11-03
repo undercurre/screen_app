@@ -96,7 +96,7 @@ class _CellState extends State<Cell> {
             fontWeight: widget.fontWeight,
             decoration: TextDecoration.none,
             color: widget.titleColor,
-            height: 1.2),
+            ),
       ));
     }
 
@@ -141,7 +141,7 @@ class _CellState extends State<Cell> {
             fontWeight: FontWeight.w100,
             decoration: TextDecoration.none,
             color: Color.fromRGBO(255, 255, 255, 0.85),
-            height: 1.5),
+            height: 1),
       ));
     }
 
@@ -188,7 +188,7 @@ class _CellState extends State<Cell> {
 
     if (widget.hasSwitch) {
       cellChildren.add(Transform.scale(
-          scale: 0.8,
+          scale: 1,
           child: CupertinoSwitch(
               value: switchValue,
               activeColor: Colors.blue,

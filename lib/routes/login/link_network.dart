@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -5,36 +6,26 @@ import 'dart:developer' as developer;
 import '../../common/index.dart';
 import '../../models/index.dart';
 import '../../states/index.dart';
+import '../../widgets/index.dart';
 
 class _LinkNetwork extends State<LinkNetwork> {
   bool wifi = true;
 
   @override
   Widget build(BuildContext context) {
-    var wifiSwitch = Padding(
-        padding: const EdgeInsets.fromLTRB(36, 16, 36, 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('无线局域网',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.85),
-                  fontSize: 18.0,
-                  fontFamily: "PingFangSC-Regular",
-                  decoration: TextDecoration.none,
-                )),
-            CupertinoSwitch(
-              value: wifi,
-              onChanged: (bool value) {
-                developer.log('onChanged: $value');
-                setState(() {
-                  wifi = value;
-                });
-              },
-            ),
-          ],
-        ));
+    var wifiSwitch = Cell(
+        title: '无线局域网',
+        titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
+        titleSize: 24.0,
+
+        hasTopBorder: true,
+        hasSwitch: true,
+        onSwitch: (bool value) {
+          developer.log('onChanged: $value');
+          setState(() {
+            wifi = value;
+          });
+        });
 
     var wifiListTitle = DecoratedBox(
         decoration: const BoxDecoration(
@@ -84,44 +75,29 @@ class _LinkNetwork extends State<LinkNetwork> {
 
                 userModel.user = User.fromJson({"name": "test $index"});
               },
-              child: Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                            color: Color.fromRGBO(151, 151, 151, 0.3))),
-                    color: Color.fromRGBO(216, 216, 216, 0.1),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(36, 16, 36, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        Icons.wifi,
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                        size: 24.0,
-                      ),
-                      Text('Midea-Smart: ${list[index]}',
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                            color: Color.fromRGBO(255, 255, 255, 0.85),
-                            fontSize: 17.0,
-                            fontFamily: "PingFangSC-Regular",
-                            decoration: TextDecoration.none,
-                          )),
-                    ],
-                  )));
+              child: Cell(
+                avatarIcon: const Icon(
+                  Icons.wifi,
+                  color: Color.fromRGBO(255, 255, 255, 0.85),
+                  size: 24.0,
+                ),
+                rightIcon: const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)),
+                title: 'Midea-Smart: ${list[index]}',
+                hasTopBorder: true,
+                bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
+              ));
         });
 
     return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            wifiSwitch,
-            wifiListTitle,
-            Expanded(
-              child: wifiList,
-            ),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        wifiSwitch,
+        wifiListTitle,
+        Expanded(
+          child: wifiList,
+        ),
+      ],
+    );
   }
 }
 
