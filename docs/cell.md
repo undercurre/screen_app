@@ -23,6 +23,8 @@
 ### 基本用法
 
 ```dart
+import '../../widgets/index.dart';
+
 Cell(
 titleSlot: const Text('自定义标题布局及样式'),
 )

@@ -8,6 +8,7 @@
 github_client_app
 ├── android
 ├── linux
+├── docs // 存放使用文档，如自定义 widgets
 ├── assets
 │     ├── fonts // 存放字体文件
 │     ├── imgs // 存放图片文件
@@ -20,7 +21,7 @@ github_client_app
 │     │     ├── index.dart // 注册路由表
 │     │     └── login // 登录页面模块
 │     │          └── index.dart // 入口文件
-│     └── widgets //APP内封装的一些Widget组件都在该目录下
+│     └── widgets // APP内封装的一些Widget组件都在该目录下
 └── test
 ```
 
@@ -43,23 +44,21 @@ github_client_app
 
 [文档地址](https://pub.flutter-io.cn/packages/json_model)
 
+#### 使用
+1. 创建或拷贝Json文件到 `./json/` 目录中 ;
+2. 运行以下命令生成Dart model类，生成的文件默认在 `./lib/models/` 目录下
+
+```bash
+# windows 下命令格式
+flutter packages  pub run json_model src=jsons  dist=data
+
+# Linux 下格式稍不同，参数前加--（作者文档未提及）
+flutter packages pub run json_model --src=jsons --dist=data
+```
+
 注：
 `src` 的[默认值](https://github.com/flutterchina/json_model/blob/master/bin/json_model.dart#L21) 为 `./Json`
 windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src` 指定目录
-
-```bash
-# 命令格式(windows)
-pub run json_model src=jsons  dist=data
-
-# Linux 下参数格式稍不同，作者文档未提及
-pub run json_model --src=jsons --dist=data
-
-```
-
-#### 使用
-1. 创建或拷贝Json文件到"jsons" 目录中 ;
-2. 运行 `flutter packages pub run json_model` 命令生成Dart model类，生成的文件默认在"lib/models"目录下
-
 
 ### 日志打印工具
 可引入`Global`类,调用`logger`进行打印
@@ -77,5 +76,6 @@ pub run json_model --src=jsons --dist=data
 使用dotenv读取配置，可以在sit环境使用release打包，也可以在prod环境使用debug模式启动，开发和调试更方便，生产环境出问题也可以使用debug模式启动定位问题。
 用法：在android studio的启动配置-additional run args加入：`--dart-define=env=sit`或者`--dart-define=env=prod`选择使用的环境。
 
+
 ## 自定义 widget
-Cell [文档地址](./docs/cell.md)
+- Cell [文档地址](./docs/cell.md)

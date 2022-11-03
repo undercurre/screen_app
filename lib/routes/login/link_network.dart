@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as developer;
 import '../../common/index.dart';
@@ -83,6 +81,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                 ),
                 rightIcon: const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)),
                 title: 'Midea-Smart: ${list[index]}',
+                titleSize: 18.0,
                 hasTopBorder: true,
                 bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
               ));
