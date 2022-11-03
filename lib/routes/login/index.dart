@@ -199,7 +199,7 @@ class LoginHeader extends StatelessWidget {
     );
     
     var tempDeviceEnter = TextButton.icon(onPressed: () => {
-      Navigator.of(context).pushNamed('Scene')
+      Navigator.of(context).pushNamed('0x13')
     }, icon: const Icon(Icons.accessible,color: Colors.green), label: const Text('设备'));
 
     var headerView = DecoratedBox(
