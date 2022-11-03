@@ -6,6 +6,7 @@
 反之，titleSlot 与 title 同时为空，也会抛出异常。
 
 ### widget结构
+```markdown
 ┏━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━ BoxDecoration ━━┳━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┓
 ┃            ┃middleCell ┃           ┃           ┃           ┃        ┃       ┃
 ┃            ┃┌─────┬───┐┃           ┃           ┃           ┃        ┃       ┃
@@ -17,31 +18,32 @@
 ┃            ┃│titleSlot│┃           ┃           ┃           ┃        ┃       ┃
 ┃            ┃└─────────┘┃           ┃           ┃           ┃        ┃       ┃
 ┗━━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━┻━━━━━━━┛
+```
 
 ### 基本用法
 
 ```dart
 Cell(
-  titleSlot: const Text('自定义标题布局及样式'),
+titleSlot: const Text('自定义标题布局及样式'),
 )
 
 Cell(
-    title: 'Midea-smart',
-    tag: '我创建的',
-    desc: '房间4',
-    bgColor: Colors.black,
-    avatarIcon: Icon(Icons.wifi_outlined, color: Colors.white),
-    rightIcon: Icon(Icons.lock_outline_sharp, color: Colors.white),
-    hasArrow: true,
-    hasTopBorder: true,
-    hasBottomBorder: true,
-    hasTopBorder: true,
-    hasSwitch: true,
-    initSwitchValue: true,
-    rightText: '6°C',
-    onSwitch: (value) => logger.i(value),
-    onTap: () => logger.i('onTap'),
-    onLongPress: () => logger.i('onLongPress')
+title: 'Midea-smart',
+tag: '我创建的',
+desc: '房间4',
+bgColor: Colors.black,
+avatarIcon: Icon(Icons.wifi_outlined, color: Colors.white),
+rightIcon: Icon(Icons.lock_outline_sharp, color: Colors.white),
+hasArrow: true,
+hasTopBorder: true,
+hasBottomBorder: true,
+hasTopBorder: true,
+hasSwitch: true,
+initSwitchValue: true,
+rightText: '6°C',
+onSwitch: (value) => logger.i(value),
+onTap: () => logger.i('onTap'),
+onLongPress: () => logger.i('onLongPress')
 )
 ```
 
