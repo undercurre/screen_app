@@ -3,27 +3,18 @@ import 'package:flutter/material.dart';
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
 class DropDownDialogState extends State<DropDownDialog> with SingleTickerProviderStateMixin {
+  late final AnimationController controller;
+  late final Animation<double> animation;
+
   @override
   Widget build(BuildContext context) {
     late double po;
-
-    late final AnimationController controller = AnimationController(
-      duration: const Duration(seconds: 20),
-      vsync: this,
-    )..repeat(reverse: false);
-
-    late final Animation<double> animation = CurvedAnimation(
-      parent: controller,
-      curve: Curves.linear,
-    );
 
     @override
     void dispose() {
       controller.dispose();
       super.dispose();
     }
-
-    controller.stop();
 
     return GestureDetector(
       // 点击遮罩层隐藏弹框
@@ -36,7 +27,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                     po = details.globalPosition.dy;
                   },
                   onVerticalDragUpdate: (details) {
-                    if (po - details.globalPosition.dy > 180) {
+                    if (po - details.globalPosition.dy > 150) {
                       Navigator.pop(context);
                     }
                   },
@@ -253,10 +244,26 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                       ]))))),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat(reverse: false);
+
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.linear,
+    );
+    controller.stop();
+  }
 }
 
 class DropDownDialog extends StatefulWidget {
-  const DropDownDialog({Key? key}) : super(key: key);
+  final DropDownDialogState state = DropDownDialogState();
+  DropDownDialog({Key? key}) : super(key: key);
 
   @override
   DropDownDialogState createState() => DropDownDialogState();
@@ -264,8 +271,8 @@ class DropDownDialog extends StatefulWidget {
 
 class MFDropDownDialog {
   static DropDownDialogState showDropDownDialog(BuildContext context) {
-    var widget = const DropDownDialog();
+    var widget =  DropDownDialog();
     showDialog(context: context, builder: (context) => widget);
-    return widget.createState();
+    return widget.state;
   }
 }
