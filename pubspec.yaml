@@ -44,6 +44,7 @@ dependencies:
   qr_flutter: ^4.0.0
   crypto: ^3.0.2
   intl: ^0.17.0
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -74,10 +75,13 @@ flutter:
   assets:
     - assets/imgs/scanCode/
     - assets/imgs/weather/
+    - assets/imgs/icon/
     - assets/imgs/dropDown/
     - assets/imgs/setting/
     - assets/imgs/
     - assets/
+    - .sit.env
+    - .prod.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
