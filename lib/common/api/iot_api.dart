@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-
+import '../global.dart';
 import 'api.dart';
 import '../../models/index.dart';
 
@@ -81,14 +80,31 @@ class IotApi {
 
   /// 获取用户的家庭列表
   static Future<IotResult<HomegroupList>> getHomegroup() async {
-    final now = DateTime.now();
     var res = await Api.requestIot("/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
-        data: {'stamp': now.microsecondsSinceEpoch.toString()},
+        data: {},
         options: Options(
           method: 'POST',
           headers: {'accessToken': Api.tokenInfo.accessToken},
         ));
 
     return IotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
+  }
+
+  /// TODO 获取天气
+  static Future<dynamic> getWeather() async {
+    var res = await Api.requestIot(
+        "/mas/v5/app/proxy?alias=/v1/weather/observe/byCityId",
+        data: {
+          "appId": "APP",
+          'cityId': "101280801",
+        },
+        options: Options(
+          method: 'POST',
+          headers: {'accessToken': Api.tokenInfo.accessToken},
+        ));
+    logger.i(res.toString());
+
+    // return IotResult<HomegroupList>.translate(
+    //     res.code, '', HomegroupList.fromJson(res.data));
   }
 }
