@@ -16,6 +16,10 @@ class _HomeState extends State<Home> {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
+  String pressPath = "assets/imgs/icon/button_press.png";
+  String unPressPath = "assets/imgs/icon/button_normal.png";
+  String selectDevice = "assets/imgs/icon/button_press.png";
+  String selectScene = "assets/imgs/icon/button_normal.png";
 
   @override
   void initState() {
@@ -33,25 +37,60 @@ class _HomeState extends State<Home> {
         child: Stack(
           children: [
             GestureDetector(
-              onVerticalDragDown: (details) {
-                print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
-                po = details.globalPosition.dy;
-              },
-              onVerticalDragUpdate: (details) {
-                print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
-                if (po <= 14) {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const DropDownDialog();
-                      });
-                }
-              },
-              child: PageView(
-                controller: _pageController,
-                children: children,
-              ),
-            ),
+                onVerticalDragDown: (details) {
+                  //print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
+                  po = details.globalPosition.dy;
+                },
+                onVerticalDragUpdate: (details) {
+                  //print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  if (po <= 14) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const DropDownDialog();
+                        });
+                  }
+                },
+                child: Stack(
+                  children: [
+                    PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        print("onPageChanged $index");
+                        setState(() {
+                          if (index == 0) {
+                            selectDevice = unPressPath;
+                            selectScene = pressPath;
+                          } else {
+                            selectDevice = pressPath;
+                            selectScene = unPressPath;
+                          }
+                        });
+                      },
+                      children: children,
+                    ),
+                    Positioned(
+                        width: 480,
+                        bottom: 14,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              selectScene,
+                              width: 30,
+                              height: 2,
+                            ),
+                            Image.asset(
+                              selectDevice,
+                              width: 30,
+                              height: 2,
+                            ),
+                          ],
+                        )),
+                  ],
+                )),
           ],
         ),
       ),
