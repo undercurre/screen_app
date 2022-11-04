@@ -7,38 +7,22 @@ import '../../models/index.dart';
 class IotApi {
   /// 登录接口，登录成功后返回用户信息
   static Future<IotResult<QrCode>> getQrCode() async {
-    var res = await Api.requestIot<QrCode>(
-        "/muc/v5/app/mj/screen/auth/getQrCode",
-        data: {'deviceId': '38f6b0a50b2328ea428293858a726671', 'checkType': 1},
-        options: Options(method: 'POST', extra: {'isEncrypt': false}));
+    var res = await Api.requestIot<QrCode>("/muc/v5/app/mj/screen/auth/getQrCode",
+        data: {'deviceId': '38f6b0a50b2328ea428293858a726671', 'checkType': 1}, options: Options(method: 'POST', extra: {'isEncrypt': false}));
 
-    return IotResult<QrCode>.translate(
-        res.code, res.msg, QrCode.fromJson(res.data));
+    return IotResult<QrCode>.translate(res.code, res.msg, QrCode.fromJson(res.data));
   }
 
   /// 登录接口，登录成功后返回用户信息
   static Future<IotResult<AccessToken>> getAccessToken(sessionId) async {
-    var res = await Api.requestIot(
-        "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
-        queryParameters: {'sessionId': sessionId},
-        options: Options(method: 'GET', extra: {'isEncrypt': false}));
+    var res = await Api.requestIot("/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
+        queryParameters: {'sessionId': sessionId}, options: Options(method: 'GET', extra: {'isEncrypt': false}));
 
-    res.data ??= {
-      "accessToken": "",
-      "deviceId": "",
-      "iotUserId": "",
-      "key": "",
-      "openId": "",
-      "seed": "",
-      "sessionId": "",
-      "tokenPwd": "",
-      "uid": ""
-    };
+    res.data ??= {"accessToken": "", "deviceId": "", "iotUserId": "", "key": "", "openId": "", "seed": "", "sessionId": "", "tokenPwd": "", "uid": ""};
 
     Api.tokenInfo = AccessToken.fromJson(res.data);
 
-    return IotResult<AccessToken>.translate(
-        res.code, res.msg, AccessToken.fromJson(res.data));
+    return IotResult<AccessToken>.translate(res.code, res.msg, AccessToken.fromJson(res.data));
   }
 
   /// 自动登录接口
@@ -107,3 +91,4 @@ class IotApi {
 
     return IotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
   }
+}
