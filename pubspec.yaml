@@ -74,6 +74,8 @@ flutter:
   assets:
     - assets/imgs/scanCode/
     - assets/imgs/weather/
+    - assets/imgs/dropDown/
+    - assets/imgs/setting/
     - assets/imgs/
     - assets/
 

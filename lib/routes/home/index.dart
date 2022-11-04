@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/AdvancedVerticalSeekBar.dart';
+import '../dropdown/DropDownDialog.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key, this.initValue = 0});
@@ -11,6 +13,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _counter = 0;
+  late double po;
+  double _sliderItemA = 0.0;
 
   @override
   void initState() {
@@ -23,20 +27,43 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     print("build");
-    return Scaffold(appBar: AppBar(
-      title: const Text("子树中获取State对象"),
-    ),
+    return Scaffold(
       body: Center(
-        child: Column(
+        child: Stack(
           children: [
-            Builder(builder: (context) {
-              return ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, '返回值');
-                },
-                child: Text('返回'),
-              );
-            }),
+            GestureDetector(
+              onVerticalDragDown: (details) {
+                print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
+                po = details.globalPosition.dy;
+              },
+              onVerticalDragUpdate: (details) {
+                print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                if (po <= 14) {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return DropDownDialog();
+                      });
+                }
+              },
+            ),
+            Positioned(
+              top: 20,
+              left: 30,
+              child: Wrap(
+                direction: Axis.horizontal,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, '返回值');
+                    },
+                    child: Text('返回'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -73,4 +100,6 @@ class _HomeState extends State<Home> {
     super.didChangeDependencies();
     print("didChangeDependencies");
   }
+
+  void xx(double aa, bool) {}
 }
