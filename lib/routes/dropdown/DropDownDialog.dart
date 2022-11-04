@@ -2,28 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
-class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderStateMixin {
+class DropDownDialogState extends State<DropDownDialog> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     late double po;
 
-    late final AnimationController _controller = AnimationController(
+    late final AnimationController controller = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
     )..repeat(reverse: false);
 
-    late final Animation<double> _animation = CurvedAnimation(
-      parent: _controller,
+    late final Animation<double> animation = CurvedAnimation(
+      parent: controller,
       curve: Curves.linear,
     );
 
     @override
     void dispose() {
-      _controller.dispose();
+      controller.dispose();
       super.dispose();
     }
 
-    _controller.stop();
+    controller.stop();
 
     return GestureDetector(
       // 点击遮罩层隐藏弹框
@@ -60,7 +60,7 @@ class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderSt
                               Container(
                                   margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
                                   child: RotationTransition(
-                                      turns: _animation,
+                                      turns: animation,
                                       child: Image.asset(
                                         "assets/imgs/dropDown/music-default.png",
                                         width: 120,
@@ -95,7 +95,7 @@ class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderSt
                                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                                       IconButton(
                                         onPressed: () {
-                                          _controller.repeat();
+                                          controller.repeat();
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
@@ -104,7 +104,7 @@ class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderSt
                                       ),
                                       IconButton(
                                         onPressed: () {
-                                          _controller.stop();
+                                          controller.stop();
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
@@ -113,7 +113,7 @@ class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderSt
                                       ),
                                       IconButton(
                                         onPressed: () {
-                                          _controller.repeat();
+                                          controller.repeat();
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
@@ -259,11 +259,11 @@ class DropDownDialog extends StatefulWidget {
   const DropDownDialog({Key? key}) : super(key: key);
 
   @override
-  _DevicePageState createState() => _DevicePageState();
+  DropDownDialogState createState() => DropDownDialogState();
 }
 
 class MFDropDownDialog {
-  static _DevicePageState showDropDownDialog(BuildContext context) {
+  static DropDownDialogState showDropDownDialog(BuildContext context) {
     var widget = const DropDownDialog();
     showDialog(context: context, builder: (context) => widget);
     return widget.createState();
