@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../widgets/AdvancedVerticalSeekBar.dart';
+import '../device/index.dart';
 import '../dropdown/DropDownDialog.dart';
+import '../scene/index.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key, this.initValue = 0});
@@ -12,21 +13,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _counter = 0;
   late double po;
-  double _sliderItemA = 0.0;
+  var children = <Widget>[];
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    _counter = widget.initValue;
-    print("initState");
+    _pageController = PageController(initialPage: 1);
+    children.add(const ScenePage(text: "场景页"));
+    children.add(const DevicePage(text: "设备页"));
   }
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return Scaffold(
       body: Center(
         child: Stack(
@@ -42,32 +43,18 @@ class _HomeState extends State<Home> {
                   showDialog(
                       context: context,
                       builder: (context) {
-                        return DropDownDialog();
+                        return const DropDownDialog();
                       });
                 }
               },
-            ),
-            Positioned(
-              top: 20,
-              left: 30,
-              child: Wrap(
-                direction: Axis.horizontal,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context, '返回值');
-                    },
-                    child: Text('返回'),
-                  ),
-                ],
+              child: PageView(
+                controller: _pageController,
+                children: children,
               ),
             ),
           ],
         ),
       ),
-      drawer: Drawer(),
     );
   }
 
@@ -100,6 +87,4 @@ class _HomeState extends State<Home> {
     super.didChangeDependencies();
     print("didChangeDependencies");
   }
-
-  void xx(double aa, bool) {}
 }
