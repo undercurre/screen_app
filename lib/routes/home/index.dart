@@ -44,11 +44,7 @@ class _HomeState extends State<Home> {
                 onVerticalDragUpdate: (details) {
                   //print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 14) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const DropDownDialog();
-                        });
+                    MFDropDownDialog.showDropDownDialog(context);
                   }
                 },
                 child: Stack(

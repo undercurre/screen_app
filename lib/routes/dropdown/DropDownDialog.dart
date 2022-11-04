@@ -2,19 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
-class DropDownDialog extends Dialog {
-  final double width; // 宽度
-  final double height; // 高度
-
-  const DropDownDialog({
-    super.key,
-    this.width = 480,
-    this.height = 480,
-  });
-
+class _DevicePageState extends State<DropDownDialog> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     late double po;
+
+    late final AnimationController _controller = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat(reverse: false);
+
+    late final Animation<double> _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.linear,
+    );
+
+    @override
+    void dispose() {
+      _controller.dispose();
+      super.dispose();
+    }
+
+    _controller.stop();
 
     return GestureDetector(
       // 点击遮罩层隐藏弹框
@@ -49,17 +58,19 @@ class DropDownDialog extends Dialog {
                           child: Row(
                             children: [
                               Container(
-                                margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
-                                child: Image.asset(
-                                  "assets/imgs/dropDown/music-default.png",
-                                  width: 120,
-                                  height: 120,
-                                ),
-                              ),
+                                  margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
+                                  child: RotationTransition(
+                                      turns: _animation,
+                                      child: Image.asset(
+                                        "assets/imgs/dropDown/music-default.png",
+                                        width: 120,
+                                        height: 120,
+                                      ) /* Your widget here */
+                                      )),
                               Container(
                                 alignment: Alignment.center,
                                 width: 290,
-                                height: 140,
+                                height: 150,
                                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -82,20 +93,32 @@ class DropDownDialog extends Dialog {
                                           decoration: TextDecoration.none,
                                         )),
                                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                      Image.asset(
-                                        "assets/imgs/dropDown/left-icon.png",
-                                        width: 82,
-                                        height: 51,
+                                      IconButton(
+                                        onPressed: () {
+                                          _controller.repeat();
+                                        },
+                                        iconSize: 50.0,
+                                        icon: Image.asset(
+                                          "assets/imgs/dropDown/left-icon.png",
+                                        ),
                                       ),
-                                      Image.asset(
-                                        "assets/imgs/dropDown/start-icon.png",
-                                        width: 42,
-                                        height: 31,
+                                      IconButton(
+                                        onPressed: () {
+                                          _controller.stop();
+                                        },
+                                        iconSize: 50.0,
+                                        icon: Image.asset(
+                                          "assets/imgs/dropDown/start-icon.png",
+                                        ),
                                       ),
-                                      Image.asset(
-                                        "assets/imgs/dropDown/right-icon.png",
-                                        width: 82,
-                                        height: 51,
+                                      IconButton(
+                                        onPressed: () {
+                                          _controller.repeat();
+                                        },
+                                        iconSize: 50.0,
+                                        icon: Image.asset(
+                                          "assets/imgs/dropDown/right-icon.png",
+                                        ),
                                       ),
                                     ]),
                                   ],
@@ -229,5 +252,20 @@ class DropDownDialog extends Dialog {
                         ),
                       ]))))),
     );
+  }
+}
+
+class DropDownDialog extends StatefulWidget {
+  const DropDownDialog({Key? key}) : super(key: key);
+
+  @override
+  _DevicePageState createState() => _DevicePageState();
+}
+
+class MFDropDownDialog {
+  static _DevicePageState showDropDownDialog(BuildContext context) {
+    var widget = const DropDownDialog();
+    showDialog(context: context, builder: (context) => widget);
+    return widget.createState();
   }
 }
