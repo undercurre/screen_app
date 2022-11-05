@@ -38,11 +38,11 @@ class _HomeState extends State<Home> {
           children: [
             GestureDetector(
                 onVerticalDragDown: (details) {
-                  //print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
+                  print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {
-                  //print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 14) {
                     MFDropDownDialog.showDropDownDialog(context);
                   }
@@ -50,9 +50,9 @@ class _HomeState extends State<Home> {
                 child: Stack(
                   children: [
                     PageView(
+                      // physics: const NeverScrollableScrollPhysics(),
                       controller: _pageController,
                       onPageChanged: (index) {
-                        print("onPageChanged $index");
                         setState(() {
                           if (index == 0) {
                             selectDevice = unPressPath;

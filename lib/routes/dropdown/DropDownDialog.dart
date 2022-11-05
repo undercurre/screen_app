@@ -31,6 +31,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                       Navigator.pop(context);
                     }
                   },
+                  onTap: () => {Navigator.pop(context)},
                   child: Container(
                       width: 480,
                       height: 480,
@@ -241,6 +242,14 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                             ),
                           ],
                         ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+                          width: 137,
+                          height: 4,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                          ),
+                        )
                       ]))))),
     );
   }
@@ -263,6 +272,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
 
 class DropDownDialog extends StatefulWidget {
   final DropDownDialogState state = DropDownDialogState();
+
   DropDownDialog({Key? key}) : super(key: key);
 
   @override
@@ -271,7 +281,7 @@ class DropDownDialog extends StatefulWidget {
 
 class MFDropDownDialog {
   static DropDownDialogState showDropDownDialog(BuildContext context) {
-    var widget =  DropDownDialog();
+    var widget = DropDownDialog();
     showDialog(context: context, builder: (context) => widget);
     return widget.state;
   }

@@ -223,6 +223,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.0.2"
+  flutter_draggable_gridview:
+    dependency: "direct dev"
+    description:
+      name: flutter_draggable_gridview
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.7"
   flutter_lints:
     dependency: "direct dev"
     description:
