@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:convert';
 import 'package:dio/adapter.dart';
@@ -20,6 +21,7 @@ class Api {
 
   /// 密钥
   static var secret = dotenv.get('SECRET');
+  static var signSec = dotenv.get('SIGN_SECRET');
 
   static AccessToken tokenInfo = AccessToken.fromJson({
     "accessToken": "",
@@ -62,18 +64,11 @@ class Api {
           'headers: $headers \n '
           'data: ${options.data} \n '
           'queryParameters: ${options.queryParameters} ');
-      // 公共header
-      headers['random'] = '$random';
-      if (options.data != null) {
-        var sign = md5
-            .convert(utf8.encode('$secret${options.data.toString()}$random'));
-        headers['sign'] = sign;
-      }
 
       // 公共参数
       if (params != null) {
         params?['openId'] = 'zhinengjiadian';
-        params['iotAppI'] = '12002';
+        params['iotAppId'] = '12002';
         params['reqId'] = '$random';
         params['stamp'] = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
       }
@@ -98,6 +93,28 @@ class Api {
 
         // options.data = params.toString();
       }
+
+      // 公共header
+      headers['random'] = '$random';
+
+      // 云端接口出错时，返回调试信息
+      if (!Global.isRelease) {
+        headers['debug'] = true;
+      }
+
+      var md5Origin = signSec; // 拼接加密前字符串
+      if (options.data != null) {
+        md5Origin += json.encode(options.data);
+      }
+      if (options.queryParameters.isNotEmpty) {
+        var sortParams = SplayTreeMap<String, dynamic>.from(options.queryParameters); // 对queryParameters排序
+        sortParams.forEach((key, value) {
+          md5Origin += '$key$value';
+        });
+      }
+      md5Origin += random.toString();
+
+      headers['sign'] = md5.convert(utf8.encode(md5Origin));
 
       logger.i('【onRequest处理后】: ${options.path} \n '
           'headers: $headers \n '
@@ -141,7 +158,7 @@ class Api {
   /// IOT接口发起公共接口
   static Future<IotResult> requestIot<T>(
     String path, {
-    data,
+    Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
