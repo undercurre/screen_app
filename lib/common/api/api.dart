@@ -13,6 +13,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/index.dart';
+import '../../routes/login/link_network.dart';
 import '../global.dart';
 
 const uuid = Uuid();
@@ -44,78 +45,12 @@ class Api {
   /// Api类初始化配置
   static void init() {
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
-      var reqId = uuid.v4();
-      var params =
-          options.method == 'GET' ? options.queryParameters : options.data;
-      var extra = options.extra;
-      var headers = options.headers;
-
       logger.i('【onRequest】: ${options.path} \n '
           'method: ${options.method} \n'
-          'headers: $headers \n '
+          'headers: ${options.headers} \n '
           'data: ${options.data} \n '
           'queryParameters: ${options.queryParameters}  \n');
 
-      // 公共data参数
-      if (params != null) {
-        var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-
-        params['openId'] = 'zhinengjiadian';
-        params['iotAppId'] = '12002';
-        params['reqId'] = reqId;
-        params['stamp'] = timestamp;
-        params['timestamp'] = timestamp;
-
-        if (Global.isLogin) {
-          params['uid'] = Global.user?.uid;
-          params['userId'] = Global.user?.uid;
-        }
-      }
-
-      // isEncrypt用于判断是否需要加密请求，默认否
-      if (options.method != 'GET' && extra['isEncrypt'] == true) {
-        var enCodedJson = utf8.encode(params.toString());
-        var gZipJson = GZipEncoder().encode(enCodedJson);
-        logger.i('enCodedJson: $enCodedJson');
-        logger.i('gZipJson: $gZipJson');
-        final key = Encrypt.Key.fromUtf8(secret); //加密key
-        final iv = Encrypt.IV.fromLength(16); //偏移量
-
-        //设置cbc模式
-        final encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
-
-        params = encrypter.encrypt(params.toString(), iv: iv).base64;
-
-        options.data = params.toString();
-      }
-
-      // 公共header参数
-      // 云端接口出错时，返回调试信息
-      if (!Global.isRelease) {
-        headers['debug'] = true;
-      }
-
-      // sign签名 start
-      var md5Origin = httpSignSecret; // 拼接加密前字符串
-      if (options.data != null) {
-        md5Origin += json.encode(options.data);
-      }
-      if (options.queryParameters.isNotEmpty) {
-        var sortParams = SplayTreeMap<String, dynamic>.from(options.queryParameters); // 对queryParameters排序
-        sortParams.forEach((key, value) {
-          md5Origin += '$key$value';
-        });
-      }
-      md5Origin += reqId;
-
-      headers['sign'] = md5.convert(utf8.encode(md5Origin));
-      headers['random'] = reqId;
-      // sign签名 end
-
-      logger.i('【onRequest处理后】: ${options.path} \n '
-          'headers: $headers \n '
-          'data: ${options.data} \n '
-          'queryParameters: ${options.queryParameters} ');
       // Do something before request is sent
       return handler.next(options); //continue
       // 如果你想完成请求并返回一些自定义数据，你可以resolve一个Response对象 `handler.resolve(response)`。
@@ -133,7 +68,8 @@ class Api {
     }, onError: (DioError e, handler) {
       // Do something with response error
       logger.e('onError:\n'
-          '${e.toString()}');
+          '${e.toString()} \n '
+          '${e.response}');
       return handler.next(e); //continue
       // 如果你想完成请求并返回一些自定义数据，可以resolve 一个`Response`,如`handler.resolve(response)`。
       // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
@@ -145,13 +81,75 @@ class Api {
   /// IOT接口发起公共接口
   static Future<MideaIotResult> requestMideaIot<T>(
     String path, {
-    Map<String, dynamic>? data,
+    data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    options ??= Options();
+    options.headers ??= {};
+    data ??= {};
+
+    var reqId = uuid.v4();
+    var params = options.method == 'GET' ? queryParameters : data;
+    var extra = options.extra ?? {};
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 公共data参数
+    if (params != null) {
+      var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+      params['openId'] = 'zhinengjiadian';
+      params['iotAppId'] = '12002';
+      params['reqId'] = reqId;
+      params['stamp'] = timestamp;
+      params['timestamp'] = timestamp;
+
+      if (Global.isLogin) {
+        params['uid'] = Global.user?.uid;
+      }
+    }
+
+    // isEncrypt用于判断是否需要加密请求，默认否
+    if (options.method != 'GET' && extra['isEncrypt'] == true) {
+      var enCodedJson = utf8.encode(params.toString());
+      var gZipJson = GZipEncoder().encode(enCodedJson);
+      logger.i('enCodedJson: $enCodedJson');
+      logger.i('gZipJson: $gZipJson');
+      final key = Encrypt.Key.fromUtf8(secret); //加密key
+      final iv = Encrypt.IV.fromLength(16); //偏移量
+
+      //设置cbc模式
+      final encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
+
+      data = encrypter.encrypt(params.toString(), iv: iv).base64.toString();
+    }
+
+    // 公共header参数
+    // 云端接口出错时，返回调试信息
+    if (!Global.isRelease) {
+      headers['debug'] = true;
+    }
+
+    // sign签名 start
+    var md5Origin = httpSignSecret; // 拼接加密前字符串
+    if (data != null) {
+      md5Origin += json.encode(data);
+    }
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      var sortParams = SplayTreeMap<String, dynamic>.from(queryParameters); // 对queryParameters排序
+      sortParams.forEach((key, value) {
+        md5Origin += '$key$value';
+      });
+    }
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
     var res = await dio.request(
       dotenv.get('IOT_URL') + path,
       data: data,
@@ -175,25 +173,49 @@ class Api {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    options ??= Options();
+    options.headers ??= {};
     data ??= {}; // data默认值
 
+    var reqId = uuid.v4();
+    var params =
+    options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
     // 增加美智云中台的公共参数
-    data.addAll({
-      'systemSource': 'SMART_SCREEN',
-      'frontendType': 'ANDROID',
-      // 'frontendType': Platform.isAndroid ?
-      'userId': Global.user?.uid,
-      'deviceId': Global.user?.deviceId,
-    });
+    if (params != null) {
+      var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-    options ??= Options(headers: {});
-    options.headers ??= {};
+      params.addAll({
+        'reqId': reqId,
+        'timestamp': timestamp,
+        'systemSource': 'SMART_SCREEN',
+        'frontendType': 'ANDROID',
+        'userId': Global.user?.uid,
+        'deviceId': Global.user?.deviceId,
+      });
 
-    options.headers?.addAll({
-      'Bearer': Global.user?.accessToken,
-      'deviceId': Global.user?.deviceId,
-    });
+      if (Global.isLogin) {
+        params['userId'] = Global.user?.uid;
+      }
+    }
 
+    // 公共header参数
+    // sign签名 start
+    var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
+    md5Origin += json.encode(data);
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    if (Global.isLogin) {
+      headers.addAll({
+        'Bearer': Global.user?.accessToken,
+        'deviceId': Global.user?.deviceId,
+      });
+    }
 
     var res = await dio.request(
       dotenv.get('MZ_URL') + path,

@@ -39,7 +39,9 @@ class IotApi {
       "uid": ""
     };
 
-    Global.user = User.fromJson(res.data);
+    if (res.isSuccess) {
+      Global.user = User.fromJson(res.data);
+    }
 
     return MideaIotResult<User>.translate(
         res.code, res.msg, User.fromJson(res.data));

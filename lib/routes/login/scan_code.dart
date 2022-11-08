@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../common/api/iot_api.dart';
 import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
