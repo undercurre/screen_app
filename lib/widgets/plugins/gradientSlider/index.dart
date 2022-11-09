@@ -15,13 +15,21 @@ class GradientSlider extends StatefulWidget {
   final double min;
 
   // 滑动回调
+  final void Function(double value)? onChanging;
+  final void Function(double value)? onChanged;
 
   // 插槽
   // final Widget child;
 
+  // 动画时长，不传表示不执行动画
+  final Duration? duration;
+
   const GradientSlider({
     super.key,
     required this.value,
+    this.duration,
+    this.onChanged,
+    this.onChanging,
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.max = 100,
     this.min = 0,
@@ -34,51 +42,25 @@ class GradientSlider extends StatefulWidget {
   State<GradientSlider> createState() => _GradientSliderState();
 }
 
-class _GradientSliderState extends State<GradientSlider> {
+class _GradientSliderState extends State<GradientSlider>
+    with TickerProviderStateMixin {
   late double value;
+  bool isPanUpdate = false;
 
   @override
   void initState() {
     super.initState();
     value = widget.value;
   }
-  
+
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
-      onPanDown: (DragDownDetails e) {
-        //打印手指按下的位置(相对于屏幕)
-        setState(() {
-          double temp =
-              (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
-          if (temp > 100) {
-            temp = 100;
-          } else if (temp < 0) {
-            temp = 0;
-          }
-          setState(() {
-            value = temp;
-          });
-        });
-      },
+      onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
-      onPanUpdate: (DragUpdateDetails e) {
-        //用户手指滑动时，更新偏移，重新构建
-        double temp =
-            (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
-        if (temp > 100) {
-          temp = 100;
-        } else if (temp < 0) {
-          temp = 0;
-        }
-        setState(() {
-          value = temp;
-        });
-      },
-      onPanEnd: (DragEndDetails e) {
-        //打印滑动结束时在x、y轴上的速度
-      },
+      onPanUpdate: (e) => onPanUpdate(e),
+      onPanEnd: (e) => onPanUp(),
+      onPanCancel: () => onPanUp(),
       child: Container(
         padding: const EdgeInsets.all(20.0),
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -88,6 +70,7 @@ class _GradientSliderState extends State<GradientSlider> {
             width: widget.width,
           ),
           child: Stack(
+            alignment: Alignment.centerLeft, //指定未定位或部分定位widget的对齐方式
             children: <Widget>[
               DecoratedBox(
                 decoration: BoxDecoration(
@@ -119,7 +102,6 @@ class _GradientSliderState extends State<GradientSlider> {
               ),
               Positioned(
                 left: 20 - 16 + value / 100 * (widget.width - 20),
-                top: 4,
                 child: Container(
                   width: 12,
                   height: 12,
@@ -134,5 +116,55 @@ class _GradientSliderState extends State<GradientSlider> {
         ),
       ),
     );
+  }
+
+  void onPanDown(DragDownDetails e) {
+    isPanUpdate = false;
+    double temp = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
+    if (temp > 100) {
+      temp = 100;
+    } else if (temp < 0) {
+      temp = 0;
+    }
+    if (widget.duration != null) {
+      // 传入动画执行时间，需要执行动画
+      AnimationController controller = AnimationController(
+        duration: widget.duration,
+        vsync: this,
+      );
+      CurvedAnimation curve =
+          CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+      Animation<double> animation =
+          Tween(begin: value, end: temp).animate(curve);
+      animation.addListener(() {
+        setState(() {
+          value = animation.value;
+        });
+      });
+      controller.forward();
+    } else {
+      setState(() {
+        value = temp;
+      });
+    }
+  }
+
+  void onPanUpdate(DragUpdateDetails e) {
+    isPanUpdate = true;
+    //用户手指滑动时，更新偏移，重新构建
+    double temp = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
+    if (temp > 100) {
+      temp = 100;
+    } else if (temp < 0) {
+      temp = 0;
+    }
+    setState(() {
+      value = temp;
+    });
+    widget.onChanging?.call(value);
+  }
+
+  void onPanUp() {
+    widget.onChanged?.call(value);
   }
 }
