@@ -122,7 +122,8 @@ class Api {
       final iv = Encrypt.IV.fromLength(16); //偏移量
 
       //设置cbc模式
-      final encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
+      final encrypter =
+          Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
 
       data = encrypter.encrypt(params.toString(), iv: iv).base64.toString();
     }
@@ -139,7 +140,8 @@ class Api {
       md5Origin += json.encode(data);
     }
     if (queryParameters != null && queryParameters.isNotEmpty) {
-      var sortParams = SplayTreeMap<String, dynamic>.from(queryParameters); // 对queryParameters排序
+      var sortParams = SplayTreeMap<String, dynamic>.from(
+          queryParameters); // 对queryParameters排序
       sortParams.forEach((key, value) {
         md5Origin += '$key$value';
       });
@@ -176,29 +178,23 @@ class Api {
     options ??= Options();
     options.headers ??= {};
     data ??= {}; // data默认值
+    queryParameters ??= {};
 
     var reqId = uuid.v4();
     var params =
-    options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
+        options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
+
     var headers = options.headers as LinkedHashMap<String, dynamic>;
 
     // 增加美智云中台的公共参数
-    if (params != null) {
-      var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-      params.addAll({
-        'reqId': reqId,
-        'timestamp': timestamp,
-        'systemSource': 'SMART_SCREEN',
-        'frontendType': 'ANDROID',
-        'userId': Global.user?.uid,
-        'deviceId': Global.user?.deviceId,
-      });
-
-      if (Global.isLogin) {
-        params['userId'] = Global.user?.uid;
-      }
-    }
+    params.addAll({
+      'reqId': reqId,
+      'timestamp': timestamp,
+      'systemSource': 'SMART_SCREEN',
+      'frontendType': 'ANDROID',
+    });
 
     // 公共header参数
     // sign签名 start
@@ -212,9 +208,11 @@ class Api {
 
     if (Global.isLogin) {
       headers.addAll({
-        'Bearer': Global.user?.accessToken,
+        'Bearer': Global.user?.mzAccessToken,
         'deviceId': Global.user?.deviceId,
       });
+
+      params['userId'] = Global.user?.uid;
     }
 
     var res = await dio.request(
@@ -261,14 +259,20 @@ class MzIotResult<T> {
   late int code;
   late String? msg;
   late T result;
+  late bool success;
 
-  get isSuccess => code == 0;
+  get isSuccess => success;
 
   factory MzIotResult.fromJson(Map<String, dynamic> json) => MzIotResult()
     ..msg = json['msg']
+    ..success = json['success']
     ..result = json['result']
     ..code = json['code'] as int;
 
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{'code': code, 'msg': msg, 'result': result};
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'code': code,
+        'success': success,
+        'msg': msg,
+        'result': result
+      };
 }

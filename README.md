@@ -36,6 +36,10 @@ github_client_app
 ### Http请求库-dio
 [文档地址](https://github.com/flutterchina/dio/blob/develop/README-ZH.md)
 
+美的中台接口封装： `lib/common/api/api.dart`的`requestMideaIot`
+
+美智中台接口封装： `lib/common/api/api.dart`的`requestMzIot`
+
 ### 状态 (State) 管理-Provider
 [文档地址](https://pub.flutter-io.cn/packages/provider)
 
@@ -45,7 +49,7 @@ github_client_app
 [文档地址](https://pub.flutter-io.cn/packages/json_model)
 
 #### 使用
-1. 创建或拷贝Json文件到 `./json/` 目录中 ;
+1. 创建或拷贝Json文件到 `./jsons/` 目录中 ;
 2. 运行以下命令生成Dart model类，生成的文件默认在 `./lib/models/` 目录下
 
 ```bash

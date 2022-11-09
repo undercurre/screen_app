@@ -7,7 +7,7 @@ import '../../models/index.dart';
 
 class MzApi {
   /// 美居体系鉴权请求
-  static Future<MzIotResult<QrCode>> authToken() async {
+  static Future<MzIotResult> authToken() async {
     var res = await Api.requestMzIot<QrCode>("/v1/openApi/auth/midea/token",
         data: {
           'appId': dotenv.get('APP_ID'),
@@ -19,7 +19,10 @@ class MzApi {
           method: 'POST',
         ));
 
-    return MzIotResult<QrCode>.translate(
-        res.code, res.msg, QrCode.fromJson(res.result));
+    if (res.isSuccess) {
+      Global.user?.mzAccessToken = res.result['accessToken'];
+    }
+
+    return res;
   }
 }

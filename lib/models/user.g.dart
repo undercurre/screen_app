@@ -16,7 +16,8 @@ User _$UserFromJson(Map<String, dynamic> json) => User()
   ..sessionId = json['sessionId'] as String
   ..tokenPwd = json['tokenPwd'] as String
   ..uid = json['uid'] as String
-  ..expired = json['expired'] as num?;
+  ..expired = json['expired'] as num?
+  ..mzAccessToken = json['mzAccessToken'] as String?;
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'accessToken': instance.accessToken,
@@ -29,4 +30,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'tokenPwd': instance.tokenPwd,
       'uid': instance.uid,
       'expired': instance.expired,
+      'mzAccessToken': instance.mzAccessToken,
     };

@@ -16,6 +16,7 @@ class User {
   late String tokenPwd;
   late String uid;
   num? expired;
+  String? mzAccessToken;
   
   factory User.fromJson(Map<String,dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
