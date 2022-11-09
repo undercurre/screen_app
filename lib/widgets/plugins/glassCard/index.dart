@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class Card extends StatelessWidget {
+class GlassCard extends StatelessWidget {
 
   final double width;
   final double height;
 
   Widget child;
 
-  Card({
+  GlassCard({
     this.width = 312,
     this.height = 112,
     required this.child
-  })
+  });
 
   @override
   Widget build(BuildContext context) {

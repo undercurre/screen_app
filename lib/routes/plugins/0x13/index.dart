@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/plugins/glassCard/index.dart';
 import '../../../widgets/plugins/gredientSlider/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
@@ -69,55 +70,23 @@ class WifiLightPageState extends State<WifiLightPage> {
                   ),
                   Column(
                     children: [
-                      Container(
-                          width: 312,
-                          height: 112,
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            gradient: const LinearGradient(
-                                begin: Alignment(-1, 1), //右上
-                                end: Alignment(0, 0.365), //左下
-                                stops: [0.0, 1.0], //[渐变起始点, 渐变结束点]
-                                colors: [Color(0xFF393E43), Color(0xFF333135)]),
-                          ),
+                      GlassCard(
                           child: Column(
-                            children: [GredientSlider(value: 60)],
-                          )),
-                      Container(
-                          width: 312,
-                          height: 112,
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            gradient: const LinearGradient(
-                                begin: Alignment(-1, 1), //右上
-                                end: Alignment(0, 0.365), //左下
-                                stops: [0.0, 1.0], //[渐变起始点, 渐变结束点]
-                                colors: [Color(0xFF393E43), Color(0xFF333135)]),
-                          ),
+                        children: [GredientSlider(value: 60)],
+                      )),
+                      GlassCard(
                           child: Column(
-                            children: [
-                              GredientSlider(
-                                value: 70,
-                                activeColors: const [
-                                  Color(0xFFFABC55),
-                                  Color(0xFFFFF4E8)
-                                ],
-                              )
+                        children: [
+                          GredientSlider(
+                            value: 70,
+                            activeColors: const [
+                              Color(0xFFFABC55),
+                              Color(0xFFFFF4E8)
                             ],
-                          )),
-                      Container(
-                          width: 312,
-                          height: 112,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            gradient: const LinearGradient(
-                                begin: Alignment(-1, 1), //右上
-                                end: Alignment(0, 0.365), //左下
-                                stops: [0.0, 1.0], //[渐变起始点, 渐变结束点]
-                                colors: [Color(0xFF393E43), Color(0xFF333135)]),
-                          ),
+                          )
+                        ],
+                      )),
+                      GlassCard(
                           child: Scaffold(
                               backgroundColor: Colors.transparent,
                               body: Row(

@@ -394,7 +394,7 @@ class ScenePageState extends State<ScenePage> {
 }
 
 class ScenePage extends StatefulWidget {
-  const ScenePage({super.key});
+  const ScenePage({super.key, required String text});
 
   @override
   State<ScenePage> createState() => ScenePageState();
