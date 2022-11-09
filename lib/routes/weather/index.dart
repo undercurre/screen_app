@@ -96,7 +96,7 @@ class WeatherPageState extends State<WeatherPage> {
     }
 
     // assert
-    // weatherBg = 'rainy';
+    // setState(() => weatherBg = 'rainy');
 
     // 只有以下天气背景有晚上模式
     if (!['cloudy', 'rainy', 'snowy'].contains(weatherBg)) {
@@ -111,8 +111,8 @@ class WeatherPageState extends State<WeatherPage> {
       final timeSunrise = DateTime.parse('$dateStr ${forecastData.sunrise}');
       final timeSunset = DateTime.parse('$dateStr ${forecastData.sunset}');
 
-      if (now.isAfter(timeSunrise) && now.isBefore(timeSunset)) {
-        weatherBg = '$weatherBg-night';
+      if (now.isBefore(timeSunrise) || now.isAfter(timeSunset)) {
+        setState(() => weatherBg = '$weatherBg-night');
       }
     }
   }
@@ -145,7 +145,7 @@ class WeatherPageState extends State<WeatherPage> {
         const Text('°',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 72.0,
+              fontSize: 48.0,
               fontWeight: FontWeight.w100,
               fontFamily: "MideaType",
               height: 1,
@@ -188,30 +188,22 @@ class WeatherPageState extends State<WeatherPage> {
       stackChildren.add(showBgImage);
     }
 
-    stackChildren.add(const Positioned(left: 30, top: 40, child: DateTimeStr()));
+    stackChildren
+        .add(const Positioned(left: 30, top: 40, child: DateTimeStr()));
     stackChildren.add(Positioned(left: 30, bottom: 60, child: showTemperature));
 
-    if (weatherIcon!='') {
+    if (weatherIcon != '') {
       stackChildren.add(Positioned(left: 30, bottom: 20, child: showWeather));
     }
 
-    stackChildren.add(Positioned(
-        child: Row(
-          children: [
-            TextButton.icon(
-              onPressed: () async {
-                Navigator.of(context).pushNamed('/');
-              },
-              label: const Text('back'),
-              icon: const Icon(Icons.keyboard_return),
-            )
-          ],
-        )));
-
-    return Stack(
-      fit: StackFit.expand,
-      children: stackChildren,
-    );
+    return GestureDetector(
+        child: Stack(
+          fit: StackFit.expand,
+          children: stackChildren,
+        ),
+        onTap: () {
+          Navigator.of(context).pushNamed('/');
+        });
   }
 }
 
