@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/plugins/glassCard/index.dart';
-import '../../../widgets/plugins/gredientSlider/index.dart';
+import '../../../widgets/plugins/gradientSlider/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   double brightness = 0;
@@ -72,14 +72,14 @@ class WifiLightPageState extends State<WifiLightPage> {
                     children: [
                       GlassCard(
                           child: Column(
-                        children: [GredientSlider(value: 60)],
+                        children: const [GradientSlider(value: 60)],
                       )),
                       GlassCard(
                           child: Column(
-                        children: [
-                          GredientSlider(
+                        children: const [
+                          GradientSlider(
                             value: 70,
-                            activeColors: const [
+                            activeColors: [
                               Color(0xFFFABC55),
                               Color(0xFFFFF4E8)
                             ],
