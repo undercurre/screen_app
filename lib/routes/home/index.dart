@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../device/index.dart';
+import '../dropdown/DropDownDialog.dart';
+import '../scene/index.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key, this.initValue = 0});
@@ -10,37 +13,83 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _counter = 0;
+  late double po;
+  var children = <Widget>[];
+  late PageController _pageController;
+  String pressPath = "assets/imgs/icon/button_press.png";
+  String unPressPath = "assets/imgs/icon/button_normal.png";
+  String selectDevice = "assets/imgs/icon/button_press.png";
+  String selectScene = "assets/imgs/icon/button_normal.png";
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    _counter = widget.initValue;
-    print("initState");
+    _pageController = PageController(initialPage: 1);
+    children.add(const ScenePage(text: "场景页"));
+    children.add(const DevicePage(text: "设备页"));
   }
 
   @override
   Widget build(BuildContext context) {
-    print("build");
-    return Scaffold(appBar: AppBar(
-      title: const Text("子树中获取State对象"),
-    ),
+    return Scaffold(
       body: Center(
-        child: Column(
+        child: Stack(
           children: [
-            Builder(builder: (context) {
-              return ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, '返回值');
+            GestureDetector(
+                onVerticalDragDown: (details) {
+                  print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
+                  po = details.globalPosition.dy;
                 },
-                child: Text('返回'),
-              );
-            }),
+                onVerticalDragUpdate: (details) {
+                  print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  if (po <= 14) {
+                    MFDropDownDialog.showDropDownDialog(context);
+                  }
+                },
+                child: Stack(
+                  children: [
+                    PageView(
+                      // physics: const NeverScrollableScrollPhysics(),
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          if (index == 0) {
+                            selectDevice = unPressPath;
+                            selectScene = pressPath;
+                          } else {
+                            selectDevice = pressPath;
+                            selectScene = unPressPath;
+                          }
+                        });
+                      },
+                      children: children,
+                    ),
+                    Positioned(
+                        width: 480,
+                        bottom: 14,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              selectScene,
+                              width: 30,
+                              height: 2,
+                            ),
+                            Image.asset(
+                              selectDevice,
+                              width: 30,
+                              height: 2,
+                            ),
+                          ],
+                        )),
+                  ],
+                )),
           ],
         ),
       ),
-      drawer: Drawer(),
     );
   }
 

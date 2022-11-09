@@ -1,19 +1,29 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as Encrypt;
 import 'package:archive/archive.dart';
-import 'dart:developer';
-import 'dart:math';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:uuid/uuid.dart';
+import '../../models/index.dart';
+import '../../routes/login/link_network.dart';
 import '../global.dart';
 
+const uuid = Uuid();
+
 class Api {
-  String baseUrl = '';
-  static String iotUrl = Global.isRelease
-      ? 'https://mp-prod.smartmidea.net'
-      : 'https://mp-sit.smartmidea.net';
+  /// 密钥
+  static var secret = dotenv.get('SECRET');
+
+  //签名密钥
+  static var httpSignSecret = dotenv.get('HTTP_SIGN_SECRET');
 
   static final Api _instance = Api._internal();
 
@@ -34,85 +44,42 @@ class Api {
 
   /// Api类初始化配置
   static void init() {
-    dio.interceptors.add(InterceptorsWrapper(
-        onRequest:(options, handler){
-          var random = Random();
-          var data = options.data;
-          var extra = options.extra;
-          var headers = options.headers;
+    dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+      logger.i('【onRequest】: ${options.path} \n '
+          'method: ${options.method} \n'
+          'headers: ${options.headers} \n '
+          'data: ${options.data} \n '
+          'queryParameters: ${options.queryParameters}  \n');
 
-          // 公共header
-          headers['random'] = '${random.nextInt(10000)}';
-          headers['sign'] = '${random.nextInt(10000)}';
-
-          // 公共data
-          data['openId'] = 'zhinengjiadian';
-          data['iotAppI'] = '12002';
-          data['reqId'] = '${random.nextInt(10000)}';
-
-          // isEncrypt用于判断是否需要加密请求，默认是
-          if (extra['isEncrypt'] != false ) {
-            var enCodedJson = utf8.encode(data.toString());
-            var gZipJson = GZipEncoder().encode(enCodedJson);
-            logger.i('enCodedJson: ${enCodedJson}');
-            logger.i('gZipJson: ${gZipJson}');
-            final key = Key.fromUtf8('Q06HU5bm4owAeDcH');//加密key
-            final iv = IV.fromLength(16);//偏移量
-
-
-            //设置cbc模式
-            final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
-
-            data = encrypter.encrypt(data.toString(), iv: iv).base64;
-          }
-
-          logger.i('onRequest: ${options.path} \n $headers \n $data');
-          // Do something before request is sent
-          return handler.next(options); //continue
-          // 如果你想完成请求并返回一些自定义数据，你可以resolve一个Response对象 `handler.resolve(response)`。
-          // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
-          //
-          // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`handler.reject(error)`，
-          // 这样请求将被中止并触发异常，上层catchError会被调用。
-        },
-        onResponse:(response,handler) {
-          // 统一增加请求是否成功标志
-          logger.i('onResponse: $response');
-          // Do something with response data
-          return handler.next(response); // continue
-          // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，
-          // 这样请求将被中止并触发异常，上层catchError会被调用。
-        },
-        onError: (DioError e, handler) {
-          // Do something with response error
-          return  handler.next(e);//continue
-          // 如果你想完成请求并返回一些自定义数据，可以resolve 一个`Response`,如`handler.resolve(response)`。
-          // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
-        }
-    ));
+      // Do something before request is sent
+      return handler.next(options); //continue
+      // 如果你想完成请求并返回一些自定义数据，你可以resolve一个Response对象 `handler.resolve(response)`。
+      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
+      //
+      // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`handler.reject(error)`，
+      // 这样请求将被中止并触发异常，上层catchError会被调用。
+    }, onResponse: (response, handler) {
+      // 统一增加请求是否成功标志
+      logger.i('onResponse: $response');
+      // Do something with response data
+      return handler.next(response); // continue
+      // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，
+      // 这样请求将被中止并触发异常，上层catchError会被调用。
+    }, onError: (DioError e, handler) {
+      // Do something with response error
+      logger.e('onError:\n'
+          '${e.toString()} \n '
+          '${e.response}');
+      return handler.next(e); //continue
+      // 如果你想完成请求并返回一些自定义数据，可以resolve 一个`Response`,如`handler.resolve(response)`。
+      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
+    }));
     // 设置用户token（可能为null，代表未登录）
     // dio.options.headers[HttpHeaders.authorizationHeader] = Global.profile.token;
-
-    // 在调试模式下需要禁用HTTPS证书校验
-    if (!Global.isRelease) {
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (client) {
-        //代理工具会提供一个抓包的自签名证书，会通不过证书校验，所以我们禁用证书校验
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return null;
-      };
-    }
   }
 
-  // 测试环境：
-// 服务器地址【mp-sit.smartmidea.net:7501】
-// 加密与解密方式：对称算法AES  密钥【Q06HU5bm4owAeDcH】 iv【0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0】
-// 正式环境：
-// 服务器地址【mline.smartmidea.ne:7501】
-// 加密与解密方式：对称算法AES  密钥【Q06HU5bm4owAeDcH】 iv【0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0】
   /// IOT接口发起公共接口
-  static Future<IotResult> requestIot<T>(
+  static Future<MideaIotResult> requestMideaIot<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -121,10 +88,72 @@ class Api {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    // String? deviceId = await PlatformDeviceId.getDeviceId;
+    options ??= Options();
+    options.headers ??= {};
+    data ??= {};
 
-     var res = await dio.request(
-      iotUrl + path,
+    var reqId = uuid.v4();
+    var params = options.method == 'GET' ? queryParameters : data;
+    var extra = options.extra ?? {};
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 公共data参数
+    if (params != null) {
+      var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+      params['openId'] = 'zhinengjiadian';
+      params['iotAppId'] = '12002';
+      params['reqId'] = reqId;
+      params['stamp'] = timestamp;
+      params['timestamp'] = timestamp;
+
+      if (Global.isLogin) {
+        params['uid'] = Global.user?.uid;
+      }
+    }
+
+    // isEncrypt用于判断是否需要加密请求，默认否
+    if (options.method != 'GET' && extra['isEncrypt'] == true) {
+      var enCodedJson = utf8.encode(params.toString());
+      var gZipJson = GZipEncoder().encode(enCodedJson);
+      logger.i('enCodedJson: $enCodedJson');
+      logger.i('gZipJson: $gZipJson');
+      final key = Encrypt.Key.fromUtf8(secret); //加密key
+      final iv = Encrypt.IV.fromLength(16); //偏移量
+
+      //设置cbc模式
+      final encrypter =
+          Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
+
+      data = encrypter.encrypt(params.toString(), iv: iv).base64.toString();
+    }
+
+    // 公共header参数
+    // 云端接口出错时，返回调试信息
+    if (!Global.isRelease) {
+      headers['debug'] = true;
+    }
+
+    // sign签名 start
+    var md5Origin = httpSignSecret; // 拼接加密前字符串
+    if (data != null) {
+      md5Origin += json.encode(data);
+    }
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      var sortParams = SplayTreeMap<String, dynamic>.from(
+          queryParameters); // 对queryParameters排序
+      sortParams.forEach((key, value) {
+        md5Origin += '$key$value';
+      });
+    }
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    var res = await dio.request(
+      dotenv.get('IOT_URL') + path,
       data: data,
       queryParameters: queryParameters,
       options: options,
@@ -133,29 +162,117 @@ class Api {
       onReceiveProgress: onReceiveProgress,
     );
 
-     return IotResult.fromJson(res.data);
+    return MideaIotResult.fromJson(res.data);
+  }
+
+  /// 美智光电IOT中台接口发起公共接口
+  static Future<MzIotResult> requestMzIot<T>(
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    options ??= Options();
+    options.headers ??= {};
+    data ??= {}; // data默认值
+    queryParameters ??= {};
+
+    var reqId = uuid.v4();
+    var params =
+        options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
+
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 增加美智云中台的公共参数
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+    params.addAll({
+      'reqId': reqId,
+      'timestamp': timestamp,
+      'systemSource': 'SMART_SCREEN',
+      'frontendType': 'ANDROID',
+    });
+
+    // 公共header参数
+    // sign签名 start
+    var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
+    md5Origin += json.encode(data);
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    if (Global.isLogin) {
+      headers.addAll({
+        'Bearer': Global.user?.mzAccessToken,
+        'deviceId': Global.user?.deviceId,
+      });
+
+      params['userId'] = Global.user?.uid;
+    }
+
+    var res = await dio.request(
+      dotenv.get('MZ_URL') + path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    return MzIotResult.fromJson(res.data);
   }
 }
 
-class IotResult<T> {
-  IotResult();
+/// 美的Iot中台接口模型
+class MideaIotResult<T> {
+  MideaIotResult();
 
-  IotResult.translate(this.code, this.msg, this.data);
+  MideaIotResult.translate(this.code, this.msg, this.data);
 
   late int code;
-  late String msg;
+  late String? msg;
   late T data;
 
   get isSuccess => code == 0;
 
-  factory IotResult.fromJson(Map<String,dynamic> json) => IotResult()
-    ..msg = json['msg'] as String
+  factory MideaIotResult.fromJson(Map<String, dynamic> json) => MideaIotResult()
+    ..msg = json['msg']
     ..data = json['data']
-  ..code = json['code'] as int;
+    ..code = json['code'] as int;
+
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{'code': code, 'msg': msg, 'data': data};
+}
+
+/// 美智光电Iot中台接口模型
+class MzIotResult<T> {
+  MzIotResult();
+
+  MzIotResult.translate(this.code, this.msg, this.result);
+
+  late int code;
+  late String? msg;
+  late T result;
+  late bool success;
+
+  get isSuccess => success;
+
+  factory MzIotResult.fromJson(Map<String, dynamic> json) => MzIotResult()
+    ..msg = json['msg']
+    ..success = json['success']
+    ..result = json['result']
+    ..code = json['code'] as int;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'code': code,
-    'msg': msg,
-    'data': data
-  };
+        'code': code,
+        'success': success,
+        'msg': msg,
+        'result': result
+      };
 }

@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../common/api/iot_api.dart';
 import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
   String qrLink = '1111';
   late String sessionId;
+  late Timer timer;
 
   @override
   void initState() {
@@ -36,6 +36,7 @@ class _ScanCode extends State<ScanCode> {
   void dispose() {
     super.dispose();
     debugPrint("dispose");
+    timer.cancel();
   }
 
   /// 绑定二维码url
@@ -49,7 +50,6 @@ class _ScanCode extends State<ScanCode> {
       });
 
       sessionId = res.data.sessionId;
-      debugPrint("${sessionId.runtimeType}");
 
       updateLoginStatus();
     }
@@ -57,11 +57,13 @@ class _ScanCode extends State<ScanCode> {
 
   /// 大屏端轮询授权状态接口
   void updateLoginStatus() {
-    Timer(const Duration(seconds: 3), () async {
+    timer = Timer(const Duration(seconds: 5), () async {
       var res = await IotApi.getAccessToken(sessionId);
 
       if (res.isSuccess) {
-
+        await IotApi.autoLogin();
+      } else {
+        updateLoginStatus();
       }
     });
   }

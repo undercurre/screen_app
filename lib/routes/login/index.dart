@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../common/api/index.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
+import 'select_room.dart';
 
 class Step {
   String title;
@@ -17,8 +19,8 @@ class _LoginPage extends State<LoginPage> {
   var stepList = [
     Step('连接网络', const LinkNetwork()),
     Step('扫码登录', const ScanCode()),
-    Step('选择家庭', const LinkNetwork()),
-    Step('选择房间', const LinkNetwork()),
+    Step('选择家庭', const SelectRoom()),
+    Step('选择房间', const SelectRoom()),
   ];
 
   get stepItem => stepList[stepNum - 1];
@@ -35,6 +37,10 @@ class _LoginPage extends State<LoginPage> {
 
   /// 下一步
   void nextStep() async {
+    if (stepNum == 2) {
+      // IotApi.getHomeList();
+    }
+
     if (stepNum == 4) {
       //导航到新路由
       await Navigator.pushNamed(

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'common/index.dart';
 import 'states/index.dart';
 import 'routes/index.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
-void main() {
+void main() async {
+  // 加载环境配置
+  await setupConfig();
   Global.init().then((e) => runApp(const App()));
 }
 
@@ -25,5 +27,15 @@ class App extends StatelessWidget {
         routes: routes,
       ),
     );
+  }
+}
+
+setupConfig() async {
+  const env = String.fromEnvironment('env');
+  if (env != 'sit' || env != 'prod') {
+    // 如果不传sit或者prod默认使用sit环境
+    await dotenv.load(fileName: ".sit.env");
+  } else {
+    await dotenv.load(fileName: ".$env.env");
   }
 }

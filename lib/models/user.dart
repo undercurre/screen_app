@@ -6,8 +6,17 @@ part 'user.g.dart';
 class User {
   User();
 
-  // 名字
-  late String name;
+  late String accessToken;
+  late String deviceId;
+  late String iotUserId;
+  late String key;
+  late String openId;
+  late String seed;
+  late String sessionId;
+  late String tokenPwd;
+  late String uid;
+  num? expired;
+  String? mzAccessToken;
   
   factory User.fromJson(Map<String,dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
