@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:platform_device_id/platform_device_id.dart';
 import 'dart:developer' as developer;
+
 import '../../common/index.dart';
 import '../../models/index.dart';
 import '../../states/index.dart';
@@ -9,8 +12,23 @@ import '../../widgets/index.dart';
 class _LinkNetwork extends State<LinkNetwork> {
   bool wifi = true;
 
+  void getDeviceInfo() async {
+    // String? deviceId = await PlatformDeviceId.getDeviceId;
+
+    // logger.i('AndroidDeviceInfo: \n '
+    //     'deviceId: ${deviceId} \n ');
+
+    final Connectivity _connectivity = Connectivity();
+
+    ConnectivityResult connectivityResult = await _connectivity.checkConnectivity();
+
+    logger.i("Connectivity: ${connectivityResult}");
+  }
+
   @override
   Widget build(BuildContext context) {
+    getDeviceInfo();
+
     var wifiSwitch = Cell(
         title: '无线局域网',
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
