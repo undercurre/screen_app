@@ -4,6 +4,7 @@ import 'package:screen_app/widgets/plugins/GradientSlider/index.dart';
 import 'dart:math';
 
 class ParamCard extends StatefulWidget {
+  final List<Color> activeColors;
   final String title;
   final double value;
   final String unit;
@@ -12,6 +13,7 @@ class ParamCard extends StatefulWidget {
     super.key,
     required this.title,
     required this.value,
+    this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.unit = '%',
   });
 
@@ -36,7 +38,7 @@ class _ParamCardState extends State<ParamCard> {
   Widget build(BuildContext context) {
     return GlassCard(
       child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+          padding: const EdgeInsets.fromLTRB(20, 16, 23, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -61,13 +63,13 @@ class _ParamCardState extends State<ParamCard> {
                       fontSize: 18,
                       height: 1.2,
                       color: Color(0x80FFFFFF),
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w100,
                       decoration: TextDecoration.none,
                     ),
                   ),
                 ],
               ),
-              GradientSlider(value: value)
+              GradientSlider(value: value, activeColors: widget.activeColors)
             ],
           )),
     );
