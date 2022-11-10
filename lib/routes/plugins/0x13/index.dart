@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../widgets/plugins/glassCard/index.dart';
-import '../../../widgets/plugins/gradientSlider/index.dart';
+import 'package:screen_app/widgets/plugins/ParamCard/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   double brightness = 0;
@@ -17,45 +16,50 @@ class WifiLightPageState extends State<WifiLightPage> {
                 image: AssetImage('assets/imgs/plugins/0x13/BG.png'))),
         child: Flex(direction: Axis.vertical, children: <Widget>[
           Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 22.0, horizontal: 24.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "照明",
-                            style: TextStyle(
-                                fontFamily: 'MideaType',
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w400,
-                                decoration: TextDecoration.none),
-                          ),
-                          Text(
-                            "客厅",
-                            style: TextStyle(
-                                fontFamily: 'MideaType',
-                                color: Color(0x91FFFFFF),
-                                fontSize: 18,
-                                height: 1.2,
-                                fontWeight: FontWeight.w400,
-                                decoration: TextDecoration.none),
-                          )
-                        ]),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Color(0x3FFFFFFF),
+            padding:
+                const EdgeInsets.symmetric(vertical: 22.0, horizontal: 24.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      "照明",
+                      style: TextStyle(
+                        fontFamily: 'MideaType',
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
                       ),
-                      child: const Icon(Icons.close,
-                          color: Color(0x7FFFFFFF), size: 36),
+                    ),
+                    Text(
+                      "客厅",
+                      style: TextStyle(
+                        fontFamily: 'MideaType',
+                        color: Color(0x91FFFFFF),
+                        fontSize: 18,
+                        height: 1.2,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
+                      ),
                     )
-                  ])),
+                  ],
+                ),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Color(0x3FFFFFFF),
+                  ),
+                  child: const Icon(Icons.close,
+                      color: Color(0x7FFFFFFF), size: 36),
+                )
+              ],
+            ),
+          ),
           Expanded(
               flex: 1,
               child: Row(
@@ -69,52 +73,58 @@ class WifiLightPageState extends State<WifiLightPage> {
                             'assets/imgs/plugins/0x13/dengguang.png')),
                   ),
                   Column(
-                    children: [
-                      GlassCard(
-                          child: Column(
-                        children: const [GradientSlider(value: 60)],
-                      )),
-                      GlassCard(
-                          child: Column(
-                        children: const [
-                          GradientSlider(
-                            value: 70,
-                            activeColors: [
-                              Color(0xFFFABC55),
-                              Color(0xFFFFF4E8)
-                            ],
-                          )
-                        ],
-                      )),
-                      GlassCard(
-                          child: Scaffold(
-                              backgroundColor: Colors.transparent,
-                              body: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: const BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      color: Color(0x3FFFFFFF),
-                                    ),
-                                    child: const Icon(Icons.close,
-                                        color: Color(0x7FFFFFFF), size: 36),
-                                  ),
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: const BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      color: Color(0x3FFFFFFF),
-                                    ),
-                                    child: const Icon(Icons.close,
-                                        color: Color(0x7FFFFFFF), size: 36),
-                                  )
-                                ],
-                              ))),
+                    children: const [
+                      ParamCard(
+                        title: '亮度',
+                        value: 60.0,
+                      )
+                      // GlassCard(
+                      //   child: Column(
+                      //     children: const [
+                      //       GradientSlider(
+                      //         value: 70,
+                      //         activeColors: [
+                      //           Color(0xFFFABC55),
+                      //           Color(0xFFFFF4E8),
+                      //         ],
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
+                      // GlassCard(
+                      //   child: Scaffold(
+                      //     backgroundColor: Colors.transparent,
+                      //     body: Row(
+                      //       children: [
+                      //         Container(
+                      //           width: 40,
+                      //           height: 40,
+                      //           decoration: const BoxDecoration(
+                      //             borderRadius:
+                      //                 BorderRadius.all(Radius.circular(20)),
+                      //             color: Color(0x3FFFFFFF),
+                      //           ),
+                      //           child: const Icon(Icons.close,
+                      //               color: Color(0x7FFFFFFF), size: 36),
+                      //         ),
+                      //         Container(
+                      //           width: 40,
+                      //           height: 40,
+                      //           decoration: const BoxDecoration(
+                      //             borderRadius:
+                      //                 BorderRadius.all(Radius.circular(20)),
+                      //             color: Color(0x3FFFFFFF),
+                      //           ),
+                      //           child: const Icon(
+                      //             Icons.close,
+                      //             color: Color(0x7FFFFFFF),
+                      //             size: 36,
+                      //           ),
+                      //         )
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   )
                 ],

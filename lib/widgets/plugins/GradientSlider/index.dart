@@ -42,10 +42,9 @@ class _GradientSliderState extends State<GradientSlider> {
     super.initState();
     value = widget.value;
   }
-  
+
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onPanDown: (DragDownDetails e) {
         //打印手指按下的位置(相对于屏幕)
@@ -80,7 +79,8 @@ class _GradientSliderState extends State<GradientSlider> {
         //打印滑动结束时在x、y轴上的速度
       },
       child: Container(
-        padding: const EdgeInsets.all(20.0),
+        height: 54,
+        padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
         decoration: const BoxDecoration(color: Colors.transparent),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(
@@ -129,6 +129,34 @@ class _GradientSliderState extends State<GradientSlider> {
                   ),
                 ),
               ),
+              const Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: Text(
+                '0%',
+                style: TextStyle(
+                  fontFamily: "Gotham-Book",
+                  fontSize: 14,
+                  height: 1.2,
+                  color: Color(0x80FFFFFF),
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.none,
+                ),
+              )),
+              const Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Text(
+                '100%',
+                style: TextStyle(
+                  fontFamily: "Gotham-Book",
+                  fontSize: 14,
+                  height: 1.2,
+                  color: Color(0x80FFFFFF),
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.none,
+                ),
+              ))
             ],
           ),
         ),
