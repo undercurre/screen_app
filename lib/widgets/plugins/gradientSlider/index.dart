@@ -44,7 +44,12 @@ class GradientSlider extends StatefulWidget {
 
 class _GradientSliderState extends State<GradientSlider>
     with TickerProviderStateMixin {
+  // 动画控制器
+  AnimationController? controller;
+  // 当前滑动条的状态
   late double value;
+  // 如果设置了动画，需要使用该变量设置动画最终值，并传递给父组件
+  late double toValue;
   bool isPanUpdate = false;
   bool isPanning = false;
 
@@ -57,7 +62,8 @@ class _GradientSliderState extends State<GradientSlider>
   @override
   void didUpdateWidget(GradientSlider oldWidget) {
     if (isPanning) return;
-    var oldValue = oldWidget.value < 0 ? 0.0 : oldWidget.value > 100 ? 100.0 : oldWidget.value;
+    if (controller != null && controller!.status == AnimationStatus.forward) return;
+    var oldValue = value;
     var newValue = widget.value < 0 ? 0.0 : widget.value > 100 ? 100.0 : widget.value;
     super.didUpdateWidget(oldWidget);
     doAnimation(newValue, oldValue);
@@ -132,12 +138,17 @@ class _GradientSliderState extends State<GradientSlider>
   void doAnimation(double newValue, double oldValue) {
     if (widget.duration != null) {
       // 传入动画执行时间，需要执行动画
-      AnimationController controller = AnimationController(
+      // 如果当前动画还在执行，需要先停掉上一次动画
+      if (controller?.status == AnimationStatus.forward) {
+        controller!.stop();
+      }
+      // 执行本次动画
+      controller = AnimationController(
         duration: widget.duration,
         vsync: this,
       );
       CurvedAnimation curve =
-      CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+      CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
       Animation<double> animation =
       Tween(begin: oldValue, end: newValue).animate(curve);
       animation.addListener(() {
@@ -145,7 +156,7 @@ class _GradientSliderState extends State<GradientSlider>
           value = animation.value;
         });
       });
-      controller.forward();
+      controller!.forward();
     } else {
       setState(() {
         value = newValue;
@@ -156,13 +167,13 @@ class _GradientSliderState extends State<GradientSlider>
   void onPanDown(DragDownDetails e) {
     isPanning = true;
     isPanUpdate = false;
-    double temp = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
-    if (temp > 100) {
-      temp = 100;
-    } else if (temp < 0) {
-      temp = 0;
+    toValue = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
+    if (toValue > 100) {
+      toValue = 100;
+    } else if (toValue < 0) {
+      toValue = 0;
     }
-    doAnimation(temp, value);
+    doAnimation(toValue, value);
   }
 
   void onPanUpdate(DragUpdateDetails e) {
@@ -176,12 +187,13 @@ class _GradientSliderState extends State<GradientSlider>
     }
     setState(() {
       value = temp;
+      toValue = temp;
     });
     widget.onChanging?.call(value);
   }
 
   void onPanUp() {
     isPanning = false;
-    widget.onChanged?.call(value);
+    widget.onChanged?.call(toValue);
   }
 }
