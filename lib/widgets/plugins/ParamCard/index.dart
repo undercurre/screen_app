@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/plugins/GlassCard/index.dart';
 import 'package:screen_app/widgets/plugins/GradientSlider/index.dart';
-import 'dart:math';
 
 class ParamCard extends StatefulWidget {
   final List<Color> activeColors;
@@ -38,40 +37,48 @@ class _ParamCardState extends State<ParamCard> {
   Widget build(BuildContext context) {
     return GlassCard(
       child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 23, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    '$title | ',
-                    style: const TextStyle(
-                      fontFamily: "MideaType",
-                      fontSize: 18,
-                      height: 1.2,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      decoration: TextDecoration.none,
-                    ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 23, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '$title | ',
+                  style: const TextStyle(
+                    fontFamily: "MideaType",
+                    fontSize: 18,
+                    height: 1.2,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    decoration: TextDecoration.none,
                   ),
-                  Text(
-                    '${value.toInt()}$unit',
-                    style: const TextStyle(
-                      fontFamily: "MideaType",
-                      fontSize: 18,
-                      height: 1.2,
-                      color: Color(0x80FFFFFF),
-                      fontWeight: FontWeight.w100,
-                      decoration: TextDecoration.none,
-                    ),
+                ),
+                Text(
+                  '${value.toInt()}$unit',
+                  style: const TextStyle(
+                    fontFamily: "MideaType",
+                    fontSize: 18,
+                    height: 1.2,
+                    color: Color(0x80FFFFFF),
+                    fontWeight: FontWeight.w100,
+                    decoration: TextDecoration.none,
                   ),
-                ],
-              ),
-              GradientSlider(value: value, activeColors: widget.activeColors)
-            ],
-          )),
+                ),
+              ],
+            ),
+            GradientSlider(
+              value: value,
+              activeColors: widget.activeColors,
+              duration: const Duration(milliseconds: 100),
+              onChanged: (e) => setState(() {
+                value = e;
+              }),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
