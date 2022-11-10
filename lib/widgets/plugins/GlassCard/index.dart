@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class GlassCard extends StatelessWidget {
   final double width;
   final double height;
-
   final Widget child;
 
   const GlassCard(
