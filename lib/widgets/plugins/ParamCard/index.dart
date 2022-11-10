@@ -75,6 +75,9 @@ class _ParamCardState extends State<ParamCard> {
               onChanged: (e) => setState(() {
                 value = e;
               }),
+              onChanging: (e) => setState(() {
+                value = e;
+              }),
             )
           ],
         ),
