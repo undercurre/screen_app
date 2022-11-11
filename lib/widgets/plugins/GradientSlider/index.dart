@@ -150,7 +150,8 @@ class _GradientSliderState extends State<GradientSlider>
     );
   }
 
-  List<Color> getActiveColor() {
+  List<Color> getActiveColor({double? toValue}) {
+    double value = toValue ?? this.value;
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
     int curRed = ((rightColor.red - leftColor.red) * value / 100 + leftColor.red).round();
@@ -232,6 +233,6 @@ class _GradientSliderState extends State<GradientSlider>
 
   void onPanUp() {
     isPanning = false;
-    widget.onChanged?.call(toValue, getActiveColor()[1]);
+    widget.onChanged?.call(toValue, getActiveColor(toValue: toValue)[1]);
   }
 }
