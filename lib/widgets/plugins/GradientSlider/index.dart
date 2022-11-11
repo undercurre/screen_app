@@ -94,7 +94,7 @@ class _GradientSliderState extends State<GradientSlider>
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         decoration: const BoxDecoration(color: Colors.transparent),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(
