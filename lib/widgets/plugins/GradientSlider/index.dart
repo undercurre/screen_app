@@ -41,7 +41,7 @@ class GradientSlider extends StatefulWidget {
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.max = 100,
     this.min = 0,
-    this.width = 258,
+    this.width = 272,
     this.height = 20,
     this.rounded = true,
     this.radius = 10,
@@ -56,10 +56,8 @@ class _GradientSliderState extends State<GradientSlider>
     with TickerProviderStateMixin {
   // 动画控制器
   AnimationController? controller;
-
   // 当前滑动条的状态
   late double value;
-
   // 如果设置了动画，需要使用该变量设置动画最终值，并传递给父组件
   late double toValue;
   bool isPanUpdate = false;
@@ -68,11 +66,7 @@ class _GradientSliderState extends State<GradientSlider>
   @override
   void initState() {
     super.initState();
-    value = widget.value < 0
-        ? 0
-        : widget.value > 100
-        ? 100
-        : widget.value;
+    value = widget.value < 0 ? 0 : widget.value > 100 ? 100 : widget.value;
   }
 
   @override
