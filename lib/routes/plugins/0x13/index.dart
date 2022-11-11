@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/ParamCard/index.dart';
+import 'package:screen_app/widgets/plugins/param_card/index.dart';
+import 'package:screen_app/widgets/plugins/nav_bar/index.dart' as nav_bar;
 
 class WifiLightPageState extends State<WifiLightPage> {
+  bool power = true;
   double brightness = 0;
   double colorTemperature = 0;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      height: MediaQuery
+          .of(context)
+          .size
+          .height,
       decoration: const BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -17,50 +25,25 @@ class WifiLightPageState extends State<WifiLightPage> {
         ),
       ),
       child: Flex(direction: Axis.vertical, children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 22.0, horizontal: 24.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "照明",
-                    style: TextStyle(
-                      fontFamily: 'MideaType',
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w400,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                  Text(
-                    "客厅",
-                    style: TextStyle(
-                      fontFamily: 'MideaType',
-                      color: Color(0x91FFFFFF),
-                      fontSize: 18,
-                      height: 1.2,
-                      fontWeight: FontWeight.w400,
-                      decoration: TextDecoration.none,
-                    ),
-                  )
-                ],
-              ),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20),
-                  ),
-                  color: Color(0x3FFFFFFF),
-                ),
-                child:
-                    const Icon(Icons.close, color: Color(0x7FFFFFFF), size: 36),
-              )
-            ],
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: double.infinity,
+              maxHeight: 60.0,
+            ),
+            child: nav_bar.NavigationBar(
+              onLeftBtnClick: () {
+                print('leftTap');
+              },
+              onPowerBtnClick: () {
+                setState(() {
+                  power = !power;
+                });
+              },
+              title: 'Wi-Fi吸顶灯',
+              power: power,
+            ),
           ),
         ),
         Expanded(
