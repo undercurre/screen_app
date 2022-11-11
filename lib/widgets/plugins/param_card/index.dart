@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/GlassCard/index.dart';
-import 'package:screen_app/widgets/plugins/GradientSlider/index.dart';
+import 'package:screen_app/widgets/plugins/glass_card/index.dart';
+import 'package:screen_app/widgets/plugins/gradient_slider/index.dart';
 
 class ParamCard extends StatefulWidget {
   final List<Color> activeColors;
