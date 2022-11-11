@@ -80,11 +80,12 @@ class WifiLightPageState extends State<WifiLightPage> {
                   ParamCard(
                     title: '亮度',
                     value: 60.0,
+                    activeColors: [Color(0xFFFFD185), Color(0xFFFFD185)],
                   ),
                   ParamCard(
                     title: '色温',
                     value: 60.0,
-                    activeColors: [Color(0xFFFABC55), Color(0xFFFFF4E8)],
+                    activeColors: [Color(0xFFFFD39F), Color(0xFF55A2FA)],
                   )
                   // GlassCard(
                   //   child: Column(

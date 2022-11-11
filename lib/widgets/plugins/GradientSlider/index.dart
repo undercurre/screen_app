@@ -7,16 +7,24 @@ class GradientSlider extends StatefulWidget {
   // 滑动条宽高
   final double width;
   final double height;
-  final bool radius;
+
+  // 是否半圆
+  final bool rounded;
+
+  // 非半圆圆角大小
+  final double radius;
+
+  // 圆点半径
+  final double ballRadius;
 
   // 数值
   final double max;
   final double value;
   final double min;
 
-  // 滑动回调
-  final void Function(double value)? onChanging;
-  final void Function(double value)? onChanged;
+  // 滑动回调，传递出进度值和当前颜色
+  final void Function(double value, Color activeColor)? onChanging;
+  final void Function(double value, Color activeColor)? onChanged;
 
   // 插槽
   // final Widget child;
@@ -35,7 +43,9 @@ class GradientSlider extends StatefulWidget {
     this.min = 0,
     this.width = 258,
     this.height = 20,
-    this.radius = true,
+    this.rounded = true,
+    this.radius = 10,
+    this.ballRadius = 6,
   });
 
   @override
@@ -46,8 +56,10 @@ class _GradientSliderState extends State<GradientSlider>
     with TickerProviderStateMixin {
   // 动画控制器
   AnimationController? controller;
+
   // 当前滑动条的状态
   late double value;
+
   // 如果设置了动画，需要使用该变量设置动画最终值，并传递给父组件
   late double toValue;
   bool isPanUpdate = false;
@@ -56,15 +68,25 @@ class _GradientSliderState extends State<GradientSlider>
   @override
   void initState() {
     super.initState();
-    value = widget.value < 0 ? 0 : widget.value > 100 ? 100 : widget.value;
+    value = widget.value < 0
+        ? 0
+        : widget.value > 100
+        ? 100
+        : widget.value;
   }
 
   @override
   void didUpdateWidget(GradientSlider oldWidget) {
     if (isPanning) return;
-    if (controller != null && controller!.status == AnimationStatus.forward) return;
+    if (controller != null && controller!.status == AnimationStatus.forward) {
+      return;
+    }
     var oldValue = value;
-    var newValue = widget.value < 0 ? 0.0 : widget.value > 100 ? 100.0 : widget.value;
+    var newValue = widget.value < 0
+        ? 0.0
+        : widget.value > 100
+        ? 100.0
+        : widget.value;
     super.didUpdateWidget(oldWidget);
     doAnimation(newValue, oldValue);
   }
@@ -78,7 +100,7 @@ class _GradientSliderState extends State<GradientSlider>
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
         decoration: const BoxDecoration(color: Colors.transparent),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(
@@ -91,9 +113,9 @@ class _GradientSliderState extends State<GradientSlider>
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F1F1F),
-                  borderRadius: widget.radius
-                      ? BorderRadius.circular(10.0)
-                      : BorderRadius.circular(0),
+                  borderRadius: widget.rounded
+                      ? BorderRadius.circular(widget.height / 2)
+                      : BorderRadius.circular(widget.radius),
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
@@ -104,26 +126,26 @@ class _GradientSliderState extends State<GradientSlider>
               ),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: widget.activeColors),
-                  borderRadius: widget.radius
-                      ? BorderRadius.circular(10.0)
-                      : BorderRadius.circular(0),
+                  gradient: LinearGradient(colors: getActiveColor()),
+                  borderRadius: widget.rounded
+                      ? BorderRadius.circular(widget.height / 2)
+                      : BorderRadius.circular(widget.radius),
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: 20 + value / 100 * (widget.width - 20),
+                    width: getActiveBarWidth(),
                   ),
                 ),
               ),
               Positioned(
-                left: 20 - 16 + value / 100 * (widget.width - 20),
+                left: getBallLeft(),
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  width: widget.ballRadius * 2,
+                  height: widget.ballRadius * 2,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFFFFF),
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(widget.ballRadius),
                   ),
                 ),
               ),
@@ -132,6 +154,28 @@ class _GradientSliderState extends State<GradientSlider>
         ),
       ),
     );
+  }
+
+  List<Color> getActiveColor() {
+    Color leftColor = widget.activeColors[0];
+    Color rightColor = widget.activeColors[1];
+    int curRed = ((rightColor.red - leftColor.red) * value / 100 + leftColor.red).round();
+    int curGreen = ((rightColor.green - leftColor.green) * value / 100 + leftColor.green).round();
+    int curBlue = ((rightColor.blue - leftColor.blue) * value / 100 + leftColor.blue).round();
+    int curAlpha = ((rightColor.alpha - leftColor.alpha) * value / 100 + leftColor.alpha).round();
+    return [widget.activeColors[0], Color.fromARGB(curAlpha, curRed, curGreen, curBlue)];
+  }
+
+  // 获取白色圆点的left距离
+  double getBallLeft() {
+    return widget.height -
+        ((widget.height - widget.ballRadius * 2) / 2 + widget.ballRadius * 2) +
+        value / 100 * (widget.width - widget.height);
+  }
+
+  // 获取激活部分滑动条长度
+  double getActiveBarWidth() {
+    return widget.height + value / 100 * (widget.width - widget.height);
   }
 
   // 执行动画（如果不存在duration则没有动画过程）
@@ -189,11 +233,11 @@ class _GradientSliderState extends State<GradientSlider>
       value = temp;
       toValue = temp;
     });
-    widget.onChanging?.call(value);
+    widget.onChanging?.call(value, getActiveColor()[1]);
   }
 
   void onPanUp() {
     isPanning = false;
-    widget.onChanged?.call(toValue);
+    widget.onChanged?.call(toValue, getActiveColor()[1]);
   }
 }
