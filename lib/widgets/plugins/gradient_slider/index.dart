@@ -59,7 +59,7 @@ class GradientSlider extends StatefulWidget {
 class _GradientSliderState extends State<GradientSlider>
     with TickerProviderStateMixin {
   // 轨道的key
-  GlobalKey _railKey = GlobalKey();
+  final GlobalKey _railKey = GlobalKey();
 
   // 动画控制器
   AnimationController? controller;
@@ -71,6 +71,7 @@ class _GradientSliderState extends State<GradientSlider>
   late num toValue;
   bool isPanUpdate = false;
   bool isPanning = false;
+  late Offset latestPosition;
 
   @override
   void initState() {
@@ -170,16 +171,16 @@ class _GradientSliderState extends State<GradientSlider>
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
     int curRed =
-    ((rightColor.red - leftColor.red) * value / 100 + leftColor.red)
+    ((rightColor.red - leftColor.red) * valueToPercentage(value) / 100 + leftColor.red)
         .round();
     int curGreen =
-    ((rightColor.green - leftColor.green) * value / 100 + leftColor.green)
+    ((rightColor.green - leftColor.green) * valueToPercentage(value) / 100 + leftColor.green)
         .round();
     int curBlue =
-    ((rightColor.blue - leftColor.blue) * value / 100 + leftColor.blue)
+    ((rightColor.blue - leftColor.blue) * valueToPercentage(value) / 100 + leftColor.blue)
         .round();
     int curAlpha =
-    ((rightColor.alpha - leftColor.alpha) * value / 100 + leftColor.alpha)
+    ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) / 100 + leftColor.alpha)
         .round();
     return [
       widget.activeColors[0],
@@ -191,12 +192,12 @@ class _GradientSliderState extends State<GradientSlider>
   double getBallLeft() {
     return widget.height -
         ((widget.height - widget.ballRadius * 2) / 2 + widget.ballRadius * 2) +
-        value / 100 * (widget.width - widget.height);
+        valueToPercentage(value) / 100 * (widget.width - widget.height);
   }
 
   // 获取激活部分滑动条长度
   double getActiveRailWidth() {
-    return widget.height + value / 100 * (widget.width - widget.height);
+    return widget.height + valueToPercentage(value) / 100 * (widget.width - widget.height);
   }
 
   num clampValue(num value) {
@@ -213,23 +214,25 @@ class _GradientSliderState extends State<GradientSlider>
 
   int getPrecision() {
     var stepString = widget.step.toString();
-    if (stepString.indexOf('.') == -1) {
+    if (!stepString.contains('.')) {
       return 0;
     } else {
       return stepString.length - stepString.indexOf('.') - 1;
     }
   }
 
-  num steppingValue(num nextValue, num currentValue) {
+  num steppingValue(num nextValue) {
     if (widget.step <= 0) return nextValue;
     final precision = getPrecision();
     final currentStep =
-    num.parse((currentValue / widget.step).toStringAsFixed(precision));
+    num.parse((nextValue / widget.step).toStringAsFixed(precision));
     final leftStep = num.parse((currentStep.floor() * widget.step).toStringAsFixed(precision));
     final rightStep = num.parse(((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
-    final closestStep = (currentStep - leftStep).abs() - (currentStep - rightStep).abs() > 0 ? rightStep : leftStep;
-    return clampValue(closestStep);
+    final closestStep = (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0 ? rightStep : leftStep;
+    return closestStep;
   }
+
+
 
   // 执行动画（如果不存在duration则没有动画过程）
   void doAnimation(num newValue, num oldValue) {
@@ -265,27 +268,35 @@ class _GradientSliderState extends State<GradientSlider>
   void onPanDown(DragDownDetails e) {
     RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
     final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
+    latestPosition = e.globalPosition;
     isPanning = true;
     isPanUpdate = false;
-    toValue = clampValue(steppingValue(percentageToValue(percentage), value));
+    toValue = clampValue(steppingValue(percentageToValue(percentage)));
     doAnimation(toValue, value);
   }
 
   void onPanUpdate(DragUpdateDetails e) {
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
     isPanUpdate = true;
+    latestPosition = e.globalPosition;
     //用户手指滑动时，更新偏移，重新构建
-    final temp = clampValue(steppingValue(percentageToValue(percentage), value));
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
+    final temp = clampValue(percentageToValue(percentage));
     setState(() {
       value = temp;
-      toValue = temp;
     });
     widget.onChanging?.call(value, getActiveColor()[1]);
   }
 
   void onPanUp() {
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
+    final temp = clampValue(steppingValue(percentageToValue(percentage)));
     isPanning = false;
+    setState(() {
+      value = temp;
+      toValue = temp;
+    });
     widget.onChanged?.call(toValue, getActiveColor()[1]);
   }
 }
