@@ -1,12 +1,8 @@
 class Mode {
   String key;
   String name;
-  String icon;
-  bool selected;
+  String onIcon;
+  String offIcon;
 
-  Mode(this.key, this.name, this.icon, this.selected);
-
-  void select() {
-    selected = true;
-  }
+  Mode(this.key, this.name, this.onIcon, this.offIcon);
 }

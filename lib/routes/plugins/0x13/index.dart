@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/widgets/plugins/mode_card/index.dart';
 import 'package:screen_app/widgets/plugins/param_card/index.dart';
 import 'package:screen_app/widgets/plugins/nav_bar/index.dart' as nav_bar;
+import 'package:screen_app/common/device_mode/0x13/index.dart';
+import 'package:screen_app/widgets/plugins/single_function/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
@@ -10,14 +13,8 @@ class WifiLightPageState extends State<WifiLightPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
-      height: MediaQuery
-          .of(context)
-          .size
-          .height,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -59,64 +56,43 @@ class WifiLightPageState extends State<WifiLightPage> {
                 ),
               ),
               Column(
-                children: const [
-                  ParamCard(
+                children: [
+                  const ParamCard(
                     title: '亮度',
                     value: 60.0,
                     activeColors: [Color(0xFFFFD185), Color(0xFFFFD185)],
                   ),
-                  ParamCard(
+                  const ParamCard(
                     title: '色温',
                     value: 60.0,
                     activeColors: [Color(0xFFFFD39F), Color(0xFF55A2FA)],
+                  ),
+                  ModeCard(
+                    modeList: lightModes,
+                    selectedKey: 'moon',
+                  ),
+                  SingleFunction(
+                    title: '延时关灯',
+                    desc: '3分钟后关灯',
+                    power: power,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: power
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0xFF000000),
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Image(
+                        image: power
+                            ? const AssetImage(
+                                'assets/imgs/plugins/0x13/delay_on.png')
+                            : const AssetImage(
+                                'assets/imgs/plugins/0x13/delay_off.png'),
+                      ),
+                    ),
                   )
-                  // GlassCard(
-                  //   child: Column(
-                  //     children: const [
-                  //       GradientSlider(
-                  //         value: 70,
-                  //         activeColors: [
-                  //           Color(0xFFFABC55),
-                  //           Color(0xFFFFF4E8),
-                  //         ],
-                  //       )
-                  //     ],
-                  //   ),
-                  // ),
-                  // GlassCard(
-                  //   child: Scaffold(
-                  //     backgroundColor: Colors.transparent,
-                  //     body: Row(
-                  //       children: [
-                  //         Container(
-                  //           width: 40,
-                  //           height: 40,
-                  //           decoration: const BoxDecoration(
-                  //             borderRadius:
-                  //                 BorderRadius.all(Radius.circular(20),),
-                  //             color: Color(0x3FFFFFFF),
-                  //           ),
-                  //           child: const Icon(Icons.close,
-                  //               color: Color(0x7FFFFFFF), size: 36),
-                  //         ),
-                  //         Container(
-                  //           width: 40,
-                  //           height: 40,
-                  //           decoration: const BoxDecoration(
-                  //             borderRadius:
-                  //                 BorderRadius.all(Radius.circular(20),),
-                  //             color: Color(0x3FFFFFFF),
-                  //           ),
-                  //           child: const Icon(
-                  //             Icons.close,
-                  //             color: Color(0x7FFFFFFF),
-                  //             size: 36,
-                  //           ),
-                  //         )
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               )
             ],
