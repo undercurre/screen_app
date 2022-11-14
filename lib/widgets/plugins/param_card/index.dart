@@ -21,7 +21,7 @@ class ParamCard extends StatefulWidget {
 }
 
 class _ParamCardState extends State<ParamCard> {
-  late double value;
+  late num value;
   late String title;
   late String unit;
 
@@ -75,7 +75,6 @@ class _ParamCardState extends State<ParamCard> {
                 duration: const Duration(milliseconds: 100),
                 onChanged: (e, _) => setState(() {
                   value = e;
-                  print(_);
                 }),
                 onChanging: (e, _) => setState(() {
                   value = e;

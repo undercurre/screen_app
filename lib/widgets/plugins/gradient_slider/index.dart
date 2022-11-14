@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class GradientSlider extends StatefulWidget {
@@ -18,13 +20,14 @@ class GradientSlider extends StatefulWidget {
   final double ballRadius;
 
   // 数值
-  final double max;
-  final double value;
-  final double min;
+  final num max;
+  final num min;
+  final num step;
+  final num value;
 
   // 滑动回调，传递出进度值和当前颜色
-  final void Function(double value, Color activeColor)? onChanging;
-  final void Function(double value, Color activeColor)? onChanged;
+  final void Function(num value, Color activeColor)? onChanging;
+  final void Function(num value, Color activeColor)? onChanged;
 
   // 插槽
   // final Widget child;
@@ -41,11 +44,12 @@ class GradientSlider extends StatefulWidget {
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.max = 100,
     this.min = 0,
-    this.width = 272,
+    this.width = 100,
     this.height = 20,
     this.rounded = true,
     this.radius = 10,
     this.ballRadius = 6,
+    this.step = 1,
   });
 
   @override
@@ -54,19 +58,28 @@ class GradientSlider extends StatefulWidget {
 
 class _GradientSliderState extends State<GradientSlider>
     with TickerProviderStateMixin {
+  // 轨道的key
+  GlobalKey _railKey = GlobalKey();
+
   // 动画控制器
   AnimationController? controller;
+
   // 当前滑动条的状态
-  late double value;
+  late num value;
+
   // 如果设置了动画，需要使用该变量设置动画最终值，并传递给父组件
-  late double toValue;
+  late num toValue;
   bool isPanUpdate = false;
   bool isPanning = false;
 
   @override
   void initState() {
     super.initState();
-    value = widget.value < 0 ? 0 : widget.value > 100 ? 100 : widget.value;
+    value = widget.value < 0
+        ? 0
+        : widget.value > 100
+        ? 100
+        : widget.value;
   }
 
   @override
@@ -94,7 +107,7 @@ class _GradientSliderState extends State<GradientSlider>
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        padding: const EdgeInsets.all(20.0),
         decoration: const BoxDecoration(color: Colors.transparent),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(
@@ -105,6 +118,7 @@ class _GradientSliderState extends State<GradientSlider>
             alignment: Alignment.centerLeft, //指定未定位或部分定位widget的对齐方式
             children: <Widget>[
               DecoratedBox(
+                key: _railKey,
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F1F1F),
                   borderRadius: widget.rounded
@@ -128,7 +142,7 @@ class _GradientSliderState extends State<GradientSlider>
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: getActiveBarWidth(),
+                    width: getActiveRailWidth(),
                   ),
                 ),
               ),
@@ -150,15 +164,27 @@ class _GradientSliderState extends State<GradientSlider>
     );
   }
 
-  List<Color> getActiveColor({double? toValue}) {
-    double value = toValue ?? this.value;
+  /// 值计算
+  // 获取当前圆点的滑动条颜色
+  List<Color> getActiveColor() {
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
-    int curRed = ((rightColor.red - leftColor.red) * value / 100 + leftColor.red).round();
-    int curGreen = ((rightColor.green - leftColor.green) * value / 100 + leftColor.green).round();
-    int curBlue = ((rightColor.blue - leftColor.blue) * value / 100 + leftColor.blue).round();
-    int curAlpha = ((rightColor.alpha - leftColor.alpha) * value / 100 + leftColor.alpha).round();
-    return [widget.activeColors[0], Color.fromARGB(curAlpha, curRed, curGreen, curBlue)];
+    int curRed =
+    ((rightColor.red - leftColor.red) * value / 100 + leftColor.red)
+        .round();
+    int curGreen =
+    ((rightColor.green - leftColor.green) * value / 100 + leftColor.green)
+        .round();
+    int curBlue =
+    ((rightColor.blue - leftColor.blue) * value / 100 + leftColor.blue)
+        .round();
+    int curAlpha =
+    ((rightColor.alpha - leftColor.alpha) * value / 100 + leftColor.alpha)
+        .round();
+    return [
+      widget.activeColors[0],
+      Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
+    ];
   }
 
   // 获取白色圆点的left距离
@@ -169,12 +195,44 @@ class _GradientSliderState extends State<GradientSlider>
   }
 
   // 获取激活部分滑动条长度
-  double getActiveBarWidth() {
+  double getActiveRailWidth() {
     return widget.height + value / 100 * (widget.width - widget.height);
   }
 
+  num clampValue(num value) {
+    return min(widget.max, max(widget.min, value));
+  }
+
+  num valueToPercentage(num value) {
+    return ((value - widget.min) / (widget.max - widget.min)) * 100;
+  }
+
+  num percentageToValue(num percentage) {
+    return widget.min + (widget.max - widget.min) * percentage;
+  }
+
+  int getPrecision() {
+    var stepString = widget.step.toString();
+    if (stepString.indexOf('.') == -1) {
+      return 0;
+    } else {
+      return stepString.length - stepString.indexOf('.') - 1;
+    }
+  }
+
+  num steppingValue(num nextValue, num currentValue) {
+    if (widget.step <= 0) return nextValue;
+    final precision = getPrecision();
+    final currentStep =
+    num.parse((currentValue / widget.step).toStringAsFixed(precision));
+    final leftStep = num.parse((currentStep.floor() * widget.step).toStringAsFixed(precision));
+    final rightStep = num.parse(((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
+    final closestStep = (currentStep - leftStep).abs() - (currentStep - rightStep).abs() > 0 ? rightStep : leftStep;
+    return clampValue(closestStep);
+  }
+
   // 执行动画（如果不存在duration则没有动画过程）
-  void doAnimation(double newValue, double oldValue) {
+  void doAnimation(num newValue, num oldValue) {
     if (widget.duration != null) {
       // 传入动画执行时间，需要执行动画
       // 如果当前动画还在执行，需要先停掉上一次动画
@@ -188,7 +246,7 @@ class _GradientSliderState extends State<GradientSlider>
       );
       CurvedAnimation curve =
       CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
-      Animation<double> animation =
+      Animation<num> animation =
       Tween(begin: oldValue, end: newValue).animate(curve);
       animation.addListener(() {
         setState(() {
@@ -203,27 +261,22 @@ class _GradientSliderState extends State<GradientSlider>
     }
   }
 
+  /// 事件处理
   void onPanDown(DragDownDetails e) {
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
     isPanning = true;
     isPanUpdate = false;
-    toValue = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
-    if (toValue > 100) {
-      toValue = 100;
-    } else if (toValue < 0) {
-      toValue = 0;
-    }
+    toValue = clampValue(steppingValue(percentageToValue(percentage), value));
     doAnimation(toValue, value);
   }
 
   void onPanUpdate(DragUpdateDetails e) {
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
     isPanUpdate = true;
     //用户手指滑动时，更新偏移，重新构建
-    double temp = (e.localPosition.dx - 20 - 10) / (widget.width - 20) * 100;
-    if (temp > 100) {
-      temp = 100;
-    } else if (temp < 0) {
-      temp = 0;
-    }
+    final temp = clampValue(steppingValue(percentageToValue(percentage), value));
     setState(() {
       value = temp;
       toValue = temp;
@@ -233,6 +286,6 @@ class _GradientSliderState extends State<GradientSlider>
 
   void onPanUp() {
     isPanning = false;
-    widget.onChanged?.call(toValue, getActiveColor(toValue: toValue)[1]);
+    widget.onChanged?.call(toValue, getActiveColor()[1]);
   }
 }
