@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.midea.light">
+    package="com.midea.light"
+    android:sharedUserId="${USER_ID}">
    <application
         android:label="智慧屏"
         android:name=".MainApplication"
