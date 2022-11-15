@@ -4,9 +4,46 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import '../../common/api/iot_api.dart';
 
+final codeToImage = {
+  '00': 'sunny',
+  '01': 'cloudy',
+  '02': 'overcast',
+  '03': 'rainy',
+  '04': 'thunder',
+  '05': 'thunder',
+  '06': 'sleet',
+  '07': 'rainy',
+  '08': 'rainy',
+  '09': 'rainy',
+  '10': 'rainy',
+  '11': 'rainy',
+  '12': 'rainy',
+  '13': 'snowy',
+  '14': 'snowy',
+  '15': 'snowy',
+  '16': 'snowy',
+  '17': 'snowy',
+  '18': 'foggy',
+  '19': 'icy',
+  '20': 'duststorm',
+  '21': 'rainy',
+  '22': 'rainy',
+  '23': 'rainy',
+  '24': 'rainy',
+  '25': 'rainy',
+  '26': 'snowy',
+  '27': 'snowy',
+  '28': 'snowy',
+  '29': 'duststorm'
+};
+
 // 页面定义
 class WeatherPageState extends State<WeatherPage> {
-  String city = '';
+  String temperature = '--';
+  String weatherString = '--';
+  String weatherBg = '';
+  String weatherIcon = '';
+  late Timer _timer;
 
   @override
   void initState() {
@@ -16,17 +53,67 @@ class WeatherPageState extends State<WeatherPage> {
 
   @override
   void dispose() {
+    _timer.cancel();
     super.dispose();
   }
 
   // 获取家庭组
   void initQuery() async {
-    var res = await IotApi.getHomegroup();
-    if (res.isSuccess) {
+    var homegroupRes = await IotApi.getHomegroup();
+    if (!homegroupRes.isSuccess) {
+      return;
+    }
+
+    String areaid = homegroupRes.data.homeList.first.areaid;
+    updateWeather(areaid);
+
+    // 每10分钟刷新天气
+    _timer = Timer.periodic(const Duration(minutes: 10), (timer) async {
+      updateWeather(areaid);
+    });
+  }
+
+  void updateWeather(String cityId) async {
+    var weatherOfCityRes = await IotApi.getWeather(cityId: cityId);
+    if (weatherOfCityRes.isSuccess) {
+      var d = weatherOfCityRes.data;
       setState(() {
-        List arr = res.data.homeList.first.address.split(' ');
-        city = arr[arr.length - 1];
+        temperature = d.weather.grade;
+        weatherString =
+            '${d.weather.weatherStatus}    ${d.location.chName}    室外空气 ${d.weather.pmindex}';
+
+        if (d.weather.pmindex == '差') {
+          weatherIcon = 'cloudy';
+          weatherBg = 'poor-air';
+        } else if (codeToImage.containsKey(d.weather.weatherCode)) {
+          weatherIcon = codeToImage[d.weather.weatherCode]!;
+          weatherBg = codeToImage[d.weather.weatherCode]!;
+        } else {
+          weatherIcon = 'sunny';
+          weatherBg = 'sunny';
+        }
       });
+    }
+
+    // assert
+    // setState(() => weatherBg = 'rainy');
+
+    // 只有以下天气背景有晚上模式
+    if (!['cloudy', 'rainy', 'snowy'].contains(weatherBg)) {
+      return;
+    }
+
+    var forecastRes = await IotApi.getWeather7d(cityId: cityId);
+    if (forecastRes.isSuccess) {
+      var forecastData = forecastRes.data.first;
+      final now = DateTime.now();
+      final dateStr = DateFormat('y-M-dd').format(now);
+      final timeSunrise = DateTime.parse('$dateStr ${forecastData.sunrise}');
+      final timeSunset = DateTime.parse('$dateStr ${forecastData.sunset}');
+
+      if (now.isBefore(timeSunrise) || now.isAfter(timeSunset)) {
+        setState(() => weatherBg = '$weatherBg-night');
+      }
     }
   }
 
@@ -34,10 +121,10 @@ class WeatherPageState extends State<WeatherPage> {
   Widget build(BuildContext context) {
     initializeDateFormatting('zh_CN', null);
 
-    Widget showBgImage = const DecoratedBox(
+    Widget showBgImage = DecoratedBox(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/imgs/weather/bg-rainy.png"),
+          image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
           fit: BoxFit.cover,
         ),
       ),
@@ -45,25 +132,34 @@ class WeatherPageState extends State<WeatherPage> {
 
     Widget showTemperature = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text('-37', style: TextStyle(
-          color: Colors.white,
-          fontSize: 160.0,
-          fontWeight: FontWeight.w100,
-          fontFamily: "MideaType",
-          height: 1,
-          decoration: TextDecoration.none,
-        )),
-        Text('°',
-            style: TextStyle(
+      children: [
+        Text(temperature,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 80.0,
+              fontSize: 160.0,
               fontWeight: FontWeight.w100,
               fontFamily: "MideaType",
               height: 1,
               decoration: TextDecoration.none,
-            )
-        )
+            )),
+        const Text('°',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 48.0,
+              fontWeight: FontWeight.w100,
+              fontFamily: "MideaType",
+              height: 1,
+              decoration: TextDecoration.none,
+            )),
+        const Text('C',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 36.0,
+              fontWeight: FontWeight.w100,
+              fontFamily: "MideaType",
+              height: 1,
+              decoration: TextDecoration.none,
+            ))
       ],
     );
 
@@ -73,10 +169,10 @@ class WeatherPageState extends State<WeatherPage> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Image.asset(
-            "assets/imgs/weather/icon-snowy.png",
-            width: 26,
+            "assets/imgs/weather/icon-$weatherIcon.png",
+            width: 32,
           ),
-          Text('下雪    $city    室外空气 中', // 空格会按wordSpacing输出
+          Text(weatherString, // 空格会按wordSpacing输出
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,
@@ -86,34 +182,28 @@ class WeatherPageState extends State<WeatherPage> {
                   wordSpacing: 2.0)),
         ]);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        showBgImage,
-        const Positioned(left: 30, top: 40, child: DateTimeStr()),
-        Positioned(left: 30, bottom: 60, child: showTemperature),
-        Positioned(left: 30, bottom: 20, child: showWeather),
-        Positioned(
-            child: Row(
-          children: [
-            TextButton.icon(
-              onPressed: () async {
-                await IotApi.getWeather();
-              },
-              label: const Text('接口测试'),
-              icon: const Icon(Icons.sunny_snowing),
-            ),
-            TextButton.icon(
-              onPressed: () async {
-                Navigator.of(context).pushNamed('/');
-              },
-              label: const Text('back'),
-              icon: const Icon(Icons.keyboard_return),
-            )
-          ],
-        )),
-      ],
-    );
+    List<Widget> stackChildren = [];
+
+    if (weatherBg != '') {
+      stackChildren.add(showBgImage);
+    }
+
+    stackChildren
+        .add(const Positioned(left: 30, top: 40, child: DateTimeStr()));
+    stackChildren.add(Positioned(left: 30, bottom: 60, child: showTemperature));
+
+    if (weatherIcon != '') {
+      stackChildren.add(Positioned(left: 30, bottom: 20, child: showWeather));
+    }
+
+    return GestureDetector(
+        child: Stack(
+          fit: StackFit.expand,
+          children: stackChildren,
+        ),
+        onTap: () {
+          Navigator.of(context).pushNamed('/');
+        });
   }
 }
 
@@ -126,6 +216,7 @@ class DateTimeStrState extends State<DateTimeStr> {
   void initState() {
     super.initState();
 
+    // 每秒刷新时间
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         datetime = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());

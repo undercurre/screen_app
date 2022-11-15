@@ -23,9 +23,7 @@ class IotApi {
         queryParameters: {
           'sessionId': sessionId,
         },
-        options: Options(
-            method: 'GET',
-            extra: {'isEncrypt': false}));
+        options: Options(method: 'GET', extra: {'isEncrypt': false}));
 
     res.data ??= {
       "accessToken": "",
@@ -86,7 +84,8 @@ class IotApi {
     String? homegroupId,
     String? roomId,
   }) async {
-    var res = await Api.requestMideaIot("/mas/v5/app/proxy?alias=/v1/appliance/home/list/get",
+    var res = await Api.requestMideaIot(
+        "/mas/v5/app/proxy?alias=/v1/appliance/home/list/get",
         data: {
           'homegroupId': homegroupId,
           'roomId': roomId,
@@ -103,31 +102,50 @@ class IotApi {
 
   /// 获取用户的家庭列表
   static Future<MideaIotResult<HomegroupList>> getHomegroup() async {
-    var res = await Api.requestMideaIot("/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
+    var res = await Api.requestMideaIot(
+        "/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
         data: {},
         options: Options(
           method: 'POST',
           headers: {'accessToken': Global.user?.accessToken},
         ));
 
-    return MideaIotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
+    return MideaIotResult<HomegroupList>.translate(
+        res.code, '', HomegroupList.fromJson(res.data));
   }
 
-  /// TODO 获取天气
-  static Future<dynamic> getWeather() async {
+  /// 获取天气
+  static Future<MideaIotResult<WeatherOfCity>> getWeather(
+      {String? cityId = '101280801'}) async {
     var res = await Api.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/weather/observe/byCityId",
         data: {
           "appId": "APP",
-          'cityId': "101280801",
+          'cityId': cityId,
+        },
+        options: Options(method: 'POST' ));
+
+    return MideaIotResult<WeatherOfCity>.translate(
+        res.code, '', WeatherOfCity.fromJson(res.data));
+  }
+
+  /// 获取7天天气
+  static Future<MideaIotResult<List<Weather7d>>> getWeather7d(
+      {String? cityId = '101280801'}) async {
+    var res = await Api.requestMideaIot<List<Weather7d>>(
+        "/mas/v5/app/proxy?alias=/v1/weather/forecast7d",
+        data: {
+          "appId": "APP",
+          'cityId': cityId,
         },
         options: Options(
           method: 'POST',
           headers: {'accessToken': Global.user?.accessToken},
         ));
-    logger.i(res.toString());
 
-    // return MideaIotResult<HomegroupList>.translate(
-    //     res.code, '', HomegroupList.fromJson(res.data));
+    // return res.data;
+
+    return MideaIotResult<List<Weather7d>>.translate(
+        res.code, '', res.data.map<Weather7d>((value) => Weather7d.fromJson(value)).toList());
   }
 }
