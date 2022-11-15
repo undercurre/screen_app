@@ -7,11 +7,13 @@ import '../../../common/device_mode/mode.dart';
 class ModeCard extends StatefulWidget {
   final List<Mode> modeList;
   final String selectedKey;
+  final Function(Mode mode)? onClick;
 
   const ModeCard({
     super.key,
     required this.modeList,
     required this.selectedKey,
+    this.onClick
   });
 
   @override
@@ -20,19 +22,11 @@ class ModeCard extends StatefulWidget {
 
 class _ModeCardState extends State<ModeCard> {
   late List<Mode> modeList;
-  late String selectedKey;
 
   @override
   void initState() {
     super.initState();
     modeList = widget.modeList;
-    selectedKey = widget.selectedKey;
-  }
-
-  void onClick(Mode mode) {
-    setState(() {
-      selectedKey = mode.key;
-    });
   }
 
   @override
@@ -48,7 +42,7 @@ class _ModeCardState extends State<ModeCard> {
           children: modeList
               .map(
                 (mode) => Listener(
-                  onPointerDown: (PointerDownEvent event) => onClick(mode),
+                  onPointerDown: (PointerDownEvent event) => widget.onClick != null ? widget.onClick!(mode) : print('点击了'),
                   child: Column(
                     children: [
                       Container(
@@ -56,13 +50,13 @@ class _ModeCardState extends State<ModeCard> {
                         height: 50,
                         margin: const EdgeInsets.fromLTRB(0, 0, 0, 11),
                         decoration: BoxDecoration(
-                          color: mode.key == selectedKey
+                          color: mode.key == widget.selectedKey
                               ? Colors.white
                               : Colors.black,
                           borderRadius: BorderRadius.circular(25.0),
                         ),
                         child: Image(
-                          image: AssetImage(mode.key == selectedKey
+                          image: AssetImage(mode.key == widget.selectedKey
                               ? mode.onIcon
                               : mode.offIcon),
                         ),

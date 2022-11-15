@@ -44,7 +44,7 @@ class GradientSlider extends StatefulWidget {
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.max = 100,
     this.min = 0,
-    this.width = 100,
+    this.width = 269,
     this.height = 20,
     this.rounded = true,
     this.radius = 10,

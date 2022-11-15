@@ -5,8 +5,10 @@ import 'package:screen_app/widgets/plugins/gradient_slider/index.dart';
 class ParamCard extends StatefulWidget {
   final List<Color> activeColors;
   final String title;
-  final double value;
+  final num value;
   final String unit;
+  final void Function(num value, Color activeColor)? onChanging;
+  final void Function(num value, Color activeColor)? onChanged;
 
   const ParamCard({
     super.key,
@@ -14,6 +16,8 @@ class ParamCard extends StatefulWidget {
     required this.value,
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.unit = '%',
+    this.onChanging,
+    this.onChanged,
   });
 
   @override
@@ -73,12 +77,8 @@ class _ParamCardState extends State<ParamCard> {
                 value: value,
                 activeColors: widget.activeColors,
                 duration: const Duration(milliseconds: 100),
-                onChanged: (e, _) => setState(() {
-                  value = e;
-                }),
-                onChanging: (e, _) => setState(() {
-                  value = e;
-                }),
+                onChanged: widget.onChanged,
+                onChanging: widget.onChanging
               ),
             ],
           ),
