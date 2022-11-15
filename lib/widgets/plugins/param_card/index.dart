@@ -25,16 +25,12 @@ class ParamCard extends StatefulWidget {
 }
 
 class _ParamCardState extends State<ParamCard> {
-  late num value;
   late String title;
   late String unit;
 
   @override
   void initState() {
     super.initState();
-    value = widget.value;
-    title = widget.title;
-    unit = widget.unit;
   }
 
   @override
@@ -60,7 +56,7 @@ class _ParamCardState extends State<ParamCard> {
                       ),
                     ),
                     Text(
-                      '${value.toInt()}$unit',
+                      '${widget.value.toInt()}$unit',
                       style: const TextStyle(
                         fontFamily: "MideaType",
                         fontSize: 18,
@@ -74,7 +70,7 @@ class _ParamCardState extends State<ParamCard> {
                 ),
               ),
               GradientSlider(
-                value: value,
+                value: widget.value,
                 activeColors: widget.activeColors,
                 duration: const Duration(milliseconds: 100),
                 onChanged: widget.onChanged,

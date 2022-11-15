@@ -105,6 +105,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                         Color(0xFFFFD185)
                       ],
                       onChanged: brightnessHandle,
+                      onChanging: brightnessHandle,
                     ),
                     ParamCard(
                       title: '色温',
@@ -114,6 +115,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                         Color(0xFF55A2FA)
                       ],
                       onChanged: colorTemperatureHandle,
+                      onChanging: colorTemperatureHandle,
                     ),
                     ModeCard(
                       modeList: lightModes,
