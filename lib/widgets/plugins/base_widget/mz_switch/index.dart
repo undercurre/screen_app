@@ -32,7 +32,8 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
   late Color pointBgc; // 圆点颜色
   late double pointLeft; // 圆点left偏移值
   AnimationController? railController; // 轨道动画控制器
-  AnimationController? pointController; // 圆点动画控制器
+  AnimationController? pointColorController; // 圆点颜色动画控制器
+  AnimationController? pointMoveController; // 圆点移动动画控制器
 
   @override
   void initState() {
@@ -40,14 +41,15 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
     value = widget.value;
     railBgc = widget.value ? widget.activeColor : widget.inactiveColor;
     pointBgc =
-        widget.value ? widget.pointActiveColor : widget.pointInactiveColor;
-    pointLeft = widget.value ? 2 : 29;
+    widget.value ? widget.pointActiveColor : widget.pointInactiveColor;
+    pointLeft = widget.value ? 29 : 3;
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        if (widget.disabled) return;
         widget.onTap?.call(!value);
       },
       child: Stack(
@@ -55,7 +57,10 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
           Container(
             width: 54,
             height: 28,
-            color: railBgc,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(999)),
+              color: railBgc,
+            ),
           ),
           Positioned(
             top: 3,
@@ -63,14 +68,16 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
             child: Container(
               width: 22,
               height: 22,
-              color: pointBgc,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(999)),
+                color: pointBgc,
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
 
   @override
   void didUpdateWidget(MzSwitch oldWidget) {
@@ -81,8 +88,11 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
     if (railController?.status == AnimationStatus.forward) {
       railController!.stop();
     }
-    if (pointController?.status == AnimationStatus.forward) {
-      pointController!.stop();
+    if (pointColorController?.status == AnimationStatus.forward) {
+      pointColorController!.stop();
+    }
+    if (pointMoveController?.status == AnimationStatus.forward) {
+      pointMoveController!.stop();
     }
     // 设置widget值
     value = widget.value;
@@ -94,30 +104,50 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
     );
     CurvedAnimation railCurve =
     CurvedAnimation(parent: railController!, curve: Curves.easeInOut);
-    Animation<Color> rainAnimation =
-    Tween(begin: railBgc, end: railEndColor).animate(railCurve);
+    Animation<Color?> rainAnimation =
+    ColorTween(begin: railBgc, end: railEndColor).animate(railCurve);
     rainAnimation.addListener(() {
       setState(() {
-        railBgc = rainAnimation.value;
+        if (rainAnimation.value != null) {
+          railBgc = rainAnimation.value!;
+        }
       });
     });
     railController!.forward();
     // 圆点变色动画
     final pointEndColor =
     value ? widget.pointActiveColor : widget.pointInactiveColor;
-    pointController = AnimationController(
+    pointColorController = AnimationController(
       vsync: this,
       duration: widget.duration,
     );
     CurvedAnimation pointCurve =
-    CurvedAnimation(parent: pointController!, curve: Curves.easeInOut);
-    Animation<Color> pointAnimation =
-    Tween(begin: pointBgc, end: pointEndColor).animate(pointCurve);
+    CurvedAnimation(parent: pointColorController!, curve: Curves.easeInOut);
+    Animation<Color?> pointAnimation =
+    ColorTween(begin: pointBgc, end: pointEndColor).animate(pointCurve);
     pointAnimation.addListener(() {
       setState(() {
-        railBgc = pointAnimation.value;
+        if (rainAnimation.value != null) {
+          pointBgc = pointAnimation.value!;
+        }
       });
     });
-    pointController!.forward();
+    pointColorController!.forward();
+    // 圆点移动
+    final pointEndLeft = value ? 29.0 : 3.0;
+    pointMoveController = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+    CurvedAnimation curve =
+    CurvedAnimation(parent: pointMoveController!, curve: Curves.easeInOut);
+    Animation<double> pointMoveAnimation =
+    Tween(begin: pointLeft, end: pointEndLeft).animate(curve);
+    pointMoveAnimation.addListener(() {
+      setState(() {
+        pointLeft = pointMoveAnimation.value;
+      });
+    });
+    pointMoveController!.forward();
   }
 }
