@@ -61,7 +61,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
                   padding: const EdgeInsets.all(4.0),
                   shape: const CircleBorder(),
                   child: const Icon(
-                    Icons.remove,
+                    Icons.remove_rounded,
                     size: 28.0,
                   ),
                 ),
@@ -107,7 +107,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
                   padding: const EdgeInsets.all(4.0),
                   shape: const CircleBorder(),
                   child: const Icon(
-                    Icons.add,
+                    Icons.add_rounded,
                     size: 28.0,
                   ),
                 ),
