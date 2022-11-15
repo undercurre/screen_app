@@ -90,11 +90,7 @@ class _GradientSliderState extends State<GradientSlider>
       return;
     }
     var oldValue = value;
-    var newValue = widget.value < 0
-        ? 0.0
-        : widget.value > 100
-        ? 100.0
-        : widget.value;
+    var newValue = clampValue(widget.value);
     super.didUpdateWidget(oldWidget);
     doAnimation(newValue, oldValue);
   }
@@ -171,16 +167,16 @@ class _GradientSliderState extends State<GradientSlider>
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
     int curRed =
-    ((rightColor.red - leftColor.red) * valueToPercentage(value) / 100 + leftColor.red)
+    ((rightColor.red - leftColor.red) * valueToPercentage(value) + leftColor.red)
         .round();
     int curGreen =
-    ((rightColor.green - leftColor.green) * valueToPercentage(value) / 100 + leftColor.green)
+    ((rightColor.green - leftColor.green) * valueToPercentage(value) + leftColor.green)
         .round();
     int curBlue =
-    ((rightColor.blue - leftColor.blue) * valueToPercentage(value) / 100 + leftColor.blue)
+    ((rightColor.blue - leftColor.blue) * valueToPercentage(value) + leftColor.blue)
         .round();
     int curAlpha =
-    ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) / 100 + leftColor.alpha)
+    ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) + leftColor.alpha)
         .round();
     return [
       widget.activeColors[0],
@@ -192,12 +188,12 @@ class _GradientSliderState extends State<GradientSlider>
   double getBallLeft() {
     return widget.height -
         ((widget.height - widget.ballRadius * 2) / 2 + widget.ballRadius * 2) +
-        valueToPercentage(value) / 100 * (widget.width - widget.height);
+        valueToPercentage(value) * (widget.width - widget.height);
   }
 
   // 获取激活部分滑动条长度
   double getActiveRailWidth() {
-    return widget.height + valueToPercentage(value) / 100 * (widget.width - widget.height);
+    return widget.height + valueToPercentage(value) * (widget.width - widget.height);
   }
 
   num clampValue(num value) {
@@ -205,7 +201,7 @@ class _GradientSliderState extends State<GradientSlider>
   }
 
   num valueToPercentage(num value) {
-    return ((value - widget.min) / (widget.max - widget.min)) * 100;
+    return (value - widget.min) / (widget.max - widget.min);
   }
 
   num percentageToValue(num percentage) {
@@ -281,11 +277,13 @@ class _GradientSliderState extends State<GradientSlider>
     //用户手指滑动时，更新偏移，重新构建
     RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
     final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
-    final temp = clampValue(percentageToValue(percentage));
+    final percentageValue = percentageToValue(percentage);
+    final emitValue = clampValue(steppingValue(percentageValue));
     setState(() {
-      value = temp;
+      value = clampValue(percentageValue);
+      toValue = clampValue(percentageValue);
     });
-    widget.onChanging?.call(value, getActiveColor()[1]);
+    widget.onChanging?.call(emitValue, getActiveColor()[1]);
   }
 
   void onPanUp() {
