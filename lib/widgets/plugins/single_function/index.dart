@@ -2,44 +2,27 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/plugins/glass_card/index.dart';
 
-import '../../../common/device_mode/mode.dart';
-
 class SingleFunction extends StatefulWidget {
   final String title;
   final String desc;
   final Widget child;
-  final bool power;
 
-  const SingleFunction(
-      {super.key,
-      required this.title,
-      required this.desc,
-      required this.child,
-      required this.power});
+  const SingleFunction({
+    super.key,
+    required this.title,
+    required this.desc,
+    required this.child,
+  });
 
   @override
   State<SingleFunction> createState() => _SingleFunctionState();
 }
 
 class _SingleFunctionState extends State<SingleFunction> {
-  late String title;
-  late String desc;
-  late Widget child;
-  late bool power;
 
   @override
   void initState() {
     super.initState();
-    title = widget.title;
-    desc = widget.desc;
-    child = widget.child;
-    power = widget.power;
-  }
-
-  void onClick() {
-    setState(() {
-      power = !power;
-    });
   }
 
   @override
@@ -59,7 +42,7 @@ class _SingleFunctionState extends State<SingleFunction> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  '$title | ',
+                  '${widget.title} | ',
                   style: const TextStyle(
                       fontFamily: 'MEIDITYPE-REGULAR',
                       fontSize: 18,
@@ -69,7 +52,7 @@ class _SingleFunctionState extends State<SingleFunction> {
                       decoration: TextDecoration.none),
                 ),
                 Text(
-                  desc,
+                  widget.desc,
                   style: const TextStyle(
                       fontFamily: 'MEIDITYPE-REGULAR',
                       fontSize: 14,
@@ -79,7 +62,7 @@ class _SingleFunctionState extends State<SingleFunction> {
                 )
               ],
             ),
-            child
+            widget.child
           ],
         ),
       ),

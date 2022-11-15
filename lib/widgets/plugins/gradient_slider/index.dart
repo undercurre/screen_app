@@ -44,7 +44,7 @@ class GradientSlider extends StatefulWidget {
     this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
     this.max = 100,
     this.min = 0,
-    this.width = 272,
+    this.width = 269,
     this.height = 20,
     this.rounded = true,
     this.radius = 10,
@@ -76,7 +76,11 @@ class _GradientSliderState extends State<GradientSlider>
   @override
   void initState() {
     super.initState();
-    value = clampValue(widget.value);
+    value = widget.value < 0
+        ? 0
+        : widget.value > 100
+        ? 100
+        : widget.value;
   }
 
   @override
