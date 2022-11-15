@@ -31,6 +31,8 @@ class _ParamCardState extends State<ParamCard> {
   @override
   void initState() {
     super.initState();
+    title = widget.title;
+    unit = widget.unit;
   }
 
   @override
