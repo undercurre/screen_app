@@ -25,6 +25,9 @@ class GradientSlider extends StatefulWidget {
   final num step;
   final num value;
 
+  // 是否禁用操作
+  final bool disabled;
+
   // 滑动回调，传递出进度值和当前颜色
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
@@ -50,6 +53,7 @@ class GradientSlider extends StatefulWidget {
     this.radius = 10,
     this.ballRadius = 6,
     this.step = 1,
+    this.disabled = false,
   });
 
   @override
@@ -262,6 +266,7 @@ class _GradientSliderState extends State<GradientSlider>
 
   /// 事件处理
   void onPanDown(DragDownDetails e) {
+    if (widget.disabled) return;
     RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
     final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
     latestPosition = e.globalPosition;
@@ -272,6 +277,7 @@ class _GradientSliderState extends State<GradientSlider>
   }
 
   void onPanUpdate(DragUpdateDetails e) {
+    if (widget.disabled) return;
     isPanUpdate = true;
     latestPosition = e.globalPosition;
     //用户手指滑动时，更新偏移，重新构建
@@ -287,6 +293,7 @@ class _GradientSliderState extends State<GradientSlider>
   }
 
   void onPanUp() {
+    if (widget.disabled) return;
     RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
     final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
     final temp = clampValue(steppingValue(percentageToValue(percentage)));
