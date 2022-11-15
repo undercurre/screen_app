@@ -1,8 +1,7 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/glass_card/index.dart';
-
-import '../../../common/device_mode/mode.dart';
+import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
+import 'package:screen_app/common/device_mode/mode.dart';
 
 class ModeCard extends StatefulWidget {
   final List<Mode> modeList;
@@ -78,7 +77,5 @@ class _ModeCardState extends State<ModeCard> {
         ),
       ),
     );
-
-    throw UnimplementedError();
   }
 }

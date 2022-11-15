@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/glass_card/index.dart';
-import 'package:screen_app/widgets/plugins/gradient_slider/index.dart';
+import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
+import 'package:screen_app/widgets/plugins/base_widget/gradient_slider/index.dart';
 
 class TemperatureCard extends StatefulWidget {
   final num minTemperature;

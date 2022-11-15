@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/glass_card/index.dart';
+import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
 
 class SingleFunction extends StatefulWidget {
   final String title;
@@ -67,7 +67,5 @@ class _SingleFunctionState extends State<SingleFunction> {
         ),
       ),
     );
-
-    throw UnimplementedError();
   }
 }

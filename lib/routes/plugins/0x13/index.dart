@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/mode_card/index.dart';
-import 'package:screen_app/widgets/plugins/param_card/index.dart';
-import 'package:screen_app/widgets/plugins/nav_bar/index.dart' as nav_bar;
+import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
+import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
+import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart' as nav_bar;
 import 'package:screen_app/common/device_mode/0x13/index.dart';
-import 'package:screen_app/widgets/plugins/single_function/index.dart';
-
-import '../../../common/device_mode/mode.dart';
+import 'package:screen_app/widgets/plugins/business_widget/single_function/index.dart';
+import 'package:screen_app/common/device_mode/mode.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
