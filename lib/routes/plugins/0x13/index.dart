@@ -94,60 +94,64 @@ class WifiLightPageState extends State<WifiLightPage> {
                   image: AssetImage('assets/imgs/plugins/0x13/dengguang.png'),
                 ),
               ),
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ParamCard(
-                      title: '亮度',
-                      value: brightness,
-                      activeColors: const [
-                        Color(0xFFFFD185),
-                        Color(0xFFFFD185)
-                      ],
-                      onChanged: brightnessHandle,
-                      onChanging: brightnessHandle,
-                    ),
-                    ParamCard(
-                      title: '色温',
-                      value: colorTemperature,
-                      activeColors: const [
-                        Color(0xFFFFD39F),
-                        Color(0xFF55A2FA)
-                      ],
-                      onChanged: colorTemperatureHandle,
-                      onChanging: colorTemperatureHandle,
-                    ),
-                    ModeCard(
-                      modeList: lightModes,
-                      selectedKey: screenModel,
-                      onClick: modeHandle,
-                    ),
-                    SingleFunction(
-                      title: '延时关灯',
-                      desc:
-                          timeOff == '0' ? '未设置' : '${int.parse(timeOff)}分钟后关灯',
-                      child: Listener(
-                        onPointerDown: (e) => delayHandle(),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: timeOff == '0'
-                                ? const Color(0xFFFFFFFF)
-                                : const Color(0xFF000000),
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Image(
-                            image: AssetImage(timeOff == '0'
-                                ? 'assets/imgs/plugins/0x13/delay_on.png'
-                                : 'assets/imgs/plugins/0x13/delay_off.png'),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                  child: ListView(
+                    children: [
+                      ParamCard(
+                        title: '亮度',
+                        value: brightness,
+                        activeColors: const [
+                          Color(0xFFFFD185),
+                          Color(0xFFFFD185)
+                        ],
+                        onChanged: brightnessHandle,
+                        onChanging: brightnessHandle,
+                      ),
+                      ParamCard(
+                        title: '色温',
+                        value: colorTemperature,
+                        activeColors: const [
+                          Color(0xFFFFD39F),
+                          Color(0xFF55A2FA)
+                        ],
+                        onChanged: colorTemperatureHandle,
+                        onChanging: colorTemperatureHandle,
+                      ),
+                      ModeCard(
+                        modeList: lightModes,
+                        selectedKey: screenModel,
+                        onClick: modeHandle,
+                      ),
+                      SingleFunction(
+                        title: '延时关灯',
+                        desc: timeOff == '0'
+                            ? '未设置'
+                            : '${int.parse(timeOff)}分钟后关灯',
+                        child: Listener(
+                          onPointerDown: (e) => delayHandle(),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: timeOff == '0'
+                                  ? const Color(0xFFFFFFFF)
+                                  : const Color(0xFF000000),
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            child: Image(
+                              image: AssetImage(timeOff == '0'
+                                  ? 'assets/imgs/plugins/0x13/delay_on.png'
+                                  : 'assets/imgs/plugins/0x13/delay_off.png'),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
