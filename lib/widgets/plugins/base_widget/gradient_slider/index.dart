@@ -49,7 +49,7 @@ class GradientSlider extends StatefulWidget {
     this.min = 0,
     this.width = 100,
     this.height = 20,
-    this.rounded = true,
+    this.rounded = false,
     this.radius = 10,
     this.ballRadius = 6,
     this.step = 1,
@@ -231,8 +231,6 @@ class _GradientSliderState extends State<GradientSlider>
     final closestStep = (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0 ? rightStep : leftStep;
     return closestStep;
   }
-
-
 
   // 执行动画（如果不存在duration则没有动画过程）
   void doAnimation(num newValue, num oldValue) {

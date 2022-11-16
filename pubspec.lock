@@ -671,7 +671,7 @@ packages:
     dependency: "direct main"
     description:
       name: reorderables
-      url: "https://pub.dartlang.org"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.5.1"
   shared_preferences:
