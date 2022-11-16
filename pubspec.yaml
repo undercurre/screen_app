@@ -63,6 +63,7 @@ dev_dependencies:
   json_serializable: ^6.5.1
   json_model: ^1.0.0
   flutter_draggable_gridview: ^0.0.7
+  date_format: ^2.0.7
   connectivity_plus:
 
 # For information on the generic Dart part of this file, see the
@@ -86,6 +87,7 @@ flutter:
     - assets/imgs/icon/
     - assets/imgs/dropDown/
     - assets/imgs/setting/
+    - assets/imgs/device/
     - assets/imgs/
     - assets/
     - .sit.env
