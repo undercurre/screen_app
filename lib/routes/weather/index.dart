@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import '../../common/api/iot_api.dart';
+import '../../common/api/midea_api.dart';
 
 final codeToImage = {
   '00': 'sunny',
@@ -59,7 +59,7 @@ class WeatherPageState extends State<WeatherPage> {
 
   // 获取家庭组
   void initQuery() async {
-    var homegroupRes = await IotApi.getHomegroup();
+    var homegroupRes = await MideaApi.getHomegroup();
     if (!homegroupRes.isSuccess) {
       return;
     }
@@ -74,7 +74,7 @@ class WeatherPageState extends State<WeatherPage> {
   }
 
   void updateWeather(String cityId) async {
-    var weatherOfCityRes = await IotApi.getWeather(cityId: cityId);
+    var weatherOfCityRes = await MideaApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;
       setState(() {
@@ -103,7 +103,7 @@ class WeatherPageState extends State<WeatherPage> {
       return;
     }
 
-    var forecastRes = await IotApi.getWeather7d(cityId: cityId);
+    var forecastRes = await MideaApi.getWeather7d(cityId: cityId);
     if (forecastRes.isSuccess) {
       var forecastData = forecastRes.data.first;
       final now = DateTime.now();
