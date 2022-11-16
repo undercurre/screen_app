@@ -74,6 +74,7 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 在`lib/common`目录下创建一个Global类，它主要管理APP的全局状态变量
 
 - 用户信息：`Global.user`
+- 家庭信息： `Global.profile.homeInfo`
 
 ## 全局配置
 使用dotenv读取配置，可以在sit环境使用release打包，也可以在prod环境使用debug模式启动，开发和调试更方便，生产环境出问题也可以使用debug模式启动定位问题。
