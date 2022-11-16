@@ -8,7 +8,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   // 加载环境配置
   await setupConfig();
-  Global.init().then((e) => runApp(const App()));
+  Global.init().then((e) async {
+    await checkLogin();
+    runApp(const App());
+  });
+}
+
+Future checkLogin() async {
+  if (Global.isLogin) {
+    await MideaApi.autoLogin();
+
+    await MzApi.authToken();
+  }
 }
 
 class App extends StatefulWidget {
@@ -22,8 +33,6 @@ class _App extends State<App> {
   @override
   void initState() {
     super.initState();
-
-    checkLogin();
   }
 
   // This widget is the root of your application.
@@ -39,14 +48,6 @@ class _App extends State<App> {
         routes: routes,
       ),
     );
-  }
-
-  void checkLogin() async {
-    if (Global.isLogin) {
-      await MideaApi.autoLogin();
-
-      await MzApi.authToken();
-    }
   }
 }
 

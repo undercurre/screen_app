@@ -51,7 +51,6 @@ class MideaApi {
     var rule = 1;
     var res = await Api.requestMideaIot("/muc/v5/app/mj/user/autoLogin",
         data: {
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
           'data': {
             'uid': Global.user?.uid,
             'tokenPwd': Global.user?.tokenPwd,
@@ -99,7 +98,6 @@ class MideaApi {
         },
         options: Options(
           method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
         ));
 
     return MideaIotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
@@ -112,7 +110,6 @@ class MideaApi {
         data: {},
         options: Options(
           method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
         ));
 
     return MideaIotResult<HomegroupList>.translate(
