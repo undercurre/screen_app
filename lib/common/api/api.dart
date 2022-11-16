@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:encrypt/encrypt.dart' as Encrypt;
-import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -77,7 +75,7 @@ class Api {
   /// IOT接口发起公共接口
   static Future<MideaIotResult> requestMideaIot<T>(
     String path, {
-    data,
+    Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -87,41 +85,24 @@ class Api {
     options ??= Options();
     options.headers ??= {};
     data ??= {};
+    queryParameters ??= {};
 
     var reqId = uuid.v4();
     var params = options.method == 'GET' ? queryParameters : data;
-    var extra = options.extra ?? {};
     var headers = options.headers as LinkedHashMap<String, dynamic>;
 
     // 公共data参数
-    if (params != null) {
-      var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-      params['openId'] = 'zhinengjiadian';
-      params['iotAppId'] = '12002';
-      params['reqId'] = reqId;
-      params['stamp'] = timestamp;
-      params['timestamp'] = timestamp;
+    params['openId'] = 'zhinengjiadian';
+    params['iotAppId'] = '12002';
+    params['reqId'] = reqId;
+    params['stamp'] = timestamp;
+    params['timestamp'] = timestamp;
 
-      if (Global.isLogin) {
-        params['uid'] = Global.user?.uid;
-      }
-    }
-
-    // isEncrypt用于判断是否需要加密请求，默认否
-    if (options.method != 'GET' && extra['isEncrypt'] == true) {
-      var enCodedJson = utf8.encode(params.toString());
-      var gZipJson = GZipEncoder().encode(enCodedJson);
-      logger.i('enCodedJson: $enCodedJson');
-      logger.i('gZipJson: $gZipJson');
-      final key = Encrypt.Key.fromUtf8(secret); //加密key
-      final iv = Encrypt.IV.fromLength(16); //偏移量
-
-      //设置cbc模式
-      final encrypter =
-          Encrypt.Encrypter(Encrypt.AES(key, mode: Encrypt.AESMode.cbc));
-
-      data = encrypter.encrypt(params.toString(), iv: iv).base64.toString();
+    if (Global.isLogin) {
+      params['uid'] = Global.user?.uid;
+      headers['accessToken'] = Global.user?.accessToken;
     }
 
     // 公共header参数
@@ -132,10 +113,8 @@ class Api {
 
     // sign签名 start
     var md5Origin = httpSignSecret; // 拼接加密前字符串
-    if (data != null) {
-      md5Origin += json.encode(data);
-    }
-    if (queryParameters != null && queryParameters.isNotEmpty) {
+    md5Origin += json.encode(data);
+    if (queryParameters.isNotEmpty) {
       var sortParams = SplayTreeMap<String, dynamic>.from(
           queryParameters); // 对queryParameters排序
       sortParams.forEach((key, value) {
@@ -175,6 +154,7 @@ class Api {
     options.headers ??= {};
     data ??= {}; // data默认值
     queryParameters ??= {};
+    var extra = options.extra ?? {};
 
     var reqId = uuid.v4();
     var params =
@@ -202,18 +182,19 @@ class Api {
 
     if (StrUtils.isNotNullAndEmpty(Global.user?.mzAccessToken)) {
       headers.addAll({
-        'Bearer': Global.user?.mzAccessToken,
+        'Authorization': 'Bearer ${Global.user?.mzAccessToken}',
       });
     }
 
-    // 公共header参数
     // sign签名 start
-    var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
-    md5Origin += json.encode(data);
-    md5Origin += reqId;
+    if (extra['isSign'] == true) {
+      var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
+      md5Origin += json.encode(data);
+      md5Origin += reqId;
 
-    headers['sign'] = md5.convert(utf8.encode(md5Origin));
-    headers['random'] = reqId;
+      headers['sign'] = md5.convert(utf8.encode(md5Origin));
+      headers['random'] = reqId;
+    }
     // sign签名 end
 
     var res = await dio.request(

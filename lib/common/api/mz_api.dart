@@ -10,6 +10,7 @@ class MzApi {
   static Future<MzIotResult> authToken() async {
     var res = await Api.requestMzIot<QrCode>("/v1/openApi/auth/midea/token",
         data: {
+          'deviceId': Global.user?.deviceId,
           'appId': dotenv.get('APP_ID'),
           'appSecret': dotenv.get('APP_SECRET'),
           'itAccessToken': Global.user?.accessToken,
@@ -17,6 +18,7 @@ class MzApi {
         },
         options: Options(
           method: 'POST',
+          extra: { 'isSign': true }
         ));
 
     if (res.isSuccess) {
