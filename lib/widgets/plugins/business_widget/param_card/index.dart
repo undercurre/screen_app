@@ -72,6 +72,7 @@ class _ParamCardState extends State<ParamCard> {
                 ),
               ),
               GradientSlider(
+                width: 260,
                 value: widget.value,
                 activeColors: widget.activeColors,
                 duration: const Duration(milliseconds: 100),
