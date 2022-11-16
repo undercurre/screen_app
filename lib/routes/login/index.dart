@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../common/api/index.dart';
+import 'package:provider/provider.dart';
+import '../../common/index.dart';
+import '../../states/profile_change_notifier.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
+import 'select_home.dart';
 import 'select_room.dart';
 
 class Step {
@@ -15,15 +18,7 @@ class _LoginPage extends State<LoginPage> {
   bool wifi = true;
 
   /// 当前步骤，1-4
-  var stepNum = 1;
-  var stepList = [
-    Step('连接网络', const LinkNetwork()),
-    Step('扫码登录', const ScanCode()),
-    Step('选择家庭', const SelectRoom()),
-    Step('选择房间', const SelectRoom()),
-  ];
-
-  get stepItem => stepList[stepNum - 1];
+  var stepNum = Global.isLogin ? 3 : 1;
 
   /// 上一步
   void prevStep() {
@@ -37,8 +32,13 @@ class _LoginPage extends State<LoginPage> {
 
   /// 下一步
   void nextStep() async {
+    //导航到新路由
+    // var result = await Navigator.pushNamed(
+    //   context,
+    //   'ScanCode',
+    // );
     if (stepNum == 2) {
-      // IotApi.getHomeList();
+      // MideaApi.getHomeList();
     }
 
     if (stepNum == 4) {
@@ -56,54 +56,71 @@ class _LoginPage extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        LoginHeader(
-            stepSum: stepList.length, stepNum: stepNum, title: stepItem.title),
-        Expanded(flex: 1, child: stepItem.view),
-        Row(children: [
-          Expanded(
-              child: TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-              padding: const EdgeInsets.all(20.0),
-              textStyle: const TextStyle(
-                  fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
-            ),
-            onPressed: () async {
-              prevStep();
-            },
-            child: const Text('上一步',
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.85),
+    var stepList = [
+      Step('连接网络', const LinkNetwork()),
+      Step('扫码登录', ScanCode(onSuccess: nextStep)),
+      Step('选择家庭', const SelectHome()),
+      Step('选择房间', const SelectRoom()),
+    ];
+
+    var user = context.watch<UserModel>();
+
+    if (!user.isLogin) {
+      stepNum = 2;
+    }
+    var stepItem = stepList[stepNum - 1];
+
+    var buttonStyle = TextButton.styleFrom(
+      backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      padding: const EdgeInsets.all(20.0),
+      textStyle: const TextStyle(
+          fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
+    );
+
+    return DecoratedBox(
+        decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 1)),
+        child: Center(
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            LoginHeader(
+                stepSum: stepList.length,
+                stepNum: stepNum,
+                title: stepItem.title),
+            Expanded(flex: 1, child: stepItem.view),
+            Row(children: [
+              if (stepNum > 1)
+                Expanded(
+                    child: TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    prevStep();
+                  },
+                  child: const Text('上一步',
+                      style: TextStyle(
+                        color: Color.fromRGBO(255, 255, 255, 0.85),
+                      )),
                 )),
-          )),
-          Expanded(
-              child: TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-              padding: const EdgeInsets.all(20.0),
-              textStyle: const TextStyle(
-                  fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
-            ),
-            onPressed: () async {
-              nextStep();
-              //导航到新路由
-              // var result = await Navigator.pushNamed(
-              //   context,
-              //   'ScanCode',
-              // );
-            },
-            child: const Text('下一步',
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.85),
-                )),
-          ))
-        ])
-      ],
-    ));
+              if (stepNum > 2)
+                const SizedBox(
+                  width: 4,
+                ),
+              if (stepNum != 2)
+                Expanded(
+                    child: TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    nextStep();
+                  },
+                  child: const Text('下一步',
+                      style: TextStyle(
+                        color: Color.fromRGBO(255, 255, 255, 0.85),
+                      )),
+                ))
+            ])
+          ],
+        )));
   }
 }
 
@@ -142,25 +159,23 @@ class LoginHeader extends StatelessWidget {
           color: Colors.white24,
           fontSize: 60.0,
           height: 1,
-          fontFamily: "MideaType-Bold",
+          fontFamily: "MideaType",
           decoration: TextDecoration.none,
         ),
       ),
     );
 
     var titleView = Padding(
-        padding: const EdgeInsets.fromLTRB(0, 18, 0, 6),
-        child: Text(
-          title,
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 6),
+      child: Text(title,
           textAlign: TextAlign.left,
           style: const TextStyle(
             color: Colors.white24,
             fontSize: 26.0,
             height: 1,
-            fontFamily: "MideaType-Bold",
+            fontFamily: "MideaType",
             decoration: TextDecoration.none,
-          )
-        ),
+          )),
     );
 
     const stepActiveImg =
@@ -197,9 +212,7 @@ class LoginHeader extends StatelessWidget {
     );
 
     var tempIcon = TextButton.icon(
-      onPressed: () => {
-        Navigator.of(context).pushNamed('Weather')
-      },
+      onPressed: () => {Navigator.of(context).pushNamed('Weather')},
       label: const Text(''),
       icon: const Icon(Icons.sunny_snowing),
     );
@@ -216,10 +229,14 @@ class LoginHeader extends StatelessWidget {
         ));
 
     return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [headerView, stepNumView, Positioned(
-          right: 18.0,
-          top: 18.0,
-          child: tempIcon,
-        )]);
+        children: [
+          headerView,
+          stepNumView,
+          Positioned(
+            right: 18.0,
+            top: 18.0,
+            child: tempIcon,
+          )
+        ]);
   }
 }

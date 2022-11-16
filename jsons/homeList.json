@@ -12,9 +12,10 @@
   "areaid": "101280801",
   "createTime": "2022-06-29 10:22:12",
   "createUserUid": "ecb0f481ba9e8a7d9a3fde8c31b2432f",
-  "roomCount": "5",
-  "applianceCount": "2",
-  "memberCount": "17",
+  "roomCount?": "5",
+  "applianceCount?": "2",
+  "memberCount?": "17",
   "members?": null,
-  "unread": 1
+  "roomList?": "$[]RoomInfo",
+  "unread?": 1
 }

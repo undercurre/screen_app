@@ -47,6 +47,12 @@ dependencies:
   intl: ^0.17.0
   flutter_dotenv: ^5.0.2
   uuid: ^3.0.6
+  connectivity_plus: ^2.3.9
+  platform_device_id: ^1.0.1
+  network_info_plus: ^2.1.4+1
+  wifi_iot: ^0.3.18
+  wifi_scan: ^0.4.0+1
+  motion_toast: ^2.5.4
 
 dev_dependencies:
   flutter_test:

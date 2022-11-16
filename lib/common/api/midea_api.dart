@@ -1,15 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
-import '../global.dart';
-import 'api.dart';
+import '../index.dart';
 import '../../models/index.dart';
+import '../../states/index.dart';
 
-class IotApi {
-  /// 登录接口，登录成功后返回用户信息
+class MideaApi {
+  /// 获取授权登录二维码
   static Future<MideaIotResult<QrCode>> getQrCode() async {
     var res = await Api.requestMideaIot<QrCode>(
         "/muc/v5/app/mj/screen/auth/getQrCode",
-        data: {'deviceId': '38f6b0a50b2328ea428293858a726671', 'checkType': 1},
+        data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
         options: Options(method: 'POST', extra: {'isEncrypt': false}));
 
     return MideaIotResult<QrCode>.translate(
@@ -45,7 +46,7 @@ class IotApi {
         res.code, res.msg, User.fromJson(res.data));
   }
 
-  /// 自动登录接口
+  /// 自动登录接口,
   static Future autoLogin() async {
     var rule = 1;
     var res = await Api.requestMideaIot("/muc/v5/app/mj/user/autoLogin",
@@ -64,6 +65,10 @@ class IotApi {
           headers: {'accessToken': Global.user?.accessToken},
         ));
 
+    if (res.code == 65012) {
+      UserModel().user = null;
+    }
+    
     if (!res.isSuccess) {
       return;
     }
@@ -72,6 +77,8 @@ class IotApi {
     if (rule == 1) {
       Global.user?.accessToken = res.data['accessToken'];
       Global.user?.expired = res.data['expired'];
+      var time = DateTime.fromMillisecondsSinceEpoch(Global.user?.expired?.toInt() ?? 0);
+      debugPrint('token过期时间: $time');
     } else if (rule == 0) {
       // 刷新的令牌密码tokenPwd
       Global.user?.tokenPwd = res.data['tokenPwd'];
@@ -80,7 +87,7 @@ class IotApi {
   }
 
   /// 获取用户所有家庭的家电列表
-  static void getHomeList({
+  static Future getHomeList({
     String? homegroupId,
     String? roomId,
   }) async {
@@ -95,9 +102,7 @@ class IotApi {
           headers: {'accessToken': Global.user?.accessToken},
         ));
 
-    if (!res.isSuccess) {
-      return;
-    }
+    return MideaIotResult<HomegroupList>.translate(res.code, '', HomegroupList.fromJson(res.data));
   }
 
   /// 获取用户的家庭列表

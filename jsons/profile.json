@@ -1,5 +1,6 @@
 {
   "user?":"$user",
-  "theme": 0,
-  "locale?":""
+  "homeInfo?": "$HomeList",
+  "romeInfoSelected?": "$RoomInfo",
+  "deviceId?": "21313"
 }

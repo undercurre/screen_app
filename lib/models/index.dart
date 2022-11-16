@@ -1,5 +1,6 @@
 export 'weather.dart' ; 
-export 'profile.dart' ; 
+export 'roomInfo.dart' ;
+export 'profile.dart' ;
 export 'location.dart' ; 
 export 'weatherOfCity.dart' ; 
 export 'user.dart' ; 

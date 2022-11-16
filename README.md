@@ -57,7 +57,7 @@ github_client_app
 flutter packages  pub run json_model src=jsons  dist=data
 
 # Linux 下格式稍不同，参数前加--（作者文档未提及）
-flutter packages pub run json_model --src=jsons --dist=data
+flutter packages pub run json_model --src=jsons --dist=lib/models
 ```
 
 注：

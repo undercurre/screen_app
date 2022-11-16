@@ -20,11 +20,14 @@ HomeList _$HomeListFromJson(Map<String, dynamic> json) => HomeList()
   ..areaid = json['areaid'] as String
   ..createTime = json['createTime'] as String
   ..createUserUid = json['createUserUid'] as String
-  ..roomCount = json['roomCount'] as String
-  ..applianceCount = json['applianceCount'] as String
-  ..memberCount = json['memberCount'] as String
+  ..roomCount = json['roomCount'] as String?
+  ..applianceCount = json['applianceCount'] as String?
+  ..memberCount = json['memberCount'] as String?
   ..members = json['members'] as String?
-  ..unread = json['unread'] as num;
+  ..roomList = (json['roomList'] as List<dynamic>?)
+      ?.map((e) => RoomInfo.fromJson(e as Map<String, dynamic>))
+      .toList()
+  ..unread = json['unread'] as num?;
 
 Map<String, dynamic> _$HomeListToJson(HomeList instance) => <String, dynamic>{
       'homegroupId': instance.homegroupId,
@@ -44,5 +47,6 @@ Map<String, dynamic> _$HomeListToJson(HomeList instance) => <String, dynamic>{
       'applianceCount': instance.applianceCount,
       'memberCount': instance.memberCount,
       'members': instance.members,
+      'roomList': instance.roomList,
       'unread': instance.unread,
     };

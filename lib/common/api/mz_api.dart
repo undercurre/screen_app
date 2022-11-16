@@ -25,4 +25,15 @@ class MzApi {
 
     return res;
   }
+
+  /// 家庭列表查询
+  static Future<MzIotResult> getHomeList() async {
+    var res = await Api.requestMzIot<QrCode>("/v1/category/midea/user/homeGroup/list",
+        data: {},
+        options: Options(
+          method: 'POST',
+        ));
+
+    return res;
+  }
 }
