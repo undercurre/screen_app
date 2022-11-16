@@ -11,8 +11,20 @@ void main() async {
   Global.init().then((e) => runApp(const App()));
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
+
+  @override
+  State<App> createState() => _App();
+}
+
+class _App extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+
+    checkLogin();
+  }
 
   // This widget is the root of your application.
   @override
@@ -20,13 +32,21 @@ class App extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (providerContext) => UserModel(),
       child: MaterialApp(
-        themeMode: ThemeMode.system,
-        theme: ThemeData.fallback(),
+        themeMode: ThemeMode.dark,
+        theme: ThemeData.dark(),
         darkTheme: ThemeData.dark(),
         //注册路由表
         routes: routes,
       ),
     );
+  }
+
+  void checkLogin() async {
+    if (Global.isLogin) {
+      await MideaApi.autoLogin();
+
+      await MzApi.authToken();
+    }
   }
 }
 

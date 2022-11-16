@@ -21,6 +21,7 @@ class UserModel extends ProfileChangeNotifier {
 
   //用户信息发生变化，更新用户信息并通知依赖它的子孙Widgets更新
   set user(User? user) {
+    debugPrint('UserModel-change');
     if (user?.uid != _profile.user?.uid) {
       _profile.user = user;
 

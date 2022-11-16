@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'api/api.dart';
+import 'package:platform_device_id/platform_device_id.dart';
+import 'package:uuid/uuid.dart';
+
+import 'api/index.dart';
+import 'util.dart';
 import '../models/index.dart';
 
 /// 提供五套可选主题色
@@ -36,8 +40,6 @@ class Global {
   static set user(User? value) {
     debugPrint('setUser $user');
     profile.user = value;
-
-    saveProfile();
   }
 
   /// 可选的主题列表
@@ -53,22 +55,33 @@ class Global {
     if (profileJson != null) {
       try {
         profile = Profile.fromJson(jsonDecode(profileJson));
-        profile.theme = 0;
       } catch (e) {
         logger.w('profileJson-error: ${e.toString()}');
         _prefs.remove('profile');
-        profile = Profile()..theme = 0;
+        profile = Profile();
       }
-    } else {
-      // 默认主题索引为0，代表蓝色
-      profile = Profile()..theme = 0;
     }
+
+    if (StrUtils.isNullOrEmpty(profile.deviceId)) {
+      String? deviceId = await PlatformDeviceId.getDeviceId;
+      logger.i('deviceId: $deviceId');
+
+      if (StrUtils.isNullOrEmpty(deviceId)) {
+        const uuid = Uuid();
+        deviceId = uuid.v4();
+      }
+      profile.deviceId = deviceId;
+    }
+
+    saveProfile();
 
     //初始化网络请求相关配置
     Api.init();
   }
 
   /// 持久化Profile信息
-  static saveProfile() =>
-      _prefs.setString("profile", jsonEncode(profile.toJson()));
+  static saveProfile() {
+    logger.i('saveProfile: ${profile.toJson()}');
+    _prefs.setString("profile", jsonEncode(profile.toJson()));
+  }
 }

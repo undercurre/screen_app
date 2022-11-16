@@ -41,7 +41,7 @@ class _ScanCode extends State<ScanCode> {
 
   /// 绑定二维码url
   void updateQrCode() async {
-    var res = await IotApi.getQrCode();
+    var res = await MideaApi.getQrCode();
 
     if (res.isSuccess) {
       setState(() {
@@ -58,10 +58,18 @@ class _ScanCode extends State<ScanCode> {
   /// 大屏端轮询授权状态接口
   void updateLoginStatus() {
     timer = Timer(const Duration(seconds: 5), () async {
-      var res = await IotApi.getAccessToken(sessionId);
+      var res = await MideaApi.getAccessToken(sessionId);
 
       if (res.isSuccess) {
-        await IotApi.autoLogin();
+        await MideaApi.autoLogin();
+
+        // 获取美智token
+        await MzApi.authToken();
+
+        Global.saveProfile();
+
+        TipsUtils.toast(context: context, title: '提示', content: '授权成功');
+        widget.onSuccess!();
       } else {
         updateLoginStatus();
       }
@@ -70,7 +78,9 @@ class _ScanCode extends State<ScanCode> {
 }
 
 class ScanCode extends StatefulWidget {
-  const ScanCode({super.key});
+  final Function? onSuccess;
+
+  const ScanCode({super.key, this.onSuccess});
 
   @override
   State<ScanCode> createState() => _ScanCode();
