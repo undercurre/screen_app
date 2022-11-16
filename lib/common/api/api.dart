@@ -1,19 +1,14 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
 import 'dart:convert';
-import 'dart:math';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart' as Encrypt;
 import 'package:archive/archive.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:screen_app/common/util.dart';
 import 'package:uuid/uuid.dart';
-import '../../models/index.dart';
-import '../../routes/login/link_network.dart';
 import '../global.dart';
 
 const uuid = Uuid();
@@ -60,7 +55,8 @@ class Api {
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onResponse: (response, handler) {
       // 统一增加请求是否成功标志
-      logger.i('onResponse: $response');
+      logger.i('${response.requestOptions.path} \n '
+          'onResponse: $response.');
       // Do something with response data
       return handler.next(response); // continue
       // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，
@@ -196,6 +192,20 @@ class Api {
       'frontendType': 'ANDROID',
     });
 
+    if (Global.isLogin) {
+      headers.addAll({
+        'deviceId': Global.user?.deviceId,
+      });
+
+      params['userId'] = Global.user?.uid;
+    }
+
+    if (StrUtils.isNotNullAndEmpty(Global.user?.mzAccessToken)) {
+      headers.addAll({
+        'Bearer': Global.user?.mzAccessToken,
+      });
+    }
+
     // 公共header参数
     // sign签名 start
     var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
@@ -205,15 +215,6 @@ class Api {
     headers['sign'] = md5.convert(utf8.encode(md5Origin));
     headers['random'] = reqId;
     // sign签名 end
-
-    if (Global.isLogin) {
-      headers.addAll({
-        'Bearer': Global.user?.mzAccessToken,
-        'deviceId': Global.user?.deviceId,
-      });
-
-      params['userId'] = Global.user?.uid;
-    }
 
     var res = await dio.request(
       dotenv.get('MZ_URL') + path,

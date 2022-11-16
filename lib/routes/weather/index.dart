@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import '../../common/api/iot_api.dart';
+import '../../common/api/midea_api.dart';
 
 // 页面定义
 class WeatherPageState extends State<WeatherPage> {
@@ -21,7 +21,7 @@ class WeatherPageState extends State<WeatherPage> {
 
   // 获取家庭组
   void initQuery() async {
-    var res = await IotApi.getHomegroup();
+    var res = await MideaApi.getHomegroup();
     if (res.isSuccess) {
       setState(() {
         List arr = res.data.homeList.first.address.split(' ');
@@ -98,7 +98,7 @@ class WeatherPageState extends State<WeatherPage> {
           children: [
             TextButton.icon(
               onPressed: () async {
-                await IotApi.getWeather();
+                await MideaApi.getWeather();
               },
               label: const Text('接口测试'),
               icon: const Icon(Icons.sunny_snowing),
