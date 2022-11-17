@@ -43,7 +43,7 @@ class MideaApi {
     }
 
     return MideaIotResult<User>.translate(
-        res.code, res.msg, User.fromJson(res.data));
+      res.code, res.msg, User.fromJson(res.data));
   }
 
   /// 自动登录接口,
@@ -151,3 +151,4 @@ class MideaApi {
         res.code, '', res.data.map<Weather7d>((value) => Weather7d.fromJson(value)).toList());
   }
 }
+

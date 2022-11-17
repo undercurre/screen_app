@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
 import 'package:screen_app/common/device_mode/0x13/index.dart';
@@ -7,6 +9,9 @@ import 'package:screen_app/common/device_mode/mode.dart';
 import 'package:screen_app/widgets/plugins/device_widget/light_ball/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
 as nav_bar;
+
+import '../../../common/api/midea_api.dart';
+import '../../../common/global.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
@@ -19,7 +24,8 @@ class WifiLightPageState extends State<WifiLightPage> {
     Navigator.pop(context);
   }
 
-  void powerHandle() {
+  Future<void> powerHandle() async {
+    await DeviceApi.getDeviceDetail("0x13", "178120883713033");
     setState(() {
       power = !power;
     });
@@ -42,8 +48,7 @@ class WifiLightPageState extends State<WifiLightPage> {
     print(screenModel);
   }
 
-  void brightnessHandle(num value, Color activeColor) {
-    print(value);
+  Future<void> brightnessHandle(num value, Color activeColor) async {
     setState(() {
       brightness = value;
     });
@@ -80,7 +85,7 @@ class WifiLightPageState extends State<WifiLightPage> {
               top: 0,
               child: LightBall(
                 brightness: brightness,
-                colorTemperature: colorTemperature,
+                colorTemperature: 100 - colorTemperature,
               )),
           Flex(
             direction: Axis.vertical,
