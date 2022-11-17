@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../common/api/midea_api.dart';
+import '../../states/index.dart';
 
 final codeToImage = {
   '00': 'sunny',
@@ -74,6 +76,10 @@ class WeatherPageState extends State<WeatherPage> {
   }
 
   void updateWeather(String cityId) async {
+    // 如果未登录成功，则不显示天气情况
+    if (!Provider.of<UserModel>(context, listen: false).isLogin) {
+      return;
+    }
     var weatherOfCityRes = await MideaApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;
@@ -123,11 +129,13 @@ class WeatherPageState extends State<WeatherPage> {
 
     Widget showBgImage = DecoratedBox(
       decoration: BoxDecoration(
-        image: DecorationImage(
+          image: weatherBg != ''
+              ? DecorationImage(
           image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
           fit: BoxFit.cover,
-        ),
-      ),
+                )
+              : null,
+          color: const Color.fromRGBO(0, 0, 0, 0)),
     );
 
     Widget showTemperature = Row(
@@ -182,27 +190,27 @@ class WeatherPageState extends State<WeatherPage> {
                   wordSpacing: 2.0)),
         ]);
 
-    List<Widget> stackChildren = [];
 
-    if (weatherBg != '') {
-      stackChildren.add(showBgImage);
-    }
 
-    stackChildren
-        .add(const Positioned(left: 30, top: 40, child: DateTimeStr()));
-    stackChildren.add(Positioned(left: 30, bottom: 60, child: showTemperature));
 
-    if (weatherIcon != '') {
-      stackChildren.add(Positioned(left: 30, bottom: 20, child: showWeather));
-    }
 
     return GestureDetector(
         child: Stack(
           fit: StackFit.expand,
-          children: stackChildren,
+          children: [
+            // 天气背景图
+            showBgImage,
+            // 日期时间
+            const Positioned(left: 30, top: 40, child: DateTimeStr()),
+            // 温度
+            Positioned(left: 30, bottom: 60, child: showTemperature),
+            // 地理位置及天气状况
+            if (weatherIcon != '')
+              Positioned(left: 30, bottom: 20, child: showWeather),
+          ],
         ),
         onTap: () {
-          Navigator.of(context).pushNamed('/');
+          Navigator.of(context).pop();
         });
   }
 }
@@ -212,15 +220,16 @@ class DateTimeStrState extends State<DateTimeStr> {
   String datetime = '';
   late Timer _timer;
 
+  String getDatetime() =>
+      DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
   @override
   void initState() {
     super.initState();
 
-    // 每秒刷新时间
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        datetime = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
-      });
+    setState(() => datetime = getDatetime());
+    // 每5秒刷新时间
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      setState(() => datetime = getDatetime());
     });
   }
 

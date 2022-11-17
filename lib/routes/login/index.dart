@@ -6,6 +6,7 @@ import 'link_network.dart';
 import 'scan_code.dart';
 import 'select_home.dart';
 import 'select_room.dart';
+import '../../mixins/index.dart';
 
 class Step {
   String title;
@@ -14,7 +15,7 @@ class Step {
   Step(this.title, this.view);
 }
 
-class _LoginPage extends State<LoginPage> {
+class _LoginPage extends State<LoginPage> with Standby {
   bool wifi = true;
 
   /// 当前步骤，1-4
@@ -211,11 +212,24 @@ class LoginHeader extends StatelessWidget {
       children: stepList,
     );
 
-    var tempIcon = TextButton.icon(
-      onPressed: () => {Navigator.of(context).pushNamed('Weather')},
+    var tempIcon = Positioned(
+      left: 100.0,
+      top: 2.0,
+      child: TextButton.icon(
+        onPressed: () => Navigator.of(context).pushNamed('SettingPage'),
       label: const Text(''),
-      icon: const Icon(Icons.sunny_snowing),
+        icon: const Icon(Icons.settings),
+      ),
     );
+    // var tempIcon = Positioned(
+    //   left: 100.0,
+    //   top: 2.0,
+    //   child: TextButton.icon(
+    //     onPressed: () => exit(0),
+    //     label: const Text(''),
+    //     icon: const Icon(Icons.exit_to_app),
+    //   ),
+    // );
 
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(
@@ -229,14 +243,6 @@ class LoginHeader extends StatelessWidget {
         ));
 
     return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [
-          headerView,
-          stepNumView,
-          Positioned(
-            right: 18.0,
-            top: 18.0,
-            child: tempIcon,
-          )
-        ]);
+        children: [headerView, stepNumView, tempIcon]);
   }
 }

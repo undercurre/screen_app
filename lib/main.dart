@@ -4,6 +4,8 @@ import 'common/index.dart';
 import 'states/index.dart';
 import 'routes/index.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'widgets/pointer_listener.dart';
+import 'widgets/event_bus.dart';
 
 void main() async {
   // 加载环境配置
@@ -40,13 +42,18 @@ class _App extends State<App> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (providerContext) => UserModel(),
-      child: MaterialApp(
-        themeMode: ThemeMode.dark,
-        theme: ThemeData.dark(),
-        darkTheme: ThemeData.dark(),
-        //注册路由表
-        routes: routes,
-      ),
+      child: PointerDownListener(
+          child: MaterialApp(
+            themeMode: ThemeMode.dark,
+            theme: ThemeData.dark(),
+            darkTheme: ThemeData.dark(),
+            //注册路由表
+            routes: routes,
+          ),
+          // 全局点击操作监听
+          onPointerDown: (e) {
+            bus.emit("onPointerDown");
+          }),
     );
   }
 }
