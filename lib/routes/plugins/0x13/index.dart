@@ -56,6 +56,12 @@ class WifiLightPageState extends State<WifiLightPage> {
     });
   }
 
+  Map<String, bool?> getSelectedKeys() {
+    final selectKeys = <String, bool?>{};
+    selectKeys[screenModel] = true;
+    return selectKeys;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,7 +70,7 @@ class WifiLightPageState extends State<WifiLightPage> {
       decoration: const BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/0x13/BG.png'),
+          image: AssetImage('assets/imgs/plugins/common/BG.png'),
         ),
       ),
       child: Stack(
@@ -100,18 +106,20 @@ class WifiLightPageState extends State<WifiLightPage> {
                 child: Row(
                   children: [
                     Align(
-                        widthFactor: 1,
-                        heightFactor: 2,
-                        alignment: const Alignment(-1.0, -0.63),
-                        child: Container(
-                          width: 152,
-                          height: 303,
-                        )),
+                      widthFactor: 1,
+                      heightFactor: 2,
+                      alignment: const Alignment(-1.0, -0.63),
+                      child: Container(
+                        width: 152,
+                        height: 303,
+                      ),
+                    ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                         child: ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
                           child: ListView(
                             children: [
                               ParamCard(
@@ -136,7 +144,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                               ),
                               ModeCard(
                                 modeList: lightModes,
-                                selectedKey: screenModel,
+                                selectedKeys: getSelectedKeys(),
                                 onClick: modeHandle,
                               ),
                               FunctionCard(

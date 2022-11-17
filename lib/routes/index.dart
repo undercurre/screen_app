@@ -12,6 +12,7 @@ import 'weather/index.dart';
 import 'device/index.dart';
 import 'scene/index.dart';
 import 'plugins/0x13/index.dart';
+import 'plugins/0x26/index.dart';
 
 var routes = <String, WidgetBuilder>{
   '/': (context) => const LoginPage(),
@@ -20,6 +21,7 @@ var routes = <String, WidgetBuilder>{
   "Device": (context) => const DevicePage(text: '',),
   "Scene": (context) => const ScenePage(text: '',),
   "0x13": (context) => const WifiLightPage(),
+  "0x26": (context) => const BathroomMaster(),
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),
   "AiSettingPage": (context) => const AiSettingPage(),

@@ -44,7 +44,7 @@ class _FunctionCardState extends State<FunctionCard> {
                     child: widget.icon!,
                   ),
                 Text(
-                  '${widget.title} | ',
+                  '${widget.title}${widget.subTitle != null ? ' | ' : ''}',
                   style: const TextStyle(
                       fontFamily: 'MideaType-Regular',
                       fontSize: 18,

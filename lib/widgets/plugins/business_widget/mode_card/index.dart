@@ -6,7 +6,7 @@ import 'package:screen_app/widgets/plugins/business_widget/mode_card/mode_item.d
 
 class ModeCard extends StatelessWidget {
   final List<Mode> modeList;
-  final String selectedKey;
+  final Map<String, bool?> selectedKeys;
   final Function(Mode mode)? onClick;
   final EdgeInsetsGeometry padding; // 卡片内边距
   final double spacing; // 两个元素之间的间距
@@ -15,7 +15,7 @@ class ModeCard extends StatelessWidget {
   const ModeCard({
     Key? key,
     required this.modeList,
-    required this.selectedKey,
+    required this.selectedKeys,
     this.onClick,
     this.padding = const EdgeInsets.only(top: 18, bottom: 16),
     this.spacing = 22,
@@ -28,7 +28,8 @@ class ModeCard extends StatelessWidget {
         .map(
           (mode) => ModeItem(
             mode: mode,
-            selected: mode.key == selectedKey,
+            selected: selectedKeys[mode.key] != null &&
+                selectedKeys[mode.key] == true,
             onTap: (e) => onClick?.call(e),
           ),
         )

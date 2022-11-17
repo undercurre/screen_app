@@ -13,10 +13,7 @@ class ModeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (selected) return;
-        onTap?.call(mode);
-      },
+      onTap: () => onTap?.call(mode),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
