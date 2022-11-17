@@ -2,78 +2,47 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
 import 'package:screen_app/common/device_mode/mode.dart';
+import 'package:screen_app/widgets/plugins/business_widget/mode_card/mode_item.dart';
 
-class ModeCard extends StatefulWidget {
+class ModeCard extends StatelessWidget {
   final List<Mode> modeList;
   final String selectedKey;
   final Function(Mode mode)? onClick;
+  final EdgeInsetsGeometry padding; // 卡片内边距
+  final double spacing; // 两个元素之间的间距
+  final double runSpacing; // 两行之间的间距
 
   const ModeCard({
-    super.key,
+    Key? key,
     required this.modeList,
     required this.selectedKey,
-    this.onClick
-  });
-
-  @override
-  State<ModeCard> createState() => _ModeCardState();
-}
-
-class _ModeCardState extends State<ModeCard> {
-  late List<Mode> modeList;
-
-  @override
-  void initState() {
-    super.initState();
-    modeList = widget.modeList;
-  }
+    this.onClick,
+    this.padding = const EdgeInsets.only(top: 18, bottom: 16),
+    this.spacing = 22,
+    this.runSpacing = 41,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    final itemList = modeList
+        .map(
+          (mode) => ModeItem(
+            mode: mode,
+            selected: mode.key == selectedKey,
+            onTap: (e) => onClick?.call(e),
+          ),
+        )
+        .toList();
     return GlassCard(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(21, 18, 25, 0),
-        child: Flex(
+        padding: padding,
+        child: Wrap(
           direction: Axis.horizontal,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: modeList
-              .map(
-                (mode) => Listener(
-                  onPointerDown: (PointerDownEvent event) => widget.onClick != null ? widget.onClick!(mode) : print('点击了'),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 11),
-                        decoration: BoxDecoration(
-                          color: mode.key == widget.selectedKey
-                              ? Colors.white
-                              : Colors.black,
-                          borderRadius: BorderRadius.circular(25.0),
-                        ),
-                        child: Image(
-                          image: AssetImage(mode.key == widget.selectedKey
-                              ? mode.onIcon
-                              : mode.offIcon),
-                        ),
-                      ),
-                      Text(
-                        mode.name,
-                        style: const TextStyle(
-                            fontFamily: 'MEIDITYPE-REGULAR',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0x7AFFFFFF),
-                            decoration: TextDecoration.none),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
+          alignment: WrapAlignment.center,
+          spacing: spacing,
+          runSpacing: runSpacing,
+          runAlignment: WrapAlignment.center,
+          children: itemList,
         ),
       ),
     );

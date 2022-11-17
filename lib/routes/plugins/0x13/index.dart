@@ -139,7 +139,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                                 selectedKey: screenModel,
                                 onClick: modeHandle,
                               ),
-                              SingleFunction(
+                              FunctionCard(
                                 title: '延时关灯',
                                 subTitle: timeOff == '0'
                                     ? '未设置'

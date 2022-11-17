@@ -36,7 +36,6 @@ class _TemperatureCardState extends State<TemperatureCard> {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      height: 160,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

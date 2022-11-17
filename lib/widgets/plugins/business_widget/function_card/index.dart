@@ -2,13 +2,13 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
 
-class SingleFunction extends StatefulWidget {
+class FunctionCard extends StatefulWidget {
   final Widget? icon; // title左侧的icon
   final String title;
   final String? subTitle; // title右侧的副标题
   final Widget child; // 卡片右侧部分内容
 
-  const SingleFunction({
+  const FunctionCard({
     super.key,
     this.icon,
     required this.title,
@@ -17,10 +17,10 @@ class SingleFunction extends StatefulWidget {
   });
 
   @override
-  State<SingleFunction> createState() => _SingleFunctionState();
+  State<FunctionCard> createState() => _FunctionCardState();
 }
 
-class _SingleFunctionState extends State<SingleFunction> {
+class _FunctionCardState extends State<FunctionCard> {
   @override
   void initState() {
     super.initState();
@@ -28,9 +28,7 @@ class _SingleFunctionState extends State<SingleFunction> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return GlassCard(
-      height: 64,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 19, 16),
         child: Row(
