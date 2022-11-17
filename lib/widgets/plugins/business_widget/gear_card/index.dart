@@ -45,7 +45,6 @@ class _GearCardState extends State<GearCard> {
       );
     }
     return GlassCard(
-      height: 96,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

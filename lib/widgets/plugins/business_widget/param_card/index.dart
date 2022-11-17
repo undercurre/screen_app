@@ -40,46 +40,49 @@ class _ParamCardState extends State<ParamCard> {
     return GlassCard(
       child: Stack(
         children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 23, 0),
-                child: Row(
-                  children: [
-                    Text(
-                      '$title | ',
-                      style: const TextStyle(
-                        fontFamily: "MideaType",
-                        fontSize: 18,
-                        height: 1.2,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 23, 0),
+                  child: Row(
+                    children: [
+                      Text(
+                        '$title | ',
+                        style: const TextStyle(
+                          fontFamily: "MideaType",
+                          fontSize: 18,
+                          height: 1.2,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${widget.value.toInt()}$unit',
-                      style: const TextStyle(
-                        fontFamily: "MideaType",
-                        fontSize: 18,
-                        height: 1.2,
-                        color: Color(0x80FFFFFF),
-                        fontWeight: FontWeight.w100,
-                        decoration: TextDecoration.none,
+                      Text(
+                        '${widget.value.toInt()}$unit',
+                        style: const TextStyle(
+                          fontFamily: "MideaType",
+                          fontSize: 18,
+                          height: 1.2,
+                          color: Color(0x80FFFFFF),
+                          fontWeight: FontWeight.w100,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              GradientSlider(
-                width: 260,
-                value: widget.value,
-                activeColors: widget.activeColors,
-                duration: const Duration(milliseconds: 100),
-                onChanged: widget.onChanged,
-                onChanging: widget.onChanging
-              ),
-            ],
+                GradientSlider(
+                  width: 270,
+                  value: widget.value,
+                  activeColors: widget.activeColors,
+                  duration: const Duration(milliseconds: 100),
+                  onChanged: widget.onChanged,
+                  onChanging: widget.onChanging,
+                ),
+              ],
+            ),
           ),
           const Positioned(
             left: 21,

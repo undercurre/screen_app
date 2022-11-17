@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 
 class GlassCard extends StatelessWidget {
   final double width;
-  final double height;
   final Widget child;
 
-  const GlassCard(
-      {super.key, this.width = 312, this.height = 112, required this.child});
+  const GlassCard({super.key, this.width = 312, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      height: height,
-      margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         border: Border.all(width: 0.2, color: const Color(0xff979797)),
