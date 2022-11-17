@@ -25,7 +25,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion ProjectVatiant.COMPILESDKVERSION
+    buildToolsVersion ProjectVatiant.BUILDERTOOLSVERSION
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -38,8 +39,8 @@ android {
         applicationId ApplicationID
         // You can update the following values to match your application needs. 
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion rootProject.ext.ProjectVatiant.MINSDKVERSION
+        targetSdkVersion rootProject.ext.ProjectVatiant.TARGETSDKVERSION
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
@@ -132,6 +133,10 @@ dependencies {
     LDImplementation(project(":module-ld-setting"))
     implementation(project(":module-common-setting"))
     implementation(project(":module-add-device"))
+
+    implementation rootProject.ext.nexus.basic
+    implementation rootProject.ext.nexus.log
+    implementation rootProject.ext.nexus.repositories
 
 }
 

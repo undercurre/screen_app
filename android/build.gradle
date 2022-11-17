@@ -1,3 +1,4 @@
+apply from: './config.gradle'
 buildscript {
     ext.kotlin_version = '1.6.10'
     repositories {
@@ -22,6 +23,24 @@ allprojects {
         maven {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/nexus/content/groups/public'
+        }
+
+        //配置nexus私服
+        maven {
+            credentials {
+                username 'yangyunlong'
+                password 'yangyunlong123'
+            }
+            allowInsecureProtocol true
+            url "http://47.106.94.129:8081/repository/mzgd-releases"
+        }
+        maven {
+            credentials {
+                username 'yangyunlong'
+                password 'yangyunlong123'
+            }
+            allowInsecureProtocol true
+            url "http://47.106.94.129:8081/repository/mzgd-snapshots"
         }
     }
 }

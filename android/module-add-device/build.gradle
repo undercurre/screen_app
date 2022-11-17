@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'com.midea.light.device'
-    compileSdk 31
+    compileSdkVersion ProjectVatiant.COMPILESDKVERSION
 
     defaultConfig {
-        minSdk 16
-        targetSdk 31
+        minSdkVersion rootProject.ext.ProjectVatiant.MINSDKVERSION
+        targetSdkVersion rootProject.ext.ProjectVatiant.TARGETSDKVERSION
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

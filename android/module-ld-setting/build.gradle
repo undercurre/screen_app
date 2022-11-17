@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'com.midea.light.ld.setting'
-    compileSdk 31
+    compileSdkVersion ProjectVatiant.COMPILESDKVERSION
 
     defaultConfig {
-        minSdk 16
-        targetSdk 31
+        minSdkVersion rootProject.ext.ProjectVatiant.MINSDKVERSION
+        targetSdkVersion rootProject.ext.ProjectVatiant.TARGETSDKVERSION
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -33,4 +33,10 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation rootProject.ext.nexus.basic
+    implementation rootProject.ext.nexus.log
+    implementation rootProject.ext.nexus.repositories
+    implementation rootProject.ext.nexus.rxbus
+    implementation(project(":module-common-setting"))
+    implementation(project(":module-common"))
 }
