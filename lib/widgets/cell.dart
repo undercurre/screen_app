@@ -1,6 +1,7 @@
 /// @doc ~/docs/cell.md
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/index.dart';
 
 class Cell extends StatefulWidget {
   final String? title; // 标题
@@ -73,141 +74,142 @@ class _CellState extends State<Cell> {
   Widget build(BuildContext context) {
     // 属性校验
     if (widget.titleSlot != null &&
-        (widget.title != '' || widget.desc != null || widget.tag != null)) {
+        (widget.title != '' ||
+            StrUtils.isNotNullAndEmpty(widget.desc) ||
+            StrUtils.isNotNullAndEmpty(widget.tag))) {
       throw Error.safeToString('titleSlot与其他title属性不应同时赋值');
     }
     if (widget.titleSlot == null && widget.title == '') {
       throw Error.safeToString('titleSlot与title属性赋值必须有一个非空');
     }
 
-    List<Widget> cellChildren = <Widget>[];
-    List<Widget> middleCell = <Widget>[]; // 中间列
-    List<Widget> compositeTitle = <Widget>[]; // 中间列-标题行，包括标题与Label
-
-    // 插入标题
-    if (widget.title != null) {
-      compositeTitle.add(Text(
-        widget.title!,
-        maxLines: widget.titleMaxLines,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
+    // 中间列-标题行，包括标题与Label
+    List<Widget> compositeTitle = <Widget>[
+      // 插入标题
+      if (StrUtils.isNotNullAndEmpty(widget.title))
+        Text(
+          widget.title!,
+          maxLines: widget.titleMaxLines,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
             fontSize: widget.titleSize,
             fontFamily: "MideaType",
             fontWeight: widget.fontWeight,
             decoration: TextDecoration.none,
             color: widget.titleColor,
-            ),
-      ));
-    }
+          ),
+        ),
 
-    // 插入tag
-    if (widget.tag != null) {
-      compositeTitle.add(Container(
-        margin: const EdgeInsets.only(left: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: const BoxDecoration(
-            color: Color.fromRGBO(216, 216, 216, 0.3),
-            borderRadius: BorderRadius.all(Radius.circular(11.0))),
-        child: Text(
-          widget.tag!,
+      // 插入tag
+      if (StrUtils.isNotNullAndEmpty(widget.tag))
+        Container(
+          margin: const EdgeInsets.only(left: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: const BoxDecoration(
+              color: Color.fromRGBO(216, 216, 216, 0.3),
+              borderRadius: BorderRadius.all(Radius.circular(11.0))),
+          child: Text(
+            widget.tag!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              fontFamily: "MideaType",
+              fontWeight: FontWeight.w100,
+              decoration: TextDecoration.none,
+              color: Color.fromRGBO(255, 255, 255, 0.85),
+              height: 1.5,
+            ),
+          ),
+        )
+    ];
+
+    // 中间列
+    List<Widget> middleCell = <Widget>[
+      // 标题行
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: compositeTitle,
+      ),
+
+      // 插入描述
+      if (StrUtils.isNotNullAndEmpty(widget.desc))
+        Text(
+          widget.desc!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 13,
+              fontSize: 13,
+              fontFamily: "MideaType",
+              fontWeight: FontWeight.w100,
+              decoration: TextDecoration.none,
+              color: Color.fromRGBO(255, 255, 255, 0.85),
+              height: 1),
+        )
+    ];
+
+    List<Widget> cellChildren = <Widget>[
+      // 判断是否插入左边图标
+      if (widget.avatarIcon != null)
+        Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: widget.avatarIcon!),
+
+      // 插入中间列，middleCell || titleSlot
+      Expanded(
+          child: widget.titleSlot == null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: middleCell,
+                )
+              : widget.titleSlot!),
+
+      // rightSlot
+      if (widget.rightSlot != null) widget.rightSlot!,
+
+      // rightText
+      if (StrUtils.isNotNullAndEmpty(widget.rightText))
+        Text(
+          widget.rightText!,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 18,
             fontFamily: "MideaType",
             fontWeight: FontWeight.w100,
             decoration: TextDecoration.none,
-            color: Color.fromRGBO(255, 255, 255, 0.85),
-            height: 1.5,
+            color: Color.fromRGBO(0, 145, 255, 1),
           ),
         ),
-      ));
-    }
 
-    middleCell.add(Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: compositeTitle,
-    ));
+      // 判断是否插入右边图标
+      if (widget.rightIcon != null)
+        Padding(
+            padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
 
-    // 插入描述
-    if (widget.desc != null) {
-      middleCell.add(Text(
-        widget.desc!,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-            fontSize: 13,
-            fontFamily: "MideaType",
-            fontWeight: FontWeight.w100,
-            decoration: TextDecoration.none,
-            color: Color.fromRGBO(255, 255, 255, 0.85),
-            height: 1),
-      ));
-    }
+      // 判断是否插入右边箭头
+      if (widget.hasSwitch)
+        Transform.scale(
+            scale: 1,
+            child: CupertinoSwitch(
+                value: switchValue,
+                activeColor: Colors.blue,
+                trackColor: const Color.fromRGBO(62, 62, 62, 1),
+                thumbColor: Colors.white,
+                onChanged: (bool value) {
+                  setState(() => switchValue = value);
+                  if (widget.onSwitch != null) {
+                    widget.onSwitch!(value);
+                  }
+                })),
 
-    // 判断是否插入左边图标
-    if (widget.avatarIcon != null) {
-      cellChildren.add(Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: widget.avatarIcon!));
-    }
-
-    // 插入中间列，middleCell || titleSlot
-    cellChildren.add(Expanded(
-        child: widget.titleSlot == null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: middleCell,
-              )
-            : widget.titleSlot!));
-
-    if (widget.rightSlot != null) {
-      cellChildren.add(widget.rightSlot!);
-    }
-
-    if (widget.rightText != null) {
-      cellChildren.add(Text(
-        widget.rightText!,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 18,
-          fontFamily: "MideaType",
-          fontWeight: FontWeight.w100,
-          decoration: TextDecoration.none,
-          color: Color.fromRGBO(0, 145, 255, 1),
-        ),
-      ));
-    }
-
-    // 判断是否插入右边图标
-    if (widget.rightIcon != null) {
-      cellChildren.add(Padding(
-          padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!));
-    }
-
-    if (widget.hasSwitch) {
-      cellChildren.add(Transform.scale(
-          scale: 1,
-          child: CupertinoSwitch(
-              value: switchValue,
-              activeColor: Colors.blue,
-              trackColor: const Color.fromRGBO(62, 62, 62, 1),
-              thumbColor: Colors.white,
-              onChanged: (bool value) {
-                setState(() => switchValue = value);
-                if (widget.onSwitch != null) {
-                  widget.onSwitch!(value);
-                }
-              })));
-    }
-
-    // 判断是否插入右箭头，图标库箭头太粗，换一个
-    if (widget.hasArrow) {
-      cellChildren.add(Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)));
-    }
+      // 判断是否插入右箭头，图标库箭头太粗，换一个
+      if (widget.hasArrow)
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child:
+                Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)),
+    ];
 
     // 背景、边框设置
     BoxDecoration cellDecoration = BoxDecoration(
@@ -222,15 +224,16 @@ class _CellState extends State<Cell> {
 
     return GestureDetector(
         child: DecoratedBox(
-            position: DecorationPosition.background,
-            decoration: cellDecoration,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 26),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: cellChildren,
-              ),
-            )),
+          position: DecorationPosition.background,
+          decoration: cellDecoration,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 26),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: cellChildren,
+            ),
+          ),
+        ),
         onTap: () {
           if (widget.onTap != null) {
             widget.onTap!();
