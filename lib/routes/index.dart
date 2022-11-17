@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/plugins/0x40/index.dart';
 import 'package:screen_app/routes/setting/about_setting.dart';
 import 'package:screen_app/routes/setting/ai_setting.dart';
 import 'package:screen_app/routes/setting/display_setting.dart';
@@ -22,6 +23,7 @@ var routes = <String, WidgetBuilder>{
   "Scene": (context) => const ScenePage(text: '',),
   "0x13": (context) => const WifiLightPage(),
   "0x26": (context) => const BathroomMaster(),
+  "0x40": (context) => const CoolMaster(),
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),
   "AiSettingPage": (context) => const AiSettingPage(),

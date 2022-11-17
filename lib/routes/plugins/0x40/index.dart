@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/device_mode/0x26/index.dart';
+import 'package:screen_app/common/device_mode/0x40/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/mz_switch/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
     as nav_bar;
 import 'package:screen_app/widgets/plugins/business_widget/function_card/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
+import 'package:screen_app/common/device_mode/mode.dart';
 
-class BathroomMaster extends StatefulWidget {
-  const BathroomMaster({super.key});
+class CoolMaster extends StatefulWidget {
+  const CoolMaster({super.key});
 
   @override
-  State<StatefulWidget> createState() => _BathroomMasterState();
+  State<StatefulWidget> createState() => _CoolMasterState();
 }
 
-class _BathroomMasterState extends State<BathroomMaster> {
+class _CoolMasterState extends State<CoolMaster> {
   Map<String, bool?> mode = <String, bool?>{};
   bool nightlight = false;
   bool delayOff = false;
@@ -21,6 +22,28 @@ class _BathroomMasterState extends State<BathroomMaster> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void handleModeTap(Mode m) {
+    setState(() {
+      if (m.key == 'strong') {
+        if (mode['strong'] != null && mode['strong']!) {
+          mode['strong'] = false;
+        } else {
+          mode['strong'] = true;
+        }
+        mode['weak'] = false;
+      } else if (m.key == 'weak') {
+        if (mode['weak'] != null && mode['weak']!) {
+          mode['weak'] = false;
+        } else {
+          mode['weak'] = true;
+        }
+        mode['strong'] = false;
+      } else {
+        mode[m.key] = mode[m.key] == null ? true : !mode[m.key]!;
+      }
+    });
   }
 
   @override
@@ -37,7 +60,7 @@ class _BathroomMasterState extends State<BathroomMaster> {
       child: Column(
         children: [
           nav_bar.NavigationBar(
-            title: '浴霸',
+            title: '凉霸',
             onLeftBtnClick: () => Navigator.pop(context),
           ),
           Expanded(
@@ -49,8 +72,8 @@ class _BathroomMasterState extends State<BathroomMaster> {
                   top: 50,
                   child: Image(
                     image: AssetImage(mode['light'] != null && mode['light']!
-                        ? 'assets/imgs/plugins/0x26/yuba_light_on.png'
-                        : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
+                        ? 'assets/imgs/plugins/0x40/liangba_light_on.png'
+                        : 'assets/imgs/plugins/0x40/liangba_light_off.png'),
                   ),
                 ),
                 Row(
@@ -62,16 +85,12 @@ class _BathroomMasterState extends State<BathroomMaster> {
                       child: Column(
                         children: [
                           const SizedBox(
-                            height: 10,
+                            height: 50,
                           ),
                           ModeCard(
-                            modeList: bathroomMasterMode,
+                            modeList: coolMasterMode,
                             selectedKeys: mode,
-                            spacing: 40,
-                            onClick: (e) => setState(() {
-                              mode[e.key] =
-                              mode[e.key] == null ? true : !mode[e.key]!;
-                            }),
+                            onClick: (e) => handleModeTap(e),
                           ),
                           FunctionCard(
                             icon: Container(
@@ -85,10 +104,11 @@ class _BathroomMasterState extends State<BathroomMaster> {
                               child: const Image(
                                 height: 22,
                                 width: 22,
-                                image: AssetImage('assets/imgs/plugins/0x26/night_light.png'),
+                                image: AssetImage(
+                                    'assets/imgs/plugins/0x40/swing.png'),
                               ),
                             ),
-                            title: '小夜灯',
+                            title: '摆风',
                             child: MzSwitch(
                               value: nightlight,
                               onTap: (e) => setState(() {
@@ -108,10 +128,11 @@ class _BathroomMasterState extends State<BathroomMaster> {
                               child: const Image(
                                 height: 22,
                                 width: 22,
-                                image: AssetImage('assets/imgs/plugins/0x26/delay_off.png'),
+                                image: AssetImage(
+                                    'assets/imgs/plugins/0x40/smell.png'),
                               ),
                             ),
-                            title: '延时关灯',
+                            title: '异味感知',
                             child: MzSwitch(
                               value: delayOff,
                               onTap: (e) => setState(() {

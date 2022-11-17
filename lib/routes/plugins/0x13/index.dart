@@ -98,6 +98,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                     onPowerBtnClick: powerHandle,
                     title: 'Wi-Fi吸顶灯',
                     power: power,
+                    hasPower: true,
                   ),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class NavigationBar extends StatefulWidget {
   final String title;
   final bool power;
+  final bool hasPower;
   final void Function()? onPowerBtnClick;
   final void Function()? onLeftBtnClick;
 
@@ -10,6 +11,7 @@ class NavigationBar extends StatefulWidget {
     super.key,
     this.title = '',
     this.power = false,
+    this.hasPower = false,
     this.onPowerBtnClick,
     this.onLeftBtnClick,
   });
@@ -54,16 +56,21 @@ class _NavigationBarState extends State<NavigationBar> {
           onTap: () => widget.onPowerBtnClick?.call(),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
-            child: Image(
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              image: AssetImage(
-                widget.power
-                    ? 'assets/imgs/plugins/common/power_on.png'
-                    : 'assets/imgs/plugins/common/power_off.png',
-              ),
-            ),
+            child: widget.hasPower
+                ? Image(
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    image: AssetImage(
+                      widget.power
+                          ? 'assets/imgs/plugins/common/power_on.png'
+                          : 'assets/imgs/plugins/common/power_off.png',
+                    ),
+                  )
+                : const SizedBox(
+                    width: 60,
+                    height: 60,
+                  ),
           ),
         )
       ],

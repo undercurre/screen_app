@@ -87,6 +87,7 @@ flutter:
   assets:
     - assets/imgs/plugins/0x13/
     - assets/imgs/plugins/0x26/
+    - assets/imgs/plugins/0x40/
     - assets/imgs/plugins/common/
     - assets/imgs/scene/
     - assets/imgs/scanCode/
