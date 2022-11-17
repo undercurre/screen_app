@@ -34,7 +34,7 @@ class _DevicePageState extends State<DevicePage> {
         },
       ));
     }
-    _timer = Timer.periodic(const Duration (seconds: 1), setTime);
+    _timer = Timer.periodic(const Duration(seconds: 1), setTime);
     super.initState();
   }
 
@@ -60,12 +60,22 @@ class _DevicePageState extends State<DevicePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          TextButton.icon(
+            onPressed: () => {Navigator.of(context).pushNamed('0x13')},
+            label: const Text(''),
+            icon: const Icon(Icons.sunny_snowing),
+          ),
           Container(
             margin: const EdgeInsets.fromLTRB(0, 28, 0, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:  [
-                 Text("${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time,[HH,':',nn])}",
+              children: [
+                Text(
+                    "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
+                          HH,
+                          ':',
+                          nn
+                        ])}",
                     style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 18.0,
@@ -75,7 +85,7 @@ class _DevicePageState extends State<DevicePage> {
                     )),
                 GestureDetector(
                   onTap: () => {},
-                  child:  Container(
+                  child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: Image.asset(
                       "assets/imgs/icon/select_room.png",
@@ -143,7 +153,8 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  void onDragAccept(List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
+  void onDragAccept(
+      List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
     print('onDragAccept: $beforeIndex -> $afterIndex');
   }
 
