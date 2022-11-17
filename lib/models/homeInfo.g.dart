@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'homeList.dart';
+part of 'homeInfo.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-HomeList _$HomeListFromJson(Map<String, dynamic> json) => HomeList()
+HomeInfo _$HomeInfoFromJson(Map<String, dynamic> json) => HomeInfo()
   ..homegroupId = json['homegroupId'] as String
   ..number = json['number'] as String
   ..roleId = json['roleId'] as String
@@ -29,7 +29,7 @@ HomeList _$HomeListFromJson(Map<String, dynamic> json) => HomeList()
       .toList()
   ..unread = json['unread'] as num?;
 
-Map<String, dynamic> _$HomeListToJson(HomeList instance) => <String, dynamic>{
+Map<String, dynamic> _$HomeInfoToJson(HomeInfo instance) => <String, dynamic>{
       'homegroupId': instance.homegroupId,
       'number': instance.number,
       'roleId': instance.roleId,

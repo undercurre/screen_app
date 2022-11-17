@@ -52,7 +52,7 @@ class _SelectRoom extends State<SelectRoom> {
 
     if (res.isSuccess) {
       setState((){
-        var homeInfo = res.data.homeList[0] as HomeList;
+        var homeInfo = res.data.homeList[0] as HomeInfo;
         roomList = homeInfo.roomList ?? [];
       });
     }

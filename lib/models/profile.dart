@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import "user.dart";
-import "homeList.dart";
+import "homeInfo.dart";
 import "roomInfo.dart";
 part 'profile.g.dart';
 
@@ -9,7 +9,7 @@ class Profile {
   Profile();
 
   User? user;
-  HomeList? homeInfo;
+  HomeInfo? homeInfo;
   RoomInfo? romeInfoSelected;
   String? deviceId;
   

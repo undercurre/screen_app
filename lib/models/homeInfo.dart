@@ -1,10 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
 import "roomInfo.dart";
-part 'homeList.g.dart';
+part 'homeInfo.g.dart';
 
 @JsonSerializable()
-class HomeList {
-  HomeList();
+class HomeInfo {
+  HomeInfo();
 
   late String homegroupId;
   late String number;
@@ -26,6 +26,6 @@ class HomeList {
   List<RoomInfo>? roomList;
   num? unread;
   
-  factory HomeList.fromJson(Map<String,dynamic> json) => _$HomeListFromJson(json);
-  Map<String, dynamic> toJson() => _$HomeListToJson(this);
+  factory HomeInfo.fromJson(Map<String,dynamic> json) => _$HomeInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$HomeInfoToJson(this);
 }

@@ -9,7 +9,7 @@ part of 'homegroupList.dart';
 HomegroupList _$HomegroupListFromJson(Map<String, dynamic> json) =>
     HomegroupList()
       ..homeList = (json['homeList'] as List<dynamic>)
-          .map((e) => HomeList.fromJson(e as Map<String, dynamic>))
+          .map((e) => HomeInfo.fromJson(e as Map<String, dynamic>))
           .toList();
 
 Map<String, dynamic> _$HomegroupListToJson(HomegroupList instance) =>

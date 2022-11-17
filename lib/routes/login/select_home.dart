@@ -4,7 +4,7 @@ import '../../models/index.dart';
 import '../../widgets/index.dart';
 
 class _SelectHome extends State<SelectHome> {
-  List<HomeList> homeList = [];
+  List<HomeInfo> homeList = [];
 
   String homeId = '';
 

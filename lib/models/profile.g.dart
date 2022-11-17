@@ -12,7 +12,7 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) => Profile()
       : User.fromJson(json['user'] as Map<String, dynamic>)
   ..homeInfo = json['homeInfo'] == null
       ? null
-      : HomeList.fromJson(json['homeInfo'] as Map<String, dynamic>)
+      : HomeInfo.fromJson(json['homeInfo'] as Map<String, dynamic>)
   ..romeInfoSelected = json['romeInfoSelected'] == null
       ? null
       : RoomInfo.fromJson(json['romeInfoSelected'] as Map<String, dynamic>)
