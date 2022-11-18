@@ -1,8 +1,8 @@
 // 等待多久进入待机状态
 List _standbyTime = [
-  {'value': 30, 'text': '30秒'},
+  // {'value': 30, 'text': '30秒'},
   {'value': 60, 'text': '1分钟'},
-  {'value': 120, 'text': '3分钟'},
+  {'value': 180, 'text': '3分钟'},
   {'value': 300, 'text': '5分钟'},
   {'value': -1, 'text': '永不'},
 ];
