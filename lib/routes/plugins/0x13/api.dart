@@ -11,7 +11,37 @@ class WIFILightApi {
   }
   /// 设备控制（lua）
   static Future<MzIotResult> powerLua(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendLuaOrder('0x13', deviceId, { "power": onOff ? 'on':'off' });
+    var res = await DeviceApi.sendLuaOrder('0x13', deviceId, { "power": onOff ? 'on' : 'off' });
+
+    return res;
+  }
+  /// 设置延时关灯（物模型）
+  static Future<MzIotResult> delayPDM(String deviceId, bool onOff) async {
+    var res = await DeviceApi.sendPDMOrder('setTimeOff', deviceId, { "timeOff": onOff ? 3 : 0 }, method: 'POST');
+
+    return res;
+  }
+  /// 开关控制（物模型）
+  static Future<MzIotResult> powerPDM(String deviceId, bool onOff) async {
+    var res = await DeviceApi.sendPDMOrder('switchLightWithTime', deviceId, { "dimTime": 0, "power": onOff }, method: 'POST');
+
+    return res;
+  }
+  /// 模式控制（物模型）
+  static Future<MzIotResult> modePDM(String deviceId, String mode) async {
+    var res = await DeviceApi.sendPDMOrder('controlScreenModel', deviceId, { "dimTime": 0, "screenModel": mode }, method: 'POST');
+
+    return res;
+  }
+  /// 亮度控制（物模型）
+  static Future<MzIotResult> brightnessPDM(String deviceId, num brightness) async {
+    var res = await DeviceApi.sendPDMOrder('controlBrightValue', deviceId, { "dimTime": 0, "brightValue": brightness }, method: 'POST');
+
+    return res;
+  }
+  /// 色温控制（物模型）
+  static Future<MzIotResult> colorTemperaturePDM(String deviceId, num colorTemperature) async {
+    var res = await DeviceApi.sendPDMOrder('controlColorTemperatureValue', deviceId, { "dimTime": 0, "colorTemperatureValue": colorTemperature }, method: 'POST');
 
     return res;
   }

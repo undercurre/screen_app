@@ -11,28 +11,28 @@ import 'package:screen_app/widgets/plugins/device_widget/light_ball/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
 as nav_bar;
 
-import '../../../common/api/midea_api.dart';
-import '../../../common/global.dart';
-
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
   num brightness = 0;
   num colorTemperature = 0;
   String screenModel = 'mannel';
   String timeOff = '0';
+  late String deviceId;
+  late String deviceName;
 
   void goBack() {
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    await WIFILightApi.powerLua("178120883713033", !power);
+    await WIFILightApi.powerLua(deviceId, !power);
     setState(() {
       power = !power;
     });
   }
 
-  void delayHandle() {
+  Future<void> delayHandle() async {
+    await WIFILightApi.delayPDM(deviceId, timeOff == '3');
     setState(() {
       if (timeOff == '0') {
         timeOff = '3';
@@ -42,21 +42,22 @@ class WifiLightPageState extends State<WifiLightPage> {
     });
   }
 
-  void modeHandle(Mode mode) {
+  Future<void> modeHandle(Mode mode) async {
+    await WIFILightApi.modePDM(deviceId, mode.key);
     setState(() {
       screenModel = mode.key;
     });
-    print(screenModel);
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
+    await WIFILightApi.brightnessPDM(deviceId, value);
     setState(() {
       brightness = value;
     });
   }
 
-  void colorTemperatureHandle(num value, Color activeColor) {
-    print(colorTemperature);
+  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
+    await WIFILightApi.colorTemperaturePDM(deviceId, value);
     setState(() {
       colorTemperature = value;
     });
@@ -69,7 +70,16 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var args = ModalRoute.of(context)?.settings.arguments as Map;
+    deviceId = args['deviceId'];
+    deviceName = args['deviceName'];
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -102,7 +112,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                   child: nav_bar.NavigationBar(
                     onLeftBtnClick: goBack,
                     onPowerBtnClick: powerHandle,
-                    title: 'Wi-Fi吸顶灯',
+                    title: deviceName,
                     power: power,
                     hasPower: true,
                   ),
