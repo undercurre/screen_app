@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/api/index.dart';
+import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
 import 'package:screen_app/common/device_mode/0x13/index.dart';
@@ -25,7 +26,7 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   Future<void> powerHandle() async {
-    await DeviceApi.getDeviceDetail("0x13", "178120883713033");
+    await WIFILightApi.powerLua("178120883713033", !power);
     setState(() {
       power = !power;
     });
