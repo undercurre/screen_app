@@ -25,14 +25,13 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   Future<void> powerHandle() async {
-    await WIFILightApi.powerLua(deviceId, !power);
     setState(() {
       power = !power;
     });
+    await WIFILightApi.powerLua(deviceId, !power);
   }
 
   Future<void> delayHandle() async {
-    await WIFILightApi.delayPDM(deviceId, timeOff == '3');
     setState(() {
       if (timeOff == '0') {
         timeOff = '3';
@@ -40,27 +39,28 @@ class WifiLightPageState extends State<WifiLightPage> {
         timeOff = '0';
       }
     });
+    await WIFILightApi.delayPDM(deviceId, timeOff == '3');
   }
 
   Future<void> modeHandle(Mode mode) async {
-    await WIFILightApi.modePDM(deviceId, mode.key);
     setState(() {
       screenModel = mode.key;
     });
+    await WIFILightApi.modePDM(deviceId, mode.key);
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    await WIFILightApi.brightnessPDM(deviceId, value);
     setState(() {
       brightness = value;
     });
+    await WIFILightApi.brightnessPDM(deviceId, value);
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    await WIFILightApi.colorTemperaturePDM(deviceId, value);
     setState(() {
       colorTemperature = value;
     });
+    await WIFILightApi.colorTemperaturePDM(deviceId, value);
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -176,14 +176,14 @@ class WifiLightPageState extends State<WifiLightPage> {
                                     height: 32,
                                     decoration: BoxDecoration(
                                       color: timeOff == '0'
-                                          ? const Color(0xFFFFFFFF)
-                                          : const Color(0xFF000000),
+                                          ? const Color(0xFF000000)
+                                          : const Color(0xFFFFFFFF),
                                       borderRadius: BorderRadius.circular(16.0),
                                     ),
                                     child: Image(
                                       image: AssetImage(timeOff == '0'
-                                          ? 'assets/imgs/plugins/0x13/delay_on.png'
-                                          : 'assets/imgs/plugins/0x13/delay_off.png'),
+                                          ? 'assets/imgs/plugins/0x13/delay_off.png'
+                                          : 'assets/imgs/plugins/0x13/delay_on.png'),
                                     ),
                                   ),
                                 ),
