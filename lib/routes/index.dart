@@ -30,5 +30,4 @@ var routes = <String, WidgetBuilder>{
   "DisplaySettingPage": (context) => const DisplaySettingPage(),
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),
-
 };

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/gradient_slider/index.dart';
+import 'package:screen_app/mixins/throttle.dart';
 
+// 普通的带滑动条卡片
 class ParamCard extends StatefulWidget {
   final List<Color> activeColors;
   final String title;
   final num value;
   final String unit;
+  final Duration throttle; // 节流控制onChanging触发
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
 
@@ -18,13 +21,14 @@ class ParamCard extends StatefulWidget {
     this.unit = '%',
     this.onChanging,
     this.onChanged,
+    this.throttle = const Duration(seconds: 1),
   });
 
   @override
   State<ParamCard> createState() => _ParamCardState();
 }
 
-class _ParamCardState extends State<ParamCard> {
+class _ParamCardState extends State<ParamCard> with Throttle {
   late String title;
   late String unit;
 
@@ -79,7 +83,7 @@ class _ParamCardState extends State<ParamCard> {
                   activeColors: widget.activeColors,
                   duration: const Duration(milliseconds: 100),
                   onChanged: widget.onChanged,
-                  onChanging: widget.onChanging,
+                  onChanging: onChanging,
                 ),
               ],
             ),
@@ -115,5 +119,14 @@ class _ParamCardState extends State<ParamCard> {
         ],
       ),
     );
+  }
+
+  // 使用节流
+  void onChanging(num value, Color activeColor) {
+    if (widget.onChanging != null) {
+      throttle(() {
+        widget.onChanging!(value, activeColor);
+      }, durationTime: widget.throttle);
+    }
   }
 }

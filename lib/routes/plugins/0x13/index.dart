@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/api/index.dart';
+import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
 import 'package:screen_app/common/device_mode/0x13/index.dart';
@@ -10,28 +11,27 @@ import 'package:screen_app/widgets/plugins/device_widget/light_ball/index.dart';
 import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
 as nav_bar;
 
-import '../../../common/api/midea_api.dart';
-import '../../../common/global.dart';
-
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
   num brightness = 0;
   num colorTemperature = 0;
   String screenModel = 'mannel';
   String timeOff = '0';
+  late String deviceId;
+  late String deviceName;
 
   void goBack() {
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    await DeviceApi.getDeviceDetail("0x13", "178120883713033");
     setState(() {
       power = !power;
     });
+    await WIFILightApi.powerLua(deviceId, !power);
   }
 
-  void delayHandle() {
+  Future<void> delayHandle() async {
     setState(() {
       if (timeOff == '0') {
         timeOff = '3';
@@ -39,26 +39,28 @@ class WifiLightPageState extends State<WifiLightPage> {
         timeOff = '0';
       }
     });
+    await WIFILightApi.delayPDM(deviceId, timeOff == '3');
   }
 
-  void modeHandle(Mode mode) {
+  Future<void> modeHandle(Mode mode) async {
     setState(() {
       screenModel = mode.key;
     });
-    print(screenModel);
+    await WIFILightApi.modePDM(deviceId, mode.key);
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
     setState(() {
       brightness = value;
     });
+    await WIFILightApi.brightnessPDM(deviceId, value);
   }
 
-  void colorTemperatureHandle(num value, Color activeColor) {
-    print(colorTemperature);
+  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
     setState(() {
       colorTemperature = value;
     });
+    await WIFILightApi.colorTemperaturePDM(deviceId, value);
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -68,7 +70,16 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var args = ModalRoute.of(context)?.settings.arguments as Map;
+    deviceId = args['deviceId'];
+    deviceName = args['deviceName'];
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -101,7 +112,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                   child: nav_bar.NavigationBar(
                     onLeftBtnClick: goBack,
                     onPowerBtnClick: powerHandle,
-                    title: 'Wi-Fi吸顶灯',
+                    title: deviceName,
                     power: power,
                     hasPower: true,
                   ),
@@ -165,14 +176,14 @@ class WifiLightPageState extends State<WifiLightPage> {
                                     height: 32,
                                     decoration: BoxDecoration(
                                       color: timeOff == '0'
-                                          ? const Color(0xFFFFFFFF)
-                                          : const Color(0xFF000000),
+                                          ? const Color(0xFF000000)
+                                          : const Color(0xFFFFFFFF),
                                       borderRadius: BorderRadius.circular(16.0),
                                     ),
                                     child: Image(
                                       image: AssetImage(timeOff == '0'
-                                          ? 'assets/imgs/plugins/0x13/delay_on.png'
-                                          : 'assets/imgs/plugins/0x13/delay_off.png'),
+                                          ? 'assets/imgs/plugins/0x13/delay_off.png'
+                                          : 'assets/imgs/plugins/0x13/delay_on.png'),
                                     ),
                                   ),
                                 ),
