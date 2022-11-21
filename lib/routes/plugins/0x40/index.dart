@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/device_mode/0x40/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/mz_switch/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
-    as nav_bar;
-import 'package:screen_app/widgets/plugins/business_widget/function_card/index.dart';
-import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
 import 'package:screen_app/common/device_mode/mode.dart';
+import 'package:screen_app/widgets/index.dart';
 
 class CoolMaster extends StatefulWidget {
   const CoolMaster({super.key});
@@ -61,7 +57,7 @@ class _CoolMasterState extends State<CoolMaster> {
       ),
       child: Column(
         children: [
-          nav_bar.NavigationBar(
+          MzNavigationBar(
             title: title,
             onLeftBtnTap: () => Navigator.pop(context),
           ),

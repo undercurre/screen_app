@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class NavigationBar extends StatefulWidget {
+class MzNavigationBar extends StatefulWidget {
   final String title;
   final bool power;
   final bool hasPower;
   final void Function()? onPowerBtnTap;
   final void Function()? onLeftBtnTap;
 
-  const NavigationBar({
+  const MzNavigationBar({
     super.key,
     this.title = '',
     this.power = false,
@@ -17,10 +17,10 @@ class NavigationBar extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _NavigationBarState();
+  State<StatefulWidget> createState() => _MzNavigationBarState();
 }
 
-class _NavigationBarState extends State<NavigationBar> {
+class _MzNavigationBarState extends State<MzNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Flex(
