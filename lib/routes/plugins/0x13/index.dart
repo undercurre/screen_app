@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
-import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
-import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
-import 'package:screen_app/common/device_mode/0x13/index.dart';
-import 'package:screen_app/widgets/plugins/business_widget/function_card/index.dart';
 import 'package:screen_app/common/device_mode/mode.dart';
-import 'package:screen_app/widgets/plugins/device_widget/light_ball/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/nav_bar/index.dart'
-as nav_bar;
+import 'package:screen_app/common/device_mode/0x13/index.dart';
+import 'package:screen_app/widgets/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   bool power = true;
   num brightness = 0;
   num colorTemperature = 0;
-  String screenModel = 'mannel';
+  String screenModel = 'manual';
   String timeOff = '0';
   late String deviceId;
   late String deviceName;
@@ -108,7 +103,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                     minWidth: double.infinity,
                     maxHeight: 60.0,
                   ),
-                  child: nav_bar.NavigationBar(
+                  child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onPowerBtnTap: powerHandle,
                     title: deviceName,
@@ -121,11 +116,11 @@ class WifiLightPageState extends State<WifiLightPage> {
                 flex: 1,
                 child: Row(
                   children: [
-                    Align(
+                    const Align(
                       widthFactor: 1,
                       heightFactor: 2,
-                      alignment: const Alignment(-1.0, -0.63),
-                      child: Container(
+                      alignment: Alignment(-1.0, -0.63),
+                      child: SizedBox(
                         width: 152,
                         height: 303,
                       ),
