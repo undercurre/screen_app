@@ -13,14 +13,14 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) => Profile()
   ..homeInfo = json['homeInfo'] == null
       ? null
       : HomeInfo.fromJson(json['homeInfo'] as Map<String, dynamic>)
-  ..romeInfoSelected = json['romeInfoSelected'] == null
+  ..roomInfo = json['roomInfo'] == null
       ? null
-      : RoomInfo.fromJson(json['romeInfoSelected'] as Map<String, dynamic>)
+      : RoomInfo.fromJson(json['roomInfo'] as Map<String, dynamic>)
   ..deviceId = json['deviceId'] as String?;
 
 Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
       'user': instance.user,
       'homeInfo': instance.homeInfo,
-      'romeInfoSelected': instance.romeInfoSelected,
+      'roomInfo': instance.roomInfo,
       'deviceId': instance.deviceId,
     };

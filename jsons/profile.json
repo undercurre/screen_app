@@ -1,6 +1,6 @@
 {
-  "user?":"$user",
+  "user?":"$User",
   "homeInfo?": "$HomeInfo",
-  "romeInfoSelected?": "$RoomInfo",
+  "roomInfo?": "$RoomInfo",
   "deviceId?": "21313"
 }

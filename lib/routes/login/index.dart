@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import '../../common/index.dart';
-import '../../states/profile_change_notifier.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
 import 'select_home.dart';
@@ -16,8 +17,6 @@ class Step {
 }
 
 class _LoginPage extends State<LoginPage> with Standby {
-  bool wifi = true;
-
   /// 当前步骤，1-4
   var stepNum = Global.isLogin ? 3 : 1;
 
@@ -56,6 +55,11 @@ class _LoginPage extends State<LoginPage> with Standby {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var stepList = [
       Step('连接网络', const LinkNetwork()),
@@ -64,11 +68,6 @@ class _LoginPage extends State<LoginPage> with Standby {
       Step('选择房间', const SelectRoom()),
     ];
 
-    var user = context.watch<UserModel>();
-
-    if (!user.isLogin) {
-      stepNum = 2;
-    }
     var stepItem = stepList[stepNum - 1];
 
     var buttonStyle = TextButton.styleFrom(
@@ -114,11 +113,36 @@ class _LoginPage extends State<LoginPage> with Standby {
                   onPressed: () async {
                     nextStep();
                   },
-                  child: const Text('下一步',
-                      style: TextStyle(
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                      )),
-                ))
+                  child: stepNum == 4
+                      ? const Text('完成',
+                          style: TextStyle(
+                            color: Color.fromRGBO(0, 145, 255, 1),
+                          ))
+                      : const Text('下一步',
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 0.85),
+                          )),
+                )),
+              Expanded(
+                  child: TextButton(
+                style: buttonStyle,
+                onPressed: () async {},
+                child: const Text('退出登录(测试）',
+                    style: TextStyle(
+                      color: Color.fromRGBO(255, 255, 255, 0.85),
+                    )),
+              )),
+              Expanded(
+                  child: TextButton(
+                style: buttonStyle,
+                onPressed: () async {
+                  exit(0);
+                },
+                child: const Text('退出(测试）',
+                    style: TextStyle(
+                      color: Color.fromRGBO(255, 255, 255, 0.85),
+                    )),
+              )),
             ])
           ],
         )));
@@ -217,7 +241,7 @@ class LoginHeader extends StatelessWidget {
       top: 2.0,
       child: TextButton.icon(
         onPressed: () => Navigator.of(context).pushNamed('SettingPage'),
-      label: const Text(''),
+        label: const Text(''),
         icon: const Icon(Icons.settings),
       ),
     );

@@ -15,6 +15,8 @@ github_client_app
 ├── jsons // 由于在网络数据传输和持久化时，我们需要通过Json来传输、保存数据；但是在应用开发时我们又需要将Json转成Dart Model类
 ├── lib // 源代码目录
 │     ├── common // 一些工具类，如通用方法类、网络接口类、保存全局变量的静态类等
+│     │     ├── system.dart // app系统功能api
+│     │     └── util.dart // 工具类方法api
 │     ├── models // Json文件对应的Dart Model类会在此目录下   
 │     ├── states // 保存APP中需要跨组件共享的状态类
 │     ├── routes // 存放所有路由页面类
@@ -83,3 +85,4 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 
 ## 自定义 widget
 - Cell [文档地址](./docs/cell.md)
+- MzRadio [文档地址](./docs/mz_radio.md)

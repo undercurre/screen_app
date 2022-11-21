@@ -48,11 +48,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   uuid: ^3.0.6
   reorderables: ^0.5.1
-  connectivity_plus: ^2.3.9
   platform_device_id: ^1.0.1
-  network_info_plus: ^2.1.4+1
-  wifi_iot: ^0.3.18
-  wifi_scan: ^0.4.0+1
   motion_toast: ^2.5.4
 
 dev_dependencies:
@@ -70,7 +66,6 @@ dev_dependencies:
   json_model: ^1.0.0
   flutter_draggable_gridview: ^0.0.7
   date_format: ^2.0.7
-  connectivity_plus:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

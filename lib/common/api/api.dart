@@ -38,11 +38,13 @@ class Api {
   /// Api类初始化配置
   static void init() {
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
-      logger.i('【onRequest】: ${options.path} \n '
-          'method: ${options.method} \n'
-          'headers: ${options.headers} \n '
-          'data: ${options.data} \n '
-          'queryParameters: ${options.queryParameters}  \n');
+      if (options.extra['isLog'] != false) {
+        logger.i('【onRequest】: ${options.path} \n '
+            'method: ${options.method} \n'
+            'headers: ${options.headers} \n '
+            'data: ${options.data} \n '
+            'queryParameters: ${options.queryParameters}  \n');
+      }
 
       // Do something before request is sent
       return handler.next(options); //continue
@@ -52,9 +54,11 @@ class Api {
       // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`handler.reject(error)`，
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onResponse: (response, handler) {
-      // 统一增加请求是否成功标志
-      logger.i('${response.requestOptions.path} \n '
-          'onResponse: $response.');
+      if (response.requestOptions.extra['isLog'] != false) {
+        logger.i('${response.requestOptions.path} \n '
+            'onResponse: $response.');
+      }
+
       // Do something with response data
       return handler.next(response); // continue
       // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，

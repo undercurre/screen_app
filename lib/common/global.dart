@@ -62,16 +62,16 @@ class Global {
       }
     }
 
-    if (StrUtils.isNullOrEmpty(profile.deviceId)) {
-      String? deviceId = await PlatformDeviceId.getDeviceId;
-      logger.i('deviceId: $deviceId');
+    // if (StrUtils.isNullOrEmpty(profile.deviceId)) {
+    String? deviceId = await PlatformDeviceId.getDeviceId;
+    logger.i('deviceId: $deviceId');
 
-      if (StrUtils.isNullOrEmpty(deviceId)) {
-        const uuid = Uuid();
-        deviceId = uuid.v4();
-      }
-      profile.deviceId = deviceId;
+    if (StrUtils.isNullOrEmpty(deviceId)) {
+      const uuid = Uuid();
+      deviceId = uuid.v4();
     }
+    profile.deviceId = deviceId;
+    // }
 
     saveProfile();
 
@@ -83,5 +83,12 @@ class Global {
   static saveProfile() {
     logger.i('saveProfile: ${profile.toJson()}');
     _prefs.setString("profile", jsonEncode(profile.toJson()));
+  }
+
+  /// 退出登录
+  static loginOut() {
+    profile.user = null;
+    profile.homeInfo = null;
+    profile.roomInfo = null;
   }
 }

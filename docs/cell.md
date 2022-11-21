@@ -33,7 +33,7 @@ Cell(
 title: 'Midea-smart',
 tag: '我创建的',
 desc: '房间4',
-bgColor: Colors.black,
+bgColor: Colors.black,AA
 avatarIcon: Icon(Icons.wifi_outlined, color: Colors.white),
 rightIcon: Icon(Icons.lock_outline_sharp, color: Colors.white),
 hasArrow: true,

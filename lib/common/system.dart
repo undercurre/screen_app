@@ -1,3 +1,5 @@
+class System {}
+
 // 等待多久进入待机状态
 List _standbyTime = [
   // {'value': 30, 'text': '30秒'},

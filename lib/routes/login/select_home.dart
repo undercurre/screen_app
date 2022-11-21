@@ -14,28 +14,32 @@ class _SelectHome extends State<SelectHome> {
     for (var i = 0; i < homeList.length; i++) {
       var item = homeList[i];
 
-      listView.add(Cell(
-        title: item.name,
-        titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-        // tag: '我创建的',
-        desc: '房间${item.roomCount} | 设备${item.applianceCount} | 成员${item.memberCount} | ${item.address}',
-        titleSize: 20.0,
-        hasTopBorder: true,
-        bgColor: homeId == item.homegroupId ? const Color.fromRGBO(216, 216, 216, 0.2) : const Color.fromRGBO(216, 216, 216, 0.1),
-        onTap: () {
-          debugPrint('onTap: ${item.name}');
-          setState(() {
-            homeId = item.homegroupId;
-          });
+      listView.add(
+        Cell(
+            title: item.name,
+            titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
+            // tag: '我创建的',
+            desc:
+                '房间${item.roomCount} | 设备${item.applianceCount} | 成员${item.memberCount} | ${item.address}',
+            titleSize: 20.0,
+            hasTopBorder: true,
+            onTap: () {
+              debugPrint('onTap: ${item.name}');
+              setState(() {
+                homeId = item.homegroupId;
+              });
 
-          Global.profile.homeInfo = item;
-        },
-      ));
+              Global.profile.homeInfo = item;
+            },
+            rightSlot: MzRadio<String>(
+              activeColor: const Color.fromRGBO(0, 145, 255, 1),
+              value: item.homegroupId,
+              groupValue: homeId,
+            )),
+      );
     }
 
-    var homeListView = ListView(
-      children: listView
-    );
+    var homeListView = ListView(children: listView);
 
     return homeListView;
   }
@@ -51,7 +55,7 @@ class _SelectHome extends State<SelectHome> {
     var res = await MideaApi.getHomegroup();
 
     if (res.isSuccess) {
-      setState((){
+      setState(() {
         homeList = res.data.homeList;
       });
     }

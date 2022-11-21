@@ -20,21 +20,23 @@ class _SelectRoom extends State<SelectRoom> {
         desc: '设备',
         titleSize: 20.0,
         hasTopBorder: true,
-        bgColor: roomId == item.roomId ? const Color.fromRGBO(216, 216, 216, 0.2) : const Color.fromRGBO(216, 216, 216, 0.1),
+        rightSlot: MzRadio<String>(
+          activeColor: const Color.fromRGBO(0, 145, 255, 1),
+          value: item.roomId,
+          groupValue: roomId,
+        ),
         onTap: () {
           debugPrint('onTap: ${item.name}');
           setState(() {
             roomId = item.roomId;
           });
 
-          Global.profile.romeInfoSelected = item;
+          Global.profile.roomInfo = item;
         },
       ));
     }
 
-    var homeListView = ListView(
-        children: listView
-    );
+    var homeListView = ListView(children: listView);
 
     return homeListView;
   }
@@ -48,10 +50,11 @@ class _SelectRoom extends State<SelectRoom> {
 
   /// 获取指定家庭信息
   void getHomeData() async {
-    var res = await MideaApi.getHomeList(homegroupId: Global.profile.homeInfo?.homegroupId);
+    var res = await MideaApi.getHomeList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
-      setState((){
+      setState(() {
         var homeInfo = res.data.homeList[0] as HomeInfo;
         roomList = homeInfo.roomList ?? [];
       });
