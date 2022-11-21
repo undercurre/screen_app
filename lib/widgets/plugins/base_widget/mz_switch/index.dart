@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class MzSwitch extends StatefulWidget {
   final bool value; // 开关状态
-  final bool disabled; // 是否允许操作
-  final Color activeColor; // 滑轨未激活底色
-  final Color inactiveColor; // 滑轨激活底色
-  final Color pointActiveColor; // 圆球未激活底色
-  final Color pointInactiveColor; // 圆圈激活底色
-  final Duration duration; // 开关状态切换时间
+  final bool disabled; // 是否禁止操作
+  final Color activeColor; // 滑轨激活底色
+  final Color inactiveColor; // 滑轨未激活底色
+  final Color pointActiveColor; // 圆球激活底色
+  final Color pointInactiveColor; // 圆圈未激活底色
+  final Duration duration; // 状态切换动画时间
   final void Function(bool value)? onTap; // 点击开关回调
 
   const MzSwitch({

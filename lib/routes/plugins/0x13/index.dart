@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/api/device_api.dart';
-import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/plugins/business_widget/mode_card/index.dart';
 import 'package:screen_app/widgets/plugins/business_widget/param_card/index.dart';
@@ -28,7 +26,7 @@ class WifiLightPageState extends State<WifiLightPage> {
     setState(() {
       power = !power;
     });
-    await WIFILightApi.powerLua(deviceId, !power);
+    await WIFILightApi.powerLua(deviceId, power);
   }
 
   Future<void> delayHandle() async {
@@ -70,16 +68,17 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
+  void initState() async {
     super.initState();
+    var args = ModalRoute.of(context)?.settings.arguments as Map;
+    deviceId = args['deviceId'];
+    deviceName = args['deviceName'];
+    final res = await WIFILightApi.getLightDetail(deviceId);
+    print(res);
   }
 
   @override
   Widget build(BuildContext context) {
-    var args = ModalRoute.of(context)?.settings.arguments as Map;
-    deviceId = args['deviceId'];
-    deviceName = args['deviceName'];
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -110,8 +109,8 @@ class WifiLightPageState extends State<WifiLightPage> {
                     maxHeight: 60.0,
                   ),
                   child: nav_bar.NavigationBar(
-                    onLeftBtnClick: goBack,
-                    onPowerBtnClick: powerHandle,
+                    onLeftBtnTap: goBack,
+                    onPowerBtnTap: powerHandle,
                     title: deviceName,
                     power: power,
                     hasPower: true,
@@ -162,7 +161,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                               ModeCard(
                                 modeList: lightModes,
                                 selectedKeys: getSelectedKeys(),
-                                onClick: modeHandle,
+                                onTap: modeHandle,
                               ),
                               FunctionCard(
                                 title: '延时关灯',

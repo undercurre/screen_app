@@ -7,17 +7,20 @@ class GearCard extends StatefulWidget {
   final num maxGear;
   final num value;
   final String title;
-  final void Function(num value)? onChanged;
+  final bool disabled;
   final Duration? duration;
+  final void Function(num value)? onChanged;
 
-  const GearCard(
-      {super.key,
-      this.value = 3,
-      this.maxGear = 6,
-      this.minGear = 1,
-      this.title = '风速',
-      this.onChanged,
-      this.duration});
+  const GearCard({
+    super.key,
+    this.value = 3,
+    this.maxGear = 6,
+    this.minGear = 1,
+    this.disabled = false,
+    this.title = '风速',
+    this.onChanged,
+    this.duration,
+  });
 
   @override
   State<StatefulWidget> createState() => _GearCardState();
@@ -82,6 +85,7 @@ class _GearCardState extends State<GearCard> {
                 value: value,
                 max: widget.maxGear,
                 min: widget.minGear,
+                disabled: widget.disabled,
                 step: 1,
                 duration: widget.duration ?? const Duration(milliseconds: 100),
                 onChanging: (e, _) => setState(() {

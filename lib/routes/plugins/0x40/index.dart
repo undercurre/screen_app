@@ -18,12 +18,14 @@ class _CoolMasterState extends State<CoolMaster> {
   Map<String, bool?> mode = <String, bool?>{};
   bool nightlight = false;
   bool delayOff = false;
+  String title = '浴霸';
 
   @override
   void initState() {
     super.initState();
   }
 
+  // 卡片逻辑处理
   void handleModeTap(Mode m) {
     setState(() {
       if (m.key == 'strong') {
@@ -60,8 +62,8 @@ class _CoolMasterState extends State<CoolMaster> {
       child: Column(
         children: [
           nav_bar.NavigationBar(
-            title: '凉霸',
-            onLeftBtnClick: () => Navigator.pop(context),
+            title: title,
+            onLeftBtnTap: () => Navigator.pop(context),
           ),
           Expanded(
             flex: 1,
@@ -90,7 +92,7 @@ class _CoolMasterState extends State<CoolMaster> {
                           ModeCard(
                             modeList: coolMasterMode,
                             selectedKeys: mode,
-                            onClick: (e) => handleModeTap(e),
+                            onTap: (e) => handleModeTap(e),
                           ),
                           FunctionCard(
                             icon: Container(

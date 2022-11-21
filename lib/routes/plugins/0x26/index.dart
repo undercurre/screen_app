@@ -38,7 +38,7 @@ class _BathroomMasterState extends State<BathroomMaster> {
         children: [
           nav_bar.NavigationBar(
             title: '浴霸',
-            onLeftBtnClick: () => Navigator.pop(context),
+            onLeftBtnTap: () => Navigator.pop(context),
           ),
           Expanded(
             flex: 1,
@@ -68,7 +68,7 @@ class _BathroomMasterState extends State<BathroomMaster> {
                             modeList: bathroomMasterMode,
                             selectedKeys: mode,
                             spacing: 40,
-                            onClick: (e) => setState(() {
+                            onTap: (e) => setState(() {
                               mode[e.key] =
                               mode[e.key] == null ? true : !mode[e.key]!;
                             }),

@@ -7,8 +7,9 @@ class TemperatureCard extends StatefulWidget {
   final num maxTemperature;
   final num value;
   final num step;
-  final void Function(num value)? onChanged;
+  final bool disabled;
   final Duration? duration;
+  final void Function(num value)? onChanged;
 
   const TemperatureCard({
     super.key,
@@ -16,8 +17,9 @@ class TemperatureCard extends StatefulWidget {
     this.step = 1,
     this.maxTemperature = 60,
     this.minTemperature = 10,
+    this.disabled = false,
+    this.duration,
     this.onChanged,
-    this.duration
   });
 
   @override
@@ -47,6 +49,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
                 RawMaterialButton(
                   onPressed: () {
                     setState(() {
+                      if (widget.disabled) return;
                       if (value - 1 > widget.minTemperature) {
                         value--;
                       } else {
@@ -93,6 +96,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
                 RawMaterialButton(
                   onPressed: () {
                     setState(() {
+                      if (widget.disabled) return;
                       if (value + 1 < widget.maxTemperature) {
                         value++;
                       } else {
@@ -118,6 +122,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
             max: widget.maxTemperature,
             min: widget.minTemperature,
             step: widget.step,
+            disabled: widget.disabled,
             duration: widget.duration ?? const Duration(milliseconds: 100),
             onChanging: (e, _) => setState(() {
               value = e;

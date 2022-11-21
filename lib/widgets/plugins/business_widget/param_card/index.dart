@@ -10,6 +10,8 @@ class ParamCard extends StatefulWidget {
   final num value;
   final String unit;
   final Duration throttle; // 节流控制onChanging触发
+  final bool disabled;
+  final Duration? duration;
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
 
@@ -21,7 +23,9 @@ class ParamCard extends StatefulWidget {
     this.unit = '%',
     this.onChanging,
     this.onChanged,
+    this.disabled = false,
     this.throttle = const Duration(seconds: 1),
+    this.duration,
   });
 
   @override
@@ -81,7 +85,8 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                   width: 270,
                   value: widget.value,
                   activeColors: widget.activeColors,
-                  duration: const Duration(milliseconds: 100),
+                  disabled: widget.disabled,
+                  duration: widget.duration,
                   onChanged: widget.onChanged,
                   onChanging: onChanging,
                 ),

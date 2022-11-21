@@ -37,6 +37,9 @@ class GradientSlider extends StatefulWidget {
   // 动画时长，不传表示不执行动画
   final Duration? duration;
 
+  // 组件内边距，用于拓展手势区域，提高用户体验
+  final EdgeInsetsGeometry padding;
+
   const GradientSlider({
     super.key,
     required this.value,
@@ -53,6 +56,7 @@ class GradientSlider extends StatefulWidget {
     this.ballRadius = 6,
     this.step = 1,
     this.disabled = false,
+    this.padding = const EdgeInsets.all(20),
   });
 
   @override
@@ -107,7 +111,7 @@ class _GradientSliderState extends State<GradientSlider>
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(
-        padding: const EdgeInsets.all(20.0),
+        padding: widget.padding,
         decoration: const BoxDecoration(color: Colors.transparent),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(

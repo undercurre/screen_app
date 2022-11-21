@@ -4,16 +4,16 @@ class NavigationBar extends StatefulWidget {
   final String title;
   final bool power;
   final bool hasPower;
-  final void Function()? onPowerBtnClick;
-  final void Function()? onLeftBtnClick;
+  final void Function()? onPowerBtnTap;
+  final void Function()? onLeftBtnTap;
 
   const NavigationBar({
     super.key,
     this.title = '',
     this.power = false,
     this.hasPower = false,
-    this.onPowerBtnClick,
-    this.onLeftBtnClick,
+    this.onPowerBtnTap,
+    this.onLeftBtnTap,
   });
 
   @override
@@ -28,7 +28,7 @@ class _NavigationBarState extends State<NavigationBar> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => widget.onLeftBtnClick?.call(),
+          onTap: () => widget.onLeftBtnTap?.call(),
           child: Container(
             color: Colors.transparent,
             child: const Padding(
@@ -53,7 +53,7 @@ class _NavigationBarState extends State<NavigationBar> {
           ),
         ),
         GestureDetector(
-          onTap: () => widget.onPowerBtnClick?.call(),
+          onTap: () => widget.onPowerBtnTap?.call(),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
             child: widget.hasPower
