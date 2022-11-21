@@ -2,10 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../../common/api/midea_api.dart';
-import '../../states/index.dart';
+import 'package:screen_app/common/index.dart';
 
+// 天气编码转换为天气图片的名称
 final codeToImage = {
   '00': 'sunny',
   '01': 'cloudy',
@@ -61,48 +60,53 @@ class WeatherPageState extends State<WeatherPage> {
 
   // 获取家庭组
   void initQuery() async {
-    var homegroupRes = await MideaApi.getHomegroup();
-    if (!homegroupRes.isSuccess) {
-      return;
+    // 预加载背景图
+    if (StandbySetting.weatherCode != '') {
+      setState(() {
+          weatherIcon = codeToImage[StandbySetting.weatherCode]!;
+          weatherBg = codeToImage[StandbySetting.weatherCode]!;
+      });
     }
 
-    String areaid = homegroupRes.data.homeList.first.areaid;
+    logger.i(
+        'Global homeInfo: ${Global.profile.homeInfo?.areaid} ${Global.profile.homeInfo?.address}');
+
+    String? areaid = Global.profile.homeInfo?.areaid;
+    areaid ??= '101280801'; // 默认顺德区
     updateWeather(areaid);
 
     // 每10分钟刷新天气
     _timer = Timer.periodic(const Duration(minutes: 10), (timer) async {
-      updateWeather(areaid);
+      updateWeather(areaid!);
     });
   }
 
   void updateWeather(String cityId) async {
-    // 如果未登录成功，则不显示天气情况
-    if (!Provider.of<UserModel>(context, listen: false).isLogin) {
-      return;
-    }
     var weatherOfCityRes = await MideaApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;
+
       setState(() {
         temperature = d.weather.grade;
         weatherString =
             '${d.weather.weatherStatus}    ${d.location.chName}    室外空气 ${d.weather.pmindex}';
 
+        // UI 特别设计的背景
         if (d.weather.pmindex == '差') {
           weatherIcon = 'cloudy';
           weatherBg = 'poor-air';
-        } else if (codeToImage.containsKey(d.weather.weatherCode)) {
+        }
+        // 天气码变化 && 天气码有定义对应背景 才切换背景图
+        else if (StandbySetting.weatherCode != d.weather.weatherCode &&
+            codeToImage.containsKey(d.weather.weatherCode)) {
           weatherIcon = codeToImage[d.weather.weatherCode]!;
           weatherBg = codeToImage[d.weather.weatherCode]!;
-        } else {
-          weatherIcon = 'sunny';
-          weatherBg = 'sunny';
+
+          // 保存到系统设置中
+          StandbySetting.weatherCode = d.weather.weatherCode;
         }
       });
     }
-
-    // assert
-    // setState(() => weatherBg = 'rainy');
 
     // 只有以下天气背景有晚上模式
     if (!['cloudy', 'rainy', 'snowy'].contains(weatherBg)) {
@@ -131,8 +135,8 @@ class WeatherPageState extends State<WeatherPage> {
       decoration: BoxDecoration(
           image: weatherBg != ''
               ? DecorationImage(
-          image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
-          fit: BoxFit.cover,
+                  image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
+                  fit: BoxFit.cover,
                 )
               : null,
           color: const Color.fromRGBO(0, 0, 0, 0)),
@@ -190,10 +194,6 @@ class WeatherPageState extends State<WeatherPage> {
                   wordSpacing: 2.0)),
         ]);
 
-
-
-
-
     return GestureDetector(
         child: Stack(
           fit: StackFit.expand,
@@ -222,6 +222,7 @@ class DateTimeStrState extends State<DateTimeStr> {
 
   String getDatetime() =>
       DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
+
   @override
   void initState() {
     super.initState();

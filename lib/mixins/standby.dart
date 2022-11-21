@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../common/index.dart';
-import '../widgets/event_bus.dart';
+import 'package:screen_app/common/index.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 
 mixin Standby<T extends StatefulWidget> on State<T> {
   late Timer _timer;
@@ -9,7 +9,7 @@ mixin Standby<T extends StatefulWidget> on State<T> {
   void noMoveTimer() {
     logger.i('noMoveTimer trigger');
 
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    _timer = Timer.periodic(Duration(seconds: StandbySetting.standbyTime), (timer) {
       _timer.cancel();
       Navigator.of(context).pushNamed('Weather');
     });
@@ -18,6 +18,11 @@ mixin Standby<T extends StatefulWidget> on State<T> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // 永不待机
+    if (StandbySetting.standbyTime == -1) {
+      return;
+    }
 
     noMoveTimer();
 
@@ -32,6 +37,7 @@ mixin Standby<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     _timer.cancel();
+    bus.off("onPointerDown");
     super.dispose();
   }
 }
