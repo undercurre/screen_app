@@ -1,4 +1,4 @@
-import '../mode.dart';
+import 'package:screen_app/widgets/index.dart';
 
 var light = Mode('light', '照明', 'assets/imgs/plugins/0x26/light_on.png', 'assets/imgs/plugins/0x26/light_off.png');
 

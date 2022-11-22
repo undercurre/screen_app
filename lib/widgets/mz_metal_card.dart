@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class GlassCard extends StatelessWidget {
+class MzMetalCard extends StatelessWidget {
   final double width;
   final Widget child;
 
-  const GlassCard({super.key, this.width = 312, required this.child});
+  const MzMetalCard({super.key, this.width = 312, required this.child});
 
   @override
   Widget build(BuildContext context) {

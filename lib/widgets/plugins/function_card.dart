@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
+import 'package:screen_app/widgets/mz_metal_card.dart';
 
 class FunctionCard extends StatefulWidget {
   final Widget? icon; // title左侧的icon
@@ -28,7 +28,7 @@ class _FunctionCardState extends State<FunctionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return MzMetalCard(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 19, 16),
         child: Row(

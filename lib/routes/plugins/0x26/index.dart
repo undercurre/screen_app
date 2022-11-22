@@ -1,5 +1,5 @@
+import './mode_list.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/device_mode/0x26/index.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class BathroomMaster extends StatefulWidget {
@@ -10,6 +10,9 @@ class BathroomMaster extends StatefulWidget {
 }
 
 class _BathroomMasterState extends State<BathroomMaster> {
+  String deviceId = '0';
+  String deviceName = '浴霸';
+
   Map<String, bool?> mode = <String, bool?>{};
   bool nightlight = false;
   bool delayOff = false;
@@ -17,6 +20,11 @@ class _BathroomMasterState extends State<BathroomMaster> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      deviceId = args['deviceId'];
+      deviceName = args['deviceName'];
+    });
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-class GradientSlider extends StatefulWidget {
+class MzSlider extends StatefulWidget {
   // 渐变色数组
   final List<Color> activeColors;
 
@@ -40,7 +40,7 @@ class GradientSlider extends StatefulWidget {
   // 组件内边距，用于拓展手势区域，提高用户体验
   final EdgeInsetsGeometry padding;
 
-  const GradientSlider({
+  const MzSlider({
     super.key,
     required this.value,
     this.duration,
@@ -60,10 +60,10 @@ class GradientSlider extends StatefulWidget {
   });
 
   @override
-  State<GradientSlider> createState() => _GradientSliderState();
+  State<MzSlider> createState() => _MzSliderState();
 }
 
-class _GradientSliderState extends State<GradientSlider>
+class _MzSliderState extends State<MzSlider>
     with TickerProviderStateMixin {
   // 轨道的key
   final GlobalKey _railKey = GlobalKey();
@@ -91,7 +91,7 @@ class _GradientSliderState extends State<GradientSlider>
   }
 
   @override
-  void didUpdateWidget(GradientSlider oldWidget) {
+  void didUpdateWidget(MzSlider oldWidget) {
     if (isPanning) return;
     if (controller != null && controller!.status == AnimationStatus.forward) {
       return;

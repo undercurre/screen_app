@@ -1,17 +1,17 @@
+import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
-import 'package:screen_app/common/device_mode/mode.dart';
-import 'package:screen_app/common/device_mode/0x13/index.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
+  String deviceId = '0';
+  String deviceName = '吸顶灯';
+
   bool power = true;
   num brightness = 0;
   num colorTemperature = 0;
   String screenModel = 'manual';
   String timeOff = '0';
-  late String deviceId;
-  late String deviceName;
 
   void goBack() {
     Navigator.pop(context);
@@ -63,13 +63,14 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    var args = ModalRoute.of(context)?.settings.arguments as Map;
-    deviceId = args['deviceId'];
-    deviceName = args['deviceName'];
-    final res = await WIFILightApi.getLightDetail(deviceId);
-    print(res);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      deviceId = args['deviceId'];
+      deviceName = args['deviceName'];
+      WIFILightApi.getLightDetail(deviceId);
+    });
   }
 
   @override

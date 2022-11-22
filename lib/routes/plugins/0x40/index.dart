@@ -1,6 +1,5 @@
+import './mode_list.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/device_mode/0x40/index.dart';
-import 'package:screen_app/common/device_mode/mode.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class CoolMaster extends StatefulWidget {

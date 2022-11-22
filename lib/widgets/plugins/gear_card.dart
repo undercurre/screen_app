@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/gradient_slider/index.dart';
+import 'package:screen_app/widgets/mz_metal_card.dart';
+import 'package:screen_app/widgets/mz_slider.dart';
 
 class GearCard extends StatefulWidget {
   final num minGear;
@@ -47,7 +47,7 @@ class _GearCardState extends State<GearCard> {
         ),
       );
     }
-    return GlassCard(
+    return MzMetalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -81,7 +81,7 @@ class _GearCardState extends State<GearCard> {
           ),
           Stack(
             children: [
-              GradientSlider(
+              MzSlider(
                 value: value,
                 max: widget.maxGear,
                 min: widget.minGear,

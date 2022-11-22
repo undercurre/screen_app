@@ -12,8 +12,7 @@ class Profile {
   HomeInfo? homeInfo;
   RoomInfo? roomInfo;
   String? deviceId;
-
-  factory Profile.fromJson(Map<String, dynamic> json) =>
-      _$ProfileFromJson(json);
+  
+  factory Profile.fromJson(Map<String,dynamic> json) => _$ProfileFromJson(json);
   Map<String, dynamic> toJson() => _$ProfileToJson(this);
 }

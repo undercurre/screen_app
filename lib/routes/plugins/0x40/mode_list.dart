@@ -1,4 +1,4 @@
-import '../mode.dart';
+import 'package:screen_app/widgets/index.dart';
 
 var strong = Mode('strong', '强风', 'assets/imgs/plugins/0x40/strong_wind_on.png', 'assets/imgs/plugins/0x40/strong_wind_off.png');
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/gradient_slider/index.dart';
+import 'package:screen_app/widgets/mz_metal_card.dart';
+import 'package:screen_app/widgets/mz_slider.dart';
 
 class TemperatureCard extends StatefulWidget {
   final num minTemperature;
@@ -37,7 +37,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return MzMetalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -117,7 +117,7 @@ class _TemperatureCardState extends State<TemperatureCard> {
               ],
             ),
           ),
-          GradientSlider(
+          MzSlider(
             value: value,
             max: widget.maxTemperature,
             min: widget.minTemperature,

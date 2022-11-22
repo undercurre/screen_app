@@ -1,4 +1,4 @@
-import '../mode.dart';
+import 'package:screen_app/widgets/index.dart';
 
 var moon = Mode('moon', '夜晚', 'assets/imgs/plugins/0x13/moon_on.png', 'assets/imgs/plugins/0x13/moon_off.png');
 

@@ -24,6 +24,8 @@ github_client_app
 │     │     └── login // 登录页面模块
 │     │          └── index.dart // 入口文件
 │     └── widgets // APP内封装的一些Widget组件都在该目录下
+│           ├── plugins // 业务组件
+│           └── index.dart // 入口文件
 └── test
 ```
 
@@ -86,3 +88,12 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 ## 自定义 widget
 - Cell [文档地址](./docs/cell.md)
 - MzRadio [文档地址](./docs/mz_radio.md)
+- MzMetalCard [文档地址](./docs/mz_metal_card.md)
+- MzNavigationBar [文档地址](./docs/mz_navigation_bar.md)
+- MzSlider [文档地址](./docs/mz_slider.md)
+- MzSwitch [文档地址](./docs/mz_switch.md)
+- FunctionCard [文档地址](./docs/plugins/function_card.md)
+- GearCard [文档地址](./docs/plugins/gear_card.md)
+- ModeCard [文档地址](./docs/plugins/mode_card.md)
+- ParamCard [文档地址](./docs/plugins/param_card.md)
+- TemperatureCard [文档地址](./docs/plugins/temperature_card.md)

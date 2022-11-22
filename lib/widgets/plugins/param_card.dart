@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/plugins/base_widget/glass_card/index.dart';
-import 'package:screen_app/widgets/plugins/base_widget/gradient_slider/index.dart';
+import 'package:screen_app/widgets/mz_metal_card.dart';
+import 'package:screen_app/widgets/mz_slider.dart';
 import 'package:screen_app/mixins/throttle.dart';
 
 // 普通的带滑动条卡片
@@ -35,17 +35,19 @@ class ParamCard extends StatefulWidget {
 class _ParamCardState extends State<ParamCard> with Throttle {
   late String title;
   late String unit;
+  late num value;
 
   @override
   void initState() {
     super.initState();
     title = widget.title;
     unit = widget.unit;
+    value = widget.value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return MzMetalCard(
       child: Stack(
         children: [
           Container(
@@ -68,7 +70,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                         ),
                       ),
                       Text(
-                        '${widget.value.toInt()}$unit',
+                        '${value.toInt()}$unit',
                         style: const TextStyle(
                           fontFamily: "MideaType",
                           fontSize: 18,
@@ -81,7 +83,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                     ],
                   ),
                 ),
-                GradientSlider(
+                MzSlider(
                   width: 270,
                   value: widget.value,
                   activeColors: widget.activeColors,
@@ -128,6 +130,9 @@ class _ParamCardState extends State<ParamCard> with Throttle {
 
   // 使用节流
   void onChanging(num value, Color activeColor) {
+    setState(() {
+      this.value = value;
+    });
     if (widget.onChanging != null) {
       throttle(() {
         widget.onChanging!(value, activeColor);

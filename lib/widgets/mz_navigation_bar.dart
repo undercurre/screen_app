@@ -58,19 +58,19 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
             padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
             child: widget.hasPower
                 ? Image(
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    image: AssetImage(
-                      widget.power
-                          ? 'assets/imgs/plugins/common/power_on.png'
-                          : 'assets/imgs/plugins/common/power_off.png',
-                    ),
-                  )
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              image: AssetImage(
+                widget.power
+                    ? 'assets/imgs/plugins/common/power_on.png'
+                    : 'assets/imgs/plugins/common/power_off.png',
+              ),
+            )
                 : const SizedBox(
-                    width: 60,
-                    height: 60,
-                  ),
+              width: 60,
+              height: 60,
+            ),
           ),
         )
       ],
