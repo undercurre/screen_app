@@ -61,7 +61,7 @@ class _DevicePageState extends State<DevicePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           TextButton.icon(
-            onPressed: () => {Navigator.of(context).pushNamed('0x13', arguments: {"deviceId": "178120883713033", "deviceName": "测试用灯"})},
+            onPressed: () => {Navigator.of(context).pushNamed('Scene', arguments: {"deviceId": "178120883713033", "deviceName": "测试用灯"})},
             label: const Text(''),
             icon: const Icon(Icons.sunny_snowing),
           ),

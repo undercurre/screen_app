@@ -1,4 +1,4 @@
-import 'package:screen_app/common/scene/scene.dart';
+import 'package:screen_app/routes/scene/scene.dart';
 
 var huijia = Scene('assets/imgs/scene/huijia-bg.png', '回家', 'assets/imgs/scene/huijia.png', 'huijia');
 var lijia = Scene('assets/imgs/scene/lijia-bg.png', '离家', 'assets/imgs/scene/huijia.png', 'lijia');

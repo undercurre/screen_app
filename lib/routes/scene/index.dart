@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:screen_app/common/scene/scene.dart';
-import 'package:screen_app/common/scene/index.dart';
+import 'package:screen_app/routes/scene/scene.dart';
 import 'package:screen_app/routes/scene/scene_card.dart';
+
+import '../../common/api/scene_api.dart';
+import 'config.dart';
 
 class ScenePageState extends State<ScenePage> {
   double _alignmentY = 0;
@@ -26,45 +30,12 @@ class ScenePageState extends State<ScenePage> {
   // 定时器
   late Timer timeTimer = Timer(const Duration(seconds: 1), () {}); // 定义定时器
 
-  formatWeekday() {
-    if (DateTime.now().weekday == 0) {
-      return '日';
-    }
-    if (DateTime.now().weekday == 1) {
-      return '一';
-    }
-    if (DateTime.now().weekday == 2) {
-      return '二';
-    }
-    if (DateTime.now().weekday == 3) {
-      return '三';
-    }
-    if (DateTime.now().weekday == 4) {
-      return '四';
-    }
-    if (DateTime.now().weekday == 5) {
-      return '五';
-    }
-    if (DateTime.now().weekday == 6) {
-      return '六';
-    }
-  }
-
-  formatTime(num time) {
-    if (time < 10) {
-      return '0$time';
-    } else {
-      return time;
-    }
-  }
-
   void startTimer() {
     timeTimer?.cancel(); // 取消定时器
     timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       //TODO
       setState(() {
-        time =
-            '${DateTime.now().month}月${DateTime.now().day}日 周${formatWeekday()} ${formatTime(DateTime.now().hour)}:${formatTime(DateTime.now().minute)}';
+        time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
       });
     });
   }
@@ -94,23 +65,33 @@ class ScenePageState extends State<ScenePage> {
             onClick: selectScene))
       ].toList();
     });
+    SceneApi.execScene(scene.key);
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void initScene() async {
+    await initializeDateFormatting('zh_CN', null);
+    sceneList = await SceneApi.getSceneList();
     setState(() {
+      time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
+      startTimer();
       sceneWidgetList = [
         ...sceneList.map((scene) => SceneCard(
             power: selectedSceneKey == scene.key,
             scene: scene,
             onClick: selectScene))
       ].toList();
-      time =
-          '${DateTime.now().month}月${DateTime.now().day}日 周${formatWeekday()} ${formatTime(DateTime.now().hour)}:${formatTime(DateTime.now().minute)}';
-      startTimer();
     });
+  }
+
+  void toSelectRoom() {
+    Navigator.pushNamed(context, 'Room');
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initScene();
   }
 
   @override
@@ -136,9 +117,12 @@ class ScenePageState extends State<ScenePage> {
                     decoration: TextDecoration.none,
                   ),
                 ),
-                Image.asset(
-                  "assets/imgs/scene/room.png",
-                  width: 40,
+                Listener(
+                  onPointerDown: (e) => toSelectRoom(),
+                  child: Image.asset(
+                    "assets/imgs/scene/room.png",
+                    width: 40,
+                  ),
                 ),
               ],
             ),
