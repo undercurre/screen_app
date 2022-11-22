@@ -1,5 +1,4 @@
-export 'cell.dart';
-
+export 'mz_cell.dart';
 export 'mz_radio.dart';
 export 'mz_metal_card.dart';
 export 'mz_navigation_bar.dart';

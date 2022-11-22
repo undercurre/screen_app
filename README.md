@@ -86,7 +86,7 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 
 
 ## 自定义 widget
-- Cell [文档地址](./docs/cell.md)
+- MzCell [文档地址](./docs/mz_cell.md)
 - MzRadio [文档地址](./docs/mz_radio.md)
 - MzMetalCard [文档地址](./docs/mz_metal_card.md)
 - MzNavigationBar [文档地址](./docs/mz_navigation_bar.md)

@@ -1,9 +1,9 @@
-/// @doc ~/docs/cell.md
+/// @doc ~/docs/mz_cell.md
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/index.dart';
 
-class Cell extends StatefulWidget {
+class MzCell extends StatefulWidget {
   final String? title; // 标题
   final Widget? titleSlot; // 标题插槽
   final Widget? rightSlot; // 右侧插槽
@@ -27,7 +27,7 @@ class Cell extends StatefulWidget {
   final Function? onTap; // tap emit
   final Function? onLongPress; // long press emit
 
-  const Cell(
+  const MzCell(
       {super.key,
       this.title = '',
       this.titleSlot,
@@ -53,10 +53,10 @@ class Cell extends StatefulWidget {
       this.onLongPress});
 
   @override
-  State<Cell> createState() => _CellState();
+  State<MzCell> createState() => _CellState();
 }
 
-class _CellState extends State<Cell> {
+class _CellState extends State<MzCell> {
   late bool switchValue;
 
   @override
