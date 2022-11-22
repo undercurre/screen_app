@@ -1,5 +1,4 @@
-export 'cell.dart';
-
+export 'mz_cell.dart';
 export 'mz_radio.dart';
 
 // 插件用组件

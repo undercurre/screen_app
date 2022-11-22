@@ -14,7 +14,7 @@ class _SelectRoom extends State<SelectRoom> {
     for (var i = 0; i < roomList.length; i++) {
       var item = roomList[i];
 
-      listView.add(Cell(
+      listView.add(MzCell(
         title: item.name,
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
         desc: '设备',

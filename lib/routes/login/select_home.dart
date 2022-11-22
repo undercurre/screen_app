@@ -15,7 +15,7 @@ class _SelectHome extends State<SelectHome> {
       var item = homeList[i];
 
       listView.add(
-        Cell(
+        MzCell(
             title: item.name,
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             // tag: '我创建的',

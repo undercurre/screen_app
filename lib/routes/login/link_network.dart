@@ -12,7 +12,7 @@ class _LinkNetwork extends State<LinkNetwork> {
   @override
   Widget build(BuildContext context) {
     debugPrint('link_network.dart-build: $_isWifiOn');
-    var wifiSwitch = Cell(
+    var wifiSwitch = MzCell(
         title: '无线局域网',
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
         titleSize: 24.0,
@@ -69,7 +69,7 @@ class _LinkNetwork extends State<LinkNetwork> {
 
                 userModel.user = User.fromJson({"name": "test $index"});
               },
-              child: Cell(
+              child: MzCell(
                 avatarIcon: const Icon(
                   Icons.wifi,
                   color: Color.fromRGBO(255, 255, 255, 0.85),

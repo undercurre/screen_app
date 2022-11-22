@@ -25,11 +25,11 @@
 ```dart
 import '../../widgets/index.dart';
 
-Cell(
+MzCell(
 titleSlot: const Text('自定义标题布局及样式'),
 )
 
-Cell(
+MzCell(
 title: 'Midea-smart',
 tag: '我创建的',
 desc: '房间4',
