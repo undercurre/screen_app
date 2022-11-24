@@ -64,6 +64,10 @@ class Global {
 
     // if (StrUtils.isNullOrEmpty(profile.deviceId)) {
     String? deviceId = await PlatformDeviceId.getDeviceId;
+    // windows 下会获取到特殊字符，为了开发方便需要使用windows进行开发调试
+    deviceId = deviceId?.replaceAll(' ', '')
+        .replaceAll('\n', '')
+        .replaceAll('\r', '');
     logger.i('deviceId: $deviceId');
 
     if (StrUtils.isNullOrEmpty(deviceId)) {
