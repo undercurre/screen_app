@@ -35,7 +35,19 @@ final codeToImage = {
   '26': 'snowy',
   '27': 'snowy',
   '28': 'snowy',
-  '29': 'duststorm'
+  '29': 'duststorm',
+  '30':	'duststorm',
+  '31': 'duststorm',
+  '32': 'foggy',
+  '49': 'foggy',
+  '53': 'foggy',
+  '54': 'foggy',
+  '55': 'foggy',
+  '56': 'foggy',
+  '57': 'foggy',
+  '58': 'foggy',
+  '301': 'rainy',
+  '302': 'snowy'
 };
 
 // 页面定义
@@ -62,9 +74,10 @@ class WeatherPageState extends State<WeatherPage> {
   void initQuery() async {
     // 预加载背景图
     if (StandbySetting.weatherCode != '') {
+      String imageName = codeToImage[StandbySetting.weatherCode]!;
       setState(() {
-          weatherIcon = codeToImage[StandbySetting.weatherCode]!;
-          weatherBg = codeToImage[StandbySetting.weatherCode]!;
+          weatherIcon = imageName;
+          weatherBg = imageName;
       });
     }
 

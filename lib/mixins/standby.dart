@@ -10,7 +10,7 @@ mixin Standby<T extends StatefulWidget> on State<T> {
     logger.i('noMoveTimer trigger');
 
     _timer =
-        Timer.periodic(Duration(minutes: StandbySetting.standbyTime), (timer) {
+        Timer.periodic(Duration(seconds: StandbySetting.standbyTime), (timer) {
       _timer.cancel();
       Navigator.of(context).pushNamed('Weather');
     });

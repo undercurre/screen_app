@@ -21,7 +21,7 @@ const _themes = <MaterialColor>[
 
 /// 日志打印工具
 var logger = Logger(
-  printer: PrettyPrinter(),
+  printer: PrettyPrinter(printTime: true),
 );
 
 class Global {
