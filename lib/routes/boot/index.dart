@@ -1,7 +1,8 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:io';
 
 import '../../common/index.dart';
 
@@ -11,24 +12,17 @@ class _Boot extends State<Boot> {
 
   ChewieController? chewieController;
 
+  get isSupportVideo => Platform.isAndroid || Platform.isIOS;
+
   @override
   void initState() {
     super.initState();
     debugPrint('boot-initState');
-    // initVideo();
-    //
-    // checkLogin();
-    if (Platform.isAndroid) {
+    if (isSupportVideo) {
       initVideo();
     }
 
     checkLogin();
-
-    if (!Platform.isAndroid) {
-      Future.delayed(Duration.zero, () {
-        bootFinish();
-      });
-    }
   }
 
   @override
@@ -43,7 +37,7 @@ class _Boot extends State<Boot> {
                   child: Chewie(
                   controller: chewieController!,
                 ))
-              : Container(),
+              : const CircularProgressIndicator(),
         ),
       )
     ]);
@@ -61,6 +55,12 @@ class _Boot extends State<Boot> {
       await UserApi.autoLogin();
 
       await UserApi.authToken();
+    }
+
+    if (!isSupportVideo) {
+      Timer(const Duration(seconds: 2), () {
+        bootFinish();
+      });
     }
   }
 
