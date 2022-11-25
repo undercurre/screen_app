@@ -14,11 +14,11 @@ github_client_app
 │     ├── imgs // 存放图片文件
 ├── jsons // 由于在网络数据传输和持久化时，我们需要通过Json来传输、保存数据；但是在应用开发时我们又需要将Json转成Dart Model类
 ├── lib // 源代码目录
+│     ├── channel // 自定义与原生平台通信的通道
 │     ├── common // 一些工具类，如通用方法类、网络接口类、保存全局变量的静态类等
 │     │     ├── system.dart // app系统功能api
 │     │     └── util.dart // 工具类方法api
 │     ├── models // Json文件对应的Dart Model类会在此目录下   
-│     ├── states // 保存APP中需要跨组件共享的状态类
 │     ├── routes // 存放所有路由页面类
 │     │     ├── index.dart // 注册路由表
 │     │     └── login // 登录页面模块
