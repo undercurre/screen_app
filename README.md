@@ -72,6 +72,20 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 可引入`Global`类,调用`logger`类实例进行打印
 [文档地址](https://pub.flutter-io.cn/packages/logger)
 
+## 字体定义
+- `fontFamily: "MideaType"`（`fontFamily: 'MideaType-Regular'` 是引用不了的）
+- `fontWeight`，默认值是`regular`，另外定义了 `w100` 和 `w900` 两种，分别对应纤细体和粗体
+```dart
+style: const TextStyle(
+      fontFamily: "MideaType",
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+      decoration: TextDecoration.none,
+    )
+```
+
+参见 [pubspec.yaml](./pubspec.yaml#L111)
+
 ## 全局变量及共享状态
 
 ### 全局状态变量
