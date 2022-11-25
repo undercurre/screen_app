@@ -10,8 +10,8 @@
 |----------|----------|-------|-------|--------|
 | min      | num      | false | 10    | 挡位最小值  |
 | max      | num      | false | 60    | 挡位最大值  |
-| title    | String   | false | null  | 挡位最大值  |
-| unit     | String   | false | '°C'  | 挡位最大值  |
+| title    | String   | false | null  | 卡片标题   |
+| unit     | String   | false | '°C'  | 数值的单位  |
 | value    | num      | false | 30    | 挡位值    |
 | step     | num      | false | 1     | 挡位值    |
 | disabled | Widget   | false | false | 是否禁用操作 |
