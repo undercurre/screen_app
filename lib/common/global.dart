@@ -9,16 +9,6 @@ import 'api/index.dart';
 import 'util.dart';
 import '../models/index.dart';
 
-/// 提供五套可选主题色
-const _themes = <MaterialColor>[
-  Colors.blue,
-  Colors.cyan,
-  Colors.teal,
-  Colors.green,
-  Colors.red,
-  Colors.grey,
-];
-
 /// 日志打印工具
 var logger = Logger(
   printer: PrettyPrinter(printTime: true),
@@ -41,9 +31,6 @@ class Global {
     debugPrint('setUser $user');
     profile.user = value;
   }
-
-  /// 可选的主题列表
-  static List<MaterialColor> get themes => _themes;
 
   /// 初始化全局信息，会在APP启动时执行
   static Future init() async {
