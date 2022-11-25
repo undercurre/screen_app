@@ -18,6 +18,7 @@ class ModeCard extends StatelessWidget {
   final double spacing; // 两个元素之间的间距
   final double runSpacing; // 两行之间的间距
   final Function(Mode mode)? onTap;
+  final String? title;
 
   const ModeCard({
     Key? key,
@@ -27,6 +28,7 @@ class ModeCard extends StatelessWidget {
     this.padding = const EdgeInsets.only(top: 18, bottom: 16),
     this.spacing = 22,
     this.runSpacing = 41,
+    this.title,
   }) : super(key: key);
 
   @override
@@ -34,23 +36,45 @@ class ModeCard extends StatelessWidget {
     final itemList = modeList
         .map(
           (mode) => ModeItem(
-        mode: mode,
-        selected: selectedKeys[mode.key] != null &&
-            selectedKeys[mode.key] == true,
-        onTap: (e) => onTap?.call(e),
-      ),
-    )
+            mode: mode,
+            selected: selectedKeys[mode.key] != null &&
+                selectedKeys[mode.key] == true,
+            onTap: (e) => onTap?.call(e),
+          ),
+        )
         .toList();
     return MzMetalCard(
       child: Padding(
         padding: padding,
-        child: Wrap(
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.center,
-          spacing: spacing,
-          runSpacing: runSpacing,
-          runAlignment: WrapAlignment.center,
-          children: itemList,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null) Padding(
+              padding: const EdgeInsets.only(left: 18, bottom: 18),
+              child: Text(
+                '$title',
+                style: const TextStyle(
+                  fontFamily: "MideaType",
+                  fontSize: 18,
+                  height: 1.2,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.center,
+                spacing: spacing,
+                runSpacing: runSpacing,
+                runAlignment: WrapAlignment.center,
+                children: itemList,
+              ),
+            ),
+          ],
         ),
       ),
     );

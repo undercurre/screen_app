@@ -2,31 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/mz_metal_card.dart';
 import 'package:screen_app/widgets/mz_slider.dart';
 
-class TemperatureCard extends StatefulWidget {
-  final num minTemperature;
-  final num maxTemperature;
+class SliderButtonCard extends StatefulWidget {
+  final String? title;
+  final String unit;
+  final num min;
+  final num max;
   final num value;
   final num step;
   final bool disabled;
   final Duration? duration;
   final void Function(num value)? onChanged;
 
-  const TemperatureCard({
+  const SliderButtonCard({
     super.key,
+    this.title,
+    this.unit = '°C',
     this.value = 30,
     this.step = 1,
-    this.maxTemperature = 60,
-    this.minTemperature = 10,
+    this.max = 60,
+    this.min = 10,
     this.disabled = false,
     this.duration,
     this.onChanged,
   });
 
   @override
-  State<StatefulWidget> createState() => _TemperatureCardState();
+  State<StatefulWidget> createState() => _SliderButtonCardState();
 }
 
-class _TemperatureCardState extends State<TemperatureCard> {
+class _SliderButtonCardState extends State<SliderButtonCard> {
   late num value;
 
   @override
@@ -41,8 +45,29 @@ class _TemperatureCardState extends State<TemperatureCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (widget.title != null)
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 15),
+                  child: Text(
+                    widget.title!,
+                    style: const TextStyle(
+                      fontFamily: "MideaType",
+                      fontSize: 18,
+                      height: 1.2,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(0, 30, 0, 15),
+            padding: EdgeInsets.only(
+                top: widget.title != null ? 5 : 30,
+                bottom: widget.title != null ? 0 : 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -50,10 +75,10 @@ class _TemperatureCardState extends State<TemperatureCard> {
                   onPressed: () {
                     setState(() {
                       if (widget.disabled) return;
-                      if (value - 1 > widget.minTemperature) {
+                      if (value - 1 > widget.min) {
                         value--;
                       } else {
-                        value = widget.minTemperature;
+                        value = widget.min;
                       }
                       widget.onChanged?.call(value);
                     });
@@ -70,6 +95,9 @@ class _TemperatureCardState extends State<TemperatureCard> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(
+                      width: 20,
+                    ),
                     Text(
                       value.toString(),
                       style: const TextStyle(
@@ -81,26 +109,29 @@ class _TemperatureCardState extends State<TemperatureCard> {
                         decoration: TextDecoration.none,
                       ),
                     ),
-                    const Text(
-                      '°C',
-                      style: TextStyle(
-                        fontFamily: 'MideaType-Light',
-                        fontSize: 18,
-                        color: Color(0xff959595),
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
+                    SizedBox(
+                      width: 20,
+                      child: Text(
+                        widget.unit,
+                        style: const TextStyle(
+                          fontFamily: 'MideaType-Light',
+                          fontSize: 18,
+                          color: Color(0xff959595),
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
+                    )
                   ],
                 ),
                 RawMaterialButton(
                   onPressed: () {
                     setState(() {
                       if (widget.disabled) return;
-                      if (value + 1 < widget.maxTemperature) {
+                      if (value + 1 < widget.max) {
                         value++;
                       } else {
-                        value = widget.maxTemperature;
+                        value = widget.max;
                       }
                       widget.onChanged?.call(value);
                     });
@@ -119,8 +150,9 @@ class _TemperatureCardState extends State<TemperatureCard> {
           ),
           MzSlider(
             value: value,
-            max: widget.maxTemperature,
-            min: widget.minTemperature,
+            width: 270,
+            max: widget.max,
+            min: widget.min,
             step: widget.step,
             disabled: widget.disabled,
             duration: widget.duration ?? const Duration(milliseconds: 100),

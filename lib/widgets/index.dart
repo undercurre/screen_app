@@ -10,5 +10,5 @@ export 'plugins/function_card.dart';
 export 'plugins/gear_card.dart';
 export 'plugins/mode_card.dart';
 export 'plugins/param_card.dart';
-export 'plugins/temperature_card.dart';
+export 'plugins/slider_button_card.dart';
 export 'plugins/light_ball.dart';

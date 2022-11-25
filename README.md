@@ -96,4 +96,4 @@ windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src`
 - GearCard [文档地址](./docs/plugins/gear_card.md)
 - ModeCard [文档地址](./docs/plugins/mode_card.md)
 - ParamCard [文档地址](./docs/plugins/param_card.md)
-- TemperatureCard [文档地址](./docs/plugins/temperature_card.md)
+- SliderButtonCard [文档地址](./docs/plugins/slider_button_card.md)
