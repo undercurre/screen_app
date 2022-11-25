@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../common/index.dart';
 import '../../models/index.dart';
-import '../../widgets/index.dart';
+import '../index.dart';
 
 class _SelectHome extends State<SelectHome> {
   List<HomeInfo> homeList = [];
 
-  String homeId = '';
+  String _homeId = '';
 
   @override
   Widget build(BuildContext context) {
     var listView = <Widget>[];
     for (var i = 0; i < homeList.length; i++) {
       var item = homeList[i];
+      var addressList = item.address.split(' ');
 
       listView.add(
         MzCell(
@@ -20,21 +21,20 @@ class _SelectHome extends State<SelectHome> {
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             // tag: '我创建的',
             desc:
-                '房间${item.roomCount} | 设备${item.applianceCount} | 成员${item.memberCount} | ${item.address}',
+                '房间${item.roomCount} | 设备${item.applianceCount} | 成员${item.memberCount} | ${addressList.last}',
             titleSize: 20.0,
             hasTopBorder: true,
             onTap: () {
-              debugPrint('onTap: ${item.name}');
               setState(() {
-                homeId = item.homegroupId;
+                _homeId = item.homegroupId;
               });
 
-              Global.profile.homeInfo = item;
+              widget.onChange?.call(item);
             },
             rightSlot: MzRadio<String>(
               activeColor: const Color.fromRGBO(0, 145, 255, 1),
               value: item.homegroupId,
-              groupValue: homeId,
+              groupValue: _homeId,
             )),
       );
     }
@@ -47,12 +47,14 @@ class _SelectHome extends State<SelectHome> {
   @override
   void initState() {
     super.initState();
+
+    _homeId = widget.value;
     getHomeListData();
   }
 
   /// 获取家庭列表数据
   void getHomeListData() async {
-    var res = await MideaApi.getHomegroup();
+    var res = await UserApi.getHomegroup();
 
     if (res.isSuccess) {
       setState(() {
@@ -63,7 +65,13 @@ class _SelectHome extends State<SelectHome> {
 }
 
 class SelectHome extends StatefulWidget {
-  const SelectHome({super.key});
+  // 默认选择的家庭id
+  final String value;
+
+  /// 家庭变更事件
+  final ValueChanged<HomeInfo>? onChange;
+
+  const SelectHome({super.key, this.value = '', this.onChange});
 
   @override
   State<SelectHome> createState() => _SelectHome();

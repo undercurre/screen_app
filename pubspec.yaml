@@ -50,6 +50,8 @@ dependencies:
   reorderables: ^0.5.1
   platform_device_id: ^1.0.1
   motion_toast: ^2.5.4
+  chewie: ^1.3.5
+  video_player: ^2.4.8
 
 dev_dependencies:
   flutter_test:
@@ -85,7 +87,7 @@ flutter:
     - assets/imgs/plugins/0x40/
     - assets/imgs/plugins/common/
     - assets/imgs/scene/
-    - assets/imgs/scanCode/
+    - assets/imgs/login/
     - assets/imgs/weather/
     - assets/imgs/icon/
     - assets/imgs/dropDown/

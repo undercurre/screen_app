@@ -3,5 +3,6 @@
   "name": "客厅",
   "des": "系统默认的客厅",
   "icon": "1",
-  "isDefault": "0"
+  "isDefault": "0",
+  "applianceList": "$[]device"
 }

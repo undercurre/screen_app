@@ -6,7 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
-  String qrLink = '1111';
+  String qrLink = '';
   late String sessionId;
   late Timer timer;
 
@@ -14,34 +14,50 @@ class _ScanCode extends State<ScanCode> {
   void initState() {
     super.initState();
     //初始化状态
-    debugPrint("initState");
+    debugPrint("scan_code.dart-initState");
     updateQrCode();
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint("build");
-    return Center(
-        child: Container(
-          color: Colors.white,
-      child: QrImage(
-        data: qrLink,
-        version: QrVersions.auto,
-        size: 200.0,
-      ),
-    ));
+
+    const hiView = Image(image: AssetImage("assets/imgs/login/hello.png"));
+
+    return Stack(
+      children: [
+        Center(
+          child: StrUtils.isNotNullAndEmpty(qrLink)
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: QrImage(
+                    data: qrLink,
+                    version: QrVersions.auto,
+                    size: 270.0,
+                    padding: const EdgeInsets.all(20),
+                  ),
+                )
+              : const CircularProgressIndicator(),
+        ),
+        const Positioned(
+            bottom: 24, right: 16, width: 103, height: 141, child: hiView)
+      ],
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-    debugPrint("dispose");
+    debugPrint("scan_code.dart-dispose");
     timer.cancel();
   }
 
   /// 绑定二维码url
   void updateQrCode() async {
-    var res = await MideaApi.getQrCode();
+    var res = await UserApi.getQrCode();
 
     if (res.isSuccess) {
       setState(() {
@@ -58,13 +74,13 @@ class _ScanCode extends State<ScanCode> {
   /// 大屏端轮询授权状态接口
   void updateLoginStatus() {
     timer = Timer(const Duration(seconds: 5), () async {
-      var res = await MideaApi.getAccessToken(sessionId);
+      var res = await UserApi.getAccessToken(sessionId);
 
       if (res.isSuccess) {
-        await MideaApi.autoLogin();
+        await UserApi.autoLogin();
 
         // 获取美智token
-        await MzApi.authToken();
+        await UserApi.authToken();
 
         Global.saveProfile();
 

@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/models/index.dart';
 
 import '../../common/index.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
-import 'select_home.dart';
-import 'select_room.dart';
+import '../../widgets/business/select_home.dart';
+import '../../widgets/business/select_room.dart';
 import '../../mixins/index.dart';
 
 class Step {
@@ -41,7 +42,8 @@ class _LoginPage extends State<LoginPage> with Standby {
       // MideaApi.getHomeList();
     }
 
-    if (stepNum == 4) {
+    if (stepNum == 4 && Global.profile.roomInfo != null) {
+      Global.saveProfile();
       //导航到新路由
       await Navigator.pushNamed(
         context,
@@ -64,8 +66,22 @@ class _LoginPage extends State<LoginPage> with Standby {
     var stepList = [
       Step('连接网络', const LinkNetwork()),
       Step('扫码登录', ScanCode(onSuccess: nextStep)),
-      Step('选择家庭', const SelectHome()),
-      Step('选择房间', const SelectRoom()),
+      Step(
+          '选择家庭',
+          SelectHome(
+              value: Global.profile.homeInfo?.homegroupId ?? '',
+              onChange: (HomeInfo home) {
+                debugPrint('Select: ${home.toJson()}');
+                Global.profile.homeInfo = home;
+              })),
+      Step(
+          '选择房间',
+          SelectRoom(
+              value: Global.profile.roomInfo?.roomId ?? '',
+              onChange: (RoomInfo room) {
+                debugPrint('SelectRoom: ${room.toJson()}');
+                Global.profile.roomInfo = room;
+              })),
     ];
 
     var stepItem = stepList[stepNum - 1];
@@ -126,8 +142,13 @@ class _LoginPage extends State<LoginPage> with Standby {
               Expanded(
                   child: TextButton(
                 style: buttonStyle,
-                onPressed: () async {},
-                child: const Text('退出登录(测试）',
+                onPressed: () async {
+                  System.loginOut();
+                  setState(() {
+                    stepNum = 2;
+                  });
+                },
+                child: const Text('注销(测试）',
                     style: TextStyle(
                       color: Color.fromRGBO(255, 255, 255, 0.85),
                     )),
@@ -204,15 +225,15 @@ class LoginHeader extends StatelessWidget {
     );
 
     const stepActiveImg =
-        Image(image: AssetImage("assets/imgs/scanCode/step-active.png"));
+        Image(image: AssetImage("assets/imgs/login/step-active.png"));
     const stepFinishedImg =
-        Image(image: AssetImage("assets/imgs/scanCode/step-finished.png"));
+        Image(image: AssetImage("assets/imgs/login/step-finished.png"));
     const stepPassiveImg =
-        Image(image: AssetImage("assets/imgs/scanCode/step-passive.png"));
+        Image(image: AssetImage("assets/imgs/login/step-passive.png"));
     const lineActiveImg =
-        Image(image: AssetImage("assets/imgs/scanCode/line-active.png"));
+        Image(image: AssetImage("assets/imgs/login/line-active.png"));
     const linePassiveImg =
-        Image(image: AssetImage("assets/imgs/scanCode/line-active.png"));
+        Image(image: AssetImage("assets/imgs/login/line-active.png"));
 
     var stepList = <Widget>[];
 
@@ -258,7 +279,7 @@ class LoginHeader extends StatelessWidget {
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/imgs/scanCode/header-bg.png"),
+            image: AssetImage("assets/imgs/login/header-bg.png"),
             fit: BoxFit.cover,
           ),
         ),

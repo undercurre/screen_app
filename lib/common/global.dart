@@ -45,7 +45,7 @@ class Global {
   /// 可选的主题列表
   static List<MaterialColor> get themes => _themes;
 
-  //初始化全局信息，会在APP启动时执行
+  /// 初始化全局信息，会在APP启动时执行
   static Future init() async {
     WidgetsFlutterBinding.ensureInitialized();
     _prefs = await SharedPreferences.getInstance();
@@ -65,9 +65,8 @@ class Global {
     // if (StrUtils.isNullOrEmpty(profile.deviceId)) {
     String? deviceId = await PlatformDeviceId.getDeviceId;
     // windows 下会获取到特殊字符，为了开发方便需要使用windows进行开发调试
-    deviceId = deviceId?.replaceAll(' ', '')
-        .replaceAll('\n', '')
-        .replaceAll('\r', '');
+    deviceId =
+        deviceId?.replaceAll(' ', '').replaceAll('\n', '').replaceAll('\r', '');
     logger.i('deviceId: $deviceId');
 
     if (StrUtils.isNullOrEmpty(deviceId)) {
@@ -87,12 +86,5 @@ class Global {
   static saveProfile() {
     logger.i('saveProfile: ${profile.toJson()}');
     _prefs.setString("profile", jsonEncode(profile.toJson()));
-  }
-
-  /// 退出登录
-  static loginOut() {
-    profile.user = null;
-    profile.homeInfo = null;
-    profile.roomInfo = null;
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../common/index.dart';
 import '../../models/index.dart';
-import '../../widgets/index.dart';
+import '../index.dart';
 
 class _SelectRoom extends State<SelectRoom> {
   var roomList = <RoomInfo>[];
 
-  String roomId = '';
+  String _roomId = '';
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +17,20 @@ class _SelectRoom extends State<SelectRoom> {
       listView.add(MzCell(
         title: item.name,
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-        desc: '设备',
+        desc: '设备${item.applianceList.length}',
         titleSize: 20.0,
         hasTopBorder: true,
         rightSlot: MzRadio<String>(
           activeColor: const Color.fromRGBO(0, 145, 255, 1),
           value: item.roomId,
-          groupValue: roomId,
+          groupValue: _roomId,
         ),
         onTap: () {
-          debugPrint('onTap: ${item.name}');
           setState(() {
-            roomId = item.roomId;
+            _roomId = item.roomId;
           });
 
-          Global.profile.roomInfo = item;
+          widget.onChange?.call(item);
         },
       ));
     }
@@ -45,12 +44,13 @@ class _SelectRoom extends State<SelectRoom> {
   void initState() {
     super.initState();
 
+    _roomId = widget.value;
     getHomeData();
   }
 
   /// 获取指定家庭信息
   void getHomeData() async {
-    var res = await MideaApi.getHomeList(
+    var res = await UserApi.getHomeListWithDeviceList(
         homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
@@ -63,7 +63,13 @@ class _SelectRoom extends State<SelectRoom> {
 }
 
 class SelectRoom extends StatefulWidget {
-  const SelectRoom({super.key});
+  // 默认选择的房间id
+  final String value;
+
+  /// 房间变更事件
+  final ValueChanged<RoomInfo>? onChange;
+
+  const SelectRoom({super.key, this.value = '', this.onChange});
 
   @override
   State<SelectRoom> createState() => _SelectRoom();

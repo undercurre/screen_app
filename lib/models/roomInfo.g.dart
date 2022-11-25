@@ -11,7 +11,10 @@ RoomInfo _$RoomInfoFromJson(Map<String, dynamic> json) => RoomInfo()
   ..name = json['name'] as String
   ..des = json['des'] as String
   ..icon = json['icon'] as String
-  ..isDefault = json['isDefault'] as String;
+  ..isDefault = json['isDefault'] as String
+  ..applianceList = (json['applianceList'] as List<dynamic>)
+      .map((e) => Device.fromJson(e as Map<String, dynamic>))
+      .toList();
 
 Map<String, dynamic> _$RoomInfoToJson(RoomInfo instance) => <String, dynamic>{
       'roomId': instance.roomId,
@@ -19,4 +22,5 @@ Map<String, dynamic> _$RoomInfoToJson(RoomInfo instance) => <String, dynamic>{
       'des': instance.des,
       'icon': instance.icon,
       'isDefault': instance.isDefault,
+      'applianceList': instance.applianceList,
     };

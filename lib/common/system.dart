@@ -1,4 +1,14 @@
-class System {}
+import 'index.dart';
+
+class System {
+  /// 退出登录
+  static loginOut() {
+    Global.profile.user = null;
+    Global.profile.homeInfo = null;
+    Global.profile.roomInfo = null;
+    Global.saveProfile();
+  }
+}
 
 // 等待多久进入待机状态
 List _standbyTime = [

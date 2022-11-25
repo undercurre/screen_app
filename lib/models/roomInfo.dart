@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
+import "device.dart";
 part 'roomInfo.g.dart';
 
 @JsonSerializable()
@@ -11,7 +11,9 @@ class RoomInfo {
   late String des;
   late String icon;
   late String isDefault;
-  
-  factory RoomInfo.fromJson(Map<String,dynamic> json) => _$RoomInfoFromJson(json);
+  late List<Device> applianceList;
+
+  factory RoomInfo.fromJson(Map<String, dynamic> json) =>
+      _$RoomInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RoomInfoToJson(this);
 }

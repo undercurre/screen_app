@@ -11,17 +11,8 @@ void main() async {
   // 加载环境配置
   await setupConfig();
   Global.init().then((e) async {
-    await checkLogin();
     runApp(const App());
   });
-}
-
-Future checkLogin() async {
-  if (Global.isLogin) {
-    await MideaApi.autoLogin();
-
-    await MzApi.authToken();
-  }
 }
 
 class App extends StatefulWidget {

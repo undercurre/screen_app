@@ -17,6 +17,7 @@ github_client_app
 │     ├── channel // 自定义与原生平台通信的通道
 │     ├── common // 一些工具类，如通用方法类、网络接口类、保存全局变量的静态类等
 │     │     ├── system.dart // app系统功能api
+│     │     ├── global.dart // 全局状态管理类
 │     │     └── util.dart // 工具类方法api
 │     ├── models // Json文件对应的Dart Model类会在此目录下   
 │     ├── routes // 存放所有路由页面类
@@ -100,6 +101,11 @@ style: const TextStyle(
 
 
 ## 自定义 widget
+### 业务组件
+- 选择家庭 `SelectHome` [文档地址](./docs/business/select_home.md)
+- 选择房间 `SelectRoom` [文档地址](./docs/business/select_room.md)
+
+### 功能组件
 - MzCell [文档地址](./docs/mz_cell.md)
 - MzRadio [文档地址](./docs/mz_radio.md)
 - MzMetalCard [文档地址](./docs/mz_metal_card.md)
