@@ -6,9 +6,14 @@ import android.content.Context;
 
 import androidx.multidex.MultiDex;
 
-public class MainApplication extends Application {
+import com.midea.light.log.config.LogConfiguration;
+import com.midea.light.log.config.MSmartLogger;
+import com.midea.light.repositories.config.KVRepositoryConfig;
+import com.midea.light.repositories.config.MSmartKVRepository;
 
-    private static Application application;
+public class MainApplication extends BaseApplication {
+    public static final Boolean DEBUG = BuildConfig.DEBUG;
+    public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -17,8 +22,25 @@ public class MainApplication extends Application {
         MultiDex.install(this);
     }
 
-    public static Application getContext() {
-        return application;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // 初始化日志库
+        MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
+                .withEnable(DEBUG)
+                .withStackFrom(0)
+                .withStackTo(4)
+                .withTag("M-Smart")
+                .build());
+        // 初始化本地存储仓库
+        MSmartKVRepository.init(KVRepositoryConfig.KVRepositoryConfigBuilder.create(this)
+                .withInitMMKVRepository(true)
+                .withInitSharedPreferenceRepository(false)
+                .withLogEnable(DEBUG)
+                .withLogTag("MSmartKVRepository")
+                .withMMKVCryptKey(MMKV_CRYPT_KEY)
+                .build());
     }
+
 
 }

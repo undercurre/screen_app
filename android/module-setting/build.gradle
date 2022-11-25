@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.midea.light.jh.setting'
+    namespace 'com.midea.light.ld.setting'
     compileSdkVersion ProjectVatiant.COMPILESDKVERSION
 
     defaultConfig {
@@ -31,7 +31,11 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation rootProject.ext.nexus.basic
+    implementation rootProject.ext.nexus.log
+    implementation rootProject.ext.nexus.repositories
+    implementation rootProject.ext.nexus.rxbus
+    implementation(project(":module-common"))
 }

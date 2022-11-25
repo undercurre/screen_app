@@ -71,12 +71,14 @@ android {
             minifyEnabled false   //关闭混淆
             shrinkResources false // 关闭清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig null
         }
 
         debug {
             minifyEnabled false // 开启混淆
             shrinkResources false // 自动清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig null
         }
 
     }
@@ -129,9 +131,7 @@ dependencies {
     //    LDImplementation 只在灵动环境中依赖
     //    implementation   任何环境中都依赖
     implementation("com.android.support:multidex:1.0.3")
-    JHImplementation(project(":module-jh-setting"))
-    LDImplementation(project(":module-ld-setting"))
-    implementation(project(":module-common-setting"))
+    implementation(project(":module-setting"))
     implementation(project(":module-add-device"))
 
     implementation rootProject.ext.nexus.basic

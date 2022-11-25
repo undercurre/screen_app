@@ -32,41 +32,41 @@ ext {
             //debug环境
             debug  : [
                     //中台http url
-                    URL_MIDDLE_COURT_HOST    : "https://mp-sit.smartmidea.net",
+                    URL_MIDDLE_COURT_HOST   : "https://mp-sit.smartmidea.net",
                     // 登录模块netty连接的域名
-                    URL_LOGIN_NETTY_HOST     : "mp-sit.smartmidea.net",
+                    URL_LOGIN_NETTY_HOST    : "mp-sit.smartmidea.net",
                     //http加密密钥
-                    HTTP_SIGN_SECRET         : "sit_secret123@muc",
+                    HTTP_SIGN_SECRET        : "sit_secret123@muc",
                     //推送的HTTP请求加密密钥
-                    PUSH_HTTP_SIGN_SECRET    : "12345abcd",
+                    PUSH_HTTP_SIGN_SECRET   : "12345abcd",
                     //天气获取的url
-                    WEATHER_URL_HOST         : "http://iot-support-sit.smartmidea.net",
+                    WEATHER_URL_HOST        : "http://iot-support-sit.smartmidea.net",
                     //Ai授权后中台通知A云url
-                    NOTICE_AI_CLOUD_HOST     : "http://sit.aimidea.cn:11003",
+                    NOTICE_AI_CLOUD_HOST    : "http://sit.aimidea.cn:11003",
                     //requestDataKey 传输SN码等敏感数据会用到
-                    REQUEST_HDEADER_DATA_KEY : "SIT_4VjZdg19laDoIrut",
+                    REQUEST_HDEADER_DATA_KEY: "SIT_4VjZdg19laDoIrut",
 
-                    WIFI_DEVICE_SERVER_DOMAIN: "iotlab.midea.com.cn",
+                    WIFI_DEVICE_SERVER_DOMAIN : "iotlab.midea.com.cn",
             ],
             //release环境
             release: [
                     //中台http url
-                    URL_MIDDLE_COURT_HOST    : "https://mp-prod.smartmidea.net",
+                    URL_MIDDLE_COURT_HOST   : "https://mp-prod.smartmidea.net",
                     // 登录模块netty连接的域名
-                    URL_LOGIN_NETTY_HOST     : "mline.smartmidea.net",
+                    URL_LOGIN_NETTY_HOST    : "mline.smartmidea.net",
 
                     //http加密密钥
-                    HTTP_SIGN_SECRET         : "prod_secret123@muc",
+                    HTTP_SIGN_SECRET        : "prod_secret123@muc",
                     //推送的HTTP请求加密密钥
-                    PUSH_HTTP_SIGN_SECRET    : "12345abcd",
+                    PUSH_HTTP_SIGN_SECRET   : "12345abcd",
                     //天气获取的url
-                    WEATHER_URL_HOST         : "http://iot-support.smartmidea.net",
+                    WEATHER_URL_HOST        : "http://iot-support.smartmidea.net",
                     //Ai授权后中台通知A云url
-                    NOTICE_AI_CLOUD_HOST     : "https://api.aimidea.cn:11003",
+                    NOTICE_AI_CLOUD_HOST    : "https://api.aimidea.cn:11003",
                     //requestDataKey 传输SN码等敏感数据会用到
-                    REQUEST_HDEADER_DATA_KEY : "PROD_VnoClJI9aikS8dyy",
+                    REQUEST_HDEADER_DATA_KEY: "PROD_VnoClJI9aikS8dyy",
 
-                    WIFI_DEVICE_SERVER_DOMAIN: "iot1.midea.com.cn",
+                    WIFI_DEVICE_SERVER_DOMAIN : "iot1.midea.com.cn",
             ]
     ]
 
@@ -217,7 +217,7 @@ ext {
             mz_http     : "com.midea.light:m-smart-http-mz:0.0.12-SNAPSHOT",
             login       : "com.midea.light:m-smart-login:0.0.2-SNAPSHOT",
             it_server   : "com.midea.light:m-smart-server-api:0.1.11-SNAPSHOT",
-            mz_server   : "com.midea.light:m-smart-aio-server-api:0.0.17-SNAPSHOT",
+            mz_server  : "com.midea.light:m-smart-aio-server-api:0.0.17-SNAPSHOT",
             hybrid      : "com.midea.light:m-smart-xwalk-hybrid:0.0.5-SNAPSHOT",
             gateway     : "com.midea.light:m-smart-gateway:0.0.6",
             mtk8365     : "com.midea.light:m-smart-mtk8365-setting:0.0.2",
