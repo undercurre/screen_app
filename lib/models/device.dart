@@ -26,9 +26,9 @@ class Device {
   String? sn8;
   late String isOtherEquipment;
   late num bindType;
-  late Map<String, dynamic> ability;
+  late Map<String,dynamic> ability;
   late String moduleType;
-
-  factory Device.fromJson(Map<String, dynamic> json) => _$DeviceFromJson(json);
+  
+  factory Device.fromJson(Map<String,dynamic> json) => _$DeviceFromJson(json);
   Map<String, dynamic> toJson() => _$DeviceToJson(this);
 }

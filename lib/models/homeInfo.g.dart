@@ -7,7 +7,8 @@ part of 'homeInfo.dart';
 // **************************************************************************
 
 HomeInfo _$HomeInfoFromJson(Map<String, dynamic> json) => HomeInfo()
-  ..homegroupId = json['homegroupId'] as String
+  ..members = json['members']
+  ..homegroupId = json['homegroupId'] as String?
   ..number = json['number'] as String
   ..roleId = json['roleId'] as String
   ..isDefault = json['isDefault'] as String
@@ -15,7 +16,7 @@ HomeInfo _$HomeInfoFromJson(Map<String, dynamic> json) => HomeInfo()
   ..nickname = json['nickname'] as String
   ..des = json['des'] as String
   ..address = json['address'] as String
-  ..profilePicUrl = json['profilePicUrl'] as String
+  ..profilePicUrl = json['profilePicUrl'] as String?
   ..coordinate = json['coordinate'] as String
   ..areaid = json['areaid'] as String
   ..createTime = json['createTime'] as String
@@ -23,13 +24,13 @@ HomeInfo _$HomeInfoFromJson(Map<String, dynamic> json) => HomeInfo()
   ..roomCount = json['roomCount'] as String?
   ..applianceCount = json['applianceCount'] as String?
   ..memberCount = json['memberCount'] as String?
-  ..members = json['members'] as String?
   ..roomList = (json['roomList'] as List<dynamic>?)
       ?.map((e) => RoomInfo.fromJson(e as Map<String, dynamic>))
       .toList()
   ..unread = json['unread'] as num?;
 
 Map<String, dynamic> _$HomeInfoToJson(HomeInfo instance) => <String, dynamic>{
+      'members': instance.members,
       'homegroupId': instance.homegroupId,
       'number': instance.number,
       'roleId': instance.roleId,
@@ -46,7 +47,6 @@ Map<String, dynamic> _$HomeInfoToJson(HomeInfo instance) => <String, dynamic>{
       'roomCount': instance.roomCount,
       'applianceCount': instance.applianceCount,
       'memberCount': instance.memberCount,
-      'members': instance.members,
       'roomList': instance.roomList,
       'unread': instance.unread,
     };

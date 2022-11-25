@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/room/index.dart';
 import 'package:screen_app/widgets/business/select_room.dart';
 import 'boot/index.dart';
 import 'package:screen_app/routes/plugins/0x40/index.dart';
@@ -21,7 +22,7 @@ var routes = <String, WidgetBuilder>{
   '/': (context) => const Boot(),
   "Login": (context) => const LoginPage(),
   "Home": (context) => const Home(),
-  "Room": (context) => const SelectRoom(),
+  "Room": (context) => const RoomPage(),
   "Weather": (context) => const WeatherPage(),
   "Device": (context) => const DevicePage(
         text: '',

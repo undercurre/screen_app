@@ -71,4 +71,30 @@ class DeviceApi {
 
     return res;
   }
+
+  /// 设备列表查询
+  static Future<List<Device>> getDeviceList() async {
+    var res = await Api.requestMzIot<QrCode>(
+        "/v1/category/midea/device/list",
+        data: {
+          "systemSource": "SMART_SCREEN",
+          "frontendType": "ANDRIOD",
+          "reqId": uuid.v4(),
+          "userId": Global.user?.uid,
+          "homeGroupId": Global.profile.homeInfo?.homegroupId,
+          "version": "1.0",
+          "timestamp": DateFormat('yyyyMMddHHmmss').format(DateTime.now())
+        },
+        options: Options(
+          method: 'POST',
+          headers: {'accessToken': Global.user?.accessToken},
+        ));
+
+    var modelRes = HomegroupList.fromJson(res.result);
+    var homeList = modelRes.homeList;
+    var roomList = homeList[0].roomList;
+    var curRoom = roomList?.where((element) => element.roomId == Global.profile.roomInfo?.roomId).toList()[0];
+
+    return curRoom!.applianceList!;
+  }
 }

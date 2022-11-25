@@ -26,14 +26,14 @@ class _SelectHome extends State<SelectHome> {
             hasTopBorder: true,
             onTap: () {
               setState(() {
-                _homeId = item.homegroupId;
+                _homeId = item.homegroupId!;
               });
 
               widget.onChange?.call(item);
             },
             rightSlot: MzRadio<String>(
               activeColor: const Color.fromRGBO(0, 145, 255, 1),
-              value: item.homegroupId,
+              value: item.homegroupId!,
               groupValue: _homeId,
             )),
       );

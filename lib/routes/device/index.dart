@@ -3,6 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
+import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/models/homeInfo.dart';
+import 'package:screen_app/models/homegroupList.dart';
+import 'package:screen_app/models/index.dart';
+import '../../common/global.dart';
+import '../../models/device.dart';
 import 'DeviceItem.dart';
 
 class DevicePage extends StatefulWidget {
@@ -16,6 +23,7 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   List<DraggableGridItem> itemBins = [];
+  List<Device> deviceList = [];
   var time = DateTime.now();
   late Timer _timer;
   final ScrollController _scrollController = ScrollController(
@@ -23,17 +31,38 @@ class _DevicePageState extends State<DevicePage> {
     keepScrollOffset: true,
   );
 
-  @override
-  void initState() {
-    for (int xx = 1; xx < 16; xx++) {
-      itemBins.add(DraggableGridItem(
-        child: DeviceItem(deviceName: "设备$xx"),
+  void initPage() async {
+    var res = await DeviceApi.getDeviceList();
+    setState(() {
+      deviceList = res;
+    });
+    List<DraggableGridItem> newBins = [];
+    for (int xx = 1; xx < res.length; xx++) {
+      newBins.add(DraggableGridItem(
+        child: DeviceItem(deviceInfo: res[xx - 1]),
         isDraggable: true,
         dragCallback: (context, isDragging) {
           print('设备$xx+"isDragging: $isDragging');
         },
       ));
     }
+    setState(() {
+      itemBins = newBins;
+    });
+  }
+
+  @override
+  void initState() {
+    for (int xx = 1; xx < 7; xx++) {
+      itemBins.add(DraggableGridItem(
+        child: DeviceItem(),
+        isDraggable: true,
+        dragCallback: (context, isDragging) {
+          print('设备$xx+"isDragging: $isDragging');
+        },
+      ));
+    }
+    initPage();
     _timer = Timer.periodic(const Duration(seconds: 1), setTime);
     super.initState();
   }
@@ -50,6 +79,10 @@ class _DevicePageState extends State<DevicePage> {
     super.dispose();
   }
 
+  void toSelectRoom() {
+    Navigator.pushNamed(context, 'Room');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -57,14 +90,10 @@ class _DevicePageState extends State<DevicePage> {
       decoration: const BoxDecoration(
         color: Colors.black,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Flex(
+        direction: Axis.vertical,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextButton.icon(
-            onPressed: () => {Navigator.of(context).pushNamed('Scene', arguments: {"deviceId": "178120883713033", "deviceName": "测试用灯"})},
-            label: const Text(''),
-            icon: const Icon(Icons.sunny_snowing),
-          ),
           Container(
             margin: const EdgeInsets.fromLTRB(0, 28, 0, 0),
             child: Row(
@@ -72,10 +101,10 @@ class _DevicePageState extends State<DevicePage> {
               children: [
                 Text(
                     "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
-                          HH,
-                          ':',
-                          nn
-                        ])}",
+                      HH,
+                      ':',
+                      nn
+                    ])}",
                     style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 18.0,
@@ -84,7 +113,7 @@ class _DevicePageState extends State<DevicePage> {
                       decoration: TextDecoration.none,
                     )),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () => toSelectRoom(),
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: Image.asset(
@@ -97,7 +126,8 @@ class _DevicePageState extends State<DevicePage> {
               ],
             ),
           ),
-          SizedBox(
+          Container(
+            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: const [
@@ -112,9 +142,7 @@ class _DevicePageState extends State<DevicePage> {
               ],
             ),
           ),
-          Container(
-            height: 325,
-            margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+          Expanded(
             child: DraggableGridViewBuilder(
               controller: _scrollController,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

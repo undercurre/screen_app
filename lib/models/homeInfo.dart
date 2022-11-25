@@ -6,7 +6,8 @@ part 'homeInfo.g.dart';
 class HomeInfo {
   HomeInfo();
 
-  late String homegroupId;
+  @JsonKey() dynamic members;
+  String? homegroupId;
   late String number;
   late String roleId;
   late String isDefault;
@@ -14,7 +15,7 @@ class HomeInfo {
   late String nickname;
   late String des;
   late String address;
-  late String profilePicUrl;
+  String? profilePicUrl;
   late String coordinate;
   late String areaid;
   late String createTime;
@@ -22,7 +23,6 @@ class HomeInfo {
   String? roomCount;
   String? applianceCount;
   String? memberCount;
-  String? members;
   List<RoomInfo>? roomList;
   num? unread;
   

@@ -12,8 +12,7 @@ class RoomInfo {
   late String icon;
   late String isDefault;
   late List<Device> applianceList;
-
-  factory RoomInfo.fromJson(Map<String, dynamic> json) =>
-      _$RoomInfoFromJson(json);
+  
+  factory RoomInfo.fromJson(Map<String,dynamic> json) => _$RoomInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RoomInfoToJson(this);
 }

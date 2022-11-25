@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:io';
 
 import '../../common/index.dart';
 
@@ -14,9 +15,20 @@ class _Boot extends State<Boot> {
   void initState() {
     super.initState();
     debugPrint('boot-initState');
-    initVideo();
+    // initVideo();
+    //
+    // checkLogin();
+    if (Platform.isAndroid) {
+      initVideo();
+    }
 
     checkLogin();
+
+    if (!Platform.isAndroid) {
+      Future.delayed(Duration.zero, () {
+        bootFinish();
+      });
+    }
   }
 
   @override

@@ -1,5 +1,6 @@
 {
-  "homegroupId": "1344747",
+  "@JsonKey() dynamic": "members",
+  "homegroupId?": "1344747",
   "number": "1344747",
   "roleId": "1001",
   "isDefault": "1",
@@ -7,7 +8,7 @@
   "nickname": "美智前端",
   "des": "",
   "address": "广东省 佛山市 顺德区",
-  "profilePicUrl": "",
+  "profilePicUrl?": "",
   "coordinate": "113.217590,22.912062",
   "areaid": "101280801",
   "createTime": "2022-06-29 10:22:12",
@@ -15,7 +16,6 @@
   "roomCount?": "5",
   "applianceCount?": "2",
   "memberCount?": "17",
-  "members?": null,
   "roomList?": "$[]RoomInfo",
   "unread?": 1
 }
