@@ -75,8 +75,14 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   onPressed: () {
                     setState(() {
                       if (widget.disabled) return;
-                      if (value - 1 > widget.min) {
-                        value--;
+                      if (value - widget.step > widget.min) {
+                        final stepString = widget.step.toString();
+                        if (stepString.contains('.')) {
+                          final precision = stepString.length - stepString.indexOf('.') - 1;
+                          value = num.parse((value - widget.step).toStringAsFixed(precision));
+                        } else {
+                          value -= widget.step;
+                        }
                       } else {
                         value = widget.min;
                       }
@@ -96,7 +102,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(
-                      width: 20,
+                      width: 10,
                     ),
                     Text(
                       value.toString(),
@@ -110,7 +116,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                       ),
                     ),
                     SizedBox(
-                      width: 20,
+                      width: 10,
                       child: Text(
                         widget.unit,
                         style: const TextStyle(
@@ -128,8 +134,14 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   onPressed: () {
                     setState(() {
                       if (widget.disabled) return;
-                      if (value + 1 < widget.max) {
-                        value++;
+                      if (value + widget.step < widget.max) {
+                        final stepString = widget.step.toString();
+                        if (stepString.contains('.')) {
+                          final precision = stepString.length - stepString.indexOf('.') - 1;
+                          value = num.parse((value + widget.step).toStringAsFixed(precision));
+                        } else {
+                          value += widget.step;
+                        }
                       } else {
                         value = widget.max;
                       }
