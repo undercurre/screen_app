@@ -1,3 +1,4 @@
+import './service.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -6,16 +7,31 @@ class BathroomMaster extends StatefulWidget {
   const BathroomMaster({super.key});
 
   @override
-  State<StatefulWidget> createState() => _BathroomMasterState();
+  State<StatefulWidget> createState() => BathroomMasterState();
 }
 
-class _BathroomMasterState extends State<BathroomMaster> {
+class BathroomMasterState extends State<BathroomMaster> {
   String deviceId = '0';
   String deviceName = '浴霸';
+  String controlType = 'wot'; // todo: 后面需要加上判断使用物模型还是lua控制
 
-  Map<String, bool?> mode = <String, bool?>{};
-  bool nightlight = false;
-  bool delayOff = false;
+  Map<String, bool> runMode = <String, bool>{};
+  bool mainLight = false;
+  bool nightLight = false;
+  bool delayClose = false;
+  int delayTime = 1;
+
+  // 用于lua查询或者物模型查询后设置state
+  void setStateCallBack(
+      {mainLight, nightLight, delayClose, runMode, delayTime}) {
+    setState(() {
+      this.mainLight = mainLight ?? this.mainLight;
+      this.nightLight = nightLight ?? this.nightLight;
+      this.delayClose = delayClose ?? this.delayClose;
+      this.runMode = runMode ?? this.runMode;
+      this.delayTime = delayTime ?? this.delayTime;
+    });
+  }
 
   @override
   void initState() {
@@ -23,7 +39,8 @@ class _BathroomMasterState extends State<BathroomMaster> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
-      deviceName = args['deviceName'];
+      deviceName = args['deviceName'] ?? '浴霸';
+      BaseService.updateDeviceDetail(this);
     });
   }
 
@@ -52,9 +69,10 @@ class _BathroomMasterState extends State<BathroomMaster> {
                   left: 0,
                   top: 50,
                   child: Image(
-                    image: AssetImage(mode['light'] != null && mode['light']!
-                        ? 'assets/imgs/plugins/0x26/yuba_light_on.png'
-                        : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
+                    image: AssetImage(
+                        runMode['light'] != null && runMode['light']!
+                            ? 'assets/imgs/plugins/0x26/yuba_light_on.png'
+                            : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
                   ),
                 ),
                 Row(
@@ -70,12 +88,10 @@ class _BathroomMasterState extends State<BathroomMaster> {
                           ),
                           ModeCard(
                             modeList: bathroomMasterMode,
-                            selectedKeys: mode,
+                            selectedKeys: runMode,
                             spacing: 40,
-                            onTap: (e) => setState(() {
-                              mode[e.key] =
-                              mode[e.key] == null ? true : !mode[e.key]!;
-                            }),
+                            onTap: (e) =>
+                                BaseService.handleModeCardClick(this, e),
                           ),
                           FunctionCard(
                             icon: Container(
@@ -89,15 +105,14 @@ class _BathroomMasterState extends State<BathroomMaster> {
                               child: const Image(
                                 height: 22,
                                 width: 22,
-                                image: AssetImage('assets/imgs/plugins/0x26/night_light.png'),
+                                image: AssetImage(
+                                    'assets/imgs/plugins/0x26/night_light.png'),
                               ),
                             ),
                             title: '小夜灯',
                             child: MzSwitch(
-                              value: nightlight,
-                              onTap: (e) => setState(() {
-                                nightlight = !nightlight;
-                              }),
+                              value: nightLight,
+                              onTap: (e) => BaseService.toggleNightLight(this),
                             ),
                           ),
                           FunctionCard(
@@ -112,15 +127,14 @@ class _BathroomMasterState extends State<BathroomMaster> {
                               child: const Image(
                                 height: 22,
                                 width: 22,
-                                image: AssetImage('assets/imgs/plugins/0x26/delay_off.png'),
+                                image: AssetImage(
+                                    'assets/imgs/plugins/0x26/delay_off.png'),
                               ),
                             ),
-                            title: '延时关灯',
+                            title: '延时关机',
                             child: MzSwitch(
-                              value: delayOff,
-                              onTap: (e) => setState(() {
-                                delayOff = !delayOff;
-                              }),
+                              value: delayClose,
+                              onTap: (e) => BaseService.toggleDelayClose(this),
                             ),
                           ),
                         ],
