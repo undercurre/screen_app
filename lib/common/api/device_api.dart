@@ -93,7 +93,7 @@ class DeviceApi {
     var modelRes = HomegroupList.fromJson(res.result);
     var homeList = modelRes.homeList;
     var roomList = homeList[0].roomList;
-    var curRoom = roomList?.where((element) => element.roomId == Global.profile.roomInfo?.roomId).toList()[0];
+    var curRoom = roomList?.where((element) => element.id == Global.profile.roomInfo?.roomId).toList()[0];
 
     return curRoom!.applianceList!;
   }

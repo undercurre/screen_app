@@ -7,7 +7,8 @@ part of 'roomInfo.dart';
 // **************************************************************************
 
 RoomInfo _$RoomInfoFromJson(Map<String, dynamic> json) => RoomInfo()
-  ..roomId = json['roomId'] as String
+  ..roomId = json['roomId'] as String?
+  ..id = json['id'] as String?
   ..name = json['name'] as String
   ..des = json['des'] as String
   ..icon = json['icon'] as String
@@ -18,6 +19,7 @@ RoomInfo _$RoomInfoFromJson(Map<String, dynamic> json) => RoomInfo()
 
 Map<String, dynamic> _$RoomInfoToJson(RoomInfo instance) => <String, dynamic>{
       'roomId': instance.roomId,
+      'id': instance.id,
       'name': instance.name,
       'des': instance.des,
       'icon': instance.icon,

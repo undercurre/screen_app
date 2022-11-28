@@ -22,12 +22,12 @@ class _SelectRoom extends State<SelectRoom> {
         hasTopBorder: true,
         rightSlot: MzRadio<String>(
           activeColor: const Color.fromRGBO(0, 145, 255, 1),
-          value: item.roomId,
+          value: item.roomId!,
           groupValue: _roomId,
         ),
         onTap: () {
           setState(() {
-            _roomId = item.roomId;
+            _roomId = item.roomId!;
           });
 
           widget.onChange?.call(item);

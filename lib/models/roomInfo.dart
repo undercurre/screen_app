@@ -6,7 +6,8 @@ part 'roomInfo.g.dart';
 class RoomInfo {
   RoomInfo();
 
-  late String roomId;
+  String? roomId;
+  String? id;
   late String name;
   late String des;
   late String icon;
