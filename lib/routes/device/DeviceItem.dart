@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/routes/device/config.dart';
 
 import '../../models/device.dart';
 
@@ -12,10 +13,16 @@ class DeviceItem extends StatefulWidget {
 }
 
 class _DeviceItemState extends State<DeviceItem> {
+  Device? deviceInfo;
 
   void toSelectDevice() {
-    Navigator.pushNamed(context, '0x13',
-        arguments: {"deviceId": "178120883713033", "deviceName": "测试用灯"});
+    if (widget.deviceInfo != null) {
+      Navigator.pushNamed(context, widget.deviceInfo!.type,
+          arguments: {
+            "deviceId": widget.deviceInfo!.applianceCode,
+            "deviceName": widget.deviceInfo!.name
+          });
+    }
   }
 
   void controlPower() {}
@@ -65,18 +72,25 @@ class _DeviceItemState extends State<DeviceItem> {
                 ),
               ),
             ),
-            // Image.asset(
-            //   "assets/imgs/device/dengguang_icon_on.png",
-            //   width: 50,
-            //   height: 50,
-            // ),
-            const Text(
-              "26",
-              style: TextStyle(
-                fontSize: 23.0,
-                color: Color(0XFF8e8e8e),
-              ),
+            Image.asset(
+              deviceConfig.where((element) => element.type == (widget.deviceInfo?.type ?? '0x09')).toList()[0].onIcon,
+              width: 50,
+              height: 50,
             ),
+            // const Text(
+            //   "26",
+            //   style: TextStyle(
+            //     fontSize: 23.0,
+            //     color: Color(0XFF8e8e8e),
+            //   ),
+            // ),
+            // const Text(
+            //   "仅APP控制",
+            //   style: TextStyle(
+            //     fontSize: 23.0,
+            //     color: Color(0XFF8e8e8e),
+            //   ),
+            // ),
             GestureDetector(
               onTap: () => controlPower,
               child: Image.asset(

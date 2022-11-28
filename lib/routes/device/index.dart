@@ -130,9 +130,10 @@ class _DevicePageState extends State<DevicePage> {
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: const [
-                Text("客厅",
-                    style: TextStyle(
+              children:[
+                Text(
+                    Global.profile.roomInfo?.name ?? '房间',
+                    style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 30.0,
                       fontFamily: "MideaType",
