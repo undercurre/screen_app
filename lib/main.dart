@@ -52,7 +52,7 @@ class _App extends State<App> {
 
 setupConfig() async {
   const env = String.fromEnvironment('env');
-  if (env != 'sit' || env != 'prod') {
+  if (env != 'sit' && env != 'prod') {
     // 如果不传sit或者prod默认使用sit环境
     await dotenv.load(fileName: ".sit.env");
   } else {
