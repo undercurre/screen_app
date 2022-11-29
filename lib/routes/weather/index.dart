@@ -71,7 +71,7 @@ class WeatherPageState extends State<WeatherPage> {
   }
 
   // 获取家庭组
-  void initQuery() async {
+  Future<void> initQuery() async {
     // 预加载背景图
     if (StandbySetting.weatherCode != '') {
       String imageName = codeToImage[StandbySetting.weatherCode]!;
@@ -94,7 +94,7 @@ class WeatherPageState extends State<WeatherPage> {
     });
   }
 
-  void updateWeather(String cityId) async {
+  Future<void> updateWeather(String cityId) async {
     var weatherOfCityRes = await MideaApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;

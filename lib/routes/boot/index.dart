@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../common/index.dart';
+import '../../mixins/index.dart';
 
-class _Boot extends State<Boot> {
+class _Boot extends State<Boot> with Standby {
   final videoPlayerController =
       VideoPlayerController.asset('assets/video/boot.mp4');
 
@@ -96,6 +96,7 @@ class _Boot extends State<Boot> {
 
   /// 启动完成
   void bootFinish() {
+    debugPrint('bootFinish trigger');
     if (Global.isLogin) {}
     Navigator.pushNamed(
       context,

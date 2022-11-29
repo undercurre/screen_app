@@ -8,7 +8,6 @@ import 'link_network.dart';
 import 'scan_code.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
-import '../../mixins/index.dart';
 
 class Step {
   String title;
@@ -17,7 +16,7 @@ class Step {
   Step(this.title, this.view);
 }
 
-class _LoginPage extends State<LoginPage> with Standby {
+class _LoginPage extends State<LoginPage> {
   /// 当前步骤，1-4
   var stepNum = Global.isLogin ? 3 : 1;
 
@@ -261,7 +260,7 @@ class LoginHeader extends StatelessWidget {
       left: 100.0,
       top: 2.0,
       child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pushNamed('SettingPage'),
+        onPressed: () => Navigator.of(context).pushNamed('0x14'),
         label: const Text(''),
         icon: const Icon(Icons.settings),
       ),

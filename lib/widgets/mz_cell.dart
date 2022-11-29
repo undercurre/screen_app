@@ -234,15 +234,8 @@ class _CellState extends State<MzCell> {
             ),
           ),
         ),
-        onTap: () {
-          if (widget.onTap != null) {
-            widget.onTap!();
-          }
-        },
-        onLongPress: () {
-          if (widget.onLongPress != null) {
-            widget.onLongPress!();
-          }
-        });
+        onTap: () => widget.onTap?.call(),
+        onLongPress: () => widget.onLongPress?.call()
+    );
   }
 }
