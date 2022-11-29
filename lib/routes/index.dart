@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/room/index.dart';
-import 'package:screen_app/widgets/business/select_room.dart';
 import 'boot/index.dart';
 import 'package:screen_app/routes/plugins/0x40/index.dart';
 import 'package:screen_app/routes/setting/about_setting.dart';
@@ -16,6 +15,7 @@ import 'weather/index.dart';
 import 'device/index.dart';
 import 'scene/index.dart';
 import 'plugins/0x13/index.dart';
+import 'plugins/0x14/index.dart';
 import 'plugins/0x26/index.dart';
 
 var routes = <String, WidgetBuilder>{
@@ -31,6 +31,7 @@ var routes = <String, WidgetBuilder>{
         text: '',
       ),
   "0x13": (context) => const WifiLightPage(),
+  "0x14": (context) => const CurtainPage(),
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
   "SettingPage": (context) => const SettingPage(),
