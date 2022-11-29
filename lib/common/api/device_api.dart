@@ -7,8 +7,9 @@ import '../../models/index.dart';
 
 class DeviceApi {
   /// 获取设备详情（lua）
-  static Future<MzIotResult> getDeviceDetail(String type,String applianceCode) async {
-    var res = await Api.requestMzIot<QrCode>(
+  static Future<MzResponseEntity> getDeviceDetail(
+      String type, String applianceCode) async {
+    var res = await Api.requestMzIot<QrCodeEntity>(
         "/v1/category/midea/device/status/query",
         data: {
           "applianceCode": applianceCode,
@@ -26,8 +27,9 @@ class DeviceApi {
   }
 
   /// 设备lua控制
-  static Future<MzIotResult> sendLuaOrder(String categoryCode, String applianceCode, Object command) async {
-    var res = await Api.requestMzIot<QrCode>(
+  static Future<MzResponseEntity> sendLuaOrder(
+      String categoryCode, String applianceCode, Object command) async {
+    var res = await Api.requestMzIot<QrCodeEntity>(
         "/v1/category/midea/device/wifiControl",
         data: {
           "deviceId": applianceCode,
@@ -49,8 +51,10 @@ class DeviceApi {
   }
 
   /// 设备物模型控制
-  static Future<MzIotResult> sendPDMOrder(String uri, String applianceCode, Object command, {String? method = "PUT"}) async {
-    var res = await Api.requestMzIot<QrCode>(
+  static Future<MzResponseEntity> sendPDMOrder(
+      String uri, String applianceCode, Object command,
+      {String? method = "PUT"}) async {
+    var res = await Api.requestMzIot<QrCodeEntity>(
         "/v1/category/midea/device/control",
         data: {
           "systemSource": "SMART_SCREEN",
@@ -73,27 +77,29 @@ class DeviceApi {
   }
 
   /// 设备列表查询
-  static Future<List<Device>> getDeviceList() async {
-    var res = await Api.requestMzIot<QrCode>(
-        "/v1/category/midea/device/list",
-        data: {
-          "systemSource": "SMART_SCREEN",
-          "frontendType": "ANDRIOD",
-          "reqId": uuid.v4(),
-          "userId": Global.user?.uid,
-          "homeGroupId": Global.profile.homeInfo?.homegroupId,
-          "version": "1.0",
-          "timestamp": DateFormat('yyyyMMddHHmmss').format(DateTime.now())
-        },
-        options: Options(
-          method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
-        ));
+  static Future<List<DeviceEntity>> getDeviceList() async {
+    var res =
+        await Api.requestMzIot<HomeListEntity>("/v1/category/midea/device/list",
+            data: {
+              "systemSource": "SMART_SCREEN",
+              "frontendType": "ANDRIOD",
+              "reqId": uuid.v4(),
+              "userId": Global.user?.uid,
+              "homeGroupId": Global.profile.homeInfo?.homegroupId,
+              "version": "1.0",
+              "timestamp": DateFormat('yyyyMMddHHmmss').format(DateTime.now())
+            },
+            options: Options(
+              method: 'POST',
+              headers: {'accessToken': Global.user?.accessToken},
+            ));
 
-    var modelRes = HomegroupList.fromJson(res.result);
+    var modelRes = res.result;
     var homeList = modelRes.homeList;
     var roomList = homeList[0].roomList;
-    var curRoom = roomList?.where((element) => element.id == Global.profile.roomInfo?.roomId).toList()[0];
+    var curRoom = roomList
+        ?.where((element) => element.id == Global.profile.roomInfo?.roomId)
+        .toList()[0];
 
     return curRoom!.applianceList!;
   }

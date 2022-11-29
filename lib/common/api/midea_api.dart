@@ -5,9 +5,9 @@ import '../../models/index.dart';
 
 class MideaApi {
   /// 获取天气
-  static Future<MideaIotResult<WeatherOfCity>> getWeather(
+  static Future<MideaResponseEntity<WeatherOfCityEntity>> getWeather(
       {String? cityId = '101280801'}) async {
-    var res = await Api.requestMideaIot(
+    var res = await Api.requestMideaIot<WeatherOfCityEntity>(
         "/mas/v5/app/proxy?alias=/v1/weather/observe/byCityId",
         data: {
           "appId": "APP",
@@ -15,14 +15,13 @@ class MideaApi {
         },
         options: Options(method: 'POST'));
 
-    return MideaIotResult<WeatherOfCity>.translate(
-        res.code, '', WeatherOfCity.fromJson(res.data));
+    return res;
   }
 
   /// 获取7天天气
-  static Future<MideaIotResult<List<Weather7d>>> getWeather7d(
+  static Future<MideaResponseEntity<List<Weather7dEntity>>> getWeather7d(
       {String? cityId = '101280801'}) async {
-    var res = await Api.requestMideaIot<List<Weather7d>>(
+    var res = await Api.requestMideaIot<List<Weather7dEntity>>(
         "/mas/v5/app/proxy?alias=/v1/weather/forecast7d",
         data: {
           "appId": "APP",
@@ -35,7 +34,6 @@ class MideaApi {
 
     // return res.data;
 
-    return MideaIotResult<List<Weather7d>>.translate(res.code, '',
-        res.data.map<Weather7d>((value) => Weather7d.fromJson(value)).toList());
+    return res;
   }
 }

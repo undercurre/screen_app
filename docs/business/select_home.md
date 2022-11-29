@@ -11,7 +11,7 @@ import '../../widgets/index.dart';
 
 SelectHome(
     value: Global.profile.homeInfo?.homegroupId ?? '',
-    onChange: (HomeInfo home) {
+    onChange: (HomeEntity home) {
     debugPrint('Select: ${home.toJson()}');
 })),
 ```
@@ -25,4 +25,4 @@ SelectHome(
 ### 事件
 | EventName | Type                      | Required | Description |
 |------|---------------------------|----------|-------------|
-| onChange | `Function(HomeInfo home)` | `No` | 选择的家庭改变时触发  |
+| onChange | `Function(HomeEntity home)` | `No` | 选择的家庭改变时触发  |

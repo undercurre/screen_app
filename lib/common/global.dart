@@ -21,13 +21,13 @@ class Global {
   static var productCode = 'MSP-A101D-01';
 
   static late SharedPreferences _prefs;
-  static Profile profile = Profile();
+  static ProfileEntity profile = ProfileEntity();
 
   static bool get isLogin => profile.user != null;
 
-  static User? get user => profile.user;
+  static UserEntity? get user => profile.user;
 
-  static set user(User? value) {
+  static set user(UserEntity? value) {
     debugPrint('setUser $user');
     profile.user = value;
   }
@@ -41,11 +41,11 @@ class Global {
     logger.d('profileJson: $profileJson');
     if (profileJson != null) {
       try {
-        profile = Profile.fromJson(jsonDecode(profileJson));
+        profile = ProfileEntity.fromJson(jsonDecode(profileJson));
       } catch (e) {
         logger.w('profileJson-error: ${e.toString()}');
         _prefs.remove('profile');
-        profile = Profile();
+        profile = ProfileEntity();
       }
     }
 

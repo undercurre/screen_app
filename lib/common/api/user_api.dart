@@ -9,47 +9,34 @@ import '../../models/index.dart';
 
 class UserApi {
   /// 获取授权登录二维码
-  static Future<MideaIotResult<QrCode>> getQrCode() async {
-    var res = await Api.requestMideaIot<QrCode>(
-        "/muc/v5/app/mj/screen/auth/getQrCode",
-        data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
-        options: Options(method: 'POST', extra: {'isEncrypt': false}));
+  static Future<MideaResponseEntity<QrCodeEntity>> getQrCode() async {
+    MideaResponseEntity<QrCodeEntity> res =
+        await Api.requestMideaIot<QrCodeEntity>(
+            "/muc/v5/app/mj/screen/auth/getQrCode",
+            data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
+            options: Options(method: 'POST', extra: {'isEncrypt': false}));
 
-    return MideaIotResult<QrCode>.translate(
-        res.code, res.msg, QrCode.fromJson(res.data));
+    return res;
   }
 
   /// 登录接口，登录成功后返回用户信息
-  static Future<MideaIotResult<User>> getAccessToken(sessionId) async {
-    var res = await Api.requestMideaIot(
+  static Future getAccessToken(String sessionId) async {
+    var res = await Api.requestMideaIot<UserEntity>(
         "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
         queryParameters: {
           'sessionId': sessionId,
         },
         options: Options(method: 'GET', extra: {'isEncrypt': false}));
 
-    res.data ??= {
-      "accessToken": "",
-      "deviceId": "",
-      "iotUserId": "",
-      "key": "",
-      "openId": "",
-      "seed": "",
-      "sessionId": "",
-      "tokenPwd": "",
-      "uid": ""
-    };
-
     if (res.isSuccess) {
-      Global.user = User.fromJson(res.data);
+      Global.user = res.data;
     }
 
-    return MideaIotResult<User>.translate(
-        res.code, res.msg, User.fromJson(res.data));
+    return res;
   }
 
-  /// 自动登录接口,
-  static Future autoLogin() async {
+  /// 自动登录接口
+  static Future<void> autoLogin() async {
     var rule = 1;
     var res = await Api.requestMideaIot("/muc/v5/app/mj/user/autoLogin",
         data: {
@@ -89,11 +76,11 @@ class UserApi {
   }
 
   /// 获取用户所有家庭的家电列表
-  static Future getHomeListWithDeviceList({
+  static Future<MideaResponseEntity<HomeListEntity>> getHomeListWithDeviceList({
     String? homegroupId,
     String? roomId,
   }) async {
-    var res = await Api.requestMideaIot(
+    var res = await Api.requestMideaIot<HomeListEntity>(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/list/get",
         data: {
           'homegroupId': homegroupId,
@@ -103,26 +90,25 @@ class UserApi {
           method: 'POST',
         ));
 
-    return MideaIotResult<HomegroupList>.translate(
-        res.code, '', HomegroupList.fromJson(res.data));
+    return res;
   }
 
-  /// 获取用户的家庭列表
-  static Future<MideaIotResult<HomegroupList>> getHomegroup() async {
-    var res = await Api.requestMideaIot(
+  /// 获取用户的家庭列表——美的iot中台
+  static Future<MideaResponseEntity<HomeListEntity>>
+      getHomeListFromMidea() async {
+    var res = await Api.requestMideaIot<HomeListEntity>(
         "/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
         data: {},
         options: Options(
           method: 'POST',
         ));
 
-    return MideaIotResult<HomegroupList>.translate(
-        res.code, '', HomegroupList.fromJson(res.data));
+    return res;
   }
 
   /// 美智中台——美居体系鉴权请求
-  static Future<MzIotResult> authToken() async {
-    var res = await Api.requestMzIot<QrCode>("/v1/openApi/auth/midea/token",
+  static Future<MzResponseEntity> authToken() async {
+    var res = await Api.requestMzIot("/v1/openApi/auth/midea/token",
         data: {
           'deviceId': Global.user?.deviceId,
           'appId': dotenv.get('APP_ID'),
@@ -140,13 +126,13 @@ class UserApi {
   }
 
   /// 家庭列表查询
-  static Future<MzIotResult> getHomeList() async {
-    var res =
-        await Api.requestMzIot<QrCode>("/v1/category/midea/user/homeGroup/list",
-            data: {},
-            options: Options(
-              method: 'POST',
-            ));
+  static Future<MzResponseEntity> getHomeList() async {
+    var res = await Api.requestMzIot<QrCodeEntity>(
+        "/v1/category/midea/user/homeGroup/list",
+        data: {},
+        options: Options(
+          method: 'POST',
+        ));
 
     return res;
   }

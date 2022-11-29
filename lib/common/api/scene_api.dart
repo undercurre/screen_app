@@ -20,31 +20,34 @@ class SceneSource {
 
 class SceneApi {
   /// 场景列表查询
-  static  Future<List<Scene>> getSceneList() async {
-    var res = await Api.requestMzIot<QrCode>(
-        "/v1/category/midea/scene/list",
-        data: {
-          "systemSource": "SMART_SCREEN",
-          "homegroupId": Global.profile.homeInfo?.homegroupId,
-          "frontendType": "ANDRIOD",
-          "version": "1.0",
-        },
-        options: Options(
-          method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
-        ));
-    var modelRes = SceneList.fromJson(res.result);
+  static Future<List<Scene>> getSceneList() async {
+    var res =
+        await Api.requestMzIot<SceneListEntity>("/v1/category/midea/scene/list",
+            data: {
+              "systemSource": "SMART_SCREEN",
+              "homegroupId": Global.profile.homeInfo?.homegroupId,
+              "frontendType": "ANDRIOD",
+              "version": "1.0",
+            },
+            options: Options(
+              method: 'POST',
+              headers: {'accessToken': Global.user?.accessToken},
+            ));
+    var modelRes = res.result;
     var filterList = modelRes.list.where((element) => element.sceneType == 1);
-    var sceneList = [...filterList.map((e) =>
-        Scene('assets/imgs/scene/${Random().nextInt(5) + 1}.png', e.name, 'assets/imgs/scene/huijia.png', e.sceneId.toString())
-    )].toList();
+    var sceneList = [
+      ...filterList.map((e) => Scene(
+          'assets/imgs/scene/${Random().nextInt(5) + 1}.png',
+          e.name,
+          'assets/imgs/scene/huijia.png',
+          e.sceneId.toString()))
+    ].toList();
     return sceneList;
   }
 
   /// 场景列表执行
-  static Future<MzIotResult> execScene(String sceneId) async {
-    var res = await Api.requestMzIot<QrCode>(
-        "/v1/category/midea/scene/execute",
+  static Future<MzResponseEntity> execScene(String sceneId) async {
+    var res = await Api.requestMzIot("/v1/category/midea/scene/execute",
         data: {
           "systemSource": "SMART_SCREEN",
           "frontendType": "ANDRIOD",

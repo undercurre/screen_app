@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/routes/device/config.dart';
 
-import '../../models/device.dart';
+import '../../models/device_entity.dart';
 
 class DeviceItem extends StatefulWidget {
-  Device? deviceInfo;
+  DeviceEntity? deviceInfo;
 
   DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
 
@@ -13,15 +13,14 @@ class DeviceItem extends StatefulWidget {
 }
 
 class _DeviceItemState extends State<DeviceItem> {
-  Device? deviceInfo;
+  DeviceEntity? deviceInfo;
 
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
-      Navigator.pushNamed(context, widget.deviceInfo!.type,
-          arguments: {
-            "deviceId": widget.deviceInfo!.applianceCode,
-            "deviceName": widget.deviceInfo!.name
-          });
+      Navigator.pushNamed(context, widget.deviceInfo!.type, arguments: {
+        "deviceId": widget.deviceInfo!.applianceCode,
+        "deviceName": widget.deviceInfo!.name
+      });
     }
   }
 
@@ -62,7 +61,9 @@ class _DeviceItemState extends State<DeviceItem> {
                     Text(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
+                      widget.deviceInfo != null
+                          ? widget.deviceInfo!.name
+                          : '加载中',
                       style: const TextStyle(
                         fontSize: 22.0,
                         color: Color(0XFFFFFFFF),
@@ -73,7 +74,11 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              deviceConfig.where((element) => element.type == (widget.deviceInfo?.type ?? '0x09')).toList()[0].onIcon,
+              deviceConfig
+                  .where((element) =>
+                      element.type == (widget.deviceInfo?.type ?? '0x09'))
+                  .toList()[0]
+                  .onIcon,
               width: 50,
               height: 50,
             ),

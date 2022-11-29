@@ -33,15 +33,6 @@ class _LoginPage extends State<LoginPage> with Standby {
 
   /// 下一步
   void nextStep() async {
-    //导航到新路由
-    // var result = await Navigator.pushNamed(
-    //   context,
-    //   'ScanCode',
-    // );
-    if (stepNum == 2) {
-      // MideaApi.getHomeList();
-    }
-
     if (stepNum == 4 && Global.profile.roomInfo != null) {
       Global.saveProfile();
       //导航到新路由
@@ -70,7 +61,7 @@ class _LoginPage extends State<LoginPage> with Standby {
           '选择家庭',
           SelectHome(
               value: Global.profile.homeInfo?.homegroupId ?? '',
-              onChange: (HomeInfo home) {
+              onChange: (HomeEntity home) {
                 debugPrint('Select: ${home.toJson()}');
                 Global.profile.homeInfo = home;
               })),
@@ -78,7 +69,7 @@ class _LoginPage extends State<LoginPage> with Standby {
           '选择房间',
           SelectRoom(
               value: Global.profile.roomInfo?.roomId ?? '',
-              onChange: (RoomInfo room) {
+              onChange: (RoomEntity room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 Global.profile.roomInfo = room;
               })),

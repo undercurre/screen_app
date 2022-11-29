@@ -4,7 +4,7 @@ import '../../models/index.dart';
 import '../index.dart';
 
 class _SelectRoom extends State<SelectRoom> {
-  var roomList = <RoomInfo>[];
+  var roomList = <RoomEntity>[];
 
   String _roomId = '';
 
@@ -55,7 +55,7 @@ class _SelectRoom extends State<SelectRoom> {
 
     if (res.isSuccess) {
       setState(() {
-        var homeInfo = res.data.homeList[0] as HomeInfo;
+        var homeInfo = res.data.homeList[0];
         roomList = homeInfo.roomList ?? [];
       });
     }
@@ -67,7 +67,7 @@ class SelectRoom extends StatefulWidget {
   final String value;
 
   /// 房间变更事件
-  final ValueChanged<RoomInfo>? onChange;
+  final ValueChanged<RoomEntity>? onChange;
 
   const SelectRoom({super.key, this.value = '', this.onChange});
 

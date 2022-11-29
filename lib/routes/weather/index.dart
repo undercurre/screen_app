@@ -36,7 +36,7 @@ final codeToImage = {
   '27': 'snowy',
   '28': 'snowy',
   '29': 'duststorm',
-  '30':	'duststorm',
+  '30': 'duststorm',
   '31': 'duststorm',
   '32': 'foggy',
   '49': 'foggy',
@@ -76,15 +76,15 @@ class WeatherPageState extends State<WeatherPage> {
     if (StandbySetting.weatherCode != '') {
       String imageName = codeToImage[StandbySetting.weatherCode]!;
       setState(() {
-          weatherIcon = imageName;
-          weatherBg = imageName;
+        weatherIcon = imageName;
+        weatherBg = imageName;
       });
     }
 
     logger.i(
-        'Global homeInfo: ${Global.profile.homeInfo?.areaid} ${Global.profile.homeInfo?.address}');
+        'Global homeInfo: ${Global.profile.homeInfo?.areaId} ${Global.profile.homeInfo?.address}');
 
-    String? areaid = Global.profile.homeInfo?.areaid;
+    String? areaid = Global.profile.homeInfo?.areaId;
     areaid ??= '101280801'; // 默认顺德区
     updateWeather(areaid);
 

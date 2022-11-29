@@ -4,7 +4,7 @@ import '../../models/index.dart';
 import '../index.dart';
 
 class _SelectHome extends State<SelectHome> {
-  List<HomeInfo> homeList = [];
+  List<HomeEntity> homeList = [];
 
   String _homeId = '';
 
@@ -54,7 +54,9 @@ class _SelectHome extends State<SelectHome> {
 
   /// 获取家庭列表数据
   void getHomeListData() async {
-    var res = await UserApi.getHomegroup();
+    UserApi.getHomeList();
+
+    var res = await UserApi.getHomeListFromMidea();
 
     if (res.isSuccess) {
       setState(() {
@@ -69,7 +71,7 @@ class SelectHome extends StatefulWidget {
   final String value;
 
   /// 家庭变更事件
-  final ValueChanged<HomeInfo>? onChange;
+  final ValueChanged<HomeEntity>? onChange;
 
   const SelectHome({super.key, this.value = '', this.onChange});
 

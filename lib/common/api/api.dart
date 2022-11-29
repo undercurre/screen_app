@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/util.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:uuid/uuid.dart';
 import '../global.dart';
 
@@ -77,7 +78,7 @@ class Api {
   }
 
   /// IOT接口发起公共接口
-  static Future<MideaIotResult> requestMideaIot<T>(
+  static Future<MideaResponseEntity<T>> requestMideaIot<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
@@ -141,11 +142,11 @@ class Api {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return MideaIotResult.fromJson(res.data);
+    return MideaResponseEntity<T>.fromJson(res.data);
   }
 
   /// 美智光电IOT中台接口发起公共接口
-  static Future<MzIotResult> requestMzIot<T>(
+  static Future<MzResponseEntity<T>> requestMzIot<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
@@ -210,55 +211,6 @@ class Api {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
-
-    return MzIotResult.fromJson(res.data);
+    return MzResponseEntity<T>.fromJson(res.data);
   }
-}
-
-/// 美的Iot中台接口模型
-class MideaIotResult<T> {
-  MideaIotResult();
-
-  MideaIotResult.translate(this.code, this.msg, this.data);
-
-  late int code;
-  late String? msg;
-  late T data;
-
-  get isSuccess => code == 0;
-
-  factory MideaIotResult.fromJson(Map<String, dynamic> json) => MideaIotResult()
-    ..msg = json['msg']
-    ..data = json['data']
-    ..code = json['code'] as int;
-
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{'code': code, 'msg': msg, 'data': data};
-}
-
-/// 美智光电Iot中台接口模型
-class MzIotResult<T> {
-  MzIotResult();
-
-  MzIotResult.translate(this.code, this.msg, this.result);
-
-  late int code;
-  late String? msg;
-  late T result;
-  late bool success;
-
-  get isSuccess => success;
-
-  factory MzIotResult.fromJson(Map<String, dynamic> json) => MzIotResult()
-    ..msg = json['msg']
-    ..success = json['success']
-    ..result = json['result']
-    ..code = json['code'] as int;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'code': code,
-        'success': success,
-        'msg': msg,
-        'result': result
-      };
 }

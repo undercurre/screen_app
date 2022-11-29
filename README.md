@@ -41,33 +41,76 @@ github_client_app
 ### Http请求库-dio
 [文档地址](https://github.com/flutterchina/dio/blob/develop/README-ZH.md)
 
-美的中台接口封装： `lib/common/api/api.dart`的`requestMideaIot`
+美的中台接口封装： `lib/common/api/api.dart`的`requestMideaIot<T>`
 
-美智中台接口封装： `lib/common/api/api.dart`的`requestMzIot`
+| 公共body参数 | 公共header参数 |
+|------      |------|
+| openId |  accessToken
+| iotAppId | sign
+| reqId |  random
+| stamp |
+| timestamp |
+| uid |
+| timestamp |
+
+使用示例：
+```dart
+MideaResponseEntity<QrCodeEntity> res = await Api.requestMideaIot<QrCodeEntity>(
+        "/muc/v5/app/mj/screen/auth/getQrCode",
+        data: {'deviceId': Global.profile.deviceId, 'checkType': 1});
+```
+
+响应数据：
+```
+{
+    late int code;
+    late String msg;
+    late T data;
+    
+    get isSuccess => code == 0;
+}
+```
+
+美智中台接口封装： `lib/common/api/api.dart`的`requestMzIot<T>`
+
+| 公共body参数 | 公共header参数 |
+|------|   ------|
+| systemSource |   Authorization
+| frontendType |  sign
+| reqId |  random
+| userId |
+| timestamp |
+
+使用示例：
+```dart
+MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
+        "/muc/v5/app/mj/screen/auth/getQrCode",
+        data: {'deviceId': Global.profile.deviceId, 'checkType': 1});
+```
+
+响应数据：
+```
+{
+  late int code;
+  late String msg;
+  late T result;
+  late bool success;
+
+  get isSuccess => success;
+}
+```
 
 ### 状态 (State) 管理-Provider
 [文档地址](https://pub.flutter-io.cn/packages/provider)
 
-### json_model
-> 一行命令，Json文件转为Dart model类。
+### `FlutterJsonBeanFactory`插件
+> Json文件转为Dart model类工具
 
-[文档地址](https://pub.flutter-io.cn/packages/json_model)
+[使用文档地址](https://www.loongwind.com/archives/374.html)
 
 #### 使用
-1. 创建或拷贝Json文件到 `./jsons/` 目录中 ;
-2. 运行以下命令生成Dart model类，生成的文件默认在 `./lib/models/` 目录下
-
-```bash
-# windows 下命令格式
-flutter packages  pub run json_model src=jsons  dist=data
-
-# Linux 下格式稍不同，参数前加--（作者文档未提及）
-flutter packages pub run json_model --src=jsons --dist=lib/models
-```
-
-注：
-`src` 的[默认值](https://github.com/flutterchina/json_model/blob/master/bin/json_model.dart#L21) 为 `./Json`
-windows 下不区分大小写；但在 Linux 将会报错，需要使用 `--src` 指定目录
+1. 安装`FlutterJsonBeanFactory`插件，并生成对应数据实体类
+2. 更新维护实体类的属性，每次更新后`Alt + J`重新生成代码
 
 ### 日志打印工具
 可引入`Global`类,调用`logger`类实例进行打印

@@ -4,7 +4,7 @@ import '../common/index.dart';
 import '../models/index.dart';
 
 class ProfileChangeNotifier extends ChangeNotifier {
-  Profile get _profile => Global.profile;
+  ProfileEntity get _profile => Global.profile;
 
   @override
   void notifyListeners() {
@@ -14,18 +14,18 @@ class ProfileChangeNotifier extends ChangeNotifier {
 }
 
 class UserModel extends ProfileChangeNotifier {
-  User? get user => _profile.user;
+  UserEntity? get user => _profile.user;
 
   /// APP是否登录(如果有用户信息，则证明登录过)
   bool get isLogin => user != null;
 
   //用户信息发生变化，更新用户信息并通知依赖它的子孙Widgets更新
-  set user(User? user) {
+  set user(UserEntity? user) {
     debugPrint('UserModel-change');
     if (user?.uid != _profile.user?.uid) {
       _profile.user = user;
 
-      logger.i("User: $user");
+      logger.i("UserEntity: $user");
       notifyListeners();
     }
   }

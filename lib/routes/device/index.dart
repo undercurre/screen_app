@@ -5,11 +5,11 @@ import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/api/device_api.dart';
-import 'package:screen_app/models/homeInfo.dart';
-import 'package:screen_app/models/homegroupList.dart';
+import 'package:screen_app/models/home_entity.dart';
+import 'package:screen_app/models/home_list_entity.dart';
 import 'package:screen_app/models/index.dart';
 import '../../common/global.dart';
-import '../../models/device.dart';
+import '../../models/device_entity.dart';
 import 'DeviceItem.dart';
 
 class DevicePage extends StatefulWidget {
@@ -23,7 +23,7 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   List<DraggableGridItem> itemBins = [];
-  List<Device> deviceList = [];
+  List<DeviceEntity> deviceList = [];
   var time = DateTime.now();
   late Timer _timer;
   final ScrollController _scrollController = ScrollController(
@@ -101,10 +101,10 @@ class _DevicePageState extends State<DevicePage> {
               children: [
                 Text(
                     "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
-                      HH,
-                      ':',
-                      nn
-                    ])}",
+                          HH,
+                          ':',
+                          nn
+                        ])}",
                     style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 18.0,
@@ -130,9 +130,8 @@ class _DevicePageState extends State<DevicePage> {
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children:[
-                Text(
-                    Global.profile.roomInfo?.name ?? '房间',
+              children: [
+                Text(Global.profile.roomInfo?.name ?? '房间',
                     style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 30.0,

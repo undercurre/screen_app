@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../common/index.dart';
-import '../../models/index.dart';
-import '../../states/index.dart';
 import '../../widgets/index.dart';
 
 class _LinkNetwork extends State<LinkNetwork> {
@@ -65,9 +62,6 @@ class _LinkNetwork extends State<LinkNetwork> {
           return Listener(
               onPointerDown: (event) {
                 logger.i("item: $index  onPointerDown, $event");
-                var userModel = context.read<UserModel>();
-
-                userModel.user = User.fromJson({"name": "test $index"});
               },
               child: MzCell(
                 avatarIcon: const Icon(

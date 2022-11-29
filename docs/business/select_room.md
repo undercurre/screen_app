@@ -9,7 +9,7 @@
 ```dart
 import '../../widgets/index.dart';
 
-SelectRoom(onChange: (RoomInfo room) {
+SelectRoom(onChange: (RoomEntity room) {
   debugPrint('SelectRoom: ${room.toJson()}');
 }))
 ```
@@ -23,4 +23,4 @@ SelectRoom(onChange: (RoomInfo room) {
 ### 事件
 | EventName | Type                      | Required | Description |
 |------|---------------------------|----------|-------------|
-| onChange | `Function(RoomInfo room)` | `No` | 选择的房间改变时触发  |
+| onChange | `Function(RoomEntity room)` | `No` | 选择的房间改变时触发  |
