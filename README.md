@@ -41,7 +41,9 @@ github_client_app
 ### Http请求库-dio
 [文档地址](https://github.com/flutterchina/dio/blob/develop/README-ZH.md)
 
-美的中台接口封装： `lib/common/api/api.dart`的`requestMideaIot<T>`
+<br>
+
+#### 美的中台接口封装： `lib/common/api/api.dart`的`requestMideaIot<T>`
 
 | 公共body参数 | 公共header参数 |
 |------      |------|
@@ -71,7 +73,9 @@ MideaResponseEntity<QrCodeEntity> res = await Api.requestMideaIot<QrCodeEntity>(
 }
 ```
 
-美智中台接口封装： `lib/common/api/api.dart`的`requestMzIot<T>`
+<br>
+
+#### 美智中台接口封装： `lib/common/api/api.dart`的`requestMzIot<T>`
 
 | 公共body参数 | 公共header参数 |
 |------|   ------|
