@@ -14,6 +14,7 @@ class BathroomMasterState extends State<BathroomMaster> {
   String deviceId = '0';
   String deviceName = '浴霸';
   String controlType = 'wot'; // todo: 后面需要加上判断使用物模型还是lua控制
+  bool isSingleMotor = true; // todo: 添加单双电机浴霸判断
 
   Map<String, bool> runMode = <String, bool>{};
   bool mainLight = false;

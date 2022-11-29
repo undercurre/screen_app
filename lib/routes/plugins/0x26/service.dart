@@ -113,8 +113,16 @@ class BaseService {
 // 处理五种运行模式切换逻辑
 void runModeLogic(Map<String, bool> runMode, Mode mode) {
   if (mode.key == blowing.key) {
-    runMode['blowing'] =
-    runMode['blowing'] != null && runMode['blowing']! ? false : true;
+    if (runMode['blowing'] != null && runMode['blowing']!) {
+      // 如果取暖已经打开
+      runMode['blowing'] = false;
+    } else {
+      // 如果打开取暖，会关闭安心沐浴、干燥、取暖
+      runMode['blowing'] = true;
+      runMode['bath'] = false;
+      runMode['drying'] = false;
+      runMode['heating'] = false;
+    }
   } else if (mode.key == heating.key) {
     if (runMode['heating'] != null && runMode['heating']!) {
       // 如果取暖已经打开
@@ -143,9 +151,10 @@ void runModeLogic(Map<String, bool> runMode, Mode mode) {
       // 如果换气已经打开
       runMode['ventilation'] = false;
     } else {
-      // 如果打开换气，会关闭干燥
+      // 如果打开换气，会关闭干燥、安心沐浴
       runMode['ventilation'] = true;
       runMode['drying'] = false;
+      runMode['bath'] = false;
     }
   } else if (mode.key == drying.key) {
     if (runMode['drying'] != null && runMode['drying']!) {
