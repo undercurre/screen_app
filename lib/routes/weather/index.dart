@@ -95,7 +95,7 @@ class WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> updateWeather(String cityId) async {
-    var weatherOfCityRes = await MideaApi.getWeather(cityId: cityId);
+    var weatherOfCityRes = await WeatherApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;
 
@@ -126,7 +126,7 @@ class WeatherPageState extends State<WeatherPage> {
       return;
     }
 
-    var forecastRes = await MideaApi.getWeather7d(cityId: cityId);
+    var forecastRes = await WeatherApi.getWeather7d(cityId: cityId);
     if (forecastRes.isSuccess) {
       var forecastData = forecastRes.data.first;
       final now = DateTime.now();
