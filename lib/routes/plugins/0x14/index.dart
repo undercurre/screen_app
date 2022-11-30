@@ -8,7 +8,7 @@ class CurtainPageState extends State<CurtainPage> {
   String deviceName = '窗帘';
 
   bool power = true;
-  num brightness = 0;
+  num position = 0;
   num colorTemperature = 0;
   String screenModel = 'manual';
   String timeOff = '0';
@@ -24,9 +24,9 @@ class CurtainPageState extends State<CurtainPage> {
     await WIFILightApi.modePDM(deviceId, mode.key);
   }
 
-  Future<void> brightnessHandle(num value, Color activeColor) async {
+  Future<void> curtainHandle(num value, Color activeColor) async {
     setState(() {
-      brightness = value;
+      position = value;
     });
     await WIFILightApi.brightnessPDM(deviceId, value);
   }
@@ -54,7 +54,7 @@ class CurtainPageState extends State<CurtainPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        color: Colors.black,
+        color: Colors.black
       ),
       child: Stack(
         children: [
@@ -62,8 +62,7 @@ class CurtainPageState extends State<CurtainPage> {
               left: 0,
               top: 0,
               child: AnimationCurtain(
-                brightness: brightness,
-                colorTemperature: 100 - colorTemperature,
+                position: position,
               )),
           Flex(
             direction: Axis.vertical,
@@ -106,13 +105,13 @@ class CurtainPageState extends State<CurtainPage> {
                           child: ListView(
                             children: [
                               AdjustCard(
-                                value: brightness,
+                                value: position,
                                 activeColors: const [
                                   Color(0xFF267AFF),
                                   Color(0xFF267AFF)
                                 ],
-                                onChanged: brightnessHandle,
-                                onChanging: brightnessHandle,
+                                onChanged: curtainHandle,
+                                onChanging: curtainHandle,
                               ),
                               ModeCard(
                                 title: "模式",

@@ -100,7 +100,7 @@ class _AdjustCardState extends State<AdjustCard> with Throttle {
               activeColors: widget.activeColors,
               disabled: widget.disabled,
               duration: widget.duration,
-              onChanged: widget.onChanged,
+              onChanged: onChanged,
               onChanging: onChanging,
             ),
           ],
@@ -114,11 +114,33 @@ class _AdjustCardState extends State<AdjustCard> with Throttle {
     setState(() {
       value = value <= 0 ? 0 : value - 1;
     });
+    if (widget.onChanged != null) {
+      throttle(() {
+        widget.onChanged!(value, widget.activeColors[0]);
+      }, durationTime: widget.throttle);
+    }
   }
   void onTapAdd() {
     setState(() {
       value = value >= 100 ? 100 : value + 1;
     });
+    if (widget.onChanged != null) {
+      throttle(() {
+        widget.onChanged!(value, widget.activeColors[0]);
+      }, durationTime: widget.throttle);
+    }
+  }
+
+  // 点击滑动条
+  void onChanged(num value, Color activeColor) {
+    setState(() {
+      this.value = value;
+    });
+    if (widget.onChanged != null) {
+      throttle(() {
+        widget.onChanged!(value, activeColor);
+      }, durationTime: widget.throttle);
+    }
   }
 
   // 拖动滑动条
