@@ -20,7 +20,7 @@ List _standbyTime = [
 ];
 
 Map weatherData = {
-  'standbyTime': _standbyTime.first['value'],
+  'standbyTime': _standbyTime.last['value'],
   'weatherCode': '',
 };
 

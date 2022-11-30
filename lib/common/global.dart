@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,6 +66,7 @@ class Global {
 
     saveProfile();
 
+    initLoading();
     //初始化网络请求相关配置
     Api.init();
   }
@@ -73,5 +75,26 @@ class Global {
   static saveProfile() {
     logger.i('saveProfile: ${profile.toJson()}');
     _prefs.setString("profile", jsonEncode(profile.toJson()));
+  }
+
+  static initLoading() {
+    EasyLoading.instance
+      ..displayDuration = const Duration(milliseconds: 2000)
+      ..indicatorType = EasyLoadingIndicatorType.ring
+      ..loadingStyle = EasyLoadingStyle.custom
+      ..indicatorSize = 45.0
+      ..radius = 40.0
+      ..progressColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..backgroundColor = const Color.fromRGBO(87, 87, 87, 1)
+      ..indicatorColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..textColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..fontSize = 22
+      ..contentPadding = const EdgeInsets.fromLTRB(32, 20, 32, 20)
+      ..userInteractions = true
+      ..dismissOnTap = false;
+
+    EasyLoading.addStatusCallback((status) {
+      debugPrint('EasyLoading Status $status');
+    });
   }
 }

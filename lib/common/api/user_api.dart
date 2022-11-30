@@ -14,7 +14,7 @@ class UserApi {
         await Api.requestMideaIot<QrCodeEntity>(
             "/muc/v5/app/mj/screen/auth/getQrCode",
             data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
-            options: Options(method: 'POST', extra: {'isEncrypt': false}));
+            options: Options(method: 'POST'));
 
     return res;
   }
@@ -26,7 +26,7 @@ class UserApi {
         queryParameters: {
           'sessionId': sessionId,
         },
-        options: Options(method: 'GET', extra: {'isEncrypt': false}));
+        options: Options(method: 'GET'));
 
     if (res.isSuccess) {
       Global.user = res.data;

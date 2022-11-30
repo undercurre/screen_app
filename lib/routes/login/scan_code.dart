@@ -84,7 +84,7 @@ class _ScanCode extends State<ScanCode> {
 
         Global.saveProfile();
 
-        TipsUtils.toast(context: context, title: '提示', content: '授权成功');
+        TipsUtils.toast(content: '授权成功');
         widget.onSuccess!();
       } else {
         updateLoginStatus();

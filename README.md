@@ -100,6 +100,7 @@ const TextStyle(
 ```dart
 MideaResponseEntity<QrCodeEntity> res = await Api.requestMideaIot<QrCodeEntity>(
         "/muc/v5/app/mj/screen/auth/getQrCode",
+        isShowLoading: true,
         data: {'deviceId': Global.profile.deviceId, 'checkType': 1});
 ```
 
@@ -145,7 +146,7 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 }
 ```
 
-# 🌏 全局变量及共享状态
+# 🌏 全局变量、共享状态、工具类
 
 ## 全局状态变量
 在`lib/common`目录下创建一个Global类，它主要管理APP的全局状态变量
@@ -160,6 +161,11 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 ## 状态 (State) 管理-Provider
 [文档地址](https://pub.flutter-io.cn/packages/provider)
 
+
+## 工具类
+1. 轻提示弹窗： `lib/common/util.dart`——`TipsUtils`——`toast`
+
+![img.png](docs/imgs/img.png)
 
 # 🧩 自定义 widget
 ## 业务组件
