@@ -35,6 +35,11 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
+    var config = deviceConfig.where(((element) => element.type == (widget.deviceInfo?.type ?? '0x13'))).toList();
+    if (config.length == 0) {
+      config.add(wifiLight);
+    }
+    print('配置：${[1,2,3]} ${config.length} ${widget.deviceInfo?.type}');
     return Listener(
       onPointerDown: (e) => toSelectDevice(),
       child: Container(
@@ -75,11 +80,7 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              deviceConfig
-                  .where((element) =>
-                      element.type == (widget.deviceInfo?.type ?? '0x09'))
-                  .toList()[0]
-                  .onIcon,
+              config[0].onIcon,
               width: 50,
               height: 50,
             ),

@@ -3,14 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
-import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
-import 'package:screen_app/models/home_entity.dart';
-import 'package:screen_app/models/home_list_entity.dart';
-import 'package:screen_app/models/index.dart';
 import '../../common/global.dart';
-import '../../models/device_entity.dart';
 import 'DeviceItem.dart';
 
 class DevicePage extends StatefulWidget {
