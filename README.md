@@ -163,9 +163,7 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 
 
 ## 工具类
-1. 轻提示弹窗： `lib/common/util.dart`——`TipsUtils`——`toast`
-
-![img.png](docs/imgs/img.png)
+- 弹窗工具类-`TipsUtils` [文档地址](./docs/utils/TipsUtils.md)
 
 # 🧩 自定义 widget
 ## 业务组件

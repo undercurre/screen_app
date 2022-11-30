@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'package:screen_app/common/util.dart';
+import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:uuid/uuid.dart';
 import '../global.dart';

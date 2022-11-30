@@ -7,7 +7,7 @@ import 'package:platform_device_id/platform_device_id.dart';
 import 'package:uuid/uuid.dart';
 
 import 'api/index.dart';
-import 'util.dart';
+import 'utils.dart';
 import '../models/index.dart';
 
 /// 日志打印工具
