@@ -54,8 +54,6 @@ class _SelectHome extends State<SelectHome> {
 
   /// 获取家庭列表数据
   void getHomeListData() async {
-    UserApi.getHomeList();
-
     var res = await UserApi.getHomeListFromMidea();
 
     if (res.isSuccess) {

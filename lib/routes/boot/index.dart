@@ -12,6 +12,9 @@ class _Boot extends State<Boot> with Standby {
 
   ChewieController? chewieController;
 
+  // 标志视频是否已经播放放完成
+  bool hasVideoEnd = false;
+
   get isSupportVideo => Platform.isAndroid || Platform.isIOS;
 
   @override
@@ -50,6 +53,7 @@ class _Boot extends State<Boot> with Standby {
     chewieController?.dispose();
   }
 
+  /// 检查是否已经登录
   Future checkLogin() async {
     if (Global.isLogin) {
       await UserApi.autoLogin();
@@ -84,12 +88,15 @@ class _Boot extends State<Boot> with Standby {
 
   /// 检查视频是否播放完毕
   void checkVideo() {
-    if (videoPlayerController.value.position ==
-        videoPlayerController.value.duration) {
+    // 因为视频监听事件会返回2次视频结束事件，需要过滤第二次的，否则会执行bootFinish
+    if (!hasVideoEnd &&
+        videoPlayerController.value.position ==
+            videoPlayerController.value.duration) {
       // await chewieController
       //     ?.seekTo(const Duration(seconds: 1, milliseconds: 500));
       // chewieController?.play();
       debugPrint('video Ended');
+      hasVideoEnd = true;
       bootFinish();
     }
   }
@@ -97,7 +104,6 @@ class _Boot extends State<Boot> with Standby {
   /// 启动完成
   void bootFinish() {
     debugPrint('bootFinish trigger');
-    if (Global.isLogin) {}
     Navigator.pushNamed(
       context,
       'Login',
