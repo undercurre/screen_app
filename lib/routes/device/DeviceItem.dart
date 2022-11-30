@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/routes/device/config.dart';
 
 import '../../models/device_entity.dart';
 
 class DeviceItem extends StatefulWidget {
-  DeviceEntity? deviceInfo;
+  DeviceHomeListHomeListRoomListApplianceList? deviceInfo;
 
   DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
 
@@ -17,7 +18,7 @@ class _DeviceItemState extends State<DeviceItem> {
 
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
-      Navigator.pushNamed(context, widget.deviceInfo!.type, arguments: {
+      Navigator.pushNamed(context, widget.deviceInfo!.type!, arguments: {
         "deviceId": widget.deviceInfo!.applianceCode,
         "deviceName": widget.deviceInfo!.name
       });
@@ -62,7 +63,7 @@ class _DeviceItemState extends State<DeviceItem> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       widget.deviceInfo != null
-                          ? widget.deviceInfo!.name
+                          ? widget.deviceInfo!.name!
                           : '加载中',
                       style: const TextStyle(
                         fontSize: 22.0,
@@ -99,7 +100,7 @@ class _DeviceItemState extends State<DeviceItem> {
             GestureDetector(
               onTap: () => controlPower,
               child: Image.asset(
-                "assets/imgs/device/device_power.png",
+                "assets/imgs/device/device_power_off.png",
                 width: 150,
                 height: 60,
               ),

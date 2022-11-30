@@ -6,10 +6,12 @@
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
 import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/models/device_home_list_entity.dart';
+import 'package:screen_app/models/device_lua_entity.dart';
+import 'package:screen_app/models/device_p_d_m_entity.dart';
 import 'package:screen_app/models/home_entity.dart';
 import 'package:screen_app/models/home_list_entity.dart';
 import 'package:screen_app/models/location_entity.dart';
-import 'package:screen_app/models/mz_response_entity.dart';
 import 'package:screen_app/models/profile_entity.dart';
 import 'package:screen_app/models/qr_code_entity.dart';
 import 'package:screen_app/models/room_entity.dart';
@@ -24,23 +26,29 @@ JsonConvert jsonConvert = JsonConvert();
 typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
 
 class JsonConvert {
-  static final Map<String, JsonConvertFunction> _convertFuncMap = {
-    (WiFiScanResult).toString(): WiFiScanResult.fromJson,
-    (DeviceEntity).toString(): DeviceEntity.fromJson,
-    (HomeEntity).toString(): HomeEntity.fromJson,
-    (HomeListEntity).toString(): HomeListEntity.fromJson,
-    (LocationEntity).toString(): LocationEntity.fromJson,
-    (MzResponseEntity).toString(): MzResponseEntity.fromJson,
-    (ProfileEntity).toString(): ProfileEntity.fromJson,
-    (QrCodeEntity).toString(): QrCodeEntity.fromJson,
-    (RoomEntity).toString(): RoomEntity.fromJson,
-    (SceneInfoEntity).toString(): SceneInfoEntity.fromJson,
-    (SceneListEntity).toString(): SceneListEntity.fromJson,
-    (UserEntity).toString(): UserEntity.fromJson,
-    (Weather7dEntity).toString(): Weather7dEntity.fromJson,
-    (WeatherEntity).toString(): WeatherEntity.fromJson,
-    (WeatherOfCityEntity).toString(): WeatherOfCityEntity.fromJson,
-  };
+	static final Map<String, JsonConvertFunction> _convertFuncMap = {
+		(WiFiScanResult).toString(): WiFiScanResult.fromJson,
+		(DeviceEntity).toString(): DeviceEntity.fromJson,
+		(DeviceHomeListEntity).toString(): DeviceHomeListEntity.fromJson,
+		(DeviceHomeListHomeList).toString(): DeviceHomeListHomeList.fromJson,
+		(DeviceHomeListHomeListRoomList).toString(): DeviceHomeListHomeListRoomList.fromJson,
+		(DeviceHomeListHomeListRoomListApplianceList).toString(): DeviceHomeListHomeListRoomListApplianceList.fromJson,
+		(DeviceHomeListHomeListRoomListApplianceListAbility).toString(): DeviceHomeListHomeListRoomListApplianceListAbility.fromJson,
+		(DeviceLuaEntity).toString(): DeviceLuaEntity.fromJson,
+		(DevicePDMEntity).toString(): DevicePDMEntity.fromJson,
+		(HomeEntity).toString(): HomeEntity.fromJson,
+		(HomeListEntity).toString(): HomeListEntity.fromJson,
+		(LocationEntity).toString(): LocationEntity.fromJson,
+		(ProfileEntity).toString(): ProfileEntity.fromJson,
+		(QrCodeEntity).toString(): QrCodeEntity.fromJson,
+		(RoomEntity).toString(): RoomEntity.fromJson,
+		(SceneInfoEntity).toString(): SceneInfoEntity.fromJson,
+		(SceneListEntity).toString(): SceneListEntity.fromJson,
+		(UserEntity).toString(): UserEntity.fromJson,
+		(Weather7dEntity).toString(): Weather7dEntity.fromJson,
+		(WeatherEntity).toString(): WeatherEntity.fromJson,
+		(WeatherOfCityEntity).toString(): WeatherOfCityEntity.fromJson,
+	};
 
   T? convert<T>(dynamic value) {
     if (value == null) {
@@ -74,7 +82,7 @@ class JsonConvert {
   }
 
   T? asT<T extends Object?>(dynamic value) {
-    if (value == null) {
+    if(value == null){
       return null;
     }
     if (value is T) {
@@ -116,107 +124,82 @@ class JsonConvert {
     }
   }
 
-  //list is returned by type
-  static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
-    if (<WiFiScanResult>[] is M) {
-      return data
-          .map<WiFiScanResult>(
-              (Map<String, dynamic> e) => WiFiScanResult.fromJson(e))
-          .toList() as M;
-    }
-    if (<DeviceEntity>[] is M) {
-      return data
-          .map<DeviceEntity>(
-              (Map<String, dynamic> e) => DeviceEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<HomeEntity>[] is M) {
-      return data
-          .map<HomeEntity>((Map<String, dynamic> e) => HomeEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<HomeListEntity>[] is M) {
-      return data
-          .map<HomeListEntity>(
-              (Map<String, dynamic> e) => HomeListEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<LocationEntity>[] is M) {
-      return data
-          .map<LocationEntity>(
-              (Map<String, dynamic> e) => LocationEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<MzResponseEntity>[] is M) {
-      return data
-          .map<MzResponseEntity>(
-              (Map<String, dynamic> e) => MzResponseEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<ProfileEntity>[] is M) {
-      return data
-          .map<ProfileEntity>(
-              (Map<String, dynamic> e) => ProfileEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<QrCodeEntity>[] is M) {
-      return data
-          .map<QrCodeEntity>(
-              (Map<String, dynamic> e) => QrCodeEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<RoomEntity>[] is M) {
-      return data
-          .map<RoomEntity>((Map<String, dynamic> e) => RoomEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<SceneInfoEntity>[] is M) {
-      return data
-          .map<SceneInfoEntity>(
-              (Map<String, dynamic> e) => SceneInfoEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<SceneListEntity>[] is M) {
-      return data
-          .map<SceneListEntity>(
-              (Map<String, dynamic> e) => SceneListEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<UserEntity>[] is M) {
-      return data
-          .map<UserEntity>((Map<String, dynamic> e) => UserEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<Weather7dEntity>[] is M) {
-      return data
-          .map<Weather7dEntity>(
-              (Map<String, dynamic> e) => Weather7dEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<WeatherEntity>[] is M) {
-      return data
-          .map<WeatherEntity>(
-              (Map<String, dynamic> e) => WeatherEntity.fromJson(e))
-          .toList() as M;
-    }
-    if (<WeatherOfCityEntity>[] is M) {
-      return data
-          .map<WeatherOfCityEntity>(
-              (Map<String, dynamic> e) => WeatherOfCityEntity.fromJson(e))
-          .toList() as M;
-    }
+	//list is returned by type
+	static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<WiFiScanResult>[] is M){
+			return data.map<WiFiScanResult>((Map<String, dynamic> e) => WiFiScanResult.fromJson(e)).toList() as M;
+		}
+		if(<DeviceEntity>[] is M){
+			return data.map<DeviceEntity>((Map<String, dynamic> e) => DeviceEntity.fromJson(e)).toList() as M;
+		}
+		if(<DeviceHomeListEntity>[] is M){
+			return data.map<DeviceHomeListEntity>((Map<String, dynamic> e) => DeviceHomeListEntity.fromJson(e)).toList() as M;
+		}
+		if(<DeviceHomeListHomeList>[] is M){
+			return data.map<DeviceHomeListHomeList>((Map<String, dynamic> e) => DeviceHomeListHomeList.fromJson(e)).toList() as M;
+		}
+		if(<DeviceHomeListHomeListRoomList>[] is M){
+			return data.map<DeviceHomeListHomeListRoomList>((Map<String, dynamic> e) => DeviceHomeListHomeListRoomList.fromJson(e)).toList() as M;
+		}
+		if(<DeviceHomeListHomeListRoomListApplianceList>[] is M){
+			return data.map<DeviceHomeListHomeListRoomListApplianceList>((Map<String, dynamic> e) => DeviceHomeListHomeListRoomListApplianceList.fromJson(e)).toList() as M;
+		}
+		if(<DeviceHomeListHomeListRoomListApplianceListAbility>[] is M){
+			return data.map<DeviceHomeListHomeListRoomListApplianceListAbility>((Map<String, dynamic> e) => DeviceHomeListHomeListRoomListApplianceListAbility.fromJson(e)).toList() as M;
+		}
+		if(<DeviceLuaEntity>[] is M){
+			return data.map<DeviceLuaEntity>((Map<String, dynamic> e) => DeviceLuaEntity.fromJson(e)).toList() as M;
+		}
+		if(<DevicePDMEntity>[] is M){
+			return data.map<DevicePDMEntity>((Map<String, dynamic> e) => DevicePDMEntity.fromJson(e)).toList() as M;
+		}
+		if(<HomeEntity>[] is M){
+			return data.map<HomeEntity>((Map<String, dynamic> e) => HomeEntity.fromJson(e)).toList() as M;
+		}
+		if(<HomeListEntity>[] is M){
+			return data.map<HomeListEntity>((Map<String, dynamic> e) => HomeListEntity.fromJson(e)).toList() as M;
+		}
+		if(<LocationEntity>[] is M){
+			return data.map<LocationEntity>((Map<String, dynamic> e) => LocationEntity.fromJson(e)).toList() as M;
+		}
+		if(<ProfileEntity>[] is M){
+			return data.map<ProfileEntity>((Map<String, dynamic> e) => ProfileEntity.fromJson(e)).toList() as M;
+		}
+		if(<QrCodeEntity>[] is M){
+			return data.map<QrCodeEntity>((Map<String, dynamic> e) => QrCodeEntity.fromJson(e)).toList() as M;
+		}
+		if(<RoomEntity>[] is M){
+			return data.map<RoomEntity>((Map<String, dynamic> e) => RoomEntity.fromJson(e)).toList() as M;
+		}
+		if(<SceneInfoEntity>[] is M){
+			return data.map<SceneInfoEntity>((Map<String, dynamic> e) => SceneInfoEntity.fromJson(e)).toList() as M;
+		}
+		if(<SceneListEntity>[] is M){
+			return data.map<SceneListEntity>((Map<String, dynamic> e) => SceneListEntity.fromJson(e)).toList() as M;
+		}
+		if(<UserEntity>[] is M){
+			return data.map<UserEntity>((Map<String, dynamic> e) => UserEntity.fromJson(e)).toList() as M;
+		}
+		if(<Weather7dEntity>[] is M){
+			return data.map<Weather7dEntity>((Map<String, dynamic> e) => Weather7dEntity.fromJson(e)).toList() as M;
+		}
+		if(<WeatherEntity>[] is M){
+			return data.map<WeatherEntity>((Map<String, dynamic> e) => WeatherEntity.fromJson(e)).toList() as M;
+		}
+		if(<WeatherOfCityEntity>[] is M){
+			return data.map<WeatherOfCityEntity>((Map<String, dynamic> e) => WeatherOfCityEntity.fromJson(e)).toList() as M;
+		}
 
-    debugPrint("${M.toString()} not found");
+		debugPrint("${M.toString()} not found");
+	
+		return null;
+}
 
-    return null;
-  }
-
-  static M? fromJsonAsT<M>(dynamic json) {
-    if (json is List) {
-      return _getListChildType<M>(
-          json.map((e) => e as Map<String, dynamic>).toList());
-    } else {
-      return jsonConvert.asT<M>(json);
-    }
-  }
+	static M? fromJsonAsT<M>(dynamic json) {
+		if (json is List) {
+			return _getListChildType<M>(json.map((e) => e as Map<String, dynamic>).toList());
+		} else {
+			return jsonConvert.asT<M>(json);
+		}
+	}
 }

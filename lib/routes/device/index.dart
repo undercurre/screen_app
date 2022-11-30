@@ -5,6 +5,7 @@ import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/models/home_entity.dart';
 import 'package:screen_app/models/home_list_entity.dart';
 import 'package:screen_app/models/index.dart';
@@ -23,7 +24,7 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   List<DraggableGridItem> itemBins = [];
-  List<DeviceEntity> deviceList = [];
+  List<DeviceHomeListHomeListRoomListApplianceList> deviceList = [];
   var time = DateTime.now();
   late Timer _timer;
   final ScrollController _scrollController = ScrollController(
