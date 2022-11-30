@@ -12,7 +12,7 @@
 | max      | num      | false | 60    | 挡位最大值  |
 | title    | String   | false | null  | 卡片标题   |
 | unit     | String   | false | '°C'  | 数值的单位  |
-| value    | num      | false | 30    | 挡位值    |
+| value    | num      | false | 30    | 当前值    |
 | step     | num      | false | 1     | 挡位值    |
 | disabled | Widget   | false | false | 是否禁用操作 |
 | duration | Duration | false | null  | 动画时长   |
