@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:screen_app/common/util.dart';
 import 'package:screen_app/models/index.dart';
@@ -42,7 +41,7 @@ class Api {
   static void init() {
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       if (options.extra['isShowLoading'] == true) {
-        EasyLoading.show(status: "加载中...");
+        TipsUtils.showLoading();
       }
 
       if (options.extra['isLog'] != false) {
@@ -62,7 +61,7 @@ class Api {
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onResponse: (response, handler) {
       if (response.requestOptions.extra['isShowLoading'] == true) {
-        EasyLoading.dismiss();
+        TipsUtils.hideLoading();
       }
 
       if (response.requestOptions.extra['isLog'] != false) {

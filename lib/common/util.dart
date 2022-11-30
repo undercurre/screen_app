@@ -12,6 +12,16 @@ class StrUtils {
 class TipsUtils {
   TipsUtils._();
 
+  /// 展示loading
+  static void showLoading([String? text]) {
+    EasyLoading.show(status: text ?? 'Loading');
+  }
+
+  /// 展示loading
+  static void hideLoading() {
+    EasyLoading.dismiss();
+  }
+
   /// 轻提示弹窗
   static void toast({String content = '', int duration = 2000}) {
     EasyLoading.showToast(content, duration: Duration(milliseconds: duration));

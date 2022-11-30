@@ -83,13 +83,13 @@ class Global {
       ..indicatorType = EasyLoadingIndicatorType.ring
       ..loadingStyle = EasyLoadingStyle.custom
       ..indicatorSize = 45.0
-      ..radius = 30.0
+      ..radius = 40.0
       ..progressColor = const Color.fromRGBO(255, 255, 255, 0.85)
       ..backgroundColor = const Color.fromRGBO(87, 87, 87, 1)
       ..indicatorColor = const Color.fromRGBO(255, 255, 255, 0.85)
       ..textColor = const Color.fromRGBO(255, 255, 255, 0.85)
       ..fontSize = 22
-      ..contentPadding = const EdgeInsets.fromLTRB(46, 20, 46, 20)
+      ..contentPadding = const EdgeInsets.fromLTRB(32, 20, 32, 20)
       ..userInteractions = true
       ..dismissOnTap = false;
 
