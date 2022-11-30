@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:screen_app/common/util.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:uuid/uuid.dart';
@@ -39,6 +41,10 @@ class Api {
   /// Api类初始化配置
   static void init() {
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+      if (options.extra['isShowLoading'] == true) {
+        EasyLoading.show(status: "加载中...");
+      }
+
       if (options.extra['isLog'] != false) {
         logger.i('【onRequest】: ${options.path} \n '
             'method: ${options.method} \n'
@@ -55,6 +61,10 @@ class Api {
       // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`handler.reject(error)`，
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onResponse: (response, handler) {
+      if (response.requestOptions.extra['isShowLoading'] == true) {
+        EasyLoading.dismiss();
+      }
+
       if (response.requestOptions.extra['isLog'] != false) {
         logger.i('${response.requestOptions.path} \n '
             'onResponse: $response.');
@@ -68,6 +78,7 @@ class Api {
       // Do something with response error
       logger.e('onError:\n'
           '${e.toString()} \n '
+          '${e.requestOptions.path} \n'
           '${e.response}');
       return handler.next(e); //continue
       // 如果你想完成请求并返回一些自定义数据，可以resolve 一个`Response`,如`handler.resolve(response)`。
@@ -86,11 +97,15 @@ class Api {
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    bool isShowLoading = true,
   }) async {
     options ??= Options();
     options.headers ??= {};
     data ??= {};
     queryParameters ??= {};
+    options.extra ??= {};
+
+    options.extra!['isShowLoading'] = isShowLoading;
 
     var reqId = uuid.v4();
     var params = options.method == 'GET' ? queryParameters : data;
@@ -154,6 +169,7 @@ class Api {
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    bool isShowLoading = true,
   }) async {
     options ??= Options();
     options.headers ??= {};

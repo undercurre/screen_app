@@ -1,11 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:motion_toast/motion_toast.dart';
-import 'package:motion_toast/resources/arrays.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class StrUtils {
   StrUtils._();
 
-  /// string is null or empty
   static bool isNullOrEmpty(String? s) => s == null || s.trim().isEmpty;
 
   /// string not null and empty
@@ -15,22 +12,8 @@ class StrUtils {
 class TipsUtils {
   TipsUtils._();
 
-  static void toast({required BuildContext context, String title = '', String content = ''}) {
-    MotionToast(
-      primaryColor:  Colors.black,
-      width:  200,
-      height:  80,
-      title: Text(
-        title,
-      ),
-      description: Text(
-        content,
-      ),
-      position:  MotionToastPosition.top,
-      animationType:  AnimationType.fromTop,
-      layoutOrientation: ToastOrientation.rtl,
-      dismissable: false,
-      icon: Icons.sunny,
-    ).show(context);
+  /// 轻提示弹窗
+  static void toast({String content = '', int duration = 2000}) {
+    EasyLoading.showToast(content, duration: Duration(milliseconds: duration));
   }
 }

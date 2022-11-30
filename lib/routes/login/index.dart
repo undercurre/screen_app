@@ -63,6 +63,7 @@ class _LoginPage extends State<LoginPage> {
               onChange: (HomeEntity home) {
                 debugPrint('Select: ${home.toJson()}');
                 Global.profile.homeInfo = home;
+                TipsUtils.toast(content: '执行成功');
               })),
       Step(
           '选择房间',

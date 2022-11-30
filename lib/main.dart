@@ -1,3 +1,4 @@
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'common/index.dart';
@@ -41,6 +42,7 @@ class _App extends State<App> {
             initialRoute: "/", //名为"/"的路由作为应用的home(首页)
             //注册路由表
             routes: routes,
+            builder: EasyLoading.init(),
           ),
           // 全局点击操作监听
           onPointerDown: (e) {
