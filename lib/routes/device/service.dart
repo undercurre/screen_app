@@ -20,19 +20,21 @@ class DeviceService {
 
   }
 
-  static bool setPower(String? deviceId, bool onOff){
-    if (deviceId == null) {
+  static Future<bool> setPower(String? apiCode, String? deviceId, bool onOff) async {
+    if (apiCode == null && deviceId == null) {
       return false;
     } else {
+      var servicer = serviceList[apiCode]!;
+      var res = await servicer.setPower(deviceId!, onOff);
       return true;
     }
   }
 
-  static bool isPower(Map<String, dynamic> status){
+  static bool isPower(){
     return false;
   }
 
-  static num getAttr(Map<String, dynamic> status,String attrName){
+  static num getAttr(){
     return 30;
   }
 }

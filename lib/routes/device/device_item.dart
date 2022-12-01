@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
-import 'package:screen_app/routes/device/config.dart';
 import 'package:screen_app/routes/device/service.dart';
 
 import '../../models/device_entity.dart';
@@ -28,6 +27,19 @@ class _DeviceItemState extends State<DeviceItem> {
     }
   }
 
+  void clickMethod(e) {
+    var config = DeviceService.configFinder(widget.deviceInfo);
+    if (e.localPosition.dx > 40 &&
+        e.localPosition.dx < 90 &&
+        e.localPosition.dy > 140 &&
+        e.localPosition.dy < 175) {
+      DeviceService.setPower(
+          config.apiCode, widget.deviceInfo?.applianceCode!, true);
+    } else {
+      toSelectDevice();
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -36,8 +48,10 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
+    var config = DeviceService.configFinder(widget.deviceInfo);
+
     return Listener(
-      onPointerDown: (e) => toSelectDevice(),
+      onPointerDown: (e) => clickMethod(e),
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
         alignment: Alignment.center,
@@ -74,7 +88,7 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              DeviceService.configFinder(widget.deviceInfo).onIcon,
+              config.onIcon,
               width: 50,
               height: 50,
             ),
@@ -82,7 +96,7 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 24,
               child: Text(
                 DeviceService.hasStatus(widget.deviceInfo)
-                    ? "${DeviceService.getAttr({}, DeviceService.configFinder(widget.deviceInfo).attrName!)}${DeviceService.configFinder(widget.deviceInfo).attrUnit!}"
+                    ? "${DeviceService.getAttr()}${config.attrUnit!}"
                     : "",
                 style: const TextStyle(
                   fontSize: 24.0,
@@ -103,10 +117,8 @@ class _DeviceItemState extends State<DeviceItem> {
                             fontFamily: 'MideaType-Regular'),
                       )
                     : GestureDetector(
-                        onTap: () => DeviceService.setPower(
-                            widget.deviceInfo?.applianceCode!, true),
                         child: Image.asset(
-                          DeviceService.isPower({})
+                          DeviceService.isPower()
                               ? "assets/imgs/device/device_power_on.png"
                               : "assets/imgs/device/device_power_off.png",
                           width: 150,

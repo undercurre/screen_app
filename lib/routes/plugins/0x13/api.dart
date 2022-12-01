@@ -1,9 +1,19 @@
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/routes/plugins/device_interface.dart';
 
 import '../../../models/mz_response_entity.dart';
 
-class WrapWIFILight {
+class WrapWIFILight implements DeviceInterface{
+  @override
+  Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
+    var res = await WIFILightApi.getLightDetail(deviceId);
+    return {};
+  }
 
+  @override
+  Future<MzResponseEntity> setPower(String deviceId, bool onOff) async {
+    return await WIFILightApi.powerPDM(deviceId, onOff);
+  }
 }
 
 class WIFILightApi {
