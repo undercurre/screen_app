@@ -8,7 +8,7 @@ class CurtainPageState extends State<CurtainPage> {
   String deviceName = '窗帘';
 
   bool power = true;
-  num position = 0;
+  num position = 1;
   num colorTemperature = 0;
   String screenModel = 'manual';
   String timeOff = '0';
@@ -24,7 +24,7 @@ class CurtainPageState extends State<CurtainPage> {
     await WIFILightApi.modePDM(deviceId, mode.key);
   }
 
-  Future<void> curtainHandle(num value, Color activeColor) async {
+  Future<void> curtainHandle(num value) async {
     setState(() {
       position = value;
     });
@@ -104,14 +104,12 @@ class CurtainPageState extends State<CurtainPage> {
                               .copyWith(scrollbars: false),
                           child: ListView(
                             children: [
-                              AdjustCard(
+                              SliderButtonCard(
+                                unit: '%',
                                 value: position,
-                                activeColors: const [
-                                  Color(0xFF267AFF),
-                                  Color(0xFF267AFF)
-                                ],
-                                onChanged: curtainHandle,
-                                onChanging: curtainHandle,
+                                min: 1,
+                                max: 100,
+                                onChanged: curtainHandle
                               ),
                               ModeCard(
                                 title: "模式",
