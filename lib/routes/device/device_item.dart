@@ -19,14 +19,14 @@ class _DeviceItemState extends State<DeviceItem> {
 
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
-      Navigator.pushNamed(context, widget.deviceInfo!.type!, arguments: {
-        "deviceId": widget.deviceInfo!.applianceCode,
-        "deviceName": widget.deviceInfo!.name
-      });
+      if (!DeviceService.supportDeviceFilter(widget.deviceInfo)) {
+        Navigator.pushNamed(context, widget.deviceInfo!.type!, arguments: {
+          "deviceId": widget.deviceInfo!.applianceCode,
+          "deviceName": widget.deviceInfo!.name
+        });
+      }
     }
   }
-
-  void controlPower() {}
 
   @override
   void initState() {
@@ -36,13 +36,10 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    var deviceService = DeviceService();
-    var config = deviceService.configFinder(widget.deviceInfo);
-    var isSupport = deviceService.supportDeviceFilter(widget.deviceInfo);
-
     return Listener(
       onPointerDown: (e) => toSelectDevice(),
       child: Container(
+        padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -57,58 +54,67 @@ class _DeviceItemState extends State<DeviceItem> {
           children: [
             SizedBox(
               width: 136,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
-                child: Flex(
-                  direction: Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      widget.deviceInfo != null
-                          ? widget.deviceInfo!.name!
-                          : '加载中',
-                      style: const TextStyle(
-                        fontSize: 22.0,
-                        color: Color(0XFFFFFFFF),
-                      ),
+              child: Flex(
+                direction: Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    widget.deviceInfo != null
+                        ? widget.deviceInfo!.name!
+                        : '加载中',
+                    style: const TextStyle(
+                      fontSize: 22.0,
+                      color: Color(0XFFFFFFFF),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             Image.asset(
-              config.onIcon,
+              DeviceService.configFinder(widget.deviceInfo).onIcon,
               width: 50,
               height: 50,
             ),
-            // const Text(
-            //   "26",
-            //   style: TextStyle(
-            //     fontSize: 23.0,
-            //     color: Color(0XFF8e8e8e),
-            //   ),
-            // ),
-            (isSupport
-                ? const Text(
-                    "仅支持APP控制",
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: Color(0X80FFFFFF),
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'MideaType-Regular'
-                    ),
-                  )
-                : GestureDetector(
-                    onTap: () => controlPower,
-                    child: Image.asset(
-                      "assets/imgs/device/device_power_off.png",
-                      width: 150,
-                      height: 60,
-                    ),
-                  )),
+            SizedBox(
+              height: 24,
+              child: Text(
+                DeviceService.hasStatus(widget.deviceInfo)
+                    ? "${DeviceService.getAttr({}, DeviceService.configFinder(widget.deviceInfo).attrName!)}${DeviceService.configFinder(widget.deviceInfo).attrUnit!}"
+                    : "",
+                style: const TextStyle(
+                  fontSize: 24.0,
+                  color: Color(0XFF8e8e8e),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 30,
+              child: Center(
+                child: DeviceService.supportDeviceFilter(widget.deviceInfo)
+                    ? const Text(
+                        "仅支持APP控制",
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            color: Color(0X80FFFFFF),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'MideaType-Regular'),
+                      )
+                    : GestureDetector(
+                        onTap: () => DeviceService.setPower(
+                            widget.deviceInfo?.applianceCode!, true),
+                        child: Image.asset(
+                          DeviceService.isPower({})
+                              ? "assets/imgs/device/device_power_on.png"
+                              : "assets/imgs/device/device_power_off.png",
+                          width: 150,
+                          height: 60,
+                        ),
+                      ),
+              ),
+            )
           ],
         ),
       ),

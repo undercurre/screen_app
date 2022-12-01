@@ -2,6 +2,10 @@ import 'package:screen_app/common/api/device_api.dart';
 
 import '../../../models/mz_response_entity.dart';
 
+class WrapWIFILight {
+
+}
+
 class WIFILightApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getLightDetail(String deviceId) async {
