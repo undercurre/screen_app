@@ -36,7 +36,11 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
   @override
   void initState() {
     super.initState();
-    value = widget.value;
+    value = widget.value < widget.min
+        ? widget.min
+        : widget.value > widget.max
+        ? widget.max
+        : widget.value;
   }
 
   @override
@@ -70,6 +74,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                 bottom: widget.title != null ? 0 : 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RawMaterialButton(
                   onPressed: () {
@@ -96,36 +101,32 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   child: const Icon(
                     Icons.remove_rounded,
                     size: 28.0,
+                    color: Colors.black,
                   ),
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
                     Text(
                       value.toString(),
                       style: const TextStyle(
-                        fontFamily: 'MideaType-Light',
+                        fontFamily: 'MideaType',
                         fontSize: 54,
-                        height: 1,
+                        height: 1.2,
                         color: Color(0xffd8d8d8),
                         fontWeight: FontWeight.w400,
                         decoration: TextDecoration.none,
                       ),
                     ),
-                    SizedBox(
-                      width: 10,
-                      child: Text(
-                        widget.unit,
-                        style: const TextStyle(
-                          fontFamily: 'MideaType-Light',
-                          fontSize: 18,
-                          color: Color(0xff959595),
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.none,
-                        ),
+                    Text(
+                      widget.unit,
+                      style: const TextStyle(
+                        fontFamily: 'MideaType',
+                        fontSize: 18,
+                        height: 1.5,
+                        color: Color(0xff959595),
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
                       ),
                     )
                   ],
@@ -155,6 +156,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   child: const Icon(
                     Icons.add_rounded,
                     size: 28.0,
+                    color: Colors.black,
                   ),
                 ),
               ],

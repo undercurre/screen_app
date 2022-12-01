@@ -83,10 +83,10 @@ class _MzSliderState extends State<MzSlider>
   @override
   void initState() {
     super.initState();
-    value = widget.value < 0
-        ? 0
-        : widget.value > 100
-        ? 100
+    value = widget.value < widget.min
+        ? widget.min
+        : widget.value > widget.max
+        ? widget.max
         : widget.value;
   }
 

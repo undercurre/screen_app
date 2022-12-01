@@ -18,6 +18,7 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
   @override
   Widget build(BuildContext context) {
     const offsetX = -16.0;
+    const curtainWidth = 40.0;
     double wp = 0.8 * widget.position; // 光线单边变化值
     double scaleX = 1.87 - widget.position / 100; // 1.87 = 80/48 + (48/40-1)
 
@@ -62,20 +63,20 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
               alignment: Alignment.centerLeft,
               child: const Image(
                 height: 224,
-                width: 48,
+                width: curtainWidth,
                 image: AssetImage("assets/imgs/plugins/0x14/c-02.png"),
               ),
             )),
         // 右窗帘
         Positioned(
-          left: 112 + offsetX, // 160 + offsetX - 48
+          left: 160 + offsetX - curtainWidth,
           top: 96,
           child: Transform.scale(
             scaleX: scaleX,
             alignment: Alignment.centerRight,
             child: const Image(
               height: 224,
-              width: 48,
+              width: curtainWidth,
               image: AssetImage("assets/imgs/plugins/0x14/c-02.png"),
             ),
           ),
