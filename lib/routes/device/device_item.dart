@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/routes/device/config.dart';
+import 'package:screen_app/routes/device/service.dart';
 
 import '../../models/device_entity.dart';
 
@@ -35,11 +36,10 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    var config = deviceConfig.where(((element) => element.type == (widget.deviceInfo?.type ?? '0x13'))).toList();
-    if (config.length == 0) {
-      config.add(wifiLight);
-    }
-    print('配置：${[1,2,3]} ${config.length} ${widget.deviceInfo?.type}');
+    var deviceService = DeviceService();
+    var config = deviceService.configFinder(widget.deviceInfo);
+    var isSupport = deviceService.supportDeviceFilter(widget.deviceInfo);
+
     return Listener(
       onPointerDown: (e) => toSelectDevice(),
       child: Container(
@@ -80,7 +80,7 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              config[0].onIcon,
+              config.onIcon,
               width: 50,
               height: 50,
             ),
@@ -91,21 +91,24 @@ class _DeviceItemState extends State<DeviceItem> {
             //     color: Color(0XFF8e8e8e),
             //   ),
             // ),
-            // const Text(
-            //   "仅APP控制",
-            //   style: TextStyle(
-            //     fontSize: 23.0,
-            //     color: Color(0XFF8e8e8e),
-            //   ),
-            // ),
-            GestureDetector(
-              onTap: () => controlPower,
-              child: Image.asset(
-                "assets/imgs/device/device_power_off.png",
-                width: 150,
-                height: 60,
-              ),
-            ),
+            (isSupport
+                ? const Text(
+                    "仅支持APP控制",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Color(0X80FFFFFF),
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'MideaType-Regular'
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () => controlPower,
+                    child: Image.asset(
+                      "assets/imgs/device/device_power_off.png",
+                      width: 150,
+                      height: 60,
+                    ),
+                  )),
           ],
         ),
       ),

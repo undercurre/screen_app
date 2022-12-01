@@ -1,9 +1,3 @@
-import 'package:screen_app/routes/device/power_api.dart';
-import 'package:screen_app/routes/device/status_api.dart';
-import 'package:screen_app/routes/plugins/0x26/mode_list.dart';
-
-import '../../common/api/api.dart';
-
 class DeviceOnList {
   String name;
   String onIcon;
@@ -12,14 +6,12 @@ class DeviceOnList {
   List<String>? disabled;
   List<String>? modelNum;
   List<String>? sn8s;
-  Function? powerApi;
-  Function? statusApi;
   String? paramName;
 
-  DeviceOnList(this.name, this.onIcon, this.offIcon, this.type, {this.disabled, this.modelNum, this.powerApi, this.statusApi, this.paramName});
+  DeviceOnList(this.name, this.onIcon, this.offIcon, this.type, {this.disabled, this.modelNum, this.sn8s,  this.paramName});
 }
 
-DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', powerApi: PowerApi.power0x13, statusApi: StatusApi.detailOf0x13);
+DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13');
 DeviceOnList zigbeeLightHasColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56"]);
 DeviceOnList zigbeeLightNoColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["55", "1254", "54"]);
 DeviceOnList wifiCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x14');
@@ -67,4 +59,11 @@ List<DeviceOnList> deviceConfig = [
   gasHeater,
   lightGroup,
   doorMagnetic
+];
+
+List<DeviceOnList> supportDeviceList = [
+  wifiLight,
+  wifiCurtain,
+  bathHeater,
+  liangBa
 ];

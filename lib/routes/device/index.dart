@@ -6,7 +6,7 @@ import 'package:date_format/date_format.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import '../../common/global.dart';
-import 'DeviceItem.dart';
+import 'device_item.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({Key? key, required this.text}) : super(key: key);
