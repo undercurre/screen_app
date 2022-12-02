@@ -39,8 +39,8 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
     value = widget.value < widget.min
         ? widget.min
         : widget.value > widget.max
-        ? widget.max
-        : widget.value;
+            ? widget.max
+            : widget.value;
   }
 
   @override
@@ -77,23 +77,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RawMaterialButton(
-                  onPressed: () {
-                    setState(() {
-                      if (widget.disabled) return;
-                      if (value - widget.step > widget.min) {
-                        final stepString = widget.step.toString();
-                        if (stepString.contains('.')) {
-                          final precision = stepString.length - stepString.indexOf('.') - 1;
-                          value = num.parse((value - widget.step).toStringAsFixed(precision));
-                        } else {
-                          value -= widget.step;
-                        }
-                      } else {
-                        value = widget.min;
-                      }
-                      widget.onChanged?.call(value);
-                    });
-                  },
+                  onPressed: onDecreaseBtnPressed,
                   elevation: 2.0,
                   fillColor: const Color(0xffd8d8d8),
                   padding: const EdgeInsets.all(4.0),
@@ -107,6 +91,18 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 在设计稿中间的数值需要居中，所以左边也需要设置一个等宽的文字，将数值挤到中间
+                    Text(
+                      widget.unit,
+                      style: const TextStyle(
+                        fontFamily: 'MideaType',
+                        fontSize: 18,
+                        height: 1.5,
+                        color: Colors.transparent,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                     Text(
                       value.toString(),
                       style: const TextStyle(
@@ -132,23 +128,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                   ],
                 ),
                 RawMaterialButton(
-                  onPressed: () {
-                    setState(() {
-                      if (widget.disabled) return;
-                      if (value + widget.step < widget.max) {
-                        final stepString = widget.step.toString();
-                        if (stepString.contains('.')) {
-                          final precision = stepString.length - stepString.indexOf('.') - 1;
-                          value = num.parse((value + widget.step).toStringAsFixed(precision));
-                        } else {
-                          value += widget.step;
-                        }
-                      } else {
-                        value = widget.max;
-                      }
-                      widget.onChanged?.call(value);
-                    });
-                  },
+                  onPressed: onIncreaseBtnPressed,
                   elevation: 2.0,
                   fillColor: const Color(0xffd8d8d8),
                   padding: const EdgeInsets.all(4.0),
@@ -181,5 +161,48 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
         ],
       ),
     );
+  }
+
+  onDecreaseBtnPressed() {
+    setState(() {
+      if (widget.disabled) return;
+      if (value - widget.step > widget.min) {
+        // 下一步没小于最小值，需要用步长进行计算
+        final stepString = widget.step.toString();
+        if (stepString.contains('.')) {
+          // 步长存在小数，需要按照步长的精度进行计算
+          final precision =
+              stepString.length - stepString.indexOf('.') - 1;
+          value = num.parse(
+              (value - widget.step).toStringAsFixed(precision));
+        } else {
+          value -= widget.step;
+        }
+      } else {
+        // 不能超出最小值范围
+        value = widget.min;
+      }
+      widget.onChanged?.call(value);
+    });
+  }
+
+  onIncreaseBtnPressed() {
+    setState(() {
+      if (widget.disabled) return;
+      if (value + widget.step < widget.max) {
+        final stepString = widget.step.toString();
+        if (stepString.contains('.')) {
+          final precision =
+              stepString.length - stepString.indexOf('.') - 1;
+          value = num.parse(
+              (value + widget.step).toStringAsFixed(precision));
+        } else {
+          value += widget.step;
+        }
+      } else {
+        value = widget.max;
+      }
+      widget.onChanged?.call(value);
+    });
   }
 }
