@@ -8,6 +8,8 @@ import 'package:screen_app/routes/setting/display_setting.dart';
 import 'package:screen_app/routes/setting/index.dart';
 import 'package:screen_app/routes/setting/net_setting.dart';
 import 'package:screen_app/routes/setting/sound_setting.dart';
+import 'package:screen_app/routes/setting/standby_time_choice.dart';
+
 
 import 'login/index.dart';
 import 'home/index.dart';
@@ -40,4 +42,5 @@ var routes = <String, WidgetBuilder>{
   "DisplaySettingPage": (context) => const DisplaySettingPage(),
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),
+  "StandbyTimeChoicePage": (context) => const StandbyTimeChoicePage(),
 };
