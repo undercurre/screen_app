@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/AdvancedSeekBar.dart';
+import '../../widgets/mz_slider.dart';
 
 class SoundSettingPage extends StatefulWidget {
   const SoundSettingPage({Key? key});
@@ -97,22 +98,13 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
                     width: 320,
-                    child: AdvancedSeekBar(
-                      const Color(0xff232323),
-                      7,
-                      lineHeight: 15,
-                      Colors.blue,
-                      fillProgress: true,
-                      seekBarStarted: () {
-                        setState(() {});
-                      },
-                      seekBarProgress: (v) {
-                        setState(() {});
-                      },
-                      seekBarFinished: (v) {
-                        setState(() {});
-                      },
-                    )),
+                    child: MzSlider(
+                      width: 320,
+                      value: 40,
+                      max: 15,
+                      activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                      onChanging: (value, actieColor) => {},
+                    ),),
                 Container(
                   width: 80,
                   height: 80,
