@@ -125,19 +125,19 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        width: 80,
-                        height: 80,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        width: 60,
+                        height: 60,
+                        margin: const EdgeInsets.fromLTRB(15, 9, 0, 9),
                         child: IconButton(
                           onPressed: () {},
-                          iconSize: 80.0,
+                          iconSize: 40.0,
                           icon: Image.asset(
-                            "assets/imgs/setting/liangdu.png",
+                            "assets/imgs/setting/liangdu01.png",
                           ),
                         ),
                       ),
                       Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
                           width: 320,
                           child: AdvancedSeekBar(
                             const Color(0xff232323),
@@ -156,14 +156,14 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                             },
                           )),
                       Container(
-                        width: 80,
-                        height: 80,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        width: 60,
+                        height: 60,
+                        margin: const EdgeInsets.fromLTRB(0, 9, 15, 9),
                         child: IconButton(
                           onPressed: () {},
-                          iconSize: 80.0,
+                          iconSize: 40.0,
                           icon: Image.asset(
-                            "assets/imgs/setting/liangdu01.png",
+                            "assets/imgs/setting/liangdu.png",
                           ),
                         ),
                       ),
