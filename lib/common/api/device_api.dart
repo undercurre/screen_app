@@ -57,7 +57,7 @@ class DeviceApi {
   static Future<MzResponseEntity> sendPDMOrder(
       String uri, String applianceCode, Object command,
       {String? method = "PUT"}) async {
-      var res = await Api.requestMzIot<DevicePDMEntity>(
+      var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/control",
         data: {
           "systemSource": "SMART_SCREEN",

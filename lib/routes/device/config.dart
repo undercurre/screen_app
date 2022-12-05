@@ -9,13 +9,16 @@ class DeviceOnList {
   String? apiCode;
   List<String>? modelNum;
   List<String>? sn8s;
+  String? powerKey;
+  String? powerValue;
   String? attrName;
   String? attrUnit;
+  Function? attrFormat;
 
-  DeviceOnList(this.name, this.onIcon, this.offIcon, this.type, {this.apiCode, this.modelNum, this.sn8s, this.attrName, this.attrUnit});
+  DeviceOnList(this.name, this.onIcon, this.offIcon, this.type, {this.apiCode, this.modelNum, this.sn8s, this.powerKey, this.powerValue, this.attrName, this.attrUnit, this.attrFormat});
 }
 
-DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', apiCode: '0x13', attrName: "brightness", attrUnit: "%");
+DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', apiCode: '0x13', powerKey: 'power', powerValue: 'on', attrName: "brightValue", attrUnit: "%", attrFormat: lightValueFormat);
 DeviceOnList zigbeeLightHasColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56"]);
 DeviceOnList zigbeeLightNoColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["55", "1254", "54"]);
 DeviceOnList wifiCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x14');
@@ -79,3 +82,7 @@ List<DeviceOnList> statusDeviceList = [
 Map<String, DeviceInterface> serviceList = {
   "0x13": WrapWIFILight()
 };
+
+num lightValueFormat(num num) {
+  return (num / 255  * 100).toInt();
+}

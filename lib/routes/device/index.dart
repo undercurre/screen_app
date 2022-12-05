@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
+import 'package:screen_app/routes/device/service.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 import '../../common/global.dart';
 import 'device_item.dart';
 
@@ -19,7 +22,6 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   List<DraggableGridItem> itemBins = [];
-  List<DeviceHomeListHomeListRoomListApplianceList> deviceList = [];
   var time = DateTime.now();
   late Timer _timer;
   final ScrollController _scrollController = ScrollController(
@@ -27,15 +29,19 @@ class _DevicePageState extends State<DevicePage> {
     keepScrollOffset: true,
   );
 
-  void initPage() async {
-    var res = await DeviceApi.getDeviceList();
-    setState(() {
-      deviceList = res;
-    });
+  initPage() async {
     List<DraggableGridItem> newBins = [];
-    for (int xx = 1; xx < res.length; xx++) {
+    var deviceList = Global.profile.roomInfo != null ? Global.profile.roomInfo!.applianceList! : [];
+    for (int xx = 1; xx < deviceList.length; xx++) {
+      var deviceInfo = deviceList[xx - 1];
+      var config = DeviceService.configFinder(deviceInfo);
+      if (config.apiCode != null) {
+        var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo.applianceCode!);
+        var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
+        curDevice.detail = detail;
+      }
       newBins.add(DraggableGridItem(
-        child: DeviceItem(deviceInfo: res[xx - 1]),
+        child: DeviceItem(deviceInfo: deviceInfo),
         isDraggable: true,
         dragCallback: (context, isDragging) {
           print('设备$xx+"isDragging: $isDragging');
@@ -139,21 +145,24 @@ class _DevicePageState extends State<DevicePage> {
             ),
           ),
           Expanded(
-            child: DraggableGridViewBuilder(
-              controller: _scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                // 垂直方向item之间的间距
-                mainAxisSpacing: 17.0,
-                // 水平方向item之间的间距
-                crossAxisSpacing: 17.0,
-                childAspectRatio: 0.7,
+            child: ChangeNotifierProvider(
+              create: (_) => DeviceListChangeNotifier(),
+              child: DraggableGridViewBuilder(
+                controller: _scrollController,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  // 垂直方向item之间的间距
+                  mainAxisSpacing: 17.0,
+                  // 水平方向item之间的间距
+                  crossAxisSpacing: 17.0,
+                  childAspectRatio: 0.7,
+                ),
+                children: itemBins,
+                dragCompletion: onDragAccept,
+                isOnlyLongPress: true,
+                dragFeedback: feedback,
+                dragPlaceHolder: placeHolder,
               ),
-              children: itemBins,
-              dragCompletion: onDragAccept,
-              isOnlyLongPress: true,
-              dragFeedback: feedback,
-              dragPlaceHolder: placeHolder,
             ),
           )
         ],

@@ -7,7 +7,7 @@ class WrapWIFILight implements DeviceInterface{
   @override
   Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
     var res = await WIFILightApi.getLightDetail(deviceId);
-    return {};
+    return res;
   }
 
   @override
@@ -18,11 +18,14 @@ class WrapWIFILight implements DeviceInterface{
 
 class WIFILightApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
+  static Future<Map<String, dynamic>> getLightDetail(String deviceId) async {
     var res = await DeviceApi.sendPDMOrder('getAllStand', deviceId, {},
         method: 'GET');
-
-    return res;
+    if (res.result != null) {
+      return res.result;
+    } else {
+      return {};
+    }
   }
 
   /// 设备控制（lua）

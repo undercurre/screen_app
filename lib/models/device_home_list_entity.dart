@@ -120,6 +120,7 @@ class DeviceHomeListHomeListRoomListApplianceList {
 	dynamic sn8;
 	dynamic nameChanged;
 	dynamic status;
+	dynamic detail;
   
   DeviceHomeListHomeListRoomListApplianceList();
 

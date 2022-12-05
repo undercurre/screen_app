@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 
 import '../models/index.dart';
 
 class DeviceListChangeNotifier extends ChangeNotifier {
-  List<DeviceHomeListHomeListRoomListApplianceList> _deviceList = [];
 
-  DeviceListChangeNotifier(this._deviceList);
+  List<DeviceEntity> get deviceList => Global.profile.roomInfo!.applianceList;
 
-  List<DeviceHomeListHomeListRoomListApplianceList> get deviceList => _deviceList;
-
-  void getList(List<DeviceHomeListHomeListRoomListApplianceList> newList) {
-    _deviceList = newList;
+  set deviceList(List<DeviceEntity> newList) {
+    deviceList = newList;
     notifyListeners();
   }
 }

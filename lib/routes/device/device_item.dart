@@ -5,7 +5,7 @@ import 'package:screen_app/routes/device/service.dart';
 import '../../models/device_entity.dart';
 
 class DeviceItem extends StatefulWidget {
-  DeviceHomeListHomeListRoomListApplianceList? deviceInfo;
+  DeviceEntity? deviceInfo;
 
   DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
 
@@ -14,14 +14,12 @@ class DeviceItem extends StatefulWidget {
 }
 
 class _DeviceItemState extends State<DeviceItem> {
-  DeviceEntity? deviceInfo;
 
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
       if (!DeviceService.supportDeviceFilter(widget.deviceInfo)) {
         Navigator.pushNamed(context, widget.deviceInfo!.type!, arguments: {
-          "deviceId": widget.deviceInfo!.applianceCode,
-          "deviceName": widget.deviceInfo!.name
+          "deviceInfo": widget.deviceInfo
         });
       }
     }
@@ -34,7 +32,7 @@ class _DeviceItemState extends State<DeviceItem> {
         e.localPosition.dy > 140 &&
         e.localPosition.dy < 175) {
       DeviceService.setPower(
-          config.apiCode, widget.deviceInfo?.applianceCode!, true);
+          config.apiCode, widget.deviceInfo?.applianceCode!, false);
     } else {
       toSelectDevice();
     }
@@ -96,7 +94,7 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 24,
               child: Text(
                 DeviceService.hasStatus(widget.deviceInfo)
-                    ? "${DeviceService.getAttr()}${config.attrUnit!}"
+                    ? "${DeviceService.getAttr(widget.deviceInfo)}${config.attrUnit!}"
                     : "",
                 style: const TextStyle(
                   fontSize: 24.0,
@@ -118,7 +116,7 @@ class _DeviceItemState extends State<DeviceItem> {
                       )
                     : GestureDetector(
                         child: Image.asset(
-                          DeviceService.isPower()
+                          DeviceService.isPower(widget.deviceInfo)
                               ? "assets/imgs/device/device_power_on.png"
                               : "assets/imgs/device/device_power_off.png",
                           width: 150,
