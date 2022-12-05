@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/models/device_lua_entity.dart';
-import 'package:screen_app/models/device_p_d_m_entity.dart';
 
 import 'api.dart';
 import '../../models/index.dart';
@@ -32,7 +31,7 @@ class DeviceApi {
   /// 设备lua控制
   static Future<MzResponseEntity> sendLuaOrder(
       String categoryCode, String applianceCode, Object command) async {
-      var res = await Api.requestMzIot<DeviceLuaEntity>(
+      var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/wifiControl",
         data: {
           "deviceId": applianceCode,
@@ -57,7 +56,7 @@ class DeviceApi {
   static Future<MzResponseEntity> sendPDMOrder(
       String uri, String applianceCode, Object command,
       {String? method = "PUT"}) async {
-      var res = await Api.requestMzIot<DevicePDMEntity>(
+      var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/control",
         data: {
           "systemSource": "SMART_SCREEN",
