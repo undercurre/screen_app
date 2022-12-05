@@ -108,7 +108,7 @@ class _BoxedVerticalSeekBarState extends State<AdvancedVerticalSeekBar>{
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     setState(() {
       _currentHeight =
-          (widget.height! - renderBox.globalToLocal(tapDetails.globalPosition).dy)!;
+          (widget.height! - renderBox.globalToLocal(tapDetails.globalPosition).dy);
       _setValue(_convertHeightToValue(_currentHeight!));
     });
   }
