@@ -182,3 +182,5 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 - ModeCard [文档地址](./docs/plugins/mode_card.md)
 - ParamCard [文档地址](./docs/plugins/param_card.md)
 - SliderButtonCard [文档地址](./docs/plugins/slider_button_card.md)
+
+## 设备——>插件逻辑文档[文档地址](./docs/device/device_card.md)
