@@ -23,6 +23,7 @@ class MzCell extends StatefulWidget {
   final Color borderColor; // 边框颜色
   final bool hasTopBorder; // 显示上边框
   final bool hasBottomBorder; // 显示下边框
+  final EdgeInsetsGeometry padding; // 边距设置
   final ValueChanged<bool>? onSwitch; // switch emit
   final Function? onTap; // tap emit
   final Function? onLongPress; // long press emit
@@ -48,6 +49,7 @@ class MzCell extends StatefulWidget {
       this.borderColor = const Color.fromRGBO(151, 151, 151, 0.2),
       this.hasTopBorder = false,
       this.hasBottomBorder = false,
+      this.padding = const EdgeInsets.symmetric(vertical: 6, horizontal: 26),
       this.onSwitch,
       this.onTap,
       this.onLongPress});
@@ -87,41 +89,44 @@ class _CellState extends State<MzCell> {
     List<Widget> compositeTitle = <Widget>[
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
-        Text(
-          widget.title!,
-          maxLines: widget.titleMaxLines,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: widget.titleSize,
-            fontFamily: "MideaType",
-            fontWeight: widget.fontWeight,
-            decoration: TextDecoration.none,
-            color: widget.titleColor,
-          ),
-        ),
+        Expanded(
+            flex: 2,
+            child: Text(
+              widget.title!,
+              maxLines: widget.titleMaxLines,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: widget.titleSize,
+                fontFamily: "MideaType",
+                fontWeight: widget.fontWeight,
+                decoration: TextDecoration.none,
+                color: widget.titleColor,
+              ),
+            )),
 
       // 插入tag
       if (StrUtils.isNotNullAndEmpty(widget.tag))
-        Container(
-          margin: const EdgeInsets.only(left: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: const BoxDecoration(
-              color: Color.fromRGBO(216, 216, 216, 0.3),
-              borderRadius: BorderRadius.all(Radius.circular(11.0))),
-          child: Text(
-            widget.tag!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 13,
-              fontFamily: "MideaType",
-              fontWeight: FontWeight.w100,
-              decoration: TextDecoration.none,
-              color: Color.fromRGBO(255, 255, 255, 0.85),
-              height: 1.5,
-            ),
-          ),
-        )
+        Expanded(
+            flex: 1,
+            child: Container(
+                margin: const EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: const BoxDecoration(
+                    color: Color.fromRGBO(216, 216, 216, 0.3),
+                    borderRadius: BorderRadius.all(Radius.circular(11.0))),
+                child: Text(
+                  widget.tag!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.w100,
+                    decoration: TextDecoration.none,
+                    color: Color.fromRGBO(255, 255, 255, 0.85),
+                    height: 1.5,
+                  ),
+                ))),
     ];
 
     // 中间列
@@ -157,6 +162,7 @@ class _CellState extends State<MzCell> {
 
       // 插入中间列，middleCell || titleSlot
       Expanded(
+          flex: 3,
           child: widget.titleSlot == null
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,18 +175,20 @@ class _CellState extends State<MzCell> {
 
       // rightText
       if (StrUtils.isNotNullAndEmpty(widget.rightText))
-        Text(
-          widget.rightText!,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 18,
-            fontFamily: "MideaType",
-            fontWeight: FontWeight.w100,
-            decoration: TextDecoration.none,
-            color: Color.fromRGBO(0, 145, 255, 1),
-          ),
-        ),
+        Expanded(
+            flex: 1,
+            child: Text(
+              widget.rightText!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w100,
+                decoration: TextDecoration.none,
+                color: Color.fromRGBO(0, 145, 255, 1),
+              ),
+            )),
 
       // 判断是否插入右边图标
       if (widget.rightIcon != null)
@@ -227,7 +235,7 @@ class _CellState extends State<MzCell> {
           position: DecorationPosition.background,
           decoration: cellDecoration,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 26),
+            padding: widget.padding,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: cellChildren,
@@ -235,7 +243,6 @@ class _CellState extends State<MzCell> {
           ),
         ),
         onTap: () => widget.onTap?.call(),
-        onLongPress: () => widget.onLongPress?.call()
-    );
+        onLongPress: () => widget.onLongPress?.call());
   }
 }
