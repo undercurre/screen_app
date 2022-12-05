@@ -28,6 +28,7 @@ import com.midea.light.ld.setting.R;
 import com.midea.light.log.LogUtil;
 import com.midea.light.setting.wifi.impl.entity.WiFiAccountPasswordBean;
 import com.midea.light.setting.wifi.impl.repositories.WiFiRecordRepositories;
+import com.midea.light.setting.wifi.util.WifiUtil;
 
 import java.util.List;
 

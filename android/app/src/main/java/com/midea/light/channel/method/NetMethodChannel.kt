@@ -2,14 +2,14 @@ package com.midea.light.channel.method
 
 import android.content.Context
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.channel.HybridResult
 import com.midea.light.log.LogUtil
+import com.midea.light.setting.wifi.ConnectStateHandler
 import com.midea.light.setting.wifi.ScanNearbyWiFiHandler
 import com.midea.light.setting.wifi.impl.ConfigurationSecurities
-import com.midea.light.setting.wifi.impl.ConfigurationSecuritiesOld
-import com.midea.light.setting.wifi.impl.ConfigurationSecuritiesV8
 import com.midea.light.setting.wifi.impl.Version
 import com.midea.light.thread.MainThread
 import com.midea.light.utils.CollectionUtil
@@ -33,7 +33,7 @@ private const val MAX_RSSI = -55
  * @Version 1.0
  */
 class NetMethodChannel constructor(override val context: Context) : AbsMZMethodChannel(context),
-    ScanNearbyWiFiHandler.ICallBack {
+    ScanNearbyWiFiHandler.ICallBack, ConnectStateHandler.ICallBack {
 
     companion object {
         fun create(
@@ -57,6 +57,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         super.setup(binaryMessenger, channel)
         LogUtil.tag(TAG).msg("ScanNearbyWiFiHandler Register")
         ScanNearbyWiFiHandler.register(this)
+        ConnectStateHandler.register(this)
     }
 
     override fun teardown() {
@@ -77,6 +78,12 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             }
             "stopScanNearbyWiFi" -> {
                 ScanNearbyWiFiHandler.stop(context)
+            }
+            "listenerConnectState" -> {
+                ConnectStateHandler.start(context)
+            }
+            "removeListenerConnectState" -> {
+                ConnectStateHandler.stop(context)
             }
             else -> {
                 // 对应的方法没有报错
@@ -130,6 +137,22 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         return json
     }
 
+    private fun connectedStateToJsonObject(ethernet: Int, wifi: Int, wifiInfo: WifiInfo?): JSONObject {
+        val json = JSONObject()
+        val scanJson = JSONObject()
+
+        json.put("enternetState", ethernet)
+        json.put("wifiState", wifi)
+        json.put("wifiInfo", scanJson)
+        wifiInfo?.apply {
+            scanJson.put("ssid", this.ssid.replace("\"", ""))
+            scanJson.put("bssid", this.bssid)
+            scanJson.put("auth", "encryption")
+            scanJson.put("level", calculateSignalLevel(this.rssi, 4))
+        }
+        return json
+    }
+
     private fun calculateSignalLevel(rssi: Int, numLevels: Int): Int {
         return if (rssi <= MIN_RSSI) {
             0
@@ -148,6 +171,16 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             if (security.equals("Open")) "open" else "encryption"
         } else {
             if (security.equals("0")) "open" else "encryption"
+        }
+    }
+
+    override fun connectedState(ethernet: Int, wifi: Int, wifiInfo: WifiInfo?) {
+        LogUtil.tag("NET").msg("以太网连接状态 = $ethernet wifi连接状态 = $wifi" )
+        MainThread.run {
+            mMethodChannel?.invokeMethod(
+                "replyConnectChange",
+                connectedStateToJsonObject(ethernet, wifi, wifiInfo)
+            )
         }
     }
 

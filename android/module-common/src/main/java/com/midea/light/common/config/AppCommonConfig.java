@@ -69,6 +69,7 @@ public class AppCommonConfig {
     //用于设备绑定中的RequestHeaderDataKEY
     public static String HTTP_REQUEST_HEADER_DATA_KEY;
 
+
     public static boolean IS_LOGIN_DIRECT() {
         //直接进入登录不判断是否需要绑定 | System.getProperty("bind-gateway", "null") 用于控制登录是否可以绕开绑定网关，可以到开发者界面中进行设置
         return !BuildConfig.DEBUG ? PRODUCT_NOT_DIRECTOR : System.getProperty("bind-gateway", "null").equals("null");
@@ -80,6 +81,14 @@ public class AppCommonConfig {
     public static String MZ_APP_SECRET;
 
     public static int ASD_ID;
+    private static String CHANNEL; // LD -》灵动 JH -》 晶华
+
+    // ##动态获取当前的渠道
+    public static String getChannel() {
+        if (TextUtils.isEmpty(CHANNEL))
+            CHANNEL = AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "channel");
+            return CHANNEL;
+    }
 
     // ##动态获取当前Bugly的ID
     public static String getBuglyID() {

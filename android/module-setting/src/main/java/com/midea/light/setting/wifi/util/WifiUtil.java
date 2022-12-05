@@ -1,10 +1,8 @@
-package com.midea.light.setting.wifi.impl;
+package com.midea.light.setting.wifi.util;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
@@ -14,9 +12,6 @@ import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
-
-import com.midea.light.BaseApplication;
 import com.midea.light.log.LogUtil;
 import com.midea.light.setting.wifi.impl.entity.WiFiAccountPasswordBean;
 import com.midea.light.setting.wifi.impl.repositories.WiFiRecordRepositories;
@@ -29,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+
 /**
  * Created by Administrator on 2016/8/28.
  */
@@ -36,213 +32,17 @@ public class WifiUtil {
 
     static int WIFI_MAX_LEVEL = 100;
 
-    public WifiManager mWifiManager;
-
-    private WifiInfo mWifiInfo;
-
-    private List<ScanResult> mWifiList;
-
-    private Context context;
-
-    private List<WifiConfiguration> mWificonfiguration;
-
-    private WifiManager.WifiLock mWifiLock;
-
-
-    public WifiUtil(Context context) {
-        mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
-        this.context = context;
-        mWifiInfo = mWifiManager.getConnectionInfo();
-    }
-
-    public void open() {
-        if (!mWifiManager.isWifiEnabled()) {
-            mWifiManager.setWifiEnabled(true);
-        }
-    }
-
-    public void close() {
-        if (mWifiManager.isWifiEnabled()) {
-            mWifiManager.setWifiEnabled(false);
-        }
-    }
-
-    public int checkState() {
-        return mWifiManager.getWifiState();
-    }
-
-    public void acquireWifiLoc() {
-        mWifiLock.acquire();
-    }
-
-    public void releaseWifiLock() {
-        if (mWifiLock.isHeld()) {
-            mWifiLock.acquire();
-        }
-    }
-
-    public void createWifiLock() {
-        mWifiLock = mWifiManager.createWifiLock("test");
-    }
-
-    public List<WifiConfiguration> getConfigurations() {
-        return mWificonfiguration;
-    }
-
-    public Boolean connectConfiguration(int index) {
-
-//        if(index > mWificonfiguration.size()) {
-//            return;
-//        }
-        mWifiManager.enableNetwork(index, true);
-        mWifiManager.saveConfiguration();
-        mWifiManager.reconnect();
-
-        return true;
-    }
-
-    public void startScan() {
-        mWifiManager.startScan();
-        mWifiList = mWifiManager.getScanResults();
-        mWificonfiguration = mWifiManager.getConfiguredNetworks();
-    }
-
-    public List<ScanResult> getmWifiList() {
-        return mWifiList;
-    }
-
-    public StringBuilder lookUpScan() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < mWifiList.size(); i++) {
-            stringBuilder.append("Index_" + String.valueOf(i + 1) + ":");
-            stringBuilder.append(mWifiList.get(i).toString());
-            stringBuilder.append("/n");
-        }
-        return stringBuilder;
-    }
-
-    public String getMacAddress() {
-        return (mWifiInfo == null) ? "NULL" : mWifiInfo.getMacAddress();
-    }
-
-    public String getSSID() {
-        return (mWifiInfo == null) ? "NULL" : mWifiInfo.getSSID();
-    }
-
-    public int getIpAddress() {
-        return (mWifiInfo == null) ? 0 : mWifiInfo.getIpAddress();
-    }
-
-    public int getNetworkId() {
-        return (mWifiInfo == null) ? 0 : mWifiInfo.getNetworkId();
-
-    }
-
-    public boolean isWifiConnect() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (wifi.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public String getWifiInfo() {
-        return (mWifiInfo == null) ? "NULL" : mWifiInfo.toString();
-    }
-
-    public boolean addNetWork(WifiConfiguration wifiConfiguration) {
-        int wcgID = mWifiManager.addNetwork(wifiConfiguration);
-        Log.e("wcgID", wcgID + "true");
-        mWifiManager.enableNetwork(wcgID, true);
-        mWifiManager.saveConfiguration();
-        return mWifiManager.reconnect();
-    }
-
-    public void disconnectWifi(int netId) {
-        mWifiManager.disableNetwork(netId);
-        mWifiManager.disconnect();
-    }
-
-    public WifiConfiguration createWifiInfo(String SSID, String Password, int Type) {
-        WifiConfiguration configuration = new WifiConfiguration();
-        configuration.allowedAuthAlgorithms.clear();
-        configuration.allowedGroupCiphers.clear();
-        configuration.allowedKeyManagement.clear();
-        configuration.allowedPairwiseCiphers.clear();
-        configuration.allowedProtocols.clear();
-        configuration.SSID = "\"" + SSID + "\"";
-
-        WifiConfiguration tempConfig = this.isExsits(SSID);
-        if (tempConfig != null) {
-            mWifiManager.removeNetwork(tempConfig.networkId);
-        }
-
-        switch (Type) {
-            case 1://没加密
-                configuration.wepKeys[0] = "";
-                configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                configuration.wepTxKeyIndex = 0;
-                configuration.priority = 20000;
-                break;
-            case 2://wep加密
-                configuration.hiddenSSID = false;
-                configuration.wepKeys[0] = "\"" + Password + "\"";
-                configuration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-                configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-
-                break;
-            case 3://wpa加密
-
-                configuration.preSharedKey = "\"" + Password + "\"";
-                configuration.hiddenSSID = false;
-                // configuration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-                configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-                configuration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                configuration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                configuration.status = WifiConfiguration.Status.ENABLED;
-                break;
-        }
-        return configuration;
-    }
-
-    public int calculateWifiEncryptType(String encryptType) {
-        if (encryptType == null)
-            return -1;
-        else {
-            if ("WPA".equals(encryptType)) {
-                return 3;
-            } else if ("WEP".equals(encryptType)) {
+    // 0 未连接 1 连接中 2已连接
+    public static int connectedState(Context context) {
+        NetworkInfo networkInfo = getNetworkInfo(context);
+        if(null != networkInfo) {
+            if(networkInfo.isConnected()) {
                 return 2;
-            } else {
+            } else if(networkInfo.isConnectedOrConnecting()){
                 return 1;
             }
         }
-    }
-
-    public int calculateWifiEncryptType(ScanResult scanResult) {
-        String encryptType = getEncrypt(scanResult);
-        return calculateWifiEncryptType(encryptType);
-    }
-
-    private WifiConfiguration isExsits(String SSID) {
-        List<WifiConfiguration> existingConfigs = mWifiManager.getConfiguredNetworks();
-        for (WifiConfiguration existingConfig :
-                existingConfigs) {
-            if (existingConfig.SSID.equals("\"" + SSID + "\"")) {
-                return existingConfig;
-            }
-        }
-        return null;
+        return 0;
     }
 
     public static String getEncrypt(ScanResult scanResult) {

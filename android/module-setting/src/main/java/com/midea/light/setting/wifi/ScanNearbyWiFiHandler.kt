@@ -6,11 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import androidx.annotation.MainThread
 import androidx.core.app.ActivityCompat
+import com.midea.light.BaseApplication
 import com.midea.light.log.LogUtil
+import com.midea.light.setting.wifi.util.EthernetUtil
+import com.midea.light.setting.wifi.util.WifiUtil
 
 /**
  * @ClassName ScanNearbyWiFiHandler
@@ -27,16 +32,12 @@ object ScanNearbyWiFiHandler {
 
     var register = false
     val callbacks = lazy { mutableSetOf<ICallBack>() }
-    lateinit var wifiManager: WifiManager;
+    lateinit var wifiManager: WifiManager
 
     val mScanWiFiReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if (intent?.action?.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION) == true) {
-                if (ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     callbacks.value.forEach { action -> action.call(wifiManager.scanResults) }
                 }
                 com.midea.light.thread.MainThread.postDelayed({ wifiManager.startScan() },2000L)
@@ -67,6 +68,7 @@ object ScanNearbyWiFiHandler {
 
     fun stop(context: Context) {
         if (register) {
+            callbacks.value.clear()
             LogUtil.tag("NET").msg("scan wiFi stop -----")
             context.unregisterReceiver(mScanWiFiReceiver)
             register = false
