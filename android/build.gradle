@@ -2,6 +2,7 @@ apply from: './config.gradle'
 buildscript {
     ext {
         compose_version = '1.1.1'
+        ndkType="1"
     }
     ext.kotlin_version = '1.6.10'
     repositories {
@@ -27,6 +28,8 @@ allprojects {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/nexus/content/groups/public'
         }
+        maven {url 'https://maven.aliyun.com/repository/gradle-plugin/'}
+
 
         //配置nexus私服
         maven {
@@ -45,6 +48,11 @@ allprojects {
             allowInsecureProtocol true
             url "http://47.106.94.129:8081/repository/mzgd-snapshots"
         }
+        //配置 iot MideaSDK
+        maven {
+            allowInsecureProtocol true
+            url 'http://10.16.42.168:8081/repository/maven-public/'}
+
     }
 }
 

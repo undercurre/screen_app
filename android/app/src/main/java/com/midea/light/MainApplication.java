@@ -1,15 +1,15 @@
 package com.midea.light;
 
 
-import android.app.Application;
 import android.content.Context;
 
-import androidx.multidex.MultiDex;
-
+import com.midea.light.basic.BuildConfig;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
+
+import androidx.multidex.MultiDex;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
