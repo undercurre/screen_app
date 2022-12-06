@@ -13,16 +13,16 @@ class DeviceService {
   }
 
   static bool supportDeviceFilter(DeviceEntity? deviceInfo) {
-    return supportDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList().isEmpty;
+    return supportDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList().isEmpty;
   }
 
   static DeviceOnList configFinder(DeviceEntity? deviceInfo) {
-    var finderList = deviceConfig.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList();
-    return finderList.isEmpty ? deviceConfig.where((element) => element.type == '0x13').toList()[0] : finderList[0];
+    var finderList = deviceConfig.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList();
+    return finderList.isEmpty ? something : finderList[0];
   }
 
   static bool hasStatus(DeviceEntity? deviceInfo) {
-    return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList().isNotEmpty && isOnline(deviceInfo);
+    return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList().isNotEmpty && isOnline(deviceInfo);
   }
 
   static Future<Map<String, dynamic>> getDeviceDetail(String? apiCode, String deviceId) async {

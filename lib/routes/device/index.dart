@@ -33,7 +33,7 @@ class _DevicePageState extends State<DevicePage> {
   initPage() async {
     List<DraggableGridItem> newBins = [];
     var deviceList = Global.profile.roomInfo != null ? Global.profile.roomInfo!.applianceList! : [];
-    for (int xx = 1; xx < deviceList.length; xx++) {
+    for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       var config = DeviceService.configFinder(deviceInfo);
       var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;

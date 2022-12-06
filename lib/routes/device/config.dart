@@ -42,8 +42,10 @@ DeviceOnList lightGroup = DeviceOnList('灯组', 'assets/imgs/device/dengzu_icon
 DeviceOnList gateway = DeviceOnList('智能网关', 'assets/imgs/device/dengzu_icon_on.png', 'assets/imgs/device/dengzu_icon_off.png', '0x16');
 DeviceOnList gatewaySon = DeviceOnList('智能网关', 'assets/imgs/device/dengzu_icon_on.png', 'assets/imgs/device/dengzu_icon_off.png', '0x20');
 DeviceOnList doorMagnetic = DeviceOnList('门磁传感器', 'assets/imgs/device/door_magnetic_sensor_on.png', 'assets/imgs/device/door_magnetic_sensor_off.png', '0x21', modelNum: ['3']);
+DeviceOnList something = DeviceOnList('不明设备', 'assets/imgs/device/phone_on.png', 'assets/imgs/device/phone_off.png', '0xxx');
 
 List<DeviceOnList> deviceConfig = [
+  something,
   wifiLight,
   zigbeeLightHasColor,
   zigbeeLightNoColor,
