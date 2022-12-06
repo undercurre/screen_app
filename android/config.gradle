@@ -110,7 +110,9 @@ ext {
             "gateway"           : "1.0.0",
             "overScrollHelper"  : "1.1.1",
             "aspectj"           : "1.8.9",
-            "LiteAV"            : "9.6.0.11309"
+            "LiteAV"            : "9.6.0.11309",
+            "ijkplayer_java"    : "0.8.8",
+            "ijkplayer_exo"     : "0.8.8",
     ]
 
     other = [
@@ -129,7 +131,10 @@ ext {
             overScrollHelper: "io.github.everythingme:overscroll-decor-android:${version["overScrollHelper"]}",
             // https://mvnrepository.com/artifact/org.aspectj/aspectjrt/1.9.7
             aspectj         : 'org.aspectj:aspectjrt:1.8.9',
-            LiteAV          : "com.tencent.liteav:LiteAVSDK_TRTC:${version["LiteAV"]}"
+            LiteAV          : "com.tencent.liteav:LiteAVSDK_TRTC:${version["LiteAV"]}",
+            ijkplayer_java   : "tv.danmaku.ijk.media:ijkplayer-java:${version["ijkplayer_java"]}",
+            ijkplayer_exo    : "tv.danmaku.ijk.media:ijkplayer-exo:${version["ijkplayer_exo"]}",
+
     ]
 
     ui = [
