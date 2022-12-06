@@ -23,10 +23,7 @@ class _CoolMasterState extends State<CoolMaster> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute
-          .of(context)
-          ?.settings
-          .arguments as Map;
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
       deviceName = args['deviceName'] ?? '浴霸';
       final res = await BaseApi.getDetail(deviceId);
@@ -48,14 +45,8 @@ class _CoolMasterState extends State<CoolMaster> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
-      height: MediaQuery
-          .of(context)
-          .size
-          .height,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -116,6 +107,7 @@ class _CoolMasterState extends State<CoolMaster> {
                             title: '摆风',
                             child: MzSwitch(
                               value: swing,
+                              disabled: swingDisabled(),
                               onTap: (e) => toggleSwing(),
                             ),
                           ),
@@ -157,29 +149,36 @@ class _CoolMasterState extends State<CoolMaster> {
     );
   }
 
+  bool swingDisabled() {
+    if (mode[strong.key] == null || mode[weak.key] == null) {
+      return true;
+    }
+    if (mode[strong.key] == false && mode[weak.key] == false) {
+      return true;
+    }
+    return false;
+  }
+
   void handleModeTap(Mode m) {
     if (m.key == strong.key) {
       if (mode[m.key]!) {
         mode[m.key] = false;
         // 已打开强风，则关闭吹风
-        BaseApi.luaControl(deviceId, {
-          'mode': ''
+        BaseApi.luaControl(deviceId, {'mode': ''});
+        setState(() {
+          swing = false; // 关闭吹风同时会关闭摆风
         });
       } else if (mode[weak.key]!) {
         // 已打开弱风， 切换至强风
-        BaseApi.luaControl(deviceId, {
-          'mode': 'blowing',
-          'blowing_speed': '100'
-        });
+        BaseApi.luaControl(
+            deviceId, {'mode': 'blowing', 'blowing_speed': '100'});
         mode[strong.key] = true;
         mode[weak.key] = false;
         mode[ventilation.key] = false; // 打开强风会同时关闭换气
       } else {
         // 打开强风
-        BaseApi.luaControl(deviceId, {
-          'mode': 'blowing',
-          'blowing_speed': '100'
-        });
+        BaseApi.luaControl(
+            deviceId, {'mode': 'blowing', 'blowing_speed': '100'});
         mode[m.key] = true;
         mode[ventilation.key] = false; // 打开强风会同时关闭换气
       }
@@ -190,14 +189,14 @@ class _CoolMasterState extends State<CoolMaster> {
       if (mode[m.key]!) {
         mode[m.key] = false;
         // 已打开弱风，则关闭吹风
-        BaseApi.luaControl(deviceId, {
-          'mode': mode[ventilation.key]! ? 'ventilation' : ''
+        BaseApi.luaControl(
+            deviceId, {'mode': mode[ventilation.key]! ? 'ventilation' : ''});
+        setState(() {
+          swing = false; // 关闭吹风同时会关闭摆风
         });
       } else if (mode[strong.key]!) {
         // 已打开强风， 切换至弱风
-        BaseApi.luaControl(deviceId, {
-          'blowing_speed': '1'
-        });
+        BaseApi.luaControl(deviceId, {'blowing_speed': '1'});
         mode[weak.key] = true;
         mode[strong.key] = false;
       } else {
@@ -225,15 +224,18 @@ class _CoolMasterState extends State<CoolMaster> {
         mode[strong.key] = false;
         mode[weak.key] = true;
         // 如果是已打开强风，则需要设置成弱风
-        BaseApi.luaControl(deviceId, {
-          'mode': 'blowing,ventilation',
-          'blowing_speed': '1'
-        });
+        BaseApi.luaControl(
+            deviceId, {'mode': 'blowing,ventilation', 'blowing_speed': '1'});
       } else {
+        var modeList = <String>[];
+        if (mode[weak.key]!) {
+          modeList.add('blowing');
+        }
+        if (mode[m.key]!) {
+          modeList.add('ventilation');
+        }
         BaseApi.luaControl(deviceId, {
-          'mode': mode[weak.key]!
-              ? 'blowing,ventilation'
-              : 'ventilation',
+          'mode': modeList.join(','),
         });
       }
       setState(() {
@@ -247,18 +249,14 @@ class _CoolMasterState extends State<CoolMaster> {
     setState(() {
       swing = !swing;
     });
-    BaseApi.luaControl(deviceId, {
-      'blowing_direction': swing ? '254' : '253'
-    });
+    BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
   }
 
   void toggleSmelly() {
     setState(() {
       smelly = !smelly;
     });
-    BaseApi.luaControl(deviceId, {
-      'smelly_enable': smelly ? 'on' : 'off'
-    });
+    BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
   }
 }
 
