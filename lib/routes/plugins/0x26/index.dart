@@ -23,8 +23,13 @@ class BathroomMasterState extends State<BathroomMaster> {
   int delayTime = 1;
 
   // 用于lua查询或者物模型查询后设置state
-  void setStateCallBack(
-      {mainLight, nightLight, delayClose, runMode, delayTime}) {
+  void setStateCallBack({
+    mainLight,
+    nightLight,
+    delayClose,
+    runMode,
+    delayTime,
+  }) {
     setState(() {
       this.mainLight = mainLight ?? this.mainLight;
       this.nightLight = nightLight ?? this.nightLight;
