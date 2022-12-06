@@ -6,6 +6,7 @@ import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
+import 'package:screen_app/routes/device/config.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import '../../common/global.dart';
@@ -35,7 +36,8 @@ class _DevicePageState extends State<DevicePage> {
     for (int xx = 1; xx < deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       var config = DeviceService.configFinder(deviceInfo);
-      if (config.apiCode != null) {
+      var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;
+      if (hasService && DeviceService.isOnline(deviceInfo)) {
         var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo.applianceCode!);
         var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
         curDevice.detail = detail;

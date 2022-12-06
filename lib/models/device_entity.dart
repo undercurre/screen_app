@@ -27,7 +27,7 @@ class DeviceEntity {
   late String isOtherEquipment;
   late Map<String, dynamic> ability;
   String? moduleType;
-  late Map<String, dynamic> detail;
+  Map<String, dynamic>? detail;
 
   factory DeviceEntity.fromJson(Map<String, dynamic> json) =>
       $DeviceEntityFromJson(json);

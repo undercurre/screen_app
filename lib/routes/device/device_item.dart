@@ -14,13 +14,11 @@ class DeviceItem extends StatefulWidget {
 }
 
 class _DeviceItemState extends State<DeviceItem> {
-
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
       if (!DeviceService.supportDeviceFilter(widget.deviceInfo)) {
-        Navigator.pushNamed(context, widget.deviceInfo!.type!, arguments: {
-          "deviceInfo": widget.deviceInfo
-        });
+        Navigator.pushNamed(context, widget.deviceInfo!.type!,
+            arguments: {"deviceInfo": widget.deviceInfo});
       }
     }
   }
@@ -56,10 +54,13 @@ class _DeviceItemState extends State<DeviceItem> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0xFF979797), width: 0.8),
-          gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF393E43), Color(0xFF333135)]),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: DeviceService.isOnline(widget.deviceInfo)
+                ? [const Color(0xFF393E43), const Color(0xFF333135)]
+                : [const Color(0xFF000000), const Color(0xFF000000)],
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -105,24 +106,29 @@ class _DeviceItemState extends State<DeviceItem> {
             SizedBox(
               height: 30,
               child: Center(
-                child: DeviceService.supportDeviceFilter(widget.deviceInfo)
-                    ? const Text(
-                        "仅支持APP控制",
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            color: Color(0X80FFFFFF),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'MideaType-Regular'),
+                child: !DeviceService.isOnline(widget.deviceInfo)
+                    ? Image.asset("assets/imgs/device/offline.png",
+                        width: 150,
+                        height: 60,
                       )
-                    : GestureDetector(
-                        child: Image.asset(
-                          DeviceService.isPower(widget.deviceInfo)
-                              ? "assets/imgs/device/device_power_on.png"
-                              : "assets/imgs/device/device_power_off.png",
-                          width: 150,
-                          height: 60,
-                        ),
-                      ),
+                    : DeviceService.supportDeviceFilter(widget.deviceInfo)
+                        ? const Text(
+                            "仅支持APP控制",
+                            style: TextStyle(
+                                fontSize: 14.0,
+                                color: Color(0X80FFFFFF),
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'MideaType-Regular'),
+                          )
+                        : GestureDetector(
+                            child: Image.asset(
+                              DeviceService.isPower(widget.deviceInfo)
+                                  ? "assets/imgs/device/device_power_on.png"
+                                  : "assets/imgs/device/device_power_off.png",
+                              width: 150,
+                              height: 60,
+                            ),
+                          ),
               ),
             )
           ],

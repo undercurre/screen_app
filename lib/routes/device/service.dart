@@ -8,6 +8,10 @@ import '../../common/global.dart';
 import '../../models/device_home_list_entity.dart';
 
 class DeviceService {
+  static bool isOnline(DeviceEntity? deviceInfo) {
+    return deviceInfo != null ? (deviceInfo!.onlineStatus == '1') : false;
+  }
+
   static bool supportDeviceFilter(DeviceEntity? deviceInfo) {
     return supportDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList().isEmpty;
   }
@@ -18,7 +22,7 @@ class DeviceService {
   }
 
   static bool hasStatus(DeviceEntity? deviceInfo) {
-    return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList().isNotEmpty;
+    return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0x13')).toList().isNotEmpty && isOnline(deviceInfo);
   }
 
   static Future<Map<String, dynamic>> getDeviceDetail(String? apiCode, String deviceId) async {
@@ -44,7 +48,11 @@ class DeviceService {
       var curDevice = Global.profile.roomInfo!.applianceList.where((element) =>
       element.applianceCode == deviceInfo.applianceCode)
           .toList()[0];
-      return curDevice.detail[config.powerKey] == config.powerValue;
+      if (curDevice.detail != null) {
+        return curDevice.detail![config.powerKey] == config.powerValue;
+      } else {
+        return false;
+      }
     } else {
       return false;
     }
@@ -57,12 +65,16 @@ class DeviceService {
       element.applianceCode == deviceInfo.applianceCode)
           .toList()[0];
       late num attr;
-      if (config.attrFormat != null) {
-        attr = config.attrFormat!(curDevice.detail[config.attrName]);
+      if(curDevice.detail != null && curDevice.detail!.keys.toList().isNotEmpty) {
+        if (config.attrFormat != null) {
+          attr = config.attrFormat!(curDevice.detail![config.attrName]);
+        } else {
+          attr = curDevice.detail![config.attrName];
+        }
+        return attr;
       } else {
-        attr = curDevice.detail[config.attrName];
+        return 0;
       }
-      return attr;
     } else {
       return 0;
     }

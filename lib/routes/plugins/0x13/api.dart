@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
@@ -7,7 +8,11 @@ class WrapWIFILight implements DeviceInterface{
   @override
   Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
     var res = await WIFILightApi.getLightDetail(deviceId);
-    return res;
+    if (res.code == 0) {
+      return res.result;
+    } else {
+      return {};
+    }
   }
 
   @override
@@ -18,14 +23,10 @@ class WrapWIFILight implements DeviceInterface{
 
 class WIFILightApi {
   /// 查询设备状态（物模型）
-  static Future<Map<String, dynamic>> getLightDetail(String deviceId) async {
+  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
     var res = await DeviceApi.sendPDMOrder('getAllStand', deviceId, {},
         method: 'GET');
-    if (res.result != null) {
-      return res.result;
-    } else {
-      return {};
-    }
+    return res;
   }
 
   /// 设备控制（lua）
