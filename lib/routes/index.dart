@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/plugins/0x21_light/index.dart';
 import 'package:screen_app/routes/room/index.dart';
 import 'boot/index.dart';
 import 'package:screen_app/routes/plugins/0x40/index.dart';
@@ -36,6 +37,7 @@ var routes = <String, WidgetBuilder>{
   "0x14": (context) => const CurtainPage(),
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
+  "0x21_light": (context) => const ZigbeeLightPage(),
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),
   "AiSettingPage": (context) => const AiSettingPage(),

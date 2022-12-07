@@ -1,23 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/routes/device/service.dart';
+import 'package:screen_app/routes/plugins/0x21/recognizer/index.dart';
 
 import '../../models/device_entity.dart';
 
 class DeviceItem extends StatefulWidget {
-  DeviceEntity? deviceInfo;
+  final DeviceEntity? deviceInfo;
 
-  DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
+  const DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
 
   @override
-  _DeviceItemState createState() => _DeviceItemState();
+  State<StatefulWidget> createState() => _DeviceItemState();
 }
 
 class _DeviceItemState extends State<DeviceItem> {
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
       if (!DeviceService.supportDeviceFilter(widget.deviceInfo)) {
-        Navigator.pushNamed(context, widget.deviceInfo!.type!,
+        late String? route;
+        if (widget.deviceInfo!.type! == '0x21') {
+          route = modelNumList[widget.deviceInfo!.modelNumber]?.getRoute();
+        } else {
+          route = widget.deviceInfo!.type!;
+        }
+        Navigator.pushNamed(context, route!,
             arguments: {"deviceInfo": widget.deviceInfo});
       }
     }
