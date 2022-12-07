@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:screen_app/common/utils.dart';
 
 
 ////// 例子
@@ -14,18 +15,18 @@ class WiFiScanResult {
   WiFiScanResult();
 
   // 一般指AP的名称
-  late String ssid;
+  String ssid = "unknown";
   // 一般指AP的MAC地址
-  late String bssid;
+  String bssid = 'unknown';
   // 认证方式（说明：这里采用自定义认证）open: 开放的方式  encryption: 需要传密钥方式
-  late String auth;
+  String auth = 'encryption';
   // WiFi信号强度等级 0 ~ 3
-  late num level;
+  num level = 0;
 
   factory WiFiScanResult.fromJson(Map<String,dynamic> json) => _$ScanResultFromJson(json);
   Map<String, dynamic> toJson() => _$ScanResultToJson(this);
 
-  static List<WiFiScanResult>? scanResultListFromJsonArray(List<Map<String,dynamic>>? list) =>
+  static List<WiFiScanResult>? scanResultListFromJsonArray(List<dynamic>? list) =>
       _$scanResultListFromJsonArray(list);
 
 }
@@ -44,15 +45,21 @@ Map<String, dynamic> _$ScanResultToJson(WiFiScanResult instance) =>
       'level': instance.level,
     };
 
-List<WiFiScanResult>? _$scanResultListFromJsonArray(List<Map<String, dynamic>>? list) {
+List<WiFiScanResult>? _$scanResultListFromJsonArray(List<dynamic>? list) {
   if(list == null || list.isEmpty) {
     return null;
   }
 
   final scanResultList = <WiFiScanResult>[];
   for (var json in list) {
-    final item = _$ScanResultFromJson(json);
-    scanResultList.add(item);
+    if(json is Map) {
+      final item = _$ScanResultFromJson(json);
+      if(StrUtils.isNotNullAndEmpty(item.ssid)) {
+        scanResultList.add(item);
+      }
+    } else {
+      throw Exception("请确保类型为Map");
+    }
   }
 
   return scanResultList;
