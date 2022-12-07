@@ -6,11 +6,16 @@ import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.channel.HybridResult
+import com.midea.light.common.config.AppCommonConfig
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.wifi.ConnectStateHandler
 import com.midea.light.setting.wifi.ScanNearbyWiFiHandler
+import com.midea.light.setting.wifi.WiFiConnectHandler
 import com.midea.light.setting.wifi.impl.ConfigurationSecurities
+import com.midea.light.setting.wifi.impl.IConnectedCallback
 import com.midea.light.setting.wifi.impl.Version
+import com.midea.light.setting.wifi.util.EthernetUtil
+import com.midea.light.setting.wifi.util.WifiUtil
 import com.midea.light.thread.MainThread
 import com.midea.light.utils.CollectionUtil
 import io.flutter.plugin.common.BinaryMessenger
@@ -51,7 +56,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
     var mWifiManager: WifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
     // 保存最新的wifi列表
-    var wifiList: List<ScanResult>? = null
+    var wifiList: HashMap<String, ScanResult>? = null //缓存所有的历史扫描的wifi记录
 
     override fun setup(binaryMessenger: BinaryMessenger, channel: String) {
         super.setup(binaryMessenger, channel)
@@ -63,6 +68,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
     override fun teardown() {
         super.teardown()
         ScanNearbyWiFiHandler.unRegister(this)
+        ConnectStateHandler.unRegister(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -73,30 +79,74 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 ScanNearbyWiFiHandler.start(context)
                 // 加快列表展示的数据，使用冷数据进行预加载
                 if (wifiList?.isEmpty() == false) {
-                    onReplyNearbyWiFi(wifiList!!)
+                    onReplyNearbyWiFi(wifiList!!.values)
                 }
             }
             "stopScanNearbyWiFi" -> {
                 ScanNearbyWiFiHandler.stop(context)
+                onCallSuccess(result, true)
             }
             "listenerConnectState" -> {
                 ConnectStateHandler.start(context)
+                onCallSuccess(result, true)
             }
             "removeListenerConnectState" -> {
                 ConnectStateHandler.stop(context)
+                onCallSuccess(result, true)
+            }
+            "supportWiFiControl" -> {
+               onCallSuccess(result, true)
+            }
+            "supportEthernetControl" -> {
+                onCallSuccess(result, AppCommonConfig.getChannel().equals("LD"))
+            }
+            "enableWiFi" -> {
+                assert(call.hasArgument("enable"))
+                val enable = call.argument<Boolean>("enable")
+                if(enable!!) {
+                    WifiUtil.open(context)
+                } else {
+                    WifiUtil.close(context)
+                }
+                onCallSuccess(result, true)
+            }
+            "enableEthernet" -> {
+                assert(call.hasArgument("enable"))
+                val enable = call.argument<Boolean>("enable")
+                if(enable!!) {
+                    Thread { EthernetUtil.open() }.start()
+                } else {
+                    Thread { EthernetUtil.close() }.start()
+                }
+                onCallSuccess(result, HybridResult.SUCCESS)
+            }
+            "connectWiFi" -> {
+                assert(call.hasArgument("ssid"))// wifi名
+                assert(call.hasArgument("pwd"))// wifi密码
+                assert(call.hasArgument("changePwd")) //是否改变密码
+                assert(wifiList?.get(call.argument<String>("ssid")) != null)
+                WiFiConnectHandler.connect(
+                    context,
+                    wifiList!![call.argument<String>("ssid")]!!,
+                    call.argument<String>("pwd")?:"",call.argument<Boolean>("changePwd")?:false ,
+                    object : IConnectedCallback{
+                        override fun invalidConnect(pwd: String?, scanResult: ScanResult?) {
+                            onCallSuccess(result, false)
+                        }
+
+                        override fun validConnected(scanResult: ScanResult?) {
+                            onCallSuccess(result, true)
+                        }
+                    })
+                onCallSuccess(result, HybridResult.SUCCESS)
             }
             else -> {
-                // 对应的方法没有报错
-                reply = true
                 onCallNotImplement(result)
             }
         }
-        if (!reply) {
-            onCallSuccess(result, HybridResult.SUCCESS)
-        }
     }
 
-    fun onReplyNearbyWiFi(list: List<ScanResult>) {
+    fun onReplyNearbyWiFi(list: Collection<ScanResult>) {
         MainThread.run {
             mMethodChannel?.invokeMethod(
                 "replyNearbyWiFi",
@@ -105,14 +155,27 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         }
     }
 
+    fun resultJson(code: Int, message: String, jsonObject: JSONObject?) : JSONObject{
+        val result = JSONObject()
+        result.put("code", code)
+        result.put("message", message)
+        result.put("data", jsonObject)
+        return result
+    }
+
     override fun call(result: List<ScanResult>) {
-        wifiList = result
+        wifiList = wifiList ?: hashMapOf()
+        if(CollectionUtil.isNotEmpty(result)) {
+            for (scanResult in result) {
+                wifiList?.put(scanResult.SSID, scanResult)
+            }
+        }
         LogUtil.tag("NET").msg("扫描到的WiFi数量：${result.size}")
         onReplyNearbyWiFi(result)
     }
 
 
-    private fun scanResultListToJsonArray(list: List<ScanResult>): JSONArray {
+    private fun scanResultListToJsonArray(list: Collection<ScanResult>): JSONArray {
         if (CollectionUtil.isEmpty(list)) {
             return JSONArray();
         }
@@ -141,7 +204,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         val json = JSONObject()
         val scanJson = JSONObject()
 
-        json.put("enternetState", ethernet)
+        json.put("ethernetState", ethernet)
         json.put("wifiState", wifi)
         json.put("wifiInfo", scanJson)
         wifiInfo?.apply {
