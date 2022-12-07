@@ -14,23 +14,26 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.penfeizhou.animation.apng.APNGDrawable;
+import com.github.penfeizhou.animation.loader.ResourceStreamLoader;
 import com.midea.light.ai.R;
 import com.midea.light.ai.services.MideaAiService;
-import com.midea.light.ai.widget.WaveViewByBezier;
 
 import androidx.annotation.NonNull;
 
 public class AiDialog extends Dialog {
 
-    private LinearLayout llAskAns, ll, llNotify, llAns;
-    private LinearLayout llWakeUp;
-    private WaveViewByBezier wave;
-    private TextView tvAns;
+    private LinearLayout llBollBack, llLarge;
+    private RelativeLayout llParent;
+    private TextView tvAi,tvNoticeString,tvLarge;
     private MideaAiService sever;
+    private ImageView imgBoll;
 
 
     public Context mContext;
@@ -64,39 +67,49 @@ public class AiDialog extends Dialog {
 
     }
 
-
-    private void initView() {
-        llAskAns = findViewById(R.id.llAskAns);
-        llWakeUp = findViewById(R.id.llWakeUp);
-        llNotify = findViewById(R.id.llNotify);
-        wave = findViewById(R.id.wave);
-        ll = findViewById(R.id.ll);
-        tvAns = findViewById(R.id.tvAns);
-        llAns = findViewById(R.id.llAns);
-        Animation animation = new TranslateAnimation(0, 0, 500, 0);
-        animation.setDuration(400);//动画时间
-        animation.setRepeatCount(0);//动画的反复次数
-        animation.setFillAfter(true);//设置为true，动画转化结束后被应用
-        llNotify.startAnimation(animation);
-        new Thread() {
+    @Override
+    public void show() {
+        super.show();
+        Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale_in);
+        imgBoll.startAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void run() {
-                try {
-                    Thread.sleep(1100);
-                    Message msg = new Message();
-                    msg.arg1 = 1;
-                    mHandler.sendMessage(msg);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            public void onAnimationStart(Animation animation) {
+
             }
 
-        }.start();
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ResourceStreamLoader resourceLoader = new ResourceStreamLoader(mContext, R.raw.ai_boll);
+                APNGDrawable apngDrawable = new APNGDrawable(resourceLoader);
+                apngDrawable.setLoopLimit(-1);
+                imgBoll.setImageDrawable(apngDrawable);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    private void initView() {
+        llBollBack = findViewById(R.id.llBollBack);
+        llLarge = findViewById(R.id.llLarge);
+        llParent = findViewById(R.id.llParent);
+        tvAi = findViewById(R.id.tvAi);
+        tvNoticeString = findViewById(R.id.tvNoticeString);
+        imgBoll= findViewById(R.id.imgBoll);
+        tvLarge= findViewById(R.id.tvLarge);
+        llBollBack.setBackground(null);
+        tvNoticeString.setVisibility(View.VISIBLE);
+        llLarge.setVisibility(View.GONE);
+
 
     }
 
     private void initDate() {
-        ll.setOnClickListener(new View.OnClickListener() {
+        llParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sever.out();
@@ -110,12 +123,7 @@ public class AiDialog extends Dialog {
         public boolean handleMessage(Message message) {
             switch (message.arg1) {
                 case 1:
-                    wave.startAnim();
-                    break;
-                case 2:
-                    if (llWakeUp.getVisibility() != View.VISIBLE) {
-                        dismissDialog();
-                    }
+                    dismissDialog();
                     break;
 
             }
@@ -124,56 +132,51 @@ public class AiDialog extends Dialog {
     });
 
     public void think() {
-        if (llAskAns != null && llWakeUp != null  && llAns != null) {
-            llAskAns.setVisibility(View.VISIBLE);
-            llWakeUp.setVisibility(View.GONE);
-            llAns.setVisibility(View.INVISIBLE);
-        }
+
     }
 
     public void addAnsAskItem(String item) {
-        tvAns.setText(item);
-        llAskAns.setVisibility(View.VISIBLE);
-        llWakeUp.setVisibility(View.GONE);
-        llAns.setVisibility(View.VISIBLE);
-
+        if(item.length()>25){
+            tvAi.setVisibility(View.GONE);
+            tvNoticeString.setVisibility(View.GONE);
+            llBollBack.setBackground(mContext.getDrawable(R.drawable.ai_text_large_bg));
+            tvLarge.setText(item);
+            llLarge.setVisibility(View.VISIBLE);
+            if(item.length()>300){
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) llLarge.getLayoutParams();
+                lp.height=270;
+                llLarge.setLayoutParams(lp);
+            }
+        }else{
+            tvAi.setVisibility(View.VISIBLE);
+            tvNoticeString.setVisibility(View.VISIBLE);
+            llBollBack.setBackground(mContext.getDrawable(R.drawable.ai_text_bg));
+            llLarge.setVisibility(View.GONE);
+            tvAi.setText(item);
+        }
 
     }
 
 
     public void wakeupInitialData() {
-        llAskAns.setVisibility(View.GONE);
-        llWakeUp.setVisibility(View.VISIBLE);
-        if (!isShowing()) {
-            Animation animation2 = new TranslateAnimation(0, 0, 500, 0);
-            animation2.setDuration(400);//动画时间
-            animation2.setRepeatCount(0);//动画的反复次数
-            animation2.setFillAfter(true);//设置为true，动画转化结束后被应用
-            llNotify.startAnimation(animation2);
-        }
-
+        tvNoticeString.setVisibility(View.VISIBLE);
+        llBollBack.setBackground(null);
+        llLarge.setVisibility(View.GONE);
+        tvAi.setVisibility(View.GONE);
 
     }
 
     public void timeOut() {
-        if (llWakeUp.getVisibility() == View.VISIBLE) {
-            return;
-        }
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                    Message msg = new Message();
-                    msg.arg1 = 2;
-                    mHandler.sendMessage(msg);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+                Message msg = new Message();
+                msg.arg1 = 1;
+                mHandler.sendMessage(msg);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-        }.start();
+        }).start();
 
     }
 
@@ -186,7 +189,11 @@ public class AiDialog extends Dialog {
     }
 
     public void wakeupShow110() {
-        llAns.setVisibility(View.VISIBLE);
-        llWakeUp.setVisibility(View.GONE);
+        tvNoticeString.setVisibility(View.VISIBLE);
+        llBollBack.setBackground(null);
+        llLarge.setVisibility(View.GONE);
+        tvAi.setVisibility(View.GONE);
+
     }
+
 }
