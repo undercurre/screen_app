@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
+import 'package:screen_app/routes/device/config.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import '../../common/global.dart';
@@ -17,7 +19,7 @@ class DevicePage extends StatefulWidget {
   final String text;
 
   @override
-  _DevicePageState createState() => _DevicePageState();
+  State<StatefulWidget> createState() => _DevicePageState();
 }
 
 class _DevicePageState extends State<DevicePage> {
@@ -32,13 +34,15 @@ class _DevicePageState extends State<DevicePage> {
   initPage() async {
     List<DraggableGridItem> newBins = [];
     var deviceList = Global.profile.roomInfo != null ? Global.profile.roomInfo!.applianceList! : [];
-    for (int xx = 1; xx < deviceList.length; xx++) {
+    for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       var config = DeviceService.configFinder(deviceInfo);
-      if (config.apiCode != null) {
+      var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;
+      if (hasService && DeviceService.isOnline(deviceInfo)) {
         var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo.applianceCode!);
         var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
         curDevice.detail = detail;
+        debugPrint('curDevice${curDevice.toJson()}');
       }
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
@@ -57,7 +61,7 @@ class _DevicePageState extends State<DevicePage> {
   void initState() {
     for (int xx = 1; xx < 7; xx++) {
       itemBins.add(DraggableGridItem(
-        child: DeviceItem(),
+        child: const DeviceItem(),
         isDraggable: true,
         dragCallback: (context, isDragging) {
           print('设备$xx+"isDragging: $isDragging');

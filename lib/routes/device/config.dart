@@ -19,8 +19,7 @@ class DeviceOnList {
 }
 
 DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', apiCode: '0x13', powerKey: 'power', powerValue: 'on', attrName: "brightValue", attrUnit: "%", attrFormat: lightValueFormat);
-DeviceOnList zigbeeLightHasColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56"]);
-DeviceOnList zigbeeLightNoColor = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["55", "1254", "54"]);
+DeviceOnList zigbeeLight = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56", "55", "1254", "54"]);
 DeviceOnList wifiCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x14');
 DeviceOnList zigbeeCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x21', modelNum: []);
 DeviceOnList curtainPanelOne = DeviceOnList('一路窗帘面板', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: []);
@@ -42,11 +41,12 @@ DeviceOnList lightGroup = DeviceOnList('灯组', 'assets/imgs/device/dengzu_icon
 DeviceOnList gateway = DeviceOnList('智能网关', 'assets/imgs/device/dengzu_icon_on.png', 'assets/imgs/device/dengzu_icon_off.png', '0x16');
 DeviceOnList gatewaySon = DeviceOnList('智能网关', 'assets/imgs/device/dengzu_icon_on.png', 'assets/imgs/device/dengzu_icon_off.png', '0x20');
 DeviceOnList doorMagnetic = DeviceOnList('门磁传感器', 'assets/imgs/device/door_magnetic_sensor_on.png', 'assets/imgs/device/door_magnetic_sensor_off.png', '0x21', modelNum: ['3']);
+DeviceOnList something = DeviceOnList('不明设备', 'assets/imgs/device/phone_on.png', 'assets/imgs/device/phone_off.png', '0xxx');
 
 List<DeviceOnList> deviceConfig = [
+  something,
   wifiLight,
-  zigbeeLightHasColor,
-  zigbeeLightNoColor,
+  zigbeeLight,
   wifiCurtain,
   zigbeeCurtain,
   curtainPanelOne,
@@ -70,6 +70,7 @@ List<DeviceOnList> deviceConfig = [
 
 List<DeviceOnList> supportDeviceList = [
   wifiLight,
+  zigbeeLight,
   wifiCurtain,
   bathHeater,
   liangBa

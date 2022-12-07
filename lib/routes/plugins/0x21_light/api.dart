@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 

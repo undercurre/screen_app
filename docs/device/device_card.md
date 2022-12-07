@@ -28,6 +28,7 @@ statusDeviceList 卡片支持显示数值的设备
 serviceList 供卡片使用的服务列表（注意：这是个Map<apiCode,DeviceInterface>）
 
 ## 接口
+
 在./plugins/device_interface.dart中定义了插件对接设备卡片所需要的获取状态：detail 的方法（用于存储设备状态到Global）和开关设备：power 的方法（用于设备卡片的开关按钮）
 
 所以插件的api中必须实现getDeviceDetail和setPower这两个方法
