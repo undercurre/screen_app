@@ -1,5 +1,6 @@
 import 'package:screen_app/common/api/device_api.dart';
 import '../../../models/mz_response_entity.dart';
+import '../device_interface.dart';
 
 /// 浴霸控制接口
 class BaseApi {
@@ -7,6 +8,12 @@ class BaseApi {
   static Future<MzResponseEntity> getDetail(String deviceId) async {
     var res = await DeviceApi.sendPDMOrder('__fullQuery__', deviceId, {},
         method: 'GET');
+    return res;
+  }
+
+  /// 查询设备状态（lua）
+  static Future<MzResponseEntity> getDetailByLua(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0x40', deviceId);
     return res;
   }
 
@@ -130,4 +137,38 @@ class BaseApi {
     );
     return res;
   }
+}
+
+/// 提供给DeviceList调用的接口实现
+class DeviceListApiImpl implements DeviceInterface {
+  @override
+  Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
+    final res = await BaseApi.getDetailByLua(deviceId);
+    if (res.success) {
+      final data = res.result;
+      if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
+        data['power'] = true;
+      } else {
+        data['power'] = false;
+      }
+      return data;
+    } else {
+      throw Error();
+    }
+  }
+
+  @override
+  Future<MzResponseEntity> setPower(String deviceId, bool onOff) {
+    if (onOff) {
+      return BaseApi.luaControl(deviceId, {
+        'mode': 'ventilation',
+      });
+    } else {
+      return BaseApi.luaControl(deviceId, {
+        'mode': '',
+        'light_mode': ''
+      });
+    }
+  }
+
 }

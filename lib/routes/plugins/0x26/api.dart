@@ -42,7 +42,7 @@ class DeviceListApiImpl implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
     final res = await BaseApi.getDetail(deviceId);
-    if (res.success) {
+    if (!res.success) {
       throw Error();
     }
     var power = false;
