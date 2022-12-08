@@ -39,16 +39,17 @@ class _DevicePageState extends State<DevicePage> {
       var config = DeviceService.configFinder(deviceInfo);
       var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;
       if (hasService && DeviceService.isOnline(deviceInfo)) {
-        var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo.applianceCode!);
+        var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
         var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
         curDevice.detail = detail;
         debugPrint('curDevice${curDevice.toJson()}');
+        debugPrint(curDevice.detail.toString());
       }
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
         isDraggable: true,
         dragCallback: (context, isDragging) {
-          print('设备$xx+"isDragging: $isDragging');
+          debugPrint('设备$xx+"isDragging: $isDragging');
         },
       ));
     }
@@ -64,7 +65,7 @@ class _DevicePageState extends State<DevicePage> {
         child: const DeviceItem(),
         isDraggable: true,
         dragCallback: (context, isDragging) {
-          print('设备$xx+"isDragging: $isDragging');
+          debugPrint('设备$xx+"isDragging: $isDragging');
         },
       ));
     }

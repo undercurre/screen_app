@@ -1,4 +1,5 @@
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/models/device_entity.dart';
 import '../../../models/mz_response_entity.dart';
 import '../device_interface.dart';
 import './mode_list.dart';
@@ -8,6 +9,7 @@ class BaseApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getDetail(String deviceId) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x26',
       '__fullQuery__',
       deviceId,
       {},
@@ -25,8 +27,8 @@ class BaseApi {
   /// 物模型控制
   static Future<MzResponseEntity> wotControl(
       String deviceId, String command, Map data) async {
-    var res =
-        await DeviceApi.sendPDMOrder(command, deviceId, data, method: 'POST');
+    var res = await DeviceApi.sendPDMOrder('0x26', command, deviceId, data,
+        method: 'POST');
     return res;
   }
 
@@ -40,8 +42,8 @@ class BaseApi {
 /// 提供给DeviceList调用的接口实现
 class DeviceListApiImpl implements DeviceInterface {
   @override
-  Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
-    final res = await BaseApi.getDetail(deviceId);
+  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
+    final res = await BaseApi.getDetail(deviceInfo.applianceCode);
     if (res.success) {
       throw Error();
     }
@@ -64,18 +66,17 @@ class DeviceListApiImpl implements DeviceInterface {
   }
 
   @override
-  Future<MzResponseEntity> setPower(
-      String deviceId, bool onOff) {
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
     if (onOff) {
       // 设备列表点击开电源
       return BaseApi.luaControl(
-        deviceId,
+        deviceInfo.applianceCode,
         {'mode': 'blowing'},
       );
     } else {
       // 全关
       return BaseApi.luaControl(
-        deviceId,
+        deviceInfo.applianceCode,
         {'mode': 'close_all'},
       );
     }

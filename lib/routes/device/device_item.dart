@@ -36,8 +36,7 @@ class _DeviceItemState extends State<DeviceItem> {
         e.localPosition.dx < 90 &&
         e.localPosition.dy > 140 &&
         e.localPosition.dy < 175) {
-      DeviceService.setPower(
-          config.apiCode, widget.deviceInfo?.applianceCode!, false);
+      DeviceService.setPower(config.apiCode, widget.deviceInfo, false);
     } else {
       toSelectDevice();
     }
@@ -114,11 +113,12 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 30,
               child: Center(
                 child: !DeviceService.isOnline(widget.deviceInfo)
-                    ? Image.asset("assets/imgs/device/offline.png",
+                    ? Image.asset(
+                        "assets/imgs/device/offline.png",
                         width: 150,
                         height: 60,
                       )
-                    : DeviceService.supportDeviceFilter(widget.deviceInfo)
+                    : !DeviceService.supportDeviceFilter(widget.deviceInfo)
                         ? const Text(
                             "仅支持APP控制",
                             style: TextStyle(
@@ -127,14 +127,12 @@ class _DeviceItemState extends State<DeviceItem> {
                                 fontWeight: FontWeight.w400,
                                 fontFamily: 'MideaType-Regular'),
                           )
-                        : GestureDetector(
-                            child: Image.asset(
-                              DeviceService.isPower(widget.deviceInfo)
-                                  ? "assets/imgs/device/device_power_on.png"
-                                  : "assets/imgs/device/device_power_off.png",
-                              width: 150,
-                              height: 60,
-                            ),
+                        : Image.asset(
+                            DeviceService.isPower(widget.deviceInfo)
+                                ? "assets/imgs/device/device_power_on.png"
+                                : "assets/imgs/device/device_power_off.png",
+                            width: 150,
+                            height: 60,
                           ),
               ),
             )

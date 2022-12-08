@@ -5,7 +5,7 @@ import '../../../models/mz_response_entity.dart';
 class WIFILightApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('getAllStand', deviceId, {},
+    var res = await DeviceApi.sendPDMOrder('0x14', 'getAllStand', deviceId, {},
         method: 'GET');
 
     return res;
@@ -22,7 +22,7 @@ class WIFILightApi {
   /// 设置延时关灯（物模型）
   static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
     var res = await DeviceApi.sendPDMOrder(
-        'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
+        '0x14', 'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
         method: 'POST');
 
     return res;
@@ -31,7 +31,7 @@ class WIFILightApi {
   /// 开关控制（物模型）
   static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
     var res = await DeviceApi.sendPDMOrder(
-        'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
+        '0x14', 'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
         method: 'POST');
 
     return res;
@@ -39,8 +39,8 @@ class WIFILightApi {
 
   /// 模式控制（物模型）
   static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder(
-        'controlScreenModel', deviceId, {"dimTime": 0, "screenModel": mode},
+    var res = await DeviceApi.sendPDMOrder('0x14', 'controlScreenModel',
+        deviceId, {"dimTime": 0, "screenModel": mode},
         method: 'POST');
 
     return res;
@@ -49,8 +49,8 @@ class WIFILightApi {
   /// 亮度控制（物模型）
   static Future<MzResponseEntity> brightnessPDM(
       String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('controlBrightValue', deviceId,
-        {"dimTime": 0, "brightValue": brightness},
+    var res = await DeviceApi.sendPDMOrder('0x14', 'controlBrightValue',
+        deviceId, {"dimTime": 0, "brightValue": brightness},
         method: 'POST');
 
     return res;
@@ -59,8 +59,11 @@ class WIFILightApi {
   /// 色温控制（物模型）
   static Future<MzResponseEntity> colorTemperaturePDM(
       String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder('controlColorTemperatureValue',
-        deviceId, {"dimTime": 0, "colorTemperatureValue": colorTemperature},
+    var res = await DeviceApi.sendPDMOrder(
+        '0x14',
+        'controlColorTemperatureValue',
+        deviceId,
+        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
         method: 'POST');
 
     return res;

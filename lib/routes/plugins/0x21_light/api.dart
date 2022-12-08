@@ -1,12 +1,17 @@
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../models/mz_response_entity.dart';
 
-class WrapWIFILight implements DeviceInterface{
+const uuid = Uuid();
+
+class WrapZigbeeLight implements DeviceInterface {
   @override
-  Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
-    var res = await WIFILightApi.getLightDetail(deviceId);
+  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
+    var res = await ZigbeeLightApi.getLightDetail(
+        deviceInfo.masterId, deviceInfo.applianceCode);
     if (res.code == 0) {
       return res.result;
     } else {
@@ -15,70 +20,98 @@ class WrapWIFILight implements DeviceInterface{
   }
 
   @override
-  Future<MzResponseEntity> setPower(String deviceId, bool onOff) async {
-    return await WIFILightApi.powerPDM(deviceId, onOff);
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    return await ZigbeeLightApi.powerPDM(
+        deviceInfo.masterId, onOff, deviceInfo.applianceCode);
   }
 }
 
-class WIFILightApi {
+class ZigbeeLightApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('getAllStand', deviceId, {},
-        method: 'GET');
-    return res;
-  }
-
-  /// 设备控制（lua）
-  static Future<MzResponseEntity> powerLua(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"power": onOff ? 'on' : 'off'});
-
+  static Future<MzResponseEntity> getLightDetail(
+      String deviceId, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder('0x16', 'subDeviceGetStatus',
+        deviceId, {"msgId": uuid.v4(), "deviceId": deviceId, "nodeId": nodeId},
+        method: 'POST');
     return res;
   }
 
   /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
+  static Future<MzResponseEntity> delayPDM(
+      String deviceId, bool onOff, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
-        'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
-        method: 'POST');
+        '0x16',
+        'lightDelayControl',
+        deviceId,
+        {
+          "msgId": uuid.v4(),
+          "deviceControlList": [
+            {"endPoint": 0, "attribute": onOff ? 3 : 0}
+          ],
+          "deviceId": deviceId,
+          "nodeId": nodeId
+        },
+        method: 'PUT');
 
     return res;
   }
 
   /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
+  static Future<MzResponseEntity> powerPDM(
+      String deviceId, bool onOff, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
-        'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 模式控制（物模型）
-  static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder(
-        'controlScreenModel', deviceId, {"dimTime": 0, "screenModel": mode},
-        method: 'POST');
+        '0x16',
+        'lightControl',
+        deviceId,
+        {
+          "brightness": 0,
+          "msgId": uuid.v4(),
+          "power": onOff,
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "colorTemperature": 0
+        },
+        method: 'PUT');
 
     return res;
   }
 
   /// 亮度控制（物模型）
   static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('controlBrightValue', deviceId,
-        {"dimTime": 0, "brightValue": brightness},
-        method: 'POST');
+      String deviceId, num brightness, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'lightControl',
+        deviceId,
+        {
+          "brightness": brightness,
+          "msgId": uuid.v4(),
+          "power": false,
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "colorTemperature": 0
+        },
+        method: 'PUT');
 
     return res;
   }
 
   /// 色温控制（物模型）
   static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder('controlColorTemperatureValue',
-        deviceId, {"dimTime": 0, "colorTemperatureValue": colorTemperature},
-        method: 'POST');
+      String deviceId, num colorTemperature, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'lightControl',
+        deviceId,
+        {
+          "brightness": 0,
+          "msgId": uuid.v4(),
+          "power": false,
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "colorTemperature": colorTemperature
+        },
+        method: 'PUT');
 
     return res;
   }

@@ -54,13 +54,14 @@ class DeviceApi {
 
   /// 设备物模型控制
   static Future<MzResponseEntity> sendPDMOrder(
-      String uri, String applianceCode, Object command,
+      String categoryCode, String uri, String applianceCode, Object command,
       {String? method = "PUT"}) async {
       var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/control",
         data: {
           "systemSource": "SMART_SCREEN",
           "frontendType": "ANDRIOD",
+          "categoryCode": categoryCode,
           "reqId": uuid.v4(),
           "method": method,
           "command": command,

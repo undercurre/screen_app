@@ -5,7 +5,8 @@ import '../../../models/mz_response_entity.dart';
 class BaseApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('__fullQuery__', deviceId, {},
+    var res = await DeviceApi.sendPDMOrder(
+        '0x40', '__fullQuery__', deviceId, {},
         method: 'GET');
     return res;
   }
@@ -20,11 +21,10 @@ class BaseApi {
   static Future<MzResponseEntity> toggleSmelly(
       String deviceId, bool value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'toggleSmelly',
       deviceId,
-      {
-        'smelly': value
-      },
+      {'smelly': value},
       method: 'POST',
     );
     return res;
@@ -34,26 +34,23 @@ class BaseApi {
   static Future<MzResponseEntity> toggleVentilation(
       String deviceId, bool value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'toggleVentilation',
       deviceId,
-      {
-        'ventilation': value
-      },
+      {'ventilation': value},
       method: 'POST',
     );
     return res;
   }
 
-
   /// 照明开关（物模型）
   static Future<MzResponseEntity> toggleLightMode(
       String deviceId, bool value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'toggleSmelly',
       deviceId,
-      {
-        'light': value
-      },
+      {'light': value},
       method: 'POST',
     );
     return res;
@@ -63,11 +60,10 @@ class BaseApi {
   static Future<MzResponseEntity> toggleBlowing(
       String deviceId, bool value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'toggleBlowing',
       deviceId,
-      {
-        'blowing': value
-      },
+      {'blowing': value},
       method: 'POST',
     );
     return res;
@@ -77,11 +73,10 @@ class BaseApi {
   static Future<MzResponseEntity> setSwingAngle(
       String deviceId, int value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'setSwingAngle',
       deviceId,
-      {
-        'windAngle': value
-      },
+      {'windAngle': value},
       method: 'POST',
     );
     return res;
@@ -91,11 +86,10 @@ class BaseApi {
   static Future<MzResponseEntity> setWindSpeed(
       String deviceId, int value) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'setWindSpeed',
       deviceId,
-      {
-        'windSpeed': value
-      },
+      {'windSpeed': value},
       method: 'POST',
     );
     return res;
@@ -105,12 +99,10 @@ class BaseApi {
   static Future<MzResponseEntity> setWindSpeedAndBlowing(
       String deviceId, int windSpeed, bool blowing) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'setWindSpeed',
       deviceId,
-      {
-        'windSpeed': windSpeed,
-        'blowing': blowing
-      },
+      {'windSpeed': windSpeed, 'blowing': blowing},
       method: 'POST',
     );
     return res;
@@ -120,12 +112,10 @@ class BaseApi {
   static Future<MzResponseEntity> setWindSpeedAndVentilation(
       String deviceId, int windSpeed, bool ventilation) async {
     var res = await DeviceApi.sendPDMOrder(
+      '0x40',
       'setWindSpeed',
       deviceId,
-      {
-        'windSpeed': windSpeed,
-        'ventilation': ventilation
-      },
+      {'windSpeed': windSpeed, 'ventilation': ventilation},
       method: 'POST',
     );
     return res;
