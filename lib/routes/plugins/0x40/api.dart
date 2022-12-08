@@ -1,4 +1,5 @@
 import 'package:screen_app/common/api/device_api.dart';
+import '../../../models/device_entity.dart';
 import '../../../models/mz_response_entity.dart';
 import '../device_interface.dart';
 
@@ -132,8 +133,8 @@ class BaseApi {
 /// 提供给DeviceList调用的接口实现
 class DeviceListApiImpl implements DeviceInterface {
   @override
-  Future<Map<String, dynamic>> getDeviceDetail(String deviceId) async {
-    final res = await BaseApi.getDetailByLua(deviceId);
+  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
+    final res = await BaseApi.getDetailByLua(deviceInfo.applianceCode);
     if (res.success) {
       final data = res.result;
       if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
@@ -148,13 +149,13 @@ class DeviceListApiImpl implements DeviceInterface {
   }
 
   @override
-  Future<MzResponseEntity> setPower(String deviceId, bool onOff) {
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
     if (onOff) {
-      return BaseApi.luaControl(deviceId, {
+      return BaseApi.luaControl(deviceInfo.applianceCode, {
         'mode': 'ventilation',
       });
     } else {
-      return BaseApi.luaControl(deviceId, {
+      return BaseApi.luaControl(deviceInfo.applianceCode, {
         'mode': '',
         'light_mode': ''
       });
