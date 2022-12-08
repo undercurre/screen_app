@@ -32,8 +32,11 @@ class _App extends State<App> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (providerContext) => UserModel(),
+    return MultiProvider(
+      providers: [
+        Provider(create: (_) => UserModel()),
+        Provider(create: (_) => DeviceListChangeNotifier()),
+      ],
       child: PointerDownListener(
           child: MaterialApp(
             themeMode: ThemeMode.dark,
