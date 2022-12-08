@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/routes/plugins/0x21/recognizer/index.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../models/device_entity.dart';
 
@@ -51,6 +53,7 @@ class _DeviceItemState extends State<DeviceItem> {
   @override
   Widget build(BuildContext context) {
     var config = DeviceService.configFinder(widget.deviceInfo);
+    var deviceListWatch = context.watch<DeviceListModel>();
 
     return Listener(
       onPointerDown: (e) => clickMethod(e),

@@ -33,15 +33,26 @@ class _DevicePageState extends State<DevicePage> {
 
   initPage() async {
     List<DraggableGridItem> newBins = [];
-    var deviceList = Global.profile.roomInfo != null ? Global.profile.roomInfo!.applianceList! : [];
+    var deviceList = Global.profile.roomInfo != null
+        ? Global.profile.roomInfo!.applianceList!
+        : [];
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       var config = DeviceService.configFinder(deviceInfo);
-      var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;
+      var hasService = serviceList.keys
+              .toList()
+              .where((element) => element == config.apiCode)
+              .length ==
+          1;
       if (hasService && DeviceService.isOnline(deviceInfo)) {
-        debugPrint('deviceInfo:${deviceInfo}, apiCode:${config.apiCode},list${serviceList.keys.toList().where((element) => element == config.apiCode)}');
-        var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
-        var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
+        debugPrint(
+            'deviceInfo:$deviceInfo, apiCode:${config.apiCode},list${serviceList.keys.toList().where((element) => element == config.apiCode)}');
+        var detail =
+            await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
+        var curDevice = Global.profile.roomInfo!.applianceList
+            .where(
+                (element) => element.applianceCode == deviceInfo.applianceCode)
+            .toList()[0];
         curDevice.detail = detail;
         debugPrint('curDevice${curDevice.toJson()}');
         debugPrint(curDevice.detail.toString());
@@ -151,26 +162,23 @@ class _DevicePageState extends State<DevicePage> {
             ),
           ),
           Expanded(
-            child: ChangeNotifierProvider(
-              create: (_) => DeviceListChangeNotifier(),
-              child: DraggableGridViewBuilder(
-                controller: _scrollController,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  // 垂直方向item之间的间距
-                  mainAxisSpacing: 17.0,
-                  // 水平方向item之间的间距
-                  crossAxisSpacing: 17.0,
-                  childAspectRatio: 0.7,
-                ),
-                children: itemBins,
-                dragCompletion: onDragAccept,
-                isOnlyLongPress: true,
-                dragFeedback: feedback,
-                dragPlaceHolder: placeHolder,
+            child: DraggableGridViewBuilder(
+              controller: _scrollController,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                // 垂直方向item之间的间距
+                mainAxisSpacing: 17.0,
+                // 水平方向item之间的间距
+                crossAxisSpacing: 17.0,
+                childAspectRatio: 0.7,
               ),
+              children: itemBins,
+              dragCompletion: onDragAccept,
+              isOnlyLongPress: true,
+              dragFeedback: feedback,
+              dragPlaceHolder: placeHolder,
             ),
-          )
+          ),
         ],
       ),
     );

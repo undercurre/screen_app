@@ -35,7 +35,7 @@ class _App extends State<App> {
     return MultiProvider(
       providers: [
         Provider(create: (_) => UserModel()),
-        Provider(create: (_) => DeviceListChangeNotifier()),
+        Provider(create: (_) => DeviceListModel()),
       ],
       child: PointerDownListener(
           child: MaterialApp(
