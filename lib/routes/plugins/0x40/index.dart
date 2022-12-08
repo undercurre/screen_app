@@ -26,18 +26,9 @@ class _CoolMasterState extends State<CoolMaster> {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
       deviceName = args['deviceName'] ?? '浴霸';
-      final res = await BaseApi.getDetail(deviceId);
+      final res = await BaseApi.getDetailByLua(deviceId);
       if (res.success) {
-        setState(() {
-          smelly = res.result['smelly'];
-          swing = res.result['windAngle'] == 253; // 253代表摆风 254代表停止
-          mode = {
-            'strong': res.result['blowing'] && res.result['windSpeed'] >= 67,
-            'weak': res.result['blowing'] && res.result['windSpeed'] < 67,
-            'light': res.result['light'],
-            'ventilation': res.result['ventilation'],
-          };
-        });
+        luaDataConvToState(res.result);
       }
     });
   }
@@ -157,6 +148,61 @@ class _CoolMasterState extends State<CoolMaster> {
       return true;
     }
     return false;
+  }
+
+  /// lua上报状态转widget状态
+  void luaDataConvToState(Map<String, dynamic> data) {
+    if (data['mode'] == 'close_all') {
+      mode[strong.key] = false;
+      mode[weak.key] = false;
+      mode[ventilation.key] = false;
+    } else if (data['mode'] == 'blowing') {
+      mode[strong.key] = int.parse(data['blowing_speed']) >= 67 ? true : false;
+      mode[weak.key] = int.parse(data['blowing_speed']) < 67 ? true : false;
+      mode[ventilation.key] = false;
+    } else if (data['mode'] == 'ventilation') {
+      mode[strong.key] = false;
+      mode[weak.key] = false;
+      mode[ventilation.key] = true;
+    } else if (data['mode'].split(',').length == 2) {
+      mode[strong.key] = int.parse(data['blowing_speed']) >= 67 ? true : false;
+      mode[weak.key] = int.parse(data['blowing_speed']) < 67 ? true : false;
+      mode[ventilation.key] = true;
+    }
+    if (data['light_mode'] == 'close_all') {
+      mode[light.key] = false;
+    } else if (data['light_mode'] == 'main_light') {
+      mode[light.key] = true;
+    }
+    if (data['smelly_enable'] == 'off') {
+      smelly = false;
+    } else if (data['smelly_enable'] == 'on') {
+      smelly = true;
+    }
+    if (data['blowing_direction'] == '253') {
+      swing = true;
+    } else if (data['blowing_direction'] == '254') {
+      swing = false;
+    }
+    setState(() {
+      swing = swing;
+      smelly = smelly;
+      mode = mode;
+    });
+    // 物模型的状态转换
+    // final res = await BaseApi.getDetail(deviceId);
+    // if (res.success) {
+    //   setState(() {
+    //     smelly = res.result['smelly'];
+    //     swing = res.result['windAngle'] == 253; // 253代表摆风 254代表停止
+    //     mode = {
+    //       'strong': res.result['blowing'] && res.result['windSpeed'] >= 67,
+    //       'weak': res.result['blowing'] && res.result['windSpeed'] < 67,
+    //       'light': res.result['light'],
+    //       'ventilation': res.result['ventilation'],
+    //     };
+    //   });
+    // }
   }
 
   void handleModeTap(Mode m) {

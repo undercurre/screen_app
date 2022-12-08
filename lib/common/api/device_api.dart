@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
-import 'package:screen_app/models/device_lua_entity.dart';
-
 import 'api.dart';
 import '../../models/index.dart';
 
@@ -11,7 +9,7 @@ class DeviceApi {
   /// 获取设备详情（lua）
   static Future<MzResponseEntity> getDeviceDetail(
       String type, String applianceCode) async {
-    var res = await Api.requestMzIot<DeviceLuaEntity>(
+    var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/status/query",
         data: {
           "applianceCode": applianceCode,
