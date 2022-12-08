@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
@@ -11,7 +14,7 @@ class WrapZigbeeLight implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await ZigbeeLightApi.getLightDetail(
-        deviceInfo.masterId, deviceInfo.applianceCode);
+        deviceInfo.applianceCode, deviceInfo.masterId);
     if (res.code == 0) {
       return res.result;
     } else {
@@ -29,9 +32,11 @@ class WrapZigbeeLight implements DeviceInterface {
 class ZigbeeLightApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getLightDetail(
-      String deviceId, String nodeId) async {
+      String deviceId, String masterId) async {
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceId, masterId);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     var res = await DeviceApi.sendPDMOrder('0x16', 'subDeviceGetStatus',
-        deviceId, {"msgId": uuid.v4(), "deviceId": deviceId, "nodeId": nodeId},
+        deviceId, {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
         method: 'POST');
     return res;
   }

@@ -39,6 +39,7 @@ class _DevicePageState extends State<DevicePage> {
       var config = DeviceService.configFinder(deviceInfo);
       var hasService = serviceList.keys.toList().where((element) => element == config.apiCode).length == 1;
       if (hasService && DeviceService.isOnline(deviceInfo)) {
+        debugPrint('deviceInfo:${deviceInfo}, apiCode:${config.apiCode},list${serviceList.keys.toList().where((element) => element == config.apiCode)}');
         var detail = await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
         var curDevice = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0];
         curDevice.detail = detail;
