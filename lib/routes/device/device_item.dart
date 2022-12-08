@@ -25,7 +25,7 @@ class _DeviceItemState extends State<DeviceItem> {
           route = widget.deviceInfo!.type!;
         }
         Navigator.pushNamed(context, route!,
-            arguments: {"deviceInfo": widget.deviceInfo});
+            arguments: {"deviceId": widget.deviceInfo?.applianceCode});
       }
     }
   }
