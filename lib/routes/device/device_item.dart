@@ -17,7 +17,7 @@ class DeviceItem extends StatefulWidget {
 class _DeviceItemState extends State<DeviceItem> {
   void toSelectDevice() {
     if (widget.deviceInfo != null) {
-      if (!DeviceService.supportDeviceFilter(widget.deviceInfo)) {
+      if (DeviceService.supportDeviceFilter(widget.deviceInfo) && widget.deviceInfo!.detail!.keys.toList().isNotEmpty) {
         late String? route;
         if (widget.deviceInfo!.type! == '0x21') {
           route = modelNumList[widget.deviceInfo!.modelNumber]?.getRoute();
