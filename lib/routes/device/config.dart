@@ -1,4 +1,5 @@
 import 'package:screen_app/routes/plugins/0x13/api.dart';
+import 'package:screen_app/routes/plugins/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
 class DeviceOnList {
@@ -19,11 +20,11 @@ class DeviceOnList {
 }
 
 DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', apiCode: '0x13', powerKey: 'power', powerValue: 'on', attrName: "brightValue", attrUnit: "%", attrFormat: lightValueFormat);
-DeviceOnList zigbeeLight = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56", "55", "1254", "54"]);
+DeviceOnList zigbeeLight = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56", "55", "1254", "54"], apiCode: '0x21_light');
 DeviceOnList wifiCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x14');
-DeviceOnList zigbeeCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x21', modelNum: []);
-DeviceOnList curtainPanelOne = DeviceOnList('一路窗帘面板', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: []);
-DeviceOnList curtainPanelTwo = DeviceOnList('二路窗帘面板', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: []);
+DeviceOnList zigbeeCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x21', modelNum: ["51", "47"]);
+DeviceOnList curtainPanelOne = DeviceOnList('一路窗帘面板', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["1108", "1107", "31", "84", "85", "45", "39"]);
+DeviceOnList curtainPanelTwo = DeviceOnList('二路窗帘面板', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["1100", "32", "87", "1109", "86", "1110", "40"]);
 DeviceOnList lock = DeviceOnList('智能门锁', 'assets/imgs/device/lock_on.png', 'assets/imgs/device/lock_off.png', '0x09');
 DeviceOnList airCondition = DeviceOnList('空调', 'assets/imgs/device/air_conditioner_on.png', 'assets/imgs/device/air_conditioner_off.png', '0xAC');
 DeviceOnList bathHeater = DeviceOnList('浴霸', 'assets/imgs/device/bath_heater_on.png', 'assets/imgs/device/bath_heater_off.png', '0x26');
@@ -81,7 +82,8 @@ List<DeviceOnList> statusDeviceList = [
 ];
 
 Map<String, DeviceInterface> serviceList = {
-  "0x13": WrapWIFILight()
+  "0x13": WrapWIFILight(),
+  "0x21_light": WrapZigbeeLight()
 };
 
 num lightValueFormat(num num) {

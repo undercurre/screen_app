@@ -13,7 +13,32 @@ class DeviceService {
   }
 
   static bool supportDeviceFilter(DeviceEntity? deviceInfo) {
-    return supportDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList().isEmpty;
+    if (deviceInfo != null) {
+      bool hasType = supportDeviceList
+          .where((element) => element.type == deviceInfo.type)
+          .toList()
+          .isEmpty;
+      if (hasType && deviceInfo!.type != '0x21') {
+        bool hasSn8s = false;
+        supportDeviceList
+            .where((element) => element.type == deviceInfo.type)
+            .toList().forEach((element) {
+          if (element.sn8s!.any((element) => element == deviceInfo.sn8)) hasSn8s = true;
+        });
+        return hasType && hasSn8s;
+      } else {
+        bool hasModelNum = false;
+        supportDeviceList
+            .where((element) => element.type == deviceInfo.type)
+            .toList().forEach((element) {
+              if (element.modelNum!.any((element) => element == deviceInfo.modelNumber)) hasModelNum = true;
+        });
+        debugPrint('hasModel$hasModelNum');
+        return hasType && hasModelNum;
+      }
+    } else {
+      return false;
+    }
   }
 
   static DeviceOnList configFinder(DeviceEntity? deviceInfo) {
@@ -25,19 +50,19 @@ class DeviceService {
     return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList().isNotEmpty && isOnline(deviceInfo);
   }
 
-  static Future<Map<String, dynamic>> getDeviceDetail(String? apiCode, String deviceId) async {
+  static Future<Map<String, dynamic>> getDeviceDetail(String? apiCode, DeviceEntity deviceInfo) async {
     if (apiCode == null) return {};
     var servicer = serviceList[apiCode]!;
-    var res = await servicer.getDeviceDetail(deviceId);
+    var res = await servicer.getDeviceDetail(deviceInfo);
     return res;
   }
 
-  static Future<bool> setPower(String? apiCode, String? deviceId, bool onOff) async {
-    if (apiCode == null && deviceId == null) {
+  static Future<bool> setPower(String? apiCode, DeviceEntity? deviceInfo, bool onOff) async {
+    if (apiCode == null && deviceInfo == null) {
       return false;
     } else {
       var servicer = serviceList[apiCode]!;
-      var res = await servicer.setPower(deviceId!, onOff);
+      var res = await servicer.setPower(deviceInfo!, onOff);
       return res.code == 0;
     }
   }
