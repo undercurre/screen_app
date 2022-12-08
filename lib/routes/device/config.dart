@@ -19,7 +19,7 @@ class DeviceOnList {
   DeviceOnList(this.name, this.onIcon, this.offIcon, this.type, {this.apiCode, this.modelNum, this.sn8s, this.powerKey, this.powerValue, this.attrName, this.attrUnit, this.attrFormat});
 }
 
-DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13', apiCode: '0x13', powerKey: 'power', powerValue: 'on', attrName: "brightValue", attrUnit: "%", attrFormat: lightValueFormat);
+DeviceOnList wifiLight = DeviceOnList('吸顶灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x13',sn8s: ['79009833'], apiCode: '0x13', powerKey: 'power', powerValue: 'on', attrName: "brightValue", attrUnit: "%", attrFormat: lightValueFormat);
 DeviceOnList zigbeeLight = DeviceOnList('调光调色灯', 'assets/imgs/device/dengguang_icon_on.png', 'assets/imgs/device/dengguang_icon_off.png', '0x21', modelNum: ["57", "1262", "1263", "56", "55", "1254", "54"], apiCode: '0x21_light');
 DeviceOnList wifiCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x14');
 DeviceOnList zigbeeCurtain = DeviceOnList('智能窗帘', 'assets/imgs/device/chuanglian_icon_on.png', 'assets/imgs/device/chuanglian_icon_off.png', '0x21', modelNum: ["51", "47"]);

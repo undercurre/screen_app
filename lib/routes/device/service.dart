@@ -18,23 +18,34 @@ class DeviceService {
           .where((element) => element.type == deviceInfo.type)
           .toList()
           .isEmpty;
-      if (hasType && deviceInfo!.type != '0x21') {
-        bool hasSn8s = false;
-        supportDeviceList
-            .where((element) => element.type == deviceInfo.type)
-            .toList().forEach((element) {
-          if (element.sn8s!.any((element) => element == deviceInfo.sn8)) hasSn8s = true;
-        });
-        return hasType && hasSn8s;
+      if (!hasType) {
+        if (deviceInfo!.type != '0x21') {
+          bool hasSn8s = false;
+          supportDeviceList
+              .where((element) => element.type == deviceInfo.type)
+              .toList()
+              .forEach((element) {
+            if (element.sn8s!.any((element) => element == deviceInfo.sn8)) {
+              hasSn8s = true;
+            }
+          });
+          return hasSn8s;
+        } else {
+          bool hasModelNum = false;
+          supportDeviceList
+              .where((element) => element.type == deviceInfo.type)
+              .toList()
+              .forEach((element) {
+            if (element.modelNum!
+                .any((element) => element == deviceInfo.modelNumber)) {
+              hasModelNum = true;
+            }
+          });
+          debugPrint('hasModel${deviceInfo.toJson()}');
+          return hasModelNum;
+        }
       } else {
-        bool hasModelNum = false;
-        supportDeviceList
-            .where((element) => element.type == deviceInfo.type)
-            .toList().forEach((element) {
-              if (element.modelNum!.any((element) => element == deviceInfo.modelNumber)) hasModelNum = true;
-        });
-        debugPrint('hasModel$hasModelNum');
-        return hasType && hasModelNum;
+        return false;
       }
     } else {
       return false;
@@ -42,22 +53,32 @@ class DeviceService {
   }
 
   static DeviceOnList configFinder(DeviceEntity? deviceInfo) {
-    var finderList = deviceConfig.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList();
+    var finderList = deviceConfig
+        .where((element) =>
+            element.type == (deviceInfo != null ? deviceInfo.type : '0xxx'))
+        .toList();
     return finderList.isEmpty ? something : finderList[0];
   }
 
   static bool hasStatus(DeviceEntity? deviceInfo) {
-    return statusDeviceList.where((element) => element.type == (deviceInfo != null ? deviceInfo.type : '0xxx')).toList().isNotEmpty && isOnline(deviceInfo);
+    return statusDeviceList
+            .where((element) =>
+                element.type == (deviceInfo != null ? deviceInfo.type : '0xxx'))
+            .toList()
+            .isNotEmpty &&
+        isOnline(deviceInfo);
   }
 
-  static Future<Map<String, dynamic>> getDeviceDetail(String? apiCode, DeviceEntity deviceInfo) async {
+  static Future<Map<String, dynamic>> getDeviceDetail(
+      String? apiCode, DeviceEntity deviceInfo) async {
     if (apiCode == null) return {};
     var servicer = serviceList[apiCode]!;
     var res = await servicer.getDeviceDetail(deviceInfo);
     return res;
   }
 
-  static Future<bool> setPower(String? apiCode, DeviceEntity? deviceInfo, bool onOff) async {
+  static Future<bool> setPower(
+      String? apiCode, DeviceEntity? deviceInfo, bool onOff) async {
     if (apiCode == null && deviceInfo == null) {
       return false;
     } else {
@@ -67,11 +88,11 @@ class DeviceService {
     }
   }
 
-  static bool isPower(DeviceEntity? deviceInfo){
+  static bool isPower(DeviceEntity? deviceInfo) {
     if (deviceInfo != null) {
       var config = configFinder(deviceInfo);
-      var curDevice = Global.profile.roomInfo!.applianceList.where((element) =>
-      element.applianceCode == deviceInfo.applianceCode)
+      var curDevice = Global.profile.roomInfo!.applianceList
+          .where((element) => element.applianceCode == deviceInfo.applianceCode)
           .toList()[0];
       if (curDevice.detail != null) {
         return curDevice.detail![config.powerKey] == config.powerValue;
@@ -83,14 +104,15 @@ class DeviceService {
     }
   }
 
-  static num getAttr(DeviceEntity? deviceInfo){
+  static num getAttr(DeviceEntity? deviceInfo) {
     if (deviceInfo != null) {
       var config = configFinder(deviceInfo);
-      var curDevice = Global.profile.roomInfo!.applianceList.where((element) =>
-      element.applianceCode == deviceInfo.applianceCode)
+      var curDevice = Global.profile.roomInfo!.applianceList
+          .where((element) => element.applianceCode == deviceInfo.applianceCode)
           .toList()[0];
       late num attr;
-      if(curDevice.detail != null && curDevice.detail!.keys.toList().isNotEmpty) {
+      if (curDevice.detail != null &&
+          curDevice.detail!.keys.toList().isNotEmpty) {
         if (config.attrFormat != null) {
           attr = config.attrFormat!(curDevice.detail![config.attrName]);
         } else {
