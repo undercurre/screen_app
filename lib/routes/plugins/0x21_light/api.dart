@@ -27,6 +27,43 @@ class WrapZigbeeLight implements DeviceInterface {
     return await ZigbeeLightApi.powerPDM(
         deviceInfo.masterId, onOff, deviceInfo.applianceCode);
   }
+
+  @override
+  bool isSupport (DeviceEntity deviceInfo) {
+    // 过滤sn8
+    if (deviceInfo.sn8 == '79009833') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  bool isPower (DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null ? deviceInfo.detail!["power"] == 'on' : false;
+  }
+
+  @override
+  String getAttr (DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null ? deviceInfo.detail!["brightness"] : '0';
+  }
+
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    return '%';
+  }
+
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/light_off.png';
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/light_on.png';
+  }
 }
 
 class ZigbeeLightApi {

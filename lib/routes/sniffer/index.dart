@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
-import 'package:screen_app/routes/device/config.dart';
 import 'device_item.dart';
 
 // TODO 模拟数据

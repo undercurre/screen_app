@@ -34,9 +34,30 @@ class WrapWIFILight implements DeviceInterface {
   }
 
   @override
-  bool isPower (BuildContext ctx, DeviceEntity deviceInfo) {
-    var detail = ctx.watch<DeviceListModel>().getDeviceDetail(deviceInfo);
+  bool isPower (DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null ? deviceInfo.detail!["power"] == 'on' : false;
+  }
 
+  @override
+  String getAttr (DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null ? deviceInfo.detail!["brightness"] : '0';
+  }
+
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    return '%';
+  }
+
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/light_off.png';
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/light_on.png';
   }
 }
 
