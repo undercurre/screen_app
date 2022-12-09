@@ -1,7 +1,9 @@
+import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/0x21/recognizer/index.dart';
 
 import '../../../common/global.dart';
+import '../../../states/device_change_notifier.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
@@ -66,7 +68,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       String deviceIdOnRoute = args['deviceId'];
-      deviceInfo = Global.profile.roomInfo!.applianceList.where((element) => element.applianceCode == deviceIdOnRoute).toList()[0];
+      var deviceList = context.read<DeviceListModel>().deviceList;
+      deviceInfo = deviceList.where((element) => element.applianceCode == deviceIdOnRoute).toList()[0];
       debugPrint('插件拿到的全局信息$deviceInfo');
       WIFILightApi.getLightDetail(deviceInfo.detail?["applianceCode"]);
     });

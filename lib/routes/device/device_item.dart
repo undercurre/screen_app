@@ -104,7 +104,7 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 24,
               child: Text(
                 DeviceService.hasStatus(widget.deviceInfo)
-                    ? "${DeviceService.getAttr(widget.deviceInfo)}${config.attrUnit!}"
+                    ? "${deviceListWatch.getAttr(widget.deviceInfo)}${config.attrUnit!}"
                     : "",
                 style: const TextStyle(
                   fontSize: 24.0,
@@ -131,7 +131,7 @@ class _DeviceItemState extends State<DeviceItem> {
                                 fontFamily: 'MideaType-Regular'),
                           )
                         : Image.asset(
-                            DeviceService.isPower(widget.deviceInfo)
+                            deviceListWatch.isPower(widget.deviceInfo)
                                 ? "assets/imgs/device/device_power_on.png"
                                 : "assets/imgs/device/device_power_off.png",
                             width: 150,

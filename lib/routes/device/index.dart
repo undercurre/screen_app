@@ -1,12 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/api/device_api.dart';
-import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/routes/device/config.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
@@ -31,11 +28,9 @@ class _DevicePageState extends State<DevicePage> {
     keepScrollOffset: true,
   );
 
-  initPage() async {
+  initPage(BuildContext ctx) async {
     List<DraggableGridItem> newBins = [];
-    var deviceList = Global.profile.roomInfo != null
-        ? Global.profile.roomInfo!.applianceList!
-        : [];
+    var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       var config = DeviceService.configFinder(deviceInfo);
@@ -49,7 +44,7 @@ class _DevicePageState extends State<DevicePage> {
             'deviceInfo:$deviceInfo, apiCode:${config.apiCode},list${serviceList.keys.toList().where((element) => element == config.apiCode)}');
         var detail =
             await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
-        var curDevice = Global.profile.roomInfo!.applianceList
+        var curDevice = deviceList
             .where(
                 (element) => element.applianceCode == deviceInfo.applianceCode)
             .toList()[0];
@@ -81,7 +76,11 @@ class _DevicePageState extends State<DevicePage> {
         },
       ));
     }
-    initPage();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      initPage(context);
+    });
+
     _timer = Timer.periodic(const Duration(seconds: 1), setTime);
     super.initState();
   }

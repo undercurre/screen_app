@@ -115,43 +115,4 @@ class DeviceService {
       return res.code == 0;
     }
   }
-
-  static bool isPower(DeviceEntity? deviceInfo) {
-    if (deviceInfo != null) {
-      var config = configFinder(deviceInfo);
-      var curDevice = Global.profile.roomInfo!.applianceList
-          .where((element) => element.applianceCode == deviceInfo.applianceCode)
-          .toList()[0];
-      if (curDevice.detail != null) {
-        return curDevice.detail![config.powerKey] == config.powerValue;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  static num getAttr(DeviceEntity? deviceInfo) {
-    if (deviceInfo != null) {
-      var config = configFinder(deviceInfo);
-      var curDevice = Global.profile.roomInfo!.applianceList
-          .where((element) => element.applianceCode == deviceInfo.applianceCode)
-          .toList()[0];
-      late num attr;
-      if (curDevice.detail != null &&
-          curDevice.detail!.keys.toList().isNotEmpty) {
-        if (config.attrFormat != null) {
-          attr = config.attrFormat!(curDevice.detail![config.attrName]);
-        } else {
-          attr = curDevice.detail![config.attrName];
-        }
-        return attr;
-      } else {
-        return 0;
-      }
-    } else {
-      return 0;
-    }
-  }
 }
