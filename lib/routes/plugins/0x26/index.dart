@@ -1,3 +1,6 @@
+import 'package:provider/provider.dart';
+
+import '../../../states/device_change_notifier.dart';
 import './service.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +16,7 @@ class BathroomMaster extends StatefulWidget {
 class BathroomMasterState extends State<BathroomMaster> {
   String deviceId = '0';
   String deviceName = '浴霸';
-  String controlType = 'wot'; // todo: 后面需要加上判断使用物模型还是lua控制
+  String controlType = 'lua'; // todo: 后面需要加上判断使用物模型还是lua控制
   bool isSingleMotor = true; // todo: 添加单双电机浴霸判断
 
   Map<String, bool> runMode = <String, bool>{};
@@ -39,19 +42,31 @@ class BathroomMasterState extends State<BathroomMaster> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     print(2);
+  //     final args = ModalRoute.of(context)?.settings.arguments as Map;
+  //     deviceId = args['deviceId'];
+  //     deviceName = args['deviceName'] ?? '浴霸';
+  //     BaseService.updateDeviceDetail(this);
+  //   });
+  // }
+
+  void loadData(DeviceListModel model) async {
+    if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
-      deviceName = args['deviceName'] ?? '浴霸';
-      BaseService.updateDeviceDetail(this);
-    });
+    }
+    // 先判断有没有这个id，没有说明设备已被删除
+    final index = model.deviceList.indexWhere((element) => element.applianceCode == deviceId);
+    print(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    loadData(context.watch<DeviceListModel>());
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,

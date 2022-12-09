@@ -8,23 +8,39 @@ import '../../../widgets/index.dart';
 // 通用逻辑处理，根据sn8判断后转wot控制或者lua控制
 class BaseService {
   static void updateDeviceDetail(BathroomMasterState state) async {
-    // 查询状态先用物模型
+    final runMode = <String, bool>{};
     if (state.controlType == 'wot') {
       final res = await BaseApi.getDetail(state.deviceId);
-      final runMode = <String, bool>{};
-      for (var key in (res.result['runMode'] as Map<String, dynamic>).keys) {
-        runMode[key] = res.result['runMode'][key];
+      if (res.success) {
+        for (var key in (res.result['runMode'] as Map<String, dynamic>).keys) {
+          runMode[key] = res.result['runMode'][key];
+        }
+        runMode['light'] = res.result['lightMode']['mainLight'] || res.result['lightMode']['nightLight'];
+        state.setStateCallBack(
+          delayClose: res.result['delayClose'],
+          delayTime: res.result['delayTime'],
+          mainLight: res.result['lightMode']['mainLight'],
+          nightLight: res.result['lightMode']['nightLight'],
+          runMode: runMode,
+        );
       }
-      final mainLight = res.result['lightMode']['mainLight'];
-      final nightLight = res.result['lightMode']['nightLight'];
-      runMode['light'] = mainLight == true || nightLight == true;
-      state.setStateCallBack(
-        delayClose: res.result['delayClose'],
-        delayTime: res.result['delayTime'],
-        mainLight: mainLight,
-        nightLight: nightLight,
-        runMode: runMode,
-      );
+    } else {
+      final res = await BaseApi.getDetailByLua(state.deviceId);
+      if (res.success) {
+        final activeModeList = (res.result['mode'] as String).split(',');
+        for (var mode in bathroomMasterMode) {
+          runMode[mode.key] = activeModeList.contains(mode.key);
+        }
+        runMode['light'] = res.result['light_mode'] == 'main_light' ||
+            res.result['light_mode'] == 'night_light';
+        state.setStateCallBack(
+          delayClose: res.result['delay_enable'] == 'on',
+          delayTime: int.parse(res.result['delay_time']),
+          mainLight: res.result['light_mode'] == 'main_light',
+          nightLight: res.result['light_mode'] == 'night_light',
+          runMode: runMode,
+        );
+      }
     }
   }
 
@@ -83,9 +99,7 @@ class BaseService {
     } else {
       // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
       runMode[mode.key] =
-      runMode[mode.key] != null && runMode[mode.key]!
-          ? false
-          : true;
+          runMode[mode.key] != null && runMode[mode.key]! ? false : true;
     }
     state.setStateCallBack(runMode: runMode);
     final res = await BaseApi.luaControl(

@@ -2,7 +2,6 @@ import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import '../../../models/mz_response_entity.dart';
 import '../device_interface.dart';
-import './mode_list.dart';
 
 /// 浴霸控制接口
 class BaseApi {
@@ -43,42 +42,67 @@ class BaseApi {
 class DeviceListApiImpl implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    final res = await BaseApi.getDetail(deviceInfo.applianceCode);
+    final res = await BaseApi.getDetailByLua(deviceInfo.applianceCode);
     if (res.success) {
+      return res.result;
+    } else {
       throw Error();
     }
-    var power = false;
-    if (res.result['runMode'] != null) {
-      for (var element in bathroomMasterMode) {
-        if (res.result['runMode'][element.key] == true) {
-          power = true;
-        }
-      }
-    }
-    if (res.result['lightMode'] != null) {
-      if (res.result['lightMode']['mainLight'] == true ||
-          res.result['lightMode']['nightLight'] == true) {
-        power = true;
-      }
-    }
-    res.result['power'] = power;
-    return res.result;
   }
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
     if (onOff) {
-      // 设备列表点击开电源
+      // 设备列表点击开电源，打开
       return BaseApi.luaControl(
         deviceInfo.applianceCode,
-        {'mode': 'blowing'},
+        {'mode': 'ventilation'},
       );
     } else {
       // 全关
       return BaseApi.luaControl(
         deviceInfo.applianceCode,
-        {'mode': 'close_all'},
+        {'mode': 'close_all', 'light_mode': ''},
       );
     }
+  }
+
+  @override
+  String getAttr(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    return 'assets/imgs/device/bath_heater_off.png';
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    return 'assets/imgs/device/bath_heater_on.png';
+  }
+
+  @override
+  bool isPower(DeviceEntity deviceInfo) {
+    final data = deviceInfo.detail;
+    if (data == null) {
+      return false;
+    }
+    if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  bool isSupport(DeviceEntity deviceInfo) {
+    // 目前的所有凉霸都支持
+    return true;
   }
 }
