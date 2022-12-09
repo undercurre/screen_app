@@ -136,13 +136,13 @@ class DeviceListApiImpl implements DeviceInterface {
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     final res = await BaseApi.getDetailByLua(deviceInfo.applianceCode);
     if (res.success) {
-      final data = res.result;
-      if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
-        data['power'] = true;
-      } else {
-        data['power'] = false;
-      }
-      return data;
+      // final data = res.result;
+      // if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
+      //   data['power'] = true;
+      // } else {
+      //   data['power'] = false;
+      // }
+      return res.result;
     } else {
       throw Error();
     }
@@ -160,6 +160,47 @@ class DeviceListApiImpl implements DeviceInterface {
         'light_mode': ''
       });
     }
+  }
+
+  @override
+  String getAttr(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/bath_heater_off.png';
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    // todo: 改成凉霸图标
+    return 'assets/imgs/device/bath_heater_on.png';
+  }
+
+  @override
+  bool isPower(DeviceEntity deviceInfo) {
+    final data = deviceInfo.detail;
+    if (data == null) {
+      return false;
+    }
+    if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  bool isSupport(DeviceEntity deviceInfo) {
+    // 目前的所有凉霸都支持
+    return true;
   }
 
 }
