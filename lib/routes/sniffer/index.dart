@@ -69,23 +69,23 @@ class SnifferState extends State<SnifferPage> {
 
   // TODO 完善数据查询 @魏
   Future<void> initQuery() async {
-    // ! 模拟发现设备过程
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      timer.cancel();
-
-      // 格式化数据
-      setState(() => dList = mockData.map((d) {
-            String? type = d['deviceType'];
-            var finder = deviceConfig.where((element) => element.type == type);
-            var temp = finder.isEmpty ? something : finder.first;
-
-            return Device(
-                key: temp.type,
-                name: temp.name,
-                icon: temp.onIcon,
-                selected: false);
-          }).toList());
-    });
+    // // ! 模拟发现设备过程
+    // _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    //   timer.cancel();
+    //
+    //   // 格式化数据
+    //   setState(() => dList = mockData.map((d) {
+    //         String? type = d['deviceType'];
+    //         var finder = deviceConfig.where((element) => element.type == type);
+    //         var temp = finder.isEmpty ? something : finder.first;
+    //
+    //         return Device(
+    //             key: temp.type,
+    //             name: temp.name,
+    //             icon: temp.onIcon,
+    //             selected: false);
+    //       }).toList());
+    // });
   }
 
   @override

@@ -37,7 +37,7 @@ class _DevicePageState extends State<DevicePage> {
       var hasController = controllerList.keys
           .toList()
           .any((element) => element == deviceInfo.type);
-      if (hasController && DeviceService.isOnline(deviceInfo)) {
+      if (hasController && DeviceService.isOnline(deviceInfo) && DeviceService.isSupport(deviceInfo)) {
         // 如果支持该品类并且设备在线，查询该设备的detail
         var detail = await DeviceService.getDeviceDetail(deviceInfo);
         // 找到全局状态变量中的deviceList存储状态进去

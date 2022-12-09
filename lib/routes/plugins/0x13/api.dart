@@ -40,7 +40,7 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["brightness"] : '0';
+    return deviceInfo.detail != null ? deviceInfo.detail!["brightness"] : '';
   }
 
   @override

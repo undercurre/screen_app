@@ -63,7 +63,7 @@ class _DeviceItemState extends State<DeviceItem> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: (widget.deviceInfo != null
-                    ? DeviceService.isOnline(widget.deviceInfo!)
+                    ? DeviceService.isPower(widget.deviceInfo!)
                     : false)
                 ? [const Color(0xFF393E43), const Color(0xFF333135)]
                 : [const Color(0xFF000000), const Color(0xFF000000)],
@@ -129,7 +129,7 @@ class _DeviceItemState extends State<DeviceItem> {
                       )
                     : (widget.deviceInfo != null
                             ? (!DeviceService.isSupport(widget.deviceInfo!))
-                            : false)
+                            : true)
                         ? const Text(
                             "仅支持APP控制",
                             style: TextStyle(
