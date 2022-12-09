@@ -1,54 +1,9 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/common/index.dart';
-
-// 天气编码转换为天气图片的名称
-final codeToImage = {
-  '00': 'sunny',
-  '01': 'cloudy',
-  '02': 'overcast',
-  '03': 'rainy',
-  '04': 'thunder',
-  '05': 'thunder',
-  '06': 'sleet',
-  '07': 'rainy',
-  '08': 'rainy',
-  '09': 'rainy',
-  '10': 'rainy',
-  '11': 'rainy',
-  '12': 'rainy',
-  '13': 'snowy',
-  '14': 'snowy',
-  '15': 'snowy',
-  '16': 'snowy',
-  '17': 'snowy',
-  '18': 'foggy',
-  '19': 'icy',
-  '20': 'duststorm',
-  '21': 'rainy',
-  '22': 'rainy',
-  '23': 'rainy',
-  '24': 'rainy',
-  '25': 'rainy',
-  '26': 'snowy',
-  '27': 'snowy',
-  '28': 'snowy',
-  '29': 'duststorm',
-  '30': 'duststorm',
-  '31': 'duststorm',
-  '32': 'foggy',
-  '49': 'foggy',
-  '53': 'foggy',
-  '54': 'foggy',
-  '55': 'foggy',
-  '56': 'foggy',
-  '57': 'foggy',
-  '58': 'foggy',
-  '301': 'rainy',
-  '302': 'snowy'
-};
+import 'show_datetime.dart';
+import 'code_to_image.dart';
 
 // 页面定义
 class WeatherPageState extends State<WeatherPage> {
@@ -142,8 +97,6 @@ class WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
-    initializeDateFormatting('zh_CN', null);
-
     Widget showBgImage = DecoratedBox(
       decoration: BoxDecoration(
           image: weatherBg != ''
@@ -228,55 +181,9 @@ class WeatherPageState extends State<WeatherPage> {
   }
 }
 
-// 日期时间显示
-class DateTimeStrState extends State<DateTimeStr> {
-  String datetime = '';
-  late Timer _timer;
-
-  String getDatetime() =>
-      DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
-
-  @override
-  void initState() {
-    super.initState();
-
-    setState(() => datetime = getDatetime());
-    // 每5秒刷新时间
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      setState(() => datetime = getDatetime());
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(datetime,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18.0,
-          fontFamily: "MideaType",
-          fontWeight: FontWeight.normal,
-          height: 1,
-          decoration: TextDecoration.none,
-        ));
-  }
-}
-
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
   @override
   State<WeatherPage> createState() => WeatherPageState();
-}
-
-class DateTimeStr extends StatefulWidget {
-  const DateTimeStr({super.key});
-
-  @override
-  State<DateTimeStr> createState() => DateTimeStrState();
 }

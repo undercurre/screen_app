@@ -17,6 +17,8 @@ import 'home/index.dart';
 import 'weather/index.dart';
 import 'device/index.dart';
 import 'scene/index.dart';
+import 'sniffer/index.dart';
+import 'sniffer/device_connect.dart';
 import 'plugins/0x13/index.dart';
 import 'plugins/0x14/index.dart';
 import 'plugins/0x26/index.dart';
@@ -45,4 +47,6 @@ var routes = <String, WidgetBuilder>{
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),
   "StandbyTimeChoicePage": (context) => const StandbyTimeChoicePage(),
+  "SnifferPage": (context) => const SnifferPage(),
+  "DeviceConnectPage": (context) => const DeviceConnectPage(),
 };
