@@ -50,7 +50,11 @@ class _DevicePageState extends State<DevicePage> {
             .toList()[0];
         curDevice.detail = detail;
         debugPrint('curDevice${curDevice.toJson()}');
-        debugPrint(curDevice.detail.toString());
+        debugPrint('config$config${config.apiCode}');
+        debugPrint('hasService$hasService${serviceList.keys
+            .toList()
+            .where((element) => element == config.apiCode)}');
+        debugPrint('detail${curDevice.detail.toString()}');
       }
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),

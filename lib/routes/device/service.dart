@@ -36,7 +36,7 @@ class DeviceService {
               .where((element) => element.type == deviceInfo.type)
               .toList()
               .forEach((element) {
-            if (element.modelNum!
+            if (element.sn8s != null && element.modelNum!
                 .any((element) => element == deviceInfo.modelNumber)) {
               hasModelNum = true;
             }
@@ -56,30 +56,31 @@ class DeviceService {
     late List<DeviceOnList> finderList;
     if (deviceInfo != null) {
       if (deviceInfo.type != '0x21') {
-          var f = deviceConfig
-              .where((element) =>
-          element.type == deviceInfo.type)
-              .toList();
-          debugPrint('寻找sn8:${deviceInfo.sn8}');
-          late List<DeviceOnList> f8 = [];
-          for (var element in f) {
-            if (element.sn8s != null && element.sn8s!.any((element) => element == deviceInfo.sn8)) {
-              f8.add(element);
-            }
+        var f = deviceConfig
+            .where((element) => element.type == deviceInfo.type)
+            .toList();
+        debugPrint('寻找sn8:${deviceInfo.sn8}');
+        late List<DeviceOnList> f8 = [];
+        for (var element in f) {
+          if (element.sn8s != null &&
+              element.sn8s!.any((element) => element == deviceInfo.sn8)) {
+            f8.add(element);
           }
-          if (f.isNotEmpty && f8.isEmpty) {
-            return f[0];
-          } else if (f.isNotEmpty && f8.isNotEmpty){
-            return f8[0];
-          } else {
-            debugPrint('配置寻找器有毛病或者暂时没有这个品类的配置');
-            return something;
-          }
+        }
+        if (f.isNotEmpty && f[0].sn8s == null && f8.isEmpty) {
+          return f[0];
+        } else if (f.isNotEmpty && f8.isNotEmpty) {
+          return f8[0];
+        } else {
+          debugPrint('配置寻找器有毛病或者暂时没有这个品类的配置');
+          return something;
+        }
       } else {
         finderList = deviceConfig
             .where((element) =>
-        element.type == deviceInfo.type &&
-            element.modelNum!.any((element) => element == deviceInfo.modelNumber))
+                element.type == deviceInfo.type &&
+                element.modelNum!
+                    .any((element) => element == deviceInfo.modelNumber))
             .toList();
       }
       return finderList.isNotEmpty ? finderList[0] : something;
@@ -94,7 +95,8 @@ class DeviceService {
                 element.type == (deviceInfo != null ? deviceInfo.type : '0xxx'))
             .toList()
             .isNotEmpty &&
-        isOnline(deviceInfo);
+        isOnline(deviceInfo) &&
+        supportDeviceFilter(deviceInfo);
   }
 
   static Future<Map<String, dynamic>> getDeviceDetail(
