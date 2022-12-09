@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/routes/device/config.dart';
+import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import '../../common/global.dart';
@@ -33,28 +33,19 @@ class _DevicePageState extends State<DevicePage> {
     var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
-      var config = DeviceService.configFinder(deviceInfo);
-      var hasService = serviceList.keys
-              .toList()
-              .where((element) => element == config.apiCode)
-              .length ==
-          1;
-      if (hasService && DeviceService.isOnline(deviceInfo)) {
-        debugPrint(
-            'deviceInfo:$deviceInfo, apiCode:${config.apiCode},list${serviceList.keys.toList().where((element) => element == config.apiCode)}');
-        var detail =
-            await DeviceService.getDeviceDetail(config.apiCode, deviceInfo);
+      // 查看品类控制器看是否支持该品类
+      var hasController = controllerList.keys
+          .toList()
+          .any((element) => element == deviceInfo.type);
+      if (hasController && DeviceService.isOnline(deviceInfo)) {
+        // 如果支持该品类并且设备在线，查询该设备的detail
+        var detail = await DeviceService.getDeviceDetail(deviceInfo);
+        // 找到全局状态变量中的deviceList存储状态进去
         var curDevice = deviceList
             .where(
                 (element) => element.applianceCode == deviceInfo.applianceCode)
             .toList()[0];
         curDevice.detail = detail;
-        debugPrint('curDevice${curDevice.toJson()}');
-        debugPrint('config$config${config.apiCode}');
-        debugPrint('hasService$hasService${serviceList.keys
-            .toList()
-            .where((element) => element == config.apiCode)}');
-        debugPrint('detail${curDevice.detail.toString()}');
       }
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
@@ -205,7 +196,7 @@ class _DevicePageState extends State<DevicePage> {
 
   void onDragAccept(
       List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
-    print('onDragAccept: $beforeIndex -> $afterIndex');
+    debugPrint('onDragAccept: $beforeIndex -> $afterIndex');
   }
 
   //声明星期变量

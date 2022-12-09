@@ -38,7 +38,7 @@ class ZigbeeLightApi {
     var res = await DeviceApi.sendPDMOrder('0x16', 'subDeviceGetStatus',
         deviceId, {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
         method: 'POST');
-    return res;
+    return res.result[""];
   }
 
   /// 设置延时关灯（物模型）

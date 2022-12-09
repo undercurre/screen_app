@@ -20,6 +20,26 @@ class WrapWIFILight implements DeviceInterface {
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
     return await WIFILightApi.powerPDM(deviceInfo.applianceCode, onOff);
   }
+
+  @override
+  bool isSupport (DeviceEntity deviceInfo) {
+    // 过滤sn8
+    if (deviceInfo.sn8 == '79009833') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  bool isSupport (DeviceEntity deviceInfo) {
+    // 过滤sn8
+    if (deviceInfo.sn8 == '79009833') {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 class WIFILightApi {

@@ -18,29 +18,26 @@ class DeviceItem extends StatefulWidget {
 
 class _DeviceItemState extends State<DeviceItem> {
   void toSelectDevice() {
-    if (widget.deviceInfo != null) {
-      if (DeviceService.supportDeviceFilter(widget.deviceInfo) && widget.deviceInfo!.detail!.keys.toList().isNotEmpty) {
-        late String? route;
-        if (widget.deviceInfo!.type! == '0x21') {
-          route = modelNumList[widget.deviceInfo!.modelNumber]?.getRoute();
-        } else {
-          route = widget.deviceInfo!.type!;
-        }
-        Navigator.pushNamed(context, route!,
-            arguments: {"deviceId": widget.deviceInfo?.applianceCode});
+    if (widget.deviceInfo != null && widget.deviceInfo!.detail != null) {
+      if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
+          DeviceService.isSupport(widget.deviceInfo!)) {
+        Navigator.pushNamed(context, widget.deviceInfo!.type,
+            arguments: {"deviceId": widget.deviceInfo!.applianceCode});
       }
     }
   }
 
   void clickMethod(e) {
-    var config = DeviceService.configFinder(widget.deviceInfo);
-    if (e.localPosition.dx > 40 &&
-        e.localPosition.dx < 90 &&
-        e.localPosition.dy > 140 &&
-        e.localPosition.dy < 175) {
-      DeviceService.setPower(config.apiCode, widget.deviceInfo, false);
-    } else {
-      toSelectDevice();
+    if (widget.deviceInfo != null) {
+      if (e.localPosition.dx > 40 &&
+          e.localPosition.dx < 90 &&
+          e.localPosition.dy > 140 &&
+          e.localPosition.dy < 175) {
+        DeviceService.setPower(
+            widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+      } else {
+        toSelectDevice();
+      }
     }
   }
 
@@ -52,7 +49,6 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    var config = DeviceService.configFinder(widget.deviceInfo);
     var deviceListWatch = context.watch<DeviceListModel>();
 
     return Listener(
@@ -66,7 +62,9 @@ class _DeviceItemState extends State<DeviceItem> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: DeviceService.isOnline(widget.deviceInfo)
+            colors: (widget.deviceInfo != null
+                    ? DeviceService.isOnline(widget.deviceInfo!)
+                    : false)
                 ? [const Color(0xFF393E43), const Color(0xFF333135)]
                 : [const Color(0xFF000000), const Color(0xFF000000)],
           ),
@@ -96,15 +94,21 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              config.onIcon,
+              widget.deviceInfo != null
+                  ? (DeviceService.isPower(widget.deviceInfo!)
+                      ? DeviceService.getOnIcon(widget.deviceInfo!)
+                      : DeviceService.getOffIcon(widget.deviceInfo!))
+                  : 'assets/imgs/device/phone_off.png',
               width: 50,
               height: 50,
             ),
             SizedBox(
               height: 24,
               child: Text(
-                DeviceService.hasStatus(widget.deviceInfo)
-                    ? "${deviceListWatch.getAttr(widget.deviceInfo)}${config.attrUnit!}"
+                widget.deviceInfo != null
+                    ? (DeviceService.getAttr(widget.deviceInfo!) != 'false'
+                        ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
+                        : "")
                     : "",
                 style: const TextStyle(
                   fontSize: 24.0,
@@ -115,13 +119,17 @@ class _DeviceItemState extends State<DeviceItem> {
             SizedBox(
               height: 30,
               child: Center(
-                child: !DeviceService.isOnline(widget.deviceInfo)
+                child: (widget.deviceInfo != null
+                        ? (!DeviceService.isOnline(widget.deviceInfo!))
+                        : false)
                     ? Image.asset(
                         "assets/imgs/device/offline.png",
                         width: 150,
                         height: 60,
                       )
-                    : !DeviceService.supportDeviceFilter(widget.deviceInfo)
+                    : (widget.deviceInfo != null
+                            ? (!DeviceService.isSupport(widget.deviceInfo!))
+                            : false)
                         ? const Text(
                             "仅支持APP控制",
                             style: TextStyle(
@@ -131,7 +139,10 @@ class _DeviceItemState extends State<DeviceItem> {
                                 fontFamily: 'MideaType-Regular'),
                           )
                         : Image.asset(
-                            deviceListWatch.isPower(widget.deviceInfo)
+                            (widget.deviceInfo != null
+                                    ? (!DeviceService.isPower(
+                                        widget.deviceInfo!))
+                                    : false)
                                 ? "assets/imgs/device/device_power_on.png"
                                 : "assets/imgs/device/device_power_off.png",
                             width: 150,
