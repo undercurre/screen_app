@@ -34,8 +34,8 @@ class _App extends State<App> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => UserModel()),
-        Provider(create: (_) => DeviceListModel()),
+        ChangeNotifierProvider(create: (_) => UserModel()),
+        ChangeNotifierProvider(create: (_) => DeviceListModel()),
       ],
       child: PointerDownListener(
           child: MaterialApp(
