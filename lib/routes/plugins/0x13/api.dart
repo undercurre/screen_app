@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../models/mz_response_entity.dart';
 
@@ -32,13 +34,9 @@ class WrapWIFILight implements DeviceInterface {
   }
 
   @override
-  bool isSupport (DeviceEntity deviceInfo) {
-    // 过滤sn8
-    if (deviceInfo.sn8 == '79009833') {
-      return true;
-    } else {
-      return false;
-    }
+  bool isPower (BuildContext ctx, DeviceEntity deviceInfo) {
+    var detail = ctx.watch<DeviceListModel>().getDeviceDetail(deviceInfo);
+
   }
 }
 

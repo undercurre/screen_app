@@ -17,4 +17,13 @@ class DeviceListModel extends ProfileChangeNotifier {
     logger.i("DeviceListModelChange: $deviceList");
     notifyListeners();
   }
+
+  Map<String, dynamic> getDeviceDetail(DeviceEntity deviceInfo) {
+    var curDevice = _deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList();
+    if (curDevice.isNotEmpty) {
+      return curDevice[0].detail ?? {};
+    } else {
+      return {};
+    }
+  }
 }

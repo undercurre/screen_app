@@ -106,7 +106,7 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 24,
               child: Text(
                 widget.deviceInfo != null
-                    ? (DeviceService.getAttr(widget.deviceInfo!) != 'false'
+                    ? (DeviceService.getAttr(widget.deviceInfo!) != ''
                         ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
                         : "")
                     : "",
