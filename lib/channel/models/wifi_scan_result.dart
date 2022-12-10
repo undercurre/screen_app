@@ -22,6 +22,8 @@ class WiFiScanResult {
   String auth = 'encryption';
   // WiFi信号强度等级 0 ~ 3
   num level = 0;
+  // 是否尝试连接过
+  bool alreadyConnected = false;
 
   factory WiFiScanResult.fromJson(Map<String,dynamic> json) => _$ScanResultFromJson(json);
   Map<String, dynamic> toJson() => _$ScanResultToJson(this);
@@ -35,6 +37,7 @@ WiFiScanResult _$ScanResultFromJson(Map<dynamic, dynamic> json) => WiFiScanResul
   ..ssid = json['ssid'] as String
   ..bssid = json['bssid'] as String
   ..auth = json['auth'] as String
+  ..alreadyConnected = json['alreadyConnected'] as bool
   ..level = json['level'] as num;
 
 Map<String, dynamic> _$ScanResultToJson(WiFiScanResult instance) =>
@@ -42,6 +45,7 @@ Map<String, dynamic> _$ScanResultToJson(WiFiScanResult instance) =>
       'ssid': instance.ssid,
       'bssid': instance.bssid,
       'auth': instance.auth,
+      'alreadyConnected': instance.alreadyConnected,
       'level': instance.level,
     };
 

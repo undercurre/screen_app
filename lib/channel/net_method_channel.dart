@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 
 import './models/wifi_scan_result.dart';
@@ -19,6 +20,11 @@ class NetMethodChannel {
   // *****真正的通信Channel******
   late final MethodChannel _netMethodChannel = _initialMethodChannel();
 
+  // *****当前的网络状态*********
+  late NetState _currentNetState = NetState();
+  // 获取当前设备网络状态
+  NetState get currentNetState => _currentNetState;
+
   MethodChannel _initialMethodChannel() {
     var channel = MethodChannel(_channelName, const JSONMethodCodec());
     // 持续性的数据上报，写到此处
@@ -31,8 +37,16 @@ class NetMethodChannel {
               transmitDataToNearbyWiFiCallBack(wifis);
               break;
             case "replyConnectChange":
+              debugPrint("接收到replyConnectChange");
               NetState netState = NetState.fromJson(args);
+              _currentNetState = netState;
               transmitDataToNetChangeCallBack(netState);
+              debugPrint(
+                  """
+                  以太网状态：${netState.ethernetState == 2 ? "连接成功" : "连接失败" }
+                        WiFi状态: ${ netState.wifiState == 2 ? "连接成功" : "连接失败" }  ${netState.wiFiScanResult?.ssid}
+                  """
+              );
               break;
             default:
               throw Exception("没有支持的方法");
@@ -91,9 +105,13 @@ class NetMethodChannel {
     }
   }
 
-  Future<bool> connectedWiFi(String ssid, String pwd, bool changePwd) async {
+  Future<bool> connectedWiFi(String ssid, String? pwd, bool changePwd) async {
     try {
-     bool connected = await _netMethodChannel.invokeMethod('connectWiFi', {'ssid': ssid, 'pwd': pwd, 'changePwd': changePwd});
+     bool connected = await _netMethodChannel.invokeMethod('connectWiFi',
+         {'ssid': ssid,
+           if(pwd != null) 'pwd': pwd,
+           'changePwd': changePwd
+         });
      return connected;
     } on PlatformException catch(e) {
       return false;

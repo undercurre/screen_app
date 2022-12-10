@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.net.wifi.WifiInfo
 import com.midea.light.BaseApplication
+import com.midea.light.log.LogUtil
 import com.midea.light.setting.wifi.util.EthernetUtil
 import com.midea.light.setting.wifi.util.WifiUtil
 
@@ -32,11 +33,18 @@ object ConnectStateHandler {
             if(intent?.action?.equals(CONNECTIVITY_ACTION) == true) {
                 val ethernetState = EthernetUtil.connectedState(BaseApplication.getContext())
                 val wifiState = WifiUtil.connectedState(BaseApplication.getContext())
+                val wifiInfo =  WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
                 callbacks.value.forEach { action -> action.connectedState(
                     ethernetState,
                     wifiState,
-                    WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
+                    wifiInfo
                 )}
+                LogUtil.tag("net-state").msg(
+                    """
+                        以太网状态：${ if(ethernetState == 2) "连接成功" else "连接失败" }
+                        WiFi状态: ${ if(wifiState == 2) "连接成功" else "连接失败" }  ${if(wifiInfo != null) wifiInfo.ssid else ""}
+                    """.trimIndent()
+                )
             }
         }
     }
@@ -54,11 +62,18 @@ object ConnectStateHandler {
             // 启动检查
             val ethernetState = EthernetUtil.connectedState(BaseApplication.getContext())
             val wifiState = WifiUtil.connectedState(BaseApplication.getContext())
+            val wifiInfo =  WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
             callbacks.value.forEach { action -> action.connectedState(
                 ethernetState,
                 wifiState,
-                WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
+                wifiInfo
             )}
+            LogUtil.tag("net-state").msg(
+                """
+                        以太网状态：${ if(ethernetState == 2) "连接成功" else "连接失败" }
+                        WiFi状态: ${ if(wifiState == 2) "连接成功" else "连接失败" }  ${if(wifiInfo != null) wifiInfo.ssid else ""}
+                    """.trimIndent()
+            )
 
             context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
                 addAction(CONNECTIVITY_ACTION)
