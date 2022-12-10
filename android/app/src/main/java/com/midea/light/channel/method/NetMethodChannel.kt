@@ -2,6 +2,7 @@ package com.midea.light.channel.method
 
 import android.content.Context
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import com.midea.light.channel.AbsMZMethodChannel
@@ -14,6 +15,7 @@ import com.midea.light.setting.wifi.WiFiConnectHandler
 import com.midea.light.setting.wifi.impl.ConfigurationSecurities
 import com.midea.light.setting.wifi.impl.IConnectedCallback
 import com.midea.light.setting.wifi.impl.Version
+import com.midea.light.setting.wifi.impl.Wifi
 import com.midea.light.setting.wifi.util.EthernetUtil
 import com.midea.light.setting.wifi.util.WifiUtil
 import com.midea.light.thread.MainThread
@@ -121,15 +123,15 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 onCallSuccess(result, HybridResult.SUCCESS)
             }
             "connectWiFi" -> {
+                LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求11111")
                 assert(call.hasArgument("ssid"))// wifi名
-                assert(call.hasArgument("pwd"))// wifi密码
-                assert(call.hasArgument("changePwd")) //是否改变密码
                 assert(wifiList?.get(call.argument<String>("ssid")) != null)
+                LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求222222")
                 WiFiConnectHandler.connect(
                     context,
                     wifiList!![call.argument<String>("ssid")]!!,
-                    call.argument<String>("pwd")?:"",call.argument<Boolean>("changePwd")?:false ,
-                    object : IConnectedCallback{
+                    call.argument<String?>("pwd") ?: "" ,
+                    object : IConnectedCallback {
                         override fun invalidConnect(pwd: String?, scanResult: ScanResult?) {
                             onCallSuccess(result, false)
                         }
@@ -138,7 +140,6 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                             onCallSuccess(result, true)
                         }
                     })
-                onCallSuccess(result, HybridResult.SUCCESS)
             }
             else -> {
                 onCallNotImplement(result)
@@ -177,7 +178,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
 
     private fun scanResultListToJsonArray(list: Collection<ScanResult>): JSONArray {
         if (CollectionUtil.isEmpty(list)) {
-            return JSONArray();
+            return JSONArray()
         }
 
         val array = JSONArray()
@@ -192,26 +193,33 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
 
 
     private fun scanResultToJsonObject(scanResult: ScanResult): JSONObject {
+        var wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val security: String = Wifi.ConfigSec.getScanResultSecurity(scanResult)
+        val isOpen: Boolean = Wifi.ConfigSec.isOpenNetwork(security)
+        val config: WifiConfiguration? = Wifi.getWifiConfiguration(wifiManager, scanResult, security)
         val json = JSONObject()
         json.put("ssid", scanResult.SSID)
         json.put("bssid", scanResult.BSSID)
         json.put("auth", authType(scanResult))
+        json.put("alreadyConnected", config != null && config.status != WifiConfiguration.Status.DISABLED)
         json.put("level", calculateSignalLevel(scanResult.level, 4))
         return json
     }
 
     private fun connectedStateToJsonObject(ethernet: Int, wifi: Int, wifiInfo: WifiInfo?): JSONObject {
         val json = JSONObject()
-        val scanJson = JSONObject()
-
         json.put("ethernetState", ethernet)
         json.put("wifiState", wifi)
-        json.put("wifiInfo", scanJson)
-        wifiInfo?.apply {
-            scanJson.put("ssid", this.ssid.replace("\"", ""))
-            scanJson.put("bssid", this.bssid)
-            scanJson.put("auth", "encryption")
-            scanJson.put("level", calculateSignalLevel(this.rssi, 4))
+        if(wifi == 2) {// 只有wifi连接中，才将信息传递上去
+            wifiInfo?.run {
+                val scanJson = JSONObject()
+                json.put("wifiInfo", scanJson)
+                scanJson.put("ssid", this.ssid.replace("\"", ""))
+                scanJson.put("bssid", this.bssid)
+                scanJson.put("auth", "encryption")
+                json.put("alreadyConnected", true)
+                scanJson.put("level", calculateSignalLevel(this.rssi, 4))
+            }
         }
         return json
     }

@@ -74,8 +74,9 @@ public class WifiConnector {
 
         ScanResult target;
         boolean start = false;
-        Boolean vailded = null;
+        //Boolean vailded = null;
         int mConnectType;
+        int lockCount;
 
         public void setStart(boolean start) {
             this.start = start;
@@ -83,6 +84,13 @@ public class WifiConnector {
 
         public void setConnectType(int type) {
             this.mConnectType = type;
+            if (TYPE_CONNECT_MODIFY_PASSWORD_WIFI == type) {
+                lockCount = 2;
+            } else if (TYPE_CONNECT_NEW_WIFI == type) {
+                lockCount = 1;
+            } else if (TYPE_CONNECT_OLD_WIFI == type) {
+                lockCount = 1;
+            }
         }
 
         public VerifyConnectedState(ScanResult scanResult) {
@@ -92,7 +100,7 @@ public class WifiConnector {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!start || vailded != null)
+            if (!start || lockCount == 0)
                 return;
 
             if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
@@ -110,12 +118,12 @@ public class WifiConnector {
                             if (target.SSID.equals(extraSSID)) {
                                 mHandler.removeMessages(CONNECTED_WIFI_SUC);
                                 mHandler.sendEmptyMessage(CONNECTED_WIFI_SUC);
-                                vailded = Boolean.TRUE;
+                                lockCount = 0;
                             } else {
                                 LogUtil.i("ERROR_AUTHENTICATING_2");
                                 mHandler.removeMessages(CONNECTED_WIFI_FAIL);
                                 mHandler.sendEmptyMessage(CONNECTED_WIFI_FAIL);
-                                vailded = Boolean.FALSE;
+                                lockCount = 0;
                             }
                         }
                     }
@@ -124,10 +132,12 @@ public class WifiConnector {
                 //处理错误连接状态
                 int linkWifiResult = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, -1);
                 if (linkWifiResult == WifiManager.ERROR_AUTHENTICATING) {
-                    LogUtil.i("ERROR_AUTHENTICATING_1");
-                    mHandler.removeMessages(CONNECTED_WIFI_FAIL);
-                    mHandler.sendEmptyMessage(CONNECTED_WIFI_FAIL);
-                    vailded = Boolean.FALSE;
+                    if (lockCount <= 1) {
+                        LogUtil.i("ERROR_AUTHENTICATING_1");
+                        mHandler.removeMessages(CONNECTED_WIFI_FAIL);
+                        mHandler.sendEmptyMessage(CONNECTED_WIFI_FAIL);
+                    }
+                    lockCount--;
                 }
             } else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
@@ -137,8 +147,9 @@ public class WifiConnector {
                     LogUtil.i("WIFI_CONNECT_SUC_2");
                     //更新操作时间
                     if (target.SSID.equals(extraSSID) && NetworkInfo.State.CONNECTED.equals(state)) {
-                        mConnectedCallback.validConnected(target);
-                        vailded = Boolean.TRUE;
+                        mHandler.removeMessages(CONNECTED_WIFI_SUC);
+                        mHandler.sendEmptyMessage(CONNECTED_WIFI_SUC);
+                        lockCount = 0;
                     }
                 }
             }
