@@ -571,12 +571,13 @@ public class MideaAiService extends Service {
                     thinkSession(data);
                     break;
                 case 0x61130003:    //提的问题云端识别后返回阶段
+                case 0x6113001c:    //实时识别问的内容
                     askSession(data);
                     break;
                 case 0x61160501://闹铃功能
                     AlermSession(data);
                     break;
-                case 0x61130002:    //回答阶段
+                case 0x61130002:    //识别后回答阶段
                     answerSession(data);
                     break;
                 case 0x61130006:    //技能

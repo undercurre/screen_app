@@ -8,15 +8,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.widget.Button;
 
 import com.midea.light.ai.AiManager;
-import com.midea.light.ai.impl.MusicPlayControlBack;
-import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.music.MusicManager;
+import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.common.utils.DialogUtil;
 
 import java.util.ArrayList;
@@ -50,13 +50,27 @@ public class StartServiceActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_service_layout);
         Button button=findViewById(R.id.button);
+        Button button2=findViewById(R.id.button2);
+        Button button3=findViewById(R.id.button3);
+
         requestPermission(permissions, 0x18);
         button.setOnClickListener(v -> startAiService());
+        button2.setOnClickListener(v->{
+            Intent intent =  new Intent(Settings.ACTION_SETTINGS);
+            startActivity(intent);
+        });
+        button3.setOnClickListener(v->{
+            finish();
+        });
         if (!Settings.canDrawOverlays(this)) {
             Intent intent = new Intent();
             intent.setAction(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(intent);
         }
+        new Thread(() -> {
+            //复制assets/xiaomei文件夹中的文件到SD卡
+            FileUtils.copyAssetsFilesAndDelete(StartServiceActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
+        }).start();
     }
 
     private void startAiService() {
@@ -74,85 +88,78 @@ public class StartServiceActivity extends Activity {
     }
 
     private void setDeviceInfor() {
-        AiManager.getInstance().setDeviceInfor("000016114MSGWZ010AD890DBE6900000", "0x16",
-                "190215512042567", "4AD890DBE690");
+        AiManager.getInstance().setDeviceInfor("00001611FMSGWZ0100B0406B438D0000", "0x16",
+                "211106233450716", "F0B0406B438D");
         MusicManager.getInstance().startMusicServer(this);
         AiManager.getInstance().addFlashMusicListCallBack(list -> {
             isFlashMusic=true;
             MusicManager.getInstance().setPlayList(list);
         });
-        AiManager.getInstance().addWakUpStateCallBack(new WakUpStateCallBack() {
-            @Override
-            public void wakUpState(boolean b) {
-                if (b) {
-                    isFlashMusic=false;
-                    if (!isScreenOn()) {
-                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
-                    }
-                    if (isAiSleep) {
-                        isAiSleep = false;
-                        isMusicPlay = MusicManager.getInstance().isPaying();
-                    }
-                    if (MusicManager.getInstance().isPaying()) {
-                        MusicManager.getInstance().pauseMusic();
-                    }
-                } else {
-                    isAiSleep = true;
-                    if (isMusicPlay||isFlashMusic) {
-                        MusicManager.getInstance().startMusic();
-                    }
+        AiManager.getInstance().addWakUpStateCallBack(b -> {
+            if (b) {
+                isFlashMusic=false;
+                if (!isScreenOn()) {
+                    sendKeyEvent(KeyEvent.KEYCODE_BACK);
                 }
-
+                if (isAiSleep) {
+                    isAiSleep = false;
+                    isMusicPlay = MusicManager.getInstance().isPaying();
+                }
+                if (MusicManager.getInstance().isPaying()) {
+                    MusicManager.getInstance().pauseMusic();
+                }
+            } else {
+                isAiSleep = true;
+                if (isMusicPlay||isFlashMusic) {
+                    MusicManager.getInstance().startMusic();
+                }
             }
 
         });
-        AiManager.getInstance().addMusicPlayControlBack(new MusicPlayControlBack() {
-            @Override
-            public void playControl(String Control) {
-                if(MusicManager.getInstance().getPlayMusicInfor()==null){
-                    return;
-                }
-                switch (Control) {
-                    case "RESUME":
-                        isMusicPlay=true;
-                        MusicManager.getInstance().startMusic();
-                        AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
-                                MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
-                        break;
-                    case "PAUSE":
-                        isMusicPlay=false;
-                        MusicManager.getInstance().pauseMusic();
-                        AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
-                                MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "pause");
-                        break;
-                    case "STOP":
-                        isMusicPlay=false;
-                        MusicManager.getInstance().stopMusic();
-                        AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
-                                MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "stop");
-                        break;
-                    case "prev":
-                        isMusicPlay=true;
-                        if (MusicManager.getInstance().getCurrentIndex() == 0) {
-                            DialogUtil.showToast("已经是第一首了");
-                            return;
-                        }
-                        MusicManager.getInstance().prevMusic();
-                        AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
-                                MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
-                        break;
-                    case "next":
-                        isMusicPlay=true;
-                        if (MusicManager.getInstance().getCurrentIndex() == 14) {
-                            DialogUtil.showToast("已经是最后一首了");
-                            return;
-                        }
-                        MusicManager.getInstance().nextMusic();
-                        AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
-                                MusicManager.getInstance().getPlayMusicInfor().getSong(),
-                                MusicManager.getInstance().getCurrentIndex(), "play");
-                        break;
-                }
+        AiManager.getInstance().addMusicPlayControlBack(Control -> {
+            if(MusicManager.getInstance().getPlayMusicInfor()==null){
+                return;
+            }
+            switch (Control) {
+                case "RESUME":
+                    isMusicPlay=true;
+                    MusicManager.getInstance().startMusic();
+                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                            MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
+                    break;
+                case "PAUSE":
+                    isMusicPlay=false;
+                    MusicManager.getInstance().pauseMusic();
+                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                            MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "pause");
+                    break;
+                case "STOP":
+                    isMusicPlay=false;
+                    MusicManager.getInstance().stopMusic();
+                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                            MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "stop");
+                    break;
+                case "prev":
+                    isMusicPlay=true;
+                    if (MusicManager.getInstance().getCurrentIndex() == 0) {
+                        DialogUtil.showToast("已经是第一首了");
+                        return;
+                    }
+                    MusicManager.getInstance().prevMusic();
+                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                            MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
+                    break;
+                case "next":
+                    isMusicPlay=true;
+                    if (MusicManager.getInstance().getCurrentIndex() == 14) {
+                        DialogUtil.showToast("已经是最后一首了");
+                        return;
+                    }
+                    MusicManager.getInstance().nextMusic();
+                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                            MusicManager.getInstance().getPlayMusicInfor().getSong(),
+                            MusicManager.getInstance().getCurrentIndex(), "play");
+                    break;
             }
         });
         AiManager.getInstance().addAISetVoiceCallBack(Voice -> {
@@ -167,17 +174,15 @@ public class StartServiceActivity extends Activity {
     }
 
     public void sendKeyEvent(final int KeyCode) {
-        new Thread() {     //不可在主线程中调用
-            public void run() {
-                try {
-                    Instrumentation inst = new Instrumentation();
-                    inst.sendKeyDownUpSync(KeyCode);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        //不可在主线程中调用
+        new Thread(() -> {
+            try {
+                Instrumentation inst = new Instrumentation();
+                inst.sendKeyDownUpSync(KeyCode);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        }.start();
+        }).start();
     }
 
     public void requestPermission(String[] permissions, int requestCode) {

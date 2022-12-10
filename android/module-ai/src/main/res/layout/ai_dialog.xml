@@ -22,78 +22,101 @@
             android:textColor="@color/Gray41"
             android:textSize="@dimen/sp_24" />
 
-        <LinearLayout
-            android:id="@+id/llBollBack"
+
+        <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerInParent="true"
-            android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginTop="@dimen/dp_20"
-            android:layout_marginBottom="@dimen/dp_30"
-            android:background="@drawable/ai_text_bg"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
-            android:padding="@dimen/dp_10">
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:visibility="visible"
+                android:layout_gravity="bottom|left"
+                android:layout_width="@dimen/dp_180"
+                android:layout_height="@dimen/dp_180"
+                android:layout_marginLeft="-5dp"
+                android:layout_marginBottom="@dimen/dp_0"
+                android:src="@raw/ai_boll_back1" />
 
             <LinearLayout
-                android:id="@+id/llLarge"
-                android:layout_width="@dimen/dp_750"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/dp_10"
-                android:visibility="gone">
-
-                <ScrollView
-                    android:id="@+id/scrollView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:id="@+id/tvLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:ellipsize="marquee"
-                        android:fadeScrollbars="false"
-                        android:scrollbars="vertical"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/sp_34" />
-
-
-                </ScrollView>
-
-
-            </LinearLayout>
-
-            <LinearLayout
+                android:id="@+id/llBollBack"
+                android:layout_gravity="bottom|left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerInParent="true"
+                android:layout_marginHorizontal="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_30"
+                android:background="@drawable/ai_text_bg"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:padding="@dimen/dp_10">
 
-                <ImageView
-                    android:id="@+id/imgBoll"
-                    android:layout_width="@dimen/dp_100"
-                    android:layout_height="@dimen/dp_100"
-                    android:layout_centerInParent="true"
-                    android:src="@raw/ai_boll" />
+                <LinearLayout
+                    android:id="@+id/llLarge"
+                    android:layout_width="@dimen/dp_750"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dp_10"
+                    android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tvAi"
+                    <ScrollView
+                        android:id="@+id/scrollView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:id="@+id/tvLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:ellipsize="marquee"
+                            android:fadeScrollbars="false"
+                            android:scrollbars="vertical"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/sp_34" />
+
+
+                    </ScrollView>
+
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_10"
-                    android:maxLines="1"
-                    android:text="今天天气怎么样"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/sp_34"
-                    android:visibility="visible" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_gravity="center"
+                        android:id="@+id/imgBoll"
+                        android:layout_width="@dimen/dp_100"
+                        android:layout_height="@dimen/dp_100"
+                        android:layout_centerInParent="true"
+                        android:src="@raw/ai_boll" />
+
+
+                    <TextView
+                        android:id="@+id/tvAi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dp_20"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:maxLines="1"
+                        android:text="今天天气怎么样"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/sp_34"
+                        android:visibility="visible" />
+
+                </LinearLayout>
+
 
             </LinearLayout>
 
 
-        </LinearLayout>
+        </FrameLayout>
+
+
+
 
 
     </LinearLayout>

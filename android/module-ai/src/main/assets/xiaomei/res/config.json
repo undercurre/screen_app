@@ -1,0 +1,144 @@
+{
+	"sdk": {
+		"configPath":"/sdcard/res/config.json"
+	},
+	"debug": {
+		"startup_deamon":1,
+		"log_level":7,
+		"log_upload_level":5,
+		"log_file":"/tmp/mcrc_sdk.log",
+		"log_file_size":524288,
+		"rec_path":"/sdcard/"
+	},
+	"auth": {
+		"productId": "278575093",
+		"deviceProfile": "eim/WNYMRzYQi3qB465A6W/1LRWoimT6cE6blut0bzHYoJsXyH5RfITdm5qJlpyarJqcjZqL3cXdxsjNmZ7KyM2ZnJ7Ny5mZncbHysqaz8aZy5zMyMebnZrd092ek5OQiN3FztPdj42Qm4qci7ab3cXdzcjHysjKz8bM3dPdm5qJlpyasZ6Smt3F3ZnNzJmdns6em8bMyMuby8jGmZzHnprPz5qbm87Oxsqe3dPdjJyQj5rdxaTdnpOT3aKC"
+	},
+	"front": {
+		"sspeBinPath": "/sdcard/res/sspe_aec_uda_wkp_30mm_ch4_mic2_ref2_v2.0.0.125_gain14.bin",
+		"wakeupBinPath": "/sdcard/res/wkp_aihome_mzgd_20221202_pre.bin",
+		"env":"words=xiao mei xiao mei,xiu mei xiu mei,xiao_mei_xiao_mei,xiu_mei_xiu_mei,xiao mei xiu mei,xiu mei xiao mei;thresh=0.60,0.45,0.75,0.4,0.54,0.66;thresh_high=10,10,0.9,0.5,10,10;thresh_low=0.3,0.25,0.01,0.01,0.01,0.01;custom=0,0,1,1,0,0;net=1,1,1,1,1,1;",
+		"rollBack": 600
+	},
+	"vad": {
+		"resBinPath": "/sdcard/res/vad_aihome_v0.12c.bin",
+		"pauseTime": 400,
+		"slienceTimeout": 6
+	},
+	"cloud": {
+		"productId": "278575093",
+		"aliasKey": "test"
+	},
+	"aicloud": {
+		"url": "pro",
+		"auth": "/sdcard/mcrc_license"
+	},
+	"product": {
+		"id": "1596681815",
+		"key": "1333bbd7-0bdd-4c42-984d-f18154b57a7b",
+		"unique": "mac",
+		"platform":"px30",
+		"sec":"acaa4783-3f99-4f08-99a7-0c38e64e1c60"
+	},
+	"localasr": {
+		"asr_cfg": {
+			"resBinPath": "/sdcard/res/ebnfr.bin",
+			"netBinPath": "/sdcard/res/grammar.net.bin"
+		},
+		"gram_cfg": {
+			"resBinPath": "/sdcard/res/ebnfc.aicar.1.2.0.bin"
+		},
+		"gram_param": {
+			"outputPath": "/sdcard/res/local.net.bin",
+			"ebnfFile": "/sdcard/res/gram.xbnf"
+		},
+		"asr_param": {
+		},
+		"asr_param_for_mix": {
+			"env": "use_filler=1;filler_penalty_score=2.0;"
+		}
+	},
+	"localtts": {
+		"tts_cfg": {
+			"frontBinPath": "/sdcard/res/local_front.bin",
+			"backBinPath": "/sdcard/res/gqlanf_common_back_ce_local.v2.1.0.bin",
+			"dictPath": "/sdcard/res/aitts_sent_dict_local.db",
+			"userDict": "/sdcard/res/aitts_sent_dict_local.db",
+			"optimization": 1
+		},
+		"tts_param": {
+			"speed": 0.83,
+			"volume": 100,
+			"lmargin": 5,
+			"rmargin": 10,
+			"useSSML": 0
+		}
+	},
+	"mix_asr": {
+		"enable": false,
+		"model": "single",
+		"diff_localasr_cfg": "",
+		"strict_case_list":[{
+			"asr":"打 开 卧 室 空 调",
+			"threhold":1
+		},{
+			"asr":"关 闭 卧 室 空 调",
+			"threhold":1
+		},{
+			"asr":"关 掉 卧 室 空 调",
+			"threhold":1
+		},{
+			"asr":"最 小 风",
+			"threhold":1
+		},{
+			"asr":"最 大 风",
+			"threhold":0.72
+		}]
+	},
+	"full_duplex": {
+		"out_audio": "http://tts-audio.aimidea.cn/fullduplex/ac/execEndSession.mp3"
+	},
+	"player": {
+		"device": "default",
+		"def_volume": 50,
+		"vol_curve":[{
+			"level":1
+		},{
+			"level":25
+		},{
+			"level":50
+		},{
+			"level":75
+		},{
+			"level":100
+		}],
+		"tts_amp":1.0,
+		"src_amp":1.0,
+		"greetting_amp":1.0
+	},
+	"greetingAudio":[{
+		"path":"/sdcard/tts/greeting1.mp3"
+	},{
+		"path":"/sdcard/tts/greeting2.mp3"
+	},{
+		"path":"/sdcard/tts/greeting3.mp3"
+	},{
+		"path":"/sdcard/tts/greeting4.mp3"
+	},{
+		"path":"/sdcard/tts/greeting5.mp3"
+	},{
+		"path":"/sdcard/tts/greeting6.mp3"
+	}],
+	"device": {
+		"fw_version":"/sdcard/res/cfg/module_version",
+		"sn":"/sdcard/cfg/msmart_store_info.txt",
+		"deviceid":"/sdcard/cfg/device_id",
+		"eth":"wlan0"
+	},
+	"netAudio": {
+		"connect":"/sdcard/tts/connect_ok.mp3",
+		"timeout":"/sdcard/tts/timeout.mp3",
+		"disconnect":"/sdcard/tts/need_connect.mp3",
+		"plz_wait":"/sdcard/tts/please_wait.mp3"
+	}
+}

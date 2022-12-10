@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../widgets/AdvancedSeekBar.dart';
 import '../../widgets/mz_slider.dart';
 
 class SoundSettingPage extends StatefulWidget {
