@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.midea.light.log.LogUtil;
+import com.midea.light.setting.wifi.impl.Wifi;
 import com.midea.light.setting.wifi.impl.entity.WiFiAccountPasswordBean;
 import com.midea.light.setting.wifi.impl.repositories.WiFiRecordRepositories;
 import com.midea.light.utils.GsonUtils;
@@ -107,6 +108,11 @@ public class WifiUtil {
         return true;
     }
 
+    public static boolean forgetWifi(final Context context, final String ssid, final String bssid) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiConfiguration config = Wifi.getWifiConfiguration(wifiManager, ssid, bssid);
+        return Wifi.forgetWifi(wifiManager, config);
+    }
 
     public static void open(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
