@@ -55,6 +55,7 @@ class NetMethodChannel {
     return channel;
   }
 
+
   void transmitDataToNetChangeCallBack(NetState state) {
     for (var callback in _netChangeCallbacks) {
       callback.call(state);
@@ -89,16 +90,15 @@ class NetMethodChannel {
   }
 
   // 注册回调
-  void registerNetChangeCallBack(
-      void Function(NetState state) action) {
+  void registerNetChangeCallBack(void Function(NetState state) action) {
     if (!_netChangeCallbacks.contains(action)) {
       _netChangeCallbacks.add(action);
+      action.call(currentNetState);
     }
   }
 
   // 注销回调
-  void unregisterNetChangeCallBack(
-      void Function(NetState state) action) {
+  void unregisterNetChangeCallBack(void Function(NetState state) action) {
     final position = _netChangeCallbacks.indexOf(action);
     if (position != -1) {
       _netChangeCallbacks.remove(action);
@@ -116,6 +116,13 @@ class NetMethodChannel {
     } on PlatformException catch(e) {
       return false;
     }
+  }
+
+  // 忘记掉已经连接的WiFi
+  Future<bool> forgetWiFi(WiFiScanResult wifi) async {
+    bool result = await _netMethodChannel.invokeMethod('forgetWiFi', {'ssid': wifi.ssid, 'bssid': wifi.bssid});
+    debugPrint("忘记wifi密码是否成功 = $result");
+    return result;
   }
 
   Future<bool> enableEthernet(bool enable) async {

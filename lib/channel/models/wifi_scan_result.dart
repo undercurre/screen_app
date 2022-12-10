@@ -34,11 +34,11 @@ class WiFiScanResult {
 }
 
 WiFiScanResult _$ScanResultFromJson(Map<dynamic, dynamic> json) => WiFiScanResult()
-  ..ssid = json['ssid'] as String
-  ..bssid = json['bssid'] as String
-  ..auth = json['auth'] as String
-  ..alreadyConnected = json['alreadyConnected'] as bool
-  ..level = json['level'] as num;
+  ..ssid = json['ssid'] ?? "unknown"
+  ..bssid = json['bssid'] ?? "unknown"
+  ..auth = json['auth'] ?? 'encryption'
+  ..alreadyConnected = json['alreadyConnected'] ?? false
+  ..level = json['level'] ?? 0;
 
 Map<String, dynamic> _$ScanResultToJson(WiFiScanResult instance) =>
     <String, dynamic>{
