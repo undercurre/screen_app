@@ -28,7 +28,7 @@ class _DevicePageState extends State<DevicePage> {
     keepScrollOffset: true,
   );
 
-  initPage(BuildContext ctx) async {
+  initPage() {
     List<DraggableGridItem> newBins = [];
     var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
@@ -38,14 +38,8 @@ class _DevicePageState extends State<DevicePage> {
           .toList()
           .any((element) => element == deviceInfo.type);
       if (hasController && DeviceService.isOnline(deviceInfo) && DeviceService.isSupport(deviceInfo)) {
-        // 如果支持该品类并且设备在线，查询该设备的detail
-        var detail = await DeviceService.getDeviceDetail(deviceInfo);
-        // 找到全局状态变量中的deviceList存储状态进去
-        var curDevice = deviceList
-            .where(
-                (element) => element.applianceCode == deviceInfo.applianceCode)
-            .toList()[0];
-        curDevice.detail = detail;
+        // 调用provider拿detail存入状态管理里
+        context.read<DeviceListModel>().setDeviceDetail(deviceInfo);
       }
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
@@ -73,7 +67,7 @@ class _DevicePageState extends State<DevicePage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      initPage(context);
+      initPage();
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), setTime);

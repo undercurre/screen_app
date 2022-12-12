@@ -1,11 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:screen_app/common/global.dart';
-import 'package:screen_app/models/device_home_list_entity.dart';
-import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/profile_change_notifier.dart';
 
 import '../models/index.dart';
-import '../routes/device/register_controller.dart';
+import '../routes/device/service.dart';
 
 class DeviceListModel extends ProfileChangeNotifier {
   List<DeviceEntity> _deviceListResource = Global.profile.roomInfo!.applianceList;
@@ -18,12 +15,29 @@ class DeviceListModel extends ProfileChangeNotifier {
     notifyListeners();
   }
 
-  Map<String, dynamic> getDeviceDetail(DeviceEntity deviceInfo) {
-    var curDevice = _deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList();
-    if (curDevice.isNotEmpty) {
-      return curDevice[0].detail ?? {};
+  Map<String, dynamic> getDeviceDetail(String deviceId) {
+    var curDeviceList = _deviceListResource.where((element) => element.applianceCode == deviceId).toList();
+    if (curDeviceList.isNotEmpty) {
+      var curDevice = curDeviceList[0];
+      return {
+        "deviceId": deviceId,
+        "deviceName": curDevice.name,
+        "detail": curDevice.detail ?? {}
+      };
     } else {
       return {};
+    }
+  }
+
+  Future<void> setDeviceDetail(DeviceEntity deviceInfo) async {
+    // todo: 优化数据更新diff
+    var curDeviceList = _deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList();
+    if (curDeviceList.isNotEmpty) {
+      var curDevice = curDeviceList[0];
+      var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
+      curDevice.detail = newDetail;
+      logger.i("DeviceListModelChange: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
+      notifyListeners();
     }
   }
 }

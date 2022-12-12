@@ -1,64 +1,59 @@
+import 'package:provider/provider.dart';
+
+import '../../../states/device_change_notifier.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
-  String deviceId = '0';
-  String deviceName = '吸顶灯';
 
-  bool power = true;
-  num brightness = 0;
-  num colorTemperature = 0;
-  String screenModel = 'manual';
-  String timeOff = '0';
+  Map<String, dynamic> deviceWatch = {
+    "deviceId": "",
+    "deviceName": '吸顶灯',
+    "detail": {
+      "brightValue": 1,
+      "colorTemperature": 0,
+      "power": false,
+      "screenModel": "manual",
+      "timeOff": "0"
+    }
+  };
 
   void goBack() {
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    setState(() {
-      power = !power;
-    });
-    await WIFILightApi.powerLua(deviceId, power);
+    await WIFILightApi.powerLua(deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
   }
 
   Future<void> delayHandle() async {
     setState(() {
-      if (timeOff == '0') {
-        timeOff = '3';
+      if (deviceWatch["detail"]["timeOff"] == '0') {
+        deviceWatch["detail"]["timeOff"] = '3';
       } else {
-        timeOff = '0';
+        deviceWatch["detail"]["timeOff"] = '0';
       }
     });
-    await WIFILightApi.delayPDM(deviceId, timeOff == '3');
+    await WIFILightApi.delayPDM(deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
   }
 
   Future<void> modeHandle(Mode mode) async {
-    setState(() {
-      screenModel = mode.key;
-    });
-    await WIFILightApi.modePDM(deviceId, mode.key);
+    await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    setState(() {
-      brightness = value;
-    });
-    await WIFILightApi.brightnessPDM(deviceId, value);
+    await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    setState(() {
-      colorTemperature = value;
-    });
-    await WIFILightApi.colorTemperaturePDM(deviceId, value);
+    await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
   }
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[screenModel] = true;
+    selectKeys[deviceWatch["detail"]["screenModel"]] = true;
     return selectKeys;
   }
 
@@ -67,9 +62,9 @@ class WifiLightPageState extends State<WifiLightPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceId = args['deviceId'];
-      deviceName = args['deviceName'];
-      WIFILightApi.getLightDetail(deviceId);
+      deviceWatch["deviceId"] = args['deviceId'];
+      deviceWatch = context.read<DeviceListModel>().getDeviceDetail(deviceWatch["deviceId"]);
+      debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
 
@@ -90,8 +85,8 @@ class WifiLightPageState extends State<WifiLightPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: brightness,
-                colorTemperature: 100 - colorTemperature,
+                brightness: deviceWatch["detail"]["brightValue"],
+                colorTemperature: 100 - deviceWatch["detail"]["colorTemperature"],
               )),
           Flex(
             direction: Axis.vertical,
@@ -107,8 +102,8 @@ class WifiLightPageState extends State<WifiLightPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onPowerBtnTap: powerHandle,
-                    title: deviceName,
-                    power: power,
+                    title: deviceWatch["deviceName"],
+                    power: deviceWatch["detail"]["power"],
                     hasPower: true,
                   ),
                 ),
@@ -136,7 +131,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                             children: [
                               ParamCard(
                                 title: '亮度',
-                                value: brightness,
+                                value: deviceWatch["detail"]["brightValue"],
                                 activeColors: const [
                                   Color(0xFFFFD185),
                                   Color(0xFFFFD185)
@@ -146,7 +141,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                               ),
                               ParamCard(
                                 title: '色温',
-                                value: colorTemperature,
+                                value: deviceWatch["detail"]["colorTemperature"],
                                 activeColors: const [
                                   Color(0xFFFFD39F),
                                   Color(0xFF55A2FA)
@@ -161,22 +156,22 @@ class WifiLightPageState extends State<WifiLightPage> {
                               ),
                               FunctionCard(
                                 title: '延时关灯',
-                                subTitle: timeOff == '0'
+                                subTitle: deviceWatch["detail"]["timeOff"] == '0'
                                     ? '未设置'
-                                    : '${int.parse(timeOff)}分钟后关灯',
+                                    : '${int.parse(deviceWatch["detail"]["timeOff"])}分钟后关灯',
                                 child: Listener(
                                   onPointerDown: (e) => delayHandle(),
                                   child: Container(
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: timeOff == '0'
+                                      color: deviceWatch["detail"]["timeOff"] == '0'
                                           ? const Color(0xFF000000)
                                           : const Color(0xFFFFFFFF),
                                       borderRadius: BorderRadius.circular(16.0),
                                     ),
                                     child: Image(
-                                      image: AssetImage(timeOff == '0'
+                                      image: AssetImage(deviceWatch["detail"]["timeOff"] == '0'
                                           ? 'assets/imgs/plugins/0x13/delay_off.png'
                                           : 'assets/imgs/plugins/0x13/delay_on.png'),
                                     ),

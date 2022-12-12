@@ -37,7 +37,7 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["brightValue"].toString() : '';
+    return deviceInfo.detail != null ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
   }
 
   @override
@@ -47,12 +47,12 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/light_off.png';
+    return 'assets/imgs/device/dengguang_icon_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/light_on.png';
+    return 'assets/imgs/device/dengguang_icon_on.png';
   }
 }
 

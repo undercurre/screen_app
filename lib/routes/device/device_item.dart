@@ -54,15 +54,7 @@ class _DeviceItemState extends State<DeviceItem> {
     return Listener(
       onPointerDown: (e) => clickMethod(e),
       child: Container(
-        padding: EdgeInsets.fromLTRB(
-            0,
-            17,
-            0,
-            (widget.deviceInfo != null
-                    ? (!DeviceService.isSupport(widget.deviceInfo!))
-                    : true)
-                ? 17
-                : 0),
+        padding: const EdgeInsets.fromLTRB(0, 17, 0, 0),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -126,6 +118,7 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             SizedBox(
+              height: 60,
               child: Center(
                 child: (widget.deviceInfo != null
                         ? (!DeviceService.isOnline(widget.deviceInfo!))
