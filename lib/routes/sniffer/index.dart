@@ -1,37 +1,43 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
+import '../../common/global.dart';
+import 'package:screen_app/models/device_entity.dart';
+import '../../states/device_change_notifier.dart';
+import '../device/register_controller.dart';
+import '../device/service.dart';
 import 'device_item.dart';
 
 // TODO 模拟数据
 const mockData = [
   {
-    "deviceType": "0x13",
-    "deviceId": 'dd',
+    "type": "0x13",
+    "name": '吸顶灯',
   },
   {
-    "deviceType": "0x14",
-    "deviceId": 'dd',
+    "type": "0x13",
+    "name": '吸顶灯',
   },
   {
-    "deviceType": "0x17",
-    "deviceId": 'dd',
+    "type": "0x14",
+    "name": '智能窗帘',
   },
   {
-    "deviceType": "0x26",
-    "deviceId": 'dd',
+    "type": "0x26",
+    "name": '浴霸',
   },
   {
-    "deviceType": "0x09",
-    "deviceId": 'dd',
+    "type": "0x09",
+    "name": '智能门锁',
   },
   {
-    "deviceType": "0x2B",
-    "deviceId": 'dd',
+    "type": "0x2B",
+    "name": '摄像头',
   },
   {
-    "deviceType": "0x2B",
-    "deviceId": 'dd',
+    "type": "0x2B",
+    "name": '摄像头',
   }
 ];
 
@@ -69,23 +75,28 @@ class SnifferState extends State<SnifferPage> {
 
   // TODO 完善数据查询 @魏
   Future<void> initQuery() async {
-    // // ! 模拟发现设备过程
-    // _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-    //   timer.cancel();
-    //
-    //   // 格式化数据
-    //   setState(() => dList = mockData.map((d) {
-    //         String? type = d['deviceType'];
-    //         var finder = deviceConfig.where((element) => element.type == type);
-    //         var temp = finder.isEmpty ? something : finder.first;
-    //
-    //         return Device(
-    //             key: temp.type,
-    //             name: temp.name,
-    //             icon: temp.onIcon,
-    //             selected: false);
-    //       }).toList());
-    // });
+    // ! 模拟发现设备过程
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      timer.cancel();
+
+      var deviceList = context.read<DeviceListModel>().deviceList;
+      logger.i(deviceList);
+
+      // 格式化数据
+      setState(() => dList = mockData.map((d) {
+            String? type = d['type'];
+            var hasController = controllerList.keys.any((key) => key == type);
+
+            // TODO EMPTY ICON
+            var icon = hasController
+                ? DeviceService.getOnIcon(DeviceEntity.fromJson({'type': type}))
+                : 'assets/imgs/device/light_on.png';
+            logger.i('icon: $icon');
+
+            return Device(
+                key: type, name: d['name'], icon: icon, selected: false);
+          }).toList());
+    });
   }
 
   @override
@@ -184,6 +195,7 @@ class SnifferState extends State<SnifferPage> {
                         fontFamily: 'MideaType')),
               ),
             ),
+
           if (dList.isNotEmpty)
             Positioned(
                 left: 0,
