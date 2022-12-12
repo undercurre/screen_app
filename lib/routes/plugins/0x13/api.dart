@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
-import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../models/mz_response_entity.dart';
 
@@ -35,12 +32,12 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] == 'on' : false;
+    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
   }
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["brightness"] : '';
+    return deviceInfo.detail != null ? deviceInfo.detail!["brightValue"].toString() : '';
   }
 
   @override
@@ -50,13 +47,11 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    // todo: 改成凉霸图标
     return 'assets/imgs/device/light_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    // todo: 改成凉霸图标
     return 'assets/imgs/device/light_on.png';
   }
 }

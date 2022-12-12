@@ -54,7 +54,15 @@ class _DeviceItemState extends State<DeviceItem> {
     return Listener(
       onPointerDown: (e) => clickMethod(e),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+        padding: EdgeInsets.fromLTRB(
+            0,
+            17,
+            0,
+            (widget.deviceInfo != null
+                    ? (!DeviceService.isSupport(widget.deviceInfo!))
+                    : true)
+                ? 17
+                : 0),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -105,7 +113,8 @@ class _DeviceItemState extends State<DeviceItem> {
             SizedBox(
               height: 24,
               child: Text(
-                widget.deviceInfo != null
+                widget.deviceInfo != null &&
+                        DeviceService.isOnline(widget.deviceInfo!)
                     ? (DeviceService.getAttr(widget.deviceInfo!) != ''
                         ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
                         : "")
@@ -117,7 +126,6 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             SizedBox(
-              height: 30,
               child: Center(
                 child: (widget.deviceInfo != null
                         ? (!DeviceService.isOnline(widget.deviceInfo!))
@@ -140,7 +148,7 @@ class _DeviceItemState extends State<DeviceItem> {
                           )
                         : Image.asset(
                             (widget.deviceInfo != null
-                                    ? (!DeviceService.isPower(
+                                    ? (DeviceService.isPower(
                                         widget.deviceInfo!))
                                     : false)
                                 ? "assets/imgs/device/device_power_on.png"
