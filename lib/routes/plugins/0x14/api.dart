@@ -1,8 +1,9 @@
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/models/mz_response_entity.dart';
+import 'package:screen_app/routes/plugins/device_interface.dart';
 
-import '../../../models/mz_response_entity.dart';
-
-class WIFILightApi {
+class CurtainApi implements DeviceInterface {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getLightDetail(String deviceId) async {
     var res = await DeviceApi.sendPDMOrder('0x14', 'getAllStand', deviceId, {},
@@ -19,14 +20,6 @@ class WIFILightApi {
     return res;
   }
 
-  /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x14', 'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
-        method: 'POST');
-
-    return res;
-  }
 
   /// 开关控制（物模型）
   static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
@@ -37,35 +30,49 @@ class WIFILightApi {
     return res;
   }
 
-  /// 模式控制（物模型）
-  static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder('0x14', 'controlScreenModel',
-        deviceId, {"dimTime": 0, "screenModel": mode},
-        method: 'POST');
-
-    return res;
+  @override
+  String getAttr(DeviceEntity deviceInfo) {
+    // TODO: implement getAttr
+    throw UnimplementedError();
   }
 
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('0x14', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": brightness},
-        method: 'POST');
-
-    return res;
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    // TODO: implement getAttrUnit
+    throw UnimplementedError();
   }
 
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x14',
-        'controlColorTemperatureValue',
-        deviceId,
-        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
-        method: 'POST');
+  @override
+  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) {
+    // TODO: implement getDeviceDetail
+    throw UnimplementedError();
+  }
 
-    return res;
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    // TODO: implement getOffIcon
+    throw UnimplementedError();
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    return 'assets/imgs/device/chuanglian_icon_on.png';
+  }
+
+  @override
+  bool isPower(DeviceEntity deviceInfo) {
+    // TODO: implement isPower
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isSupport(DeviceEntity deviceInfo) {
+    return true;
+  }
+
+  @override
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
+    // TODO: implement setPower
+    throw UnimplementedError();
   }
 }

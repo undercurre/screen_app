@@ -21,14 +21,14 @@ class CurtainPageState extends State<CurtainPage> {
     setState(() {
       screenModel = mode.key;
     });
-    await WIFILightApi.modePDM(deviceId, mode.key);
+    // await CurtainApi.modePDM(deviceId, mode.key);
   }
 
   Future<void> curtainHandle(num value) async {
     setState(() {
       position = value;
     });
-    await WIFILightApi.brightnessPDM(deviceId, value);
+    // await CurtainApi.brightnessPDM(deviceId, value);
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -44,7 +44,7 @@ class CurtainPageState extends State<CurtainPage> {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
       deviceName = args['deviceName'];
-      WIFILightApi.getLightDetail(deviceId);
+      CurtainApi.getLightDetail(deviceId);
     });
   }
 
@@ -59,7 +59,7 @@ class CurtainPageState extends State<CurtainPage> {
       child: Stack(
         children: [
           Positioned(
-              left: 0,
+              left: -16, // 向左偏移
               top: 0,
               child: AnimationCurtain(
                 position: position,
