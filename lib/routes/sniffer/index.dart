@@ -43,7 +43,7 @@ class SnifferState extends State<SnifferPage> {
   double turns = 0; // 控制扫描动画圈数
   final int timeout = 30; // 设备查找时间
   final int timePerTurn = 3; // 转一圈所需时间
-  List<Device> dList = []; // 格式化后的设备列表数据
+  List<Device> dList = []; // 格式化后的设备列表数据，带 selected 属性
 
   void goBack() {
     Navigator.pop(context);
