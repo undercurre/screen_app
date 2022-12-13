@@ -4,6 +4,7 @@ export 'mz_metal_card.dart';
 export 'mz_navigation_bar.dart';
 export 'mz_slider.dart';
 export 'mz_switch.dart';
+export 'mz_dialog.dart';
 
 // 插件业务组件
 export 'plugins/function_card.dart';
