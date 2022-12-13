@@ -38,5 +38,7 @@ dependencies {
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.rxbus
+    implementation rootProject.ext.nexus.gateway
     implementation(project(":module-common"))
+    implementation rootProject.ext.nexus.ota_upgrade
 }
