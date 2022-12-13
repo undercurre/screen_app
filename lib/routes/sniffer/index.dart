@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
-import '../../common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
-import '../../states/device_change_notifier.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 import 'device_item.dart';
 
-// TODO 模拟数据
-const mockData = [
+// 模拟数据 TODO 改为接口查询 @魏
+var mockData = [
   {
     "type": "0x13",
     "name": '吸顶灯',
@@ -39,14 +36,14 @@ const mockData = [
     "type": "0x2B",
     "name": '摄像头',
   }
-];
+].map((d) => DeviceEntity.fromJson(d)).toList();
 
 class SnifferState extends State<SnifferPage> {
   late Timer _timer; // to be deleted
   double turns = 0; // 控制扫描动画圈数
   final int timeout = 30; // 设备查找时间
   final int timePerTurn = 3; // 转一圈所需时间
-  List<Device> dList = []; // 格式化后的设备列表数据
+  List<Device> dList = []; // 格式化后的设备列表数据，带 selected 属性
 
   void goBack() {
     Navigator.pop(context);
@@ -79,22 +76,15 @@ class SnifferState extends State<SnifferPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       timer.cancel();
 
-      var deviceList = context.read<DeviceListModel>().deviceList;
-      logger.i(deviceList);
-
       // 格式化数据
       setState(() => dList = mockData.map((d) {
-            String? type = d['type'];
-            var hasController = controllerList.keys.any((key) => key == type);
-
-            // TODO EMPTY ICON
+            var hasController = controllerList.keys.any((key) => key == d.type);
             var icon = hasController
-                ? DeviceService.getOnIcon(DeviceEntity.fromJson({'type': type}))
-                : 'assets/imgs/device/light_on.png';
-            logger.i('icon: $icon');
+                ? DeviceService.getOnIcon(d)
+                : 'assets/imgs/device/phone_on.png'; // TODO 替换为无类型设备图标
 
             return Device(
-                key: type, name: d['name'], icon: icon, selected: false);
+                key: d.type, name: d.name, icon: icon, selected: false);
           }).toList());
     });
   }
