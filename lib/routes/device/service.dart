@@ -10,7 +10,7 @@ class DeviceService {
 
   static Future<Map<String, dynamic>> getDeviceDetail(
       DeviceEntity deviceInfo) async {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = await controller.getDeviceDetail(deviceInfo);
       return res;
@@ -20,7 +20,7 @@ class DeviceService {
   }
 
   static Future<bool> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = await controller.setPower(deviceInfo, onOff);
       return res.code == 0;
@@ -30,7 +30,7 @@ class DeviceService {
   }
 
   static bool isSupport(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.isSupport(deviceInfo);
       return res;
@@ -40,7 +40,7 @@ class DeviceService {
   }
 
   static bool isPower(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.isPower(deviceInfo);
       return res;
@@ -50,7 +50,7 @@ class DeviceService {
   }
 
   static String getAttr(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.getAttr(deviceInfo);
       return res;
@@ -60,7 +60,7 @@ class DeviceService {
   }
 
   static String getAttrUnit(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.getAttrUnit(deviceInfo);
       return res;
@@ -70,7 +70,7 @@ class DeviceService {
   }
 
   static String getOnIcon(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.getOnIcon(deviceInfo);
       return res;
@@ -80,7 +80,8 @@ class DeviceService {
   }
 
   static String getOffIcon(DeviceEntity deviceInfo) {
-    var controller = controllerList[deviceInfo.type];
+
+    var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.getOffIcon(deviceInfo);
       return res;

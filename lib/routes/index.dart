@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/plugins/0x21_light/index.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_light/index.dart';
 import 'package:screen_app/routes/room/index.dart';
 import 'boot/index.dart';
 import 'package:screen_app/routes/plugins/0x40/index.dart';

@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/models/device_home_list_entity.dart';
+import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
-import 'package:screen_app/routes/plugins/0x21/recognizer/index.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../models/device_entity.dart';
@@ -21,7 +20,8 @@ class _DeviceItemState extends State<DeviceItem> {
     if (widget.deviceInfo != null && widget.deviceInfo!.detail != null) {
       if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
-        Navigator.pushNamed(context, widget.deviceInfo!.type,
+        var type = getControllerRoute(widget.deviceInfo!);
+        Navigator.pushNamed(context, type,
             arguments: {"deviceId": widget.deviceInfo!.applianceCode});
       }
     }
@@ -49,8 +49,6 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    var deviceListWatch = context.watch<DeviceListModel>();
-
     return Listener(
       onPointerDown: (e) => clickMethod(e),
       child: Container(
@@ -106,6 +104,7 @@ class _DeviceItemState extends State<DeviceItem> {
               height: 24,
               child: Text(
                 widget.deviceInfo != null &&
+                        DeviceService.isSupport(widget.deviceInfo!) &&
                         DeviceService.isOnline(widget.deviceInfo!)
                     ? (DeviceService.getAttr(widget.deviceInfo!) != ''
                         ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"

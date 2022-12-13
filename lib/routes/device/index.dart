@@ -29,18 +29,27 @@ class _DevicePageState extends State<DevicePage> {
   );
 
   initPage() {
-    List<DraggableGridItem> newBins = [];
+    // 更新设备detail
     var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       // 查看品类控制器看是否支持该品类
-      var hasController = controllerList.keys
-          .toList()
-          .any((element) => element == deviceInfo.type);
+      var hasController = getController(deviceInfo) != null;
       if (hasController && DeviceService.isOnline(deviceInfo) && DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().setDeviceDetail(deviceInfo);
+        context.read<DeviceListModel>().setDeviceDetail(deviceInfo, callback: () => {
+          // todo: 优化刷新效率
+          updateBins()
+        });
       }
+    }
+  }
+
+  updateBins() {
+    List<DraggableGridItem> newBins = [];
+    var deviceList = context.read<DeviceListModel>().deviceList;
+    for (int xx = 1; xx <= deviceList.length; xx++) {
+      var deviceInfo = deviceList[xx - 1];
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
         isDraggable: true,
@@ -92,6 +101,8 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<DeviceListModel>();
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       decoration: const BoxDecoration(
