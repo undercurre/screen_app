@@ -28,6 +28,11 @@ class _DevicePageState extends State<DevicePage> {
     keepScrollOffset: true,
   );
 
+  List<Map<String, String>> btnList = [
+    {'title': '添加设备', 'route': 'SnifferPage'},
+    {'title': '切换房间', 'route': 'Room'}
+  ];
+
   initPage() {
     List<DraggableGridItem> newBins = [];
     var deviceList = context.read<DeviceListModel>().deviceList;
@@ -37,7 +42,9 @@ class _DevicePageState extends State<DevicePage> {
       var hasController = controllerList.keys
           .toList()
           .any((element) => element == deviceInfo.type);
-      if (hasController && DeviceService.isOnline(deviceInfo) && DeviceService.isSupport(deviceInfo)) {
+      if (hasController &&
+          DeviceService.isOnline(deviceInfo) &&
+          DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
         context.read<DeviceListModel>().setDeviceDetail(deviceInfo);
       }
@@ -86,8 +93,8 @@ class _DevicePageState extends State<DevicePage> {
     super.dispose();
   }
 
-  void toSelectRoom() {
-    Navigator.pushNamed(context, 'Room');
+  void toConfigPage(String route) {
+    Navigator.pushNamed(context, route);
   }
 
   @override
@@ -119,17 +126,35 @@ class _DevicePageState extends State<DevicePage> {
                       fontWeight: FontWeight.normal,
                       decoration: TextDecoration.none,
                     )),
-                GestureDetector(
-                  onTap: () => toSelectRoom(),
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    child: Image.asset(
-                      "assets/imgs/icon/select_room.png",
-                      width: 40,
-                      height: 40,
-                    ),
+                PopupMenuButton(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  )),
+                  offset: const Offset(0, 36.0),
+                  itemBuilder: (context) {
+                    return btnList.map((item) {
+                      return PopupMenuItem<String>(
+                          value: item['route'],
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(item['title']!,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "MideaType",
+                                    fontWeight: FontWeight.w400)),
+                          ));
+                    }).toList();
+                  },
+                  onSelected: (String route) {
+                    toConfigPage(route);
+                  },
+                  child: Image.asset(
+                    "assets/imgs/icon/select_room.png",
+                    width: 40,
+                    height: 40,
                   ),
-                ),
+                )
               ],
             ),
           ),
