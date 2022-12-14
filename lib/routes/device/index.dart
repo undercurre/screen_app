@@ -8,6 +8,7 @@ import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import '../../common/global.dart';
+import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
 
 class DevicePage extends StatefulWidget {
@@ -40,12 +41,15 @@ class _DevicePageState extends State<DevicePage> {
       var deviceInfo = deviceList[xx - 1];
       // 查看品类控制器看是否支持该品类
       var hasController = getController(deviceInfo) != null;
-      if (hasController && DeviceService.isOnline(deviceInfo) && DeviceService.isSupport(deviceInfo)) {
+      if (hasController &&
+          DeviceService.isOnline(deviceInfo) &&
+          DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().setDeviceDetail(deviceInfo, callback: () => {
-          // todo: 优化刷新效率
-          updateBins()
-        });
+        context.read<DeviceListModel>().setDeviceDetail(deviceInfo,
+            callback: () => {
+                  // todo: 优化刷新效率
+                  updateBins()
+                });
       }
     }
   }
@@ -170,7 +174,7 @@ class _DevicePageState extends State<DevicePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(Global.profile.roomInfo?.name ?? '房间',
+                Text(context.watch<RoomModel>().roomInfo.name,
                     style: const TextStyle(
                       color: Color(0XFFFFFFFF),
                       fontSize: 30.0,
@@ -192,7 +196,16 @@ class _DevicePageState extends State<DevicePage> {
                 crossAxisSpacing: 17.0,
                 childAspectRatio: 0.7,
               ),
-              children: itemBins,
+              children:
+                  context.watch<DeviceListModel>().deviceList.map((deviceInfo) {
+                return DraggableGridItem(
+                  child: DeviceItem(deviceInfo: deviceInfo),
+                  isDraggable: true,
+                  dragCallback: (context, isDragging) {
+                    debugPrint('设备isDragging: $isDragging');
+                  },
+                );
+              }).toList(),
               dragCompletion: onDragAccept,
               isOnlyLongPress: true,
               dragFeedback: feedback,

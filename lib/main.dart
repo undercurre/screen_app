@@ -1,6 +1,7 @@
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/states/room_change_notifier.dart';
 import 'common/index.dart';
 import 'states/index.dart';
 import 'routes/index.dart';
@@ -36,6 +37,7 @@ class _App extends State<App> {
       providers: [
         ChangeNotifierProvider(create: (_) => UserModel()),
         ChangeNotifierProvider(create: (_) => DeviceListModel()),
+        ChangeNotifierProvider(create: (_) => RoomModel()),
       ],
       child: PointerDownListener(
           child: MaterialApp(

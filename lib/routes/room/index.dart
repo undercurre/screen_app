@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/room_change_notifier.dart';
 
+import '../../common/global.dart';
+import '../../models/room_entity.dart';
+import '../../states/device_change_notifier.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/mz_navigation_bar.dart';
+import '../device/register_controller.dart';
+import '../device/service.dart';
 
 class RoomPage extends StatefulWidget {
   const RoomPage({super.key});
@@ -41,9 +48,27 @@ class RoomPageState extends State<RoomPage> {
               ),
             ),
           ),
-          const Expanded(
+          Expanded(
               flex: 1,
-              child: SelectRoom()
+              child: SelectRoom(
+                  value: Global.profile.roomInfo?.roomId ?? '',
+                  onChange: (RoomEntity room) {
+                    debugPrint('SelectRoom: ${room.toJson()}');
+                    Global.profile.roomInfo = room;
+                    context.read<RoomModel>().roomInfo = room;
+                    context.read<DeviceListModel>().deviceList = room.applianceList;
+                    context.read<DeviceListModel>().deviceList.forEach((deviceInfo) {
+                      // 查看品类控制器看是否支持该品类
+                      var hasController = getController(deviceInfo) != null;
+                      if (hasController &&
+                          DeviceService.isOnline(deviceInfo) &&
+                          DeviceService.isSupport(deviceInfo)) {
+                        // 调用provider拿detail存入状态管理里
+                        context.read<DeviceListModel>().setDeviceDetail(deviceInfo);
+                      }
+                    });
+                  }
+              )
           )
         ]
     );
