@@ -18,7 +18,7 @@ if (flutterVersionCode == null) {
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
+    flutterVersionName = '1.0.0'
 }
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -130,6 +130,7 @@ dependencies {
     //    JHImplementation 只在晶华环境依赖
     //    LDImplementation 只在灵动环境中依赖
     //    implementation   任何环境中都依赖
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation("com.android.support:multidex:1.0.3")
     implementation(project(":module-setting"))
     implementation(project(":module-add-device"))
@@ -138,6 +139,7 @@ dependencies {
     implementation rootProject.ext.nexus.basic
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
+    implementation rootProject.ext.nexus.gateway
 
     api 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'

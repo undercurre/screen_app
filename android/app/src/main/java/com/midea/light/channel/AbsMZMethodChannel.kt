@@ -26,12 +26,15 @@ abstract class AbsMZMethodChannel constructor(open val context: Context) : Metho
         mMethodChannel!!.setMethodCallHandler(this)
     }
 
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-
-    }
+    abstract override fun onMethodCall(call: MethodCall, result: MethodChannel.Result);
 
     open fun onCallSuccess(result: MethodChannel.Result, any: Any) {
         MainThread.run { result.success(any) }
+    }
+
+    open fun onCallError(result: MethodChannel.Result, errorCode :String = "-1",
+                         errorMessage: String = "请求异常", errorDetail: Any? = null) {
+        MainThread.run { result.error(errorCode, errorMessage, errorDetail) }
     }
 
     open fun onCallNotImplement(result: MethodChannel.Result) {
@@ -43,6 +46,7 @@ abstract class AbsMZMethodChannel constructor(open val context: Context) : Metho
         mMethodChannel?.setMethodCallHandler(null)
         mMethodChannel = null
     }
+
 
 
 }
