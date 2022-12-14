@@ -2,23 +2,23 @@
 import 'package:flutter/material.dart';
 
 class MzDialog {
-  String title;
+  String? title;
   double titleSize;
-  String? des;
+  String? desc;
   Color? backgroundColor;
   EdgeInsetsGeometry? titlePadding;
   EdgeInsetsGeometry? contentPadding;
   ShapeBorder? shape;
-  List<String>? btns;
+  List<String>? btns; // 底部操作按钮列表
   Widget? contentSlot;
   Function? onPressed;
 
   MzDialog(
-      {required this.title,
+      {this.title,
       this.titleSize = 24,
-      this.des,
+      this.desc,
       this.backgroundColor = const Color(0xff1b1b1b),
-      this.titlePadding = const EdgeInsets.only(top: 20),
+      this.titlePadding = const EdgeInsets.only(top: 30),
       this.contentPadding = const EdgeInsets.all(20),
       this.shape =
           const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -67,23 +67,28 @@ class MzDialog {
           return AlertDialog(
             title: Column(
               children: [
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: titleSize,
-                    fontFamily: 'MideaType',
-                    fontWeight: FontWeight.w400,
+                if (title != null)
+                  Text(
+                    title!,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: titleSize,
+                        fontFamily: 'MideaType',
+                        fontWeight: FontWeight.w400,
+                        height: 1.2),
                   ),
-                ),
-                if (des != null)
-                  Text(des!,
+                if (desc != null)
+                  Text(desc!,
                       textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontSize: 14,
                           fontFamily: 'MideaType',
                           fontWeight: FontWeight.w100,
-                          height: 1))
+                          height: 1.2))
               ],
             ),
             content: contentSlot,
@@ -91,6 +96,7 @@ class MzDialog {
             contentPadding: contentPadding,
             titlePadding: titlePadding,
             actionsPadding: EdgeInsets.zero,
+            insetPadding: const EdgeInsets.symmetric(vertical: 20),
             shape: shape,
             actions: <Widget>[Row(children: btnList)],
           );

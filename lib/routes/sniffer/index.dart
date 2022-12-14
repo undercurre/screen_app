@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/models/device_entity.dart';
+import '../../common/global.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 import 'device_item.dart';
@@ -38,6 +39,13 @@ var mockData = [
   }
 ].map((d) => DeviceEntity.fromJson(d)).toList();
 
+class Wifi {
+  String name;
+  int? strength; // WIFI信号强度
+
+  Wifi({required this.name, this.strength});
+}
+
 class SnifferState extends State<SnifferPage> {
   late Timer _timer; // to be deleted
   double turns = 0; // 控制扫描动画圈数
@@ -45,13 +53,63 @@ class SnifferState extends State<SnifferPage> {
   final int timePerTurn = 3; // 转一圈所需时间
   List<Device> dList = []; // 格式化后的设备列表数据，带 selected 属性
 
+  var wifiInfo = Wifi(name: "Midea", strength: 2); // WIFI 名称，强度 TODO
+
+
+
   void goBack() {
     Navigator.pop(context);
   }
 
-  void toDeviceConnect() {
+  Widget selectWifi() {
+    return Container(
+        width: 356,
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        color: const Color(0xff282828),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+                padding: const EdgeInsets.only(right: 7),
+                child: Image.asset("assets/imgs/icon/wifi-${wifiInfo.strength}.png", width: 24.0)),
+            Text(
+              wifiInfo.name,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'MideaType',
+                  fontWeight: FontWeight.w400),
+            ),
+            const Expanded(
+                child: Text(
+              '进入网络设置',
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'MideaType',
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xff267AFF)),
+            ))
+          ],
+        ));
+  }
+
+  void toDeviceConnect() async {
     if (hasSelected()) {
       Navigator.pushNamed(context, 'DeviceConnectPage');
+    } else {
+      MzDialog mzDialog = MzDialog(
+          title: '连接家庭网络',
+          desc: '请确认当前网络是2.4GHZ',
+          btns: ['取消', '确认'],
+          contentSlot: selectWifi(),
+          contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
+          onPressed: (String item, int index) {
+            logger.i('$index: $item');
+          });
+
+      bool? result = await mzDialog.show(context);
+      logger.i('mzDialog: $result');
     }
   }
 
@@ -113,11 +171,11 @@ class SnifferState extends State<SnifferPage> {
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 15));
+        padding: const EdgeInsets.symmetric(vertical: 8));
     ButtonStyle buttonStyleOn = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 15));
+        padding: const EdgeInsets.symmetric(vertical: 8));
 
     return Container(
       width: MediaQuery.of(context).size.width,

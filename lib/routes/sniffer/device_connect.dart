@@ -152,7 +152,10 @@ class DeviceConnectState extends State<DeviceConnectPage> {
                 Expanded(
                   child: TextButton(
                       style: buttonStyle,
-                      onPressed: () {},
+                      onPressed: () {
+                        // 先清空已连接的WIFI设备
+                        goBack();
+                      },
                       child: const Text('上一步',
                           style: TextStyle(
                               fontSize: 24,
@@ -162,7 +165,7 @@ class DeviceConnectState extends State<DeviceConnectPage> {
                 Expanded(
                   child: TextButton(
                       style: buttonStyleOn,
-                      onPressed: () {},
+                      onPressed: goBack,
                       child: const Text('完成添加',
                           style: TextStyle(
                               fontSize: 24,
