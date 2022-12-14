@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/widgets/index.dart';
+import '../../common/global.dart';
 import '../../states/device_change_notifier.dart';
 
 // 模拟数据 TODO 改为接口查询 @魏
@@ -68,20 +69,32 @@ class DeviceConnectState extends State<DeviceConnectPage> {
   // TODO 完善数据查询 @魏
   Future<void> initQuery() async {
     // ! 模拟设备连接过程
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       timer.cancel();
-
-      setState(() => isLoading = false);
 
       // ! 模拟数据 直接从已有设备列表中截取数据，实际上应该从查找到的数据中匹配显示
       var deviceList = context.read<DeviceListModel>().deviceList;
-
+      setState(() => isLoading = false);
       setState(() => dList = deviceList.map((d) {
         var res = DeviceWithRoom();
         res.name = d.name;
         res.room = roomList.keys.first;
         return res;
       }).toList());
+
+      // 模拟弹出网络异常
+      MzDialog mzDialog = MzDialog(
+          desc: '油烟机连接失败，请确认网络环境后重试',
+          descMaxLines: 2,
+          descSize: 24,
+          btns: ['确定'],
+          maxWidth: 420,
+          titlePadding: const EdgeInsets.symmetric(vertical: 45, horizontal: 70),
+          onPressed: (String item, int index) {
+            logger.i('$index: $item');
+          });
+
+      await mzDialog.show(context);
     });
   }
 

@@ -10,6 +10,7 @@ class MzDialog {
   Color? backgroundColor;
   EdgeInsetsGeometry? titlePadding;
   EdgeInsetsGeometry? contentPadding;
+  double maxWidth;
   ShapeBorder? shape;
   List<String>? btns; // 底部操作按钮列表
   bool lastBtnOn; // 最后一个按钮激活
@@ -25,6 +26,7 @@ class MzDialog {
       this.backgroundColor = const Color(0xff1b1b1b),
       this.titlePadding = const EdgeInsets.only(top: 30),
       this.contentPadding = const EdgeInsets.all(20),
+      this.maxWidth = 480,
       this.shape =
           const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       this.btns,
@@ -33,20 +35,63 @@ class MzDialog {
       this.onPressed});
 
   Future<bool?> show(BuildContext context) {
+    // 普通按钮样式
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         padding: const EdgeInsets.symmetric(vertical: 10));
+
+    // 激活按钮样式
     ButtonStyle buttonStyleOn = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         padding: const EdgeInsets.symmetric(vertical: 10));
+
+    // 按钮文字样式
     TextStyle textStyle = const TextStyle(
         color: Colors.white,
         fontSize: 18,
         fontFamily: 'MideaType',
         fontWeight: FontWeight.w400);
 
+    // 标题及标题下描述
+    Widget compositeTitle = SizedBox(
+      width: maxWidth - titlePadding!.horizontal,
+      child: Column(
+        children: [
+          if (title != null)
+            Text(
+              title!,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: titleSize,
+                  fontFamily: 'MideaType',
+                  fontWeight: FontWeight.w400,
+                  height: 1.2),
+            ),
+          if (desc != null)
+            Text(desc!,
+                textAlign: TextAlign.center,
+                maxLines: descMaxLines,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: descSize,
+                    fontFamily: 'MideaType',
+                    fontWeight: FontWeight.w100,
+                    height: 1.2))
+        ],
+      ),
+    );
+
+    // 内容区插槽，边距及宽度限制处理
+    Widget? compositeContent = contentSlot != null
+        ? SizedBox(
+            width: maxWidth - contentPadding!.horizontal, child: contentSlot)
+        : null;
+
+    // 按钮列表
     List<Widget> btnList = [];
     if (btns != null) {
       for (int i = 0; i < btns!.length; i++) {
@@ -71,33 +116,8 @@ class MzDialog {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Column(
-              children: [
-                if (title != null)
-                  Text(
-                    title!,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: titleSize,
-                        fontFamily: 'MideaType',
-                        fontWeight: FontWeight.w400,
-                        height: 1.2),
-                  ),
-                if (desc != null)
-                  Text(desc!,
-                      textAlign: TextAlign.center,
-                      maxLines: descMaxLines,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: descSize,
-                          fontFamily: 'MideaType',
-                          fontWeight: FontWeight.w100,
-                          height: 1.2))
-              ],
-            ),
-            content: contentSlot,
+            title: compositeTitle,
+            content: compositeContent,
             backgroundColor: backgroundColor,
             contentPadding: contentPadding,
             titlePadding: titlePadding,

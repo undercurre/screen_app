@@ -42,6 +42,7 @@ bool? result = await mzDialog.show(context); // 对话框关闭后的返回值�
 | backgroundColor | `Color`              |`No`| `Color(0xff1b1b1b)`                                       | 背景颜色 |
 | titlePadding    | `EdgeInsetsGeometry` |`No`| `EdgeInsets.only(top: 30)`                                | 标题边距 |
 | contentPadding  | `EdgeInsetsGeometry` |`No`| `EdgeInsets.all(20)`                                      | 内容边距 |
+| maxWidth        | `double`             |`No`| `480`                                                     | 框体最大宽度 |
 | shape           | `ShapeBorder`        |`No`| `RoundedRectangleBorder(borderRadius: BorderRadius.zero)` | 边框样式定义（默认无圆角） |
 | btns            | `List<String>`       |`No`| `RoundedRectangleBorder(borderRadius: BorderRadius.zero)` | 底部操作按钮列表 |
 | lastBtnOn       | `bool`               |`No`| `false`                                                   | 最后一个按钮激活（激活时，最后一个按钮使用选中样式） |
