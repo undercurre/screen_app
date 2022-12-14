@@ -6,6 +6,7 @@ class MzNavigationBar extends StatefulWidget {
   final bool power;
   final bool hasPower;
   final bool isLoading;
+  final bool hasBottomBorder;
   final void Function()? onPowerBtnTap;
   final void Function()? onLeftBtnTap;
 
@@ -16,6 +17,7 @@ class MzNavigationBar extends StatefulWidget {
     this.power = false,
     this.hasPower = false,
     this.isLoading = false,
+    this.hasBottomBorder = false,
     this.onPowerBtnTap,
     this.onLeftBtnTap,
   });
@@ -27,106 +29,90 @@ class MzNavigationBar extends StatefulWidget {
 class _MzNavigationBarState extends State<MzNavigationBar> {
   @override
   Widget build(BuildContext context) {
-    return Flex(
-      direction: Axis.horizontal,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () => widget.onLeftBtnTap?.call(),
-          child: Container(
-            color: Colors.transparent,
-            child: const Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Image(
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
-                image: AssetImage('assets/imgs/plugins/common/arrow_left.png'),
-              ),
-            ),
-          ),
-        ),
-        // Text(
-        //   widget.title,
-        //   style: const TextStyle(
-        //     fontSize: 24,
-        //     color: Colors.white,
-        //     fontFamily: "MideaType",
-        //     fontWeight: FontWeight.w400,
-        //     decoration: TextDecoration.none,
-        //   ),
-        // ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  width: 28,
-                ),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      widget.title,
-                      style: const TextStyle(
-                        height: 1.6,
-                        fontSize: 24,
-                        color: Colors.white,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-                SizedBox(
-                  width: 28,
-                  child: (widget.isLoading)
-                      ? const Image(
-                          width: 28,
-                          height: 28,
-                          fit: BoxFit.cover,
-                          image: AssetImage('assets/imgs/loading.gif'),
-                        )
-                      : null,
-                ),
-              ],
-            ),
-            if (widget.desc != null)
-              Text(
-                widget.desc!,
-                style: const TextStyle(
-                  height: 1,
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontFamily: "MideaType",
-                  fontWeight: FontWeight.w100,
-                  decoration: TextDecoration.none,
-                ),
-              )
-          ],
-        ),
-        GestureDetector(
-          onTap: () => widget.onPowerBtnTap?.call(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
-            child: widget.hasPower
-                ? Image(
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    image: AssetImage(
-                      widget.power
-                          ? 'assets/imgs/plugins/common/power_on.png'
-                          : 'assets/imgs/plugins/common/power_off.png',
-                    ),
-                  )
-                : const SizedBox(
-                    width: 60,
-                    height: 60,
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 65,
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: widget.hasBottomBorder
+                  ? const BorderSide(
+                      width: 1,
+                      style: BorderStyle.solid,
+                      color: Color(0xff979797),
+                      strokeAlign: StrokeAlign.inside)
+                  : BorderSide.none)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 左边按钮，返回
+          GestureDetector(
+              onTap: () => widget.onLeftBtnTap?.call(),
+              child: SizedBox(
+                  width: 70,
+                  child: Image.asset(
+                      'assets/imgs/plugins/common/arrow_left.png',
+                      width: 40,
+                      height: 40))),
+
+          // 中间，标题、描述、Loading
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 28),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        widget.title,
+                        style: const TextStyle(
+                          height: 1.6,
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
+                        ),
+                      )),
+                  SizedBox(
+                    width: 28,
+                    child: (widget.isLoading)
+                        ? Image.asset('assets/imgs/loading.gif',
+                            width: 28, height: 28)
+                        : null,
                   ),
+                ],
+              ),
+              if (widget.desc != null)
+                Text(
+                  widget.desc!,
+                  style: const TextStyle(
+                    height: 1,
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.w100,
+                    decoration: TextDecoration.none,
+                  ),
+                )
+            ],
           ),
-        )
-      ],
+
+          // 右边按钮，开关
+          GestureDetector(
+              onTap: () => widget.onPowerBtnTap?.call(),
+              child: SizedBox(
+                  width: 70,
+                  child: Image.asset(
+                    widget.power
+                        ? 'assets/imgs/plugins/common/power_on.png'
+                        : 'assets/imgs/plugins/common/power_off.png',
+                    width: 60,
+                    height: 60,
+                  )))
+        ],
+      ),
     );
   }
 }
