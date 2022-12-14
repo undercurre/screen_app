@@ -12,6 +12,7 @@ class MzDialog {
   EdgeInsetsGeometry? contentPadding;
   ShapeBorder? shape;
   List<String>? btns; // 底部操作按钮列表
+  bool lastBtnOn; // 最后一个按钮激活
   Widget? contentSlot;
   Function? onPressed;
 
@@ -27,6 +28,7 @@ class MzDialog {
       this.shape =
           const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       this.btns,
+      this.lastBtnOn = true,
       this.contentSlot,
       this.onPressed});
 
@@ -51,7 +53,7 @@ class MzDialog {
         bool isLast = btns!.length - 1 == i;
         btnList.add(Expanded(
             child: TextButton(
-          style: isLast ? buttonStyleOn : buttonStyle,
+          style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
           child: Text(btns![i], style: textStyle),
           onPressed: () {
             onPressed?.call(btns![i], i);
