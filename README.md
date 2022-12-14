@@ -177,6 +177,7 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 - MzNavigationBar [文档地址](./docs/mz_navigation_bar.md)
 - MzSlider [文档地址](./docs/mz_slider.md)
 - MzSwitch [文档地址](./docs/mz_switch.md)
+- MzDialog [文档地址](./docs/mz_dialog.md)
 
 ## 插件组件
 - FunctionCard [文档地址](./docs/plugins/function_card.md)

@@ -1,7 +1,8 @@
 # 对话框
 
 ### 简介
-基于 `AlertDialog` 封装
+基于 `AlertDialog` 封装  
+
 ![示例](./imgs/dialog.png)
 
 ### widget结构
