@@ -2,27 +2,49 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../channel/index.dart';
+import '../../common/global.dart';
+
 // 关于页的数据提供者
 class AboutSettingProvider with ChangeNotifier {
-  String deviceName;
-  String familyName;
-  String systemVersion;
-  String macAddress;
-  String ipAddress;
-  String snCode;
+  String? deviceName;
+  String? familyName;
+  String? systemVersion;
+  String? macAddress;
+  String? ipAddress;
+  String? snCode;
 
-  AboutSettingProvider() :
-        deviceName = '', familyName = '', systemVersion = '',
-        macAddress = '', ipAddress = '', snCode = ''
-  {
-
+  AboutSettingProvider() {
+    // 初始化页面数据
+    init();
   }
 
-  void checkUpgrade() {}
+  void init() {
+    () async {
+      deviceName = "智慧屏P4";
+      familyName = Global.isLogin ? Global.profile.homeInfo?.nickname : "未登录";
+      ipAddress = await aboutSystemChannel.getIpAddress();
+      macAddress = await aboutSystemChannel.getMacAddress();
+      systemVersion = await aboutSystemChannel.getSystemVersion();
+      notifyListeners();
+    }.call();
+    () async {
+      snCode = await aboutSystemChannel.getGatewaySn();
+      notifyListeners();
+    }.call();
+  }
 
-  void reboot() {}
+  void checkUpgrade() {
+    init();
+  }
 
-  void clearUserData() {}
+  void reboot() {
+    aboutSystemChannel.reboot();
+  }
+
+  void clearUserData() {
+
+  }
 
 }
 
@@ -30,12 +52,46 @@ class AboutSettingPage extends StatelessWidget {
 
     const AboutSettingPage({super.key});
 
+    void showRebootDialog(BuildContext context, AboutSettingProvider provider) async {
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (buildContext) {
+            return RebootDialog(
+              title: "重启设备",
+              content: "此操作将使网关自设备暂时离线，是否确认重启？",
+              confirmAction: () {
+                provider.reboot();
+              },
+            );
+          }
+      );
+    }
+
+    void showClearUserDataDialog(BuildContext context, AboutSettingProvider provider) async {
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (buildContext) {
+            return RebootDialog(
+              title: "清除用户数据",
+              content: "此操作将退出当前账号，清除所有用户数据并重启，是否确认清除",
+              confirmAction: () {
+                // 此处执行清除数据的业务逻辑
+                provider.clearUserData();
+              },
+            );
+          }
+      );
+    }
+
     @override
     Widget build(BuildContext context) {
       return ChangeNotifierProvider<AboutSettingProvider>(
         create: (context) => AboutSettingProvider(),
         child: Builder(
           builder: (context) {
+            print("about 构建第一次");
             return Scaffold(
               body: Center(
                   child: Container(
@@ -113,7 +169,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().deviceName,
+                                        context.watch<AboutSettingProvider>().deviceName ?? '',
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -149,7 +205,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().familyName,
+                                        context.watch<AboutSettingProvider>().familyName ?? '',
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -186,7 +242,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().systemVersion,
+                                        context.watch<AboutSettingProvider>().systemVersion ?? '',
                                         style:const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -222,7 +278,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().macAddress,
+                                        context.watch<AboutSettingProvider>().macAddress ?? '',
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -258,7 +314,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().ipAddress,
+                                        context.watch<AboutSettingProvider>().ipAddress ?? '',
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -294,7 +350,7 @@ class AboutSettingPage extends StatelessWidget {
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
                                     child: Text(
-                                        context.watch<AboutSettingProvider>().snCode,
+                                        context.watch<AboutSettingProvider>().snCode ?? "获取失败",
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
                                           fontSize: 18.0,
@@ -380,7 +436,7 @@ class AboutSettingPage extends StatelessWidget {
                                   ),
                                   GestureDetector(
                                     onTap: () => {
-                                      context.read<AboutSettingProvider>().reboot()
+                                      showRebootDialog(context, context.read<AboutSettingProvider>())
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
@@ -404,6 +460,7 @@ class AboutSettingPage extends StatelessWidget {
                                             decoration: TextDecoration.none,
                                           )),
                                     ),
+
                                   ),
                                 ],
                               ),
@@ -431,7 +488,7 @@ class AboutSettingPage extends StatelessWidget {
                                   ),
                                   GestureDetector(
                                     onTap: () => {
-                                      context.read<AboutSettingProvider>().clearUserData()
+                                      showClearUserDataDialog(context, context.read<AboutSettingProvider>())
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
@@ -478,4 +535,84 @@ class AboutSettingPage extends StatelessWidget {
         ));
 
     }
+}
+
+class RebootDialog extends StatelessWidget {
+  final String title;
+  final String content;
+  final void Function() confirmAction;
+  const RebootDialog({super.key, required this.title, required this.content, required this.confirmAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        color: const Color(0xff1b1b1b),
+        width:423,
+        height: 204,
+        child: Column(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                )
+            ),
+            Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  child:Padding(padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
+                    child: Text(
+                      content,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                  ),)
+                )
+            ),
+            Expanded(
+                flex: 1,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(const Color(0xff282828)),
+                            shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('取消', style: TextStyle(color: Colors.white, fontSize: 18),),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(const Color(0xff267AFF)),
+                            shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
+                        onPressed: () {
+                          confirmAction.call();
+                          Navigator.pop(context);
+                        },
+                        child: const Text('确定', style: TextStyle(color: Colors.white, fontSize: 18),),
+                      ),)
+                  ],
+                )
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

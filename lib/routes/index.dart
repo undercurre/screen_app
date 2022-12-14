@@ -25,7 +25,7 @@ import 'plugins/0x40/index.dart';
 import 'plugins/0x21/0x21_light/index.dart';
 
 var routes = <String, WidgetBuilder>{
-  '/': (context) => const Boot(),
+  '/': (context) => const AboutSettingPage(),
   "Login": (context) => const LoginPage(),
   "Home": (context) => const Home(),
   "Room": (context) => const RoomPage(),

@@ -480,9 +480,9 @@ class IgnorePasswordDialog extends StatelessWidget {
 
 class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
-  void Function(WiFiScanResult result, String password) confirmAction;
+  final void Function(WiFiScanResult result, String password) confirmAction;
 
-  InputPasswordDialog({super.key, required this.result, required this.confirmAction});
+  const InputPasswordDialog({super.key, required this.result, required this.confirmAction});
 
   @override
   State<StatefulWidget> createState() {
