@@ -5,6 +5,8 @@ class MzDialog {
   String? title;
   double titleSize;
   String? desc;
+  double descSize;
+  int descMaxLines;
   Color? backgroundColor;
   EdgeInsetsGeometry? titlePadding;
   EdgeInsetsGeometry? contentPadding;
@@ -17,6 +19,8 @@ class MzDialog {
       {this.title,
       this.titleSize = 24,
       this.desc,
+      this.descSize = 14,
+      this.descMaxLines = 1,
       this.backgroundColor = const Color(0xff1b1b1b),
       this.titlePadding = const EdgeInsets.only(top: 30),
       this.contentPadding = const EdgeInsets.all(20),
@@ -82,10 +86,10 @@ class MzDialog {
                 if (desc != null)
                   Text(desc!,
                       textAlign: TextAlign.center,
-                      maxLines: 1,
+                      maxLines: descMaxLines,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 14,
+                      style: TextStyle(
+                          fontSize: descSize,
                           fontFamily: 'MideaType',
                           fontWeight: FontWeight.w100,
                           height: 1.2))
