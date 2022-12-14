@@ -24,7 +24,6 @@ import com.midea.light.gateway.AndroidVersionUtil;
 import com.midea.light.gateway.GateWayRepository;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.gateway.GatewayCallback;
-import com.midea.light.gateway.GatewayVersionUtil;
 import com.midea.light.utils.CommandExecution;
 import com.midea.light.utils.MacUtil;
 import com.midea.smart.open.common.util.StringUtils;
@@ -605,7 +604,7 @@ public class SystemUtil {
         return IpAddressUtil.getIpAddress(context);
     }
 
-    public static void getGatewaySn(Function<String, Void> callback) {
+    public static void getGatewaySn(Function<String, String> callback) {
         String sn = GateWayRepository.getInstance().getGatewaySn();
         if(StringUtils.isEmpty(sn)) {
             GateWayUtils.bindGateWay(new GatewayCallback.SN(4000,  TimeUnit.MILLISECONDS) {
