@@ -59,11 +59,6 @@ class ProxyV2IOTCallback implements V2IOTCallback {
     }
 
     @Override
-    public void alreadyUpgrading(UpgradeResultEntity entity) {
-        callback.alreadyUpgrading(entity);
-    }
-
-    @Override
     public void noUpgrade() {
         callback.noUpgrade();
     }
@@ -74,21 +69,6 @@ class ProxyV2IOTCallback implements V2IOTCallback {
     }
 
     @Override
-    public void enableBackground() {
-        callback.enableBackground();
-    }
-
-    @Override
-    public void enableForeground() {
-        callback.enableForeground();
-    }
-
-    @Override
-    public void upgrading(UpgradeResultEntity entity) {
-        callback.upgrading(entity);
-    }
-
-    @Override
     public void upgradeSuc(UpgradeResultEntity entity) {
         callback.upgradeSuc(entity);
     }
@@ -96,11 +76,6 @@ class ProxyV2IOTCallback implements V2IOTCallback {
     @Override
     public void upgradeFail(int code, String msg) {
         callback.upgradeFail(code, msg);
-    }
-
-    @Override
-    public void manualCancel() {
-        callback.manualCancel();
     }
 
     @Override
@@ -235,11 +210,6 @@ public class OTAUpgradeHelper {
                 }
             }
         };
-        if (background) {
-            defaultCallback.enableBackground();
-        } else {
-            defaultCallback.enableForeground();
-        }
         // 先查询ROOM
         queryUpgrade(UpgradeType.NORMAL, proxy);
 

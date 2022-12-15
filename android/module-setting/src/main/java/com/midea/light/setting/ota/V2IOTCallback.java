@@ -17,11 +17,6 @@ public interface V2IOTCallback extends V2IUpdateProgressCallback {
      */
     void newVersion(UpgradeResultEntity entity);
 
-    /**
-     * 已经在更新中，请稍后再尝试
-     */
-    void alreadyUpgrading(UpgradeResultEntity entity);
-
     void noUpgrade();
 
     default void setDownloadControl(UpgradeDownloadControl downloadControl){}
@@ -29,8 +24,4 @@ public interface V2IOTCallback extends V2IUpdateProgressCallback {
     default void setUpgradeInstallControl(UpgradeInstallControl control){}
 
     void confirmInstall(UpgradeResultEntity entity);
-
-    void enableBackground();
-
-    void enableForeground();
 }
