@@ -29,6 +29,7 @@ class AboutSettingProvider with ChangeNotifier {
       notifyListeners();
     }.call();
     () async {
+      // 可能获取时间比较长
       snCode = await aboutSystemChannel.getGatewaySn();
       notifyListeners();
     }.call();
