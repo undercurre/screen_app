@@ -58,7 +58,6 @@ class DeviceConnectState extends State<DeviceConnectPage> {
                 setState(() => d.room = value!);
               },
             )),
-        hasTopBorder: true,
         hasBottomBorder: true,
         padding:
         const EdgeInsets.symmetric(vertical: 17, horizontal: 26),
@@ -132,22 +131,12 @@ class DeviceConnectState extends State<DeviceConnectPage> {
       child: Stack(
         children: [
           // 顶部导航
-          Flex(
-            direction: Axis.vertical,
-            children: <Widget>[
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minWidth: double.infinity,
-                  maxHeight: 60.0,
-                ),
-                child: MzNavigationBar(
-                  onLeftBtnTap: goBack,
-                  title: '设备连接',
-                  desc: '已成功添加${dList.length}台设备',
-                  isLoading: isLoading,
-                ),
-              ),
-            ],
+          MzNavigationBar(
+            onLeftBtnTap: goBack,
+            title: '设备连接',
+            desc: '已成功添加${dList.length}台设备',
+            isLoading: isLoading,
+            hasBottomBorder: true,
           ),
 
           Positioned(
