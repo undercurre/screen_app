@@ -104,13 +104,15 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
               onTap: () => widget.onPowerBtnTap?.call(),
               child: SizedBox(
                   width: 70,
-                  child: Image.asset(
-                    widget.power
-                        ? 'assets/imgs/plugins/common/power_on.png'
-                        : 'assets/imgs/plugins/common/power_off.png',
-                    width: 60,
-                    height: 60,
-                  )))
+                  child: widget.hasPower
+                      ? Image.asset(
+                          widget.power
+                              ? 'assets/imgs/plugins/common/power_on.png'
+                              : 'assets/imgs/plugins/common/power_off.png',
+                          width: 60,
+                          height: 60,
+                        )
+                      : null))
         ],
       ),
     );

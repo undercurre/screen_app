@@ -1,16 +1,23 @@
 # 导航组件
 
 ## 简介
-插件通用的顶部导航组件
+通用的顶部导航组件
+
+## widget结构
+MzNavigationBar|||
+-|-|-|
+LeftBtn|title,desc,loading|PowerBtn
 
 ## 属性
 
 | 参数name | 类型     | 必传    | 默认值 | 描述        |
 |--------|--------|-------|--|-----------|
 | title  | String | false | `''` | 导航栏标题  |
+| desc   | String | false | `''` | 导航栏标题下的描述  |
 | hasPower  | Widget | false  | - | 是否显示开关按钮 |
 | power  | Widget | false  | - | 开关按钮值 |
-
+| isLoading  | bool | false  | - | 是否显示加载中图标 |
+| hasBottomBorder  | bool | false  | - | 是否显示下分隔线 |
 
 ## 事件
 
