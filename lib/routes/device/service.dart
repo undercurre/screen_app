@@ -80,7 +80,6 @@ class DeviceService {
   }
 
   static String getOffIcon(DeviceEntity deviceInfo) {
-
     var controller = getController(deviceInfo);
     if (controller != null) {
       var res = controller.getOffIcon(deviceInfo);

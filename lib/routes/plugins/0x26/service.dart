@@ -1,121 +1,45 @@
-import 'package:screen_app/common/index.dart';
-
-import './api.dart';
-import './index.dart';
 import './mode_list.dart';
 import '../../../widgets/index.dart';
 
 // 通用逻辑处理，根据sn8判断后转wot控制或者lua控制
 class BaseService {
-  static void updateDeviceDetail(BathroomMasterState state) async {
-    final runMode = <String, bool>{};
-    if (state.controlType == 'wot') {
-      final res = await BaseApi.getDetail(state.deviceId);
-      if (res.success) {
-        for (var key in (res.result['runMode'] as Map<String, dynamic>).keys) {
-          runMode[key] = res.result['runMode'][key];
-        }
-        runMode['light'] = res.result['lightMode']['mainLight'] || res.result['lightMode']['nightLight'];
-        state.setStateCallBack(
-          delayClose: res.result['delayClose'],
-          delayTime: res.result['delayTime'],
-          mainLight: res.result['lightMode']['mainLight'],
-          nightLight: res.result['lightMode']['nightLight'],
-          runMode: runMode,
-        );
-      }
-    } else {
-      final res = await BaseApi.getDetailByLua(state.deviceId);
-      if (res.success) {
-        final activeModeList = (res.result['mode'] as String).split(',');
-        for (var mode in bathroomMasterMode) {
-          runMode[mode.key] = activeModeList.contains(mode.key);
-        }
-        runMode['light'] = res.result['light_mode'] == 'main_light' ||
-            res.result['light_mode'] == 'night_light';
-        state.setStateCallBack(
-          delayClose: res.result['delay_enable'] == 'on',
-          delayTime: int.parse(res.result['delay_time']),
-          mainLight: res.result['light_mode'] == 'main_light',
-          nightLight: res.result['light_mode'] == 'night_light',
-          runMode: runMode,
-        );
-      }
-    }
-  }
+  // static void updateDeviceDetail(BathroomMasterState state) async {
+  //   final runMode = <String, bool>{};
+  //   if (state.controlType == 'wot') {
+  //     final res = await BaseApi.getDetail(state.deviceId);
+  //     if (res.success) {
+  //       for (var key in (res.result['runMode'] as Map<String, dynamic>).keys) {
+  //         runMode[key] = res.result['runMode'][key];
+  //       }
+  //       runMode['light'] = res.result['lightMode']['mainLight'] || res.result['lightMode']['nightLight'];
+  //       state.setStateCallBack(
+  //         delayClose: res.result['delayClose'],
+  //         delayTime: res.result['delayTime'],
+  //         mainLight: res.result['lightMode']['mainLight'],
+  //         nightLight: res.result['lightMode']['nightLight'],
+  //         runMode: runMode,
+  //       );
+  //     }
+  //   } else {
+  //     final res = await BaseApi.getDetailByLua(state.deviceId);
+  //     if (res.success) {
+  //       final activeModeList = (res.result['mode'] as String).split(',');
+  //       for (var mode in bathroomMasterMode) {
+  //         runMode[mode.key] = activeModeList.contains(mode.key);
+  //       }
+  //       runMode['light'] = res.result['light_mode'] == 'main_light' ||
+  //           res.result['light_mode'] == 'night_light';
+  //       state.setStateCallBack(
+  //         delayClose: res.result['delay_enable'] == 'on',
+  //         delayTime: int.parse(res.result['delay_time']),
+  //         mainLight: res.result['light_mode'] == 'main_light',
+  //         nightLight: res.result['light_mode'] == 'night_light',
+  //         runMode: runMode,
+  //       );
+  //     }
+  //   }
+  // }
 
-  static void toggleNightLight(BathroomMasterState state) {
-    final newValue = !state.nightLight;
-    final runMode = state.runMode;
-    runMode['light'] = newValue || state.mainLight;
-    state.setStateCallBack(nightLight: newValue, mainLight: false);
-    BaseApi.luaControl(
-      state.deviceId,
-      {'light_mode': newValue ? 'night_light' : 'close_all'},
-    );
-  }
-
-  static void toggleDelayClose(BathroomMasterState state) {
-    state.setStateCallBack(delayClose: !state.delayClose);
-    if (state.delayClose) {
-      BaseApi.luaControl(state.deviceId, {
-        'delay_enable': 'on',
-        'delay_time': '15',
-      });
-    } else {
-      BaseApi.luaControl(state.deviceId, {
-        'delay_enable': 'off',
-      });
-    }
-  }
-
-  static void handleModeCardClick(BathroomMasterState state, Mode mode) async {
-    final runMode = state.runMode;
-    if (mode.key == light.key) {
-      // 如果主灯和夜灯都是关则打开主灯
-      if (!state.mainLight && !state.nightLight) {
-        runMode['light'] = true;
-        state.setStateCallBack(mainLight: true, runMode: runMode);
-        final res = await BaseApi.luaControl(
-          state.deviceId,
-          {'light_mode': 'main_light'},
-        );
-        logger.d(res);
-      } else {
-        // 如果主灯或者夜灯打开则全部关闭
-        runMode['light'] = false;
-        state.setStateCallBack(
-          mainLight: false,
-          nightLight: false,
-          runMode: runMode,
-        );
-        final res = await BaseApi.luaControl(
-          state.deviceId,
-          {'light_mode': 'close_all'},
-        );
-        logger.d(res);
-      }
-      return;
-    } else {
-      // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
-      runMode[mode.key] =
-          runMode[mode.key] != null && runMode[mode.key]! ? false : true;
-    }
-    state.setStateCallBack(runMode: runMode);
-    final res = await BaseApi.luaControl(
-      state.deviceId,
-      {'mode': runMode[mode.key]! ? mode.key : ''},
-    );
-    if (res.success && res.result['status']['mode'] != null) {
-      final modeList = (res.result['status']['mode'] as String).split(',');
-      runMode['bath'] = modeList.contains('bath');
-      runMode['blowing'] = modeList.contains('blowing');
-      runMode['heating'] = modeList.contains('heating');
-      runMode['drying'] = modeList.contains('drying');
-      runMode['ventilation'] = modeList.contains('ventilation');
-      state.setStateCallBack(runMode: runMode);
-    }
-  }
 }
 
 // 处理五种运行模式切换通用逻辑

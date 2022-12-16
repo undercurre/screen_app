@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
-import 'package:screen_app/widgets/mz_indicator.dart';
-import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
 
@@ -50,7 +49,7 @@ class _DevicePageState extends State<DevicePage> {
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().setDeviceDetail(deviceInfo,
+        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
                   updateBins()

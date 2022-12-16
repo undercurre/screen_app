@@ -38,7 +38,6 @@ class _HomeState extends State<Home> {
           children: [
             GestureDetector(
                 onVerticalDragDown: (details) {
-                  print("竖直方向拖动按下onVerticalDragDown:" + details.globalPosition.toString());
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {

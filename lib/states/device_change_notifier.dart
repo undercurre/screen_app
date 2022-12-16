@@ -29,7 +29,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     }
   }
 
-  Future<void> setDeviceDetail(DeviceEntity deviceInfo,{ Function? callback }) async {
+  Future<void> updateDeviceDetail(DeviceEntity deviceInfo,{ Function? callback }) async {
     // todo: 优化数据更新diff
     var curDeviceList = _deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList();
     if (curDeviceList.isNotEmpty) {
@@ -40,5 +40,12 @@ class DeviceListModel extends ProfileChangeNotifier {
       notifyListeners();
       if (callback != null) callback();
     }
+  }
+
+  void setProviderDeviceInfo(DeviceEntity device,{ Function? callback }) {
+    final index = _deviceListResource.indexWhere((element) => element.applianceCode == device.applianceCode);
+    _deviceListResource[index] = device;
+    notifyListeners();
+    if (callback != null) callback();
   }
 }

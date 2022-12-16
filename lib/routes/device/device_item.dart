@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
-import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../models/device_entity.dart';
 
@@ -43,7 +41,6 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -60,11 +57,7 @@ class _DeviceItemState extends State<DeviceItem> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: (widget.deviceInfo != null
-                    ? DeviceService.isPower(widget.deviceInfo!)
-                    : false)
-                ? [const Color(0xFF393E43), const Color(0xFF333135)]
-                : [const Color(0xFF000000), const Color(0xFF000000)],
+            colors: _getContainerBgc(),
           ),
         ),
         child: Column(
@@ -80,9 +73,7 @@ class _DeviceItemState extends State<DeviceItem> {
                   Text(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    widget.deviceInfo != null
-                        ? widget.deviceInfo!.name!
-                        : '加载中',
+                    widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
                     style: const TextStyle(
                       fontSize: 22.0,
                       color: Color(0XFFFFFFFF),
@@ -92,24 +83,14 @@ class _DeviceItemState extends State<DeviceItem> {
               ),
             ),
             Image.asset(
-              widget.deviceInfo != null
-                  ? (DeviceService.isPower(widget.deviceInfo!)
-                      ? DeviceService.getOnIcon(widget.deviceInfo!)
-                      : DeviceService.getOffIcon(widget.deviceInfo!))
-                  : 'assets/imgs/device/phone_off.png',
+              _getDeviceIconPath(),
               width: 50,
               height: 50,
             ),
             SizedBox(
               height: 24,
               child: Text(
-                widget.deviceInfo != null &&
-                        DeviceService.isSupport(widget.deviceInfo!) &&
-                        DeviceService.isOnline(widget.deviceInfo!)
-                    ? (DeviceService.getAttr(widget.deviceInfo!) != ''
-                        ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
-                        : "")
-                    : "",
+                _getAttrString(),
                 style: const TextStyle(
                   fontSize: 24.0,
                   color: Color(0XFF8e8e8e),
@@ -119,7 +100,7 @@ class _DeviceItemState extends State<DeviceItem> {
             SizedBox(
               height: 60,
               child: Center(
-                child: handleBottomWidget(widget.deviceInfo),
+                child: _buildBottomWidget(),
               ),
             )
           ],
@@ -127,40 +108,68 @@ class _DeviceItemState extends State<DeviceItem> {
       ),
     );
   }
-}
 
-Widget handleBottomWidget(DeviceEntity? deviceInfo) {
-  if (deviceInfo == null) {
-    return Image.asset(
-      "assets/imgs/device/offline.png",
-      width: 150,
-      height: 60,
-    );
-  } else {
-    if (!DeviceService.isOnline(deviceInfo!)) {
+  /// 设备图片
+  String _getDeviceIconPath() {
+    return widget.deviceInfo != null
+        ? (DeviceService.isPower(widget.deviceInfo!)
+            ? DeviceService.getOnIcon(widget.deviceInfo!)
+            : DeviceService.getOffIcon(widget.deviceInfo!))
+        : 'assets/imgs/device/phone_off.png';
+  }
+
+  /// 卡片背景色
+  List<Color> _getContainerBgc() {
+    return widget.deviceInfo != null &&
+            DeviceService.isPower(widget.deviceInfo!)
+        ? [const Color(0xFF393E43), const Color(0xFF333135)]
+        : [const Color(0xFF000000), const Color(0xFF000000)];
+  }
+
+  /// attr文字
+  String _getAttrString() {
+    return widget.deviceInfo != null &&
+            DeviceService.isSupport(widget.deviceInfo!) &&
+            DeviceService.isOnline(widget.deviceInfo!)
+        ? (DeviceService.getAttr(widget.deviceInfo!) != ''
+            ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
+            : "")
+        : "";
+  }
+
+  Widget _buildBottomWidget() {
+    if (widget.deviceInfo == null) {
       return Image.asset(
         "assets/imgs/device/offline.png",
         width: 150,
         height: 60,
       );
     } else {
-      if (!DeviceService.isSupport(deviceInfo!)) {
-        return const Text(
-          "仅支持APP控制",
-          style: TextStyle(
-              fontSize: 14.0,
-              color: Color(0X80FFFFFF),
-              fontWeight: FontWeight.w400,
-              fontFamily: 'MideaType-Regular'),
-        );
-      } else {
+      if (!DeviceService.isOnline(widget.deviceInfo!)) {
         return Image.asset(
-          DeviceService.isPower(deviceInfo!)
-              ? "assets/imgs/device/device_power_on.png"
-              : "assets/imgs/device/device_power_off.png",
+          "assets/imgs/device/offline.png",
           width: 150,
           height: 60,
         );
+      } else {
+        if (!DeviceService.isSupport(widget.deviceInfo!)) {
+          return const Text(
+            "仅支持APP控制",
+            style: TextStyle(
+                fontSize: 14.0,
+                color: Color(0X80FFFFFF),
+                fontWeight: FontWeight.w400,
+                fontFamily: 'MideaType-Regular'),
+          );
+        } else {
+          return Image.asset(
+            DeviceService.isPower(widget.deviceInfo!)
+                ? "assets/imgs/device/device_power_on.png"
+                : "assets/imgs/device/device_power_off.png",
+            width: 150,
+            height: 60,
+          );
+        }
       }
     }
   }
