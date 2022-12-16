@@ -117,11 +117,6 @@ class _OtaState extends State<_OtaDialog> {
     Navigator.of(context).pop();
   }
 
-  void cancelConfirmDownload() {
-    otaChannel.cancelConfirmDownload();
-    Navigator.of(context).pop();
-  }
-
   void confirmDownload() {
     otaChannel.confirmDownload();
     setState(() {
@@ -221,7 +216,7 @@ class _OtaState extends State<_OtaDialog> {
                               onPressed: () {
                                 if(step == _stepNormal) {
                                   // 取消下载
-                                  cancelConfirmDownload();
+                                  cancelDownload();
                                 } else if(step == _stepDownload && state == _DownloadState.downloadFail) {
                                   // 下载失败，取消再下载
                                   cancelReDownload();

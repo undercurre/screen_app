@@ -70,11 +70,6 @@ class OtaChannel extends AbstractChannel {
       }
     }
   }
-  // 取消确认下载（此时还未下载，还在确认下载阶段）
-  void cancelConfirmDownload() async {
-    bool suc = await methodChannel.invokeMethod('cancelConfirmDownload');
-    _isDownloading = false;
-  }
   // 确认下载
   void confirmDownload() async {
     bool suc = await methodChannel.invokeMethod('confirmDownload');
