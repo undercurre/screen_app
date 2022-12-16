@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
+import 'package:screen_app/widgets/mz_indicator.dart';
 import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
@@ -21,6 +23,8 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
   late Timer _timer;
@@ -186,30 +190,35 @@ class _DevicePageState extends State<DevicePage> {
             ),
           ),
           Expanded(
-            child: DraggableGridViewBuilder(
-              controller: _scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                // 垂直方向item之间的间距
-                mainAxisSpacing: 17.0,
-                // 水平方向item之间的间距
-                crossAxisSpacing: 17.0,
-                childAspectRatio: 0.7,
+            child: EasyRefresh(
+              child: DraggableGridViewBuilder(
+                controller: _scrollController,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  // 垂直方向item之间的间距
+                  mainAxisSpacing: 17.0,
+                  // 水平方向item之间的间距
+                  crossAxisSpacing: 17.0,
+                  childAspectRatio: 0.7,
+                ),
+                children: context
+                    .watch<DeviceListModel>()
+                    .deviceList
+                    .map((deviceInfo) {
+                  return DraggableGridItem(
+                    child: DeviceItem(deviceInfo: deviceInfo),
+                    isDraggable: true,
+                    dragCallback: (context, isDragging) {
+                      debugPrint('设备isDragging: $isDragging');
+                      _refreshIndicatorKey.currentState?.show();
+                    },
+                  );
+                }).toList(),
+                dragCompletion: onDragAccept,
+                isOnlyLongPress: true,
+                dragFeedback: feedback,
+                dragPlaceHolder: placeHolder,
               ),
-              children:
-                  context.watch<DeviceListModel>().deviceList.map((deviceInfo) {
-                return DraggableGridItem(
-                  child: DeviceItem(deviceInfo: deviceInfo),
-                  isDraggable: true,
-                  dragCallback: (context, isDragging) {
-                    debugPrint('设备isDragging: $isDragging');
-                  },
-                );
-              }).toList(),
-              dragCompletion: onDragAccept,
-              isOnlyLongPress: true,
-              dragFeedback: feedback,
-              dragPlaceHolder: placeHolder,
             ),
           ),
         ],

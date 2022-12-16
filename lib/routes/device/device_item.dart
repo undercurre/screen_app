@@ -27,7 +27,7 @@ class _DeviceItemState extends State<DeviceItem> {
     }
   }
 
-  void clickMethod(e) {
+  void clickMethod(TapDownDetails e) {
     if (widget.deviceInfo != null) {
       if (e.localPosition.dx > 40 &&
           e.localPosition.dx < 90 &&
@@ -49,8 +49,8 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (e) => clickMethod(e),
+    return GestureDetector(
+      onTapDown: (e) => clickMethod(e),
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 17, 0, 0),
         alignment: Alignment.center,
@@ -119,40 +119,49 @@ class _DeviceItemState extends State<DeviceItem> {
             SizedBox(
               height: 60,
               child: Center(
-                child: (widget.deviceInfo != null
-                        ? (!DeviceService.isOnline(widget.deviceInfo!))
-                        : false)
-                    ? Image.asset(
-                        "assets/imgs/device/offline.png",
-                        width: 150,
-                        height: 60,
-                      )
-                    : (widget.deviceInfo != null
-                            ? (!DeviceService.isSupport(widget.deviceInfo!))
-                            : true)
-                        ? const Text(
-                            "仅支持APP控制",
-                            style: TextStyle(
-                                fontSize: 14.0,
-                                color: Color(0X80FFFFFF),
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'MideaType-Regular'),
-                          )
-                        : Image.asset(
-                            (widget.deviceInfo != null
-                                    ? (DeviceService.isPower(
-                                        widget.deviceInfo!))
-                                    : false)
-                                ? "assets/imgs/device/device_power_on.png"
-                                : "assets/imgs/device/device_power_off.png",
-                            width: 150,
-                            height: 60,
-                          ),
+                child: handleBottomWidget(widget.deviceInfo),
               ),
             )
           ],
         ),
       ),
     );
+  }
+}
+
+Widget handleBottomWidget(DeviceEntity? deviceInfo) {
+  if (deviceInfo == null) {
+    return Image.asset(
+      "assets/imgs/device/offline.png",
+      width: 150,
+      height: 60,
+    );
+  } else {
+    if (!DeviceService.isOnline(deviceInfo!)) {
+      return Image.asset(
+        "assets/imgs/device/offline.png",
+        width: 150,
+        height: 60,
+      );
+    } else {
+      if (!DeviceService.isSupport(deviceInfo!)) {
+        return const Text(
+          "仅支持APP控制",
+          style: TextStyle(
+              fontSize: 14.0,
+              color: Color(0X80FFFFFF),
+              fontWeight: FontWeight.w400,
+              fontFamily: 'MideaType-Regular'),
+        );
+      } else {
+        return Image.asset(
+          DeviceService.isPower(deviceInfo!)
+              ? "assets/imgs/device/device_power_on.png"
+              : "assets/imgs/device/device_power_off.png",
+          width: 150,
+          height: 60,
+        );
+      }
+    }
   }
 }
