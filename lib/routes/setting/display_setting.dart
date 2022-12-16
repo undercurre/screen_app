@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../widgets/AdvancedSeekBar.dart';
+import '../../channel/index.dart';
 import '../../widgets/mz_slider.dart';
 
 class DisplaySettingPage extends StatefulWidget {
@@ -15,12 +15,22 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
   late double po;
   bool autoLight = true;
   bool nearWakeup = true;
+  num lightValue = 0;
+
 
   @override
   void initState() {
     super.initState();
     //初始化状态
     print("initState");
+    initial();
+  }
+
+  initial() async {
+    lightValue = await settingMethodChannel.getSystemLight();
+    autoLight= await settingMethodChannel.getAutoLight();
+    print("亮度大小:$lightValue");
+    setState(() {});
   }
 
   @override
@@ -105,6 +115,7 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                         value: autoLight,
                         activeColor: Colors.blue,
                         onChanged: (bool value) {
+                          settingMethodChannel.setAutoLight(autoLight);
                           setState(() {
                             autoLight = value;
                           });
@@ -129,7 +140,9 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                       height: 60,
                       margin: const EdgeInsets.fromLTRB(15, 9, 0, 9),
                       child: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+
+                        },
                         iconSize: 40.0,
                         icon: Image.asset(
                           "assets/imgs/setting/liangdu01.png",
@@ -141,9 +154,12 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                       width: 320,
                       child: MzSlider(
                         width: 320,
-                        value: 40,
+                        value: lightValue,
                         activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
-                        onChanging: (value, actieColor) => {},
+                        onChanging: (value, actieColor) => {
+                          settingMethodChannel.setSystemLight(value),
+                          lightValue = value,
+                        },
                       ),
                     ),
                     Container(

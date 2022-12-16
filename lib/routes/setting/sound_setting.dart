@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../channel/index.dart';
 import '../../widgets/mz_slider.dart';
 
 class SoundSettingPage extends StatefulWidget {
@@ -13,12 +14,20 @@ class SoundSettingPage extends StatefulWidget {
 class _SoundSettingPageState extends State<SoundSettingPage> {
   late double po;
   bool touchSound = true;
+  num soundValue = 0;
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    print("initState");
+    print("初始化initState");
+    initial();
+  }
+
+  initial() async {
+    soundValue = await settingMethodChannel.getSystemVoice();
+    print("音量大小:$soundValue");
+    setState(() {});
   }
 
   @override
@@ -95,15 +104,19 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                   ),
                 ),
                 Container(
-                    margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
+                  width: 320,
+                  child: MzSlider(
                     width: 320,
-                    child: MzSlider(
-                      width: 320,
-                      value: 40,
-                      max: 15,
-                      activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
-                      onChanging: (value, actieColor) => {},
-                    ),),
+                    value: soundValue,
+                    max: 15,
+                    activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                    onChanging: (value, actieColor) => {
+                      settingMethodChannel.setSystemVoice(value),
+                      soundValue = value,
+                    },
+                  ),
+                ),
                 Container(
                   width: 80,
                   height: 80,

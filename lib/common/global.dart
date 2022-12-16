@@ -97,4 +97,11 @@ class Global {
       debugPrint('EasyLoading Status $status');
     });
   }
+
+  ///全局亮度
+  static num lightValue=204;
+
+  ///全局音量
+  static num soundValue=10;
+
 }

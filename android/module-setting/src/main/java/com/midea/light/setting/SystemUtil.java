@@ -6,6 +6,7 @@ import android.app.SmatekManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.MacAddress;
 import android.net.NetworkInfo;
@@ -14,6 +15,7 @@ import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 
 import com.jhxs.ltmidea.tools.RelayControl;
@@ -37,6 +39,8 @@ import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
+import static android.content.Context.AUDIO_SERVICE;
 
 class JHSystemUtil {
 
@@ -114,6 +118,21 @@ class JHSystemUtil {
     @SuppressLint("WrongConstant")
     public static void lightSet(int light) {
         Settings.System.putInt(BaseApplication.getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, light);
+    }
+
+    /**
+     * 亮度获取
+     * 亮度值（0~255）
+     */
+    @SuppressLint("WrongConstant")
+    public static int lightGet() {
+        int systemBrightness = 0;
+        try {
+            systemBrightness = Settings.System.getInt(BaseApplication.getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        return systemBrightness;
     }
 
     /**
@@ -238,18 +257,36 @@ class JHSystemUtil {
         return "0";
     }
 
-    public static void clickScreen(int x,int y){
-        String command = "input tap "+x+" "+y;
-        new Thread(){
-            public void run(){
+    public static void clickScreen(int x, int y) {
+        String command = "input tap " + x + " " + y;
+        new Thread() {
+            public void run() {
                 CommandExecution.execCommand(command, false);
             }
         }.start();
 
     }
 
-    public static void wakeupScreenAndClickScreen(int x,int y){
-        clickScreen(x,y);
+    public static void wakeupScreenAndClickScreen(int x, int y) {
+        clickScreen(x, y);
+    }
+
+    /**
+     * 系统音量设置
+     */
+    public static int getSystemAudio() {
+        AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
+        int current = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        return current;
+    }
+
+    /**
+     * 系统音量控制
+     */
+    public static void setSystemAudio(int Audio) {
+        Log.e("sky", "设置音量:" + Audio);
+        AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, Audio, AudioManager.FLAG_PLAY_SOUND);
     }
 
 }
@@ -315,6 +352,21 @@ class LDSystemUtil {
     }
 
     /**
+     * 亮度获取
+     * 亮度值（0~255）
+     */
+    @SuppressLint("WrongConstant")
+    public static int lightGet() {
+        int systemBrightness = 0;
+        try {
+            systemBrightness = Settings.System.getInt(BaseApplication.getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        return systemBrightness;
+    }
+
+    /**
      * 开关背光
      *
      * @param value
@@ -376,7 +428,7 @@ class LDSystemUtil {
                 if (onoff) {
                     manager.writeToNode("/sys/class/gpio/gpio115/value", "1");
                 } else {
-                    manager.writeToNode( "/sys/class/gpio/gpio115/value", "0");
+                    manager.writeToNode("/sys/class/gpio/gpio115/value", "0");
                 }
                 break;
         }
@@ -397,8 +449,8 @@ class LDSystemUtil {
         return false;
     }
 
-    public static void clickScreen(int x,int y) {
-        String command = "input tap "+ x +" "+ y;
+    public static void clickScreen(int x, int y) {
+        String command = "input tap " + x + " " + y;
         new Thread() {
             public void run() {
                 CommandExecution.execCommand(command, false);
@@ -407,8 +459,26 @@ class LDSystemUtil {
 
     }
 
-    public static void wakeupScreenAndClickScreen(int x,int y) {
-        clickScreen(x,y);
+    public static void wakeupScreenAndClickScreen(int x, int y) {
+        clickScreen(x, y);
+    }
+
+    /**
+     * 系统音量设置
+     */
+    public static int getSystemAudio() {
+        AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
+        int current = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        return current;
+    }
+
+    /**
+     * 系统音量控制
+     */
+    public static void setSystemAudio(int Audio) {
+        Log.e("sky", "设置音量:" + Audio);
+        AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, Audio, AudioManager.FLAG_PLAY_SOUND);
     }
 }
 
@@ -418,7 +488,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void eraseAllData() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.eraseAllData();
         } else {
             LDSystemUtil.eraseAllData();
@@ -426,7 +496,7 @@ public class SystemUtil {
     }
 
     public static void setScreenAutoMode(boolean isAutoMode) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.setScreenAutoMode(isAutoMode);
         } else {
             LDSystemUtil.setScreenAutoMode(isAutoMode);
@@ -434,7 +504,7 @@ public class SystemUtil {
     }
 
     public static boolean isScreenAutoMode() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             return JHSystemUtil.isScreenAutoMode();
         } else {
             return LDSystemUtil.isScreenAutoMode();
@@ -446,7 +516,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void reboot() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.reboot();
         } else {
             LDSystemUtil.reboot();
@@ -458,7 +528,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void shutdown() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.shutdown();
         } else {
             LDSystemUtil.shutdown();
@@ -468,7 +538,7 @@ public class SystemUtil {
     //断开以太网
     @SuppressLint("WrongConstant")
     public static void disconnectEth() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.disconnectEth();
         } else {
             LDSystemUtil.disconnectEth();
@@ -478,7 +548,7 @@ public class SystemUtil {
     //连接以太网
     @SuppressLint("WrongConstant")
     public static void connectEth() {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.connectEth();
         } else {
             LDSystemUtil.connectEth();
@@ -491,10 +561,23 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void lightSet(int light) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.lightSet(light);
         } else {
             LDSystemUtil.lightSet(light);
+        }
+    }
+
+    /**
+     * 调节亮度
+     * 亮度值（0~255）
+     */
+    @SuppressLint("WrongConstant")
+    public static int lightGet() {
+        if (AppCommonConfig.getChannel().equals("JH")) {
+            return JHSystemUtil.lightGet();
+        } else {
+            return LDSystemUtil.lightGet();
         }
     }
 
@@ -505,7 +588,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void setLcdBlackLight(boolean value) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.setLcdBlackLight(value);
         } else {
             LDSystemUtil.setLcdBlackLight(value);
@@ -520,7 +603,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void openOrCloseScreen(boolean value) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.openOrCloseScreen(value);
         } else {
             LDSystemUtil.openOrCloseScreen(value);
@@ -531,7 +614,7 @@ public class SystemUtil {
      * 隐藏导航栏
      */
     public static void hideNavigationBar(Activity activity) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.hideNavigationBar(activity);
         } else {
             LDSystemUtil.hideNavigationBar(activity);
@@ -544,7 +627,7 @@ public class SystemUtil {
      * @param context
      */
     public static void showNavigationBar(Context context) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.showNavigationBar(context);
         } else {
             LDSystemUtil.showNavigationBar(context);
@@ -556,7 +639,7 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static void CommandGP(int num, boolean onoff) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.CommandGP(num, onoff);
         } else {
             LDSystemUtil.CommandGP(num, onoff);
@@ -568,29 +651,53 @@ public class SystemUtil {
      */
     @SuppressLint("WrongConstant")
     public static Boolean readGP(int num) {
-        if(AppCommonConfig.getChannel().equals("JH")){
+        if (AppCommonConfig.getChannel().equals("JH")) {
             return JHSystemUtil.readGP(num).equals("1");
         } else {
             return LDSystemUtil.readGP(num).equals("1");
         }
     }
 
-    public static void clickScreen(int x,int y){
-        if(AppCommonConfig.getChannel().equals("JH")){
-             JHSystemUtil.clickScreen(x,y);
+    public static void clickScreen(int x, int y) {
+        if (AppCommonConfig.getChannel().equals("JH")) {
+            JHSystemUtil.clickScreen(x, y);
         } else {
-             LDSystemUtil.clickScreen(x,y);
+            LDSystemUtil.clickScreen(x, y);
         }
 
     }
 
-    public static void wakeupScreenAndClickScreen(int x,int y){
-        if(AppCommonConfig.getChannel().equals("JH")){
+    public static void wakeupScreenAndClickScreen(int x, int y) {
+        if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.wakeupScreenAndClickScreen(x, y);
         } else {
             LDSystemUtil.wakeupScreenAndClickScreen(x, y);
         }
     }
+
+    /**
+     * 系统音量调节
+     */
+    public static void setSystemAudio(int audio) {
+        if (AppCommonConfig.getChannel().equals("JH")) {
+            JHSystemUtil.setSystemAudio(audio);
+        } else {
+            LDSystemUtil.setSystemAudio(audio);
+        }
+    }
+
+
+    /**
+     * 系统音量获取
+     */
+    public static int getSystemAudio() {
+        if (AppCommonConfig.getChannel().equals("JH")) {
+            return JHSystemUtil.getSystemAudio();
+        } else {
+            return LDSystemUtil.getSystemAudio();
+        }
+    }
+
 
     public static String getMacAddress() {
         if(AppCommonConfig.getChannel().equals("JH")) {
