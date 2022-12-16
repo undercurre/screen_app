@@ -85,9 +85,10 @@ public class AppCommonConfig {
 
     // ##动态获取当前的渠道
     public static String getChannel() {
-        if (TextUtils.isEmpty(CHANNEL))
+        if (TextUtils.isEmpty(CHANNEL)) {
             CHANNEL = AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "channel");
-            return CHANNEL;
+        }
+        return CHANNEL;
     }
 
     // ##动态获取当前Bugly的ID
@@ -201,7 +202,6 @@ public class AppCommonConfig {
         } else if (Objects.equals(type, CONFIG_TYPE_PRODUCT)) {
             ProductConfig.init();
         }
-
     }
 
 

@@ -16,22 +16,24 @@ import io.flutter.plugin.common.MethodChannel
  */
 abstract class AbsMZMethodChannel constructor(open val context: Context) : MethodChannel.MethodCallHandler {
 
-    protected var mMethodChannel: MethodChannel? = null
+    protected lateinit var mMethodChannel: MethodChannel
 
     // 安装
     open fun setup(binaryMessenger: BinaryMessenger, channel: String) {
-        assert(mMethodChannel == null)
         // 使用 `JSONMethodCodec` 解析传入与传出的参数
         mMethodChannel = MethodChannel(binaryMessenger, channel, JSONMethodCodec.INSTANCE)
-        mMethodChannel!!.setMethodCallHandler(this)
+        mMethodChannel.setMethodCallHandler(this)
     }
 
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-
-    }
+    abstract override fun onMethodCall(call: MethodCall, result: MethodChannel.Result)
 
     open fun onCallSuccess(result: MethodChannel.Result, any: Any) {
         MainThread.run { result.success(any) }
+    }
+
+    open fun onCallError(result: MethodChannel.Result, errorCode :String = "-1",
+                         errorMessage: String = "请求异常", errorDetail: Any? = null) {
+        MainThread.run { result.error(errorCode, errorMessage, errorDetail) }
     }
 
     open fun onCallNotImplement(result: MethodChannel.Result) {
@@ -40,9 +42,9 @@ abstract class AbsMZMethodChannel constructor(open val context: Context) : Metho
 
     // 卸载
     open fun teardown() {
-        mMethodChannel?.setMethodCallHandler(null)
-        mMethodChannel = null
+        mMethodChannel.setMethodCallHandler(null)
     }
+
 
 
 }

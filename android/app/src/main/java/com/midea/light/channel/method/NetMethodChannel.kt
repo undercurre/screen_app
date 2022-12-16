@@ -141,6 +141,13 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                         }
                     })
             }
+            "forgetWiFi" -> {
+                assert(call.hasArgument("ssid"))
+                assert(call.hasArgument("bssid"))
+                val ssid = call.argument<String>("ssid")
+                val bssid = call.argument<String>("bssid")
+                onCallSuccess(result, WifiUtil.forgetWifi(context, ssid, bssid))
+            }
             else -> {
                 onCallNotImplement(result)
             }

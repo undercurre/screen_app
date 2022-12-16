@@ -5,6 +5,7 @@ import 'package:screen_app/states/room_change_notifier.dart';
 import 'common/index.dart';
 import 'states/index.dart';
 import 'routes/index.dart';
+import './channel/index.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'widgets/pointer_listener.dart';
 import 'widgets/event_bus.dart';
@@ -14,6 +15,9 @@ void main() async {
   await setupConfig();
   Global.init().then((e) async {
     runApp(const App());
+    // 初始化Native配置
+    WidgetsFlutterBinding.ensureInitialized();
+    configChannel.initNativeConfig(const String.fromEnvironment('env'));
   });
 }
 

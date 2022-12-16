@@ -31,12 +31,14 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation rootProject.ext.nexus.basic
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.rxbus
+    implementation rootProject.ext.nexus.gateway
     implementation(project(":module-common"))
+    implementation rootProject.ext.nexus.ota_upgrade
 }

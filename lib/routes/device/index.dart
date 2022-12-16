@@ -22,8 +22,8 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
+  int _count = 5;
+  late EasyRefreshController _controller;
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
   late Timer _timer;
@@ -78,6 +78,10 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void initState() {
+    _controller = EasyRefreshController(
+      controlFinishRefresh: true,
+      controlFinishLoad: true,
+    );
     for (int xx = 1; xx < 7; xx++) {
       itemBins.add(DraggableGridItem(
         child: const DeviceItem(),
@@ -202,6 +206,28 @@ class _DevicePageState extends State<DevicePage> {
           ),
           Expanded(
             child: EasyRefresh(
+              header: const ClassicHeader(
+                dragText: '下拉刷新',
+                armedText: '释放执行刷新',
+                readyText: '正在刷新...',
+                processingText: '正在刷新...',
+                processedText: '刷新完成',
+                noMoreText: '没有更多信息',
+                failedText: '失败',
+                messageText: '上次更新 %T',
+                mainAxisAlignment: MainAxisAlignment.end,
+              ),
+              onRefresh: () async {
+                await Future.delayed(const Duration(seconds: 2));
+                if (!mounted) {
+                  return;
+                }
+                setState(() {
+                  _count = 5;
+                });
+                _controller.finishRefresh();
+                _controller.resetFooter();
+              },
               child: DraggableGridViewBuilder(
                 controller: _scrollController,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -221,7 +247,6 @@ class _DevicePageState extends State<DevicePage> {
                     isDraggable: true,
                     dragCallback: (context, isDragging) {
                       debugPrint('设备isDragging: $isDragging');
-                      _refreshIndicatorKey.currentState?.show();
                     },
                   );
                 }).toList(),

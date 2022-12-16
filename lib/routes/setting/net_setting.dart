@@ -200,12 +200,10 @@ class _LinkNetworkModel with ChangeNotifier {
     notifyListeners();
     bool connect = await netMethodChannel.connectedWiFi(result.ssid, password, true);
     if(connect) {
-      debugPrint("连接成功");
       _data.currentConnect = UpdateState.success(result);
       callback.call(true);
       notifyListeners();
     } else {
-      debugPrint("连接失败");
       _data.currentConnect = UpdateState. error(result);
       callback.call(false);
       notifyListeners();
@@ -346,6 +344,11 @@ class _LinkNetwork extends State<LinkNetwork> {
               title: model._data.currentConnect?.data.ssid,
               titleSize: 18.0,
               hasTopBorder: true,
+              onLongPress: () {
+                if(model._data.currentConnect?.type == Type.SUCCESS) {
+                  showIgnoreDialog(model._data.currentConnect!.data);
+                }
+              },
               bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
             )),
         DecoratedBox(
@@ -383,9 +386,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                 result: result,
                 password: password,
                 callback: (suc) {
-                  if(suc) {
-                    TipsUtils.toast(content: "连接成功");
-                  } else {
+                  if(!suc) {
                     // 连接失败继续显示弹窗
                     showInputPasswordDialog(result, model);
                   }
@@ -451,7 +452,7 @@ class IgnorePasswordDialog extends StatelessWidget {
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(const Color.fromRGBO(40, 40, 40, 1)),
                             shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
-                        onPressed: (){},
+                        onPressed: () => Navigator.pop(context),
                         child: const Text('取消', style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),
                     ),
@@ -461,7 +462,10 @@ class IgnorePasswordDialog extends StatelessWidget {
                       style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(const Color.fromRGBO(40, 40, 40, 1)),
                           shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
-                      onPressed: (){},
+                      onPressed: () {
+                        netMethodChannel.forgetWiFi(result);
+                        Navigator.pop(context);
+                      },
                       child: const Text('确定', style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),)
                   ],
@@ -476,9 +480,9 @@ class IgnorePasswordDialog extends StatelessWidget {
 
 class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
-  void Function(WiFiScanResult result, String password) confirmAction;
+  final void Function(WiFiScanResult result, String password) confirmAction;
 
-  InputPasswordDialog({super.key, required this.result, required this.confirmAction});
+  const InputPasswordDialog({super.key, required this.result, required this.confirmAction});
 
   @override
   State<StatefulWidget> createState() {

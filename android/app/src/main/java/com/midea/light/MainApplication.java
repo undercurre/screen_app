@@ -4,6 +4,8 @@ package com.midea.light;
 import android.content.Context;
 
 import com.midea.light.basic.BuildConfig;
+import com.midea.light.common.config.AppCommonConfig;
+import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
@@ -27,7 +29,7 @@ public class MainApplication extends BaseApplication {
         super.onCreate();
         // 初始化日志库
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
-                .withEnable(DEBUG)
+                .withEnable(true)
                 .withStackFrom(0)
                 .withStackTo(4)
                 .withTag("M-Smart")
@@ -40,6 +42,8 @@ public class MainApplication extends BaseApplication {
                 .withLogTag("MSmartKVRepository")
                 .withMMKVCryptKey(MMKV_CRYPT_KEY)
                 .build());
+        // 初始化网关
+        GateWayUtils.init();
     }
 
 

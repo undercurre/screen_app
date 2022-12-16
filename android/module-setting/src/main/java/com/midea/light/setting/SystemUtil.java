@@ -6,6 +6,11 @@ import android.app.SmatekManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.MacAddress;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -13,10 +18,25 @@ import android.view.View;
 
 import com.jhxs.ltmidea.tools.RelayControl;
 import com.midea.light.BaseApplication;
+import com.midea.light.bean.SNCodeBean;
 import com.midea.light.common.config.AppCommonConfig;
+import com.midea.light.gateway.AndroidVersionUtil;
+import com.midea.light.gateway.GateWayRepository;
+import com.midea.light.gateway.GateWayUtils;
+import com.midea.light.gateway.GatewayCallback;
 import com.midea.light.utils.CommandExecution;
+import com.midea.light.utils.MacUtil;
+import com.midea.smart.open.common.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 class JHSystemUtil {
 
@@ -571,5 +591,86 @@ public class SystemUtil {
             LDSystemUtil.wakeupScreenAndClickScreen(x, y);
         }
     }
+
+    public static String getMacAddress() {
+        if(AppCommonConfig.getChannel().equals("JH")) {
+            return MacUtil.macAddress("wlan0");
+        } else {
+            return MacUtil.macAddress("p2p0");
+        }
+    }
+
+    public static String getIpAddress(Context context) {
+        return IpAddressUtil.getIpAddress(context);
+    }
+
+    public static void getGatewaySn(Function<String, String> callback) {
+        String sn = GateWayRepository.getInstance().getGatewaySn();
+        if(StringUtils.isEmpty(sn)) {
+            GateWayUtils.bindGateWay(new GatewayCallback.SN(4000,  TimeUnit.MILLISECONDS) {
+                @Override
+                protected void callback(SNCodeBean msg) {
+                    if(null == msg) {
+                        // 获取失败
+                        callback.apply("");
+                    } else {
+                        // 获取成功
+                        callback.apply(msg.getCode().getSN());
+                        GateWayRepository.getInstance().saveGatewaySn(msg.getCode().getSN());
+                    }
+                }
+            });
+        } else {
+            callback.apply(sn);
+        }
+    }
+
+    public static String getAppVersion(Context context) {
+        return GatewayVersionUtil.getAppVersion(context);
+    }
+
+    public static String getGatewayVersion() {
+        return GatewayVersionUtil.getGatewayVersion();
+    }
+
+    public static String getSystemVersion(Context context) {
+        return GatewayVersionUtil.getSystemVersion(context);
+    }
+
+}
+
+class IpAddressUtil {
+
+    public static String getIpAddress(Context context) {
+        NetworkInfo info = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        if (info != null && info.isConnected()) {
+            if (info.getType() == ConnectivityManager.TYPE_WIFI) {//当前使用无线网络
+                return getIpAddress("wlan0");
+            } else if(info.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                return getIpAddress("eth0");
+            }
+        }
+        return "0.0.0.0";
+    }
+
+    public static String getIpAddress(String interfaceName) {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface intf = en.nextElement();
+                if(!Objects.equals(intf.getDisplayName(), interfaceName)) return "0.0.0.0";
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+
+        return "0.0.0.0";
+    }
+
 
 }
