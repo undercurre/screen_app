@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
-import 'package:screen_app/widgets/mz_indicator.dart';
 import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
@@ -23,6 +22,8 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
+  int _count = 5;
+  late EasyRefreshController _controller;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   List<DraggableGridItem> itemBins = [];
@@ -78,6 +79,10 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void initState() {
+    _controller = EasyRefreshController(
+      controlFinishRefresh: true,
+      controlFinishLoad: true,
+    );
     for (int xx = 1; xx < 7; xx++) {
       itemBins.add(DraggableGridItem(
         child: const DeviceItem(),
@@ -191,6 +196,28 @@ class _DevicePageState extends State<DevicePage> {
           ),
           Expanded(
             child: EasyRefresh(
+              header: const ClassicHeader(
+                dragText: '下拉刷新',
+                armedText: '释放执行刷新',
+                readyText: '正在刷新...',
+                processingText: '正在刷新...',
+                processedText: '刷新完成',
+                noMoreText: '没有更多信息',
+                failedText: '失败',
+                messageText: '上次更新 %T',
+                mainAxisAlignment: MainAxisAlignment.end,
+              ),
+              onRefresh: () async {
+                await Future.delayed(const Duration(seconds: 2));
+                if (!mounted) {
+                  return;
+                }
+                setState(() {
+                  _count = 5;
+                });
+                _controller.finishRefresh();
+                _controller.resetFooter();
+              },
               child: DraggableGridViewBuilder(
                 controller: _scrollController,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
