@@ -37,7 +37,7 @@ class Channels {
             netMethodChannel = NetMethodChannel.create(CHANNEL_NAME_NET, binaryMessenger, context)
             aboutMethodChannel = AboutMethodChannel.create(CHANNEL_NAME_ABOUT, binaryMessenger, context)
             configChannel = ConfigChannel.create(CHANNEL_CONFIG, binaryMessenger, context)
-            otaChannel = OtaChannel.create(CHANNEL_CONFIG, binaryMessenger, context)
+            otaChannel = OtaChannel.create(CHANNEL_OTA, binaryMessenger, context)
             isInit = true
         }
     }
