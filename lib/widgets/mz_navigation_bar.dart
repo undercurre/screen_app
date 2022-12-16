@@ -8,6 +8,7 @@ class MzNavigationBar extends StatefulWidget {
   final bool isLoading;
   final bool hasBottomBorder;
   final Widget? rightSlot;
+  final double sideBtnWidth;
   final void Function()? onRightBtnTap;
   final void Function()? onLeftBtnTap;
 
@@ -20,6 +21,7 @@ class MzNavigationBar extends StatefulWidget {
     this.isLoading = false,
     this.hasBottomBorder = false,
     this.rightSlot,
+    this.sideBtnWidth = 70,
     this.onRightBtnTap,
     this.onLeftBtnTap,
   });
@@ -38,13 +40,16 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
 
     // 电源按钮
     Widget? powerBtn = widget.hasPower
-        ? Image.asset(
-            widget.power
-                ? 'assets/imgs/plugins/common/power_on.png'
-                : 'assets/imgs/plugins/common/power_off.png',
-            width: 60,
-            height: 60,
-          )
+        ? Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Image.asset(
+              widget.power
+                  ? 'assets/imgs/plugins/common/power_on.png'
+                  : 'assets/imgs/plugins/common/power_off.png',
+              alignment: Alignment.centerRight,
+              width: 60,
+              height: 60,
+            ))
         : null;
 
     // 右侧按钮判断显示
@@ -70,11 +75,16 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
           GestureDetector(
               onTap: () => widget.onLeftBtnTap?.call(),
               child: SizedBox(
-                  width: 70,
-                  child: Image.asset(
-                      'assets/imgs/plugins/common/arrow_left.png',
-                      width: 40,
-                      height: 40))),
+                  width: widget.sideBtnWidth,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Image.asset(
+                        'assets/imgs/plugins/common/arrow_left.png',
+                        alignment: Alignment
+                            .centerLeft, // 图标距离左端(40 / widget.sideBtnWidth - 1)*widget.sideBtnWidth/2 约20
+                        width: 40,
+                        height: 40),
+                  ))),
 
           // 中间，标题、描述、Loading
           Column(
@@ -83,7 +93,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 28),
+                  const SizedBox(width: 28), // 占位，保证标题居中
                   Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
@@ -124,7 +134,8 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
           // 右边按钮，开关
           GestureDetector(
               onTap: () => widget.onRightBtnTap?.call(),
-              child: SizedBox(width: 70, child: compositeRight))
+              child:
+                  SizedBox(width: widget.sideBtnWidth, child: compositeRight))
         ],
       ),
     );

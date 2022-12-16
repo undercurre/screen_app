@@ -27,6 +27,7 @@
 | isLoading  | bool | false  | - | 是否显示加载中图标 |
 | hasBottomBorder  | bool | false  | - | 是否显示下分隔线 |
 | rightSlot | Widget | false | - | 右按钮插槽，与hasPower互斥 |
+| sideBtnWidth | double | true | 70 | 顶部双侧按钮的占位宽度 |
 
 ## 事件
 
