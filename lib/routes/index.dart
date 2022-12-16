@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/plugins/0x21/0x21_light/index.dart';
-import 'package:screen_app/routes/room/index.dart';
+import 'room/index.dart';
 import 'boot/index.dart';
-import 'package:screen_app/routes/plugins/0x40/index.dart';
-import 'package:screen_app/routes/setting/about_setting.dart';
-import 'package:screen_app/routes/setting/ai_setting.dart';
-import 'package:screen_app/routes/setting/display_setting.dart';
-import 'package:screen_app/routes/setting/index.dart';
-import 'package:screen_app/routes/setting/net_setting.dart';
-import 'package:screen_app/routes/setting/sound_setting.dart';
-import 'package:screen_app/routes/setting/standby_time_choice.dart';
-
+import 'setting/about_setting.dart';
+import 'setting/ai_setting.dart';
+import 'setting/display_setting.dart';
+import 'setting/index.dart';
+import 'setting/net_setting.dart';
+import 'setting/sound_setting.dart';
+import 'setting/standby_time_choice.dart';
 
 import 'login/index.dart';
 import 'home/index.dart';
@@ -19,9 +16,13 @@ import 'device/index.dart';
 import 'scene/index.dart';
 import 'sniffer/index.dart';
 import 'sniffer/device_connect.dart';
+import 'sniffer/self_discovery.dart';
+
 import 'plugins/0x13/index.dart';
 import 'plugins/0x14/index.dart';
 import 'plugins/0x26/index.dart';
+import 'plugins/0x40/index.dart';
+import 'plugins/0x21/0x21_light/index.dart';
 
 var routes = <String, WidgetBuilder>{
   '/': (context) => const Boot(),
@@ -29,17 +30,12 @@ var routes = <String, WidgetBuilder>{
   "Home": (context) => const Home(),
   "Room": (context) => const RoomPage(),
   "Weather": (context) => const WeatherPage(),
-  "Device": (context) => const DevicePage(
-        text: '',
-      ),
-  "Scene": (context) => const ScenePage(
-        text: '',
-      ),
-  "0x13": (context) => const WifiLightPage(),
-  "0x14": (context) => const CurtainPage(),
-  "0x26": (context) => const BathroomMaster(),
-  "0x40": (context) => const CoolMaster(),
-  "0x21_light": (context) => const ZigbeeLightPage(),
+  "Device": (context) => const DevicePage(text: ''),
+  "Scene": (context) => const ScenePage(text: ''),
+  "SnifferPage": (context) => const SnifferPage(),
+  "DeviceConnectPage": (context) => const DeviceConnectPage(),
+  "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
+
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),
   "AiSettingPage": (context) => const AiSettingPage(),
@@ -47,6 +43,10 @@ var routes = <String, WidgetBuilder>{
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),
   "StandbyTimeChoicePage": (context) => const StandbyTimeChoicePage(),
-  "SnifferPage": (context) => const SnifferPage(),
-  "DeviceConnectPage": (context) => const DeviceConnectPage(),
+
+  "0x13": (context) => const WifiLightPage(),
+  "0x14": (context) => const CurtainPage(),
+  "0x26": (context) => const BathroomMaster(),
+  "0x40": (context) => const CoolMaster(),
+  "0x21_light": (context) => const ZigbeeLightPage(),
 };

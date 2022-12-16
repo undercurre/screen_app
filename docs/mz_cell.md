@@ -1,7 +1,7 @@
 # 列表-单元行
 
 ### 简介
-类似 `dof-cell`
+类似 `dof-cell`  
 当 titleSlot 非空，title desc tag 也赋值时，会抛出异常提示；
 反之，titleSlot 与 title 同时为空，也会抛出异常。
 

@@ -55,43 +55,45 @@ class SnifferState extends State<SnifferPage> {
 
   var wifiInfo = Wifi(name: "Midea", strength: 2); // WIFI 名称，强度 TODO
 
-
-
   void goBack() {
     Navigator.pop(context);
   }
 
   Widget selectWifi() {
-    return Container(
-        width: 356,
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        color: const Color(0xff282828),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-                padding: const EdgeInsets.only(right: 7),
-                child: Image.asset("assets/imgs/icon/wifi-${wifiInfo.strength}.png", width: 24.0)),
-            Text(
-              wifiInfo.name,
-              style: const TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'MideaType',
-                  fontWeight: FontWeight.w400),
-            ),
-            const Expanded(
-                child: Text(
-              '进入网络设置',
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'MideaType',
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xff267AFF)),
-            ))
-          ],
-        ));
+    return GestureDetector(
+        onTap: () => Navigator.pushNamed(context, 'NetSettingPage'),
+        child: Container(
+            width: 356,
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            color: const Color(0xff282828),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.only(right: 7),
+                    child: Image.asset(
+                        "assets/imgs/icon/wifi-${wifiInfo.strength}.png",
+                        width: 24.0)),
+                Text(
+                  wifiInfo.name,
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'MideaType',
+                      fontWeight: FontWeight.w400),
+                ),
+                const Expanded(
+                    child: Text(
+                  '进入网络设置',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'MideaType',
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xff267AFF)),
+                ))
+              ],
+            )));
   }
 
   void toDeviceConnect() async {
@@ -103,6 +105,7 @@ class SnifferState extends State<SnifferPage> {
           desc: '请确认当前网络是2.4GHZ',
           btns: ['取消', '确认'],
           contentSlot: selectWifi(),
+          maxWidth: 425,
           contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
           onPressed: (String item, int index) {
             logger.i('$index: $item');
@@ -171,11 +174,11 @@ class SnifferState extends State<SnifferPage> {
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 8));
+        padding: const EdgeInsets.symmetric(vertical: 16));
     ButtonStyle buttonStyleOn = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 8));
+        padding: const EdgeInsets.symmetric(vertical: 16));
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -189,20 +192,9 @@ class SnifferState extends State<SnifferPage> {
       child: Stack(
         children: [
           // 顶部导航
-          Flex(
-            direction: Axis.vertical,
-            children: <Widget>[
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minWidth: double.infinity,
-                  maxHeight: 60.0,
-                ),
-                child: MzNavigationBar(
-                  onLeftBtnTap: goBack,
-                  title: '发现设备',
-                ),
-              ),
-            ],
+          MzNavigationBar(
+            onLeftBtnTap: goBack,
+            title: '发现设备',
           ),
 
           // 扫描动画

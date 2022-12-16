@@ -4,6 +4,7 @@ import 'package:screen_app/states/profile_change_notifier.dart';
 import '../models/index.dart';
 import '../routes/device/service.dart';
 
+// todo: 合并deviceModelList
 class RoomModel extends ProfileChangeNotifier {
   RoomEntity _roomInfo = Global.profile.roomInfo!;
 

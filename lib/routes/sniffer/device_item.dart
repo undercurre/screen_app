@@ -5,15 +5,24 @@ class Device extends Mode {
   String icon;
   bool selected = false;
 
-  Device({key, name, required this.icon, required this.selected}) : super(key, name, icon, icon);
+  Device({key, name, required this.icon, required this.selected})
+      : super(key, name, icon, icon);
 }
 
 class DeviceItem extends StatelessWidget {
   final Device device;
+  final double boxSize;
+  final double circleSize;
+  final double fontSize;
   final void Function(Device device)? onTap;
 
   const DeviceItem(
-      {Key? key, required this.device, this.onTap})
+      {Key? key,
+      required this.device,
+      this.onTap,
+      this.fontSize = 14.0,
+      this.boxSize = 96,
+      this.circleSize = 60})
       : super(key: key);
 
   @override
@@ -21,16 +30,16 @@ class DeviceItem extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap?.call(device),
       child: SizedBox(
-        width: 96,
-        height: 96,
+        width: boxSize,
+        height: boxSize,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Stack(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: circleSize,
+                  height: circleSize,
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
@@ -72,9 +81,9 @@ class DeviceItem extends StatelessWidget {
             ),
             Text(
               device.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'MideaType',
-                fontSize: 14,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w400,
                 color: Colors.white,
                 decoration: TextDecoration.none,
