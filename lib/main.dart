@@ -51,6 +51,7 @@ class _App extends State<App> {
             initialRoute: "/", //名为"/"的路由作为应用的home(首页)
             //注册路由表
             routes: routes,
+            navigatorObservers: [globalRouteObserver],
             builder: EasyLoading.init(),
           ),
           // 全局点击操作监听

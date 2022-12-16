@@ -64,7 +64,7 @@ class RoomPageState extends State<RoomPage> {
                           DeviceService.isOnline(deviceInfo) &&
                           DeviceService.isSupport(deviceInfo)) {
                         // 调用provider拿detail存入状态管理里
-                        context.read<DeviceListModel>().setDeviceDetail(deviceInfo);
+                        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
                       }
                     });
                   }

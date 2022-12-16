@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _DevicePageState extends State<DevicePage> {
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
   late Timer _timer;
+  double roomTitleScale = 1;
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
@@ -47,7 +49,7 @@ class _DevicePageState extends State<DevicePage> {
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().setDeviceDetail(deviceInfo,
+        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
                   updateBins()
@@ -95,6 +97,14 @@ class _DevicePageState extends State<DevicePage> {
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), setTime);
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        final offset = min(_scrollController.offset, 150);
+        setState(() {
+          roomTitleScale = min(1 - (offset / 150), 1.3);
+        });
+      }
+    });
     super.initState();
   }
 
@@ -176,18 +186,21 @@ class _DevicePageState extends State<DevicePage> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+            margin: EdgeInsets.only(bottom: 10 * roomTitleScale),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(context.watch<RoomModel>().roomInfo.name,
-                    style: const TextStyle(
-                      color: Color(0XFFFFFFFF),
-                      fontSize: 30.0,
-                      fontFamily: "MideaType",
-                      fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none,
-                    ))
+                Text(
+                  context.watch<RoomModel>().roomInfo.name,
+                  textScaleFactor: roomTitleScale,
+                  style: const TextStyle(
+                    color: Color(0XFFFFFFFF),
+                    fontSize: 30.0,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.normal,
+                    decoration: TextDecoration.none,
+                  ),
+                )
               ],
             ),
           ),

@@ -1,7 +1,8 @@
 import 'package:provider/provider.dart';
 
+import '../../../models/device_entity.dart';
 import '../../../states/device_change_notifier.dart';
-import './service.dart';
+import './api.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -18,6 +19,8 @@ class BathroomMasterState extends State<BathroomMaster> {
   String deviceName = '浴霸';
   String controlType = 'lua'; // todo: 后面需要加上判断使用物模型还是lua控制
   bool isSingleMotor = true; // todo: 添加单双电机浴霸判断
+  late DeviceListModel deviceList;
+  late DeviceEntity device;
 
   Map<String, bool> runMode = <String, bool>{};
   bool mainLight = false;
@@ -42,31 +45,24 @@ class BathroomMasterState extends State<BathroomMaster> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     print(2);
-  //     final args = ModalRoute.of(context)?.settings.arguments as Map;
-  //     deviceId = args['deviceId'];
-  //     deviceName = args['deviceName'] ?? '浴霸';
-  //     BaseService.updateDeviceDetail(this);
-  //   });
-  // }
-
-  void loadData(DeviceListModel model) async {
+  @override
+  Widget build(BuildContext context) {
+    deviceList = context.watch<DeviceListModel>();
+    // 第一次加载，先从路由取deviceId
     if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
     }
     // 先判断有没有这个id，没有说明设备已被删除
-    final index = model.deviceList.indexWhere((element) => element.applianceCode == deviceId);
-    print(index);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    loadData(context.watch<DeviceListModel>());
+    final index = deviceList.deviceList
+        .indexWhere((element) => element.applianceCode == deviceId);
+    if (index >= 0) {
+      device = deviceList.deviceList[index];
+      deviceName = deviceList.deviceList[index].name;
+      luaDeviceDetailToState();
+    } else {
+      // todo: 设备已被删除，应该弹窗并让用户退出
+    }
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -111,8 +107,7 @@ class BathroomMasterState extends State<BathroomMaster> {
                             modeList: bathroomMasterMode,
                             selectedKeys: runMode,
                             spacing: 40,
-                            onTap: (e) =>
-                                BaseService.handleModeCardClick(this, e),
+                            onTap: (e) => handleModeCardClick(e),
                           ),
                           FunctionCard(
                             icon: Container(
@@ -133,7 +128,7 @@ class BathroomMasterState extends State<BathroomMaster> {
                             title: '小夜灯',
                             child: MzSwitch(
                               value: nightLight,
-                              onTap: (e) => BaseService.toggleNightLight(this),
+                              onTap: (e) => toggleNightLight(),
                             ),
                           ),
                           FunctionCard(
@@ -155,7 +150,7 @@ class BathroomMasterState extends State<BathroomMaster> {
                             title: '延时关机',
                             child: MzSwitch(
                               value: delayClose,
-                              onTap: (e) => BaseService.toggleDelayClose(this),
+                              onTap: (e) => toggleDelayClose(),
                             ),
                           ),
                         ],
@@ -172,5 +167,87 @@ class BathroomMasterState extends State<BathroomMaster> {
         ],
       ),
     );
+  }
+
+  void luaDeviceDetailToState() {
+    final detail = device.detail!;
+    final activeModeList = (detail['mode'] as String).split(',');
+    for (var mode in bathroomMasterMode) {
+      runMode[mode.key] = activeModeList.contains(mode.key);
+    }
+    runMode['light'] = detail['light_mode'] == 'main_light' ||
+        detail['light_mode'] == 'night_light';
+    setState(() {
+      delayClose = detail['delay_enable'] == 'on';
+      delayTime = int.parse(detail['delay_time']);
+      mainLight = detail['light_mode'] == 'main_light';
+      nightLight = detail['light_mode'] == 'night_light';
+      runMode = runMode;
+    });
+  }
+
+  void toggleNightLight() async {
+    final newValue = !nightLight;
+    device.detail!['light_mode'] = newValue ? 'night_light' : 'close_all';
+    deviceList.setProviderDeviceInfo(device);
+    // deviceList.notifyListeners();
+    // deviceList.setDeviceDetail(device);
+    await BaseApi.luaControl(
+      deviceId,
+      {'light_mode': newValue ? 'night_light' : 'close_all'},
+    );
+  }
+
+  void toggleDelayClose() {
+    delayClose = !delayClose;
+    // device.detail['']
+    if (delayClose) {
+      device.detail!['delay_enable'] = 'on';
+      device.detail!['delay_time'] = '15';
+      BaseApi.luaControl(deviceId, {
+        'delay_enable': 'on',
+        'delay_time': '15',
+      });
+    } else {
+      device.detail!['delay_enable'] = 'off';
+      BaseApi.luaControl(deviceId, {
+        'delay_enable': 'off',
+      });
+    }
+    deviceList.setProviderDeviceInfo(device);
+  }
+
+  void handleModeCardClick(Mode mode) async {
+    if (mode.key == light.key) {
+      // 如果主灯和夜灯都是关则打开主灯
+      if (!mainLight && !nightLight) {
+        device.detail!['light_mode'] = 'main_light';
+        BaseApi.luaControl(
+          deviceId,
+          {'light_mode': 'main_light'},
+        );
+      } else {
+        // 如果主灯或者夜灯打开则全部关闭
+        device.detail!['light_mode'] = 'close_all';
+        BaseApi.luaControl(
+          deviceId,
+          {'light_mode': 'close_all'},
+        );
+      }
+      deviceList.setProviderDeviceInfo(device);
+      return;
+    } else {
+      // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
+      runMode[mode.key] =
+      runMode[mode.key] != null && runMode[mode.key]! ? false : true;
+      device.detail!['mode'] = runMode[mode.key]! ? mode.key : '';
+    }
+    deviceList.setProviderDeviceInfo(device);
+    final res = await BaseApi.luaControl(
+      deviceId,
+      {'mode': runMode[mode.key]! ? mode.key : ''},
+    );
+    device.detail = res.result['status'];
+    deviceList.setProviderDeviceInfo(device);
   }
 }

@@ -105,3 +105,47 @@ class Global {
   static num soundValue=10;
 
 }
+
+class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    debugPrint(
+        'didPush: ${route.settings.name}, from:${previousRoute != null ? previousRoute.settings.name : ''}');
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    super.didPop(route, previousRoute);
+    debugPrint(
+        'didPop: ${route.settings.name}, from:${previousRoute != null ? previousRoute.settings.name : ''}');
+  }
+
+  // 未被使用的路由跟踪，暂时注释
+  // @override
+  // void didReplace({Route? newRoute, Route? oldRoute}) {
+  //   super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  //   debugPrint('didReplace newRoute: $newRoute,oldRoute:$oldRoute');
+  // }
+  //
+  // @override
+  // void didRemove(Route route, Route? previousRoute) {
+  //   super.didRemove(route, previousRoute);
+  //   debugPrint('didRemove route: $route,previousRoute:$previousRoute');
+  // }
+  //
+//   @override
+//   void didStartUserGesture(Route route, Route? previousRoute) {
+//     super.didStartUserGesture(route, previousRoute);
+//     debugPrint('didStartUserGesture: ${route.settings.name},from:$previousRoute');
+//   }
+//
+//   @override
+//   void didStopUserGesture() {
+//     super.didStopUserGesture();
+//     debugPrint('didStopUserGesture');
+//   }
+}
+
+final GlobalRouteObserver<PageRoute> globalRouteObserver =
+    GlobalRouteObserver<PageRoute>();
