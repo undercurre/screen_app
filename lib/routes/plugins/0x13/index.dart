@@ -101,7 +101,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onPowerBtnTap: powerHandle,
+                    onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
                     power: deviceWatch["detail"]["power"],
                     hasPower: true,

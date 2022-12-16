@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/models/device_entity.dart';
+import '../../common/global.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 import 'device_item.dart';
@@ -100,8 +101,8 @@ class SelfDiscoveryState extends State<SelfDiscoveryPage> {
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 0.9,
+        crossAxisCount: 4,
+        childAspectRatio: 0.8,
       ),
       children: dList
           .map((device) => DeviceItem(
@@ -133,6 +134,22 @@ class SelfDiscoveryState extends State<SelfDiscoveryPage> {
                 key: d.type, name: d.name, icon: icon, selected: false);
           }).toList());
     });
+  }
+
+  // 关闭设备自发现确认
+  Future<void> disableNotice() async {
+    // 模拟弹出网络异常
+    MzDialog mzDialog = MzDialog(
+        desc: '此操作将关闭设备自发现功能',
+        descSize: 24,
+        btns: ['取消', '确定'],
+        maxWidth: 420,
+        titlePadding: const EdgeInsets.symmetric(vertical: 45, horizontal: 10),
+        onPressed: (String item, int index) {
+          logger.i('$index: $item');
+        });
+
+    await mzDialog.show(context);
   }
 
   @override
@@ -172,6 +189,20 @@ class SelfDiscoveryState extends State<SelfDiscoveryPage> {
             onLeftBtnTap: goBack,
             title: '设备自发现',
             hasBottomBorder: true,
+            sideBtnWidth: 100,
+            rightSlot: const Padding(
+              padding: EdgeInsets.only(right: 20),
+              child: Text(
+                '不再提示',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: Color(0XFF267AFF),
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'MideaType'),
+              ),
+            ),
+            onRightBtnTap: disableNotice,
           ),
 
           // 设备阵列

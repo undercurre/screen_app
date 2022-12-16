@@ -5,12 +5,10 @@
 
 ## widget结构
 ```markdown
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ MzNavigationBar                              ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+┏━━━━━━━━━━━━━━ MzNavigationBar ━━━━━━━━━━━━━━━┓
 │ ┌─────────┬─────────────────────┬──────────┐ │
 │ │ LeftBtn │ ┌───────┬─────────┐ │ PowerBtn │ │
-│ │         │ │ title │ loading │ │          │ │
+│ │         │ │ title │ loading │ │ rightSlot│ │
 │ │         │ ├───────┴─────────┤ │          │ │
 │ │         │ │ desc            │ │          │ │
 │ │         │ └─────────────────┘ │          │ │
@@ -28,10 +26,12 @@
 | power  | Widget | false  | - | 开关按钮值 |
 | isLoading  | bool | false  | - | 是否显示加载中图标 |
 | hasBottomBorder  | bool | false  | - | 是否显示下分隔线 |
+| rightSlot | Widget | false | - | 右按钮插槽，与hasPower互斥 |
+| sideBtnWidth | double | true | 70 | 顶部双侧按钮的占位宽度 |
 
 ## 事件
 
 | 参数name        | 类型              | 必传    | 描述       |
 |---------------|-----------------|-------|----------|
 | onLeftBtnTap  | void Function() | false | 左箭头点击事件  |
-| onPowerBtnTap | void Function() | false | 开关按钮点击事件 |
+| onRightBtnTap | void Function() | false | 开关按钮点击事件 |
