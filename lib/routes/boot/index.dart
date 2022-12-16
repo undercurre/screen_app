@@ -5,8 +5,9 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import '../../common/index.dart';
 import '../../mixins/index.dart';
+import '../../mixins/ota.dart';
 
-class _Boot extends State<Boot> with Standby {
+class _Boot extends State<Boot> with Standby, Ota {
   final videoPlayerController =
       VideoPlayerController.asset('assets/video/boot.mp4');
 

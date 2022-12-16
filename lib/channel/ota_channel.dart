@@ -1,10 +1,12 @@
 
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 
 import '../common/index.dart';
+import '../widgets/event_bus.dart';
 
 class OtaChannel extends AbstractChannel {
 
@@ -68,6 +70,11 @@ class OtaChannel extends AbstractChannel {
       }
     }
   }
+  // 取消确认下载（此时还未下载，还在确认下载阶段）
+  void cancelConfirmDownload() async {
+    bool suc = await methodChannel.invokeMethod('cancelConfirmDownload');
+    _isDownloading = false;
+  }
   // 确认下载
   void confirmDownload() async {
     bool suc = await methodChannel.invokeMethod('confirmDownload');
@@ -91,7 +98,8 @@ class OtaChannel extends AbstractChannel {
 
   // 提示有新版本更新
   void onHandlerNewVersion(dynamic arguments) async {
-
+    String content = arguments;
+    bus.emit('ota-new-version', content);
   }
   // 提示没有新版本更新
   void onHandlerNoNewVersion(dynamic arguments) async {
@@ -99,16 +107,17 @@ class OtaChannel extends AbstractChannel {
   }
   // 下载安装包成功
   void onHandlerDownloadSuc(dynamic arguments) {
-
+    bus.emit('ota-download-suc');
   }
   // 下载安装包失败
   void onHandlerDownloadFail(dynamic arguments) {
     _isDownloading = false;
+    bus.emit('ota-download-fail');
   }
   // 正在下载安装包
   void onHandlerDownloading(dynamic arguments) {
     int process = arguments;// 0 - 100
-
+    bus.emit('ota-download-loading', process / 100);
   }
 
 }

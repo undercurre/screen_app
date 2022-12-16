@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/index.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
@@ -36,7 +37,15 @@ class AboutSettingProvider with ChangeNotifier {
   }
 
   void checkUpgrade() {
-    init();
+    if(otaChannel.isInit) {
+      if(otaChannel.isDownloading) {
+        TipsUtils.toast(content: "已经在下载中...");
+      } else {
+        otaChannel.checkUpgrade();
+      }
+    } else {
+      TipsUtils.toast(content: "请先登录");
+    }
   }
 
   void reboot() {
