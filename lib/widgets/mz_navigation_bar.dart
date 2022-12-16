@@ -7,7 +7,8 @@ class MzNavigationBar extends StatefulWidget {
   final bool hasPower;
   final bool isLoading;
   final bool hasBottomBorder;
-  final void Function()? onPowerBtnTap;
+  final Widget? rightSlot;
+  final void Function()? onRightBtnTap;
   final void Function()? onLeftBtnTap;
 
   const MzNavigationBar({
@@ -18,7 +19,8 @@ class MzNavigationBar extends StatefulWidget {
     this.hasPower = false,
     this.isLoading = false,
     this.hasBottomBorder = false,
-    this.onPowerBtnTap,
+    this.rightSlot,
+    this.onRightBtnTap,
     this.onLeftBtnTap,
   });
 
@@ -29,6 +31,26 @@ class MzNavigationBar extends StatefulWidget {
 class _MzNavigationBarState extends State<MzNavigationBar> {
   @override
   Widget build(BuildContext context) {
+    // 属性校验
+    if (widget.rightSlot != null && (widget.hasPower)) {
+      throw Error.safeToString('rightSlot与hasPower属性不应同时赋值');
+    }
+
+    // 电源按钮
+    Widget? powerBtn = widget.hasPower
+        ? Image.asset(
+            widget.power
+                ? 'assets/imgs/plugins/common/power_on.png'
+                : 'assets/imgs/plugins/common/power_off.png',
+            width: 60,
+            height: 60,
+          )
+        : null;
+
+    // 右侧按钮判断显示
+    Widget? compositeRight =
+        (widget.rightSlot != null) ? widget.rightSlot : powerBtn;
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 65,
@@ -101,18 +123,8 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
 
           // 右边按钮，开关
           GestureDetector(
-              onTap: () => widget.onPowerBtnTap?.call(),
-              child: SizedBox(
-                  width: 70,
-                  child: widget.hasPower
-                      ? Image.asset(
-                          widget.power
-                              ? 'assets/imgs/plugins/common/power_on.png'
-                              : 'assets/imgs/plugins/common/power_off.png',
-                          width: 60,
-                          height: 60,
-                        )
-                      : null))
+              onTap: () => widget.onRightBtnTap?.call(),
+              child: SizedBox(width: 70, child: compositeRight))
         ],
       ),
     );

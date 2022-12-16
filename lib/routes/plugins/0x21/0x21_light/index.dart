@@ -222,7 +222,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onPowerBtnTap: powerHandle,
+                    onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
                     power: deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1,
                     hasPower: true,
