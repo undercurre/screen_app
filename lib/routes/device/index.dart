@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
-import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
 
@@ -24,8 +23,6 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> {
   int _count = 5;
   late EasyRefreshController _controller;
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
   late Timer _timer;
@@ -237,7 +234,6 @@ class _DevicePageState extends State<DevicePage> {
                     isDraggable: true,
                     dragCallback: (context, isDragging) {
                       debugPrint('设备isDragging: $isDragging');
-                      _refreshIndicatorKey.currentState?.show();
                     },
                   );
                 }).toList(),
