@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:uuid/uuid.dart';
-
 import 'api/index.dart';
 import 'utils.dart';
 import '../models/index.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 
 /// 日志打印工具
 var logger = Logger(
@@ -111,14 +111,18 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   void didPush(Route route, Route? previousRoute) {
     super.didPush(route, previousRoute);
     debugPrint(
-        'didPush: ${route.settings.name}, from:${previousRoute != null ? previousRoute.settings.name : ''}');
+        'didPush: ${route.settings.name}, from:${previousRoute?.settings.name}');
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
     debugPrint(
-        'didPop: ${route.settings.name}, from:${previousRoute != null ? previousRoute.settings.name : ''}');
+        'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+    const blacklist = [null, 'SnifferPage'];
+    if (previousRoute?.settings.name == 'Home' && !blacklist.contains(route.settings.name)) {
+      bus.emit("backHome");
+    }
   }
 
   // 未被使用的路由跟踪，暂时注释

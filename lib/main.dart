@@ -8,7 +8,7 @@ import 'routes/index.dart';
 import './channel/index.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'widgets/pointer_listener.dart';
-import 'widgets/event_bus.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 
 void main() async {
   // 加载环境配置
