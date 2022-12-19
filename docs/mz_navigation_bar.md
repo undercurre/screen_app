@@ -33,5 +33,5 @@
 
 | 参数name        | 类型              | 必传    | 描述       |
 |---------------|-----------------|-------|----------|
-| onLeftBtnTap  | void Function() | false | 左箭头点击事件  |
-| onRightBtnTap | void Function() | false | 开关按钮点击事件 |
+| onLeftBtnTap  | void Function() | false | 左侧按钮点击事件  |
+| onRightBtnTap | void Function() | false | 右侧按钮点击事件 |
