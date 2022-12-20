@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
@@ -47,22 +48,30 @@ class _DevicePageState extends State<DevicePage> {
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
-          DeviceService.isSupport(deviceInfo)) {
+          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))) {
         // 调用provider拿detail存入状态管理里
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
-                  updateBins()
+                  updateBins(deviceInfo)
                 });
       }
     }
   }
 
-  updateBins() {
+  updateBins(DeviceEntity deviceInfo) {
+    if (DeviceService.isVistual(deviceInfo)) {
+      context.read<DeviceListModel>().productVistualDevice(
+          deviceInfo, '${deviceInfo.name}线控器1', "smartControl", "panelOne");
+      context.read<DeviceListModel>().productVistualDevice(
+          deviceInfo, '${deviceInfo.name}线控器2', "smartControl", "panelTwo");
+    }
     List<DraggableGridItem> newBins = [];
-    var deviceList = context.read<DeviceListModel>().deviceList;
-    for (int xx = 1; xx <= deviceList.length; xx++) {
-      var deviceInfo = deviceList[xx - 1];
+    var allDeviceList = context.read<DeviceListModel>().deviceList;
+    debugPrint("全部设备$allDeviceList");
+    for (int xx = 1; xx <= allDeviceList.length; xx++) {
+      debugPrint("增加卡片$xx");
+      var deviceInfo = allDeviceList[xx - 1];
       newBins.add(DraggableGridItem(
         child: DeviceItem(deviceInfo: deviceInfo),
         isDraggable: true,
@@ -70,6 +79,7 @@ class _DevicePageState extends State<DevicePage> {
           debugPrint('设备$xx+"isDragging: $isDragging');
         },
       ));
+      debugPrint("增加卡片$newBins");
     }
     setState(() {
       itemBins = newBins;
@@ -222,6 +232,7 @@ class _DevicePageState extends State<DevicePage> {
                 if (!mounted) {
                   return;
                 }
+                initPage();
                 setState(() {
                   _count = 5;
                 });

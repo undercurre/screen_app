@@ -88,4 +88,17 @@ class DeviceService {
       return 'assets/imgs/device/phone_off.png';
     }
   }
+
+  static bool isVistual(DeviceEntity deviceInfo) {
+    // 智慧屏线控器
+    if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
+      return true;
+    }
+    // 面板
+    if (deviceInfo.type == '0x21' &&
+        zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
+      return true;
+    }
+    return false;
+  }
 }

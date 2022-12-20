@@ -31,10 +31,15 @@ class _DeviceItemState extends State<DeviceItem> {
           e.localPosition.dx < 90 &&
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
-        DeviceService.setPower(
-            widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+        if (DeviceService.isPower(widget.deviceInfo!)) {
+          DeviceService.setPower(
+              widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+        }
       } else {
-        toSelectDevice();
+        // 过滤网关
+        if (widget.deviceInfo!.type != '0x16') {
+          toSelectDevice();
+        }
       }
     }
   }
