@@ -3,6 +3,7 @@ import 'package:screen_app/channel/about_system_channel.dart';
 import 'package:screen_app/channel/config_channel.dart';
 import 'package:screen_app/channel/net_method_channel.dart';
 import 'package:screen_app/channel/ota_channel.dart';
+import 'package:screen_app/channel/setting_method_channel.dart';
 
 const String channelMethodNet = "com.midea.light/net";
 const String channelConfig = "com.midea.light/config";
@@ -16,3 +17,6 @@ ConfigChannel configChannel = ConfigChannel.fromName(channelConfig);
 AboutSystemChannel aboutSystemChannel = AboutSystemChannel.fromName(channelAboutSystem);
 // 升级的channel
 OtaChannel otaChannel = OtaChannel.fromName(channelOTA);
+
+// 系统设置channel
+SettingMethodChannel settingMethodChannel = SettingMethodChannel.fromName("com.midea.light/set");

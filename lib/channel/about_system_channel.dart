@@ -2,6 +2,7 @@
 
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
+import 'package:screen_app/common/index.dart';
 
 class AboutSystemChannel extends AbstractChannel {
   
@@ -19,9 +20,11 @@ class AboutSystemChannel extends AbstractChannel {
     return await methodChannel.invokeMethod("getMacAddress");
   }
 
-  Future<String?> getGatewaySn() async {
+  // isEncrypt 是否加密
+  Future<String?> getGatewaySn([bool isEncrypt = false, String? secretKey]) async {
     try {
-      String sn = await methodChannel.invokeMethod("getGatewaySn");
+      assert(isEncrypt && StrUtils.isNotNullAndEmpty(secretKey) || !isEncrypt);
+      String sn = await methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
       return sn;
     } on PlatformException catch(e) {
       print(e);

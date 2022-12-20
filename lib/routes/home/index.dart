@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../channel/index.dart';
+import '../../common/global.dart';
 import '../device/index.dart';
 import '../dropdown/DropDownDialog.dart';
 import '../scene/index.dart';
@@ -28,6 +30,14 @@ class _HomeState extends State<Home> {
     _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
     children.add(const DevicePage(text: "设备页"));
+    initial();
+  }
+
+  initial() async {
+   num lightValue = await settingMethodChannel.getSystemLight();
+   num soundValue = await settingMethodChannel.getSystemVoice();
+   Global.soundValue=soundValue;
+   Global.lightValue=lightValue;
   }
 
   @override

@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:uuid/uuid.dart';
-
 import 'api/index.dart';
 import 'utils.dart';
 import '../models/index.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 
 /// 日志打印工具
 var logger = Logger(
@@ -97,4 +97,59 @@ class Global {
       debugPrint('EasyLoading Status $status');
     });
   }
+
+  ///全局亮度
+  static num lightValue=204;
+
+  ///全局音量
+  static num soundValue=10;
+
 }
+
+class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    debugPrint(
+        'didPush: ${route.settings.name}, from:${previousRoute?.settings.name}');
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    super.didPop(route, previousRoute);
+    debugPrint(
+        'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+    const blacklist = [null, 'SnifferPage'];
+    if (previousRoute?.settings.name == 'Home' && !blacklist.contains(route.settings.name)) {
+      bus.emit("backHome");
+    }
+  }
+
+  // 未被使用的路由跟踪，暂时注释
+  // @override
+  // void didReplace({Route? newRoute, Route? oldRoute}) {
+  //   super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  //   debugPrint('didReplace newRoute: $newRoute,oldRoute:$oldRoute');
+  // }
+  //
+  // @override
+  // void didRemove(Route route, Route? previousRoute) {
+  //   super.didRemove(route, previousRoute);
+  //   debugPrint('didRemove route: $route,previousRoute:$previousRoute');
+  // }
+  //
+//   @override
+//   void didStartUserGesture(Route route, Route? previousRoute) {
+//     super.didStartUserGesture(route, previousRoute);
+//     debugPrint('didStartUserGesture: ${route.settings.name},from:$previousRoute');
+//   }
+//
+//   @override
+//   void didStopUserGesture() {
+//     super.didStopUserGesture();
+//     debugPrint('didStopUserGesture');
+//   }
+}
+
+final GlobalRouteObserver<PageRoute> globalRouteObserver =
+    GlobalRouteObserver<PageRoute>();

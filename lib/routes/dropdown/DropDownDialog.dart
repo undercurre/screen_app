@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../../channel/index.dart';
+import '../../common/global.dart';
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
 class DropDownDialogState extends State<DropDownDialog> with SingleTickerProviderStateMixin {
   late final AnimationController controller;
   late final Animation<double> animation;
+  num lightValue = Global.lightValue;
+  num soundValue = Global.soundValue;
+  var soundName = "暂无歌曲";
+  var singer = "暂无歌手";
+
+  initial() async {
+    lightValue = await settingMethodChannel.getSystemLight();
+    soundValue = await settingMethodChannel.getSystemVoice();
+    print("亮度大小:$lightValue");
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     late double po;
-
-    @override
-    void dispose() {
-      controller.dispose();
-      super.dispose();
-    }
-
     return GestureDetector(
       // 点击遮罩层隐藏弹框
       child: Material(
@@ -68,16 +74,16 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Text("暂无歌曲",
-                                        style: TextStyle(
+                                    Text(soundName,
+                                        style: const TextStyle(
                                           color: Color(0XFFFFFFFF),
                                           fontSize: 24.0,
                                           fontFamily: "MideaType",
                                           fontWeight: FontWeight.normal,
                                           decoration: TextDecoration.none,
                                         )),
-                                    const Text("暂无歌手",
-                                        style: TextStyle(
+                                    Text(singer,
+                                        style: const TextStyle(
                                           color: Color(0XFF8e8e8e),
                                           fontSize: 16.0,
                                           fontFamily: "MideaType",
@@ -124,7 +130,9 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                             Column(
                               children: [
                                 GestureDetector(
-                                  onTap: () => Navigator.pop(context),
+                                  onTap: () => {
+                                    //手动开启语音
+                                  },
                                   child: Container(
                                       margin: const EdgeInsets.fromLTRB(25, 16, 0, 0),
                                       width: 130,
@@ -203,7 +211,14 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                   child: AdvancedVerticalSeekBar(
                                     height: 224.0,
                                     width: 130.0,
-                                    onValueChanged: (newValue) => print(newValue),
+                                    max: 15,
+                                    value: soundValue.toDouble(),
+                                    onValueChanged: (newValue) => {
+                                      settingMethodChannel.setSystemVoice(newValue.toInt()),
+                                      soundValue = newValue,
+                                      Global.soundValue=soundValue,
+
+                                    },
                                   ),
                                 ),
                                 Container(
@@ -226,7 +241,13 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                   child: AdvancedVerticalSeekBar(
                                     height: 224.0,
                                     width: 130.0,
-                                    onValueChanged: (newValue) => print(newValue),
+                                    max: 255,
+                                    value: lightValue.toDouble(),
+                                    onValueChanged: (newValue) => {
+                                      settingMethodChannel.setSystemLight(newValue.toInt()),
+                                      lightValue = newValue,
+                                      Global.lightValue=lightValue,
+                                    },
                                   ),
                                 ),
                                 Container(
@@ -267,6 +288,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
       curve: Curves.linear,
     );
     controller.stop();
+    initial();
   }
 }
 
@@ -282,7 +304,18 @@ class DropDownDialog extends StatefulWidget {
 class MFDropDownDialog {
   static DropDownDialogState showDropDownDialog(BuildContext context) {
     var widget = DropDownDialog();
-    showDialog(context: context, builder: (context) => widget);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, void Function(void Function()) setState) {
+            return widget;
+          },
+        );
+      },
+    );
+
     return widget.state;
   }
 }

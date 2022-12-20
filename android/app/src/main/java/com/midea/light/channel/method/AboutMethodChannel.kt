@@ -1,14 +1,13 @@
 package com.midea.light.channel.method
 
 import android.content.Context
+import com.midea.iot.sdk.common.security.SecurityUtils
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.setting.SystemUtil
 import com.midea.smart.open.common.util.StringUtils
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONObject
-import java.util.function.Function
 
 /**
  * @ClassName AboutMethodChannel
@@ -45,7 +44,7 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
                 onHandlerSystemVersion(result)
             }
             "getGatewaySn" -> {
-                onHandlerGatewaySn(result)
+                onHandlerGatewaySn(call, result)
             }
             "reboot" -> {
                 onHandlerReboot(result)
@@ -61,12 +60,15 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
         onCallSuccess(result, true)
     }
 
-    private fun onHandlerGatewaySn(result: MethodChannel.Result) {
+    private fun onHandlerGatewaySn(call: MethodCall, result: MethodChannel.Result) {
+        val isEncrypt = call.argument<Boolean?>("isEncrypt") ?: false
+        val secretKey = call.argument<String?>("secretKey")
+        assert(isEncrypt && !StringUtils.isEmpty(secretKey) || !isEncrypt)
         SystemUtil.getGatewaySn { t ->
             if(StringUtils.isEmpty(t)) {
                 onCallError(result, errorMessage = "网关请求超时")
             } else {
-                onCallSuccess(result, t)
+                onCallSuccess(result, if(isEncrypt) SecurityUtils.encodeAES128(t, secretKey) else t)
             }
             t
         }
