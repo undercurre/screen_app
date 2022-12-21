@@ -1,8 +1,6 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:screen_app/models/index.dart';
-
 import '../../common/index.dart';
 import 'link_network.dart';
 import 'scan_code.dart';
@@ -248,24 +246,6 @@ class LoginHeader extends StatelessWidget {
       children: stepList,
     );
 
-    var tempIcon = Positioned(
-      left: 100.0,
-      top: 2.0,
-      child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pushNamed('0x14'),
-        label: const Text(''),
-        icon: const Icon(Icons.settings),
-      ),
-    );
-    // var tempIcon = Positioned(
-    //   left: 100.0,
-    //   top: 2.0,
-    //   child: TextButton.icon(
-    //     onPressed: () => exit(0),
-    //     label: const Text(''),
-    //     icon: const Icon(Icons.exit_to_app),
-    //   ),
-    // );
 
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(
@@ -279,6 +259,6 @@ class LoginHeader extends StatelessWidget {
         ));
 
     return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [headerView, stepNumView, tempIcon]);
+        children: [headerView, stepNumView]);
   }
 }

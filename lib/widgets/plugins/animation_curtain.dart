@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AnimationCurtain extends StatefulWidget {
-  final num position;
+  final double position;
 
   const AnimationCurtain({super.key, required this.position});
 
@@ -27,23 +27,10 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
         ),
+
         // 光线
-        // Clip(widget.position),
-        Positioned(
-            left: 0,
-            top: 300,
-            child: ClipPath(
-              clipper: Trapezoid(pos: widget.position),
-              child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 136,
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                    colors: [Color(0x807D8D9B), Color(0x00D8D8D8)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ))),
-            )),
+        Positioned(left: 0, top: 300, child: AnimatedClip(pos: widget.position)),
+
         // 窗
         const Positioned(
           left: 0,
@@ -54,6 +41,7 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
             image: AssetImage("assets/imgs/plugins/0x14/c-01.png"),
           ),
         ),
+
         // 左窗帘
         AnimatedPositioned(
           duration: const Duration(milliseconds: 400),
@@ -77,66 +65,57 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
             image: AssetImage("assets/imgs/plugins/0x14/c-02.png"),
           ),
         ),
-        Positioned(
-            left: 0,
-            top: 100,
-            child: CustomAnimated(
-              duration: const Duration(seconds: 1),
-              decoration: BoxDecoration(color: decorationColor),
-              child: TextButton(
-                onPressed: () {
-                  setState(() {
-                    decorationColor = Colors.red;
-                  });
-                },
-                child: const Text(
-                  "AnimatedDecoratedBox",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            )),
+
       ],
     );
   }
 }
 
-class Clip extends StatefulWidget {
-  final num pos;
+class AnimatedClip extends StatefulWidget {
+  final double pos;
+  final Duration duration;
+  final Curve curve;
 
-  const Clip(this.pos, {super.key});
+  const AnimatedClip(
+      {super.key,
+      this.pos = 0,
+      this.duration = const Duration(milliseconds: 400),
+      this.curve = Curves.linear});
 
   @override
-  State<Clip> createState() => _ClipState();
+  State<AnimatedClip> createState() => _AnimatedClipState();
 }
 
-class _ClipState extends State<Clip> with TickerProviderStateMixin {
+class _AnimatedClipState extends State<AnimatedClip> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<num> _animation;
-  final num startPos = 50;
+  late Animation<double> _animation;
+  late Tween<double> _tween;
+
+  void _updateCurve() {
+    _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
+  }
 
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(
-        vsync: this, duration: const Duration(seconds: 400));
-    _animation =
-        Tween<num>(begin: startPos, end: widget.pos).animate(_controller);
-    _controller.forward(from: 0.0);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+      duration: widget.duration,
+      vsync: this,
+    );
+    _tween = Tween(begin: widget.pos);
+    _updateCurve();
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('_animation.value: ${_animation.value}');
+
     return AnimatedBuilder(
+      animation: _animation,
       builder: (context, child) {
         return ClipPath(
-          clipper: Trapezoid(pos: _animation.value),
+          clipper: Trapezoid(pos: _tween.animate(_animation).value),
           child: Container(
               width: MediaQuery.of(context).size.width,
               height: 136,
@@ -148,13 +127,40 @@ class _ClipState extends State<Clip> with TickerProviderStateMixin {
               ))),
         );
       },
-      animation: _animation,
     );
+  }
+
+  @override
+  void didUpdateWidget(AnimatedClip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.curve != oldWidget.curve) _updateCurve();
+
+    _controller.duration = widget.duration;
+
+    //正在执行过渡动画
+    if (widget.pos != (_tween.end ?? _tween.begin)) {
+      debugPrint('_tween.evaluate(_animation): ${_tween.evaluate(_animation)}');
+
+      _tween
+        ..begin = _tween.evaluate(_animation)
+        ..end = widget.pos;
+
+      _controller
+        ..value = 0
+        ..forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
+// 多边形路径
 class Trapezoid extends CustomClipper<Path> {
-  final num pos;
+  final double pos;
 
   Trapezoid({required this.pos});
 
@@ -204,92 +210,4 @@ class Square extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(Trapezoid oldClipper) => false;
-}
-
-///////
-
-class CustomAnimated extends StatefulWidget {
-  const CustomAnimated({
-    Key? key,
-    required this.decoration,
-    required this.child,
-    this.curve = Curves.linear,
-    required this.duration,
-    this.reverseDuration,
-  }) : super(key: key);
-
-  final BoxDecoration decoration;
-  final Widget child;
-  final Duration duration;
-  final Curve curve;
-  final Duration? reverseDuration;
-
-  @override
-  State<CustomAnimated> createState() => _CustomAnimatedState();
-}
-
-class _CustomAnimatedState extends State<CustomAnimated>
-    with SingleTickerProviderStateMixin {
-  @protected
-  AnimationController get controller => _controller;
-  late AnimationController _controller;
-
-  Animation<double> get animation => _animation;
-  late Animation<double> _animation;
-
-  late DecorationTween _tween;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return DecoratedBox(
-          decoration: _tween.animate(_animation).value,
-          child: child,
-        );
-      },
-      child: widget.child,
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      reverseDuration: widget.reverseDuration,
-      vsync: this,
-    );
-    _tween = DecorationTween(begin: widget.decoration);
-    _updateCurve();
-  }
-
-  void _updateCurve() {
-    _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
-  }
-
-  @override
-  void didUpdateWidget(CustomAnimated oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.curve != oldWidget.curve) _updateCurve();
-    _controller.duration = widget.duration;
-    _controller.reverseDuration = widget.reverseDuration;
-    //正在执行过渡动画
-    if (widget.decoration != (_tween.end ?? _tween.begin)) {
-      _tween
-        ..begin = _tween.evaluate(_animation)
-        ..end = widget.decoration;
-
-      _controller
-        ..value = 0.0
-        ..forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }

@@ -1,9 +1,10 @@
 import './mode_list.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/mixins/auto_sniffer.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-class CurtainPageState extends State<CurtainPage> {
+class CurtainPageState extends State<CurtainPage> with AutoSniffer {
   String deviceId = '0';
   String deviceName = '窗帘';
 
@@ -41,10 +42,14 @@ class CurtainPageState extends State<CurtainPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceId = args['deviceId'];
-      deviceName = args['deviceName'];
-      CurtainApi.getLightDetail(deviceId);
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args != null) {
+        var t = args as Map;
+        deviceId = t['deviceId'];
+        deviceName = t['deviceName'];
+      }
+
+      // CurtainApi.getLightDetail(deviceId);
     });
   }
 
@@ -53,40 +58,34 @@ class CurtainPageState extends State<CurtainPage> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-        color: Colors.black
-      ),
+      decoration: const BoxDecoration(color: Colors.black),
       child: Stack(
         children: [
+          // 窗帘动画
           Positioned(
               left: -16, // 向左偏移
               top: 0,
               child: AnimationCurtain(
-                position: position,
+                position: position.toDouble(),
               )),
-          Flex(
-            direction: Axis.vertical,
+          Column(
             children: <Widget>[
+              // 顶部导航
               Container(
                 color: Colors.transparent,
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                    maxHeight: 60.0,
-                  ),
-                  child: MzNavigationBar(
-                    onLeftBtnTap: goBack,
-                    title: deviceName,
-                    power: power,
-                    hasPower: false,
-                  ),
+                child: MzNavigationBar(
+                  onLeftBtnTap: goBack,
+                  title: deviceName,
+                  power: power,
+                  hasPower: false,
                 ),
               ),
               Expanded(
                 flex: 1,
                 child: Row(
                   children: [
+                    // 卡片位置限制
                     const Align(
                       widthFactor: 1,
                       heightFactor: 2,
@@ -96,6 +95,7 @@ class CurtainPageState extends State<CurtainPage> {
                         height: 303,
                       ),
                     ),
+                    // 卡片
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
@@ -105,12 +105,11 @@ class CurtainPageState extends State<CurtainPage> {
                           child: ListView(
                             children: [
                               SliderButtonCard(
-                                unit: '%',
-                                value: position,
-                                min: 1,
-                                max: 100,
-                                onChanged: curtainHandle
-                              ),
+                                  unit: '%',
+                                  value: position,
+                                  min: 1,
+                                  max: 100,
+                                  onChanged: curtainHandle),
                               ModeCard(
                                 title: "模式",
                                 spacing: 40,
