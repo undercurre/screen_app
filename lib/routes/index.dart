@@ -32,6 +32,7 @@ var routes = <String, WidgetBuilder>{
   "Weather": (context) => const WeatherPage(),
   "Device": (context) => const DevicePage(text: ''),
   "Scene": (context) => const ScenePage(text: ''),
+  // "CenterControl": (context) => const CenterControl(text: ''),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
   "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
