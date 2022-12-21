@@ -11,6 +11,8 @@ import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
+import '../../common/api/user_api.dart';
+import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
 import 'device_item.dart';
 
@@ -41,6 +43,8 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   ];
 
   initPage() {
+    // 更新房间信息
+    updateHomeData();
     // 更新设备detail
     var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
@@ -60,12 +64,20 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
     }
   }
 
+  void updateHomeData() async {
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
+
+    if (res.isSuccess) {
+      var homeInfo = res.data.homeList[0];
+      var roomList = homeInfo.roomList ?? [];
+      Global.profile.roomInfo = roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
+    }
+  }
+
   updateBins(DeviceEntity deviceInfo) {
     if (DeviceService.isVistual(deviceInfo)) {
-      context.read<DeviceListModel>().productVistualDevice(
-          deviceInfo, '${deviceInfo.name}线控器1', "smartControl", "panelOne");
-      context.read<DeviceListModel>().productVistualDevice(
-          deviceInfo, '${deviceInfo.name}线控器2', "smartControl", "panelTwo");
+      DeviceService.setVistualDevice(context, deviceInfo);
     }
     List<DraggableGridItem> newBins = [];
     var allDeviceList = context.read<DeviceListModel>().deviceList;

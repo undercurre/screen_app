@@ -62,20 +62,20 @@ class DeviceListModel extends ProfileChangeNotifier {
     if (callback != null) callback();
   }
 
-  void productVistualDevice(DeviceEntity element, String vistualName, String vistualType ,String statusIndex) {
+  void productVistualDevice(DeviceEntity element, String vistualName,
+      String vistualType, String statusIndex,
+      {int? indexOfList}) {
     // 用json互转来深复制
     debugPrint('生产虚拟设备');
-    // 避免重复生产
-    if (deviceList.where((device) => element.sn8 == device.sn8).toList().length == 1) {
-      DeviceEntity objCopy = DeviceEntity.fromJson(element.toJson());
-      objCopy.type = vistualType;
-      objCopy.name = vistualName;
-      objCopy.detail = <String, dynamic>{
-        "status": element.detail![statusIndex],
-      };
-      deviceList.add(objCopy);
-      logger.i("VistualDeviceListModelChange: $deviceList");
-    }
+    DeviceEntity objCopy = DeviceEntity.fromJson(element.toJson());
+    objCopy.type = vistualType;
+    objCopy.name = vistualName;
+    objCopy.detail = <String, dynamic>{
+      "status": indexOfList != null
+          ? element.detail![statusIndex]
+          : element.detail![statusIndex][indexOfList],
+    };
+    deviceList.add(objCopy);
+    logger.i("VistualDeviceListModelChange: $deviceList");
   }
 }
-

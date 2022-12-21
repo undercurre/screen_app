@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
+
+import '../../states/device_change_notifier.dart';
 
 class DeviceService {
   static bool isOnline(DeviceEntity deviceInfo) {
@@ -100,5 +104,26 @@ class DeviceService {
       return true;
     }
     return false;
+  }
+
+  static void setVistualDevice(BuildContext context, DeviceEntity deviceInfo) {
+    // 智慧屏线控器
+    if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
+      context.read<DeviceListModel>().productVistualDevice(
+          deviceInfo, '${deviceInfo.name}线控器1', "smartControl", "panelOne");
+      context.read<DeviceListModel>().productVistualDevice(
+          deviceInfo, '${deviceInfo.name}线控器2', "smartControl", "panelTwo");
+    }
+    // 面板
+    if (deviceInfo.type == '0x21' &&
+        zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
+      if (deviceInfo.detail != null) {
+        debugPrint('制造面板中${deviceInfo.detail}');
+        for (int xx = 1; xx <= deviceInfo.detail!["deviceControlList"].length; xx++) {
+          context.read<DeviceListModel>().productVistualDevice(
+              deviceInfo, '${deviceInfo.name}$xx路', "singlePanel", "deviceControlList", indexOfList: xx);
+        }
+      }
+    }
   }
 }

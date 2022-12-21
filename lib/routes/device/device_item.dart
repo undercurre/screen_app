@@ -157,7 +157,7 @@ class _DeviceItemState extends State<DeviceItem> {
           height: 60,
         );
       } else {
-        if (!DeviceService.isSupport(widget.deviceInfo!)) {
+        if (!DeviceService.isSupport(widget.deviceInfo!) || DeviceService.isVistual(widget.deviceInfo!)) {
           return const Text(
             "仅支持APP控制",
             style: TextStyle(
