@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/plugins/0x16/api.dart';
@@ -21,6 +22,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     notifyListeners();
   }
 
+  // 根据设备id获取设备的detail
   Map<String, dynamic> getDeviceDetail(String deviceId) {
     var curDeviceList = _deviceListResource
         .where((element) => element.applianceCode == deviceId)
@@ -37,6 +39,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     }
   }
 
+  // 更新设备列表所有设备的detail
   Future<void> updateDeviceDetail(DeviceEntity deviceInfo,
       {Function? callback}) async {
     // todo: 优化数据更新diff
@@ -54,6 +57,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     }
   }
 
+  // 重置设备detail
   void setProviderDeviceInfo(DeviceEntity device, {Function? callback}) {
     final index = _deviceListResource
         .indexWhere((element) => element.applianceCode == device.applianceCode);
@@ -62,6 +66,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     if (callback != null) callback();
   }
 
+  // 虚拟设备生成器
   void productVistualDevice(DeviceEntity element, String vistualName,
       String vistualType, String statusIndex,
       {int? indexOfList}) {
@@ -77,5 +82,11 @@ class DeviceListModel extends ProfileChangeNotifier {
     };
     deviceList.add(objCopy);
     logger.i("VistualDeviceListModelChange: $deviceList");
+  }
+
+  // 灯组查询
+  Future<void> selectLightGroupList() async {
+    var groupList = await DeviceApi.getGroupList();
+    debugPrint('${groupList.toJson()}');
   }
 }

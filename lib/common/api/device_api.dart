@@ -108,22 +108,62 @@ class DeviceApi {
 
   static Future<MzResponseEntity<String>> getGatewayInfo(
       String deviceId, String masterId) async {
-    var res = await Api.requestMzIot<String>(
-        "/v1/category/midea/getGatewayInfo",
-        data: {
-          "systemSource": "SMART_SCREEN",
-          "frontendType": "ANDRIOD",
-          "userId": Global.user?.uid,
-          "applianceCode": masterId,
-          "devId": deviceId,
+    var res =
+        await Api.requestMzIot<String>("/v1/category/midea/getGatewayInfo",
+            data: {
+              "systemSource": "SMART_SCREEN",
+              "frontendType": "ANDRIOD",
+              "userId": Global.user?.uid,
+              "applianceCode": masterId,
+              "devId": deviceId,
+              "reqId": uuid.v4(),
+              "version": "1.0",
+              "timestamp":
+                  DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+            },
+            options: Options(
+              method: 'POST',
+              headers: {'accessToken': Global.user?.accessToken},
+            ));
+
+    return res;
+  }
+
+  // 灯组相关接口
+  static Future<MzResponseEntity> groupRelated(
+      String handleType, Map<String, dynamic> data) async {
+    var res =
+        await Api.requestMzIot<String>("/v1/category/midea/light/groupRelated",
+            data: {
+              "systemSource": "SMART_SCREEN",
+              "frontendType": "ANDRIOD",
+              "userId": Global.user?.uid,
+              "handleType": handleType,
+              "data": data,
+              "reqId": uuid.v4(),
+              "version": "1.0",
+              "timestamp":
+                  DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+            },
+            options: Options(
+              method: 'POST',
+              headers: {'accessToken': Global.user?.accessToken},
+            ));
+
+    return res;
+  }
+
+  // 灯组查询
+  static Future<MideaResponseEntity<String>> getGroupList() async {
+    var res = await Api.requestMideaIot<String>(
+        "mas/v5/app/proxy?alias=/mzgd/v2/appliance/group/list",
+        queryParameters: {
+          "homegroupId": Global.profile.homeInfo?.homegroupId,
           "reqId": uuid.v4(),
-          "version": "1.0",
-          "timestamp": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+          "stamp": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+          "uid": Global.profile.user?.uid
         },
-        options: Options(
-          method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
-        ));
+        options: Options(method: 'POST'));
 
     return res;
   }

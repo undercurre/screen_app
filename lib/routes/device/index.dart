@@ -45,6 +45,8 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   initPage() {
     // 更新房间信息
     updateHomeData();
+    // 查灯组列表
+    context.read<DeviceListModel>().selectLightGroupList();
     // 更新设备detail
     var deviceList = context.read<DeviceListModel>().deviceList;
     for (int xx = 1; xx <= deviceList.length; xx++) {
