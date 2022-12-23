@@ -14,7 +14,7 @@ class SceneInfoEntity {
   dynamic homegroupId;
   late String? weekly;
   late String? labelId;
-  late num? enable;
+  dynamic enable;
   dynamic appId;
   dynamic sceneId;
   late String? brand;
@@ -27,8 +27,8 @@ class SceneInfoEntity {
   late String? effectiveZone;
   late String? updateTime;
   late String? version;
-  late num? sceneStatus;
-  late num? sceneType;
+  dynamic sceneStatus;
+  dynamic sceneType;
   late String? createTime;
   late String name;
 
