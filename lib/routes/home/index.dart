@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
     //初始化状态
     _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
-    children.add(const DevicePage(text: "设备页"));
+    children.add(const ScenePage(text: "设备页"));
     initial();
   }
 
@@ -51,7 +51,7 @@ class _HomeState extends State<Home> {
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {
-                  print("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 14) {
                     MFDropDownDialog.showDropDownDialog(context);
                   }
@@ -105,30 +105,30 @@ class _HomeState extends State<Home> {
   @override
   void didUpdateWidget(Home oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print("didUpdateWidget ");
+    debugPrint("didUpdateWidget ");
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    print("deactivate");
+    debugPrint("deactivate");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
+    debugPrint("dispose");
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    print("reassemble");
+    debugPrint("reassemble");
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies");
+    debugPrint("didChangeDependencies");
   }
 }

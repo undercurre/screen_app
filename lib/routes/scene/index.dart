@@ -71,6 +71,7 @@ class ScenePageState extends State<ScenePage> {
   void initScene() async {
     await initializeDateFormatting('zh_CN', null);
     sceneList = await SceneApi.getSceneList();
+    debugPrint('场景列表:$sceneList');
     setState(() {
       time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
       startTimer();

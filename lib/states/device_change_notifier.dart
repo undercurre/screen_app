@@ -105,6 +105,7 @@ class DeviceListModel extends ProfileChangeNotifier {
       }));
       debugPrint("灯组$group详情$detail");
       var vistualDeviceForGroup = DeviceEntity();
+      vistualDeviceForGroup.applianceCode = group["groupId"].toString();
       vistualDeviceForGroup.type = 'lightGroup';
       vistualDeviceForGroup.name = group["name"];
       vistualDeviceForGroup.onlineStatus = '1';

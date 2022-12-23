@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/global.dart';
 
@@ -33,8 +34,10 @@ class SceneApi {
               method: 'POST',
               headers: {'accessToken': Global.user?.accessToken},
             ));
+    debugPrint('拿到场景响应');
     var modelRes = res.result;
     var filterList = modelRes.list.where((element) => element.sceneType == 1);
+    debugPrint('过滤后的场景$filterList');
     var sceneList = [
       ...filterList.map((e) => Scene(
           'assets/imgs/scene/${Random().nextInt(5) + 1}.png',

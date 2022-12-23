@@ -3,6 +3,7 @@ export 'room_entity.dart';
 export 'weather_entity.dart';
 export 'profile_entity.dart';
 export 'scene_info_entity.dart';
+export 'scene_list_entity.dart';
 export 'qr_code_entity.dart';
 export 'device_entity.dart';
 export 'location_entity.dart';
