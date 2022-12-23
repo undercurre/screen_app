@@ -130,18 +130,19 @@ class DeviceApi {
   }
 
   // 灯组相关接口
-  static Future<MzResponseEntity> groupRelated(
-      String handleType, Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> groupRelated(
+      String handleType, String commond) async {
     var res =
-        await Api.requestMzIot<String>("/v1/category/midea/light/groupRelated",
+        await Api.requestMzIot<dynamic>("/v1/category/midea/light/groupRelated",
             data: {
               "systemSource": "SMART_SCREEN",
               "frontendType": "ANDRIOD",
               "userId": Global.user?.uid,
               "handleType": handleType,
-              "data": data,
+              "data": commond,
               "reqId": uuid.v4(),
               "version": "1.0",
+              "uid": Global.profile.user?.uid,
               "timestamp":
                   DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
             },
@@ -150,13 +151,19 @@ class DeviceApi {
               headers: {'accessToken': Global.user?.accessToken},
             ));
 
-    return res;
+    return res.result["result"];
   }
 
   // 灯组查询
-  static Future<MideaResponseEntity<String>> getGroupList() async {
-    var res = await Api.requestMideaIot<String>(
-        "mas/v5/app/proxy?alias=/mzgd/v2/appliance/group/list",
+  static Future<MideaResponseEntity<Map<String, dynamic>>> getGroupList() async {
+    var res = await Api.requestMideaIot<Map<String, dynamic>>(
+        "/mas/v5/app/proxy?alias=/mzgd/v2/appliance/group/list",
+        data: {
+          "homegroupId": Global.profile.homeInfo?.homegroupId,
+          "reqId": uuid.v4(),
+          "stamp": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+          "uid": Global.profile.user?.uid
+        },
         queryParameters: {
           "homegroupId": Global.profile.homeInfo?.homegroupId,
           "reqId": uuid.v4(),

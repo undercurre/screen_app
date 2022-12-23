@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -5,6 +6,7 @@ import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/plugins/0x16/api.dart';
+import 'dart:convert';
 import 'package:screen_app/states/profile_change_notifier.dart';
 
 import '../models/index.dart';
@@ -86,7 +88,34 @@ class DeviceListModel extends ProfileChangeNotifier {
 
   // 灯组查询
   Future<void> selectLightGroupList() async {
-    var groupList = await DeviceApi.getGroupList();
-    debugPrint('${groupList.toJson()}');
+    // 获取家庭内灯组列表
+    var res = await DeviceApi.getGroupList();
+    var groupList = res.data["applianceGroupList"] as List<dynamic>;
+    // 过滤成房间内的灯组列表
+    var groupListInRoom = groupList.where((element) => element["roomId"].toString() == Global.profile.roomInfo?.roomId).toList();
+    // 遍历
+    for (int i = 1; i <= groupList.length; i ++) {
+      var group = groupList[i - 1];
+      // 查找该灯组的详情
+      var detail = await DeviceApi.groupRelated('findLampGroupDetails', const JsonEncoder().convert({
+        "houseId": Global.profile.homeInfo?.homegroupId,
+        "groupId": group["groupId"],
+        "modelId": "midea.light.003.001",
+        "uid": Global.profile.user?.uid,
+      }));
+      debugPrint("灯组$group详情$detail");
+      var vistualDeviceForGroup = DeviceEntity();
+      vistualDeviceForGroup.type = 'lightGroup';
+      vistualDeviceForGroup.name = group["name"];
+      vistualDeviceForGroup.onlineStatus = '1';
+      vistualDeviceForGroup.detail = {
+        "id": group["id"],
+        "groupId": group["groupId"],
+        "applianceList": group["applianceList"],
+        "detail": detail
+      };
+      deviceList.add(vistualDeviceForGroup);
+    }
+    logger.i("lightGroupListInRoom: $groupListInRoom");
   }
 }

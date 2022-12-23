@@ -1,38 +1,58 @@
+import 'package:provider/provider.dart';
+
+import '../../../states/device_change_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/plugins/0x14/api.dart';
+import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-class CurtainPageState extends State<CurtainPage> {
-  String deviceId = '0';
-  String deviceName = '窗帘';
+class LightGroupPageState extends State<LightGroupPage> {
 
-  bool power = true;
-  num position = 1;
-  num colorTemperature = 0;
-  String screenModel = 'manual';
-  String timeOff = '0';
+  Map<String, dynamic> deviceWatch = {
+    "deviceId": "",
+    "deviceName": '吸顶灯',
+    "detail": {
+      "brightValue": 1,
+      "colorTemperature": 0,
+      "power": false,
+      "screenModel": "manual",
+      "timeOff": "0"
+    }
+  };
 
   void goBack() {
     Navigator.pop(context);
   }
 
-  Future<void> modeHandle(Mode mode) async {
-    setState(() {
-      screenModel = mode.key;
-    });
-    // await CurtainApi.modePDM(deviceId, mode.key);
+  Future<void> powerHandle() async {
+    await WIFILightApi.powerLua(deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
   }
 
-  Future<void> curtainHandle(num value) async {
+  Future<void> delayHandle() async {
     setState(() {
-      position = value;
+      if (deviceWatch["detail"]["timeOff"] == '0') {
+        deviceWatch["detail"]["timeOff"] = '3';
+      } else {
+        deviceWatch["detail"]["timeOff"] = '0';
+      }
     });
-    // await CurtainApi.brightnessPDM(deviceId, value);
+    await WIFILightApi.delayPDM(deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
+  }
+
+  Future<void> modeHandle(Mode mode) async {
+    await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
+  }
+
+  Future<void> brightnessHandle(num value, Color activeColor) async {
+    await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
+  }
+
+  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
+    await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
   }
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[screenModel] = true;
+    selectKeys[deviceWatch["detail"]["screenModel"]] = true;
     return selectKeys;
   }
 
@@ -41,9 +61,9 @@ class CurtainPageState extends State<CurtainPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceId = args['deviceId'];
-      deviceName = args['deviceName'];
-      CurtainApi.getLightDetail(deviceId);
+      deviceWatch["deviceId"] = args['deviceId'];
+      deviceWatch = context.read<DeviceListModel>().getDeviceDetail(deviceWatch["deviceId"]);
+      debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
 
@@ -53,15 +73,19 @@ class CurtainPageState extends State<CurtainPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        color: Colors.black
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        ),
       ),
       child: Stack(
         children: [
           Positioned(
-              left: -16, // 向左偏移
+              left: 0,
               top: 0,
-              child: AnimationCurtain(
-                position: position,
+              child: LightBall(
+                brightness: deviceWatch["detail"]["brightValue"],
+                colorTemperature: 100 - deviceWatch["detail"]["colorTemperature"],
               )),
           Flex(
             direction: Axis.vertical,
@@ -76,9 +100,10 @@ class CurtainPageState extends State<CurtainPage> {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    title: deviceName,
-                    power: power,
-                    hasPower: false,
+                    onRightBtnTap: powerHandle,
+                    title: deviceWatch["deviceName"],
+                    power: deviceWatch["detail"]["power"],
+                    hasPower: true,
                   ),
                 ),
               ),
@@ -103,13 +128,50 @@ class CurtainPageState extends State<CurtainPage> {
                               .copyWith(scrollbars: false),
                           child: ListView(
                             children: [
-                              SliderButtonCard(
-                                unit: '%',
-                                value: position,
-                                min: 1,
-                                max: 100,
-                                onChanged: curtainHandle
+                              ParamCard(
+                                title: '亮度',
+                                value: deviceWatch["detail"]["brightValue"],
+                                activeColors: const [
+                                  Color(0xFFFFD185),
+                                  Color(0xFFFFD185)
+                                ],
+                                onChanged: brightnessHandle,
+                                onChanging: brightnessHandle,
                               ),
+                              ParamCard(
+                                title: '色温',
+                                value: deviceWatch["detail"]["colorTemperature"],
+                                activeColors: const [
+                                  Color(0xFFFFD39F),
+                                  Color(0xFF55A2FA)
+                                ],
+                                onChanged: colorTemperatureHandle,
+                                onChanging: colorTemperatureHandle,
+                              ),
+                              FunctionCard(
+                                title: '延时关灯',
+                                subTitle: deviceWatch["detail"]["timeOff"] == '0'
+                                    ? '未设置'
+                                    : '${int.parse(deviceWatch["detail"]["timeOff"])}分钟后关灯',
+                                child: Listener(
+                                  onPointerDown: (e) => delayHandle(),
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: deviceWatch["detail"]["timeOff"] == '0'
+                                          ? const Color(0xFF000000)
+                                          : const Color(0xFFFFFFFF),
+                                      borderRadius: BorderRadius.circular(16.0),
+                                    ),
+                                    child: Image(
+                                      image: AssetImage(deviceWatch["detail"]["timeOff"] == '0'
+                                          ? 'assets/imgs/plugins/0x13/delay_off.png'
+                                          : 'assets/imgs/plugins/0x13/delay_on.png'),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -126,9 +188,9 @@ class CurtainPageState extends State<CurtainPage> {
   }
 }
 
-class CurtainPage extends StatefulWidget {
-  const CurtainPage({super.key});
+class LightGroupPage extends StatefulWidget {
+  const LightGroupPage({super.key});
 
   @override
-  State<CurtainPage> createState() => CurtainPageState();
+  State<LightGroupPage> createState() => LightGroupPageState();
 }
