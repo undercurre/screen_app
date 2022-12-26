@@ -1,11 +1,11 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:screen_app/models/index.dart';
 import '../../common/index.dart';
-import 'link_network.dart';
+import '../../widgets/business/net_connect.dart';
 import 'scan_code.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
+import '../../widgets/util/net_utils.dart';
 
 class Step {
   String title;
@@ -14,7 +14,7 @@ class Step {
   Step(this.title, this.view);
 }
 
-class _LoginPage extends State<LoginPage> {
+class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = Global.isLogin ? 3 : 1;
 
@@ -30,7 +30,18 @@ class _LoginPage extends State<LoginPage> {
 
   /// 下一步
   void nextStep() async {
-    if (stepNum == 4 && Global.profile.roomInfo != null) {
+    if (stepNum == 1 && !isConnected()) {
+      TipsUtils.toast(content: '请连接网络');
+      return;
+    }
+
+    if (stepNum == 4) {
+      // 必须选择房间信息才能进行下一步
+      if (Global.profile.roomInfo == null) {
+        TipsUtils.toast(content: '请选择房间');
+        return;
+      }
+
       Global.saveProfile();
       //导航到新路由
       await Navigator.pushNamed(
@@ -93,7 +104,9 @@ class _LoginPage extends State<LoginPage> {
                 stepSum: stepList.length,
                 stepNum: stepNum,
                 title: stepItem.title),
-            Expanded(flex: 1, child: stepItem.view),
+            stepNum == 1
+                ? stepItem.view
+                : Expanded(flex: 1, child: stepItem.view),
             Row(children: [
               if (stepNum > 1)
                 Expanded(
@@ -142,20 +155,14 @@ class _LoginPage extends State<LoginPage> {
                       color: Color.fromRGBO(255, 255, 255, 0.85),
                     )),
               )),
-              Expanded(
-                  child: TextButton(
-                style: buttonStyle,
-                onPressed: () async {
-                  exit(0);
-                },
-                child: const Text('退出(测试）',
-                    style: TextStyle(
-                      color: Color.fromRGBO(255, 255, 255, 0.85),
-                    )),
-              )),
             ])
           ],
         )));
+  }
+
+  @override
+  void netChange(MZNetState? state) {
+    debugPrint('netChange: $state');
   }
 }
 
@@ -245,7 +252,6 @@ class LoginHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: stepList,
     );
-
 
     var headerView = DecoratedBox(
         decoration: const BoxDecoration(

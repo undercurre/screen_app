@@ -22,11 +22,13 @@ class UserApi {
   /// 登录接口，登录成功后返回用户信息
   static Future getAccessToken(String sessionId) async {
     var res = await Api.requestMideaIot<UserEntity>(
-        "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
-        queryParameters: {
-          'sessionId': sessionId,
-        },
-        options: Options(method: 'GET'));
+      "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
+      queryParameters: {
+        'sessionId': sessionId,
+      },
+      options: Options(method: 'GET'),
+      isShowLoading: false,
+    );
 
     if (res.isSuccess) {
       Global.user = res.data;

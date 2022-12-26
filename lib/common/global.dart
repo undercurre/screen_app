@@ -9,6 +9,7 @@ import 'api/index.dart';
 import 'utils.dart';
 import '../models/index.dart';
 import 'package:screen_app/widgets/event_bus.dart';
+import '../channel/index.dart';
 
 /// 日志打印工具
 var logger = Logger(
@@ -50,19 +51,25 @@ class Global {
       }
     }
 
-    // if (StrUtils.isNullOrEmpty(profile.deviceId)) {
-    String? deviceId = await PlatformDeviceId.getDeviceId;
-    // windows 下会获取到特殊字符，为了开发方便需要使用windows进行开发调试
-    deviceId =
-        deviceId?.replaceAll(' ', '').replaceAll('\n', '').replaceAll('\r', '');
-    logger.i('deviceId: $deviceId');
+    String? sn = await aboutSystemChannel.getGatewaySn();
+    debugPrint('getGatewaySn: $sn');
 
-    if (StrUtils.isNullOrEmpty(deviceId)) {
-      const uuid = Uuid();
-      deviceId = uuid.v4();
+    profile.deviceSn = sn;
+    if (StrUtils.isNullOrEmpty(profile.deviceId)) {
+      String? deviceId = await PlatformDeviceId.getDeviceId;
+      // windows 下会获取到特殊字符，为了开发方便需要使用windows进行开发调试
+      deviceId = deviceId
+          ?.replaceAll(' ', '')
+          .replaceAll('\n', '')
+          .replaceAll('\r', '');
+      logger.i('deviceId: $deviceId');
+
+      if (StrUtils.isNullOrEmpty(deviceId)) {
+        const uuid = Uuid();
+        deviceId = uuid.v4();
+      }
+      profile.deviceId = deviceId;
     }
-    profile.deviceId = deviceId;
-    // }
 
     saveProfile();
 
@@ -99,11 +106,10 @@ class Global {
   }
 
   ///全局亮度
-  static num lightValue=204;
+  static num lightValue = 204;
 
   ///全局音量
-  static num soundValue=10;
-
+  static num soundValue = 10;
 }
 
 class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
@@ -120,7 +126,8 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
     debugPrint(
         'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
     const blacklist = [null, 'SnifferPage'];
-    if (previousRoute?.settings.name == 'Home' && !blacklist.contains(route.settings.name)) {
+    if (previousRoute?.settings.name == 'Home' &&
+        !blacklist.contains(route.settings.name)) {
       bus.emit("backHome");
     }
   }
