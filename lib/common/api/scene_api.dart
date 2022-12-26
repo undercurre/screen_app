@@ -34,17 +34,15 @@ class SceneApi {
               method: 'POST',
               headers: {'accessToken': Global.user?.accessToken},
             ));
-    debugPrint('拿到场景响应');
+    debugPrint('拿到场景响应$res');
     var modelRes = res.result;
-    var filterList = modelRes.list.where((element) => element.sceneType == 1);
+    var filterList = modelRes.list.where((element) => element.sceneType == 2).toList();
     debugPrint('过滤后的场景$filterList');
-    var sceneList = [
-      ...filterList.map((e) => Scene(
+    var sceneList = filterList.map((e) => Scene(
           'assets/imgs/scene/${Random().nextInt(5) + 1}.png',
           e.name,
           'assets/imgs/scene/huijia.png',
-          e.sceneId.toString()))
-    ].toList();
+          e.sceneId.toString())).toList();
     return sceneList;
   }
 
