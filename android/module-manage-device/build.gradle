@@ -44,4 +44,5 @@ dependencies {
     implementation rootProject.ext.retrofit.okhttp3LoggerInterceptor
     implementation rootProject.ext.roomLibs
     implementation(project(":module-common"))
+    implementation project(":aar-midea-sdk")
 }

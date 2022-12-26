@@ -25,6 +25,11 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+    
     compileSdkVersion ProjectVatiant.COMPILESDKVERSION
     buildToolsVersion ProjectVatiant.BUILDERTOOLSVERSION
     ndkVersion flutter.ndkVersion
@@ -141,6 +146,7 @@ dependencies {
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.gateway
     implementation rootProject.ext.nexus.ota_upgrade
+    implementation project(":aar-midea-sdk")
 
 }
 
