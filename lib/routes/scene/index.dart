@@ -56,6 +56,11 @@ class ScenePageState extends State<ScenePage> {
 
   List<Widget> sceneWidgetList = [];
 
+  List<Map<String, String>> btnList = [
+    {'title': '添加设备', 'route': 'SnifferPage'},
+    {'title': '切换房间', 'route': 'Room'}
+  ];
+
   void selectScene(Scene scene) {
     setState(() {
       selectedSceneKey = scene.key;
@@ -85,8 +90,8 @@ class ScenePageState extends State<ScenePage> {
     });
   }
 
-  void toSelectRoom() {
-    Navigator.pushNamed(context, 'Room');
+  void toConfigPage(String route) {
+    Navigator.pushNamed(context, route);
   }
 
   @override
@@ -119,13 +124,35 @@ class ScenePageState extends State<ScenePage> {
                     decoration: TextDecoration.none,
                   ),
                 ),
-                Listener(
-                  onPointerDown: (e) => toSelectRoom(),
+                PopupMenuButton(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10.0),
+                      )),
+                  offset: const Offset(0, 36.0),
+                  itemBuilder: (context) {
+                    return btnList.map((item) {
+                      return PopupMenuItem<String>(
+                          value: item['route'],
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(item['title']!,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "MideaType",
+                                    fontWeight: FontWeight.w400)),
+                          ));
+                    }).toList();
+                  },
+                  onSelected: (String route) {
+                    toConfigPage(route);
+                  },
                   child: Image.asset(
-                    "assets/imgs/scene/room.png",
+                    "assets/imgs/icon/select_room.png",
                     width: 40,
+                    height: 40,
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -150,13 +177,6 @@ class ScenePageState extends State<ScenePage> {
             ),
           ),
           Expanded(
-            child: ScrollConfiguration(
-                behavior:
-                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: RawScrollbar(
-                  thickness: 4,
-                  thumbColor: const Color(0x4CD8D8D8),
-                  radius: const Radius.circular(25),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Center(
@@ -222,7 +242,6 @@ class ScenePageState extends State<ScenePage> {
                       ),
                     ),
                   ),
-                )),
           )
         ],
       ),
