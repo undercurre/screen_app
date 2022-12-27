@@ -95,17 +95,11 @@ android {
         JH {
             dimension 'hardware'
             signingConfig signingConfigs.JHConfig
-            manifestPlaceholders = [
-                    "USER_ID":"android.uid.system"
-            ]
         }
         // #灵动配置
         LD {
             dimension 'hardware'
             signingConfig signingConfigs.LDConfig
-            manifestPlaceholders = [
-                    "USER_ID":"com.midea.light"
-            ]
         }
         productFlavors.all {
             flavor ->
