@@ -110,6 +110,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Center(
@@ -173,7 +174,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                               Positioned(
                                                 top: -2,
                                                 left: 0,
-                                                child: ScaleAnimationRoute1()
+                                                child: AnimatedArrow()
                                               )
                                             ],
                                           )

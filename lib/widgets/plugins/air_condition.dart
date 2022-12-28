@@ -23,7 +23,7 @@ class _AirCondition extends State<AirCondition> {
         children: const [
           SizedBox(
             width: 150,
-            height: 200,
+            height: 600,
           ),
           Positioned(
             left: 0,
@@ -33,8 +33,10 @@ class _AirCondition extends State<AirCondition> {
             ),
           ),
           Positioned(
-            left: 0,
-            top: 103,
+            left: -260,
+            top: 20,
+            width: 500,
+            height: 500,
             child: Image(
               image: AssetImage('assets/imgs/plugins/0xAC/wind.png'),
             ),
