@@ -24,6 +24,19 @@ class DeviceListModel extends ProfileChangeNotifier {
     notifyListeners();
   }
 
+  // 根据设备id获取设备的deviceInfo
+  DeviceEntity getDeviceInfoById(String deviceId) {
+    var curDeviceList = _deviceListResource
+        .where((element) => element.applianceCode == deviceId)
+        .toList();
+    if (curDeviceList.isNotEmpty) {
+      var curDevice = curDeviceList[0];
+      return curDevice;
+    } else {
+      return DeviceEntity();
+    }
+  }
+
   // 根据设备id获取设备的detail
   Map<String, dynamic> getDeviceDetail(String deviceId) {
     var curDeviceList = _deviceListResource

@@ -4,6 +4,7 @@ import 'package:screen_app/routes/plugins/0x16/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0x26/api.dart' as cate0x26;
 import 'package:screen_app/routes/plugins/0x40/api.dart' as cate0x40;
+import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
@@ -25,6 +26,7 @@ Map<String, DeviceInterface> controllerList = {
   "0x26": cate0x26.DeviceListApiImpl(),
   "0x40": cate0x40.DeviceListApiImpl(),
   "0x16": WrapGateway(),
+  "0xAC": WrapAirCondition()
 };
 
 Map<String, String> zigbeeControllerList = {

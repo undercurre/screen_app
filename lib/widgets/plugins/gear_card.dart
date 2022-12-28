@@ -83,6 +83,7 @@ class _GearCardState extends State<GearCard> {
             children: [
               MzSlider(
                 value: value,
+                width: 270,
                 max: widget.maxGear,
                 min: widget.minGear,
                 disabled: widget.disabled,

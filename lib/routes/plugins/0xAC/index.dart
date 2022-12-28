@@ -1,22 +1,19 @@
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/plugins/air_condition.dart';
 
 import '../../../states/device_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-class WifiLightPageState extends State<WifiLightPage> {
+import '../../../widgets/plugins/arrow.dart';
 
+class AirConditionPageState extends State<AirConditionPage> {
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
-    "deviceName": '吸顶灯',
-    "detail": {
-      "brightValue": 1,
-      "colorTemperature": 0,
-      "power": false,
-      "screenModel": "manual",
-      "timeOff": "0"
-    }
+    "deviceName": '空调',
+    "detail": {"mode": '', "temperature": 26, "wind_speed": 102}
   };
 
   void goBack() {
@@ -24,7 +21,8 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   Future<void> powerHandle() async {
-    await WIFILightApi.powerLua(deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
+    await WIFILightApi.powerLua(
+        deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
   }
 
   Future<void> delayHandle() async {
@@ -35,7 +33,8 @@ class WifiLightPageState extends State<WifiLightPage> {
         deviceWatch["detail"]["timeOff"] = '0';
       }
     });
-    await WIFILightApi.delayPDM(deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
+    await WIFILightApi.delayPDM(
+        deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
   }
 
   Future<void> modeHandle(Mode mode) async {
@@ -62,7 +61,9 @@ class WifiLightPageState extends State<WifiLightPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
-      deviceWatch = context.read<DeviceListModel>().getDeviceDetail(deviceWatch["deviceId"]);
+      deviceWatch = context
+          .read<DeviceListModel>()
+          .getDeviceDetail(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
@@ -83,9 +84,10 @@ class WifiLightPageState extends State<WifiLightPage> {
           Positioned(
               left: 0,
               top: 0,
-              child: LightBall(
-                brightness: deviceWatch["detail"]["brightValue"],
-                colorTemperature: 100 - deviceWatch["detail"]["colorTemperature"],
+              child: AirCondition(
+                temperature: deviceWatch["detail"]["temperature"],
+                windSpeed: deviceWatch["detail"]["windSpeed"],
+                mode: deviceWatch["detail"]["mode"],
               )),
           Flex(
             direction: Axis.vertical,
@@ -102,82 +104,91 @@ class WifiLightPageState extends State<WifiLightPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["power"],
+                    power: deviceWatch["detail"]["power"] == 'on',
                     hasPower: true,
                   ),
                 ),
               ),
               Expanded(
-                flex: 1,
-                child: Row(
-                  children: [
-                    const Align(
-                      widthFactor: 1,
-                      heightFactor: 2,
-                      alignment: Alignment(-1.0, -0.63),
-                      child: SizedBox(
-                        width: 152,
-                        height: 303,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: EasyRefresh(
+                      header: const ClassicHeader(
+                        dragText: '下拉刷新',
+                        armedText: '释放执行刷新',
+                        readyText: '正在刷新...',
+                        processingText: '正在刷新...',
+                        processedText: '刷新完成',
+                        noMoreText: '没有更多信息',
+                        failedText: '失败',
+                        messageText: '上次更新 %T',
+                        mainAxisAlignment: MainAxisAlignment.end,
                       ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                        child: ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context)
-                              .copyWith(scrollbars: false),
-                          child: ListView(
-                            children: [
-                              ParamCard(
-                                title: '亮度',
-                                value: deviceWatch["detail"]["brightValue"],
-                                activeColors: const [
-                                  Color(0xFFFFD185),
-                                  Color(0xFFFFD185)
-                                ],
-                                onChanged: brightnessHandle,
-                                onChanging: brightnessHandle,
+                      onRefresh: () async {},
+                      child: SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            const Align(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              alignment: Alignment(-1.0, -0.63),
+                              child: SizedBox(
+                                width: 152,
+                                height: 303,
                               ),
-                              ParamCard(
-                                title: '色温',
-                                value: deviceWatch["detail"]["colorTemperature"],
-                                activeColors: const [
-                                  Color(0xFFFFD39F),
-                                  Color(0xFF55A2FA)
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  FunctionCard(
+                                      title: '模式',
+                                      child: Row(
+                                        children: [
+                                          const Opacity(
+                                              opacity: 0.5,
+                                              child: Image(
+                                                  image: AssetImage(
+                                                      'assets/imgs/plugins/0xAC/zidong_icon.png'))),
+                                          const Padding(
+                                            padding:
+                                                EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                            child: Text(
+                                              '自动',
+                                              style: TextStyle(
+                                                color: Color(0X7FFFFFFF),
+                                                fontSize: 18.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              ),
+                                            ),
+                                          ),
+                                          Stack(
+                                            children: const [
+                                              SizedBox(
+                                                width: 36,
+                                                height: 36,
+                                              ),
+                                              Positioned(
+                                                top: -2,
+                                                left: 0,
+                                                child: ScaleAnimationRoute1()
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      )),
+                                  const SliderButtonCard(),
+                                  const GearCard(),
                                 ],
-                                onChanged: colorTemperatureHandle,
-                                onChanging: colorTemperatureHandle,
                               ),
-                              FunctionCard(
-                                title: '延时关灯',
-                                subTitle: deviceWatch["detail"]["timeOff"] == '0'
-                                    ? '未设置'
-                                    : '${int.parse(deviceWatch["detail"]["timeOff"])}分钟后关灯',
-                                child: Listener(
-                                  onPointerDown: (e) => delayHandle(),
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: deviceWatch["detail"]["timeOff"] == '0'
-                                          ? const Color(0xFF000000)
-                                          : const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(16.0),
-                                    ),
-                                    child: Image(
-                                      image: AssetImage(deviceWatch["detail"]["timeOff"] == '0'
-                                          ? 'assets/imgs/plugins/0x13/delay_off.png'
-                                          : 'assets/imgs/plugins/0x13/delay_on.png'),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -188,9 +199,9 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 }
 
-class WifiLightPage extends StatefulWidget {
-  const WifiLightPage({super.key});
+class AirConditionPage extends StatefulWidget {
+  const AirConditionPage({super.key});
 
   @override
-  State<WifiLightPage> createState() => WifiLightPageState();
+  State<AirConditionPage> createState() => AirConditionPageState();
 }

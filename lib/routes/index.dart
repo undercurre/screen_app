@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/plugins/0xAC/api.dart';
+import 'package:screen_app/routes/plugins/0xAC/index.dart';
 import 'package:screen_app/routes/plugins/lightGroup/index.dart';
 import 'room/index.dart';
 import 'boot/index.dart';
@@ -51,5 +53,6 @@ var routes = <String, WidgetBuilder>{
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
   "0x21_light": (context) => const ZigbeeLightPage(),
-  "lightGroup": (context) => const LightGroupPage()
+  "lightGroup": (context) => const LightGroupPage(),
+  "0xAC": (context) => const AirConditionPage()
 };

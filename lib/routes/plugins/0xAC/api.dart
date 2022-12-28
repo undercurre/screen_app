@@ -4,12 +4,12 @@ import 'package:screen_app/routes/plugins/device_interface.dart';
 
 import '../../../models/mz_response_entity.dart';
 
-class WrapWIFILight implements DeviceInterface {
+class WrapAirCondition implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    var res = await WIFILightApi.getLightDetail(deviceInfo.applianceCode);
+    var res = await AirConditionApi.getAirConditionDetail(deviceInfo.applianceCode);
     if (res.code == 0) {
-      return res.result;
+      return res.result ?? {};
     } else {
       return {};
     }
@@ -17,50 +17,45 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await WIFILightApi.powerPDM(deviceInfo.applianceCode, onOff);
+    return await AirConditionApi.powerPDM(deviceInfo.applianceCode, onOff);
   }
 
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤sn8
-    if (deviceInfo.sn8 == '79009833') {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 
   @override
-  bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
+  bool isPower (DeviceEntity? deviceInfo) {
+    return deviceInfo?.detail != null ? deviceInfo?.detail!["power"] == 'on': false;
   }
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
+    return deviceInfo.detail != null ? (deviceInfo.detail!["temperature"]).toStringAsFixed(0) : '';
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    return '%';
+    return '℃';
   }
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_off.png';
+    return 'assets/imgs/device/air_conditioner_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_on.png';
+    return 'assets/imgs/device/air_conditioner_on.png';
   }
 }
 
-class WIFILightApi {
-  /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'getAllStand', deviceId, {},
-        method: 'GET');
+class AirConditionApi {
+  /// 查询设备状态（lua）
+  static Future<MzResponseEntity> getAirConditionDetail(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0xAC', deviceId);
     return res;
   }
 
