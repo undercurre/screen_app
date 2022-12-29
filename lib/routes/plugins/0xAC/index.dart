@@ -4,7 +4,7 @@ import 'package:screen_app/widgets/plugins/air_condition.dart';
 
 import '../../../states/device_change_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/plugins/0x13/api.dart';
+import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../widgets/plugins/arrow.dart';
@@ -21,33 +21,17 @@ class AirConditionPageState extends State<AirConditionPage> {
   }
 
   Future<void> powerHandle() async {
-    await WIFILightApi.powerLua(
-        deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
-  }
-
-  Future<void> delayHandle() async {
-    setState(() {
-      if (deviceWatch["detail"]["timeOff"] == '0') {
-        deviceWatch["detail"]["timeOff"] = '3';
-      } else {
-        deviceWatch["detail"]["timeOff"] = '0';
-      }
-    });
-    await WIFILightApi.delayPDM(
-        deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
+    await AirConditionApi.powerLua(
+        deviceWatch["deviceId"], deviceWatch["detail"]["power"] == 'on');
   }
 
   Future<void> modeHandle(Mode mode) async {
-    await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
+    await AirConditionApi.modeLua(deviceWatch["deviceId"], mode.key);
   }
 
-  Future<void> brightnessHandle(num value, Color activeColor) async {
-    await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
-  }
+  List<Map<String, dynamic>> modeList = [
 
-  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
-  }
+  ];
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
@@ -172,10 +156,9 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                 height: 36,
                                               ),
                                               Positioned(
-                                                top: -2,
-                                                left: 0,
-                                                child: AnimatedArrow()
-                                              )
+                                                  top: -2,
+                                                  left: 0,
+                                                  child: AnimatedArrow())
                                             ],
                                           )
                                         ],

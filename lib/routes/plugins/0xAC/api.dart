@@ -17,7 +17,7 @@ class WrapAirCondition implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await AirConditionApi.powerPDM(deviceInfo.applianceCode, onOff);
+    return await AirConditionApi.powerLua(deviceInfo.applianceCode, onOff);
   }
 
   @override
@@ -59,60 +59,34 @@ class AirConditionApi {
     return res;
   }
 
-  /// 设备控制（lua）
+  /// 开关控制（lua）
   static Future<MzResponseEntity> powerLua(String deviceId, bool onOff) async {
     var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"power": onOff ? 'on' : 'off'});
+        '0xAC', deviceId, {"power": onOff ? 'on' : 'off'});
 
     return res;
   }
 
-  /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
-        method: 'POST');
+  /// 调节风速（lua）
+  static Future<MzResponseEntity> gearLua(String deviceId, num windSpeed) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"wind_speed": windSpeed});
 
     return res;
   }
 
-  /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
-        method: 'POST');
+  /// 调节温度（lua）
+  static Future<MzResponseEntity> temperatureLua(String deviceId, num temperature) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"temperature": temperature});
 
     return res;
   }
 
-  /// 模式控制（物模型）
-  static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlScreenModel',
-        deviceId, {"dimTime": 0, "screenModel": mode},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": brightness},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13',
-        'controlColorTemperatureValue',
-        deviceId,
-        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
-        method: 'POST');
+  /// 调节模式（lua）
+  static Future<MzResponseEntity> modeLua(String deviceId, String mode) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"mode": mode});
 
     return res;
   }

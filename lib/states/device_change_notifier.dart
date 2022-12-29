@@ -46,6 +46,8 @@ class DeviceListModel extends ProfileChangeNotifier {
       var curDevice = curDeviceList[0];
       return {
         "deviceId": deviceId,
+        "sn8": curDevice.sn8,
+        "modelNumber": curDevice.modelNumber,
         "deviceName": curDevice.name,
         "detail": curDevice.detail ?? {}
       };

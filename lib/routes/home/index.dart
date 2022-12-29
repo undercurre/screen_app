@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/center_control/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
 import '../device/index.dart';
@@ -30,6 +31,7 @@ class _HomeState extends State<Home> {
     _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
     children.add(const DevicePage(text: "设备页"));
+    children.add(const CenterControlPage(text: '中控页'));
     initial();
   }
 

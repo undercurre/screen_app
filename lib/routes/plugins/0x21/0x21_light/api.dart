@@ -31,7 +31,7 @@ class WrapZigbeeLight implements DeviceInterface {
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤modelNumber
-    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light';
+    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful' || zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
   }
 
   @override
