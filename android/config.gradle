@@ -184,6 +184,7 @@ ext {
             "retrofit"                : "com.squareup.retrofit2:retrofit:${version["retrofitSdkVersion"]}",
             "retrofitConverterGson"   : "com.squareup.retrofit2:converter-gson:${version["retrofitSdkVersion"]}",
             "retrofitAdapterRxjava2"  : "com.squareup.retrofit2:adapter-rxjava3:${version["retrofitSdkVersion"]}",
+            "okhttp"                  : 'com.squareup.okhttp3:okhttp:3.14.9',
             "okhttp3LoggerInterceptor": 'com.squareup.okhttp3:logging-interceptor:3.11.0',
     ]
 

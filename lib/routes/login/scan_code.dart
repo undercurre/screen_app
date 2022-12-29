@@ -77,10 +77,7 @@ class _ScanCode extends State<ScanCode> {
       var res = await UserApi.getAccessToken(sessionId);
 
       if (res.isSuccess) {
-        await UserApi.autoLogin();
-
-        // 获取美智token
-        await UserApi.authToken();
+        await System.refreshToken();
 
         Global.saveProfile();
 

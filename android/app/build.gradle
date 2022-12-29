@@ -25,6 +25,11 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+    
     compileSdkVersion ProjectVatiant.COMPILESDKVERSION
     buildToolsVersion ProjectVatiant.BUILDERTOOLSVERSION
     ndkVersion flutter.ndkVersion
@@ -90,17 +95,11 @@ android {
         JH {
             dimension 'hardware'
             signingConfig signingConfigs.JHConfig
-            manifestPlaceholders = [
-                    "USER_ID":"android.uid.system"
-            ]
         }
         // #灵动配置
         LD {
             dimension 'hardware'
             signingConfig signingConfigs.LDConfig
-            manifestPlaceholders = [
-                    "USER_ID":"com.midea.light"
-            ]
         }
         productFlavors.all {
             flavor ->
@@ -133,7 +132,7 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation("com.android.support:multidex:1.0.3")
     implementation(project(":module-setting"))
-    implementation(project(":module-add-device"))
+    implementation implementation(project(':module-manage-device',))
     implementation(project(":module-common"))
 
     implementation rootProject.ext.nexus.basic
@@ -141,6 +140,7 @@ dependencies {
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.gateway
     implementation rootProject.ext.nexus.ota_upgrade
+    implementation project(":aar-midea-sdk")
 
 }
 

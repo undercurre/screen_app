@@ -14,6 +14,7 @@ class ProfileEntity {
   HomeEntity? homeInfo;
   RoomEntity? roomInfo;
   String? deviceId;
+  late String? deviceSn;
 
   factory ProfileEntity.fromJson(Map<String, dynamic> json) =>
       $ProfileEntityFromJson(json);

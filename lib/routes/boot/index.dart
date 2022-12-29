@@ -57,9 +57,7 @@ class _Boot extends State<Boot> with Standby, Ota {
   /// 检查是否已经登录
   Future checkLogin() async {
     if (Global.isLogin) {
-      await UserApi.autoLogin();
-
-      await UserApi.authToken();
+      await System.refreshToken();
     }
 
     if (!isSupportVideo) {

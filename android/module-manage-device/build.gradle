@@ -32,6 +32,17 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    annotationProcessor rootProject.ext.annotationProcessors.roomCompiler
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation rootProject.ext.nexus.basic
+    implementation rootProject.ext.nexus.log
+    implementation rootProject.ext.nexus.repositories
+    implementation rootProject.ext.nexus.rxbus
+    implementation rootProject.ext.nexus.gateway
+    implementation rootProject.ext.retrofit.okhttp
+    implementation rootProject.ext.retrofit.okhttp3LoggerInterceptor
+    implementation rootProject.ext.roomLibs
+    implementation(project(":module-common"))
+    implementation project(":aar-midea-sdk")
 }

@@ -1,6 +1,13 @@
 import 'index.dart';
 
 class System {
+  static Future<void> refreshToken() async {
+    await UserApi.autoLogin();
+
+    // 获取美智token
+    await UserApi.authToken();
+  }
+
   /// 退出登录
   static loginOut() {
     Global.profile.user = null;

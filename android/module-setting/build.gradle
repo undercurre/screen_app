@@ -41,4 +41,6 @@ dependencies {
     implementation rootProject.ext.nexus.gateway
     implementation(project(":module-common"))
     implementation rootProject.ext.nexus.ota_upgrade
+    implementation project(":aar-midea-sdk")
+    implementation project(":aar-it-midea")
 }
