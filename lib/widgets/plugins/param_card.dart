@@ -35,14 +35,12 @@ class ParamCard extends StatefulWidget {
 class _ParamCardState extends State<ParamCard> with Throttle {
   late String title;
   late String unit;
-  late num value;
 
   @override
   void initState() {
     super.initState();
     title = widget.title;
     unit = widget.unit;
-    value = widget.value;
   }
 
   @override
@@ -70,7 +68,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                         ),
                       ),
                       Text(
-                        '${value.toInt()}$unit',
+                        '${widget.value.toInt()}$unit',
                         style: const TextStyle(
                           fontFamily: "MideaType",
                           fontSize: 18,
@@ -130,9 +128,6 @@ class _ParamCardState extends State<ParamCard> with Throttle {
 
   // 使用节流
   void onChanging(num value, Color activeColor) {
-    setState(() {
-      this.value = value;
-    });
     if (widget.onChanging != null) {
       throttle(() {
         widget.onChanging!(value, activeColor);

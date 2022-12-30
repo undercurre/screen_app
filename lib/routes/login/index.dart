@@ -30,10 +30,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
   /// 下一步
   void nextStep() async {
-    if (stepNum == 1 && !isConnected()) {
-      TipsUtils.toast(content: '请连接网络');
-      return;
-    }
+    // if (stepNum == 1 && !isConnected()) {
+    //   TipsUtils.toast(content: '请连接网络');
+    //   return;
+    // }
 
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步

@@ -31,7 +31,7 @@ class WrapZigbeeLight implements DeviceInterface {
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤modelNumber
-    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light';
+    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful' || zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
   }
 
   @override
@@ -65,19 +65,21 @@ class WrapZigbeeLight implements DeviceInterface {
 
 class ZigbeeLightApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(
-      String deviceId, String masterId) async {
-    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceId, masterId);
+  static Future<MzResponseEntity> getLightDetail(String deviceId,
+      String masterId) async {
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceId, masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     var res = await DeviceApi.sendPDMOrder('0x16', 'lightPanleGetStatus',
-        deviceId, {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
+        deviceId,
+        {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
         method: 'POST');
     return res;
   }
 
   /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(
-      String deviceId, bool onOff, String nodeId) async {
+  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff,
+      String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'lightDelayControl',
@@ -85,7 +87,7 @@ class ZigbeeLightApi {
         {
           "msgId": uuid.v4(),
           "deviceControlList": [
-            {"endPoint": 0, "attribute": onOff ? 3 : 0}
+            {"endPoint": 1, "attribute": onOff ? 3 : 0}
           ],
           "deviceId": deviceId,
           "nodeId": nodeId
@@ -96,8 +98,8 @@ class ZigbeeLightApi {
   }
 
   /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(
-      String deviceId, bool onOff, String nodeId) async {
+  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff,
+      String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'lightControl',
@@ -115,9 +117,9 @@ class ZigbeeLightApi {
     return res;
   }
 
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness, String nodeId) async {
+  /// 调节亮度色温控制（物模型）
+  static Future<MzResponseEntity> adjustPDM(String deviceId, num brightness,
+      num colorTemperature, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'lightControl',
@@ -125,27 +127,7 @@ class ZigbeeLightApi {
         {
           "brightness": brightness,
           "msgId": uuid.v4(),
-          "power": false,
-          "deviceId": deviceId,
-          "nodeId": nodeId,
-          "colorTemperature": 0
-        },
-        method: 'PUT');
-
-    return res;
-  }
-
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature, String nodeId) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x16',
-        'lightControl',
-        deviceId,
-        {
-          "brightness": 0,
-          "msgId": uuid.v4(),
-          "power": false,
+          "power": true,
           "deviceId": deviceId,
           "nodeId": nodeId,
           "colorTemperature": colorTemperature

@@ -4,16 +4,16 @@ import 'package:screen_app/routes/device/service.dart';
 
 import '../../models/device_entity.dart';
 
-class DeviceItem extends StatefulWidget {
+class DeviceCard extends StatefulWidget {
   final DeviceEntity? deviceInfo;
 
-  const DeviceItem({Key? key, this.deviceInfo}) : super(key: key);
+  const DeviceCard({super.key, this.deviceInfo});
 
   @override
-  State<StatefulWidget> createState() => _DeviceItemState();
+  State<StatefulWidget> createState() => _DeviceCardState();
 }
 
-class _DeviceItemState extends State<DeviceItem> {
+class _DeviceCardState extends State<DeviceCard> {
   void toSelectDevice() {
     if (widget.deviceInfo != null && widget.deviceInfo!.detail != null) {
       if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
@@ -51,64 +51,70 @@ class _DeviceItemState extends State<DeviceItem> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (e) => clickMethod(e),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 17, 0, 0),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFF979797), width: 0.8),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: _getContainerBgc(),
+    return SizedBox(
+      width: 136,
+      height: 190,
+      child: GestureDetector(
+        onTapDown: (e) => clickMethod(e),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(0, 17, 0, 0),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFF979797), width: 0.8),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: _getContainerBgc(),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            SizedBox(
-              width: 136,
-              child: Flex(
-                direction: Axis.vertical,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      color: Color(0XFFFFFFFF),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(
+                width: 136,
+                child: Flex(
+                  direction: Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      widget.deviceInfo != null
+                          ? widget.deviceInfo!.name
+                          : '加载中',
+                      style: const TextStyle(
+                        fontSize: 22.0,
+                        color: Color(0XFFFFFFFF),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Image.asset(
-              _getDeviceIconPath(),
-              width: 50,
-              height: 50,
-            ),
-            SizedBox(
-              height: 24,
-              child: Text(
-                _getAttrString(),
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  color: Color(0XFF8e8e8e),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(
-              height: 60,
-              child: Center(
-                child: _buildBottomWidget(),
+              Image.asset(
+                _getDeviceIconPath(),
+                width: 50,
+                height: 50,
               ),
-            )
-          ],
+              SizedBox(
+                height: 24,
+                child: Text(
+                  _getAttrString(),
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    color: Color(0XFF8e8e8e),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 60,
+                child: Center(
+                  child: _buildBottomWidget(),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -157,7 +163,8 @@ class _DeviceItemState extends State<DeviceItem> {
           height: 60,
         );
       } else {
-        if (!DeviceService.isSupport(widget.deviceInfo!) || DeviceService.isVistual(widget.deviceInfo!)) {
+        if (!DeviceService.isSupport(widget.deviceInfo!) ||
+            DeviceService.isVistual(widget.deviceInfo!)) {
           return const Text(
             "仅支持APP控制",
             style: TextStyle(

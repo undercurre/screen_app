@@ -51,7 +51,8 @@ class Global {
       }
     }
 
-    String? sn = await aboutSystemChannel.getGatewaySn();
+    // String? sn = await aboutSystemChannel.getGatewaySn();
+    String? sn;
     debugPrint('getGatewaySn: $sn');
 
     profile.deviceSn = sn;

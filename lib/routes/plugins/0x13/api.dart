@@ -103,7 +103,7 @@ class WIFILightApi {
   static Future<MzResponseEntity> brightnessPDM(
       String deviceId, num brightness) async {
     var res = await DeviceApi.sendPDMOrder('0x13', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": brightness},
+        deviceId, {"dimTime": 0, "brightValue": int.parse((brightness / 100 * 255).toStringAsFixed(0))},
         method: 'POST');
 
     return res;
@@ -116,7 +116,7 @@ class WIFILightApi {
         '0x13',
         'controlColorTemperatureValue',
         deviceId,
-        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
+        {"dimTime": 0, "colorTemperatureValue": int.parse((colorTemperature / 100 * 255).toStringAsFixed(0))},
         method: 'POST');
 
     return res;

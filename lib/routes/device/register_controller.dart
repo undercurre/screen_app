@@ -4,6 +4,7 @@ import 'package:screen_app/routes/plugins/0x16/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0x26/api.dart' as cate0x26;
 import 'package:screen_app/routes/plugins/0x40/api.dart' as cate0x40;
+import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
@@ -20,11 +21,13 @@ Map<String, DeviceInterface> controllerList = {
   "0x13": WrapWIFILight(),
   "0x14": CurtainApi(),
   "lightGroup": WrapLightGroup(),
-  "0x21_light": WrapZigbeeLight(),
+  "0x21_light_colorful": WrapZigbeeLight(),
+  "0x21_light_noColor": WrapZigbeeLight(),
   "0x21_panel": WrapPanel(),
   "0x26": cate0x26.DeviceListApiImpl(),
   "0x40": cate0x40.DeviceListApiImpl(),
   "0x16": WrapGateway(),
+  "0xAC": WrapAirCondition()
 };
 
 Map<String, String> zigbeeControllerList = {
@@ -42,12 +45,13 @@ Map<String, String> zigbeeControllerList = {
   "1109": "0x21_curtain_panel_two",
   "87": "0x21_curtain_panel_two",
   "32": "0x21_curtain_panel_two",
-  "57": "0x21_light",
-  "56": "0x21_light",
-  "1262": "0x21_light",
-  "1263": "0x21_light",
-  "55": "0x21_light",
-  "54": "0x21_light",
+  "57": "0x21_light_colorful",
+  "56": "0x21_light_colorful",
+  "1262": "0x21_light_colorful",
+  "1263": "0x21_light_colorful",
+  "55": "0x21_light_noColor",
+  "54": "0x21_light_noColor",
+  "1254": "0x21_light_noColor",
   "51": "0x21_curtain",
   "47": "0x21_curtain",
   "1363": "0x21_panel",

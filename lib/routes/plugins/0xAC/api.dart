@@ -4,12 +4,12 @@ import 'package:screen_app/routes/plugins/device_interface.dart';
 
 import '../../../models/mz_response_entity.dart';
 
-class WrapWIFILight implements DeviceInterface {
+class WrapAirCondition implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    var res = await WIFILightApi.getLightDetail(deviceInfo.applianceCode);
+    var res = await AirConditionApi.getAirConditionDetail(deviceInfo.applianceCode);
     if (res.code == 0) {
-      return res.result;
+      return res.result ?? {};
     } else {
       return {};
     }
@@ -17,107 +17,76 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await WIFILightApi.powerPDM(deviceInfo.applianceCode, onOff);
+    return await AirConditionApi.powerLua(deviceInfo.applianceCode, onOff);
   }
 
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤sn8
-    if (deviceInfo.sn8 == '79009833') {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 
   @override
-  bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
+  bool isPower (DeviceEntity? deviceInfo) {
+    return deviceInfo?.detail != null ? deviceInfo?.detail!["power"] == 'on': false;
   }
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
+    return deviceInfo.detail != null ? (deviceInfo.detail!["temperature"]).toStringAsFixed(0) : '';
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    return '%';
+    return '℃';
   }
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_off.png';
+    return 'assets/imgs/device/air_conditioner_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_on.png';
+    return 'assets/imgs/device/air_conditioner_on.png';
   }
 }
 
-class WIFILightApi {
-  /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'getAllStand', deviceId, {},
-        method: 'GET');
+class AirConditionApi {
+  /// 查询设备状态（lua）
+  static Future<MzResponseEntity> getAirConditionDetail(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0xAC', deviceId);
     return res;
   }
 
-  /// 设备控制（lua）
+  /// 开关控制（lua）
   static Future<MzResponseEntity> powerLua(String deviceId, bool onOff) async {
     var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"power": onOff ? 'on' : 'off'});
+        '0xAC', deviceId, {"power": onOff ? 'on' : 'off'});
 
     return res;
   }
 
-  /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
-        method: 'POST');
+  /// 调节风速（lua）
+  static Future<MzResponseEntity> gearLua(String deviceId, num windSpeed) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"wind_speed": windSpeed});
 
     return res;
   }
 
-  /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
-        method: 'POST');
+  /// 调节温度（lua）
+  static Future<MzResponseEntity> temperatureLua(String deviceId, num temperature) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"temperature": temperature});
 
     return res;
   }
 
-  /// 模式控制（物模型）
-  static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlScreenModel',
-        deviceId, {"dimTime": 0, "screenModel": mode},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": brightness},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13',
-        'controlColorTemperatureValue',
-        deviceId,
-        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
-        method: 'POST');
+  /// 调节模式（lua）
+  static Future<MzResponseEntity> modeLua(String deviceId, String mode) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"mode": mode});
 
     return res;
   }

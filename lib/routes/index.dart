@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/center_control/index.dart';
+import 'package:screen_app/routes/plugins/0xAC/api.dart';
+import 'package:screen_app/routes/plugins/0xAC/index.dart';
 import 'package:screen_app/routes/plugins/lightGroup/index.dart';
 import 'room/index.dart';
 import 'boot/index.dart';
@@ -33,7 +36,7 @@ var routes = <String, WidgetBuilder>{
   "Weather": (context) => const WeatherPage(),
   "Device": (context) => const DevicePage(text: ''),
   "Scene": (context) => const ScenePage(text: ''),
-  // "CenterControl": (context) => const CenterControl(text: ''),
+  "CenterControl": (context) => const CenterControlPage(text: ''),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
   "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
@@ -50,6 +53,8 @@ var routes = <String, WidgetBuilder>{
   "0x14": (context) => const CurtainPage(),
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
-  "0x21_light": (context) => const ZigbeeLightPage(),
-  "lightGroup": (context) => const LightGroupPage()
+  "0x21_light_colorful": (context) => const ZigbeeLightPage(),
+  "0x21_light_noColor": (context) => const ZigbeeLightPage(),
+  "lightGroup": (context) => const LightGroupPage(),
+  "0xAC": (context) => const AirConditionPage()
 };
