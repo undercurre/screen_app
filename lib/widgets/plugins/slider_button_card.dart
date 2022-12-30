@@ -31,16 +31,17 @@ class SliderButtonCard extends StatefulWidget {
 }
 
 class _SliderButtonCardState extends State<SliderButtonCard> {
+  // this.value 组件内部值
+  // _value = 组件外实时传值，基于widget.value的计算值
   late num value;
+  num get _value => widget.value < widget.min
+      ? widget.min
+      : (widget.value > widget.max ? widget.max : widget.value);
 
   @override
   void initState() {
     super.initState();
-    value = widget.value < widget.min
-        ? widget.min
-        : widget.value > widget.max
-            ? widget.max
-            : widget.value;
+    value = _value;
   }
 
   @override
@@ -104,7 +105,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                       ),
                     ),
                     Text(
-                      value.toString(),
+                      '${_value.toInt()}',
                       style: const TextStyle(
                         fontFamily: 'MideaType',
                         fontSize: 54,
@@ -143,7 +144,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
             ),
           ),
           MzSlider(
-            value: value,
+            value: _value,
             width: 270,
             max: widget.max,
             min: widget.min,
@@ -171,10 +172,8 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
         final stepString = widget.step.toString();
         if (stepString.contains('.')) {
           // 步长存在小数，需要按照步长的精度进行计算
-          final precision =
-              stepString.length - stepString.indexOf('.') - 1;
-          value = num.parse(
-              (value - widget.step).toStringAsFixed(precision));
+          final precision = stepString.length - stepString.indexOf('.') - 1;
+          value = num.parse((value - widget.step).toStringAsFixed(precision));
         } else {
           value -= widget.step;
         }
@@ -192,10 +191,8 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
       if (value + widget.step < widget.max) {
         final stepString = widget.step.toString();
         if (stepString.contains('.')) {
-          final precision =
-              stepString.length - stepString.indexOf('.') - 1;
-          value = num.parse(
-              (value + widget.step).toStringAsFixed(precision));
+          final precision = stepString.length - stepString.indexOf('.') - 1;
+          value = num.parse((value + widget.step).toStringAsFixed(precision));
         } else {
           value += widget.step;
         }
