@@ -31,7 +31,7 @@ class WrapZigbeeLight implements DeviceInterface {
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤modelNumber
-    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light';
+    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful' || zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
   }
 
   @override
@@ -125,10 +125,9 @@ class ZigbeeLightApi {
         {
           "brightness": brightness,
           "msgId": uuid.v4(),
-          "power": false,
+          "power": true,
           "deviceId": deviceId,
           "nodeId": nodeId,
-          "colorTemperature": 0
         },
         method: 'PUT');
 
@@ -143,9 +142,8 @@ class ZigbeeLightApi {
         'lightControl',
         deviceId,
         {
-          "brightness": 0,
           "msgId": uuid.v4(),
-          "power": false,
+          "power": true,
           "deviceId": deviceId,
           "nodeId": nodeId,
           "colorTemperature": colorTemperature

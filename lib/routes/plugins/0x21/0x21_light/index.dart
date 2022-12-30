@@ -1,5 +1,8 @@
+import 'dart:async';
+
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../device/register_controller.dart';
 import '../../../device/service.dart';
@@ -49,7 +52,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   judgeModel() {
-    lightModes.forEach((element) {
+    for (var element in lightModes) {
       var curMode = element as ZigbeeLightMode;
       if (deviceWatch["detail"]["brightness"] == curMode.brightness &&
           deviceWatch["detail"]["colorTemperature"] ==
@@ -58,14 +61,17 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           fakeModel = curMode.key;
         });
       }
-    });
+    }
   }
 
   Future<void> powerHandle() async {
-    await ZigbeeLightApi.powerPDM(
+    var res = await ZigbeeLightApi.powerPDM(
         deviceWatch["detail"]["deviceId"],
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"],
+        !(deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1),
         deviceWatch["detail"]["nodeId"]);
+    if (res.isSuccess) {
+      updateDetail();
+    }
   }
 
   Future<void> delayHandle() async {
@@ -76,39 +82,71 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["delayClose"] = 0;
       }
     });
-    await ZigbeeLightApi.delayPDM(
+    var res = await ZigbeeLightApi.delayPDM(
         deviceWatch["detail"]["deviceId"],
-        deviceWatch["detail"]["delayClose"] == 3,
+        !(deviceWatch["detail"]["delayClose"] == 0),
         deviceWatch["detail"]["nodeId"]);
+    if (res.isSuccess) {
+      updateDetail();
+    }
   }
 
   Future<void> modeHandle(Mode mode) async {
     setState(() {
       fakeModel = mode.key;
     });
+    var curMode = lightModes.where((element) => element.key == fakeModel).toList()[0] as ZigbeeLightMode;
+    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
+        curMode.brightness, curMode.colorTemperature, deviceWatch["detail"]["nodeId"]);
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = curMode.brightness;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] = curMode.colorTemperature;
+      });
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
+    }
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    setState(() {
-      deviceWatch["detail"]["brightness"] = value;
-    });
-    await ZigbeeLightApi.brightnessPDM(deviceWatch["detail"]["applianceCode"],
-        value, deviceWatch["detail"]["nodeId"]);
+    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
+        value, deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"], deviceWatch["detail"]["nodeId"]);
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
+      });
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
+    }
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    setState(() {
-      deviceWatch["detail"]["colorTemperature"] = value;
-    });
-    await ZigbeeLightApi.colorTemperaturePDM(
-        deviceWatch["detail"]["applianceCode"],
+    var res = await ZigbeeLightApi.adjustPDM(
+        deviceWatch["detail"]["deviceId"],
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
         value,
         deviceWatch["detail"]["nodeId"]);
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] = value;
+      });
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
+    }
   }
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys['mild'] = true;
+    selectKeys[fakeModel] = true;
     return selectKeys;
   }
 
@@ -129,7 +167,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   @override
   Widget build(BuildContext context) {
-    var colorful = ListView(
+    var colorful = Column(
       children: [
         ParamCard(
           title: '亮度',
@@ -184,7 +222,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
       ],
     );
 
-    var noColor = ListView(
+    var noColor = Column(
       children: [
         ParamCard(
           title: '亮度',
@@ -208,7 +246,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
               decoration: BoxDecoration(
                 color: deviceWatch["detail"]["lightPanelDeviceList"][0]
                             ["delayClose"] ==
-                       0
+                        0
                     ? const Color(0xFF000000)
                     : const Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.circular(16.0),
@@ -271,31 +309,54 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
               ),
               Expanded(
                 flex: 1,
-                child: Row(
-                  children: [
-                    const Align(
-                      widthFactor: 1,
-                      heightFactor: 2,
-                      alignment: Alignment(-1.0, -0.63),
-                      child: SizedBox(
-                        width: 152,
-                        height: 303,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: EasyRefresh(
+                      header: const ClassicHeader(
+                        dragText: '下拉刷新',
+                        armedText: '释放执行刷新',
+                        readyText: '正在刷新...',
+                        processingText: '正在刷新...',
+                        processedText: '刷新完成',
+                        noMoreText: '没有更多信息',
+                        failedText: '失败',
+                        messageText: '上次更新 %T',
+                        mainAxisAlignment: MainAxisAlignment.end,
+                      ),
+                      onRefresh: () async {
+                        await updateDetail();
+                      },
+                      child: SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            const Align(
+                              widthFactor: 1,
+                              heightFactor: 2,
+                              alignment: Alignment(-1.0, -0.63),
+                              child: SizedBox(
+                                width: 152,
+                                height: 200,
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                child: ScrollConfiguration(
+                                    behavior: ScrollConfiguration.of(context)
+                                        .copyWith(scrollbars: false),
+                                    child: zigbeeControllerList[
+                                                deviceWatch["modelNumber"]] ==
+                                            '0x21_light_colorful'
+                                        ? colorful
+                                        : noColor),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                        child: ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(context)
-                                .copyWith(scrollbars: false),
-                            child: zigbeeControllerList[
-                                        deviceWatch["modelNumber"]] ==
-                                    '0x21_light_colorful'
-                                ? colorful
-                                : noColor),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
