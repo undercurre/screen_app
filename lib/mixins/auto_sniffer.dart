@@ -30,6 +30,7 @@ mixin AutoSniffer<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     bus.off("backHome");
+    _timer.cancel();
     super.dispose();
   }
 }
