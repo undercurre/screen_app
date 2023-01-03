@@ -1,3 +1,4 @@
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
@@ -16,10 +17,9 @@ class LightGroupPageState extends State<LightGroupPage> {
     "detail": {
       "id": 0,
       "groupId": 1,
-      "applianceList": [{
-        "parentApplianceCode": "",
-        "applianceCode": ""
-      }],
+      "applianceList": [
+        {"parentApplianceCode": "", "applianceCode": ""}
+      ],
       "detail": {
         "group": {
           "groupId": "1",
@@ -45,7 +45,10 @@ class LightGroupPageState extends State<LightGroupPage> {
         !(deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1"));
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["switchStatus"] = deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1" ? "0" : "1";
+        deviceWatch["detail"]["detail"]["group"]["switchStatus"] =
+            deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1"
+                ? "0"
+                : "1";
       });
       updateDetail();
     }
@@ -55,18 +58,19 @@ class LightGroupPageState extends State<LightGroupPage> {
     var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["brightness"] = value.toString();
+        deviceWatch["detail"]["detail"]["group"]["brightness"] =
+            value.toString();
       });
       updateDetail();
     }
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    var res =
-        await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
+    var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["colorTemperature"] = value.toString();
+        deviceWatch["detail"]["detail"]["group"]["colorTemperature"] =
+            value.toString();
       });
       updateDetail();
     }
@@ -94,7 +98,9 @@ class LightGroupPageState extends State<LightGroupPage> {
             .read<DeviceListModel>()
             .getDeviceDetail(deviceWatch["deviceId"]);
       });
-      deviceInfoById = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
+      deviceInfoById = context
+          .read<DeviceListModel>()
+          .getDeviceInfoById(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的deviceInfo：$deviceInfoById');
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
@@ -117,11 +123,11 @@ class LightGroupPageState extends State<LightGroupPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness:
-                    int.parse(deviceWatch["detail"]["detail"]["group"]["brightness"]),
+                brightness: int.parse(
+                    deviceWatch["detail"]["detail"]["group"]["brightness"]),
                 colorTemperature: 100 -
-                    int.parse(
-                        deviceWatch["detail"]["detail"]["group"]["colorTemperature"]),
+                    int.parse(deviceWatch["detail"]["detail"]["group"]
+                        ["colorTemperature"]),
               )),
           Flex(
             direction: Axis.vertical,
@@ -138,60 +144,81 @@ class LightGroupPageState extends State<LightGroupPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1",
+                    power: deviceWatch["detail"]["detail"]["group"]
+                            ["switchStatus"] ==
+                        "1",
                     hasPower: true,
                   ),
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: Row(
-                  children: [
-                    const Align(
-                      widthFactor: 1,
-                      heightFactor: 2,
-                      alignment: Alignment(-1.0, -0.63),
-                      child: SizedBox(
-                        width: 152,
-                        height: 303,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: EasyRefresh(
+                      header: const ClassicHeader(
+                        dragText: '下拉刷新',
+                        armedText: '释放执行刷新',
+                        readyText: '正在刷新...',
+                        processingText: '正在刷新...',
+                        processedText: '刷新完成',
+                        noMoreText: '没有更多信息',
+                        failedText: '失败',
+                        messageText: '上次更新 %T',
+                        mainAxisAlignment: MainAxisAlignment.end,
                       ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                        child: ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context)
-                              .copyWith(scrollbars: false),
-                          child: ListView(
-                            children: [
-                              ParamCard(
-                                title: '亮度',
-                                value: int.parse(deviceWatch["detail"]["detail"]["group"]
-                                    ["brightness"]),
-                                activeColors: const [
-                                  Color(0xFFFFD185),
-                                  Color(0xFFFFD185)
-                                ],
-                                onChanged: brightnessHandle,
-                                onChanging: brightnessHandle,
+                      onRefresh: () async {
+                        await updateDetail();
+                      },
+                      child: SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            const Align(
+                              widthFactor: 1,
+                              alignment: Alignment(-1.0, -0.63),
+                              child: SizedBox(
+                                width: 152,
+                                height: 303,
                               ),
-                              ParamCard(
-                                title: '色温',
-                                value: int.parse(deviceWatch["detail"]["detail"]["group"]
-                                    ["colorTemperature"]),
-                                activeColors: const [
-                                  Color(0xFFFFD39F),
-                                  Color(0xFF55A2FA)
-                                ],
-                                onChanged: colorTemperatureHandle,
-                                onChanging: colorTemperatureHandle,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                child: Column(
+                                  children: [
+                                    ParamCard(
+                                      title: '亮度',
+                                      value: int.parse(deviceWatch["detail"]
+                                          ["detail"]["group"]["brightness"]),
+                                      activeColors: const [
+                                        Color(0xFFFFD185),
+                                        Color(0xFFFFD185)
+                                      ],
+                                      onChanged: brightnessHandle,
+                                      onChanging: brightnessHandle,
+                                    ),
+                                    ParamCard(
+                                      title: '色温',
+                                      value: int.parse(deviceWatch["detail"]
+                                              ["detail"]["group"]
+                                          ["colorTemperature"]),
+                                      activeColors: const [
+                                        Color(0xFFFFD39F),
+                                        Color(0xFF55A2FA)
+                                      ],
+                                      onChanged: colorTemperatureHandle,
+                                      onChanging: colorTemperatureHandle,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
