@@ -15,7 +15,8 @@ class DeviceCard extends StatefulWidget {
 
 class _DeviceCardState extends State<DeviceCard> {
   void toSelectDevice() {
-    if (widget.deviceInfo != null && widget.deviceInfo!.detail != null) {
+    debugPrint('选择了设备卡片${widget.deviceInfo}');
+    if (widget.deviceInfo != null && widget.deviceInfo?.detail != null) {
       if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);

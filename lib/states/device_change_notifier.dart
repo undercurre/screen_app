@@ -98,6 +98,7 @@ class DeviceListModel extends ProfileChangeNotifier {
           : element.detail![statusIndex][indexOfList],
     };
     deviceList.add(objCopy);
+    notifyListeners();
     logger.i("VistualDeviceListModelChange: $deviceList");
   }
 
@@ -107,20 +108,38 @@ class DeviceListModel extends ProfileChangeNotifier {
     var res = await DeviceApi.getGroupList();
     var groupList = res.data["applianceGroupList"] as List<dynamic>;
     // 过滤成房间内的灯组列表
-    var groupListInRoom = groupList.where((element) => element["roomId"].toString() == Global.profile.roomInfo?.roomId).toList();
+    var groupListInRoom = groupList
+        .where((element) =>
+            element["roomId"].toString() == Global.profile.roomInfo?.roomId)
+        .toList();
     // 遍历
-    for (int i = 1; i <= groupList.length; i ++) {
+    for (int i = 1; i <= groupList.length; i++) {
       var group = groupList[i - 1];
       // 查找该灯组的详情
-      var detail = await DeviceApi.groupRelated('findLampGroupDetails', const JsonEncoder().convert({
-        "houseId": Global.profile.homeInfo?.homegroupId,
-        "groupId": group["groupId"],
-        "modelId": "midea.light.003.001",
-        "uid": Global.profile.user?.uid,
-      }));
+      var result = await DeviceApi.groupRelated(
+          'findLampGroupDetails',
+          const JsonEncoder().convert({
+            "houseId": Global.profile.homeInfo?.homegroupId,
+            "groupId": group["groupId"],
+            "modelId": "midea.light.003.001",
+            "uid": Global.profile.user?.uid,
+          }));
+      var detail = result.result["result"];
       debugPrint("灯组$group详情$detail");
       var vistualDeviceForGroup = DeviceEntity();
       vistualDeviceForGroup.applianceCode = group["groupId"].toString();
+      vistualDeviceForGroup.modelNumber = '';
+      vistualDeviceForGroup.sn = '';
+      vistualDeviceForGroup.masterId = '';
+      vistualDeviceForGroup.attrs = '';
+      vistualDeviceForGroup.ability = {};
+      vistualDeviceForGroup.activeStatus = '';
+      vistualDeviceForGroup.isSupportFetchStatus = '';
+      vistualDeviceForGroup.isOtherEquipment = '';
+      vistualDeviceForGroup.hotspotName = '';
+      vistualDeviceForGroup.btToken = '';
+      vistualDeviceForGroup.bindType = 0;
+      vistualDeviceForGroup.activeTime = '';
       vistualDeviceForGroup.type = 'lightGroup';
       vistualDeviceForGroup.name = group["name"];
       vistualDeviceForGroup.onlineStatus = '1';
@@ -130,8 +149,11 @@ class DeviceListModel extends ProfileChangeNotifier {
         "applianceList": group["applianceList"],
         "detail": detail
       };
-      deviceList.add(vistualDeviceForGroup);
+      _deviceListResource.add(vistualDeviceForGroup);
+      notifyListeners();
+      logger.i("vistualDeviceForGroup: $vistualDeviceForGroup");
     }
     logger.i("lightGroupListInRoom: $groupListInRoom");
+    logger.i("deviceList: $deviceList");
   }
 }

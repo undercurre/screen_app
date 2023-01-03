@@ -130,7 +130,7 @@ class DeviceApi {
   }
 
   // 灯组相关接口
-  static Future<Map<String, dynamic>> groupRelated(
+  static Future<MzResponseEntity> groupRelated(
       String handleType, String commond) async {
     var res =
         await Api.requestMzIot<dynamic>("/v1/category/midea/light/groupRelated",
@@ -151,7 +151,7 @@ class DeviceApi {
               headers: {'accessToken': Global.user?.accessToken},
             ));
 
-    return res.result["result"];
+    return res;
   }
 
   // 灯组查询

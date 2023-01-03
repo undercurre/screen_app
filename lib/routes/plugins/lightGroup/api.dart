@@ -15,7 +15,7 @@ class WrapLightGroup implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await LightGroupApi.getLightDetail(deviceInfo);
-    return res;
+    return res.result["result"];
   }
 
   @override
@@ -34,41 +34,41 @@ class WrapLightGroup implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    return false;
+    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["group"]["switchStatus"] == "1" : false;
   }
 
   @override
   String getAttr(DeviceEntity deviceInfo) {
-    return '';
+    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["group"]["brightness"] : '';
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    return '';
+    return '%';
   }
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
     // todo: 改成凉霸图标
-    return 'assets/imgs/device/dengguang_icon_off.png';
+    return 'assets/imgs/device/dengzu_icon_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
     // todo: 改成凉霸图标
-    return 'assets/imgs/device/dengguang_icon_on.png';
+    return 'assets/imgs/device/dengzu_icon_on.png';
   }
 }
 
 class LightGroupApi {
   /// 查询设备状态（物模型）
-  static Future<Map<String, dynamic>> getLightDetail(
+  static Future<MzResponseEntity> getLightDetail(
       DeviceEntity deviceInfo) async {
     var res = await DeviceApi.groupRelated(
         'findLampGroupDetails',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
           "modelId": "midea.light.003.001",
           "uid": Global.profile.user?.uid,
         }));
@@ -76,12 +76,12 @@ class LightGroupApi {
   }
 
   /// 开关控制（物模型）
-  static Future<Map<String, dynamic>> powerPDM(DeviceEntity deviceInfo,bool power) async {
+  static Future<MzResponseEntity> powerPDM(DeviceEntity deviceInfo,bool power) async {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '0',
           "lampAttributeValue": power ? '1' : '0',
@@ -93,13 +93,13 @@ class LightGroupApi {
   }
 
   /// 亮度控制（物模型）
-  static Future<Map<String, dynamic>> brightnessPDM(
+  static Future<MzResponseEntity> brightnessPDM(
       DeviceEntity deviceInfo, num value) async {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '1',
           "lampAttributeValue": value.toString(),
@@ -111,15 +111,15 @@ class LightGroupApi {
   }
 
   /// 色温控制（物模型）
-  static Future<Map<String, dynamic>> colorTemperaturePDM(
+  static Future<MzResponseEntity> colorTemperaturePDM(
       DeviceEntity deviceInfo, num value) async {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
           "modelId": "midea.light.003.001",
-          "lampAttribute": '3',
+          "lampAttribute": '2',
           "lampAttributeValue": value.toString(),
           "transientTime": '0',
           "uid": Global.profile.user?.uid,

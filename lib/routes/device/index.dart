@@ -47,11 +47,11 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   List<Widget> deviceWidgetList = [];
   List<DeviceEntity> deviceEntityList = [];
 
-  initPage() {
+  initPage() async {
     // 更新房间信息
     updateHomeData();
     // 查灯组列表
-    context.read<DeviceListModel>().selectLightGroupList();
+    await context.read<DeviceListModel>().selectLightGroupList();
     // 更新设备detail
     var deviceList = context.read<DeviceListModel>().deviceList;
     debugPrint('加载到的设备列表$deviceList');

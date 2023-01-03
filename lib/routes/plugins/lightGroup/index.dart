@@ -1,4 +1,6 @@
 import 'package:provider/provider.dart';
+import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
 import '../../../states/device_change_notifier.dart';
 import 'package:flutter/material.dart';
@@ -6,54 +8,79 @@ import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class LightGroupPageState extends State<LightGroupPage> {
-
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
-    "deviceName": '吸顶灯',
+    "sn8": null,
+    "modelNumber": '',
+    "deviceName": '灯光分组',
     "detail": {
-      "brightValue": 1,
-      "colorTemperature": 0,
-      "power": false,
-      "screenModel": "manual",
-      "timeOff": "0"
+      "id": 0,
+      "groupId": 1,
+      "applianceList": [{
+        "parentApplianceCode": "",
+        "applianceCode": ""
+      }],
+      "detail": {
+        "group": {
+          "groupId": "1",
+          "groupName": "灯光分组",
+          "brightness": "0",
+          "colorTemperature": "0",
+          "switchStatus": "0",
+          "maxColorTemp": "6500",
+          "minColorTemp": "2700"
+        }
+      }
     }
   };
+
+  late DeviceEntity deviceInfoById;
 
   void goBack() {
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    await WIFILightApi.powerLua(deviceWatch["deviceId"], deviceWatch["detail"]["power"]);
-  }
-
-  Future<void> delayHandle() async {
-    setState(() {
-      if (deviceWatch["detail"]["timeOff"] == '0') {
-        deviceWatch["detail"]["timeOff"] = '3';
-      } else {
-        deviceWatch["detail"]["timeOff"] = '0';
-      }
-    });
-    await WIFILightApi.delayPDM(deviceWatch["deviceId"], deviceWatch["detail"]["timeOff"] == '3');
-  }
-
-  Future<void> modeHandle(Mode mode) async {
-    await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
+    var res = await LightGroupApi.powerPDM(deviceInfoById,
+        !(deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1"));
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["detail"]["group"]["switchStatus"] = deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1" ? "0" : "1";
+      });
+      updateDetail();
+    }
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
+    var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["detail"]["group"]["brightness"] = value.toString();
+      });
+      updateDetail();
+    }
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
+    var res =
+        await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["detail"]["group"]["colorTemperature"] = value.toString();
+      });
+      updateDetail();
+    }
   }
 
-  Map<String, bool?> getSelectedKeys() {
-    final selectKeys = <String, bool?>{};
-    selectKeys[deviceWatch["detail"]["screenModel"]] = true;
-    return selectKeys;
+  Future<void> updateDetail() async {
+    var deviceInfo = context
+        .read<DeviceListModel>()
+        .getDeviceInfoById(deviceWatch["deviceId"]);
+    var result = await LightGroupApi.getLightDetail(deviceInfo);
+    setState(() {
+      deviceWatch["detail"]["detail"] = result.result["result"];
+    });
+    debugPrint('插件中获取到的详情：$deviceWatch');
   }
 
   @override
@@ -62,7 +89,13 @@ class LightGroupPageState extends State<LightGroupPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
-      deviceWatch = context.read<DeviceListModel>().getDeviceDetail(deviceWatch["deviceId"]);
+      setState(() {
+        deviceWatch = context
+            .read<DeviceListModel>()
+            .getDeviceDetail(deviceWatch["deviceId"]);
+      });
+      deviceInfoById = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
+      debugPrint('插件中获取到的deviceInfo：$deviceInfoById');
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
@@ -84,8 +117,11 @@ class LightGroupPageState extends State<LightGroupPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: deviceWatch["detail"]["brightValue"],
-                colorTemperature: 100 - deviceWatch["detail"]["colorTemperature"],
+                brightness:
+                    int.parse(deviceWatch["detail"]["detail"]["group"]["brightness"]),
+                colorTemperature: 100 -
+                    int.parse(
+                        deviceWatch["detail"]["detail"]["group"]["colorTemperature"]),
               )),
           Flex(
             direction: Axis.vertical,
@@ -102,7 +138,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["power"],
+                    power: deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1",
                     hasPower: true,
                   ),
                 ),
@@ -130,7 +166,8 @@ class LightGroupPageState extends State<LightGroupPage> {
                             children: [
                               ParamCard(
                                 title: '亮度',
-                                value: deviceWatch["detail"]["brightValue"],
+                                value: int.parse(deviceWatch["detail"]["detail"]["group"]
+                                    ["brightness"]),
                                 activeColors: const [
                                   Color(0xFFFFD185),
                                   Color(0xFFFFD185)
@@ -140,7 +177,8 @@ class LightGroupPageState extends State<LightGroupPage> {
                               ),
                               ParamCard(
                                 title: '色温',
-                                value: deviceWatch["detail"]["colorTemperature"],
+                                value: int.parse(deviceWatch["detail"]["detail"]["group"]
+                                    ["colorTemperature"]),
                                 activeColors: const [
                                   Color(0xFFFFD39F),
                                   Color(0xFF55A2FA)
@@ -148,30 +186,6 @@ class LightGroupPageState extends State<LightGroupPage> {
                                 onChanged: colorTemperatureHandle,
                                 onChanging: colorTemperatureHandle,
                               ),
-                              FunctionCard(
-                                title: '延时关灯',
-                                subTitle: deviceWatch["detail"]["timeOff"] == '0'
-                                    ? '未设置'
-                                    : '${int.parse(deviceWatch["detail"]["timeOff"])}分钟后关灯',
-                                child: Listener(
-                                  onPointerDown: (e) => delayHandle(),
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: deviceWatch["detail"]["timeOff"] == '0'
-                                          ? const Color(0xFF000000)
-                                          : const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(16.0),
-                                    ),
-                                    child: Image(
-                                      image: AssetImage(deviceWatch["detail"]["timeOff"] == '0'
-                                          ? 'assets/imgs/plugins/0x13/delay_off.png'
-                                          : 'assets/imgs/plugins/0x13/delay_on.png'),
-                                    ),
-                                  ),
-                                ),
-                              )
                             ],
                           ),
                         ),
