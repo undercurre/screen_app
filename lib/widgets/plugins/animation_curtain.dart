@@ -176,7 +176,7 @@ class Trapezoid extends CustomClipper<Path> {
     var rightEnd2 = rightEnd + 400;
     Path path = Path();
 
-    if (leftEnd < rightEnd) {
+    if (leftEnd < rightEnd - 3) {
       path.moveTo(leftEnd, 0); // 起点
       path.lineTo(rightEnd, 0);
       path.lineTo(rightEnd2, height);
@@ -191,6 +191,7 @@ class Trapezoid extends CustomClipper<Path> {
   bool shouldReclip(Trapezoid oldClipper) => pos != oldClipper.pos;
 }
 
+// 暂时不需要
 class Square extends CustomClipper<Path> {
   final double width;
   final double height;

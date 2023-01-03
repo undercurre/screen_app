@@ -4,29 +4,21 @@ import 'package:screen_app/models/mz_response_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
 class CurtainApi implements DeviceInterface {
-  /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('0x14', 'getAllStand', deviceId, {},
-        method: 'GET');
-
+  /// 查询设备状态
+  static Future<MzResponseEntity> getDetail(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0x14', deviceId);
     return res;
   }
 
   /// 设备控制（lua）
-  static Future<MzResponseEntity> powerLua(String deviceId, bool onOff) async {
+     static Future<MzResponseEntity> changePosition(String deviceId, num position, String dir) async {
+      var res = await DeviceApi.sendLuaOrder(
+          '0x14', deviceId, {"curtain_position": position, 'curtain_direction': dir});
+      return res;
+    }
+  static Future<MzResponseEntity> setMode(String deviceId, String modeKey, String dir) async {
     var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"power": onOff ? 'on' : 'off'});
-
-    return res;
-  }
-
-
-  /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x14', 'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
-        method: 'POST');
-
+        '0x14', deviceId, {"curtain_status": modeKey, 'curtain_direction': dir});
     return res;
   }
 

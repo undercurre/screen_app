@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../../../common/global.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
@@ -5,14 +7,11 @@ import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 class CurtainPageState extends State<CurtainPage> with AutoSniffer {
-  String deviceId = '0';
+  String deviceId = '178120883713504'; // 暂时写死设备编码
   String deviceName = '窗帘';
-
-  bool power = true;
-  num position = 1;
-  num colorTemperature = 0;
-  String screenModel = 'manual';
-  String timeOff = '0';
+  double curtainPosition = 1;
+  String curtainStatus = 'stop';
+  String curtainDirection = 'positive';
 
   void goBack() {
     Navigator.pop(context);
@@ -20,21 +19,25 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
 
   Future<void> modeHandle(Mode mode) async {
     setState(() {
-      screenModel = mode.key;
+      curtainStatus = mode.key;
     });
-    // await CurtainApi.modePDM(deviceId, mode.key);
+    await CurtainApi.setMode(deviceId, mode.key, curtainDirection);
+    // TODO 定时回显返回值
   }
 
   Future<void> curtainHandle(num value) async {
+    // 控制值即时响应
     setState(() {
-      position = value;
+      curtainPosition = double.parse('$value');
     });
-    // await CurtainApi.brightnessPDM(deviceId, value);
+    await CurtainApi.changePosition(deviceId, value, curtainDirection);
+    // TODO 控制返回值回显
   }
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[screenModel] = true;
+    selectKeys[curtainStatus] = true;
+    debugPrint('$selectKeys');
     return selectKeys;
   }
 
@@ -49,8 +52,19 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
         deviceName = t['deviceName'];
       }
 
-      // CurtainApi.getLightDetail(deviceId);
+      var res = await CurtainApi.getDetail(deviceId);
+
+      setState(() {
+        curtainPosition = double.parse(res.result['curtain_position']);
+        curtainStatus = res.result['curtain_status'];
+        curtainDirection = res.result['curtain_direction'];
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -66,7 +80,7 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
               left: -16, // 向左偏移
               top: 0,
               child: AnimationCurtain(
-                position: position.toDouble(),
+                position: curtainPosition,
               )),
           Column(
             children: <Widget>[
@@ -77,7 +91,6 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
                 child: MzNavigationBar(
                   onLeftBtnTap: goBack,
                   title: deviceName,
-                  power: power,
                   hasPower: false,
                 ),
               ),
@@ -106,7 +119,7 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
                             children: [
                               SliderButtonCard(
                                   unit: '%',
-                                  value: position,
+                                  value: num.parse('$curtainPosition') ,
                                   min: 1,
                                   max: 100,
                                   onChanged: curtainHandle),
