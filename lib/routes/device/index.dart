@@ -60,6 +60,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
     });
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
+      debugPrint('遍历中$deviceInfo');
       // 查看品类控制器看是否支持该品类
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
@@ -93,6 +94,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   }
 
   updateBins(DeviceEntity deviceInfo) {
+    debugPrint('加载bins$deviceInfo');
     if (DeviceService.isVistual(deviceInfo)) {
       DeviceService.setVistualDevice(context, deviceInfo);
     }

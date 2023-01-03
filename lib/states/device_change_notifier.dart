@@ -66,7 +66,11 @@ class DeviceListModel extends ProfileChangeNotifier {
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
-      curDevice.detail = newDetail;
+      if (deviceInfo.type == 'lightGroup') {
+        curDevice.detail!["detail"] = newDetail;
+      } else {
+        curDevice.detail = newDetail;
+      }
       logger.i(
           "DeviceListModelChange: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
       notifyListeners();
