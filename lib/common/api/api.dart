@@ -180,7 +180,7 @@ class Api {
     options.headers ??= {};
     data ??= {}; // data默认值
     queryParameters ??= {};
-    var extra = options.extra ?? {};
+    options.extra = options.extra ?? {};
 
     // 是否显示loading标识
     // options.extra!['isShowLoading'] = isShowLoading;
@@ -218,7 +218,7 @@ class Api {
     }
 
     // sign签名 start
-    if (extra['isSign'] == true) {
+    if (options.extra!['isSign'] == true) {
       var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
       md5Origin += json.encode(data);
       md5Origin += reqId;
