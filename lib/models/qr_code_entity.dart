@@ -6,10 +6,10 @@ import 'dart:convert';
 class QrCodeEntity {
   QrCodeEntity();
 
-  late num checkType;
+  late int checkType;
   late String deviceId;
-  late num effectTimeSecond;
-  late num expireTime;
+  late int effectTimeSecond;
+  late int expireTime;
   late String openId;
   late String sessionId;
   late String shortUrl;

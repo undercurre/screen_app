@@ -77,7 +77,6 @@ class MzRadio<T> extends StatelessWidget {
               child: view,
             ),
             onPointerUp: (event) {
-              debugPrint('mz_radio.dart:');
               _handleTap();
             },
           );

@@ -4,16 +4,19 @@ import 'dart:convert';
 
 @JsonSerializable()
 class UserEntity {
-  String? accessToken;
-  String? deviceId;
-  String? iotUserId;
-  String? key;
-  String? openId;
-  String? seed;
-  String? sessionId;
-  String? tokenPwd;
-  String? uid;
-  String? mzAccessToken;
+  // 此三个参数用户自动登录
+  // deviceId、tokenPwd、uid
+
+  late String accessToken;
+  late String deviceId;
+  late String iotUserId;
+  late String key;
+  late String openId;
+  late String seed;
+  late String sessionId;
+  late String tokenPwd;
+  late String uid;
+  String? mzAccessToken; // 美智登录token
   int? expired;
 
   UserEntity();

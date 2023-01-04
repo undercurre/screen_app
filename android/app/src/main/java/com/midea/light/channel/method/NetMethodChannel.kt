@@ -178,7 +178,6 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 wifiList?.put(scanResult.SSID, scanResult)
             }
         }
-        LogUtil.tag("NET").msg("扫描到的WiFi数量：${result.size}")
         onReplyNearbyWiFi(result)
     }
 
@@ -253,7 +252,6 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
     }
 
     override fun connectedState(ethernet: Int, wifi: Int, wifiInfo: WifiInfo?) {
-        LogUtil.tag("NET").msg("以太网连接状态 = $ethernet wifi连接状态 = $wifi" )
         MainThread.run {
             mMethodChannel?.invokeMethod(
                 "replyConnectChange",

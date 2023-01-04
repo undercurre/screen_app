@@ -12,15 +12,18 @@ class UserApi {
   static Future<MideaResponseEntity<QrCodeEntity>> getQrCode() async {
     MideaResponseEntity<QrCodeEntity> res =
         await Api.requestMideaIot<QrCodeEntity>(
-            "/muc/v5/app/mj/screen/auth/getQrCode",
-            data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
-            options: Options(method: 'POST'));
+      "/muc/v5/app/mj/screen/auth/getQrCode",
+      data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
+      options: Options(method: 'POST'),
+      isShowLoading: false,
+    );
 
     return res;
   }
 
   /// 登录接口，登录成功后返回用户信息
-  static Future getAccessToken(String sessionId) async {
+  static Future<MideaResponseEntity<UserEntity>> getAccessToken(
+      String sessionId) async {
     var res = await Api.requestMideaIot<UserEntity>(
       "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
       queryParameters: {
@@ -28,6 +31,7 @@ class UserApi {
       },
       options: Options(method: 'GET'),
       isShowLoading: false,
+      isLog: false,
     );
 
     if (res.isSuccess) {
@@ -132,6 +136,27 @@ class UserApi {
     var res = await Api.requestMzIot<QrCodeEntity>(
         "/v1/category/midea/user/homeGroup/list",
         data: {},
+        options: Options(
+          method: 'POST',
+        ));
+
+    return res;
+  }
+
+  /// 设备绑定到家庭
+  static Future<MideaResponseEntity> bindHome(
+      {required String sn,
+      String? applianceName,
+      required String applianceType}) async {
+    var res = await Api.requestMideaIot<HomeListEntity>(
+        "/mas/v5/app/proxy?alias=/v1/appliance/home/bind",
+        data: {
+          'sn': sn,
+          'applianceName': applianceName,
+          'homegroupId': Global.profile.homeInfo?.homegroupId,
+          'applianceType': applianceType,
+          'roomId': Global.profile.roomInfo?.roomId,
+        },
         options: Options(
           method: 'POST',
         ));
