@@ -34,6 +34,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
   // this.value 组件内部值
   // _value = 组件外实时传值，基于widget.value的计算值
   late num value;
+
   num get _value => widget.value < widget.min
       ? widget.min
       : (widget.value > widget.max ? widget.max : widget.value);
@@ -89,44 +90,36 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                     color: Colors.black,
                   ),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 在设计稿中间的数值需要居中，所以左边也需要设置一个等宽的文字，将数值挤到中间
-                    Text(
-                      widget.unit,
-                      style: const TextStyle(
-                        fontFamily: 'MideaType',
-                        fontSize: 18,
-                        height: 1.5,
-                        color: Colors.transparent,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 在设计稿中间的数值需要居中，所以左边也需要设置一个等宽的文字，将数值挤到中间
+                      Text(
+                        _value.toString(),
+                        style: const TextStyle(
+                          fontFamily: 'MideaType',
+                          fontSize: 54,
+                          height: 1.2,
+                          color: Color(0xffd8d8d8),
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${_value.toInt()}',
-                      style: const TextStyle(
-                        fontFamily: 'MideaType',
-                        fontSize: 54,
-                        height: 1.2,
-                        color: Color(0xffd8d8d8),
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                    Text(
-                      widget.unit,
-                      style: const TextStyle(
-                        fontFamily: 'MideaType',
-                        fontSize: 18,
-                        height: 1.5,
-                        color: Color(0xff959595),
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
-                      ),
-                    )
-                  ],
+                      Text(
+                        widget.unit,
+                        style: const TextStyle(
+                          fontFamily: 'MideaType',
+                          fontSize: 18,
+                          height: 1.5,
+                          color: Color(0xff959595),
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 RawMaterialButton(
                   onPressed: onIncreaseBtnPressed,
