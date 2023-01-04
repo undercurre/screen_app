@@ -55,7 +55,6 @@ object ScanNearbyWiFiHandler {
 
     fun start(context: Context) {
         if (!register) {
-            LogUtil.tag("NET").msg("scan wiFi start -----")
             context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
                 addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
             })
@@ -69,7 +68,6 @@ object ScanNearbyWiFiHandler {
     fun stop(context: Context) {
         if (register) {
             callbacks.value.clear()
-            LogUtil.tag("NET").msg("scan wiFi stop -----")
             context.unregisterReceiver(mScanWiFiReceiver)
             register = false
         }

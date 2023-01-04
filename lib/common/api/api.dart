@@ -79,6 +79,7 @@ class Api {
           '${e.toString()} \n '
           '${e.requestOptions.path} \n'
           '${e.response}');
+
       return handler.next(e); //continue
       // 如果你想完成请求并返回一些自定义数据，可以resolve 一个`Response`,如`handler.resolve(response)`。
       // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
@@ -97,6 +98,7 @@ class Api {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
     bool isShowLoading = true,
+    bool isLog = true,
   }) async {
     options ??= Options();
     options.headers ??= {};
@@ -104,7 +106,10 @@ class Api {
     queryParameters ??= {};
     options.extra ??= {};
 
+    // 是否显示loading标识
     options.extra!['isShowLoading'] = isShowLoading;
+    // 是否打印日志标识
+    options.extra!['isLog'] = isLog;
 
     var reqId = uuid.v4();
     var params = options.method == 'GET' ? queryParameters : data;
@@ -169,12 +174,18 @@ class Api {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
     bool isShowLoading = true,
+    bool isLog = true,
   }) async {
     options ??= Options();
     options.headers ??= {};
     data ??= {}; // data默认值
     queryParameters ??= {};
     var extra = options.extra ?? {};
+
+    // 是否显示loading标识
+    options.extra!['isShowLoading'] = isShowLoading;
+    // 是否打印日志标识
+    options.extra!['isLog'] = isLog;
 
     var reqId = uuid.v4();
     var params =

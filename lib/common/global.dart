@@ -30,7 +30,7 @@ class Global {
   static UserEntity? get user => profile.user;
 
   static set user(UserEntity? value) {
-    debugPrint('setUser $user');
+    debugPrint('setUser $value');
     profile.user = value;
   }
 
@@ -51,16 +51,11 @@ class Global {
       }
     }
 
-    // String? sn = await aboutSystemChannel.getGatewaySn();
-    String? sn;
-    debugPrint('getGatewaySn: $sn');
-
-    profile.deviceSn = sn;
     if (StrUtils.isNullOrEmpty(profile.deviceId)) {
-      String? deviceId = await PlatformDeviceId.getDeviceId;
+      String deviceId = await PlatformDeviceId.getDeviceId ?? '';
       // windows 下会获取到特殊字符，为了开发方便需要使用windows进行开发调试
       deviceId = deviceId
-          ?.replaceAll(' ', '')
+          .replaceAll(' ', '')
           .replaceAll('\n', '')
           .replaceAll('\r', '');
       logger.i('deviceId: $deviceId');
@@ -85,6 +80,7 @@ class Global {
     _prefs.setString("profile", jsonEncode(profile.toJson()));
   }
 
+  /// 初始化全局loading配置
   static initLoading() {
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)

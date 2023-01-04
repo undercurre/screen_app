@@ -6,6 +6,8 @@ class System {
 
     // 获取美智token
     await UserApi.authToken();
+
+    Global.saveProfile();
   }
 
   /// 退出登录

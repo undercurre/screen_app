@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/models/index.dart';
+import 'dart:io';
+
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
 import 'scan_code.dart';
@@ -30,10 +32,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
   /// 下一步
   void nextStep() async {
-    // if (stepNum == 1 && !isConnected()) {
-    //   TipsUtils.toast(content: '请连接网络');
-    //   return;
-    // }
+    if (Platform.isAndroid && stepNum == 1 && !isConnected()) {
+      TipsUtils.toast(content: '请连接网络');
+      return;
+    }
 
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步
@@ -42,12 +44,23 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         return;
       }
 
+      var bindRes = await UserApi.bindHome(
+          sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
+          applianceType: '0x16');
+
+      if (!bindRes.isSuccess) {
+        TipsUtils.toast(content: '绑定家庭失败');
+        return;
+      }
+
       Global.saveProfile();
       //导航到新路由
-      await Navigator.pushNamed(
-        context,
-        'Home',
-      );
+      if (mounted) {
+        Navigator.pushNamed(
+          context,
+          'Home',
+        );
+      }
       return;
     }
     setState(() {
@@ -58,6 +71,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   @override
   void initState() {
     super.initState();
+
+    // 初始化
+    if (Platform.isAndroid && !isConnected()) {
+      stepNum = 1;
+    } else {
+      stepNum = 2;
+    }
   }
 
   @override
@@ -72,7 +92,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               onChange: (HomeEntity home) {
                 debugPrint('Select: ${home.toJson()}');
                 Global.profile.homeInfo = home;
-                TipsUtils.toast(content: '执行成功');
               })),
       Step(
           '选择房间',
