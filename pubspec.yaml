@@ -55,7 +55,6 @@ dependencies:
   flutter_draggable_gridview: ^0.0.7
   date_format: ^2.0.7
   easy_refresh: ^3.0.5+1
-  socket_io_client: ^2.0.0
 
 dev_dependencies:
   flutter_test:

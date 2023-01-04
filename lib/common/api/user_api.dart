@@ -148,7 +148,7 @@ class UserApi {
       {required String sn,
       String? applianceName,
       required String applianceType}) async {
-    var res = await Api.requestMideaIot<HomeListEntity>(
+    var res = await Api.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/bind",
         data: {
           'sn': sn,
@@ -160,6 +160,8 @@ class UserApi {
         options: Options(
           method: 'POST',
         ));
+
+    Global.profile.applianceCode = res.data['applianceCode'];
 
     return res;
   }
