@@ -15,7 +15,7 @@ class AirConditionPageState extends State<AirConditionPage> {
     "deviceId": "",
     "deviceName": '空调',
     "detail": {
-      "mode": '',
+      "mode": 'auto',
       "temperature": 26,
       "small_temperature": 0.5,
       "wind_speed": 102
@@ -61,8 +61,14 @@ class AirConditionPageState extends State<AirConditionPage> {
     }
   }
 
-  Future<void> modeHandle(Mode mode) async {
-    await AirConditionApi.modeLua(deviceWatch["deviceId"], mode.key);
+  Future<void> modeHandle(String mode) async {
+    var res = await AirConditionApi.modeLua(deviceWatch["deviceId"], mode);
+
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["mode"] = mode;
+      });
+    }
   }
 
   List<Map<String, dynamic>> modeList = [];
@@ -111,24 +117,29 @@ class AirConditionPageState extends State<AirConditionPage> {
     {
       'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
       'text': '制冷',
-      'key': 'auto'
+      'key': 'cool'
     },
     {
       'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
       'text': '制热',
-      'key': 'auto'
+      'key': 'heat'
     },
     {
       'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
       'text': '送风',
-      'key': 'auto'
+      'key': 'fan'
     },
     {
       'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
       'text': '除湿',
-      'key': 'auto'
+      'key': 'dry'
     },
   ];
+
+  Map<String, String> getCurModeConfig() {
+    Map<String, String> curMode = btnList.where((element) => element["key"] == deviceWatch["detail"]["mode"]).toList()[0];
+    return curMode;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +229,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                         return btnList.map(
                                           (item) {
                                             return PopupMenuItem<String>(
-                                              value: item['route'],
+                                              value: item['key'],
                                               child: Container(
                                                 alignment: Alignment.center,
                                                 child: SizedBox(
@@ -247,22 +258,21 @@ class AirConditionPageState extends State<AirConditionPage> {
                                           },
                                         ).toList();
                                       },
-                                      onSelected: (String route) {
-                                        debugPrint('选择了$route');
+                                      onSelected: (String mode) {
+                                        modeHandle(mode);
                                       },
                                       child: Row(
                                         children: [
-                                          const Opacity(
+                                          Opacity(
                                               opacity: 0.5,
-                                              child: Image(
-                                                  image: AssetImage(
-                                                      'assets/imgs/plugins/0xAC/zidong_icon.png'))),
-                                          const Padding(
+                                              child: Image.asset(getCurModeConfig()["icon"] ?? "assets/imgs/plugins/0xAC/zidong_icon.png")
+                                          ),
+                                          Padding(
                                             padding:
-                                                EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                                const EdgeInsets.fromLTRB(7, 0, 7, 0),
                                             child: Text(
-                                              '自动',
-                                              style: TextStyle(
+                                              getCurModeConfig()["text"] ?? '自动',
+                                              style: const TextStyle(
                                                 color: Color(0X7FFFFFFF),
                                                 fontSize: 18.0,
                                                 fontFamily: "MideaType",

@@ -48,10 +48,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
           applianceType: '0x16');
 
-      if (!bindRes.isSuccess) {
-        TipsUtils.toast(content: '绑定家庭失败');
-        return;
-      }
+      // if (!bindRes.isSuccess) {
+      //   TipsUtils.toast(content: '绑定家庭失败');
+      //   return;
+      // }
 
       Global.saveProfile();
       //导航到新路由
