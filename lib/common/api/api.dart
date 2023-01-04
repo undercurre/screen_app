@@ -183,9 +183,9 @@ class Api {
     var extra = options.extra ?? {};
 
     // 是否显示loading标识
-    options.extra!['isShowLoading'] = isShowLoading;
+    // options.extra!['isShowLoading'] = isShowLoading;
     // 是否打印日志标识
-    options.extra!['isLog'] = isLog;
+    // options.extra!['isLog'] = isLog;
 
     var reqId = uuid.v4();
     var params =
