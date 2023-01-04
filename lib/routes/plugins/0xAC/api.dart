@@ -33,7 +33,7 @@ class WrapAirCondition implements DeviceInterface {
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? (deviceInfo.detail!["temperature"]).toStringAsFixed(0) : '';
+    return deviceInfo.detail != null ? (deviceInfo.detail!["temperature"]).toString() : '';
   }
 
   @override

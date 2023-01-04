@@ -8,35 +8,80 @@ import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../widgets/plugins/arrow.dart';
+import '../../device/service.dart';
 
 class AirConditionPageState extends State<AirConditionPage> {
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": '空调',
-    "detail": {"mode": '', "temperature": 26, "wind_speed": 102}
+    "detail": {
+      "mode": '',
+      "temperature": 26,
+      "small_temperature": 0.5,
+      "wind_speed": 102
+    }
   };
+
 
   void goBack() {
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    await AirConditionApi.powerLua(
-        deviceWatch["deviceId"], deviceWatch["detail"]["power"] == 'on');
+    var res = await AirConditionApi.powerLua(
+        deviceWatch["deviceId"], !(deviceWatch["detail"]["power"] == 'on'));
+
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["power"] =
+            deviceWatch["detail"]["power"] == "on" ? "off" : "on";
+      });
+    }
+  }
+
+  Future<void> gearHandle(value) async {
+    var res = await AirConditionApi.gearLua(deviceWatch["deviceId"], value);
+
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["wind_speed"] =
+            deviceWatch["detail"]["wind_speed"] = value;
+      });
+    }
+  }
+
+  Future<void> temperatureHandle(value) async {
+    var res =
+        await AirConditionApi.temperatureLua(deviceWatch["deviceId"], value);
+
+    if (res.isSuccess) {
+      setState(() {
+        deviceWatch["detail"]["temperature"] = value;
+      });
+    }
   }
 
   Future<void> modeHandle(Mode mode) async {
     await AirConditionApi.modeLua(deviceWatch["deviceId"], mode.key);
   }
 
-  List<Map<String, dynamic>> modeList = [
-
-  ];
+  List<Map<String, dynamic>> modeList = [];
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
     selectKeys[deviceWatch["detail"]["screenModel"]] = true;
     return selectKeys;
+  }
+
+  Future<void> updateDetail() async {
+    var deviceInfo = context
+        .read<DeviceListModel>()
+        .getDeviceInfoById(deviceWatch["deviceId"]);
+    var detail = await DeviceService.getDeviceDetail(deviceInfo);
+    setState(() {
+      deviceWatch["detail"] = detail;
+    });
+    debugPrint('插件中获取到的详情：$deviceWatch');
   }
 
   @override
@@ -45,12 +90,45 @@ class AirConditionPageState extends State<AirConditionPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
+      setState(() {
+        deviceWatch = context
+            .read<DeviceListModel>()
+            .getDeviceDetail(deviceWatch["deviceId"]);
+      });
       deviceWatch = context
           .read<DeviceListModel>()
           .getDeviceDetail(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
+
+  List<Map<String, String>> btnList = [
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png',
+      'text': '自动',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
+      'text': '制冷',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
+      'text': '制热',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
+      'text': '送风',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
+      'text': '除湿',
+      'key': 'auto'
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +188,9 @@ class AirConditionPageState extends State<AirConditionPage> {
                         messageText: '上次更新 %T',
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
-                      onRefresh: () async {},
+                      onRefresh: () async {
+                        updateDetail();
+                      },
                       child: SingleChildScrollView(
                         child: Row(
                           children: [
@@ -127,7 +207,49 @@ class AirConditionPageState extends State<AirConditionPage> {
                               child: Column(
                                 children: [
                                   FunctionCard(
-                                      title: '模式',
+                                    title: '模式',
+                                    child: PopupMenuButton(
+                                      shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0),
+                                      )),
+                                      offset: const Offset(0, 36.0),
+                                      itemBuilder: (context) {
+                                        return btnList.map(
+                                          (item) {
+                                            return PopupMenuItem<String>(
+                                              value: item['route'],
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                child: SizedBox(
+                                                  width: 80,
+                                                  height: 50,
+                                                  child: Opacity(
+                                                    opacity: 0.5,
+                                                    child: Row(
+                                                      children: [
+                                                        Image.asset(
+                                                            item['icon']!),
+                                                        Text(item['text']!,
+                                                            style: const TextStyle(
+                                                                fontSize: 18,
+                                                                fontFamily:
+                                                                    "MideaType",
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ).toList();
+                                      },
+                                      onSelected: (String route) {
+                                        debugPrint('选择了$route');
+                                      },
                                       child: Row(
                                         children: [
                                           const Opacity(
@@ -162,9 +284,27 @@ class AirConditionPageState extends State<AirConditionPage> {
                                             ],
                                           )
                                         ],
-                                      )),
-                                  const SliderButtonCard(),
-                                  const GearCard(),
+                                      ),
+                                    ),
+                                  ),
+                                  SliderButtonCard(
+                                    min: 17,
+                                    max: 30,
+                                    step: 0.5,
+                                    value: deviceWatch["detail"]
+                                            ["temperature"] +
+                                        deviceWatch["detail"]
+                                            ["small_temperature"],
+                                    onChanged: temperatureHandle,
+                                  ),
+                                  GearCard(
+                                    value: (deviceWatch["detail"]
+                                                    ["wind_speed"] /
+                                                20)
+                                            .truncate() +
+                                        1,
+                                    onChanged: gearHandle,
+                                  ),
                                 ],
                               ),
                             ),
