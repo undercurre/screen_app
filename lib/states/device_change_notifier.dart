@@ -85,8 +85,10 @@ class DeviceListModel extends ProfileChangeNotifier {
         curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1' ? newDetail['panelOne'] : newDetail['panelTwo'];
         debugPrint('智慧屏$newDetail');
       } else if (deviceInfo.type == 'singlePanel-1' || deviceInfo.type == 'singlePanel-2' || deviceInfo.type == 'singlePanel-3' || deviceInfo.type == 'singlePanel-4') {
-        debugPrint('智慧屏${curDevice.detail!['status']["endPoint"]}');
-        curDevice.detail!['status'] = newDetail["deviceControlList"][int.parse('${curDevice.detail!['status']["endPoint"]}')];
+        debugPrint('面板${curDevice.detail!['status']["endPoint"]}');
+        var panelIndex = curDevice.detail!['status']["endPoint"] - 1;
+        debugPrint('面板${newDetail["deviceControlList"]}');
+        curDevice.detail!['status'] = newDetail["deviceControlList"][panelIndex];
       } else {
         curDevice.detail = newDetail;
       }
