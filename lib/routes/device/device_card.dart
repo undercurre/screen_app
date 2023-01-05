@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
+import 'package:screen_app/routes/sniffer/device_item.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../models/device_entity.dart';
 
 class DeviceCard extends StatefulWidget {
-  final DeviceEntity? deviceInfo;
+  late DeviceEntity? deviceInfo;
 
-  const DeviceCard({super.key, this.deviceInfo});
+  DeviceCard({super.key, this.deviceInfo});
 
   @override
   State<StatefulWidget> createState() => _DeviceCardState();
@@ -16,7 +19,9 @@ class DeviceCard extends StatefulWidget {
 class _DeviceCardState extends State<DeviceCard> {
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
-    if (widget.deviceInfo != null && widget.deviceInfo?.detail != null) {
+    if (widget.deviceInfo != null &&
+        widget.deviceInfo?.detail != null &&
+        !isVistual(widget.deviceInfo!)) {
       if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);
@@ -26,15 +31,29 @@ class _DeviceCardState extends State<DeviceCard> {
     }
   }
 
-  void clickMethod(TapDownDetails e) {
+  bool isVistual(DeviceEntity deviceInfo) {
+    if (deviceInfo.type == 'smartControl') {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> clickMethod(TapDownDetails e) async {
     if (widget.deviceInfo != null) {
       if (e.localPosition.dx > 40 &&
           e.localPosition.dx < 90 &&
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
-        if (DeviceService.isPower(widget.deviceInfo!)) {
-          DeviceService.setPower(
-              widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+        var res = await DeviceService.setPower(
+            widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+        if (res) {
+          Future.delayed(const Duration(seconds: 2)).then((_) async {
+            await context.read<DeviceListModel>().updateDeviceDetail(widget.deviceInfo!);
+            setState(() {
+              widget.deviceInfo = context.read<DeviceListModel>().getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode, widget.deviceInfo!.type);
+            });
+          });
         }
       } else {
         // 过滤网关
@@ -52,6 +71,7 @@ class _DeviceCardState extends State<DeviceCard> {
 
   @override
   Widget build(BuildContext context) {
+
     return SizedBox(
       width: 136,
       height: 190,

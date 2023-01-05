@@ -37,6 +37,19 @@ class DeviceListModel extends ProfileChangeNotifier {
     }
   }
 
+  // 根据设备id获取设备的deviceInfo
+  DeviceEntity getDeviceInfoByIdAndType(String deviceId, String type) {
+    var curDeviceList = _deviceListResource
+        .where((element) => element.applianceCode == deviceId && element.type == type)
+        .toList();
+    if (curDeviceList.isNotEmpty) {
+      var curDevice = curDeviceList[0];
+      return curDevice;
+    } else {
+      return DeviceEntity();
+    }
+  }
+
   // 根据设备id获取设备的detail
   Map<String, dynamic> getDeviceDetail(String deviceId) {
     var curDeviceList = _deviceListResource
@@ -61,13 +74,16 @@ class DeviceListModel extends ProfileChangeNotifier {
       {Function? callback}) async {
     // todo: 优化数据更新diff
     var curDeviceList = _deviceListResource
-        .where((element) => element.applianceCode == deviceInfo.applianceCode)
+        .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
         .toList();
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
       if (deviceInfo.type == 'lightGroup') {
         curDevice.detail!["detail"] = newDetail;
+      } else if (deviceInfo.type == 'smartControl-1' || deviceInfo.type == 'smartControl-2') {
+        curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1' ? newDetail['panelOne'] : newDetail['panelTwo'];
+        debugPrint('智慧屏$newDetail');
       } else {
         curDevice.detail = newDetail;
       }
@@ -97,7 +113,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     objCopy.type = vistualType;
     objCopy.name = vistualName;
     objCopy.detail = <String, dynamic>{
-      "status": indexOfList != null
+      "status": indexOfList == null
           ? element.detail![statusIndex]
           : element.detail![statusIndex][indexOfList],
     };
