@@ -31,13 +31,29 @@ class SliderButtonCard extends StatefulWidget {
 }
 
 class _SliderButtonCardState extends State<SliderButtonCard> {
-  // this.value 组件内部值
-  // _value = 组件外实时传值，基于widget.value的计算值
+  // value 组件内部值
   late num value;
 
-  num get _value => widget.value < widget.min
-      ? widget.min
-      : (widget.value > widget.max ? widget.max : widget.value);
+  // 判断是否需要更新value值
+  @override
+  void didUpdateWidget(SliderButtonCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      setState(() {
+        value = _value;
+      });
+    }
+  }
+
+  // _value = 组件外实时传值，基于widget.value的计算值
+  num get _value {
+    final stepString = widget.step.toString();
+    final precision = stepString.length - stepString.indexOf('.') - 1;
+    var value = widget.value < widget.min
+        ? widget.min
+        : (widget.value > widget.max ? widget.max : widget.value);
+    return num.parse((value).toStringAsFixed(precision));
+  }
 
   @override
   void initState() {
@@ -63,7 +79,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
                       fontSize: 18,
                       height: 1.2,
                       color: Colors.white,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w200,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -72,72 +88,108 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
             ),
           Padding(
             padding: EdgeInsets.only(
-                top: widget.title != null ? 5 : 30,
-                bottom: widget.title != null ? 0 : 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RawMaterialButton(
-                  onPressed: onDecreaseBtnPressed,
-                  elevation: 2.0,
-                  fillColor: const Color(0xffd8d8d8),
-                  padding: const EdgeInsets.all(4.0),
-                  shape: const CircleBorder(),
-                  child: const Icon(
-                    Icons.remove_rounded,
-                    size: 28.0,
-                    color: Colors.black,
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 在设计稿中间的数值需要居中，所以左边也需要设置一个等宽的文字，将数值挤到中间
-                      Text(
-                        _value.toString(),
-                        style: const TextStyle(
-                          fontFamily: 'MideaType',
-                          fontSize: 54,
-                          height: 1.2,
-                          color: Color(0xffd8d8d8),
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.none,
-                        ),
+              top: widget.title != null ? 5 : 30,
+              bottom: widget.title != null ? 0 : 15,
+            ),
+            child: ConstrainedBox(
+              // 设置最小高度，防止fittedBox压缩时导致高度变化
+              constraints: const BoxConstraints(minHeight: 64, maxHeight: 64),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 18),
+                    child: RawMaterialButton(
+                      onPressed: onDecreaseBtnPressed,
+                      elevation: 2.0,
+                      fillColor: const Color(0xffd8d8d8),
+                      padding: const EdgeInsets.all(4),
+                      shape: const CircleBorder(),
+                      constraints:
+                          const BoxConstraints(minHeight: 32, minWidth: 32),
+                      child: const Icon(
+                        Icons.remove_rounded,
+                        size: 28.0,
+                        color: Colors.black,
                       ),
-                      Text(
-                        widget.unit,
-                        style: const TextStyle(
-                          fontFamily: 'MideaType',
-                          fontSize: 18,
-                          height: 1.5,
-                          color: Color(0xff959595),
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.none,
-                        ),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-                RawMaterialButton(
-                  onPressed: onIncreaseBtnPressed,
-                  elevation: 2.0,
-                  fillColor: const Color(0xffd8d8d8),
-                  padding: const EdgeInsets.all(4.0),
-                  shape: const CircleBorder(),
-                  child: const Icon(
-                    Icons.add_rounded,
-                    size: 28.0,
-                    color: Colors.black,
+                  // 先让中间内容占满宽度
+                  Expanded(
+                    flex: 1,
+                    // 然后使用FittedBox保证宽度不会超出Expanded
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // 在设计稿中间的数值需要居中，所以左边也需要设置一个等宽的文字，将数值挤到中间
+                          Text(
+                            widget.unit,
+                            style: const TextStyle(
+                              fontFamily: 'MideaType',
+                              fontSize: 18,
+                              height: 1.7,
+                              color: Colors.transparent,
+                              fontWeight: FontWeight.w400,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          Text(
+                            value.toString(),
+                            textHeightBehavior: const TextHeightBehavior(
+                                applyHeightToLastDescent: false,
+                                applyHeightToFirstAscent: false),
+                            style: const TextStyle(
+                              height: 1,
+                              fontFamily: 'MideaType',
+                              fontSize: 56,
+                              textBaseline: TextBaseline.ideographic,
+                              color: Color(0xffd8d8d8),
+                              fontWeight: FontWeight.w200,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          Text(
+                            widget.unit,
+                            style: const TextStyle(
+                              fontFamily: 'MideaType',
+                              fontSize: 18,
+                              height: 1.7,
+                              color: Color(0xff959595),
+                              fontWeight: FontWeight.w200,
+                              decoration: TextDecoration.none,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(right: 18),
+                    child: RawMaterialButton(
+                      onPressed: onIncreaseBtnPressed,
+                      elevation: 2.0,
+                      fillColor: const Color(0xffd8d8d8),
+                      padding: const EdgeInsets.all(4),
+                      shape: const CircleBorder(),
+                      constraints:
+                          const BoxConstraints(minHeight: 32, minWidth: 32),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        size: 28.0,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           MzSlider(
-            value: _value,
+            value: value,
             width: 270,
             max: widget.max,
             min: widget.min,
