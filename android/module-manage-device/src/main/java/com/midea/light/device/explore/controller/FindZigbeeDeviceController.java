@@ -52,12 +52,12 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
     public void request(String method, Bundle bundle) {
         if (Portal.METHOD_SCAN_ZIGBEE_START.equals(method)) {
             String homeGroupId = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_HOME_GROUP_ID));
-            String uid = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_UID));
+            String uid = Objects.requireNonNull(Portal.getBaseConfig().getUserId());
             String gatewayApplianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_GATEWAY_APPLIANCE_CODE));
             startFindZigbee(homeGroupId, uid, gatewayApplianceCode);
         } else if (Portal.METHOD_SCAN_ZIGBEE_STOP.equals(method)) {
             String homeGroupId = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_HOME_GROUP_ID));
-            String uid = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_UID));
+            String uid = Objects.requireNonNull(Portal.getBaseConfig().getUserId());
             String gatewayApplianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_GATEWAY_APPLIANCE_CODE));
             stopFindZigbee(homeGroupId, uid, gatewayApplianceCode);
         }

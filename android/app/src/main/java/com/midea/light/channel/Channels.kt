@@ -1,5 +1,6 @@
 package com.midea.light.channel
 
+import ManagerDeviceChannel
 import android.content.Context
 import com.midea.light.channel.method.AboutMethodChannel
 import com.midea.light.channel.method.ConfigChannel
@@ -22,6 +23,7 @@ const val CHANNEL_NAME_SETTING = "com.midea.light/set"
 const val CHANNEL_NAME_ABOUT = "com.midea.light/about"
 const val CHANNEL_CONFIG = "com.midea.light/config"
 const val CHANNEL_OTA = "com.midea.light/ota"
+const val CHANNEL_MANAGER_DEVICES = "com.midea.light/managerDevices"
 
 class Channels {
     // Channel信使
@@ -33,6 +35,7 @@ class Channels {
     lateinit var aboutMethodChannel: AboutMethodChannel
     lateinit var configChannel: ConfigChannel
     lateinit var otaChannel: OtaChannel
+    lateinit var managerDeviceChannel: ManagerDeviceChannel
 
     private var isInit = false
 
@@ -45,6 +48,7 @@ class Channels {
             aboutMethodChannel = AboutMethodChannel.create(CHANNEL_NAME_ABOUT, binaryMessenger, context)
             configChannel = ConfigChannel.create(CHANNEL_CONFIG, binaryMessenger, context)
             otaChannel = OtaChannel.create(CHANNEL_OTA, binaryMessenger, context)
+            managerDeviceChannel = ManagerDeviceChannel.create(CHANNEL_MANAGER_DEVICES, binaryMessenger, context)
             isInit = true
         }
     }

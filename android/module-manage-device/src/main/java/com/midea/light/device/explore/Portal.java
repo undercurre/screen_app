@@ -29,16 +29,13 @@ public class Portal implements PortalContext {
     public final static String REQUEST_SCAN_WIFI_DEVICES = "request_scan_wifi_devices";
     public final static String METHOD_SCAN_WIFI_START = "method_wifi_scan";
     public final static String METHOD_SCAN_WIFI_STOP = "method_scan_wifi_stop";
-    public final static String METHOD_SCAN_EXTRA_STOP = "method_scan_extra_stop";
     public final static String PARAM_SCAN_WIFI_LOOPER = "param_scan_wifi_looper"; // 用于切换FindDeviceController 与 AutoScanDeviceController  值：true -> Find , false -> Auto
     public final static String PARAM_AUTO_SCAN_WIFI_LOOPER = "param_auto_scan_wifi_looper"; // 用于切换FindDeviceController 与 AutoScanDeviceController  值：true -> Find , false -> Auto
-    public final static String PARAM_SCAN_HOME_ROOM_ID = "param_scan_room_id";
-    public final static String RESULT_SCAN_WIFI_DEVICES = "result_scan_devices";
+    public final static String RESULT_SCAN_WIFI_DEVICES = "result_scan_devices"; // ArrayList<WiFiScanResult>
     // # FindZigbeeDeviceFactory
     public final static String REQUEST_SCAN_ZIGBEE_DEVICES = "request_scan_zigbee_devices";
     public final static String METHOD_SCAN_ZIGBEE_START = "method_zigbee_scan";
     public final static String METHOD_SCAN_ZIGBEE_STOP = "method_zigbee_stop";
-    public final static String PARAM_SCAN_UID = "param_scan_uid";
     public final static String PARAM_SCAN_HOME_GROUP_ID = "param_scan_home_group_id";
     public final static String PARAM_GATEWAY_APPLIANCE_CODE = "param_gateway_appliance_code";
     public final static String RESULT_SCAN_ZIGBEE_DEVICES = "result_scan_devices_zigbee";
@@ -67,7 +64,8 @@ public class Portal implements PortalContext {
     public final static String PARAM_MODIFY_DEVICE_HOME_ID = "param_modify_home_id";
     public final static String PARAM_MODIFY_DEVICE_ROOM_ID = "param_modify_room_id";
     public final static String PARAM_MODIFY_DEVICE_APPLIANCE_CODE = "param_modify_appliance_code";
-    public final static String RESULT_MODIFY_DEVICE = "result_modify_device";
+    public final static String RESULT_MODIFY_DEVICE = "result_modify_device"; // -1 0
+    public final static String RESULT_MODIFY_DEVICE_DATA = "result_modify_device_data"; // ApplianceBean
     //用于保存请求action type
     public final static String ACTION_TYPE = "request_tag";
     public final static String METHOD_TYPE = "method_type";

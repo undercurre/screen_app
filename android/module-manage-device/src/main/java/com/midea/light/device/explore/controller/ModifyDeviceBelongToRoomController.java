@@ -31,7 +31,7 @@ public class ModifyDeviceBelongToRoomController extends AbstractController imple
 
     @Override
     public void request(String method, Bundle bundle, ClientMessenger clientMessenger) {
-        if(Objects.equals(Portal.REQUEST_MODIFY_DEVICE_ROOM, method)) {
+        if(Objects.equals(Portal.METHOD_MODIFY_DEVICE, method)) {
             String homeId = Objects.requireNonNull(bundle.getString(Portal.PARAM_MODIFY_DEVICE_HOME_ID));
             String roomId = Objects.requireNonNull(bundle.getString(Portal.PARAM_MODIFY_DEVICE_ROOM_ID));
             String applianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_MODIFY_DEVICE_APPLIANCE_CODE));
@@ -42,7 +42,9 @@ public class ModifyDeviceBelongToRoomController extends AbstractController imple
                 // 修改失败
                 getHandler().post(() -> {
                     Message message = new Message();
-                    message.what = -1;
+                    Bundle data = new Bundle();
+                    data.putInt(Portal.RESULT_MODIFY_DEVICE, -1);
+                    message.setData(data);
                     try {
                         clientMessenger.send(message);
                     } catch (RemoteException e) {
@@ -53,8 +55,9 @@ public class ModifyDeviceBelongToRoomController extends AbstractController imple
                 // 修改成功
                 getHandler().post(() -> {
                     Message message = new Message();
-                    message.what = -1;
                     Bundle data = new Bundle();
+                    data.putInt(Portal.RESULT_MODIFY_DEVICE, 0);
+                    data.putParcelable(Portal.RESULT_MODIFY_DEVICE_DATA, applianceBean);
                     message.setData(data);
                     try {
                         clientMessenger.send(message);
