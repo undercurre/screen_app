@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -8,9 +7,9 @@ import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
   String qrLink = '';
-  late String sessionId;
-  late Timer timer;
-  final TextEditingController _controller = TextEditingController();
+  String? sessionId;
+  Timer? updateQrCodeTime;
+  Timer? updateLoginStatusTime;
 
   @override
   void initState() {
@@ -18,32 +17,14 @@ class _ScanCode extends State<ScanCode> {
     //初始化状态
     debugPrint("scan_code.dart-initState");
     updateQrCode();
-
-    initSocket();
-  }
-
-  void initSocket() {
-    debugPrint('initSocket');
-    IO.Socket socket = IO.io('https://172.18.5.171:7501');
-    socket.onConnect((_) {
-      debugPrint('connect');
-      socket.emit('msg', 'test');
-    });
-    socket.on('event', (data) => debugPrint(data));
-    socket.onDisconnect((_) => debugPrint('disconnect'));
-    socket.on('fromServer', (_) => debugPrint(_));
+    updateLoginStatus();
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint("build");
 
-    var hiView = Listener(
-        child: const Image(image: AssetImage("assets/imgs/login/hello.png")),
-        onPointerDown: (PointerDownEvent event) {
-          debugPrint('hiView: $event');
-          sendMsg();
-        });
+    var hiView = const Image(image: AssetImage("assets/imgs/login/hello.png"));
 
     return Stack(
       children: [
@@ -65,12 +46,6 @@ class _ScanCode extends State<ScanCode> {
         ),
         Positioned(
             bottom: 24, right: 16, width: 103, height: 141, child: hiView),
-        Form(
-          child: TextFormField(
-            controller: _controller,
-            decoration: const InputDecoration(labelText: 'Send a message'),
-          ),
-        ),
       ],
     );
   }
@@ -79,13 +54,8 @@ class _ScanCode extends State<ScanCode> {
   void dispose() {
     super.dispose();
     debugPrint("scan_code.dart-dispose");
-    timer.cancel();
-  }
-
-  void sendMsg() {
-    debugPrint(
-        'sendMsg: ${_controller.text.isNotEmpty}  text: ${_controller.text} ');
-    if (_controller.text.isNotEmpty) {}
+    updateQrCodeTime?.cancel();
+    updateLoginStatusTime?.cancel();
   }
 
   /// 绑定二维码url
@@ -99,19 +69,27 @@ class _ScanCode extends State<ScanCode> {
       });
 
       sessionId = res.data.sessionId;
+      var effectTimeSecond = res.data.effectTimeSecond;
 
-      var time = DateTime.fromMillisecondsSinceEpoch(res.data.expireTime);
-      debugPrint('getQrCode过期时间: $time');
-      updateLoginStatus();
+      updateQrCodeTime = Timer(Duration(seconds: effectTimeSecond - 20), () {
+        updateQrCode();
+      });
     }
   }
 
   /// 大屏端轮询授权状态接口
   void updateLoginStatus() {
-    timer = Timer(const Duration(seconds: 5), () async {
-      var res = await UserApi.getAccessToken(sessionId);
+    updateLoginStatusTime =
+        Timer.periodic(const Duration(seconds: 3), (timer) async {
+      if (StrUtils.isNullOrEmpty(sessionId)) {
+        return;
+      }
+
+      var res = await UserApi.getAccessToken(sessionId ?? '');
 
       if (res.isSuccess) {
+        timer.cancel(); // 取消登录状态查询定时
+
         String? sn;
         try {
           sn = await aboutSystemChannel.getGatewaySn(true, Global.user?.seed);
@@ -127,8 +105,6 @@ class _ScanCode extends State<ScanCode> {
         debugPrint('getAccessToken: ${res.toJson()}');
         TipsUtils.toast(content: '授权成功');
         widget.onSuccess!();
-      } else {
-        updateLoginStatus();
       }
     });
   }

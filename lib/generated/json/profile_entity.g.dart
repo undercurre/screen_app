@@ -30,6 +30,11 @@ ProfileEntity $ProfileEntityFromJson(Map<String, dynamic> json) {
   if (deviceSn != null) {
     profileEntity.deviceSn = deviceSn;
   }
+  final String? applianceCode =
+      jsonConvert.convert<String>(json['applianceCode']);
+  if (applianceCode != null) {
+    profileEntity.applianceCode = applianceCode;
+  }
   return profileEntity;
 }
 
@@ -40,5 +45,6 @@ Map<String, dynamic> $ProfileEntityToJson(ProfileEntity entity) {
   data['roomInfo'] = entity.roomInfo?.toJson();
   data['deviceId'] = entity.deviceId;
   data['deviceSn'] = entity.deviceSn;
+  data['applianceCode'] = entity.applianceCode;
   return data;
 }

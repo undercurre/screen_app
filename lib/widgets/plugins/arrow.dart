@@ -37,20 +37,30 @@ class AnimatedArrowState extends State<AnimatedArrow>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: const [
-      SizedBox(
-        width: 100,
-        height: 100,
-      ),
+    return Stack(clipBehavior: Clip.none, children: [
+      Container(),
       Positioned(
-        width: 100,
-        height: 100,
-        top: -5,
-        left: -15,
-          child: Image(
-            image: AssetImage('assets/imgs/plugins/0xAC/arrow.png'),
+        top: -16,
+        left: -16,
+        child: RotationTransition(
+          turns: _manualAnimation,
+          child: CupertinoButton(
+            onPressed: () {
+              var value = _manualController.value;
+
+              /// 0.5代表 180弧度
+              if (value == 0.5) {
+                _manualController.animateTo(0);
+              } else {
+                _manualController.animateTo(0.5);
+              }
+            },
+            child: const Image(
+              image: AssetImage('assets/imgs/plugins/0xAC/arrow.png'),
+            ),
           ),
         ),
+      ),
     ]);
   }
 }
