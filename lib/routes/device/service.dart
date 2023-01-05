@@ -129,14 +129,14 @@ class DeviceService {
     if (deviceInfo.type == '0x21' &&
         zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
       if (deviceInfo.detail != null) {
-        debugPrint('制造面板中${deviceInfo.detail}');
+        debugPrint('制造面板中${deviceInfo.detail},一共${deviceInfo.detail!["deviceControlList"].length}路');
         for (int xx = 1; xx <= deviceInfo.detail!["deviceControlList"].length; xx++) {
           if (curDeviceList
               .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == 'singlePanel')
-              .toList().isEmpty) {
+              .toList().length < deviceInfo.detail!["deviceControlList"].length) {
             context.read<DeviceListModel>().productVistualDevice(
-                deviceInfo, '${deviceInfo.name}$xx路', "singlePanel",
-                "deviceControlList", indexOfList: xx);
+                deviceInfo, '${deviceInfo.name}$xx路', "singlePanel-$xx",
+                "deviceControlList", indexOfList: xx - 1);
           }
         }
       }
