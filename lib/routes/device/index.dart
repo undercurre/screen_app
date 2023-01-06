@@ -186,11 +186,13 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                               value: item['route'],
                               child: Container(
                                 alignment: Alignment.center,
-                                child: Text(item['title']!,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.w400)),
+                                child: Text(
+                                  item['title']!,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: "MideaType",
+                                      fontWeight: FontWeight.w400),
+                                ),
                               ));
                         }).toList();
                       },

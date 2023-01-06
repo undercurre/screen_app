@@ -107,21 +107,37 @@ class DeviceService {
   }
 
   static void setVistualDevice(BuildContext context, DeviceEntity deviceInfo) {
+    // 查一遍现存的设备列表
+    var curDeviceList = context.read<DeviceListModel>().deviceList;
+
     // 智慧屏线控器
     if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
-      context.read<DeviceListModel>().productVistualDevice(
-          deviceInfo, '${deviceInfo.name}线控器1', "smartControl", "panelOne");
-      context.read<DeviceListModel>().productVistualDevice(
-          deviceInfo, '${deviceInfo.name}线控器2', "smartControl", "panelTwo");
+      if (curDeviceList
+          .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == 'smartControl-1')
+          .toList().isEmpty) {
+        context.read<DeviceListModel>().productVistualDevice(
+            deviceInfo, '${deviceInfo.name}线控器1', "smartControl-1", "panelOne");
+      }
+      if (curDeviceList
+          .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == 'smartControl-2')
+          .toList().isEmpty) {
+        context.read<DeviceListModel>().productVistualDevice(
+            deviceInfo, '${deviceInfo.name}线控器2', "smartControl-2", "panelTwo");
+      }
     }
     // 面板
     if (deviceInfo.type == '0x21' &&
         zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
       if (deviceInfo.detail != null) {
-        debugPrint('制造面板中${deviceInfo.detail}');
+        debugPrint('制造面板中${deviceInfo.detail},一共${deviceInfo.detail!["deviceControlList"].length}路');
         for (int xx = 1; xx <= deviceInfo.detail!["deviceControlList"].length; xx++) {
-          context.read<DeviceListModel>().productVistualDevice(
-              deviceInfo, '${deviceInfo.name}$xx路', "singlePanel", "deviceControlList", indexOfList: xx);
+          if (curDeviceList
+              .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == 'singlePanel')
+              .toList().length < deviceInfo.detail!["deviceControlList"].length) {
+            context.read<DeviceListModel>().productVistualDevice(
+                deviceInfo, '${deviceInfo.name}$xx路', "singlePanel-$xx",
+                "deviceControlList", indexOfList: xx - 1);
+          }
         }
       }
     }
