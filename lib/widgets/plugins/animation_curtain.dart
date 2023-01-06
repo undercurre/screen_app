@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AnimationCurtain extends StatefulWidget {
-  final double position;
+  final num position;
 
   const AnimationCurtain({super.key, required this.position});
 
@@ -72,7 +72,7 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
 }
 
 class AnimatedClip extends StatefulWidget {
-  final double pos;
+  final num pos;
   final Duration duration;
   final Curve curve;
 
@@ -103,7 +103,7 @@ class _AnimatedClipState extends State<AnimatedClip> with SingleTickerProviderSt
       duration: widget.duration,
       vsync: this,
     );
-    _tween = Tween(begin: widget.pos);
+    _tween = Tween(begin: widget.pos.toDouble());
     _updateCurve();
   }
 
@@ -143,7 +143,7 @@ class _AnimatedClipState extends State<AnimatedClip> with SingleTickerProviderSt
 
       _tween
         ..begin = _tween.evaluate(_animation)
-        ..end = widget.pos;
+        ..end = widget.pos.toDouble();
 
       _controller
         ..value = 0
@@ -160,7 +160,7 @@ class _AnimatedClipState extends State<AnimatedClip> with SingleTickerProviderSt
 
 // 多边形路径
 class Trapezoid extends CustomClipper<Path> {
-  final double pos;
+  final num pos;
 
   Trapezoid({required this.pos});
 
