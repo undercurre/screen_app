@@ -45,10 +45,17 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
     }
   }
 
+  int get precision {
+    var stepString = widget.step.toString();
+    if (!stepString.contains('.')) {
+      return 0;
+    } else {
+      return stepString.length - stepString.indexOf('.') - 1;
+    }
+  }
+
   // _value = 组件外实时传值，基于widget.value的计算值
   num get _value {
-    final stepString = widget.step.toString();
-    final precision = stepString.length - stepString.indexOf('.') - 1;
     var value = widget.value < widget.min
         ? widget.min
         : (widget.value > widget.max ? widget.max : widget.value);
@@ -214,10 +221,8 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
       if (widget.disabled) return;
       if (value - widget.step > widget.min) {
         // 下一步没小于最小值，需要用步长进行计算
-        final stepString = widget.step.toString();
-        if (stepString.contains('.')) {
+        if (precision > 0) {
           // 步长存在小数，需要按照步长的精度进行计算
-          final precision = stepString.length - stepString.indexOf('.') - 1;
           value = num.parse((value - widget.step).toStringAsFixed(precision));
         } else {
           value -= widget.step;
@@ -234,9 +239,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
     setState(() {
       if (widget.disabled) return;
       if (value + widget.step < widget.max) {
-        final stepString = widget.step.toString();
-        if (stepString.contains('.')) {
-          final precision = stepString.length - stepString.indexOf('.') - 1;
+        if (precision > 0) {
           value = num.parse((value + widget.step).toStringAsFixed(precision));
         } else {
           value += widget.step;

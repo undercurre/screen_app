@@ -138,7 +138,7 @@ class _MzSliderState extends State<MzSlider>
               ),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: getActiveColor()),
+                  gradient: LinearGradient(colors: activeColor),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -146,12 +146,12 @@ class _MzSliderState extends State<MzSlider>
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: getActiveRailWidth(),
+                    width: activeRailWidth,
                   ),
                 ),
               ),
               Positioned(
-                left: getBallLeft(),
+                left: ballLeft,
                 child: Container(
                   width: widget.ballRadius * 2,
                   height: widget.ballRadius * 2,
@@ -170,7 +170,7 @@ class _MzSliderState extends State<MzSlider>
 
   /// 值计算
   // 获取当前圆点的滑动条颜色
-  List<Color> getActiveColor() {
+  List<Color> get activeColor {
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
     int curRed =
@@ -192,14 +192,14 @@ class _MzSliderState extends State<MzSlider>
   }
 
   // 获取白色圆点的left距离
-  double getBallLeft() {
+  double get ballLeft {
     return widget.height -
         ((widget.height - widget.ballRadius * 2) / 2 + widget.ballRadius * 2) +
         valueToPercentage(value) * (widget.width - widget.height);
   }
 
   // 获取激活部分滑动条长度
-  double getActiveRailWidth() {
+  double get activeRailWidth {
     return widget.height + valueToPercentage(value) * (widget.width - widget.height);
   }
 
@@ -215,7 +215,7 @@ class _MzSliderState extends State<MzSlider>
     return widget.min + (widget.max - widget.min) * percentage;
   }
 
-  int getPrecision() {
+  int get precision {
     var stepString = widget.step.toString();
     if (!stepString.contains('.')) {
       return 0;
@@ -226,7 +226,6 @@ class _MzSliderState extends State<MzSlider>
 
   num steppingValue(num nextValue) {
     if (widget.step <= 0) return nextValue;
-    final precision = getPrecision();
     final currentStep =
     num.parse((nextValue / widget.step).toStringAsFixed(precision));
     final leftStep = num.parse((currentStep.floor() * widget.step).toStringAsFixed(precision));
@@ -290,7 +289,7 @@ class _MzSliderState extends State<MzSlider>
       value = clampValue(percentageValue);
       toValue = clampValue(percentageValue);
     });
-    widget.onChanging?.call(emitValue, getActiveColor()[1]);
+    widget.onChanging?.call(emitValue, activeColor[1]);
   }
 
   void onPanUp() {
@@ -303,6 +302,6 @@ class _MzSliderState extends State<MzSlider>
       value = temp;
       toValue = temp;
     });
-    widget.onChanged?.call(toValue, getActiveColor()[1]);
+    widget.onChanged?.call(toValue, activeColor[1]);
   }
 }
