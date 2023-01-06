@@ -1,15 +1,17 @@
 import 'dart:async';
-import '../../../common/global.dart';
+import '../../device/service.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
+import 'package:screen_app/models/device_entity.dart';
 
 class CurtainPageState extends State<CurtainPage> with AutoSniffer {
   String deviceId = '178120883713504'; // 暂时写死设备编码
-  String deviceName = '窗帘';
-  double curtainPosition = 1;
+  String deviceName = '智能窗帘';
+  String deviceType = '0x14';
+  int curtainPosition = 1;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
 
@@ -28,7 +30,8 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
   Future<void> curtainHandle(num value) async {
     // 控制值即时响应
     setState(() {
-      curtainPosition = double.parse('$value');
+      curtainPosition = value.toInt();
+      debugPrint('curtainPosition: $curtainPosition');
     });
     await CurtainApi.changePosition(deviceId, value, curtainDirection);
     // TODO 控制返回值回显
@@ -45,19 +48,17 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args != null) {
-        var t = args as Map;
-        deviceId = t['deviceId'];
-        deviceName = t['deviceName'];
-      }
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      deviceId = args['deviceId'];
 
-      var res = await CurtainApi.getDetail(deviceId);
+      var deviceInfo = DeviceEntity.fromJson({'applianceCode': deviceId, 'type': deviceType});
+      var res = await DeviceService.getDeviceDetail(deviceInfo);
+      debugPrint('res: $res');
 
-      setState(() {
-        curtainPosition = double.parse(res.result['curtain_position']);
-        curtainStatus = res.result['curtain_status'];
-        curtainDirection = res.result['curtain_direction'];
+       setState(() {
+        curtainPosition = int.parse(res['curtain_position']);
+        curtainStatus = res['curtain_status'];
+        curtainDirection = res['curtain_direction'];
       });
     });
   }
@@ -119,7 +120,7 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
                             children: [
                               SliderButtonCard(
                                   unit: '%',
-                                  value: num.parse('$curtainPosition') ,
+                                  value: curtainPosition,
                                   min: 1,
                                   max: 100,
                                   onChanged: curtainHandle),

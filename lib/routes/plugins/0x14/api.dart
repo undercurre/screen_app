@@ -5,17 +5,17 @@ import 'package:screen_app/routes/plugins/device_interface.dart';
 
 class CurtainApi implements DeviceInterface {
   /// 查询设备状态
-  static Future<MzResponseEntity> getDetail(String deviceId) async {
-    var res = await DeviceApi.getDeviceDetail('0x14', deviceId);
-    return res;
-  }
+  // static Future<MzResponseEntity> getDetail(String deviceId) async {
+  //   var res = await DeviceApi.getDeviceDetail('0x14', deviceId);
+  //   return res;
+  // }
 
   /// 设备控制（lua）
-     static Future<MzResponseEntity> changePosition(String deviceId, num position, String dir) async {
-      var res = await DeviceApi.sendLuaOrder(
-          '0x14', deviceId, {"curtain_position": position, 'curtain_direction': dir});
-      return res;
-    }
+  static Future<MzResponseEntity> changePosition(String deviceId, num position, String dir) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0x14', deviceId, {"curtain_position": position, 'curtain_direction': dir});
+    return res;
+  }
   static Future<MzResponseEntity> setMode(String deviceId, String modeKey, String dir) async {
     var res = await DeviceApi.sendLuaOrder(
         '0x14', deviceId, {"curtain_status": modeKey, 'curtain_direction': dir});
@@ -24,26 +24,27 @@ class CurtainApi implements DeviceInterface {
 
   @override
   String getAttr(DeviceEntity deviceInfo) {
-    // TODO: implement getAttr
-    throw UnimplementedError();
+    return '';
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    // TODO: implement getAttrUnit
-    throw UnimplementedError();
+    return '';
   }
 
   @override
-  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) {
-    // TODO: implement getDeviceDetail
-    throw UnimplementedError();
+  Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
+    var res = await DeviceApi.getDeviceDetail('0x14', deviceInfo.applianceCode);
+    if (res.code == 0) {
+      return res.result;
+    } else {
+      return {};
+    }
   }
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    // TODO: implement getOffIcon
-    throw UnimplementedError();
+    return '';
   }
 
   @override
@@ -53,8 +54,7 @@ class CurtainApi implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    // TODO: implement isPower
-    throw UnimplementedError();
+    return true;
   }
 
   @override
@@ -63,8 +63,9 @@ class CurtainApi implements DeviceInterface {
   }
 
   @override
-  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
-    // TODO: implement setPower
-    throw UnimplementedError();
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0x14', deviceInfo.applianceCode, {"curtain_status": '', 'curtain_direction': 'positive'});
+    return res;
   }
 }
