@@ -3,6 +3,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiInfo
 import android.os.*
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.utils.JSONArrayUtils
@@ -11,8 +13,10 @@ import com.midea.light.device.explore.DevicesExploreService
 import com.midea.light.device.explore.Portal
 import com.midea.light.device.explore.api.entity.ApplianceBean
 import com.midea.light.device.explore.beans.BindResult
+import com.midea.light.device.explore.beans.WiFiScanResult
 import com.midea.light.device.explore.beans.ZigbeeScanResult
 import com.midea.light.device.explore.config.BaseConfig
+import com.midea.light.utils.CollectionUtil
 import com.midea.light.utils.GsonUtils
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -77,6 +81,46 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 val applianceCode = requireNotNull(call.argument<String?>("applianceCode"))
                 modifyDevicePosition(homeGroupId, roomId, applianceCode)
             }
+            "findWiFi" -> {
+                assert(isInit)
+                findWifi()
+            }
+            "stopFindWiFi" -> {
+                assert(isInit)
+                stopWifi()
+            }
+            "bindWiFi" -> {
+                assert(isInit)
+                val homeGroupId = requireNotNull(call.argument<String?>("homeGroupId"))
+                val roomId = requireNotNull(call.argument<String?>("roomId"))
+                val wifiBssId = requireNotNull(call.argument<String?>("wifiBssId"))
+                val wifiSsid = requireNotNull(call.argument<String?>("wifiSsid"))
+                val wifiPassword = requireNotNull(call.argument<String?>("wifiPassword"))
+                val encrypt = requireNotNull(call.argument<String?>("wifiEncrypt"))
+
+                val devices = JSONArrayUtils.toJsonArray(requireNotNull(call.argument<JSONArray?>("devices")))
+                val scanResults = mutableListOf<android.net.wifi.ScanResult>()
+                devices.forEach {
+                    val ssid = it.get("ssid")
+                    val bssid = it.get("bssid")
+                    val scanResult = requireNotNull(wifiDevices.find { it.SSID() == ssid && it.BSSID() == bssid })
+                    scanResults.add(scanResult.scanResult)
+                }
+
+                if(CollectionUtil.isEmpty(scanResults)) {
+                    throw java.lang.RuntimeException("请指定需要绑定的wifi设备")
+                }
+
+                bindWifi(homeGroupId, roomId, wifiBssId, wifiSsid, wifiPassword, encrypt, scanResults)
+            }
+            "stopBindWiFi" -> {
+                assert(isInit)
+                stopBindWifi()
+            }
+            "autoFindWiFi" -> {
+                assert(isInit)
+                autoFindWiFi()
+            }
         }
     }
 
@@ -86,7 +130,8 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     var isConnectedService = false
     var isInit = false
 
-    var zigbeeDevices: MutableList<ZigbeeScanResult> = mutableListOf()
+    var zigbeeDevices: MutableSet<ZigbeeScanResult> = mutableSetOf()
+    var wifiDevices: MutableSet<WiFiScanResult> = mutableSetOf()
 
     val receiveDataFromServer = @SuppressLint("HandlerLeak")
     object : Handler() {
@@ -104,6 +149,12 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                     }
                     Portal.RESULT_SCAN_ZIGBEE_DEVICES -> {
                         findZigbeeHandle(methodType, this)
+                    }
+                    Portal.REQUEST_SCAN_WIFI_DEVICES -> {
+                        findWifiHandle(methodType, this)
+                    }
+                    Portal.REQUEST_BIND_WIFI_DEVICES -> {
+                        wifiBindMethodHandle(methodType, this)
                     }
                 }
             }
@@ -232,7 +283,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
             val data = Bundle()
             data.putString(Portal.ACTION_TYPE, Portal.REQUEST_BIND_ZIGBEE_DEVICES)
             data.putString(Portal.METHOD_TYPE, Portal.METHOD_BIND_ZIGBEE)
-            data.putParcelableArray(Portal.PARAM_BIND_PARAMETER, devices)
+            data.putParcelableArray(Portal.PARAM_BIND_ZIGBEE_PARAMETER, devices)
             data.putString(Portal.PARAM_BIND_ZIGBEE_HOME_GROUP_ID, homeGroupId)
             data.putString(Portal.PARAM_BIND_ZIGBEE_HOME_ROOM_ID, roomId)
             message.data = data
@@ -267,5 +318,119 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         serverMessenger?.send(message)
     }
 
+
+    // 4. wifi设备扫描
+    private fun findWifi() {
+        val message = Message()
+        val data = Bundle()
+        data.putString(Portal.ACTION_TYPE, Portal.REQUEST_SCAN_WIFI_DEVICES)
+        data.putString(Portal.METHOD_TYPE, Portal.METHOD_SCAN_WIFI_START)
+        data.putBoolean(Portal.PARAM_SCAN_WIFI_LOOPER, true)
+        message.data = data
+        message.replyTo = clientMessenger
+        serverMessenger?.send(message)
+    }
+
+    private fun stopWifi() {
+        val message = Message()
+        val data = Bundle()
+        data.putString(Portal.ACTION_TYPE, Portal.REQUEST_SCAN_WIFI_DEVICES)
+        data.putString(Portal.METHOD_TYPE, Portal.METHOD_SCAN_WIFI_STOP)
+        data.putBoolean(Portal.PARAM_SCAN_WIFI_LOOPER, true)
+        message.data = data
+        message.replyTo = clientMessenger
+        serverMessenger?.send(message)
+    }
+    // 5. 绑定wifi设备
+    private fun bindWifi(
+        homeGroupId: String,
+        roomId: String,
+        wifiBssId: String,
+        wifiName: String,
+        wifiPassword: String,
+        encrypt: String,
+        scanResults: MutableList<ScanResult>
+    ) {
+        val message = Message()
+        val data = Bundle()
+        data.putString(Portal.ACTION_TYPE, Portal.REQUEST_BIND_WIFI_DEVICES)
+        data.putString(Portal.METHOD_TYPE, Portal.METHOD_BIND_WIFI)
+        data.putString(Portal.PARAM_BIND_WIFI_HOME_GROUP_ID, homeGroupId)
+        data.putString(Portal.PARAM_BIND_WIFI_HOME_ROOM_ID, roomId)
+        data.putString(Portal.PARAM_WIFI_NAME, wifiName)
+        data.putString(Portal.PARAM_WIFI_PASSWORD, wifiPassword)
+        data.putString(Portal.PARAM_WIFI_ENCRYPT_TYPE, encrypt)
+        data.putString(Portal.PARAM_WIFI_BSSID, wifiBssId)
+        data.putParcelableArray(Portal.PARAM_WIFI_BIND_PARAMETER, scanResults.toTypedArray())
+        message.data = data
+        message.replyTo = clientMessenger
+        serverMessenger?.send(message)
+    }
+
+    private fun stopBindWifi() {
+        val message = Message()
+        val data = Bundle()
+        data.putString(Portal.ACTION_TYPE, Portal.REQUEST_BIND_WIFI_DEVICES)
+        data.putString(Portal.METHOD_TYPE, Portal.METHOD_STOP_WIFI_BIND)
+        message.data = data
+        message.replyTo = clientMessenger
+        serverMessenger?.send(message)
+    }
+    // 6. 发现wifi设备结果
+    private fun findWifiHandle(methodType: String, bundle: Bundle) {
+        if(methodType == Portal.METHOD_SCAN_WIFI_START) {
+            val result =  bundle.getParcelableArrayList<WiFiScanResult>(Portal.RESULT_SCAN_WIFI_DEVICES)
+            if(CollectionUtil.isNotEmpty(result)) {
+                wifiDevices.addAll(result!!)
+                val jsonArray = JSONArray()
+                result.forEach { wiFiScanResult ->
+                    jsonArray.put(covertWiFiScanResultToFlutterType(wiFiScanResult))
+                }
+                mMethodChannel.invokeMethod("findWiFiResult", jsonArray)
+            }
+        }
+    }
+    // 7. 绑定wifi设备结果
+    private fun wifiBindMethodHandle(methodType: String, data: Bundle) {
+        if(methodType == Portal.METHOD_BIND_WIFI) {
+            val bindResult: BindResult = requireNotNull(data.getParcelable(Portal.RESULT_BIND_WIFI_DEVICES))
+            val json = JSONObject()
+            json.put("code", bindResult.code) // 0成功 -1失败
+            json.put("message", bindResult.message) // 如果失败会有报错的原因，此字段用处不大
+            json.put("waitDeviceBind", bindResult.waitDeviceBind) // 剩下多少设备需要绑定
+            json.put("findInfo", (covertWiFiScanResultToFlutterType(bindResult.deviceInfo as WiFiScanResult)))
+            if(bindResult.code == 0) {
+                json.put("bindInfo", JSONObjectUtils.objectToJson(bindResult.bindResult as ApplianceBean))
+            }
+            mMethodChannel.invokeMethod("wifiBindResult", json)
+        }
+    }
+
+    //8. 自动扫描WiFi设备
+    private fun autoFindWiFi() {
+        val message = Message()
+        val data = Bundle()
+        data.putString(Portal.ACTION_TYPE, Portal.REQUEST_SCAN_WIFI_DEVICES)
+        data.putString(Portal.METHOD_TYPE, Portal.METHOD_SCAN_WIFI_START)
+        data.putBoolean(Portal.PARAM_AUTO_SCAN_WIFI_LOOPER, true)
+        message.data = data
+        message.replyTo = clientMessenger
+        serverMessenger?.send(message)
+    }
+
+    // WiFiScanResult -> Convert (用于转换数据类型到Flutter上去)
+    private fun covertWiFiScanResultToFlutterType(wiFiScanResult: WiFiScanResult) : JSONObject {
+        val jsonObject = JSONObject()
+        jsonObject.put("icon", wiFiScanResult.icon)
+        jsonObject.put("name", wiFiScanResult.name)
+        val infoJsonObject = JSONObject()
+        infoJsonObject.put("ssid", wiFiScanResult.scanResult.SSID)
+        infoJsonObject.put("bssid", wiFiScanResult.scanResult.BSSID)
+        infoJsonObject.put("auth", "encryption")// 默认参数：需要传密钥
+        infoJsonObject.put("level", 3)// 默认参数：信号强度最高
+        infoJsonObject.put("alreadyConnected", false)
+        jsonObject.put("info", infoJsonObject)
+        return jsonObject
+    }
 
 }

@@ -47,7 +47,7 @@ public class Portal implements PortalContext {
     public final static String REQUEST_BIND_ZIGBEE_DEVICES = "request_bind_zigbee_devices";
     public final static String METHOD_BIND_ZIGBEE = "method_bind_zigbee";
     public final static String METHOD_STOP_ZIGBEE_BIND = "method_stop_zigbee_bind";
-    public final static String PARAM_BIND_PARAMETER = "param_bind_parameter";
+    public final static String PARAM_BIND_ZIGBEE_PARAMETER = "param_bind_parameter";
     public final static String PARAM_BIND_ZIGBEE_HOME_GROUP_ID = "param_bind_home_group_id";
     public final static String PARAM_BIND_ZIGBEE_HOME_ROOM_ID = "param_bind_room_id";
     public final static String RESULT_BIND_ZIGBEE_DEVICES = "method_bind_zigbee_result";
@@ -61,6 +61,7 @@ public class Portal implements PortalContext {
     public final static String PARAM_WIFI_PASSWORD = "param_wifi_password";
     public final static String PARAM_WIFI_ENCRYPT_TYPE = "param_wifi_encrypt_type";
     public final static String PARAM_WIFI_BSSID = "param_wifi_bssid";
+    public final static String PARAM_WIFI_BIND_PARAMETER = "param_bind_parameter";
     public final static String RESULT_BIND_WIFI_DEVICES = "method_bind_wifi_result";
     // #ModifyDeviceBelogToRoomController
     public final static String REQUEST_MODIFY_DEVICE_ROOM = "request_modify_device_room";

@@ -64,7 +64,7 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
     public void request(String method, Bundle bundle) {
         // wifi设备绑定
         if (method.equals(Portal.METHOD_BIND_WIFI)) {
-            WiFiScanResult[] parcelables = (WiFiScanResult[]) bundle.getParcelableArray(Portal.PARAM_BIND_PARAMETER);
+            WiFiScanResult[] parcelables = (WiFiScanResult[]) bundle.getParcelableArray(Portal.PARAM_WIFI_BIND_PARAMETER);
             String homeGroupId = bundle.getString(Portal.PARAM_BIND_WIFI_HOME_GROUP_ID);
             String roomId = bundle.getString(Portal.PARAM_BIND_WIFI_HOME_ROOM_ID);
             String wifiName = bundle.getString(Portal.PARAM_WIFI_NAME);

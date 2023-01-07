@@ -39,7 +39,7 @@ public class BindZigbeeDeviceController extends AbstractController implements IS
     @Override
     public void request(String methodType, Bundle bundle) {
         if (Portal.METHOD_BIND_ZIGBEE.equals(methodType)) {
-            ZigbeeScanResult[] parcelables = (ZigbeeScanResult[]) bundle.getParcelableArray(Portal.PARAM_BIND_PARAMETER);
+            ZigbeeScanResult[] parcelables = (ZigbeeScanResult[]) bundle.getParcelableArray(Portal.PARAM_BIND_ZIGBEE_PARAMETER);
             String homeGroupId = bundle.getString(Portal.PARAM_BIND_ZIGBEE_HOME_GROUP_ID);
             String roomId = bundle.getString(Portal.PARAM_BIND_ZIGBEE_HOME_ROOM_ID);
             if (parcelables != null && parcelables.length > 0) {

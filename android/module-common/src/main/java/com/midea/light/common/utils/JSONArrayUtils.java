@@ -1,8 +1,11 @@
 package com.midea.light.common.utils;
 
 import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @ClassName JSONArrayUtils
@@ -67,6 +70,18 @@ public class JSONArrayUtils {
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 result[i] = jsonArray.getLong(i);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
+    public static JSONObject[] toJsonArray(@NotNull JSONArray jsonArray) {
+        final JSONObject[] result = new JSONObject[jsonArray.length()];
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                result[i] = jsonArray.getJSONObject(i);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }

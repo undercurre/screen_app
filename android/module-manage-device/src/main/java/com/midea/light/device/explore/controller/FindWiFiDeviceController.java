@@ -49,8 +49,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class FindWiFiDeviceController extends AbstractController implements IServiceController {
     // 搜索的wifi设备名称，要匹配下面wifi的正则表达式
     private final static String WIFI_TEMPLATE = "midea_(..)_....";
-    // 每隔三秒搜索一次
-    private final static long FAST_SEARCH_INTERVAL = 3000;
+    // 每隔五秒搜索一次
+    private final static long FAST_SEARCH_INTERVAL = 5000;
     // 扫描WiFi结果接收器
     private WifiScanReceiver mWifiScanReceiver;
     // wifi管理器
