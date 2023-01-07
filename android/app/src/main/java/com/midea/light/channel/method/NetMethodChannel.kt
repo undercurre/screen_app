@@ -5,9 +5,11 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
+import com.midea.light.BaseApplication
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.channel.HybridResult
 import com.midea.light.common.config.AppCommonConfig
+import com.midea.light.common.utils.JSONObjectUtils
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.wifi.ConnectStateHandler
 import com.midea.light.setting.wifi.ScanNearbyWiFiHandler
@@ -21,6 +23,7 @@ import com.midea.light.setting.wifi.util.WifiUtil
 import com.midea.light.thread.MainThread
 import com.midea.light.utils.CollectionUtil
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.JSONUtil
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.json.JSONArray
@@ -147,6 +150,20 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 val ssid = call.argument<String>("ssid")
                 val bssid = call.argument<String>("bssid")
                 onCallSuccess(result, WifiUtil.forgetWifi(context, ssid, bssid))
+            }
+            "checkConnectWiFiInfo" -> {
+                val wifiState = WifiUtil.connectedState(BaseApplication.getContext())
+                if(wifiState == 2) {
+                    val wifiInfo = WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
+                    val wifiRecord = WifiUtil.findLocalWiFiRecord(wifiInfo.ssid.replace("\"", ""), wifiInfo.bssid.replace("\"", ""))
+                    if(wifiInfo != null) {
+                        onCallSuccess(result, JSONObjectUtils.objectToJson(wifiRecord))
+                    } else {
+                        onCallError(result, "-1", "当前wifi已经连接，但是查找不到wifi的本地记录")
+                    }
+                } else {
+                    onCallError(result, "-2", "当前wifi还未连接")
+                }
             }
             else -> {
                 onCallNotImplement(result)

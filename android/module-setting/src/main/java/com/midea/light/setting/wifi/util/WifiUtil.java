@@ -179,6 +179,24 @@ public class WifiUtil {
         Collections.sort(list, (wifi1, wifi2) -> WifiManager.calculateSignalLevel(wifi2.level, WIFI_MAX_LEVEL) - WifiManager.calculateSignalLevel(wifi1.level, WIFI_MAX_LEVEL));
     }
 
+    public static WiFiAccountPasswordBean findLocalWiFiRecord(String ssid, String bssid) {
+        List<String> wifis = WiFiRecordRepositories.getInstance().getAlreadyLoginWiFis();
+        if (wifis != null) {
+            Iterator<String> iterator = wifis.iterator();
+            while (iterator.hasNext()) {
+                WiFiAccountPasswordBean bean = GsonUtils.tryParse(WiFiAccountPasswordBean.class, iterator.next());
+                if (bean != null) {
+                    if (Objects.equals(bean.getSsid(), ssid) && Objects.equals(bean.getBssid(), bssid)) {
+                        return bean;
+                    } else if(Objects.equals(bean.getSsid(), ssid)) {
+                        return bean;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static void removeAllConfiguration(Context context) {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         final List<WifiConfiguration> configs = wifiMgr.getConfiguredNetworks();
