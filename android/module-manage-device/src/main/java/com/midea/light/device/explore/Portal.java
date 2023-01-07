@@ -12,9 +12,13 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.midea.iot.sdk.MideaSDK;
+import com.midea.light.BaseApplication;
 import com.midea.light.device.explore.api.ApiService;
 import com.midea.light.device.explore.api.IApiService;
 import com.midea.light.device.explore.config.BaseConfig;
+import com.midea.light.log.LogUtil;
+
 import java.util.Objects;
 
 /**
@@ -38,7 +42,7 @@ public class Portal implements PortalContext {
     public final static String METHOD_SCAN_ZIGBEE_STOP = "method_zigbee_stop";
     public final static String PARAM_SCAN_HOME_GROUP_ID = "param_scan_home_group_id";
     public final static String PARAM_GATEWAY_APPLIANCE_CODE = "param_gateway_appliance_code";
-    public final static String RESULT_SCAN_ZIGBEE_DEVICES = "result_scan_devices_zigbee";
+    public final static String RESULT_SCAN_ZIGBEE_DEVICES = "result_scan_devices_zigbee";// ArrayList<ZigbeeScanResult>
     // #BindZigbeeDeviceController
     public final static String REQUEST_BIND_ZIGBEE_DEVICES = "request_bind_zigbee_devices";
     public final static String METHOD_BIND_ZIGBEE = "method_bind_zigbee";
@@ -74,6 +78,7 @@ public class Portal implements PortalContext {
 
     // ================== 初始化 =====================
     static BaseConfig BASE_CONFIG;
+    static boolean isInitMideaSdk;
 
     public static BaseConfig getBaseConfig() {
         return Objects.requireNonNull(BASE_CONFIG, "请先执行初始化initBaseConfig方法");
@@ -82,9 +87,32 @@ public class Portal implements PortalContext {
     // 初始化【基础的、通用的】配置
     public static void initBaseConfig(BaseConfig baseConfig) {
         BASE_CONFIG = baseConfig;
+        LogUtil.tag("portal_device").json(baseConfig);
+
+        /**
+         *                 MideaSDK.getInstance().initSDKWithAppID(MainApplication.this,
+         *                         AppCommonConfig.IOT_APP_COUNT, AppCommonConfig.IOT_SECRET,
+         *                         AppCommonConfig.HOST + "/mas/v5/app/proxy?alias=",
+         *                         AppCommonConfig.HTTP_SIGN_SECRET, AppCommonConfig.HTTP_REQUEST_HEADER_DATA_KEY);
+         */
+        if(!isInitMideaSdk) {
+            MideaSDK.getInstance().initSDKWithAppID(
+                    BaseApplication.getContext(),
+                    baseConfig.getIotAppCount(),
+                    baseConfig.getIotSecret(),
+                    baseConfig.getHost() + "/mas/v5/app/proxy?alias=",
+                    baseConfig.getHttpSign(),
+                    baseConfig.getHttpHeaderDataKey());
+            isInitMideaSdk = true;
+        }
+
+        MideaSDK.getInstance().initLogin(baseConfig.getToken(), baseConfig.getKey());
     }
 
-    public static void resetBaseConfig() { BASE_CONFIG = null; }
+    public static void resetBaseConfig() {
+        BASE_CONFIG = null;
+        MideaSDK.getInstance().unInitLogin();
+    }
 
 
     // ================== 分割线 ======================

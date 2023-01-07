@@ -7,6 +7,8 @@ import android.os.Messenger;
 
 import androidx.annotation.Nullable;
 
+import com.midea.iot.sdk.MideaSDK;
+import com.midea.light.BaseApplication;
 import com.midea.light.common.service.LifecycleService;
 import com.midea.light.device.explore.controller.AbstractController;
 import com.midea.light.device.explore.controller.factory.BindWiFiDeviceFactory;

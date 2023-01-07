@@ -23,6 +23,7 @@ import com.midea.light.device.explore.api.ApiService;
 import com.midea.light.device.explore.api.IApiService;
 import com.midea.light.device.explore.repository.DeviceRepository;
 import com.midea.light.log.LogUtil;
+import com.midea.light.thread.MainThread;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -63,7 +64,7 @@ public abstract class AbstractController implements IServiceController, Lifecycl
     public AbstractController(PortalContext context) {
         this.mContext = context.geExploreService();
         this.apiService = context.getApiService();
-        context.getLifecycleOwner().getLifecycle().addObserver(this);
+        MainThread.run(() -> context.getLifecycleOwner().getLifecycle().addObserver(this));
         this.mHandler = new Handler(context.getHandlerThread().getLooper()) {
             @Override
             public void handleMessage(@NonNull Message msg) {

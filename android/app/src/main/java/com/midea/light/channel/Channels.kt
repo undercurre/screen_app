@@ -23,7 +23,7 @@ const val CHANNEL_NAME_SETTING = "com.midea.light/set"
 const val CHANNEL_NAME_ABOUT = "com.midea.light/about"
 const val CHANNEL_CONFIG = "com.midea.light/config"
 const val CHANNEL_OTA = "com.midea.light/ota"
-const val CHANNEL_MANAGER_DEVICES = "com.midea.light/managerDevices"
+const val CHANNEL_MANAGER_DEVICES = "com.midea.light/deviceManager"
 
 class Channels {
     // Channel信使

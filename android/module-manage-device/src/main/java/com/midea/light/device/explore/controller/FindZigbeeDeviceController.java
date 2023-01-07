@@ -85,7 +85,7 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
 
         boolean result = getApiService().transmitCommandToGateway(
                 uid, applianceCode,
-                SecurityUtils.encodeAES128(root.toString(), Portal.getBaseConfig().getHttpDataSecret()),
+                SecurityUtils.encodeAES128(root.toString(), Portal.getBaseConfig().getSeed()),
                 homeGroupId, TimeUtil.getTimestamp(), UUID.randomUUID().toString());
 
         LogUtil.i("Zigbee Stop result = " + result);
@@ -111,7 +111,7 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
                         root.add("command", command);
 
                         Boolean result = getApiService().transmitCommandToGateway(uid, applianceCode,
-                                            SecurityUtils.encodeAES128(root.toString(), Portal.getBaseConfig().getHttpDataSecret()),
+                                            SecurityUtils.encodeAES128(root.toString(), Portal.getBaseConfig().getSeed()),
                                             homeGroupId, TimeUtil.getTimestamp(), UUID.randomUUID().toString());
 
                         LogUtil.i("Zigbee Search result = " + result);

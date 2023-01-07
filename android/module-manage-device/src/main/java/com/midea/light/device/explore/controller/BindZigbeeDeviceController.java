@@ -162,7 +162,7 @@ public class BindZigbeeDeviceController extends AbstractController implements IS
             if(applianceBean == null) {
                 applianceBean = getApiService().bindDevice(
                         Portal.getBaseConfig().getUserId(), state.getHomeGroupId(), state.getRoomId(), zigbeeDevice.getApplianceType(),
-                        SecurityUtils.decodeAES128(zigbeeDevice.getSn(), Portal.getBaseConfig().getHttpDataSecret()),
+                        SecurityUtils.decodeAES128(zigbeeDevice.getSn(), Portal.getBaseConfig().getSeed()),
                         zigbeeDevice.getName(), UUID.randomUUID().toString(), TimeUtil.getTimestamp()
                 );
             }

@@ -45,7 +45,7 @@ public class ApplianceBeanAdapter extends TypeAdapter<ApplianceBean> {
                     applianceBean.setApplianceCode(in.nextString());
                     break;
                 case "sn":
-                    applianceBean.setRawSn(SecurityUtils.decodeAES128(in.nextString(), Portal.getBaseConfig().getHttpDataSecret()));
+                    applianceBean.setRawSn(SecurityUtils.decodeAES128(in.nextString(), Portal.getBaseConfig().getSeed()));
                     break;
                 case "onlineStatus":
                     applianceBean.setOnlineStatus(in.nextString());

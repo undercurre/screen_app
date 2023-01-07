@@ -73,10 +73,14 @@ public class ApiService implements IApiService {
 
     <T> T returnResult(TypeToken<T> token, Response response) throws IOException {
         if(response.isSuccessful()) {
-            HttpResult<T> result = GsonUtils.tryParse(TypeToken.getParameterized(
-                        new TypeToken<HttpResult<T>>(){}.getType(),
+            String json = response.body().string();
+            HttpResult<T> result = GsonUtils.tryParse(
+                    TypeToken.getParameterized(
+                        new TypeToken<HttpResult>(){}.getType(),
                         token.getType()
-                    ).getType(), response.body().string());
+                    ).getType(),
+                    json
+            );
             if(result != null  && result.isSuc()) {
                 return result.getData();
             }
@@ -143,7 +147,9 @@ public class ApiService implements IApiService {
         try {
             Response response = mOkhttpClient.newCall(create("/mas/v5/app/proxy?alias=/v1/gateway/subdevice/search", request.toString())).execute();
             SearchZigbeeDeviceResult result = returnResult(new TypeToken<SearchZigbeeDeviceResult>(){}, response);
-            return result.getList();
+            if(result != null) {
+                return result.getList();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

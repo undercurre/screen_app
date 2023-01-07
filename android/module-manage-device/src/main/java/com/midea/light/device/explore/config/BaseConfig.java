@@ -8,23 +8,45 @@ package com.midea.light.device.explore.config;
  * @Version 1.0
  */
 public class BaseConfig {
-    boolean debug = false; // 是否打开调试
+    boolean debug = true; // 是否打开调试
     String host; // 当前服务器url
     String token; // 当前登录的it Token
     String httpSign; // 当前环境的http请求密钥
-    String httpDataSecret; // 登录成功之后，云端返回的敏感数据加密密钥
+    String seed; // 登录成功之后，云端返回的敏感数据加密密钥
+    String key; // 登录成功之后，云端返回的敏感数据加密密钥
     String deviceId; // 设备ID
     String userId; // 当前IT uid
+    String iotAppCount; // app账号
+    String iotSecret; // iot密钥
+    String httpHeaderDataKey; //iot头部请求密钥
 
 
     public BaseConfig(String host, String token, String httpSign,
-                      String httpDataSecret, String deviceId, String userId) {
+                      String seed, String key, String deviceId, String userId,
+                      String iotAppCount, String iotSecret, String httpHeaderDataKey
+    ) {
         this.host = host;
         this.token = token;
         this.httpSign = httpSign;
-        this.httpDataSecret = httpDataSecret;
+        this.seed = seed;
+        this.key = key;
         this.deviceId = deviceId;
         this.userId = userId;
+        this.iotAppCount = iotAppCount;
+        this.iotSecret = iotSecret;
+        this.httpHeaderDataKey = httpHeaderDataKey;
+    }
+
+    public String getHttpHeaderDataKey() {
+        return httpHeaderDataKey;
+    }
+
+    public String getIotSecret() {
+        return iotSecret;
+    }
+
+    public String getIotAppCount() {
+        return iotAppCount;
     }
 
     public String getUserId() {
@@ -55,8 +77,11 @@ public class BaseConfig {
         return httpSign;
     }
 
-    public String getHttpDataSecret() {
-        return httpDataSecret;
+    public String getKey() {
+        return key;
     }
 
+    public String getSeed() {
+        return seed;
+    }
 }
