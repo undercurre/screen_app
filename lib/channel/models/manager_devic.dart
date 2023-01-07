@@ -1,4 +1,6 @@
 
+import 'package:screen_app/channel/models/wifi_scan_result.dart';
+
 class FindZigbeeResult {
 
   late String icon;
@@ -80,6 +82,14 @@ class BindResult<T> {
   ..findResult = FindZigbeeResult.fromJson(map['findResult']) as T
   ..bindResult = ApplianceBean.parse(map['bindResult']);
 
+  // 转换为wifi设备的绑定结果
+  factory BindResult.convertWiFiFromJson(Map<dynamic, dynamic> map) => BindResult()
+    ..code = map['code']
+    ..message = map['message']
+    ..waitDeviceBind = map['waitDeviceBind']
+    ..findResult = FindWiFiResult.fromJson(map['findResult']) as T
+    ..bindResult = ApplianceBean.parse(map['bindResult']);
+
 }
 
 class ApplianceBean {
@@ -130,5 +140,34 @@ class ModifyDeviceResult {
   ..homeGroupId = json['homeGroupId']
   ..roomId = json['roomId']
   ..applianceCode = json['applianceCode'];
+
+}
+
+class FindWiFiResult {
+  late String icon;
+  late String name;
+  late WiFiScanResult info;
+  FindWiFiResult();
+
+  factory FindWiFiResult.fromJson(Map<dynamic, dynamic> map) => FindWiFiResult()
+      ..icon = map["icon"]
+      ..name = map["name"]
+      ..info = WiFiScanResult.fromJson(map["info"]);
+
+  static List<FindWiFiResult>? fromArray(List<dynamic>? list) {
+    if(list == null || list.isEmpty) {
+      return null;
+    }
+    final result = <FindWiFiResult>[];
+    for (var value in list) {
+      if(value is Map) {
+        FindWiFiResult findZigbeeResult = FindWiFiResult.fromJson(value);
+        result.add(findZigbeeResult);
+      } else {
+        throw Exception("请确保类型为Map");
+      }
+    }
+    return result;
+  }
 
 }

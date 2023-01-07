@@ -29,3 +29,18 @@ _$NetStateFromJson(Map<dynamic, dynamic> map) {
   return state;
 }
 
+/// 已经连接的wifi本地记录
+class ConnectedWiFiRecord {
+  late String ssid;
+  late String bssid;
+  late String password;
+  late String encryptType;
+  ConnectedWiFiRecord();
+
+  factory ConnectedWiFiRecord.fromJson(Map<dynamic, dynamic> map) => ConnectedWiFiRecord()
+  ..ssid = map['ssid']
+  ..bssid = map['bssid']
+  ..password = map['password']
+  ..encryptType = map['encryptType'];
+}
+

@@ -1,7 +1,6 @@
 
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
-
 import 'models/manager_devic.dart';
 
 abstract class IWiFiCallback{ }
@@ -9,6 +8,8 @@ abstract class IWiFiCallback{ }
 typedef IFindZigbeeCallback = void Function(List<FindZigbeeResult> result);
 typedef IBindZigbeeCallback = void Function(BindResult<FindZigbeeResult> result);
 typedef IModifyDevicePositionCallback = void Function(ModifyDeviceResult result);
+typedef IFindWiFiCallback = void Function(List<FindWiFiResult> result);
+typedef IBindWiFiCallback = void Function(BindResult<FindWiFiResult> result);
 
 class DeviceManagerChannel extends AbstractChannel {
 
@@ -16,7 +17,17 @@ class DeviceManagerChannel extends AbstractChannel {
 
   IFindZigbeeCallback? findZigbeeCallback;
   IBindZigbeeCallback? bindZigbeeCallback;
+  IFindWiFiCallback? findWiFiCallback;
+  IBindWiFiCallback? bindWiFiCallback;
   IModifyDevicePositionCallback? modifyDevicePositionCallback;
+
+  void setBindWiFiCallback(IBindWiFiCallback callback) {
+    bindWiFiCallback = callback;
+  }
+
+  void setFindWiFiCallback(IFindWiFiCallback? callback) {
+    findWiFiCallback = callback;
+  }
 
   void setFindZigbeeListener(IFindZigbeeCallback? findZigbeeCallback) {
     this.findZigbeeCallback = findZigbeeCallback;
@@ -39,20 +50,38 @@ class DeviceManagerChannel extends AbstractChannel {
       case "modifyDeviceResult":
         modifyDeviceResultHandle(call.arguments);
         break;
+      case "findWiFiResult":
+        findWiFiResultHandle(call.arguments);
+        break;
+      case "wifiBindResult":
+        wifiBindResultHandle(call.arguments);
+        break;
     }
   }
 
-  void modifyDeviceResultHandle(dynamic arguments) async {
+  void wifiBindResultHandle(arguments) {
+    final result = BindResult<FindWiFiResult>.convertWiFiFromJson(arguments);
+    bindWiFiCallback?.call(result);
+  }
+
+  void findWiFiResultHandle(arguments) {
+    final result = FindWiFiResult.fromArray(arguments);
+    if(result?.isNotEmpty == true) {
+      findWiFiCallback?.call(result!);
+    }
+  }
+
+  void modifyDeviceResultHandle(arguments) async {
     final result = ModifyDeviceResult.fromJson(arguments);
     modifyDevicePositionCallback?.call(result);
   }
 
-  void zigbeeBindResultHandle(dynamic arguments) async {
+  void zigbeeBindResultHandle(arguments) async {
     final result = BindResult<FindZigbeeResult>.convertZigbeeFromJson(arguments);
     bindZigbeeCallback?.call(result);
   }
 
-  void findZigbeeResultHandle(dynamic arguments) async {
+  void findZigbeeResultHandle(arguments) async {
     List<FindZigbeeResult>? zigbeeDevices = FindZigbeeResult.fromArray(arguments);
     if(zigbeeDevices?.isNotEmpty == true) {
       findZigbeeCallback?.call(zigbeeDevices!);
@@ -96,6 +125,7 @@ class DeviceManagerChannel extends AbstractChannel {
   }
   // 绑定zigbee设备
   void bindZigbee(String homeGroupId, String roomId, List<String> applianceCodes) async {
+    assert(applianceCodes.isNotEmpty);
     methodChannel.invokeMethod("bindZigbee", {
       "homeGroupId": homeGroupId,
       "roomId": roomId,
@@ -113,6 +143,45 @@ class DeviceManagerChannel extends AbstractChannel {
       "roomId": roomId,
       "applianceCode": "applianceCode"
     });
+  }
+
+  // 发现wifi设备
+  void findWiFi() {
+    methodChannel.invokeMethod("findWiFi");
+  }
+  // 停止发现wifi设备
+  void stopFindWiFi() {
+    methodChannel.invokeMethod("stopFindWiFi");
+  }
+  // 绑定wifi设备
+  void binWiFi(String wifiSsid, String wifiBssid, String wifiPassword, String wifiEncrypt,
+      String homeGroupId, String roomId, List<FindWiFiResult> devices) {
+    assert(devices.isNotEmpty);
+    final convertDevices = <Map<String,String>>[];
+    for (var value in devices) {
+      convertDevices.add({
+        'ssid': value.info.ssid,
+        'bssid': value.info.bssid
+      });
+    }
+    methodChannel.invokeMethod("bindWiFi", {
+      'homeGroupId': homeGroupId,
+      'roomId': roomId,
+      'wifiSsid': wifiSsid,
+      'wifiBssid': wifiBssid,
+      'wifiPassword': wifiPassword,
+      'wifiEncrypt': wifiEncrypt,
+      'devices': convertDevices,
+    });
+  }
+  // 停止绑定wifi设备
+  void stopBindWiFi() {
+    methodChannel.invokeMethod("stopBindWiFi");
+  }
+
+  // 自动扫描WiFi设备
+  void autoFindWiFi() {
+    methodChannel.invokeMethod('autoFindWiFi');
   }
 
 }

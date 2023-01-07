@@ -118,6 +118,17 @@ class NetMethodChannel {
     }
   }
 
+  /// 查询当前连接的wifi本地记录
+  Future<ConnectedWiFiRecord?> checkConnectedWiFiRecord() async {
+    try {
+      final result = await _netMethodChannel.invokeMethod('checkConnectWiFiInfo');
+      return ConnectedWiFiRecord.fromJson(result);
+    } on PlatformException catch(e) {
+      debugPrint(e.message);
+    }
+    return null;
+  }
+
   // 忘记掉已经连接的WiFi
   Future<bool> forgetWiFi(WiFiScanResult wifi) async {
     bool result = await _netMethodChannel.invokeMethod('forgetWiFi', {'ssid': wifi.ssid, 'bssid': wifi.bssid});
