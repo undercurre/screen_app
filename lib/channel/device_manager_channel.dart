@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 import 'models/manager_devic.dart';
 
-abstract class IWiFiCallback{ }
-
 typedef IFindZigbeeCallback = void Function(List<FindZigbeeResult> result);
 typedef IBindZigbeeCallback = void Function(BindResult<FindZigbeeResult> result);
 typedef IModifyDevicePositionCallback = void Function(ModifyDeviceResult result);
@@ -124,13 +122,20 @@ class DeviceManagerChannel extends AbstractChannel {
     });
   }
   // 绑定zigbee设备
-  void bindZigbee(String homeGroupId, String roomId, List<String> applianceCodes) async {
-    assert(applianceCodes.isNotEmpty);
+  void bindZigbee(String homeGroupId, String roomId, List<FindZigbeeResult> findResult) async {
+    assert(findResult.isNotEmpty);
+
+    final applianceCodes = <String>[];
+    for (var element in findResult) {
+      applianceCodes.add(element.device.applianceCode);
+    }
+
     methodChannel.invokeMethod("bindZigbee", {
       "homeGroupId": homeGroupId,
       "roomId": roomId,
-      "applianceCodes" : [...applianceCodes],
+      "applianceCodes" : applianceCodes,
     });
+
   }
   // 停止绑定zigbee设备（移除剩下还未绑定的设备，正在绑定的设备阻止不了）
   void stopBindZigbee() async {

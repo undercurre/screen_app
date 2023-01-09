@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/widgets/gesture/mutil_click.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
@@ -271,7 +272,8 @@ class AboutSettingPage extends StatelessWidget {
                                   color: Color(0xff232323),
                                 ),
                               ),
-                              Row(
+                              MultiClick(
+                                Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
@@ -298,6 +300,10 @@ class AboutSettingPage extends StatelessWidget {
                                         )),
                                   ),
                                 ],
+                              ),
+                                count: 5,
+                                duration: 3000,
+                                clickListener: () => Navigator.of(context).pushNamed("developer"),
                               ),
                               Container(
                                 width: 464,
@@ -363,7 +369,7 @@ class AboutSettingPage extends StatelessWidget {
                                         context.watch<AboutSettingProvider>().snCode ?? "获取失败",
                                         style: const TextStyle(
                                           color: Color(0X7fFFFFFF),
-                                          fontSize: 18.0,
+                                          fontSize: 16.0,
                                           fontFamily: "MideaType",
                                           fontWeight: FontWeight.normal,
                                           decoration: TextDecoration.none,
