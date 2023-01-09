@@ -53,6 +53,21 @@ class NetUtils {
     return _parse(netMethodChannel.currentNetState);
   }
 
+  /// wifi是否启动
+  static Future<bool> wifiIsOpen() {
+    return netMethodChannel.wifiIsOpen();
+  }
+
+  /// ethernet是否启动
+  static Future<bool> ethernetIsOpen() {
+    return netMethodChannel.ethernetIsOpen();
+  }
+
+  /// 查询当前已连接的wifi账号密码
+  static Future<ConnectedWiFiRecord?> checkConnectedWiFiRecord() {
+    return netMethodChannel.checkConnectedWiFiRecord();
+  }
+
   /// 解析当前连接状态
   static _parse(NetState state) {
     bool wifiConnected = state.wifiState == 2;
