@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 abstract class AbstractChannel {
@@ -21,7 +22,9 @@ abstract class AbstractChannel {
   }
 
   // 接收原生请求
-  Future<dynamic> onMethodCallHandler(MethodCall call) async {}
+  Future<dynamic> onMethodCallHandler(MethodCall call) async {
+    debugPrint('Method= ${call.method} arguments= ${call.arguments}');
+  }
 
 
 }

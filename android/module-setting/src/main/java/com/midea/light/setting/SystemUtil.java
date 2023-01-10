@@ -757,7 +757,7 @@ class IpAddressUtil {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
-                if(!Objects.equals(intf.getDisplayName(), interfaceName)) return "0.0.0.0";
+                if(!Objects.equals(intf.getDisplayName(), interfaceName)) continue;
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {

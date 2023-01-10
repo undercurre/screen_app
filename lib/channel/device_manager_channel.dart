@@ -37,6 +37,7 @@ class DeviceManagerChannel extends AbstractChannel {
 
   @override
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
+    super.onMethodCallHandler(call);
     final method = call.method;
     switch(method) {
       case "findZigbeeResult":
@@ -81,9 +82,12 @@ class DeviceManagerChannel extends AbstractChannel {
 
   void findZigbeeResultHandle(arguments) async {
     List<FindZigbeeResult>? zigbeeDevices = FindZigbeeResult.fromArray(arguments);
-    if(zigbeeDevices?.isNotEmpty == true) {
-      findZigbeeCallback?.call(zigbeeDevices!);
+
+    if(zigbeeDevices == null || zigbeeDevices.isEmpty) {
+      throw Exception("解析数据出错, 解析的数据为: $arguments");
     }
+
+    findZigbeeCallback?.call(zigbeeDevices);
   }
 
   // 初始化
