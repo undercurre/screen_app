@@ -5,15 +5,17 @@ import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 import '../../common/global.dart';
 
-final List<FindZigbeeResult> list = <FindZigbeeResult>[];
+final List<FindWiFiResult> list = <FindWiFiResult>[];
 
-class ZigbeeDeviceManager extends StatelessWidget {
+class WiFiDeviceManager extends StatelessWidget {
+  const WiFiDeviceManager({super.key});
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Zigbee设备测试页面"),
+        title: const Text("WiFi设备测试页面"),
         leading: BackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -55,49 +57,76 @@ class ZigbeeDeviceManager extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(
                 onPressed: () {
-                    if(NetUtils.getNetState() != null) {
-                      deviceManagerChannel.setFindZigbeeListener((result) {
+                  // 1.判断wifi是否启动
+                  netMethodChannel.wifiIsOpen().then((value) {
+                    if(value) {
+                      // 2.启动发现wifi设备
+                      deviceManagerChannel.setFindWiFiCallback((result) {
                         print(result);
                         list.addAll(result);
                       });
-                      deviceManagerChannel.findZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+                      deviceManagerChannel.findWiFi();
                     } else {
-                      print("请连接网络再来尝试");
+                      print("wifi还没启动，请跳转到wifi设置页，启动wifi");
                     }
-                  },
-                child: const Text("开始扫描Zigbee设备"),
+                  });
+
+                },
+                child: const Text("开始扫描WiFi设备"),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(
                 onPressed: () {
-                  deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
-                  deviceManagerChannel.setFindZigbeeListener(null);
+                  deviceManagerChannel.stopFindWiFi();
+                  deviceManagerChannel.setFindWiFiCallback(null);
                 },
-                child: const Text("停止扫描Zigbee设备"),
+                child: const Text("停止扫描WiFi设备"),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(
                 onPressed: () {
-                  deviceManagerChannel.bindZigbee(
-                      Global.profile.homeInfo?.homegroupId ?? "",
-                      Global.profile.roomInfo?.roomId ?? "",
-                      list // 指定需要绑定的zigbee设备
-                  );
+
+                  // 1.判断当前是否已经连上wifi
+                  if(NetUtils.getNetState() != null && NetUtils.getNetState()!.type == NetType.wifi) {
+                    // 2.，查询本地有记录连接wifi的密码
+                    NetUtils.checkConnectedWiFiRecord().then((value) {
+                      if(value != null) {
+                        // 3. 进行绑定
+                        deviceManagerChannel.setBindWiFiCallback((result) {
+                          print(result);
+                        });
+                        deviceManagerChannel.binWiFi(
+                          value.ssid,
+                          value.bssid,
+                          value.password,
+                          value.encryptType,
+                          Global.profile.homeInfo?.homegroupId ?? "",
+                          Global.profile.roomInfo?.roomId ?? "",
+                          list // 指定需要绑定的wifi设备
+                        );
+                      } else {
+                        print("当前已连接wifi。但没有查到当前的wifi的密码，希望用户重新输入当前wifi的密码");
+                      }
+                    });
+                  } else {
+                    print("请跳转到WiFi设置页面连接wifi");
+                  }
+
                 },
-                child: const Text("绑定扫描到的Zigbee设备"),
+                child: const Text("绑定扫描到的WiFi设备"),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(
                 onPressed: () {
-                  deviceManagerChannel.stopBindZigbee();
+                  deviceManagerChannel.stopBindWiFi();
                 },
-                child: const Text("停止绑定扫描到的Zigbee设备"),
+                child: const Text("停止绑定扫描到的WiFi设备"),
               ),
             ),
           ]),

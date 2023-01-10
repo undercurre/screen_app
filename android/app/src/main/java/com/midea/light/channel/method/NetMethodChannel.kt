@@ -165,6 +165,12 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                     onCallError(result, "-2", "当前wifi还未连接")
                 }
             }
+            "wifiIsOpen" -> {
+                onCallSuccess(result, WifiUtil.wifiEnable(context))
+            }
+            "ethernetIsOpen" -> {
+                onCallSuccess(result, EthernetUtil.connectedState(context) != 0)
+            }
             else -> {
                 onCallNotImplement(result)
             }
@@ -233,7 +239,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         val json = JSONObject()
         json.put("ethernetState", ethernet)
         json.put("wifiState", wifi)
-        if(wifi == 2) {// 只有wifi连接中，才将信息传递上去
+        if(wifi == 2) {// 只有wifi连接，才将wifi连接信息传递上去
             wifiInfo?.run {
                 val scanJson = JSONObject()
                 json.put("wifiInfo", scanJson)

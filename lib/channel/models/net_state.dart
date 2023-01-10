@@ -5,8 +5,11 @@ import 'package:screen_app/channel/models/wifi_scan_result.dart';
 class NetState {
   NetState();
 
+  /// 0未连接 1连接中 2已连接
   int ethernetState = 0;
+  /// 0 未连接 1连接中 2已连接
   int wifiState = 0;
+  /// 当前连接的wifi信息
   WiFiScanResult? wiFiScanResult;
 
   factory NetState.fromJson(Map<dynamic, dynamic> map) => _$NetStateFromJson(map);

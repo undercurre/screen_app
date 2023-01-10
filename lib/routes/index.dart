@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/center_control/index.dart';
+import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_curtain/index.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/0xAC/index.dart';
 import 'package:screen_app/routes/plugins/lightGroup/index.dart';
+import 'develop/develop_helper.dart';
 import 'room/index.dart';
 import 'boot/index.dart';
 import 'setting/about_setting.dart';
@@ -49,6 +51,7 @@ var routes = <String, WidgetBuilder>{
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),
   "StandbyTimeChoicePage": (context) => const StandbyTimeChoicePage(),
+  "developer": (context) => const DeveloperHelperPage(),
 
   "0x13": (context) => const WifiLightPage(),
   "0x14": (context) => const CurtainPage(),

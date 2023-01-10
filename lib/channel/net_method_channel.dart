@@ -136,6 +136,22 @@ class NetMethodChannel {
     return result;
   }
 
+  /// wifi是否打开
+  Future<bool> wifiIsOpen() async {
+    var result = await supportWiFiControl();
+    if(!result) return false;
+    result = await _netMethodChannel.invokeMethod('wifiIsOpen');
+    return result;
+  }
+
+  /// 有线以太网是否打开
+  Future<bool> ethernetIsOpen() async {
+    var result = await supportEthernetControl();
+    if(!result) return false;
+    result = await _netMethodChannel.invokeMethod('ethernetIsOpen');
+    return result;
+  }
+
   Future<bool> enableEthernet(bool enable) async {
     bool result =  await _netMethodChannel.invokeMethod('enableEthernet', {'enable': enable});
     return result;

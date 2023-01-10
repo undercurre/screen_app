@@ -1,7 +1,7 @@
 // 开发者帮助类
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/develop/zigbee_manager.dart';
 
 class DeveloperHelperPage extends StatelessWidget {
@@ -29,6 +29,17 @@ class DeveloperHelperPage extends StatelessWidget {
                   );
                 },
                 child: const Text("进入添加Zigbee子设备"),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,  MaterialPageRoute(builder: (context) => WiFiDeviceManager())
+                  );
+                },
+                child: const Text("进入添加WiFi子设备"),
               ),
             ),
           ]),
