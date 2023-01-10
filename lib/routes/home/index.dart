@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/center_control/index.dart';
 import '../../channel/index.dart';
@@ -36,10 +38,16 @@ class _HomeState extends State<Home> {
   }
 
   initial() async {
-   num lightValue = await settingMethodChannel.getSystemLight();
-   num soundValue = await settingMethodChannel.getSystemVoice();
-   Global.soundValue=soundValue;
-   Global.lightValue=lightValue;
+    num lightValue = await settingMethodChannel.getSystemLight();
+    num soundValue = await settingMethodChannel.getSystemVoice();
+    Global.soundValue = soundValue;
+    Global.lightValue = lightValue;
+    String? deviceSn =await aboutSystemChannel.getGatewaySn();
+    String? deviceId =Global.profile.deviceId;
+    String macAddress = await aboutSystemChannel.getMacAddress();
+    var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress" }';
+    var parsedJson = json.decode(jsonData);
+    await aiMethodChannel.initialAi(parsedJson);
   }
 
   @override
@@ -55,7 +63,10 @@ class _HomeState extends State<Home> {
                 onVerticalDragUpdate: (details) {
                   debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 14) {
-                    MFDropDownDialog.showDropDownDialog(context);
+                    Navigator.pushNamed(
+                      context,
+                      'DropDownPage',
+                    );
                   }
                 },
                 child: Stack(

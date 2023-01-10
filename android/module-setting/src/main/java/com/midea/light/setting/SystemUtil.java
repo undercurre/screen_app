@@ -8,21 +8,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
-import android.net.MacAddress;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 
 import com.jhxs.ltmidea.tools.RelayControl;
 import com.midea.light.BaseApplication;
 import com.midea.light.bean.SNCodeBean;
 import com.midea.light.common.config.AppCommonConfig;
-import com.midea.light.gateway.AndroidVersionUtil;
 import com.midea.light.gateway.GateWayRepository;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.gateway.GatewayCallback;
@@ -284,7 +279,6 @@ class JHSystemUtil {
      * 系统音量控制
      */
     public static void setSystemAudio(int Audio) {
-        Log.e("sky", "设置音量:" + Audio);
         AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
         am.setStreamVolume(AudioManager.STREAM_MUSIC, Audio, AudioManager.FLAG_PLAY_SOUND);
     }
@@ -476,7 +470,6 @@ class LDSystemUtil {
      * 系统音量控制
      */
     public static void setSystemAudio(int Audio) {
-        Log.e("sky", "设置音量:" + Audio);
         AudioManager am = (AudioManager) BaseApplication.getContext().getSystemService(AUDIO_SERVICE);
         am.setStreamVolume(AudioManager.STREAM_MUSIC, Audio, AudioManager.FLAG_PLAY_SOUND);
     }
