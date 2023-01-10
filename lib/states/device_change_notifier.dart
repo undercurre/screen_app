@@ -62,6 +62,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         "sn8": curDevice.sn8,
         "modelNumber": curDevice.modelNumber,
         "deviceName": curDevice.name,
+        "masterId": curDevice.masterId,
         "detail": curDevice.detail ?? {}
       };
     } else {

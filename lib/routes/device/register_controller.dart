@@ -1,6 +1,7 @@
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/routes/plugins/0x16/api.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0x26/api.dart' as cate0x26;
 import 'package:screen_app/routes/plugins/0x40/api.dart' as cate0x40;
@@ -26,6 +27,9 @@ Map<String, DeviceInterface> controllerList = {
   "0x21_light_colorful": WrapZigbeeLight(),
   "0x21_light_noColor": WrapZigbeeLight(),
   "0x21_panel": WrapPanel(),
+  "0x21_curtain": WrapZigbeeCurtain(),
+  "0x21_curtain_panel_one": WrapZigbeeCurtain(),
+  "0x21_curtain_panel_two": WrapZigbeeCurtain(),
   "0x26": cate0x26.DeviceListApiImpl(),
   "0x40": cate0x40.DeviceListApiImpl(),
   "0x16": WrapGateway(),

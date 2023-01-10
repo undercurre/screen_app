@@ -1,142 +1,367 @@
-// import './mode_list.dart';
-// import 'package:flutter/material.dart';
-// import 'package:screen_app/routes/plugins/0x14/api.dart';
-// import 'package:screen_app/widgets/index.dart';
-//
-// class CurtainPageState extends State<CurtainPage> {
-//   String deviceId = '0';
-//   String deviceName = '窗帘';
-//
-//   bool power = true;
-//   num position = 1;
-//   num colorTemperature = 0;
-//   String screenModel = 'manual';
-//   String timeOff = '0';
-//
-//   void goBack() {
-//     Navigator.pop(context);
-//   }
-//
-//   Future<void> modeHandle(Mode mode) async {
-//     setState(() {
-//       screenModel = mode.key;
-//     });
-//     // await CurtainApi.modePDM(deviceId, mode.key);
-//   }
-//
-//   Future<void> curtainHandle(num value) async {
-//     setState(() {
-//       position = value;
-//     });
-//     // await CurtainApi.brightnessPDM(deviceId, value);
-//   }
-//
-//   Map<String, bool?> getSelectedKeys() {
-//     final selectKeys = <String, bool?>{};
-//     selectKeys[screenModel] = true;
-//     return selectKeys;
-//   }
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addPostFrameCallback((_) async {
-//       final args = ModalRoute.of(context)?.settings.arguments as Map;
-//       deviceId = args['deviceId'];
-//       deviceName = args['deviceName'];
-//       CurtainApi.getLightDetail(deviceId);
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: MediaQuery.of(context).size.width,
-//       height: MediaQuery.of(context).size.height,
-//       decoration: const BoxDecoration(
-//         color: Colors.black
-//       ),
-//       child: Stack(
-//         children: [
-//           Positioned(
-//               left: -16, // 向左偏移
-//               top: 0,
-//               child: AnimationCurtain(
-//                 position: position,
-//               )),
-//           Flex(
-//             direction: Axis.vertical,
-//             children: <Widget>[
-//               Container(
-//                 color: Colors.transparent,
-//                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
-//                 child: ConstrainedBox(
-//                   constraints: const BoxConstraints(
-//                     minWidth: double.infinity,
-//                     maxHeight: 60.0,
-//                   ),
-//                   child: MzNavigationBar(
-//                     onLeftBtnTap: goBack,
-//                     title: deviceName,
-//                     power: power,
-//                     hasPower: false,
-//                   ),
-//                 ),
-//               ),
-//               Expanded(
-//                 flex: 1,
-//                 child: Row(
-//                   children: [
-//                     const Align(
-//                       widthFactor: 1,
-//                       heightFactor: 2,
-//                       alignment: Alignment(-1.0, -0.63),
-//                       child: SizedBox(
-//                         width: 152,
-//                         height: 303,
-//                       ),
-//                     ),
-//                     Expanded(
-//                       child: Padding(
-//                         padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-//                         child: ScrollConfiguration(
-//                           behavior: ScrollConfiguration.of(context)
-//                               .copyWith(scrollbars: false),
-//                           child: ListView(
-//                             children: [
-//                               SliderButtonCard(
-//                                 unit: '%',
-//                                 value: position,
-//                                 min: 1,
-//                                 max: 100,
-//                                 onChanged: curtainHandle
-//                               ),
-//                               ModeCard(
-//                                 title: "模式",
-//                                 spacing: 40,
-//                                 modeList: curtainModes,
-//                                 selectedKeys: getSelectedKeys(),
-//                                 onTap: modeHandle,
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// class CurtainPage extends StatefulWidget {
-//   const CurtainPage({super.key});
-//
-//   @override
-//   State<CurtainPage> createState() => CurtainPageState();
-// }
+import 'dart:convert';
+
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
+
+import '../../../../common/api/device_api.dart';
+import '../../../../models/mz_response_entity.dart';
+import '../../../../states/device_change_notifier.dart';
+import '../../../device/register_controller.dart';
+import '../../../device/service.dart';
+import './mode_list.dart';
+import 'package:flutter/material.dart';
+import 'package:screen_app/widgets/index.dart';
+
+class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
+  Map<String, dynamic> deviceWatch = {
+    "deviceId": "",
+    "deviceName": 'Zigbee智能窗帘',
+    "sn8": '',
+    "modelNumber": '',
+    "detail": {
+      "deviceLatestVersion": "s0.0.3",
+      "modelId": "midea.curtain.003.003",
+      "guard": 0,
+      "msgId": "0cadac7f-d3ec-4604-b1e5-2115ea87d2ca",
+      "deviceControlList": [
+        {"endPoint": 1, "attribute": 1},
+        {"endPoint": 2, "attribute": 1}
+      ],
+      "curtainDeviceList": [
+        {"endPoint": 1, "deviceFunctionLevel": 58, "attribute": 1}
+      ],
+      "nodeId": "8CF681FFFE6768A3"
+    }
+  };
+
+  var screenModel1 = '';
+  var screenModel2 = '';
+
+  num position1 = 0;
+  num position2 = 0;
+
+  num curtainNum = 1;
+
+  void goBack() {
+    Navigator.pop(context);
+  }
+
+  Future<void> modeHandle1(Mode mode) async {
+    if (deviceWatch["detail"]["nodeId"] == null) {
+      await getNodeId();
+    }
+    setState(() {
+      curtainNum = 1;
+    });
+    if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+        '0x21_curtain_panel_one') {
+      var res = await ZigbeeCurtainApi.powerPDM(deviceWatch["masterId"],
+          mode.key == 'open', deviceWatch["detail"]["nodeId"]);
+      if (res.isSuccess) {
+        setState(() {
+          screenModel1 = mode.key;
+          position1 = mode.key == 'open' ? 100 : 0;
+        });
+      }
+    } else if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+        '0x21_curtain_panel_two') {
+      var res = await ZigbeeCurtainApi.powerPDMTwin(
+          deviceWatch["masterId"],
+          mode.key == 'open',
+          deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1,
+          deviceWatch["detail"]["nodeId"]);
+      if (res.isSuccess) {
+        setState(() {
+          screenModel1 = mode.key;
+          position1 = mode.key == 'open' ? 100 : 0;
+        });
+      }
+    } else {
+      var res = await ZigbeeCurtainApi.curtainOpenPDM(
+          deviceWatch["masterId"], deviceWatch["detail"]["nodeId"]);
+      if (res.isSuccess) {
+        setState(() {
+          screenModel1 = mode.key;
+          if (mode.key == 'open') {
+            position1 = 100;
+          } else if (mode.key == 'close') {
+            position1 = 0;
+          } else {
+            updateDetail();
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> modeHandle2(Mode mode) async {
+    setState(() {
+      curtainNum = 2;
+    });
+    if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+        '0x21_curtain_panel_two') {
+      var res = await ZigbeeCurtainApi.powerPDMTwin(
+          deviceWatch["masterId"],
+          deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1,
+          mode.key == 'open',
+          deviceWatch["detail"]["nodeId"]);
+      if (res.isSuccess) {
+        setState(() {
+          screenModel2 = mode.key;
+          position2 = mode.key == 'open' ? 100 : 0;
+        });
+      }
+    }
+  }
+
+  Future<void> curtainHandle(num value) async {
+    if (deviceWatch["detail"]["nodeId"] == null) {
+      await getNodeId();
+    }
+    setState(() {
+      position1 = value;
+    });
+    ZigbeeCurtainApi.curtainPercentPDM(
+        deviceWatch["masterId"], value, deviceWatch["detail"]["nodeId"]);
+  }
+
+  Map<String, bool?> getSelectedKeys1() {
+    final selectKeys = <String, bool?>{};
+    selectKeys[screenModel1] = true;
+    return selectKeys;
+  }
+
+  Map<String, bool?> getSelectedKeys2() {
+    final selectKeys = <String, bool?>{};
+    selectKeys[screenModel2] = true;
+    return selectKeys;
+  }
+
+  updateDetail() async {
+    var deviceInfo = context
+        .read<DeviceListModel>()
+        .getDeviceInfoById(deviceWatch["deviceId"]);
+    var detail = await DeviceService.getDeviceDetail(deviceInfo);
+    setState(() {
+      deviceWatch["detail"] = detail;
+    });
+    debugPrint('插件中获取到的详情：$deviceWatch');
+    initView();
+  }
+
+  getNodeId() async {
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceWatch["deviceId"], deviceWatch["masterId"]);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+    deviceWatch["detail"]["nodeId"] = infoMap["nodeid"];
+  }
+
+  initView() {
+    if (zigbeeControllerList[deviceWatch["modelNumber"]] == '0x21_curtain') {
+      position1 =
+          deviceWatch["detail"]["curtainDeviceList"][0]["deviceFunctionLevel"];
+      if (deviceWatch["detail"]["curtainDeviceList"][0]["attribute"] == 240) {
+        screenModel1 = 'stop';
+      } else if (deviceWatch["detail"]["curtainDeviceList"][0]["attribute"] ==
+          0) {
+        screenModel1 = 'close';
+      } else {
+        screenModel1 = 'open';
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      deviceWatch["deviceId"] = args['deviceId'];
+      setState(() {
+        deviceWatch = context
+            .read<DeviceListModel>()
+            .getDeviceDetail(deviceWatch["deviceId"]);
+        debugPrint('插件中获取到的详情：$deviceWatch');
+        initView();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var curtain = [
+      SliderButtonCard(
+          unit: '%',
+          value: position1,
+          min: 0,
+          max: 100,
+          onChanged: curtainHandle),
+      ModeCard(
+        title: "模式",
+        spacing: 40,
+        modeList: curtainModes,
+        selectedKeys: getSelectedKeys1(),
+        onTap: modeHandle1,
+      ),
+    ];
+
+    var curtainPanelOne = [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          0,
+          80,
+          0,
+          0,
+        ),
+        child: ModeCard(
+          title: "窗帘1",
+          spacing: 80,
+          modeList: curtainPanelModes1,
+          selectedKeys: getSelectedKeys1(),
+          onTap: modeHandle1,
+        ),
+      )
+    ];
+
+    var curtainPanelTwo = [
+      ModeCard(
+        title: "窗帘1",
+        spacing: 80,
+        modeList: curtainPanelModes1,
+        selectedKeys: getSelectedKeys1(),
+        onTap: modeHandle1,
+      ),
+      ModeCard(
+        title: "窗帘2",
+        spacing: 80,
+        modeList: curtainPanelModes2,
+        selectedKeys: getSelectedKeys2(),
+        onTap: modeHandle2,
+      ),
+    ];
+
+    Map<String, List<Widget>> childList = {
+      "0x21_curtain": curtain,
+      "0x21_curtain_panel_one": curtainPanelOne,
+      "0x21_curtain_panel_two": curtainPanelTwo,
+    };
+
+    bool curtainPanelOnePower =
+        deviceWatch["detail"]["deviceControlList"] != null
+            ? deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+            : false;
+
+    bool curtainPanelTwoPower = deviceWatch["detail"]["deviceControlList"] !=
+            null
+        ? (deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1) &&
+            (deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1)
+        : false;
+
+    Map<String, bool> powerList = {
+      "0x21_curtain":
+          deviceWatch["detail"]["curtainDeviceList"][0]["attribute"] == 1,
+      "0x21_curtain_panel_one": curtainPanelOnePower,
+      "0x21_curtain_panel_two": curtainPanelTwoPower,
+    };
+
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      decoration: const BoxDecoration(color: Colors.black),
+      child: Stack(
+        children: [
+          Positioned(
+            left: -16, // 向左偏移
+            top: 0,
+            child: curtainNum == 1
+                ? AnimationCurtain(
+                    position: position1.toDouble(),
+                  )
+                : AnimationCurtain(
+                    position: position2.toDouble(),
+                  ),
+          ),
+          Flex(
+            direction: Axis.vertical,
+            children: <Widget>[
+              Container(
+                color: Colors.transparent,
+                margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: double.infinity,
+                    maxHeight: 60.0,
+                  ),
+                  child: MzNavigationBar(
+                    onLeftBtnTap: goBack,
+                    title: deviceWatch["deviceName"],
+                    power: powerList[
+                            zigbeeControllerList[deviceWatch["modelNumber"]]] ??
+                        false,
+                    hasPower: false,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: EasyRefresh(
+                      header: const ClassicHeader(
+                        dragText: '下拉刷新',
+                        armedText: '释放执行刷新',
+                        readyText: '正在刷新...',
+                        processingText: '正在刷新...',
+                        processedText: '刷新完成',
+                        noMoreText: '没有更多信息',
+                        failedText: '失败',
+                        messageText: '上次更新 %T',
+                        mainAxisAlignment: MainAxisAlignment.end,
+                      ),
+                      onRefresh: () async {
+                        await updateDetail();
+                      },
+                      child: SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            const Align(
+                              widthFactor: 1,
+                              heightFactor: 2,
+                              alignment: Alignment(-1.0, -0.63),
+                              child: SizedBox(
+                                width: 152,
+                                height: 60,
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                child: Column(
+                                    children: childList[zigbeeControllerList[
+                                            deviceWatch["modelNumber"]]] ??
+                                        curtain),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ZigbeeCurtainPage extends StatefulWidget {
+  const ZigbeeCurtainPage({super.key});
+
+  @override
+  State<ZigbeeCurtainPage> createState() => ZigbeeCurtainPageState();
+}

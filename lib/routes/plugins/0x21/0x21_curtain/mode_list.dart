@@ -4,6 +4,10 @@ var open = Mode('open', '全开', 'assets/imgs/plugins/0x14/all-open-on.png', 'a
 
 var close = Mode('close', '全关', 'assets/imgs/plugins/0x14/all-close-on.png', 'assets/imgs/plugins/0x14/all-close-off.png');
 
-var running = Mode('running', '暂停', 'assets/imgs/plugins/0x14/run.png', 'assets/imgs/plugins/0x14/pause.png');
+var running = Mode('stop', '暂停', 'assets/imgs/plugins/0x14/run.png', 'assets/imgs/plugins/0x14/pause.png');
 
 var curtainModes = <Mode>[open, close, running];
+
+var curtainPanelModes1 = <Mode>[open, close];
+
+var curtainPanelModes2 = <Mode>[open, close];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/center_control/index.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_curtain/index.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/0xAC/index.dart';
 import 'package:screen_app/routes/plugins/lightGroup/index.dart';
@@ -55,6 +56,9 @@ var routes = <String, WidgetBuilder>{
   "0x40": (context) => const CoolMaster(),
   "0x21_light_colorful": (context) => const ZigbeeLightPage(),
   "0x21_light_noColor": (context) => const ZigbeeLightPage(),
+  "0x21_curtain": (context) => const ZigbeeCurtainPage(),
+  "0x21_curtain_panel_one": (context) => const ZigbeeCurtainPage(),
+  "0x21_curtain_panel_two": (context) => const ZigbeeCurtainPage(),
   "lightGroup": (context) => const LightGroupPage(),
   "0xAC": (context) => const AirConditionPage()
 };
