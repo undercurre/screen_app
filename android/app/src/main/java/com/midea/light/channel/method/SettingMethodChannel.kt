@@ -7,7 +7,6 @@ import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.channel.HybridResult
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
-import com.midea.light.setting.voice.VoiceSettingManager
 import com.midea.light.setting.wifi.ScanNearbyWiFiHandler
 import com.midea.light.setting.wifi.impl.ConfigurationSecurities
 import com.midea.light.setting.wifi.impl.ConfigurationSecuritiesOld

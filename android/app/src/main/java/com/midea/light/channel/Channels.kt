@@ -2,11 +2,7 @@ package com.midea.light.channel
 
 import ManagerDeviceChannel
 import android.content.Context
-import com.midea.light.channel.method.AboutMethodChannel
-import com.midea.light.channel.method.ConfigChannel
-import com.midea.light.channel.method.NetMethodChannel
-import com.midea.light.channel.method.SettingMethodChannel
-import com.midea.light.channel.method.OtaChannel
+import com.midea.light.channel.method.*
 import io.flutter.plugin.common.BinaryMessenger
 
 /**
@@ -19,6 +15,8 @@ import io.flutter.plugin.common.BinaryMessenger
 // 网络相关的Channel
 const val CHANNEL_NAME_NET = "com.midea.light/net"
 const val CHANNEL_NAME_SETTING = "com.midea.light/set"
+const val CHANNEL_NAME_AI = "com.midea.light/ai"
+
 
 const val CHANNEL_NAME_ABOUT = "com.midea.light/about"
 const val CHANNEL_CONFIG = "com.midea.light/config"
@@ -31,6 +29,8 @@ class Channels {
 
     lateinit var netMethodChannel: NetMethodChannel
     lateinit var settingMethodChannel: SettingMethodChannel
+    lateinit var aiMethodChannel: AiMethodChannel
+
 
     lateinit var aboutMethodChannel: AboutMethodChannel
     lateinit var configChannel: ConfigChannel
@@ -44,6 +44,7 @@ class Channels {
             this.binaryMessenger = binaryMessenger
             netMethodChannel = NetMethodChannel.create(CHANNEL_NAME_NET, binaryMessenger, context)
             settingMethodChannel = SettingMethodChannel.create(CHANNEL_NAME_SETTING, binaryMessenger, context)
+            aiMethodChannel = AiMethodChannel.create(CHANNEL_NAME_AI, binaryMessenger, context)
             netMethodChannel = NetMethodChannel.create(CHANNEL_NAME_NET, binaryMessenger, context)
             aboutMethodChannel = AboutMethodChannel.create(CHANNEL_NAME_ABOUT, binaryMessenger, context)
             configChannel = ConfigChannel.create(CHANNEL_CONFIG, binaryMessenger, context)

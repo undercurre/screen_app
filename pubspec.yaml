@@ -55,6 +55,7 @@ dependencies:
   flutter_draggable_gridview: ^0.0.7
   date_format: ^2.0.7
   easy_refresh: ^3.0.5+1
+  cached_network_image: ^3.2.3
 
 dev_dependencies:
   flutter_test:

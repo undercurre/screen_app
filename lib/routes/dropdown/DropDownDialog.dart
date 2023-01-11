@@ -1,6 +1,10 @@
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../channel/index.dart';
+import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
@@ -11,12 +15,38 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
   num soundValue = Global.soundValue;
   var soundName = "暂无歌曲";
   var singer = "暂无歌手";
+  var musicIconUrl = "";
+
+  var musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
 
   initial() async {
     lightValue = await settingMethodChannel.getSystemLight();
     soundValue = await settingMethodChannel.getSystemVoice();
-    print("亮度大小:$lightValue");
-    setState(() {});
+    aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
+    logger.i("注册监听");
+  }
+
+  void _aiMusicStateCallback(AiMusicState state) {
+    setState(() {
+      soundName = state.songName;
+      singer = state.singerName;
+      musicIconUrl = state.imgUrl;
+      logger.i("歌曲名称:${state.songName}");
+      if(state.playState==1){
+        controller.stop();
+      }else{
+        controller.repeat();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+    aiMethodChannel.unregisterAiCallBack(_aiMusicStateCallback);
+    logger.i("注销监听");
+
   }
 
   @override
@@ -59,12 +89,17 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                   margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
                                   child: RotationTransition(
                                       turns: animation,
-                                      child: Image.asset(
-                                        "assets/imgs/dropDown/music-default.png",
-                                        width: 120,
-                                        height: 120,
-                                      ) /* Your widget here */
-                                      )),
+                                      child: ClipOval(
+                                          //圆形头像
+                                          child: CachedNetworkImage(
+                                            imageUrl: musicIconUrl,
+                                            placeholder: (context, url) => Image.asset(
+                                              "assets/imgs/dropDown/music-default.png",
+                                            ),
+                                            errorWidget: (context, url, error) => Image.asset(
+                                              "assets/imgs/dropDown/music-default.png",
+                                            ),
+                                          )))),
                               Container(
                                 alignment: Alignment.center,
                                 width: 290,
@@ -94,6 +129,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                       IconButton(
                                         onPressed: () {
                                           controller.repeat();
+                                          aiMethodChannel.musicPrev();
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
@@ -101,17 +137,28 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                         ),
                                       ),
                                       IconButton(
-                                        onPressed: () {
-                                          controller.stop();
+                                        onPressed: () async {
+                                          if (await aiMethodChannel.musicIsPaying()) {
+                                            musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
+                                            aiMethodChannel.musicPause();
+                                            controller.stop();
+                                            setState(() {});
+                                          } else {
+                                            musicStartIcon = "assets/imgs/dropDown/start-icon.png";
+                                            aiMethodChannel.musicStart();
+                                            controller.repeat();
+                                            setState(() {});
+                                          }
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
-                                          "assets/imgs/dropDown/start-icon.png",
+                                          musicStartIcon,
                                         ),
                                       ),
                                       IconButton(
                                         onPressed: () {
                                           controller.repeat();
+                                          aiMethodChannel.musicNext();
                                         },
                                         iconSize: 50.0,
                                         icon: Image.asset(
@@ -132,6 +179,8 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                 GestureDetector(
                                   onTap: () => {
                                     //手动开启语音
+                                    Navigator.pop(context),
+                                    aiMethodChannel.wakeUpAi(),
                                   },
                                   child: Container(
                                       margin: const EdgeInsets.fromLTRB(25, 16, 0, 0),
@@ -216,8 +265,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                     onValueChanged: (newValue) => {
                                       settingMethodChannel.setSystemVoice(newValue.toInt()),
                                       soundValue = newValue,
-                                      Global.soundValue=soundValue,
-
+                                      Global.soundValue = soundValue,
                                     },
                                   ),
                                 ),
@@ -246,7 +294,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
                                     onValueChanged: (newValue) => {
                                       settingMethodChannel.setSystemLight(newValue.toInt()),
                                       lightValue = newValue,
-                                      Global.lightValue=lightValue,
+                                      Global.lightValue = lightValue,
                                     },
                                   ),
                                 ),
@@ -290,6 +338,7 @@ class DropDownDialogState extends State<DropDownDialog> with SingleTickerProvide
     controller.stop();
     initial();
   }
+
 }
 
 class DropDownDialog extends StatefulWidget {

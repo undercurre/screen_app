@@ -16,6 +16,7 @@ import com.midea.light.device.explore.beans.BindResult
 import com.midea.light.device.explore.beans.WiFiScanResult
 import com.midea.light.device.explore.beans.ZigbeeScanResult
 import com.midea.light.device.explore.config.BaseConfig
+import com.midea.light.log.LogUtil
 import com.midea.light.utils.CollectionUtil
 import com.midea.light.utils.GsonUtils
 import io.flutter.plugin.common.BinaryMessenger
@@ -42,7 +43,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 val token = requireNotNull(call.argument<String?>("token"))
                 val httpSign = requireNotNull(call.argument<String?>("httpSign"))
                 val seed = requireNotNull(call.argument<String?>("seed"))
-                val key = requireNotNull(call.argument<String?>("seed"))
+                val key = requireNotNull(call.argument<String?>("key"))
                 val deviceId = requireNotNull(call.argument<String?>("deviceId"))
                 val userId = requireNotNull(call.argument<String?>("userId"))
                 val iotAppCount = requireNotNull(call.argument<String?>("iotAppCount"))
@@ -138,6 +139,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             msg.data?.run {
+                LogUtil.tag("device_zigbee_wifi").bundle(this)
                 val actionType = requireNotNull(this.getString(Portal.ACTION_TYPE))
                 val methodType = requireNotNull(this.getString(Portal.METHOD_TYPE))
                 when(actionType) {
@@ -147,7 +149,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                     Portal.REQUEST_MODIFY_DEVICE_ROOM -> {
                         modifyDeviceHandler(methodType, this)
                     }
-                    Portal.RESULT_SCAN_ZIGBEE_DEVICES -> {
+                    Portal.REQUEST_SCAN_ZIGBEE_DEVICES -> {
                         findZigbeeHandle(methodType, this)
                     }
                     Portal.REQUEST_SCAN_WIFI_DEVICES -> {
@@ -257,7 +259,6 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
 
     fun stopFindZigbee(gatewayApplianceCode: String, homeGroupId: String) {
-        zigbeeDevices.clear()
         val message = Message()
         val data = Bundle()
         data.putString(Portal.ACTION_TYPE, Portal.REQUEST_SCAN_ZIGBEE_DEVICES)
@@ -302,6 +303,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         message.data.putString(Portal.ACTION_TYPE, Portal.REQUEST_BIND_ZIGBEE_DEVICES)
         message.data.putString(Portal.METHOD_TYPE, Portal.METHOD_STOP_ZIGBEE_BIND)
         serverMessenger?.send(message)
+        zigbeeDevices.clear()
     }
 
     // 3.修改房间
@@ -375,6 +377,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         message.data = data
         message.replyTo = clientMessenger
         serverMessenger?.send(message)
+        wifiDevices.clear()
     }
     // 6. 发现wifi设备结果
     private fun findWifiHandle(methodType: String, bundle: Bundle) {

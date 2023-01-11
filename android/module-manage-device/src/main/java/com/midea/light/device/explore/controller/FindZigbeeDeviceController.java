@@ -135,12 +135,16 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
     void sendDataToClientZigbee(List<SearchZigbeeDeviceResult.ZigbeeDevice> list) {
         if (list != null && list.size() > 0) {
             try {
-                for (ClientMessenger messenger : getMessengerList()) {
-                    Message message = Message.obtain();
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList(Portal.RESULT_SCAN_ZIGBEE_DEVICES, zigbeeCovert(list));
-                    message.setData(bundle);
-                    messenger.send(message);
+                if(CollectionUtil.isEmpty(getMessengerList())) {
+                    LogUtil.i("Zigbee messenger is empty");
+                } else {
+                    for (ClientMessenger messenger : getMessengerList()) {
+                        Message message = Message.obtain();
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelableArrayList(Portal.RESULT_SCAN_ZIGBEE_DEVICES, zigbeeCovert(list));
+                        message.setData(bundle);
+                        messenger.send(message);
+                    }
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();

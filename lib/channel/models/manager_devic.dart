@@ -62,6 +62,21 @@ class FindZigbeeResultInfo {
        ..lastActiveTime = map["lastActiveTime"]
        ..version = map["version"];
 
+   Map<String, dynamic> toJson() => {
+     'applianceCode': applianceCode,
+     'name': name,
+     'applianceType': applianceType,
+     'modelNum': modelNum,
+     'sn': sn,
+     'desc': desc,
+     'masterId': masterId,
+     'status': status,
+     'activeStatus': activeStatus,
+     'prop': prop,
+     'lastActiveTime': lastActiveTime,
+     'version': version,
+   };
+
 }
 
 // 如果类型为BindResult<FindZigbeeResult> 说明为zigbee绑定的结果

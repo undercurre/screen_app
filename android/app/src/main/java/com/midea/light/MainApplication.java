@@ -4,7 +4,6 @@ package com.midea.light;
 import android.content.Context;
 
 import com.midea.light.basic.BuildConfig;
-import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
@@ -16,6 +15,7 @@ import androidx.multidex.MultiDex;
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
+    public static MainActivity mMainActivity;
 
     @Override
     protected void attachBaseContext(Context base) {
