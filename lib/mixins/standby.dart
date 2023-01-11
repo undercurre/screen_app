@@ -1,18 +1,30 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/index.dart';
 import 'package:screen_app/widgets/event_bus.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/index.dart';
 
 mixin Standby<T extends StatefulWidget> on State<T> {
   late Timer _timer;
 
   void noMoveTimer() {
-    logger.i('noMoveTimer trigger');
+    // onPointerDown 早于 onTap，故等待下一Frame再执行，以免 standbyTime 未更新
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var weatherNotifier =
+          Provider.of<WeatherChangeNotifier>(context, listen: false);
 
-    _timer =
-        Timer.periodic(Duration(seconds: StandbySetting.standbyTime), (timer) {
-      _timer.cancel();
-      Navigator.of(context).pushNamed('Weather');
+      debugPrint('weatherNotifier.standbyTime: ${weatherNotifier.standbyTimer.value}');
+
+      // 永不待机
+      if (weatherNotifier.standbyTimer.value == -1) {
+        return;
+      }
+
+      _timer = Timer.periodic(Duration(seconds: weatherNotifier.standbyTimer.value),
+          (_) {
+        _timer.cancel();
+        Navigator.of(context).pushNamed('Weather');
+      });
     });
   }
 
@@ -20,17 +32,11 @@ mixin Standby<T extends StatefulWidget> on State<T> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // 永不待机
-    if (StandbySetting.standbyTime == -1) {
-      return;
-    }
-
     noMoveTimer();
 
     bus.on("onPointerDown", (arg) {
-      logger.i('bus.onPointerDown trigger in standby');
-
       _timer.cancel();
+
       noMoveTimer();
     });
   }

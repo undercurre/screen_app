@@ -1,6 +1,8 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/index.dart';
 import 'package:screen_app/common/index.dart';
 import 'show_datetime.dart';
 import 'code_to_image.dart';
@@ -11,6 +13,7 @@ class WeatherPageState extends State<WeatherPage> {
   String weatherString = '--';
   String weatherBg = '';
   String weatherIcon = '';
+  late String weatherCode;
   late Timer _timer;
 
   @override
@@ -28,13 +31,15 @@ class WeatherPageState extends State<WeatherPage> {
   // 获取家庭组
   Future<void> initQuery() async {
     // 预加载背景图
-    if (StandbySetting.weatherCode != '') {
-      String imageName = codeToImage[StandbySetting.weatherCode]!;
-      setState(() {
-        weatherIcon = imageName;
-        weatherBg = imageName;
-      });
-    }
+    weatherCode =
+        Provider.of<WeatherChangeNotifier>(context, listen: false).weatherCode;
+
+    String imageName = codeToImage[weatherCode]!;
+
+    setState(() {
+      weatherIcon = imageName;
+      weatherBg = imageName;
+    });
 
     logger.i(
         'Global homeInfo: ${Global.profile.homeInfo?.areaId} ${Global.profile.homeInfo?.address}');
@@ -65,13 +70,16 @@ class WeatherPageState extends State<WeatherPage> {
           weatherBg = 'poor-air';
         }
         // 天气码变化 && 天气码有定义对应背景 才切换背景图
-        else if (StandbySetting.weatherCode != d.weather.weatherCode &&
+        else if (Provider.of<WeatherChangeNotifier>(context, listen: false)
+                    .weatherCode !=
+                d.weather.weatherCode &&
             codeToImage.containsKey(d.weather.weatherCode)) {
           weatherIcon = codeToImage[d.weather.weatherCode]!;
           weatherBg = codeToImage[d.weather.weatherCode]!;
 
           // 保存到系统设置中
-          StandbySetting.weatherCode = d.weather.weatherCode;
+          Provider.of<WeatherChangeNotifier>(context, listen: false)
+              .weatherCode = d.weather.weatherCode;
         }
       });
     }
