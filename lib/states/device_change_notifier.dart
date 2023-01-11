@@ -13,10 +13,23 @@ import '../models/index.dart';
 import '../routes/device/service.dart';
 
 class DeviceListModel extends ProfileChangeNotifier {
+  bool curtainFilter(DeviceEntity device) {
+    return device.type == '0x14' ||
+        (device.type == '0x21' &&
+            (zigbeeControllerList[device.modelNumber] == '0x21_curtain' ||
+                zigbeeControllerList[device.modelNumber] ==
+                    '0x21_curtain_panel_one' ||
+                zigbeeControllerList[device.modelNumber] ==
+                    '0x21_curtain_panel_two'));
+  }
+
+
   List<DeviceEntity> _deviceListResource =
       Global.profile.roomInfo!.applianceList;
 
   List<DeviceEntity> get deviceList => _deviceListResource;
+
+  List<DeviceEntity> get curtainList => _deviceListResource.where(curtainFilter).toList();
 
   set deviceList(List<DeviceEntity> newList) {
     _deviceListResource = newList;
