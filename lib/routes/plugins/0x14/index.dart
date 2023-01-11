@@ -7,7 +7,7 @@ import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/models/device_entity.dart';
 
-class CurtainPageState extends State<CurtainPage> with AutoSniffer {
+class WifiCurtainPageState extends State<WifiCurtainPage> with AutoSniffer {
   String deviceId = '178120883713504'; // 暂时写死设备编码
   String deviceName = '智能窗帘';
   String deviceType = '0x14';
@@ -147,9 +147,9 @@ class CurtainPageState extends State<CurtainPage> with AutoSniffer {
   }
 }
 
-class CurtainPage extends StatefulWidget {
-  const CurtainPage({super.key});
+class WifiCurtainPage extends StatefulWidget {
+  const WifiCurtainPage({super.key});
 
   @override
-  State<CurtainPage> createState() => CurtainPageState();
+  State<WifiCurtainPage> createState() => WifiCurtainPageState();
 }
