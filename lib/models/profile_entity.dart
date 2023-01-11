@@ -16,6 +16,7 @@ class ProfileEntity {
   String? deviceId;
   String? deviceSn;
   String? applianceCode;
+  bool aiEnable=true;
 
   factory ProfileEntity.fromJson(Map<String, dynamic> json) =>
       $ProfileEntityFromJson(json);

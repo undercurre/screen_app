@@ -55,7 +55,8 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
             "InitialAi" -> {
                 Log.e("sky","初始化ai参数:"+call.arguments.toString())
                 MainApplication.mMainActivity.initialAi(call.argument<String?>("deviceSn").toString(),call.argument<String?>("deviceId").toString(),call.argument<String?>("macAddress").toString().replace
-                    (":",""))
+                    (":",""), call.argument<Boolean?>("aiEnable") == true
+                )
             }
             "WakeUpAi" -> {
                 AiManager.getInstance().wakeupAi()

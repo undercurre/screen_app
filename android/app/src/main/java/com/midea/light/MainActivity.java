@@ -52,22 +52,22 @@ public class MainActivity extends FlutterActivity {
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
     }
 
-    public void initialAi(String sn,String deviceId,String mac){
+    public void initialAi(String sn,String deviceId,String mac,boolean aiEnable){
         new Thread(() -> {
             //复制assets/xiaomei文件夹中的文件到SD卡
             FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
-            runOnUiThread(() ->  startAiService(sn,deviceId,mac));
+            runOnUiThread(() ->  startAiService(sn,deviceId,mac,aiEnable));
         }).start();
     }
 
-    private void startAiService(String sn,String deviceId,String mac) {
+    private void startAiService(String sn,String deviceId,String mac,boolean aiEnable) {
         AiManager.getInstance().startAiServer(this, isBind -> {
             if (isBind) {
                 setDeviceInfor(sn,deviceId,mac);
             }
         }, isInitial -> {
             if (isInitial) {
-                AiManager.getInstance().setAiEnable(true);
+                AiManager.getInstance().setAiEnable(aiEnable);
             }else{
                 runOnUiThread(() -> DialogUtil.showToast("语音初始化失败,请重新启动智慧屏"));
             }

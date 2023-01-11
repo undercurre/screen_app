@@ -5,7 +5,6 @@ import 'package:screen_app/routes/center_control/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
 import '../device/index.dart';
-import '../dropdown/DropDownDialog.dart';
 import '../scene/index.dart';
 
 class Home extends StatefulWidget {
@@ -45,7 +44,7 @@ class _HomeState extends State<Home> {
     String? deviceSn =await aboutSystemChannel.getGatewaySn();
     String? deviceId =Global.profile.deviceId;
     String macAddress = await aboutSystemChannel.getMacAddress();
-    var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress" }';
+    var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
     var parsedJson = json.decode(jsonData);
     await aiMethodChannel.initialAi(parsedJson);
   }

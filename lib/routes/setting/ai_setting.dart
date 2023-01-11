@@ -1,6 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../channel/index.dart';
+import '../../common/api/ai_author_api.dart';
+import '../../common/global.dart';
+import '../../common/utils.dart';
+
 class AiSettingPage extends StatefulWidget {
   const AiSettingPage({Key? key});
 
@@ -10,7 +15,7 @@ class AiSettingPage extends StatefulWidget {
 
 class _AiSettingPageState extends State<AiSettingPage> {
   late double po;
-  bool AiEnable = true;
+  bool AiEnable = Global.profile.aiEnable;
 
   @override
   void initState() {
@@ -97,6 +102,9 @@ class _AiSettingPageState extends State<AiSettingPage> {
                     value: AiEnable,
                     activeColor: Colors.blue,
                     onChanged: (bool value) {
+                      aiMethodChannel.enableAi(value);
+                      Global.profile.aiEnable=value;
+                      Global.saveProfile();
                       setState(() {
                         AiEnable = value;
                       });
@@ -163,8 +171,8 @@ class _AiSettingPageState extends State<AiSettingPage> {
                       )),
                 ),
                 GestureDetector(
-                  onTap: () => {
-
+                  onTap: () async => {
+                    AiAuthor()
                   },
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
@@ -214,6 +222,13 @@ class _AiSettingPageState extends State<AiSettingPage> {
         ),
       )),
     );
+  }
+
+  Future<void> AiAuthor() async {
+    var Res = await AiAuthorApi.AiAuthor(deviceId:Global.profile.deviceId);
+    if (Res.isSuccess) {
+      TipsUtils.toast(content: "授权成功");
+    }
   }
 
   @override
