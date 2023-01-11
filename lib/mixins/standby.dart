@@ -17,6 +17,7 @@ mixin Standby<T extends StatefulWidget> on State<T> {
 
       // 永不待机
       if (weatherNotifier.standbyTimer.value == -1) {
+        _timer.cancel();
         return;
       }
 
