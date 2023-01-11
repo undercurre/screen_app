@@ -1,6 +1,7 @@
 package com.midea.light.channel
 
 import android.content.Context
+import com.midea.light.log.LogUtil
 import com.midea.light.thread.MainThread
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.JSONMethodCodec
@@ -22,7 +23,10 @@ abstract class AbsMZMethodChannel constructor(open val context: Context) : Metho
     open fun setup(binaryMessenger: BinaryMessenger, channel: String) {
         // 使用 `JSONMethodCodec` 解析传入与传出的参数
         mMethodChannel = MethodChannel(binaryMessenger, channel, JSONMethodCodec.INSTANCE)
-        mMethodChannel.setMethodCallHandler(this)
+        mMethodChannel.setMethodCallHandler { call, result ->
+            LogUtil.tag("channel").msg("Method=${call.method} Arguments=${call.arguments}")
+            this@AbsMZMethodChannel.onMethodCall(call, result)
+        }
     }
 
     abstract override fun onMethodCall(call: MethodCall, result: MethodChannel.Result)

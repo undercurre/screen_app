@@ -54,8 +54,9 @@ public class BindZigbeeDeviceController extends AbstractController implements IS
 
         } else if (Portal.METHOD_STOP_ZIGBEE_BIND.equals(methodType)) {
             mTaskCollection.clear();
+        } else {
+            throw new RuntimeException("暂无实现此方法 = " + methodType);
         }
-        throw new RuntimeException("暂无实现此方法 = " + methodType);
     }
 
     @Override
@@ -155,14 +156,15 @@ public class BindZigbeeDeviceController extends AbstractController implements IS
 
 
     void doBind(WrapBindingState state) {
-        SearchZigbeeDeviceResult.ZigbeeDevice zigbeeDevice = (SearchZigbeeDeviceResult.ZigbeeDevice) state.getScanResult();
+        com.midea.light.device.explore.beans.ZigbeeScanResult scanResult = (com.midea.light.device.explore.beans.ZigbeeScanResult) state.getScanResult();
+        SearchZigbeeDeviceResult.ZigbeeDevice zigbeeDevice = scanResult.getDevice();
 
         ApplianceBean applianceBean = null;
         for (int i = 0; i < 3; i++) {
             if(applianceBean == null) {
                 applianceBean = getApiService().bindDevice(
                         Portal.getBaseConfig().getUserId(), state.getHomeGroupId(), state.getRoomId(), zigbeeDevice.getApplianceType(),
-                        SecurityUtils.decodeAES128(zigbeeDevice.getSn(), Portal.getBaseConfig().getSeed()),
+                        zigbeeDevice.getSn(),
                         zigbeeDevice.getName(), UUID.randomUUID().toString(), TimeUtil.getTimestamp()
                 );
             }

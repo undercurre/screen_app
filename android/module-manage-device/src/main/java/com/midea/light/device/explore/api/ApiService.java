@@ -6,6 +6,7 @@ import com.midea.light.device.explore.Portal;
 import com.midea.light.device.explore.api.entity.ApplianceBean;
 import com.midea.light.device.explore.api.entity.HttpResult;
 import com.midea.light.device.explore.api.entity.SearchZigbeeDeviceResult;
+import com.midea.light.log.LogUtil;
 import com.midea.light.utils.GsonUtils;
 import com.midea.light.utils.TimeUtil;
 import com.midea.smart.open.common.exception.AuthException;
@@ -151,7 +152,7 @@ public class ApiService implements IApiService {
                 return result.getList();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.e(e.getMessage(), e);
         }
         return null;
     }

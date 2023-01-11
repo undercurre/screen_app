@@ -271,8 +271,7 @@ class AboutSettingPage extends StatelessWidget {
                                 decoration: const BoxDecoration(
                                   color: Color(0xff232323),
                                 ),
-                              ),
-                              MultiClick(
+                              ), MultiClick(
                                 Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [

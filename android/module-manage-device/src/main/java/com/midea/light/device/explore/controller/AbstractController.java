@@ -116,6 +116,7 @@ public abstract class AbstractController implements IServiceController, Lifecycl
      * @param bundle
      */
     public final void request(Messenger messenger, Bundle bundle) {
+        LogUtil.tag("device").bundle(bundle);
         String method = bundle.getString(Portal.METHOD_TYPE);
         if (TextUtils.isEmpty(method))  return;
         ClientMessenger clientMessenger = ClientMessenger.wrap(messenger).request(bundle);

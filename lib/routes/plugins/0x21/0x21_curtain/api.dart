@@ -10,11 +10,10 @@ import '../../../../models/mz_response_entity.dart';
 
 const uuid = Uuid();
 
-class WrapZigbeeLight implements DeviceInterface {
+class WrapZigbeeCurtain implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    var res = await ZigbeeLightApi.getLightDetail(
-        deviceInfo.applianceCode, deviceInfo.masterId);
+    var res = await ZigbeeCurtainApi.getCurtainDetail(deviceInfo);
     if (res.code == 0) {
       return res.result;
     } else {
@@ -24,55 +23,117 @@ class WrapZigbeeLight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await ZigbeeLightApi.powerPDM(
-        deviceInfo.masterId, onOff, deviceInfo.applianceCode);
+    MzResponseEntity<String> gatewayInfo =
+    await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+    return await ZigbeeCurtainApi.powerPDM(
+        deviceInfo.masterId, onOff, infoMap["nodeid"]);
   }
 
   @override
-  bool isSupport (DeviceEntity deviceInfo) {
+  bool isSupport(DeviceEntity deviceInfo) {
     // 过滤modelNumber
-    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful' || zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
+    return true;
   }
 
   @override
-  bool isPower (DeviceEntity deviceInfo) {
-
-    return (deviceInfo.detail != null && deviceInfo.detail!.keys.toList().isNotEmpty) ? deviceInfo.detail!["lightPanelDeviceList"][0]["attribute"] == 1 : false;
+  bool isPower(DeviceEntity deviceInfo) {
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_one' ||
+        zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_two') {
+      return (deviceInfo.detail != null &&
+          deviceInfo.detail!
+              .keys
+              .toList()
+              .isNotEmpty)
+          ? deviceInfo.detail!["deviceControlList"][0]["attribute"] == 1
+          : false;
+    } else {
+      return (deviceInfo.detail != null &&
+          deviceInfo.detail!
+              .keys
+              .toList()
+              .isNotEmpty)
+          ? deviceInfo.detail!["curtainDeviceList"][0]["attribute"] == 1
+          : false;
+    }
   }
 
   @override
-  String getAttr (DeviceEntity deviceInfo) {
-    return (deviceInfo.detail != null && deviceInfo.detail!.keys.toList().isNotEmpty) ? deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"].toString() : '0';
+  String getAttr(DeviceEntity deviceInfo) {
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_one' ||
+        zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_two') {
+      return '';
+    } else {
+      return (deviceInfo.detail != null &&
+              deviceInfo.detail!.keys.toList().isNotEmpty)
+          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"].toString()
+          : '0';
+    }
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    return '%';
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_one' ||
+        zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_two') {
+      return '';
+    } else {
+      return '%';
+    }
   }
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
     // todo: 改成凉霸图标
-    return 'assets/imgs/device/dengguang_icon_off.png';
+    return 'assets/imgs/device/chuanglian_icon_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
     // todo: 改成凉霸图标
-    return 'assets/imgs/device/dengguang_icon_on.png';
+    return 'assets/imgs/device/chuanglian_icon_on.png';
   }
 }
 
-class ZigbeeLightApi {
+class ZigbeeCurtainApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(
-      String deviceId, String masterId) async {
-    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceId, masterId);
+  static Future<MzResponseEntity> getCurtainDetail(DeviceEntity deviceInfo) async {
+    MzResponseEntity<String> gatewayInfo =
+        await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
-    var res = await DeviceApi.sendPDMOrder('0x16', 'lightPanleGetStatus',
-        deviceId, {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
-        method: 'POST');
-    return res;
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_one' ||
+        zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_two') {
+      var res = await DeviceApi.sendPDMOrder(
+          '0x16',
+          'subDeviceGetStatus',
+          deviceInfo.masterId,
+          {
+            "msgId": uuid.v4(),
+            "deviceId": deviceInfo.masterId,
+            "nodeId": infoMap["nodeid"]
+          },
+          method: 'POST');
+      return res;
+    } else {
+      var res = await DeviceApi.sendPDMOrder(
+          '0x16',
+          'curtainGetStatus',
+          deviceInfo.masterId,
+          {
+            "msgId": uuid.v4(),
+            "deviceId": deviceInfo.masterId,
+            "nodeId": infoMap["nodeid"]
+          },
+          method: 'POST');
+      return res;
+    }
   }
 
   /// 设置延时关灯（物模型）
@@ -100,53 +161,115 @@ class ZigbeeLightApi {
       String deviceId, bool onOff, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'lightControl',
+        'subDeviceControl',
         deviceId,
         {
-          "brightness": 0,
           "msgId": uuid.v4(),
-          "power": onOff,
           "deviceId": deviceId,
           "nodeId": nodeId,
-          "colorTemperature": 0
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": onOff ? 1 : 0},
+            {"endPoint": 2, "attribute": onOff ? 1 : 0}
+          ]
         },
         method: 'PUT');
 
     return res;
   }
 
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness, String nodeId) async {
+  /// 开关控制（物模型）
+  static Future<MzResponseEntity> powerPDMTwin(
+      String deviceId, bool onOff1, bool onOff2, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'lightControl',
+        'subDeviceControl',
         deviceId,
         {
-          "brightness": brightness,
           "msgId": uuid.v4(),
-          "power": true,
           "deviceId": deviceId,
           "nodeId": nodeId,
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": onOff1 ? 1 : 0},
+            {"endPoint": 2, "attribute": onOff2 ? 1 : 0}
+          ]
         },
         method: 'PUT');
 
     return res;
   }
 
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature, String nodeId) async {
+  /// 窗帘电机——打开
+  static Future<MzResponseEntity> curtainOpenPDM(
+      String deviceId, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'lightControl',
+        'subDeviceControl',
         deviceId,
         {
           "msgId": uuid.v4(),
-          "power": true,
           "deviceId": deviceId,
           "nodeId": nodeId,
-          "colorTemperature": colorTemperature
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": 100}
+          ]
+        },
+        method: 'PUT');
+
+    return res;
+  }
+
+  /// 窗帘电机——关闭
+  static Future<MzResponseEntity> curtainClosePDM(
+      String deviceId, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'subDeviceControl',
+        deviceId,
+        {
+          "msgId": uuid.v4(),
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": 0}
+          ]
+        },
+        method: 'PUT');
+
+    return res;
+  }
+  /// 窗帘电机——暂停
+  static Future<MzResponseEntity> curtainStopPDM(
+      String deviceId, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'subDeviceControl',
+        deviceId,
+        {
+          "msgId": uuid.v4(),
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": 240}
+          ]
+        },
+        method: 'PUT');
+
+    return res;
+  }
+  /// 窗帘电机——百分比
+  static Future<MzResponseEntity> curtainPercentPDM(
+      String deviceId, num percent, String nodeId) async {
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'subDeviceControl',
+        deviceId,
+        {
+          "msgId": uuid.v4(),
+          "deviceId": deviceId,
+          "nodeId": nodeId,
+          "deviceControlList": [
+            {"endPoint": 1, "attribute": percent}
+          ]
         },
         method: 'PUT');
 

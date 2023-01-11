@@ -38,8 +38,8 @@ public class Portal implements PortalContext {
     public final static String RESULT_SCAN_WIFI_DEVICES = "result_scan_devices"; // ArrayList<WiFiScanResult>
     // # FindZigbeeDeviceFactory
     public final static String REQUEST_SCAN_ZIGBEE_DEVICES = "request_scan_zigbee_devices";
-    public final static String METHOD_SCAN_ZIGBEE_START = "method_zigbee_scan";
-    public final static String METHOD_SCAN_ZIGBEE_STOP = "method_zigbee_stop";
+    public final static String METHOD_SCAN_ZIGBEE_START = "method_scan_zigbee_start";
+    public final static String METHOD_SCAN_ZIGBEE_STOP = "method_scan_zigbee_stop";
     public final static String PARAM_SCAN_HOME_GROUP_ID = "param_scan_home_group_id";
     public final static String PARAM_GATEWAY_APPLIANCE_CODE = "param_gateway_appliance_code";
     public final static String RESULT_SCAN_ZIGBEE_DEVICES = "result_scan_devices_zigbee";// ArrayList<ZigbeeScanResult>
