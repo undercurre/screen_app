@@ -94,9 +94,7 @@ class _CoolMasterState extends State<CoolMaster> {
                           messageText: '上次更新 %T',
                           mainAxisAlignment: MainAxisAlignment.end,
                         ),
-                        onRefresh: () async {
-                          await handleRefresh(context);
-                        },
+                        onRefresh: handleRefresh,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
@@ -325,7 +323,7 @@ class _CoolMasterState extends State<CoolMaster> {
     }
   }
 
-  handleRefresh(BuildContext context) async {
+  handleRefresh() async {
     final index = deviceList.deviceList
         .indexWhere((element) => element.applianceCode == deviceId);
     try {
