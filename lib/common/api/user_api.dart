@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/index.dart';
 
 import '../../states/index.dart';
 import 'api.dart';
@@ -60,7 +61,7 @@ class UserApi {
         ));
 
     if (res.code == 65012) {
-      UserModel().user = null;
+      System.loginOut();
     }
 
     if (!res.isSuccess) {
@@ -73,7 +74,7 @@ class UserApi {
       Global.user?.expired = res.data['expired'];
       var time = DateTime.fromMillisecondsSinceEpoch(
           Global.user?.expired?.toInt() ?? 0);
-      debugPrint('token过期时间: $time');
+      debugPrint('美的Iot的token过期时间: $time');
     } else if (rule == 0) {
       // 刷新的令牌密码tokenPwd
       Global.user?.tokenPwd = res.data['tokenPwd'];

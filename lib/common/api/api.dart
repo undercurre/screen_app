@@ -74,7 +74,10 @@ class Api {
       // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onError: (DioError e, handler) {
-      // Do something with response error
+      if (e.requestOptions.extra['isShowLoading'] == true) {
+        TipsUtils.hideLoading();
+      }
+
       logger.e('onError:\n'
           '${e.toString()} \n '
           '${e.requestOptions.path} \n'
