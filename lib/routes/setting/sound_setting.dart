@@ -13,7 +13,6 @@ class SoundSettingPage extends StatefulWidget {
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
   late double po;
-  bool touchSound = true;
   num soundValue = 0;
 
   @override
@@ -127,42 +126,6 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     icon: Image.asset(
                       "assets/imgs/setting/yinliang-full.png",
                     ),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                  child: const Text("触摸声音",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 24.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                  child: CupertinoSwitch(
-                    value: touchSound,
-                    activeColor: Colors.blue,
-                    onChanged: (bool value) {
-                      setState(() {
-                        touchSound = value;
-                      });
-                    },
                   ),
                 ),
               ],
