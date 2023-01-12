@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/index.dart';
 
 class StandbyTimeChoicePage extends StatefulWidget {
   const StandbyTimeChoicePage({Key? key});
@@ -10,10 +11,15 @@ class StandbyTimeChoicePage extends StatefulWidget {
 
 class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
   late double po;
-  num groupValue = 1;
+  late int groupValue;
+
   @override
   void initState() {
     super.initState();
+
+    groupValue = Provider.of<WeatherChangeNotifier>(context, listen: false).standbyTimer.key;
+    debugPrint('key: $groupValue');
+
     //初始化状态
     print("initState");
   }
@@ -76,10 +82,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
-                  child:  Radio<num>(
+                  child:  Radio<int>(
                     activeColor: const Color(0XFF267AFF),
                     groupValue: groupValue,
-                    value: 1,
+                    value: 0,
                     onChanged: (value){
                       setState((){
                         groupValue=value!;
@@ -113,10 +119,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                  child:  Radio<num>(
+                  child:  Radio<int>(
                     activeColor: const Color(0XFF267AFF),
                     groupValue: groupValue,
-                    value: 2,
+                    value: 1,
                     onChanged: (value){
                       setState((){
                         groupValue=value!;
@@ -150,10 +156,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                  child:  Radio<num>(
+                  child:  Radio<int>(
                     activeColor: const Color(0XFF267AFF),
                     groupValue: groupValue,
-                    value: 3,
+                    value: 2,
                     onChanged: (value){
                       setState((){
                         groupValue=value!;
@@ -165,7 +171,7 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
             ),
             Container(
               width: 464,
-              height: 1,
+              height: 2,
               margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
               decoration: const BoxDecoration(
                 color: Color(0xff232323),
@@ -187,10 +193,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                  child:  Radio<num>(
+                  child:  Radio<int>(
                     activeColor: const Color(0XFF267AFF),
                     groupValue: groupValue,
-                    value: 4,
+                    value: 3,
                     onChanged: (value){
                       setState((){
                         groupValue=value!;
@@ -224,10 +230,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                  child:  Radio<num>(
+                  child:  Radio<int>(
                     activeColor: const Color(0XFF267AFF),
                     groupValue: groupValue,
-                    value: 5,
+                    value: 4,
                     onChanged: (value){
                       setState((){
                         groupValue=value!;
@@ -270,7 +276,10 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       )),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    Provider.of<WeatherChangeNotifier>(context, listen: false).setTimerByNum = groupValue;
+                    Navigator.pop(context);
+                  },
                   child: Container(
                       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                       width: 240,

@@ -42,6 +42,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => UserModel()),
         ChangeNotifierProvider(create: (_) => DeviceListModel()),
         ChangeNotifierProvider(create: (_) => RoomModel()),
+        ChangeNotifierProvider(create: (_) => WeatherChangeNotifier()),
       ],
       child: PointerDownListener(
           child: MaterialApp(

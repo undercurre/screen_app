@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../../channel/index.dart';
+import '../../states/weather_change_notifier.dart';
 import '../../widgets/mz_slider.dart';
 
 class DisplaySettingPage extends StatefulWidget {
@@ -17,7 +18,6 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
   bool nearWakeup = true;
   num lightValue = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -28,7 +28,7 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
 
   initial() async {
     lightValue = await settingMethodChannel.getSystemLight();
-    autoLight= await settingMethodChannel.getAutoLight();
+    autoLight = await settingMethodChannel.getAutoLight();
     print("亮度大小:$lightValue");
     setState(() {});
   }
@@ -140,9 +140,7 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                       height: 60,
                       margin: const EdgeInsets.fromLTRB(15, 9, 0, 9),
                       child: IconButton(
-                        onPressed: () {
-
-                        },
+                        onPressed: () {},
                         iconSize: 40.0,
                         icon: Image.asset(
                           "assets/imgs/setting/liangdu01.png",
@@ -155,7 +153,10 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                       child: MzSlider(
                         width: 320,
                         value: lightValue,
-                        activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                        activeColors: const [
+                          Color(0xFF267AFF),
+                          Color(0xFF267AFF)
+                        ],
                         onChanging: (value, actieColor) => {
                           settingMethodChannel.setSystemLight(value),
                           lightValue = value,
@@ -241,7 +242,8 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
-                  child: const Text('当人靠近距离50cm时，从待机状态进入到首页状态。                     ',
+                  child: const Text(
+                      '当人靠近距离50cm时，从待机状态进入到首页状态。                     ',
                       style: TextStyle(
                         color: Color(0XFF979797),
                         fontSize: 14.0,
@@ -276,16 +278,18 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
-                          margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                          child: const Text("30s 后",
-                              style: TextStyle(
-                                color: Color(0XFF0091FF),
-                                fontSize: 18.0,
-                                fontFamily: "MideaType",
-                                fontWeight: FontWeight.normal,
-                                decoration: TextDecoration.none,
-                              )),
-                        ),
+                            margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
+                            child: Consumer<WeatherChangeNotifier>(
+                                builder: (_, model, child) {
+                              return Text(model.standbyTimer.title,
+                                  style: const TextStyle(
+                                    color: Color(0XFF0091FF),
+                                    fontSize: 18.0,
+                                    fontFamily: "MideaType",
+                                    fontWeight: FontWeight.normal,
+                                    decoration: TextDecoration.none,
+                                  ));
+                            })),
                         Container(
                           margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
                           child: IconButton(

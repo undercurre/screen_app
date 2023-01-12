@@ -1,3 +1,8 @@
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:provider/provider.dart';
+
+import '../../../models/device_entity.dart';
+import '../../../states/device_change_notifier.dart';
 import './api.dart';
 import './mode_list.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +18,11 @@ class CoolMaster extends StatefulWidget {
 class _CoolMasterState extends State<CoolMaster> {
   String deviceId = '0';
   String deviceName = '凉霸';
+  late DeviceListModel deviceList;
+  late DeviceEntity device;
+  late EasyRefreshController refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+  );
 
   Map<String, bool?> mode = <String, bool?>{};
   int windSpeed = 0;
@@ -20,21 +30,23 @@ class _CoolMasterState extends State<CoolMaster> {
   bool smelly = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  Widget build(BuildContext context) {
+    deviceList = context.watch<DeviceListModel>();
+    // 第一次加载，先从路由取deviceId
+    if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
-      deviceName = args['deviceName'] ?? '浴霸';
-      final res = await BaseApi.getDetailByLua(deviceId);
-      if (res.success) {
-        luaDataConvToState(res.result);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    }
+    // 先判断有没有这个id，没有说明设备已被删除
+    final index = deviceList.deviceList
+        .indexWhere((element) => element.applianceCode == deviceId);
+    if (index >= 0) {
+      device = deviceList.deviceList[index];
+      deviceName = deviceList.deviceList[index].name;
+      luaDataConvToState();
+    } else {
+      // todo: 设备已被删除，应该弹窗并让用户退出
+    }
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -69,62 +81,81 @@ class _CoolMasterState extends State<CoolMaster> {
                       width: 150,
                     ),
                     Expanded(
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          ModeCard(
-                            modeList: coolMasterMode,
-                            selectedKeys: mode,
-                            onTap: (e) => handleModeTap(e),
-                          ),
-                          FunctionCard(
-                            icon: Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: const Color(0x38ffffff),
-                                borderRadius: BorderRadius.circular(15.0),
+                      child: EasyRefresh(
+                        controller: refreshController,
+                        header: const ClassicHeader(
+                          dragText: '下拉刷新',
+                          armedText: '释放执行刷新',
+                          readyText: '正在刷新...',
+                          processingText: '正在刷新...',
+                          processedText: '刷新完成',
+                          noMoreText: '没有更多信息',
+                          failedText: '失败',
+                          messageText: '上次更新 %T',
+                          mainAxisAlignment: MainAxisAlignment.end,
+                        ),
+                        onRefresh: () async {
+                          await handleRefresh(context);
+                        },
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 50,
                               ),
-                              child: const Image(
-                                height: 22,
-                                width: 22,
-                                image: AssetImage(
-                                    'assets/imgs/plugins/0x40/swing.png'),
+                              ModeCard(
+                                modeList: coolMasterMode,
+                                selectedKeys: mode,
+                                onTap: (e) => handleModeTap(e),
                               ),
-                            ),
-                            title: '摆风',
-                            child: MzSwitch(
-                              value: swing,
-                              disabled: swingDisabled(),
-                              onTap: (e) => toggleSwing(),
-                            ),
+                              FunctionCard(
+                                icon: Container(
+                                  width: 30,
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x38ffffff),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: const Image(
+                                    height: 22,
+                                    width: 22,
+                                    image: AssetImage(
+                                        'assets/imgs/plugins/0x40/swing.png'),
+                                  ),
+                                ),
+                                title: '摆风',
+                                child: MzSwitch(
+                                  value: swing,
+                                  disabled: swingDisabled(),
+                                  onTap: (e) => toggleSwing(),
+                                ),
+                              ),
+                              FunctionCard(
+                                icon: Container(
+                                  width: 30,
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x38ffffff),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: const Image(
+                                    height: 22,
+                                    width: 22,
+                                    image: AssetImage(
+                                        'assets/imgs/plugins/0x40/smell.png'),
+                                  ),
+                                ),
+                                title: '异味感知',
+                                child: MzSwitch(
+                                  value: smelly,
+                                  onTap: (e) => toggleSmelly(),
+                                ),
+                              ),
+                            ],
                           ),
-                          FunctionCard(
-                            icon: Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: const Color(0x38ffffff),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: const Image(
-                                height: 22,
-                                width: 22,
-                                image: AssetImage(
-                                    'assets/imgs/plugins/0x40/smell.png'),
-                              ),
-                            ),
-                            title: '异味感知',
-                            child: MzSwitch(
-                              value: smelly,
-                              onTap: (e) => toggleSmelly(),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -151,7 +182,11 @@ class _CoolMasterState extends State<CoolMaster> {
   }
 
   /// lua上报状态转widget状态
-  void luaDataConvToState(Map<String, dynamic> data) {
+  void luaDataConvToState() {
+    if (device.detail == null) {
+      return;
+    }
+    Map<String, dynamic> data = device.detail!;
     if (data['mode'] == 'close_all') {
       mode[strong.key] = false;
       mode[weak.key] = false;
@@ -287,6 +322,21 @@ class _CoolMasterState extends State<CoolMaster> {
       setState(() {
         mode = mode;
       });
+    }
+  }
+
+  handleRefresh(BuildContext context) async {
+    final index = deviceList.deviceList
+        .indexWhere((element) => element.applianceCode == deviceId);
+    try {
+      final res = await DeviceListApiImpl().getDeviceDetail(device);
+      deviceList.deviceList[index].detail = res;
+      deviceList.notifyListeners();
+    } catch (e) {
+      // 接口请求失败
+      print(e);
+    } finally {
+      refreshController.finishRefresh();
     }
   }
 
