@@ -158,6 +158,7 @@ class UserApi {
           'applianceName': applianceName,
           'homegroupId': Global.profile.homeInfo?.homegroupId,
           'applianceType': applianceType,
+          'modelNumber': Global.sn8,
           'roomId': Global.profile.roomInfo?.roomId,
         },
         options: Options(

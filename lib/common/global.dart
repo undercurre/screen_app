@@ -20,7 +20,8 @@ class Global {
   // 是否为release版
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
 
-  static var productCode = 'MSP-A101D-01';
+  static var productCode = 'D3ZZKP-Z';
+  static var sn8 = 'MSGWZ010';
 
   static late SharedPreferences _prefs;
   static ProfileEntity profile = ProfileEntity();
