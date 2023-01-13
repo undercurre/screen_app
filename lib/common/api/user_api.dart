@@ -55,6 +55,7 @@ class UserApi {
             'platform': 100,
           }
         },
+        isShowLoading: false,
         options: Options(
           method: 'POST',
           headers: {'accessToken': Global.user?.accessToken},
@@ -123,6 +124,7 @@ class UserApi {
           'itAccessToken': Global.user?.accessToken,
           'tokenExpires': (24 * 60 * 60).toString(),
         },
+        isShowLoading: false,
         options: Options(method: 'POST', extra: {'isSign': true}));
 
     if (res.isSuccess) {
