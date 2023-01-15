@@ -1,12 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/center_control/index.dart';
+
+import './center_control/index.dart';
+import './device/index.dart';
+import './scene/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
-import '../../mixins/auto_sniffer.dart';
-import '../device/index.dart';
-import '../scene/index.dart';
+
+export './center_control/index.dart';
+export './device/index.dart';
+export './scene/index.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key, this.initValue = 0});
@@ -17,7 +21,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with AutoSniffer {
+class _HomeState extends State<Home> {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -32,8 +36,8 @@ class _HomeState extends State<Home> with AutoSniffer {
     //初始化状态
     _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
-    children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
+    children.add(const CenterControlPage(text: '中控页'));
     initial();
   }
 

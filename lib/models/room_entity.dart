@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/generated/json/room_entity.g.dart';
 import 'package:screen_app/models/device_entity.dart';
-import 'dart:convert';
 
 @JsonSerializable()
 class RoomEntity {

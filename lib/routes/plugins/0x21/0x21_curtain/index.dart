@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
+import 'package:screen_app/widgets/index.dart';
 
+import './mode_list.dart';
 import '../../../../common/api/device_api.dart';
 import '../../../../models/mz_response_entity.dart';
 import '../../../../states/device_change_notifier.dart';
-import '../../../device/register_controller.dart';
-import '../../../device/service.dart';
-import './mode_list.dart';
-import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/index.dart';
+import '../../../home/device/register_controller.dart';
+import '../../../home/device/service.dart';
 
 class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
   Map<String, dynamic> deviceWatch = {

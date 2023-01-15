@@ -7,6 +7,7 @@ class DropdownMenu extends StatefulWidget {
   final Duration? duration;
   final double menuWidth;
   final bool hideArrow;
+  final double? arrowSize;
   final void Function(dynamic result)? onSelected;
   final void Function(bool visible)? onVisibleChange;
 
@@ -19,6 +20,7 @@ class DropdownMenu extends StatefulWidget {
     this.onVisibleChange,
     this.menuWidth = 140,
     this.hideArrow = false,
+    this.arrowSize,
     this.duration = const Duration(milliseconds: 300),
   });
 
@@ -74,10 +76,10 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
           if (!widget.hideArrow)
             RotationTransition(
               turns: _arrowAnimation,
-              child: const Image(
-                width: 30,
-                height: 30,
-                image: AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
+              child: Image(
+                width: widget.arrowSize ?? 30,
+                height: widget.arrowSize ?? 30,
+                image: const AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
               ),
             ),
         ],

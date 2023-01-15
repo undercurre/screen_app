@@ -1,18 +1,16 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/global.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
-import 'package:screen_app/routes/plugins/0x16/api.dart';
-import 'dart:convert';
+import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/states/profile_change_notifier.dart';
 
 import '../models/index.dart';
-import '../routes/device/service.dart';
+import '../routes/home/device/service.dart';
 
 class DeviceListModel extends ProfileChangeNotifier {
+  // 窗帘判断式
   bool curtainFilter(DeviceEntity device) {
     return device.type == '0x14' ||
         (device.type == '0x21' &&
@@ -23,6 +21,20 @@ class DeviceListModel extends ProfileChangeNotifier {
                     '0x21_curtain_panel_two'));
   }
 
+  // 灯光判断式
+  bool lightFilter(DeviceEntity device) {
+    return device.type == '0x13' ||
+        (device.type == '0x21' &&
+            (zigbeeControllerList[device.modelNumber] == '0x21_light_colorful' ||
+                zigbeeControllerList[device.modelNumber] ==
+                    '0x21_light_noColor'));
+  }
+
+  // 空调判断式
+  bool airConditionFilter(DeviceEntity device) {
+    return device.type == '0xAC';
+  }
+
 
   List<DeviceEntity> _deviceListResource =
       Global.profile.roomInfo!.applianceList;
@@ -30,6 +42,10 @@ class DeviceListModel extends ProfileChangeNotifier {
   List<DeviceEntity> get deviceList => _deviceListResource;
 
   List<DeviceEntity> get curtainList => _deviceListResource.where(curtainFilter).toList();
+
+  List<DeviceEntity> get lightList => _deviceListResource.where(lightFilter).toList();
+
+  List<DeviceEntity> get airConditionList => _deviceListResource.where(airConditionFilter).toList();
 
   set deviceList(List<DeviceEntity> newList) {
     _deviceListResource = newList;
@@ -83,7 +99,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     }
   }
 
-  // 更新设备列表所有设备的detail
+  // 更新设备列表某一个设备的detail
   Future<void> updateDeviceDetail(DeviceEntity deviceInfo,
       {Function? callback}) async {
     // todo: 优化数据更新diff
@@ -107,7 +123,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         curDevice.detail = newDetail;
       }
       logger.i(
-          "DeviceListModelChange: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
+          "源数据: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
       notifyListeners();
       if (callback != null) callback();
     }

@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+export 'about_setting.dart';
+export 'ai_setting.dart';
+export 'display_setting.dart';
+export 'net_setting.dart';
+export 'sound_setting.dart';
+export 'standby_time_choice.dart';
+
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key});
 

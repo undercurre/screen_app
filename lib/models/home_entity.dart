@@ -1,7 +1,7 @@
-import 'package:screen_app/generated/json/base/json_field.dart';
-import 'package:screen_app/generated/json/home_entity.g.dart';
 import 'dart:convert';
 
+import 'package:screen_app/generated/json/base/json_field.dart';
+import 'package:screen_app/generated/json/home_entity.g.dart';
 import 'package:screen_app/models/room_entity.dart';
 
 @JsonSerializable()

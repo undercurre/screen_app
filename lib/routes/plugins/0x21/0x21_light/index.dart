@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
-import '../../../../states/device_change_notifier.dart';
-import '../../../device/register_controller.dart';
-import '../../../device/service.dart';
-import 'mode_list.dart';
-import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
+
+import '../../../../states/device_change_notifier.dart';
+import '../../../home/device/register_controller.dart';
+import '../../../home/device/service.dart';
+import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   Map<String, dynamic> deviceWatch = {

@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
-import 'dropdown/drop_down_page.dart';
-import 'package:screen_app/routes/center_control/index.dart';
-import 'package:screen_app/routes/develop/wifi_manager.dart';
-import 'package:screen_app/routes/plugins/0x21/0x21_curtain/index.dart';
-import 'package:screen_app/routes/plugins/0xAC/api.dart';
-import 'package:screen_app/routes/plugins/0xAC/index.dart';
-import 'package:screen_app/routes/plugins/lightGroup/index.dart';
-import 'develop/develop_helper.dart';
-import 'room/index.dart';
+
 import 'boot/index.dart';
-import 'setting/about_setting.dart';
-import 'setting/ai_setting.dart';
-import 'setting/display_setting.dart';
-import 'setting/index.dart';
-import 'setting/net_setting.dart';
-import 'setting/sound_setting.dart';
-import 'setting/standby_time_choice.dart';
-
-import 'login/index.dart';
+import 'develop/develop_helper.dart';
+import 'dropdown/drop_down_page.dart';
 import 'home/index.dart';
-import 'weather/index.dart';
-import 'device/index.dart';
-import 'scene/index.dart';
-import 'sniffer/index.dart';
-import 'sniffer/device_connect.dart';
-import 'sniffer/self_discovery.dart';
-
+import 'login/index.dart';
 import 'plugins/0x13/index.dart';
 import 'plugins/0x14/index.dart';
+import 'plugins/0x21/0x21_curtain/index.dart';
+import 'plugins/0x21/0x21_light/index.dart';
 import 'plugins/0x26/index.dart';
 import 'plugins/0x40/index.dart';
-import 'plugins/0x21/0x21_light/index.dart';
+import 'plugins/0xAC/index.dart';
+import 'plugins/lightGroup/index.dart';
+import 'room/index.dart';
+import 'setting/index.dart';
+import 'sniffer/device_connect.dart';
+import 'sniffer/index.dart';
+import 'sniffer/self_discovery.dart';
+import 'weather/index.dart';
 
 var routes = <String, WidgetBuilder>{
   '/': (context) => const Boot(),

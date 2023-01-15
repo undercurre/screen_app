@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
+
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+
 import '../../common/index.dart';
 import '../../mixins/index.dart';
 import '../../mixins/ota.dart';
