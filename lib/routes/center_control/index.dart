@@ -499,7 +499,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                           );
                         },
                       ).toList(),
-                      child: Opacity(
+                      trigger: Opacity(
                         opacity: menuVisible ? 0.5 : 1,
                         child: Row(
                           children: [
@@ -520,7 +520,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                           ],
                         ),
                       ),
-                      onVisibled: (visible) {
+                      onVisibleChange: (visible) {
                         setState(() {
                           menuVisible = visible;
                         });

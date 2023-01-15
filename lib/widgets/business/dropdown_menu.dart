@@ -76,7 +76,7 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
           if (!widget.hideArrow)
             RotationTransition(
               turns: _arrowAnimation,
-              child: const Image(
+              child: Image(
                 width: widget.arrowSize ?? 30,
                 height: widget.arrowSize ?? 30,
                 image: const AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
