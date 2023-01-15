@@ -28,7 +28,7 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> with AutoSniffer {
-  int _count = 5;
+  int count = 5;
   late EasyRefreshController _controller;
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
@@ -48,12 +48,13 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   List<DeviceEntity> deviceEntityList = [];
 
   initPage() async {
+    var deviceListModel = context.read<DeviceListModel>();
+    var deviceList = deviceListModel.deviceList;
     // 更新房间信息
     updateHomeData();
     // 查灯组列表
     await context.read<DeviceListModel>().selectLightGroupList();
     // 更新设备detail
-    var deviceList = context.read<DeviceListModel>().deviceList;
     debugPrint('加载到的设备列表$deviceList');
     setState(() {
       deviceEntityList = deviceList;
@@ -65,10 +66,10 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) ||
-              DeviceService.isVistual(deviceInfo))) {
+          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))
+      ) {
         // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
+        deviceListModel.updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
                   updateBins(deviceInfo)
@@ -80,16 +81,13 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
   }
 
   void updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
+    var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
       var homeInfo = res.data.homeList[0];
       var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo = roomList
-          .where((element) =>
-              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
-          .toList()[0];
+      Global.profile.roomInfo =
+          roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
     }
   }
 
@@ -99,9 +97,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
       DeviceService.setVistualDevice(context, deviceInfo);
     }
     setState(() {
-      deviceWidgetList = deviceEntityList
-          .map((device) => DeviceCard(deviceInfo: device))
-          .toList();
+      deviceWidgetList = deviceEntityList.map((device) => DeviceCard(deviceInfo: device)).toList();
     });
   }
 
@@ -121,7 +117,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
       if (_scrollController.hasClients) {
         final offset = min(_scrollController.offset, 150);
         setState(() {
-          roomTitleScale = min(1 - (offset / 150), 1.3);
+          roomTitleScale = min(1 - (offset / 150), 1);
         });
       }
     });
@@ -161,12 +157,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                        "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
-                              HH,
-                              ':',
-                              nn
-                            ])}",
+                    Text("${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
                         style: const TextStyle(
                           color: Color(0XFFFFFFFF),
                           fontSize: 18.0,
@@ -189,9 +180,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                                 child: Text(
                                   item['title']!,
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.w400),
+                                      fontSize: 18, fontFamily: "MideaType", fontWeight: FontWeight.w400),
                                 ),
                               ));
                         }).toList();
@@ -209,7 +198,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                margin: EdgeInsets.fromLTRB(20, 0, 0, 10 * roomTitleScale),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -252,7 +241,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                     }
                     initPage();
                     setState(() {
-                      _count = 5;
+                      count = 5;
                     });
                     _controller.finishRefresh();
                     _controller.resetFooter();
@@ -261,6 +250,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                     spacing: 8.0,
                     runSpacing: 8.0,
                     padding: const EdgeInsets.all(8),
+                    controller: _scrollController,
                     buildDraggableFeedback: (context, constraints, child) {
                       return Transform(
                         transform: Matrix4.rotationZ(0),
@@ -283,21 +273,18 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
                     onReorder: (int oldIndex, int newIndex) {
                       setState(() {
                         Widget row = deviceWidgetList.removeAt(oldIndex);
-                        DeviceEntity deviceRow =
-                            deviceEntityList.removeAt(oldIndex);
+                        DeviceEntity deviceRow = deviceEntityList.removeAt(oldIndex);
                         deviceWidgetList.insert(newIndex, row);
                         deviceEntityList.insert(newIndex, deviceRow);
                       });
                     },
                     onNoReorder: (int index) {
                       //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                      debugPrint('${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
                     },
                     onReorderStarted: (int index) {
                       //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                      debugPrint('${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
                     },
                     children: deviceWidgetList,
                   ),
@@ -326,8 +313,7 @@ class _DevicePageState extends State<DevicePage> with AutoSniffer {
     );
   }
 
-  void onDragAccept(
-      List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
+  void onDragAccept(List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
     debugPrint('onDragAccept: $beforeIndex -> $afterIndex');
   }
 

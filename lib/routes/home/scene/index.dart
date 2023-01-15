@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/routes/home/scene/scene_card.dart';
@@ -31,6 +31,7 @@ class ScenePageState extends State<ScenePage> {
   // 定时器
   late Timer timeTimer = Timer(const Duration(seconds: 1), () {}); // 定义定时器
 
+
   void startTimer() {
     timeTimer.cancel(); // 取消定时器
     timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -39,6 +40,7 @@ class ScenePageState extends State<ScenePage> {
         time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
       });
     });
+
   }
 
   List<Scene> sceneList = [

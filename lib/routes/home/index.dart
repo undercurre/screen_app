@@ -13,15 +13,15 @@ export './device/index.dart';
 export './scene/index.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key, this.initValue = 0});
+  const Home({super.key, this.initValue = 0});
 
   final int initValue;
 
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home> {
+class HomeState extends State<Home> {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
