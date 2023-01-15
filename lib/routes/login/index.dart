@@ -18,7 +18,7 @@ class Step {
 
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
-  var stepNum = Global.isLogin ? 3 : 1;
+  var stepNum = 1;
 
   /// 上一步
   void prevStep() {
@@ -73,9 +73,9 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     super.initState();
 
     // 初始化
-    if (Platform.isAndroid && !isConnected()) {
-      stepNum = 1;
-    } else {
+    if (Global.isLogin) {
+      stepNum = 3;
+    } else if (Platform.isAndroid && isConnected()) {
       stepNum = 2;
     }
   }
