@@ -1,12 +1,12 @@
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/index.dart';
 
-import '../../../models/device_entity.dart';
-import '../../../states/device_change_notifier.dart';
 import './api.dart';
 import './mode_list.dart';
-import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/index.dart';
+import '../../../models/device_entity.dart';
+import '../../../states/device_change_notifier.dart';
 
 class BathroomMaster extends StatefulWidget {
   const BathroomMaster({super.key});

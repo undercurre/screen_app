@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/scene/scene.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
 
 class SceneCard extends StatefulWidget {
   final Scene scene;

@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/event_bus.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/index.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 mixin Standby<T extends StatefulWidget> on State<T> {

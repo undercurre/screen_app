@@ -1,13 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/models/index.dart';
-import 'dart:io';
 
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
-import 'scan_code.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/util/net_utils.dart';
+import 'scan_code.dart';
 
 class Step {
   String title;
@@ -44,14 +45,14 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         return;
       }
       // todo: linux运行屏蔽，push前解放
-      var bindRes = await UserApi.bindHome(
-          sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
-          applianceType: '0x16');
-
-      if (!bindRes.isSuccess) {
-        TipsUtils.toast(content: '绑定家庭失败');
-        return;
-      }
+      // var bindRes = await UserApi.bindHome(
+      //     sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
+      //     applianceType: '0x16');
+      //
+      // if (!bindRes.isSuccess) {
+      //   TipsUtils.toast(content: '绑定家庭失败');
+      //   return;
+      // }
 
       Global.saveProfile();
       //导航到新路由

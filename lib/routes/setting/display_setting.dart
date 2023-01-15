@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../channel/index.dart';
 import '../../states/weather_change_notifier.dart';
 import '../../widgets/mz_slider.dart';

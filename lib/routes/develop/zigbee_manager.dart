@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+
 import '../../common/global.dart';
 
 final List<FindZigbeeResult> list = <FindZigbeeResult>[];

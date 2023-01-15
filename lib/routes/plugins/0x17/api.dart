@@ -1,29 +1,100 @@
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/plugins/device_interface.dart';
 
 import '../../../models/mz_response_entity.dart';
+import '../device_interface.dart';
 
-class WrapWIFILight implements DeviceInterface {
+/// 浴霸控制接口
+class BaseApi {
+  /// 查询设备状态（物模型）
+  static Future<MzResponseEntity> getDetail(String deviceId) async {
+    var res = await DeviceApi.sendPDMOrder(
+      '0x26',
+      '__fullQuery__',
+      deviceId,
+      {},
+      method: 'GET',
+    );
+    return res;
+  }
+
+  /// 查询设备状态（lua）
+  static Future<MzResponseEntity> getDetailByLua(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0x26', deviceId);
+    return res;
+  }
+
+  /// 物模型控制
+  static Future<MzResponseEntity> wotControl(
+      String deviceId, String command, Map data) async {
+    var res = await DeviceApi.sendPDMOrder('0x26', command, deviceId, data,
+        method: 'POST');
+    return res;
+  }
+
+  /// Lua控制
+  static Future<MzResponseEntity> luaControl(String deviceId, Map data) async {
+    var res = await DeviceApi.sendLuaOrder('0x26', deviceId, data);
+    return res;
+  }
+}
+
+/// 提供给DeviceList调用的接口实现
+class DeviceListApiImpl implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    var res = await WIFILightApi.getLightDetail(deviceInfo.applianceCode);
-    if (res.code == 0) {
+    final res = await BaseApi.getDetailByLua(deviceInfo.applianceCode);
+    if (res.success) {
       return res.result;
     } else {
-      return {};
+      throw Error();
     }
   }
 
   @override
-  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await WIFILightApi.powerPDM(deviceInfo.applianceCode, onOff);
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
+    if (onOff) {
+      // 设备列表点击开电源，打开
+      return BaseApi.luaControl(
+        deviceInfo.applianceCode,
+        {'mode': 'ventilation'},
+      );
+    } else {
+      // 全关
+      return BaseApi.luaControl(
+        deviceInfo.applianceCode,
+        {'mode': 'close_all', 'light_mode': ''},
+      );
+    }
   }
 
   @override
-  bool isSupport(DeviceEntity deviceInfo) {
-    // 过滤sn8
-    if (deviceInfo.sn8 == '79009833') {
+  String getAttr(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getAttrUnit(DeviceEntity deviceInfo) {
+    return '';
+  }
+
+  @override
+  String getOffIcon(DeviceEntity deviceInfo) {
+    return 'assets/imgs/device/bath_heater_off.png';
+  }
+
+  @override
+  String getOnIcon(DeviceEntity deviceInfo) {
+    return 'assets/imgs/device/bath_heater_on.png';
+  }
+
+  @override
+  bool isPower(DeviceEntity deviceInfo) {
+    final data = deviceInfo.detail;
+    if (data == null) {
+      return false;
+    }
+    if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
       return true;
     } else {
       return false;
@@ -31,96 +102,8 @@ class WrapWIFILight implements DeviceInterface {
   }
 
   @override
-  bool isPower(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
-  }
-
-  @override
-  String getAttr(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null
-        ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0)
-        : '';
-  }
-
-  @override
-  String getAttrUnit(DeviceEntity deviceInfo) {
-    return '%';
-  }
-
-  @override
-  String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_off.png';
-  }
-
-  @override
-  String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/dengguang_icon_on.png';
-  }
-}
-
-class WIFILightApi {
-  /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'getAllStand', deviceId, {},
-        method: 'GET');
-    return res;
-  }
-
-  /// 设备控制（lua）
-  static Future<MzResponseEntity> powerLua(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"power": onOff ? 'on' : 'off'});
-
-    return res;
-  }
-
-  /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'setTimeOff', deviceId, {"timeOff": onOff ? 3 : 0},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13', 'switchLightWithTime', deviceId, {"dimTime": 0, "power": onOff},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 模式控制（物模型）
-  static Future<MzResponseEntity> modePDM(String deviceId, String mode) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlScreenModel',
-        deviceId, {"dimTime": 0, "screenModel": mode},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 亮度控制（物模型）
-  static Future<MzResponseEntity> brightnessPDM(
-      String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": brightness},
-        method: 'POST');
-
-    return res;
-  }
-
-  /// 色温控制（物模型）
-  static Future<MzResponseEntity> colorTemperaturePDM(
-      String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendPDMOrder(
-        '0x13',
-        'controlColorTemperatureValue',
-        deviceId,
-        {"dimTime": 0, "colorTemperatureValue": colorTemperature},
-        method: 'POST');
-
-    return res;
+  bool isSupport(DeviceEntity deviceInfo) {
+    // 目前的所有晾衣架都支持
+    return true;
   }
 }

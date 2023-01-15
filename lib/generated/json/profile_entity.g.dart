@@ -1,10 +1,8 @@
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
-import 'package:screen_app/models/profile_entity.dart';
-import 'package:screen_app/models/user_entity.dart';
-
 import 'package:screen_app/models/home_entity.dart';
-
+import 'package:screen_app/models/profile_entity.dart';
 import 'package:screen_app/models/room_entity.dart';
+import 'package:screen_app/models/user_entity.dart';
 
 ProfileEntity $ProfileEntityFromJson(Map<String, dynamic> json) {
   final ProfileEntity profileEntity = ProfileEntity();

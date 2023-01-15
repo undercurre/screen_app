@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:intl/intl.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:uuid/uuid.dart';
+
 import '../global.dart';
 
 const uuid = Uuid();

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
 
 /// 美智光电Iot中台接口模型

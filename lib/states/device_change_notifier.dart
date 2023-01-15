@@ -1,17 +1,13 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/common/global.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
-import 'package:screen_app/routes/plugins/0x16/api.dart';
-import 'package:screen_app/routes/plugins/0x26/mode_list.dart';
-import 'dart:convert';
+import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/states/profile_change_notifier.dart';
 
 import '../models/index.dart';
-import '../routes/device/service.dart';
+import '../routes/home/device/service.dart';
 
 class DeviceListModel extends ProfileChangeNotifier {
   // 窗帘判断式

@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
 import 'package:screen_app/states/room_change_notifier.dart';
-import 'common/index.dart';
-import 'states/index.dart';
-import 'routes/index.dart';
-import './channel/index.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'widgets/pointer_listener.dart';
 import 'package:screen_app/widgets/event_bus.dart';
+
+import './channel/index.dart';
+import 'common/index.dart';
+import 'routes/index.dart';
+import 'states/index.dart';
+import 'widgets/pointer_listener.dart';
 
 void main() async {
   // 加载环境配置

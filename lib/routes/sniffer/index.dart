@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/widgets/index.dart';
+
 import '../../common/global.dart';
-import '../device/register_controller.dart';
-import '../device/service.dart';
+import '../home/device/register_controller.dart';
+import '../home/device/service.dart';
 import 'device_item.dart';
 
 // 模拟数据 TODO 改为接口查询 @魏

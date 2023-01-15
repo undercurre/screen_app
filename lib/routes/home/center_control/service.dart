@@ -4,16 +4,16 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
-import 'package:screen_app/routes/device/service.dart';
+import 'package:screen_app/routes/home/device/register_controller.dart';
+import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
-import '../../common/api/device_api.dart';
-import '../../models/mz_response_entity.dart';
-import '../../states/device_change_notifier.dart';
+import '../../../common/api/device_api.dart';
+import '../../../models/mz_response_entity.dart';
+import '../../../states/device_change_notifier.dart';
 
 class CenterControlService {
   /// 窗帘

@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
-import 'package:date_format/date_format.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
-import 'package:screen_app/routes/device/service.dart';
-import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
-import '../../common/api/user_api.dart';
-import '../../common/global.dart';
-import '../../states/room_change_notifier.dart';
-import '../sniffer/device_item.dart';
+import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/routes/home/device/register_controller.dart';
+import 'package:screen_app/routes/home/device/service.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
+
+import '../../../common/api/user_api.dart';
+import '../../../common/global.dart';
+import '../../../states/room_change_notifier.dart';
 import 'device_card.dart';
 
 class DevicePage extends StatefulWidget {

@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
-import 'package:screen_app/routes/device/service.dart';
-import 'package:screen_app/routes/sniffer/device_item.dart';
+import 'package:screen_app/routes/home/device/register_controller.dart';
+import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
-import '../../models/device_entity.dart';
+import '../../../models/device_entity.dart';
 
 class DeviceCard extends StatefulWidget {
   late DeviceEntity? deviceInfo;

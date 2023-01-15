@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/widgets/index.dart';
+
 import '../../common/global.dart';
 import '../../states/device_change_notifier.dart';
 

@@ -1,6 +1,7 @@
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/routes/plugins/0x16/api.dart';
+import 'package:screen_app/routes/plugins/0x17/api.dart' as cate0x17;
 import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0x26/api.dart' as cate0x26;
@@ -10,9 +11,9 @@ import 'package:screen_app/routes/plugins/device_interface.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 import 'package:screen_app/routes/plugins/smartControl/api.dart';
 
-import '../../models/device_entity.dart';
-import '../plugins/0x21/0x21_panel/api.dart';
-import '../plugins/singlePanel/api.dart';
+import '../../../models/device_entity.dart';
+import '../../plugins/0x21/0x21_panel/api.dart';
+import '../../plugins/singlePanel/api.dart';
 
 // 智慧屏实现线控器拆分和面板实现案件拆分通过定义屏端虚拟设备(既无法从接口获取到数据模型的设备)实现：
 // 智慧屏线控器定义为：smartControl
@@ -23,7 +24,7 @@ import '../plugins/singlePanel/api.dart';
 Map<String, DeviceInterface> controllerList = {
   "0x13": WrapWIFILight(),
   "0x14": CurtainApi(),
-  "lightGroup": WrapLightGroup(),
+  "0x17": cate0x17.DeviceListApiImpl(),
   "0x21_light_colorful": WrapZigbeeLight(),
   "0x21_light_noColor": WrapZigbeeLight(),
   "0x21_panel": WrapPanel(),
@@ -34,6 +35,7 @@ Map<String, DeviceInterface> controllerList = {
   "0x40": cate0x40.DeviceListApiImpl(),
   "0x16": WrapGateway(),
   "0xAC": WrapAirCondition(),
+  "lightGroup": WrapLightGroup(),
   "smartControl-1": WrapSmartControl(),
   "smartControl-2": WrapSmartControl(),
   "singlePanel-1": WrapSinglePanel(),

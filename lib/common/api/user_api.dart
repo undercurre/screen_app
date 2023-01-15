@@ -4,9 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/index.dart';
 
-import '../../states/index.dart';
-import 'api.dart';
 import '../../models/index.dart';
+import 'api.dart';
 
 class UserApi {
   /// 获取授权登录二维码

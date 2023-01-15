@@ -3,14 +3,14 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
-import 'package:screen_app/routes/center_control/service.dart';
+import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../common/api/user_api.dart';
-import '../../common/global.dart';
-import '../../states/device_change_notifier.dart';
-import '../../states/room_change_notifier.dart';
-import '../../widgets/plugins/slider_button_content.dart';
+import '../../../common/api/user_api.dart';
+import '../../../common/global.dart';
+import '../../../states/device_change_notifier.dart';
+import '../../../states/room_change_notifier.dart';
+import '../../../widgets/plugins/slider_button_content.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 

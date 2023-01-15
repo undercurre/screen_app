@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:screen_app/routes/scene/scene.dart';
-import 'package:screen_app/routes/scene/scene_card.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
+import 'package:screen_app/routes/home/scene/scene_card.dart';
 
-import '../../common/api/scene_api.dart';
+import '../../../common/api/scene_api.dart';
 import 'config.dart';
 
 class ScenePageState extends State<ScenePage> {
@@ -32,7 +32,7 @@ class ScenePageState extends State<ScenePage> {
   late Timer timeTimer = Timer(const Duration(seconds: 1), () {}); // 定义定时器
 
   void startTimer() {
-    timeTimer?.cancel(); // 取消定时器
+    timeTimer.cancel(); // 取消定时器
     timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       //TODO
       setState(() {

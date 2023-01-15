@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
+import 'package:screen_app/routes/home/device/register_controller.dart';
 
-import '../../states/device_change_notifier.dart';
+import '../../../states/device_change_notifier.dart';
 
 class DeviceService {
   static bool isOnline(DeviceEntity deviceInfo) {

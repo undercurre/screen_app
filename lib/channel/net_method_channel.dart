@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 
 import './models/wifi_scan_result.dart';
-import 'package:flutter/services.dart';
 
 class NetMethodChannel {
   // 通道名称
@@ -113,7 +114,7 @@ class NetMethodChannel {
            'changePwd': changePwd
          });
      return connected;
-    } on PlatformException catch(e) {
+    } on PlatformException {
       return false;
     }
   }
