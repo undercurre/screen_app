@@ -37,22 +37,26 @@ class HomeState extends State<Home> with AutoSniffer {
     //初始化状态
     _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
-    children.add(const DevicePage(text: "设备页"));
     children.add(const CenterControlPage(text: '中控页'));
+    children.add(const DevicePage(text: "设备页"));
     initial();
   }
 
   initial() async {
-    num lightValue = await settingMethodChannel.getSystemLight();
-    num soundValue = await settingMethodChannel.getSystemVoice();
-    Global.soundValue = soundValue;
-    Global.lightValue = lightValue;
-    String? deviceSn =await aboutSystemChannel.getGatewaySn();
-    String? deviceId =Global.profile.deviceId;
-    String macAddress = await aboutSystemChannel.getMacAddress();
-    var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
-    var parsedJson = json.decode(jsonData);
-    await aiMethodChannel.initialAi(parsedJson);
+    try {
+      num lightValue = await settingMethodChannel.getSystemLight();
+      num soundValue = await settingMethodChannel.getSystemVoice();
+      Global.soundValue = soundValue;
+      Global.lightValue = lightValue;
+      String? deviceSn =await aboutSystemChannel.getGatewaySn();
+      String? deviceId =Global.profile.deviceId;
+      String macAddress = await aboutSystemChannel.getMacAddress();
+      var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
+      var parsedJson = json.decode(jsonData);
+      await aiMethodChannel.initialAi(parsedJson);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override

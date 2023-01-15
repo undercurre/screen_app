@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -12,18 +13,11 @@ import '../../../common/api/scene_api.dart';
 import 'config.dart';
 
 class ScenePageState extends State<ScenePage> {
-  double _alignmentY = 0;
-
-  bool _handleScrollNotification(ScrollNotification notification) {
-    final ScrollMetrics metrics = notification.metrics;
-    setState(() {
-      _alignmentY = -1 + (metrics.pixels / metrics.maxScrollExtent) * 2;
-    });
-    print('滚动组件最大滚动距离:${metrics.maxScrollExtent}');
-    print('当前滚动位置:${metrics.pixels}');
-    print('当前变量:$_alignmentY');
-    return true;
-  }
+  double roomTitleScale = 1;
+  final ScrollController _scrollController = ScrollController(
+    initialScrollOffset: 0.0,
+    keepScrollOffset: true,
+  );
 
   // 获取现在日期
   String time = '';
@@ -77,6 +71,14 @@ class ScenePageState extends State<ScenePage> {
   }
 
   void initScene() async {
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        final offset = min(_scrollController.offset, 150);
+        setState(() {
+          roomTitleScale = min(1 - (offset / 150), 1);
+        });
+      }
+    });
     await initializeDateFormatting('zh_CN', null);
     sceneList = await SceneApi.getSceneList();
     debugPrint('场景列表:$sceneList');
@@ -162,11 +164,12 @@ class ScenePageState extends State<ScenePage> {
             padding: const EdgeInsets.only(left: 26.5, bottom: 30),
             child: Flex(
               direction: Axis.horizontal,
-              children: const [
+              children: [
                 Text(
                   "手动场景",
                   textAlign: TextAlign.end,
-                  style: TextStyle(
+                  textScaleFactor: roomTitleScale,
+                  style: const TextStyle(
                     color: Color.fromRGBO(255, 255, 255, 0.85),
                     fontSize: 30.0,
                     height: 1.2,
@@ -200,6 +203,7 @@ class ScenePageState extends State<ScenePage> {
                         child: ReorderableWrap(
                           spacing: 8.0,
                           runSpacing: 4.0,
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(8),
                           buildDraggableFeedback:
                               (context, constraints, child) {

@@ -69,11 +69,9 @@ class CenterControlService {
         debugPrint('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
-          if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_colorful') {
+          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
-          } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_noColor') {
+          } else if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
           }
         } else if (deviceInfo.type == 'lightGroup') {
@@ -101,7 +99,8 @@ class CenterControlService {
     var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
-      debugPrint('中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
+      debugPrint(
+          '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
         late num value;
@@ -111,7 +110,7 @@ class CenterControlService {
           } else if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
             value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
           }
-        } else if (deviceInfo.type == '0x13'){
+        } else if (deviceInfo.type == '0x13') {
           value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
         } else {
           value = res["detail"]["colorTemperature"] ?? 0;
@@ -154,25 +153,18 @@ class CenterControlService {
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.detail != null && deviceInfo.detail != {}) {
         if (deviceInfo.type == '0x13') {
-          res =
-          await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
+          res = await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
         } else if (deviceInfo.type == '0x21') {
           MzResponseEntity<String> gatewayInfo =
-          await DeviceApi.getGatewayInfo(
-              deviceInfo.applianceCode, deviceInfo.masterId);
+              await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
           Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
           var nodeId = infoMap["nodeid"];
-          if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_colorful') {
-            res = await ZigbeeLightApi.adjustPDM(
-                deviceInfo.applianceCode, value, deviceInfo
-                .detail!["lightPanelDeviceList"][0]["colorTemperature"],
-                nodeId);
+          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
+            res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, value,
+                deviceInfo.detail!["lightPanelDeviceList"][0]["colorTemperature"], nodeId);
           }
-          if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_noColor') {
-            res = await ZigbeeLightApi.adjustPDM(
-                deviceInfo.applianceCode, value,
+          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
+            res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, value,
                 deviceInfo.detail!["lightPanelDeviceList"][0]["colorTemperature"], nodeId);
           }
         } else {
@@ -195,14 +187,16 @@ class CenterControlService {
         res = await WIFILightApi.colorTemperaturePDM(deviceInfo.applianceCode, value);
       } else if (deviceInfo.type == '0x21') {
         MzResponseEntity<String> gatewayInfo =
-        await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+            await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
         Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
         var nodeId = infoMap["nodeid"];
         if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
-          res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
+          res =
+              await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
         }
         if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-          res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
+          res =
+              await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
         }
       } else {
         // 灯组
@@ -244,11 +238,11 @@ class CenterControlService {
         totalModeList.add(value);
       }
     }
-    Map frequency = Map.fromIterable(totalModeList, key: (e) => e, value: (e) => totalModeList.where((i) => i == e).length);
+    Map frequency = {for (var e in totalModeList) e: totalModeList.where((i) => i == e).length};
 
-    var maxFrequency = frequency.values.toList().reduce((value, element) => max);
+    var maxFrequency = frequency.values.toList().isNotEmpty ? frequency.values.toList().reduce((value, element) => max) : 0;
 
-    totalModeValue = frequency.keys.firstWhere((k) => frequency[k] == maxFrequency);
+    totalModeValue = frequency.keys.isNotEmpty ? frequency.keys.firstWhere((k) => frequency[k] == maxFrequency) : 'auto';
 
     debugPrint('空调中控模式$totalModeValue');
     return totalModeValue;

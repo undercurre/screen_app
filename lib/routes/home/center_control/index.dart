@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,10 @@ class CenterControlPage extends StatefulWidget {
 
 class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
+  final ScrollController _scrollController = ScrollController(
+    initialScrollOffset: 0.0,
+    keepScrollOffset: true,
+  );
 
   bool menuVisible = false;
 
@@ -69,6 +75,14 @@ class _CenterControlPageState extends State<CenterControlPage> {
   @override
   initState() {
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        final offset = min(_scrollController.offset, 50);
+        setState(() {
+          roomTitleScale = min(1 - (offset / 50), 1);
+        });
+      }
+    });
     initPage();
   }
 
@@ -275,6 +289,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     initPage();
                   },
                   child: SingleChildScrollView(
+                    controller: _scrollController,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                       child: Column(
