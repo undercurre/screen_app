@@ -11,7 +11,6 @@ import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/device/register_controller.dart';
 import 'package:screen_app/routes/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
-import 'package:screen_app/mixins/auto_sniffer.dart';
 import '../../common/api/user_api.dart';
 import '../../common/global.dart';
 import '../../states/room_change_notifier.dart';
@@ -27,7 +26,7 @@ class DevicePage extends StatefulWidget {
   State<StatefulWidget> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> with AutoSniffer {
+class _DevicePageState extends State<DevicePage> {
   int _count = 5;
   late EasyRefreshController _controller;
   List<DraggableGridItem> itemBins = [];

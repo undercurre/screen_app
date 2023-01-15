@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/routes/center_control/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
+import '../../mixins/auto_sniffer.dart';
 import '../device/index.dart';
 import '../scene/index.dart';
 
@@ -16,7 +17,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AutoSniffer {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;

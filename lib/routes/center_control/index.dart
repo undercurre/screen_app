@@ -2,7 +2,6 @@ import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/mixins/auto_sniffer.dart';
 import 'package:screen_app/routes/center_control/service.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -31,8 +30,7 @@ class CenterControlPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CenterControlPageState();
 }
 
-class _CenterControlPageState extends State<CenterControlPage>
-    with AutoSniffer {
+class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
 
   @override
