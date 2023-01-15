@@ -2,30 +2,31 @@ import 'package:flutter/material.dart';
 
 class DropdownMenu extends StatefulWidget {
   final List<PopupMenuEntry<dynamic>> menu;
-  final Widget child;
+  final Widget trigger;
   final RelativeRect? position;
   final Duration? duration;
   final double menuWidth;
+  final bool hideArrow;
   final void Function(dynamic result)? onSelected;
-  final void Function(bool visible)? onVisibled;
+  final void Function(bool visible)? onVisibleChange;
 
   const DropdownMenu({
     super.key,
     required this.menu,
-    required this.child,
-    this.menuWidth = 140,
+    required this.trigger,
     this.position,
-    this.duration,
     this.onSelected,
-    this.onVisibled,
+    this.onVisibleChange,
+    this.menuWidth = 140,
+    this.hideArrow = false,
+    this.duration = const Duration(milliseconds: 300),
   });
 
   @override
   State<StatefulWidget> createState() => DropdownMenuState();
 }
 
-class DropdownMenuState extends State<DropdownMenu>
-    with TickerProviderStateMixin {
+class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixin {
   /// 箭头动画控制器
   late AnimationController _arrowAnimationController;
 
@@ -47,10 +48,9 @@ class DropdownMenuState extends State<DropdownMenu>
     // 要先初始化一次，否则RotationTransition会报错
     _arrowAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: widget.duration,
     );
-    CurvedAnimation curve = CurvedAnimation(
-        parent: _arrowAnimationController, curve: Curves.easeInOut);
+    CurvedAnimation curve = CurvedAnimation(parent: _arrowAnimationController, curve: Curves.easeInOut);
     _arrowAnimation = Tween<double>(begin: 0, end: 1).animate(curve);
   }
 
@@ -69,16 +69,17 @@ class DropdownMenuState extends State<DropdownMenu>
         children: [
           Container(
             key: childKey,
-            child: widget.child,
+            child: widget.trigger,
           ),
-          RotationTransition(
-            turns: _arrowAnimation,
-            child: const Image(
-              width: 30,
-              height: 30,
-              image: AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
+          if (!widget.hideArrow)
+            RotationTransition(
+              turns: _arrowAnimation,
+              child: const Image(
+                width: 30,
+                height: 30,
+                image: AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
+              ),
             ),
-          )
         ],
       ),
     );
@@ -87,7 +88,7 @@ class DropdownMenuState extends State<DropdownMenu>
   handleTap() async {
     getPosition();
     visible = true;
-    widget.onVisibled?.call(visible);
+    widget.onVisibleChange?.call(visible);
     doArrawAnimation();
     final res = await showMenu(
       context: context,
@@ -103,25 +104,25 @@ class DropdownMenuState extends State<DropdownMenu>
       ),
     );
     visible = false;
-    widget.onVisibled?.call(visible);
+    widget.onVisibleChange?.call(visible);
     widget.onSelected?.call(res);
     doArrawAnimation();
   }
 
   doArrawAnimation() {
+    if (widget.hideArrow) {
+      return;
+    }
     // 如果当前动画还在执行，需要先停掉上一次动画
     if (_arrowAnimationController.status == AnimationStatus.forward) {
       _arrowAnimationController.stop();
     }
     // 执行本次动画
-    visible
-        ? _arrowAnimationController.animateTo(0.5)
-        : _arrowAnimationController.animateTo(0);
+    visible ? _arrowAnimationController.animateTo(0.5) : _arrowAnimationController.animateTo(0);
   }
 
   getPosition() {
-    final RenderBox renderBox =
-        childKey.currentContext?.findRenderObject() as RenderBox;
+    final RenderBox renderBox = childKey.currentContext?.findRenderObject() as RenderBox;
     print(renderBox.localToGlobal(Offset.zero));
     var dx = renderBox.localToGlobal(Offset.zero).dx;
     if (renderBox.size.width > widget.menuWidth) {

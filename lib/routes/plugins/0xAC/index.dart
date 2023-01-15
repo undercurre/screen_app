@@ -225,7 +225,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                           );
                                         },
                                       ).toList(),
-                                      child: Opacity(
+                                      trigger: Opacity(
                                         opacity: menuVisible ? 0.5 : 1,
                                         child: Row(
                                           children: [
@@ -247,7 +247,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                           ],
                                         ),
                                       ),
-                                      onVisibled: (visible) {
+                                      onVisibleChange: (visible) {
                                         setState(() {
                                           menuVisible = visible;
                                         });
