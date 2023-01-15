@@ -8,6 +8,7 @@ class DropdownMenu extends StatefulWidget {
   final double menuWidth;
   final void Function(dynamic result)? onSelected;
   final void Function(bool visible)? onVisibled;
+  final double? arrowSize;
 
   const DropdownMenu({
     super.key,
@@ -18,6 +19,7 @@ class DropdownMenu extends StatefulWidget {
     this.duration,
     this.onSelected,
     this.onVisibled,
+    this.arrowSize,
   });
 
   @override
@@ -73,10 +75,10 @@ class DropdownMenuState extends State<DropdownMenu>
           ),
           RotationTransition(
             turns: _arrowAnimation,
-            child: const Image(
-              width: 30,
-              height: 30,
-              image: AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
+            child: Image(
+              width: widget.arrowSize ?? 30,
+              height: widget.arrowSize ?? 30,
+              image: const AssetImage('assets/imgs/plugins/common/arrow_bottom.png'),
             ),
           )
         ],

@@ -43,15 +43,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
-
-      var bindRes = await UserApi.bindHome(
-          sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
-          applianceType: '0x16');
-
-      if (!bindRes.isSuccess) {
-        TipsUtils.toast(content: '绑定家庭失败');
-        return;
-      }
+      // todo: linux运行屏蔽，push前解放
+      // var bindRes = await UserApi.bindHome(
+      //     sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
+      //     applianceType: '0x16');
+      //
+      // if (!bindRes.isSuccess) {
+      //   TipsUtils.toast(content: '绑定家庭失败');
+      //   return;
+      // }
 
       Global.saveProfile();
       //导航到新路由

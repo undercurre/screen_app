@@ -10,7 +10,7 @@ import '../../common/api/user_api.dart';
 import '../../common/global.dart';
 import '../../states/device_change_notifier.dart';
 import '../../states/room_change_notifier.dart';
-import '../../widgets/mz_metal_card.dart';
+import '../../widgets/plugins/slider_button_content.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 
@@ -35,20 +35,92 @@ class _CenterControlPageState extends State<CenterControlPage>
     with AutoSniffer {
   double roomTitleScale = 1;
 
+  bool menuVisible = false;
+
+  // true为温度盘 false为风速盘
+  bool airConditionPanel = true;
+
+  List<Map<String, String>> btnList = [
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png',
+      'text': '自动',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
+      'text': '制冷',
+      'key': 'cool'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
+      'text': '制热',
+      'key': 'heat'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
+      'text': '送风',
+      'key': 'fan'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
+      'text': '除湿',
+      'key': 'dry'
+    },
+  ];
+
   @override
-  void initState() {
+  initState() {
     super.initState();
+    initPage();
   }
 
   void toConfigPage(String route) {
     Navigator.pushNamed(context, route);
   }
 
+  void switchACPanel(bool onOff) {
+    setState(() {
+      airConditionPanel = onOff;
+    });
+  }
+
+  Map<String, String> getCurACMode() {
+    return btnList.where((element) => element["key"] == CenterControlService.airConditionMode(context)).toList()[0];
+  }
+
   void curtainHandle(bool onOff) {
     CenterControlService.curtainControl(context, onOff);
   }
 
-  Future<void> updateHomeData () async {
+  void lightPowerHandle(bool onOff) {
+    CenterControlService.lightPowerControl(context, onOff);
+  }
+
+  void lightBrightHandle(num value, Color color) {
+    CenterControlService.lightBrightnessControl(context, value);
+  }
+
+  void lightColorHandle(num value, Color color) {
+    CenterControlService.lightColorTemperatureControl(context, value);
+  }
+
+  void airConditionPowerHandle(bool onOff) {
+    CenterControlService.ACPowerControl(context, onOff);
+  }
+
+  void airConditionValueHandle(num value) {
+    if (airConditionPanel) {
+      CenterControlService.ACTemperatureControl(context, value);
+    } else {
+      CenterControlService.ACFengsuControl(context, value);
+    }
+  }
+
+  void airConditionModeHandle(String mode) {
+    CenterControlService.ACModeControl(context, mode);
+  }
+
+  Future<void> updateHomeData() async {
     var res = await UserApi.getHomeListWithDeviceList(
         homegroupId: Global.profile.homeInfo?.homegroupId);
 
@@ -66,6 +138,7 @@ class _CenterControlPageState extends State<CenterControlPage>
     // 更新家庭信息
     await updateHomeData();
     // 查灯组列表
+    if (!mounted) return;
     context.read<DeviceListModel>().selectLightGroupList();
     // 更新设备detail
     var deviceList = context.read<DeviceListModel>().deviceList;
@@ -82,10 +155,10 @@ class _CenterControlPageState extends State<CenterControlPage>
         // 调用provider拿detail存入状态管理里
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
-              // todo: 优化刷新效率
-              if (DeviceService.isVistual(deviceInfo))
-                {DeviceService.setVistualDevice(context, deviceInfo)}
-            });
+                  // todo: 优化刷新效率
+                  if (DeviceService.isVistual(deviceInfo))
+                    {DeviceService.setVistualDevice(context, deviceInfo)}
+                });
       } else {
         if (DeviceService.isVistual(deviceInfo)) {
           DeviceService.setVistualDevice(context, deviceInfo);
@@ -120,7 +193,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                         style: const TextStyle(
                           color: Color(0XFFFFFFFF),
                           fontSize: 18.0,
-                          fontFamily: "MideaType",
+                          fontFamily: "MideaType-Regular",
                           fontWeight: FontWeight.normal,
                           decoration: TextDecoration.none,
                         )),
@@ -140,7 +213,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                                   item['title']!,
                                   style: const TextStyle(
                                       fontSize: 18,
-                                      fontFamily: "MideaType",
+                                      fontFamily: "MideaType-Regular",
                                       fontWeight: FontWeight.w400),
                                 ),
                               ));
@@ -169,7 +242,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                       style: const TextStyle(
                         color: Color(0XFFFFFFFF),
                         fontSize: 30.0,
-                        fontFamily: "MideaType",
+                        fontFamily: "MideaType-Regular",
                         fontWeight: FontWeight.normal,
                         decoration: TextDecoration.none,
                       ),
@@ -218,7 +291,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                             ],
                           ),
                           airConditionControl(),
-                          quickScene(),
+                          quickScene()
                         ],
                       ),
                     ),
@@ -258,8 +331,7 @@ class _CenterControlPageState extends State<CenterControlPage>
                     Text(
                       '窗帘关',
                       style: TextStyle(
-                          color: !CenterControlService.isCurtainPower(
-                                      context)
+                          color: !CenterControlService.isCurtainPower(context)
                               ? const Color(0xFFFFFFFF)
                               : const Color(0x7AFFFFFF)),
                     )
@@ -301,34 +373,192 @@ class _CenterControlPageState extends State<CenterControlPage>
       width: 440,
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 10, 0, 0),
-                child: Text(
-                  '空调',
-                  style: TextStyle(
-                      color: Color(0xFFFFFFFF),
-                      fontSize: 18,
-                      fontFamily: 'MEIDITYPE-REGULAR'),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Flex(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              direction: Axis.horizontal,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                  child: Text(
+                    '空调',
+                    style: TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 18,
+                        fontFamily: 'MideaType-Regular'),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Image.asset(
-                  true
-                      ? 'assets/imgs/plugins/common/power_on.png'
-                      : 'assets/imgs/plugins/common/power_off.png',
-                  alignment: Alignment.centerRight,
-                  width: 50,
-                  height: 50,
+                GestureDetector(
+                  onTap: () => switchACPanel(true),
+                  child: Container(
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(0, 0, 0, 0.3),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/imgs/device/wendu.png'),
+                          const Text(
+                            '温度',
+                            style: TextStyle(
+                                color: Color(0xFFFFFFFF),
+                                fontSize: 14,
+                                fontFamily: 'MideaType-Regular'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              )
-            ],
+                GestureDetector(
+                  onTap: () => switchACPanel(false),
+                  child: Container(
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(0, 0, 0, 0.3),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/imgs/device/songfeng.png'),
+                          const Text(
+                            '风速',
+                            style: TextStyle(
+                                color: Color(0xFFFFFFFF),
+                                fontSize: 14,
+                                fontFamily: 'MideaType-Regular'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(0, 0, 0, 0.3),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: DropdownMenu(
+                      menuWidth: 84,
+                      arrowSize: 20,
+                      menu: btnList.map(
+                        (item) {
+                          return PopupMenuItem<String>(
+                            padding: EdgeInsets.zero,
+                            value: item['key'],
+                            child: Center(
+                              child: Container(
+                                width: 80,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: getCurACMode()["key"] == item['key']// TODO: 完善
+                                      ? const Color(0xff575757)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Opacity(
+                                  opacity: getCurACMode()["key"] == item['key'] // TODO: 完善
+                                      ? 1
+                                      : 0.7,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(item['icon']!,
+                                          width: 30, height: 30),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            7, 0, 7, 0),
+                                        child: Text(
+                                          item['text']!,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.w200,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                      child: Opacity(
+                        opacity: menuVisible ? 0.5 : 1,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                                getCurACMode()["icon"]!,
+                                width: 30,
+                                height: 30),
+                            Text(
+                              getCurACMode()["text"]!,
+                              style: const TextStyle(
+                                color: Color(0X7FFFFFFF),
+                                fontSize: 14.0,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.w200,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      onVisibled: (visible) {
+                        setState(() {
+                          menuVisible = visible;
+                        });
+                      },
+                      onSelected: (dynamic mode) {
+                        airConditionModeHandle(mode);
+                      },
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => airConditionPowerHandle(!CenterControlService.isAirConditionPower(context)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Image.asset(
+                      CenterControlService.isAirConditionPower(context)
+                          ? 'assets/imgs/device/on.png'
+                          : 'assets/imgs/device/off.png',
+                      alignment: Alignment.centerRight,
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
-          const SliderButtonCard(
-            value: 26,
+          SliderButtonContent(
+            unit: airConditionPanel ? '℃' : '档',
+            min: airConditionPanel ? 17 : 1,
+            max: airConditionPanel ? 30 : 6,
+            value: airConditionPanel
+                ? CenterControlService.airConditionTemperature(context)
+                : CenterControlService.airConditionGear(context),
+            sliderWidth: 400,
+            onChanged: (value) {
+              airConditionValueHandle(value);
+            },
           )
         ],
       ),
@@ -341,50 +571,81 @@ class _CenterControlPageState extends State<CenterControlPage>
       child: SizedBox(
         height: 230,
         child: MzMetalCard(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 10, 0, 0),
-                    child: Text(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 4, 10, 14),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
                       '灯光',
                       style: TextStyle(
                           color: Color(0xFFFFFFFF),
                           fontSize: 18,
-                          fontFamily: 'MEIDITYPE-REGULAR'),
+                          fontFamily: 'MideaType-Regular',
+                          letterSpacing: 1.0),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Image.asset(
-                      true
-                          ? 'assets/imgs/plugins/common/power_on.png'
-                          : 'assets/imgs/plugins/common/power_off.png',
-                      alignment: Alignment.centerRight,
-                      width: 50,
-                      height: 50,
+                    GestureDetector(
+                      onTap: () => lightPowerHandle(
+                          !CenterControlService.isLightPower(context)),
+                      child: Image.asset(
+                        CenterControlService.isLightPower(context)
+                            ? 'assets/imgs/device/on.png'
+                            : 'assets/imgs/device/off.png',
+                        alignment: Alignment.centerRight,
+                        width: 50,
+                        height: 50,
+                      ),
                     ),
-                  )
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('亮度|40%'),
-                  MzSlider(value: 40, width: 300)
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('色温|3000K'),
-                  MzSlider(value: 40, width: 300)
-                ],
-              ),
-            ],
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Text(
+                        '亮度 | ${CenterControlService.lightTotalBrightness(context)}%',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    MzSlider(
+                      value: CenterControlService.lightTotalBrightness(context),
+                      width: 290,
+                      padding: const EdgeInsets.all(0),
+                      activeColors: const [
+                        Color(0xFFFFD185),
+                        Color(0xFFFFD185)
+                      ],
+                      onChanged: lightBrightHandle,
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 14)),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Text(
+                        '色温 | ${(3000 + (5700 - 3000) * CenterControlService.lightTotalColorTemperature(context) / 100).toInt()}K',
+                        style: const TextStyle(
+                            fontSize: 14, fontFamily: 'MideaType-Regular'),
+                      ),
+                    ),
+                    MzSlider(
+                      value: CenterControlService.lightTotalColorTemperature(
+                          context),
+                      width: 290,
+                      padding: const EdgeInsets.all(0),
+                      activeColors: const [
+                        Color(0xFFFFD39F),
+                        Color(0xFF55A2FA)
+                      ],
+                      onChanged: lightColorHandle,
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -394,110 +655,109 @@ class _CenterControlPageState extends State<CenterControlPage>
   Widget quickScene() {
     return MzMetalCard(
       width: 440,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 10, 0, 0),
-                child: Text(
-                  '灯光',
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '快捷场景',
                   style: TextStyle(
                       color: Color(0xFFFFFFFF),
                       fontSize: 18,
-                      fontFamily: 'MEIDITYPE-REGULAR'),
+                      fontFamily: 'MideaType-Regular',
+                      letterSpacing: 1.0),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Image.asset(
-                  true
-                      ? 'assets/imgs/plugins/common/power_on.png'
-                      : 'assets/imgs/plugins/common/power_off.png',
+                Image.asset(
+                  'assets/imgs/device/changjing.png',
                   alignment: Alignment.centerRight,
                   width: 50,
                   height: 50,
                 ),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                    gradient: const RadialGradient(
-                      colors: [Color(0xFF393E43), Color(0xFF333135)],
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/imgs/scene/huijia.png',
-                        width: 42, height: 42),
-                    Text('回家')
-                  ],
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                      gradient: const RadialGradient(
+                        colors: [Color(0xFF393E43), Color(0xFF333135)],
+                      ),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/imgs/scene/huijia.png',
+                          width: 42, height: 42),
+                      const Text('回家')
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                    gradient: const RadialGradient(
-                      colors: [Color(0xFF393E43), Color(0xFF333135)],
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/imgs/scene/huijia.png',
-                        width: 42, height: 42),
-                    Text('回家')
-                  ],
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                      gradient: const RadialGradient(
+                        colors: [Color(0xFF393E43), Color(0xFF333135)],
+                      ),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/imgs/scene/huijia.png',
+                          width: 42, height: 42),
+                      Text('回家')
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                    gradient: const RadialGradient(
-                      colors: [Color(0xFF393E43), Color(0xFF333135)],
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/imgs/scene/huijia.png',
-                        width: 42, height: 42),
-                    Text('回家')
-                  ],
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                      gradient: const RadialGradient(
+                        colors: [Color(0xFF393E43), Color(0xFF333135)],
+                      ),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/imgs/scene/huijia.png',
+                          width: 42, height: 42),
+                      Text('回家')
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                    gradient: const RadialGradient(
-                      colors: [Color(0xFF393E43), Color(0xFF333135)],
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/imgs/scene/huijia.png',
-                        width: 42, height: 42),
-                    Text('回家')
-                  ],
-                ),
-              )
-            ],
-          )
-        ],
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                      gradient: const RadialGradient(
+                        colors: [Color(0xFF393E43), Color(0xFF333135)],
+                      ),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/imgs/scene/huijia.png',
+                          width: 42, height: 42),
+                      Text('回家')
+                    ],
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

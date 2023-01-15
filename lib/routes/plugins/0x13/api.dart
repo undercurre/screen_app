@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
@@ -32,12 +33,12 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
+    return deviceInfo.detail != null && deviceInfo.detail != {} ? deviceInfo.detail!["power"] : false;
   }
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
+    return deviceInfo.detail != null && deviceInfo.detail != {} ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
   }
 
   @override

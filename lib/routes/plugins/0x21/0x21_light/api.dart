@@ -24,8 +24,11 @@ class WrapZigbeeLight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    MzResponseEntity<String> gatewayInfo =
+    await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     return await ZigbeeLightApi.powerPDM(
-        deviceInfo.masterId, onOff, deviceInfo.applianceCode);
+        deviceInfo.masterId, onOff, infoMap['nodeid']);
   }
 
   @override
