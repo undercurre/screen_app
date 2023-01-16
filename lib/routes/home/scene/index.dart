@@ -5,15 +5,17 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/routes/home/scene/scene_card.dart';
 
 import '../../../common/api/scene_api.dart';
+import '../../../states/index.dart';
 import 'config.dart';
 
 class ScenePageState extends State<ScenePage> {
-  double roomTitleScale = 1;
+  double sceneTitleScale = 1;
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
@@ -25,7 +27,6 @@ class ScenePageState extends State<ScenePage> {
   // 定时器
   late Timer timeTimer = Timer(const Duration(seconds: 1), () {}); // 定义定时器
 
-
   void startTimer() {
     timeTimer.cancel(); // 取消定时器
     timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -34,19 +35,9 @@ class ScenePageState extends State<ScenePage> {
         time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
       });
     });
-
   }
 
-  List<Scene> sceneList = [
-    huijia,
-    lijia,
-    huike,
-    jiucan,
-    shuimian,
-    chenqi,
-    qiye,
-    yuedu
-  ];
+  List<Scene> sceneList = [huijia, lijia, huike, jiucan, shuimian, chenqi, qiye, yuedu];
 
   String selectedSceneKey = 'huijia';
 
@@ -54,66 +45,66 @@ class ScenePageState extends State<ScenePage> {
 
   List<Map<String, String>> btnList = [
     {'title': '添加设备', 'route': 'SnifferPage'},
-    {'title': '切换房间', 'route': 'SelectRoomPage'}
+    {'title': '选择场景', 'route': 'SelectRoomPage'}
   ];
 
   void selectScene(Scene scene) {
     setState(() {
       selectedSceneKey = scene.key;
       sceneWidgetList = [
-        ...sceneList.map((scene) => SceneCard(
-            power: selectedSceneKey == scene.key,
-            scene: scene,
-            onClick: selectScene))
+        ...sceneList.map((scene) => SceneCard(power: selectedSceneKey == scene.key, scene: scene, onClick: selectScene))
       ].toList();
     });
     SceneApi.execScene(scene.key);
   }
 
   void initScene() async {
+    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
         final offset = min(_scrollController.offset, 150);
         setState(() {
-          roomTitleScale = min(1 - (offset / 150), 1);
+          sceneTitleScale = min(1 - (offset / 150), 1);
         });
       }
     });
     await initializeDateFormatting('zh_CN', null);
-    sceneList = await SceneApi.getSceneList();
-    debugPrint('场景列表:$sceneList');
+    if (sceneChangeNotifier.sceneList.isEmpty) {
+      print('updateSceneList:${sceneChangeNotifier.sceneList.length}');
+      // 可能场景加载失败，再请求一次
+      sceneChangeNotifier.updateSceneList();
+    }
     setState(() {
       time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
       startTimer();
       sceneWidgetList = [
-        ...sceneList.map((scene) => SceneCard(
-            power: selectedSceneKey == scene.key,
-            scene: scene,
-            onClick: selectScene))
+        ...sceneList.map((scene) => SceneCard(power: selectedSceneKey == scene.key, scene: scene, onClick: selectScene))
       ].toList();
     });
   }
 
-  void toConfigPage(String route) {
-    Navigator.pushNamed(context, route);
+  void toConfigPage(String route) async {
+    final res = await Navigator.pushNamed(context, route);
+    print(res); // TODO: 点击确认场景返回 'confirm' 点击返回按钮返回 'back'
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initScene();
   }
 
   @override
   Widget build(BuildContext context) {
+    final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
+    sceneList = sceneChangeNotifier.sceneList;
+    print('sceneList:${sceneList.length}');
     return DecoratedBox(
       decoration: const BoxDecoration(color: Colors.black),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(
-                top: 26, left: 26.5, bottom: 10, right: 18),
+            padding: const EdgeInsets.only(top: 26, left: 26.5, bottom: 10, right: 18),
             child: Flex(
               direction: Axis.horizontal,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,9 +133,7 @@ class ScenePageState extends State<ScenePage> {
                             alignment: Alignment.center,
                             child: Text(item['title']!,
                                 style: const TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.w400)),
+                                    fontSize: 18, fontFamily: "MideaType", fontWeight: FontWeight.w400)),
                           ));
                     }).toList();
                   },
@@ -161,14 +150,14 @@ class ScenePageState extends State<ScenePage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(left: 26.5, bottom: 30),
+            padding: EdgeInsets.only(left: 26.5, bottom: 30 * sceneTitleScale),
             child: Flex(
               direction: Axis.horizontal,
               children: [
                 Text(
                   "手动场景",
                   textAlign: TextAlign.end,
-                  textScaleFactor: roomTitleScale,
+                  textScaleFactor: sceneTitleScale,
                   style: const TextStyle(
                     color: Color.fromRGBO(255, 255, 255, 0.85),
                     fontSize: 30.0,
@@ -182,72 +171,64 @@ class ScenePageState extends State<ScenePage> {
             ),
           ),
           Expanded(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: EasyRefresh(
-                        header: const ClassicHeader(
-                          dragText: '下拉刷新',
-                          armedText: '释放执行刷新',
-                          readyText: '正在刷新...',
-                          processingText: '正在刷新...',
-                          processedText: '刷新完成',
-                          noMoreText: '没有更多信息',
-                          failedText: '失败',
-                          messageText: '上次更新 %T',
-                          mainAxisAlignment: MainAxisAlignment.end,
-                        ),
-                        onRefresh: () async {
-                          debugPrint('刷新');
-                        },
-                        child: ReorderableWrap(
-                          spacing: 8.0,
-                          runSpacing: 4.0,
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(8),
-                          buildDraggableFeedback:
-                              (context, constraints, child) {
-                            return Transform(
-                              transform: Matrix4.rotationZ(0),
-                              alignment: FractionalOffset.topLeft,
-                              child: Material(
-                                elevation: 6.0,
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.zero,
-                                child: Card(
-                                  // 将默认白色设置成透明
-                                  color: Colors.transparent,
-                                  child: ConstrainedBox(
-                                    constraints: constraints,
-                                    child: child,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          onReorder: (int oldIndex, int newIndex) {
-                            setState(() {
-                              Widget row = sceneWidgetList.removeAt(oldIndex);
-                              Scene sceneRow = sceneList.removeAt(oldIndex);
-                              sceneWidgetList.insert(newIndex, row);
-                              sceneList.insert(newIndex, sceneRow);
-                            });
-                          },
-                          onNoReorder: (int index) {
-                            //this callback is optional
-                            debugPrint(
-                                '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
-                          },
-                          onReorderStarted: (int index) {
-                            //this callback is optional
-                            debugPrint(
-                                '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
-                          },
-                          children: sceneWidgetList,
+            child: EasyRefresh(
+              header: const ClassicHeader(
+                dragText: '下拉刷新',
+                armedText: '释放执行刷新',
+                readyText: '正在刷新...',
+                processingText: '正在刷新...',
+                processedText: '刷新完成',
+                noMoreText: '没有更多信息',
+                failedText: '失败',
+                messageText: '上次更新 %T',
+                mainAxisAlignment: MainAxisAlignment.end,
+              ),
+              onRefresh: () async {
+                debugPrint('刷新');
+              },
+              child: ReorderableWrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                controller: _scrollController,
+                padding: const EdgeInsets.all(8),
+                buildDraggableFeedback: (context, constraints, child) {
+                  return Transform(
+                    transform: Matrix4.rotationZ(0),
+                    alignment: FractionalOffset.topLeft,
+                    child: Material(
+                      elevation: 6.0,
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.zero,
+                      child: Card(
+                        // 将默认白色设置成透明
+                        color: Colors.transparent,
+                        child: ConstrainedBox(
+                          constraints: constraints,
+                          child: child,
                         ),
                       ),
                     ),
-                  ),
+                  );
+                },
+                onReorder: (int oldIndex, int newIndex) {
+                  setState(() {
+                    Widget row = sceneWidgetList.removeAt(oldIndex);
+                    Scene sceneRow = sceneList.removeAt(oldIndex);
+                    sceneWidgetList.insert(newIndex, row);
+                    sceneList.insert(newIndex, sceneRow);
+                  });
+                },
+                onNoReorder: (int index) {
+                  //this callback is optional
+                  debugPrint('${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                },
+                onReorderStarted: (int index) {
+                  //this callback is optional
+                  debugPrint('${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                },
+                children: sceneWidgetList,
+              ),
+            ),
           )
         ],
       ),

@@ -10,7 +10,6 @@ class QuickScene extends StatefulWidget {
 }
 
 class QuickSceneState extends State<QuickScene> {
-
   List<Scene> sceneList = [];
 
   initPage() async {
@@ -18,6 +17,10 @@ class QuickSceneState extends State<QuickScene> {
     setState(() {
       sceneList = sceneRes;
     });
+  }
+
+  void toSelectScene() {
+    Navigator.pushNamed(context, 'SelectScenePage');
   }
 
   @override
@@ -53,11 +56,14 @@ class QuickSceneState extends State<QuickScene> {
                         fontFamily: 'MideaType-Regular',
                         letterSpacing: 1.0),
                   ),
-                  Image.asset(
-                    'assets/imgs/device/changjing.png',
-                    alignment: Alignment.centerRight,
-                    width: 50,
-                    height: 50,
+                  GestureDetector(
+                    onTap: () => toSelectScene(),
+                    child: Image.asset(
+                      'assets/imgs/device/changjing.png',
+                      alignment: Alignment.centerRight,
+                      width: 50,
+                      height: 50,
+                    ),
                   ),
                 ],
               ),
@@ -67,7 +73,8 @@ class QuickSceneState extends State<QuickScene> {
                 children: [
                   for (int i = 1; i <= sceneList.length; i++)
                     GestureDetector(
-                      onTap: () => CenterControlService.selectScene(sceneList[i - 1]),
+                      onTap: () =>
+                          CenterControlService.selectScene(sceneList[i - 1]),
                       child: Container(
                         width: 90,
                         height: 90,

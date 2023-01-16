@@ -72,10 +72,7 @@ class MzRadio<T> extends StatelessWidget {
     return disable
         ? view
         : Listener(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: view,
-            ),
+            child: view,
             onPointerUp: (event) {
               _handleTap();
             },
@@ -83,6 +80,6 @@ class MzRadio<T> extends StatelessWidget {
   }
 
   void _handleTap() {
-    onTap!(value);
+    onTap?.call(value);
   }
 }

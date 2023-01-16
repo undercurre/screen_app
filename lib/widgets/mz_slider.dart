@@ -108,7 +108,7 @@ class _MzSliderState extends State<MzSlider>
     return GestureDetector(
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
-      onPanUpdate: (e) => onPanUpdate(e),
+      onHorizontalDragUpdate: (e) => onPanUpdate(e),
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(

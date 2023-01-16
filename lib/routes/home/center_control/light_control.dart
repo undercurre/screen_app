@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 
 import '../../../widgets/mz_slider.dart';
@@ -11,7 +12,6 @@ class LightControl extends StatefulWidget {
 }
 
 class LightControlState extends State<LightControl> {
-
   void lightPowerHandle(bool onOff) {
     CenterControlService.lightPowerControl(context, onOff);
   }

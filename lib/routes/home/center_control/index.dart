@@ -8,15 +8,11 @@ import 'package:screen_app/routes/home/center_control/air_condition_control.dart
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
 import 'package:screen_app/routes/home/center_control/quick_scene.dart';
-import 'package:screen_app/routes/home/center_control/service.dart';
-import 'package:screen_app/routes/home/scene/scene.dart';
-import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
-import '../../../widgets/plugins/slider_button_content.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 

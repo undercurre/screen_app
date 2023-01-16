@@ -14,7 +14,8 @@ import 'plugins/0x26/index.dart';
 import 'plugins/0x40/index.dart';
 import 'plugins/0xAC/index.dart';
 import 'plugins/lightGroup/index.dart';
-import 'room/index.dart';
+import 'select_room/index.dart';
+import 'select_scene/index.dart';
 import 'setting/index.dart';
 import 'sniffer/device_connect.dart';
 import 'sniffer/index.dart';
@@ -26,6 +27,7 @@ var routes = <String, WidgetBuilder>{
   "Login": (context) => const LoginPage(),
   "Home": (context) => const Home(),
   "SelectRoomPage": (context) => const SelectRoomPage(),
+  "SelectScenePage": (context) => const SelectScenePage(),
   "Weather": (context) => const WeatherPage(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),

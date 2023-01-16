@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/states/room_change_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
 import './channel/index.dart';
@@ -47,6 +46,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => DeviceListModel()),
         ChangeNotifierProvider(create: (_) => RoomModel()),
         ChangeNotifierProvider(create: (_) => WeatherChangeNotifier()),
+        ChangeNotifierProvider(create: (_) => SceneChangeNotifier()),
       ],
       child: PointerDownListener(
           child: MaterialApp(
