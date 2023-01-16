@@ -18,7 +18,9 @@ mixin AutoSniffer<T extends StatefulWidget> on State<T> {
       MzNotice mzNotice = MzNotice(
           title: '发现5个新设备', // TODO 加入查找逻辑
           backgroundColor: const Color(0XFF575757),
-          onPressed: () {});
+          onPressed: () {
+            Navigator.of(context).pushNamed('developer');
+          });
 
       // HACK 延时弹出，否则会因页面context不完整报错
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
