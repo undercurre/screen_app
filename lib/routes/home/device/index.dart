@@ -40,7 +40,7 @@ class _DevicePageState extends State<DevicePage> {
 
   List<Map<String, String>> btnList = [
     {'title': '添加设备', 'route': 'SnifferPage'},
-    {'title': '切换房间', 'route': 'Room'}
+    {'title': '切换房间', 'route': 'SelectRoomPage'}
   ];
 
   List<Widget> deviceWidgetList = [];

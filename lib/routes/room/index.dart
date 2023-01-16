@@ -10,14 +10,14 @@ import '../../widgets/mz_navigation_bar.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
 
-class RoomPage extends StatefulWidget {
-  const RoomPage({super.key});
+class SelectRoomPage extends StatefulWidget {
+  const SelectRoomPage({super.key});
 
   @override
-  State<RoomPage> createState() => RoomPageState();
+  State<SelectRoomPage> createState() => SelectRoomPageState();
 }
 
-class RoomPageState extends State<RoomPage> {
+class SelectRoomPageState extends State<SelectRoomPage> {
 
   void goBack() {
     Navigator.pop(context);

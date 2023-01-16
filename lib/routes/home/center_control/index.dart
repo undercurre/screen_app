@@ -18,9 +18,9 @@ import '../device/service.dart';
 var time = DateTime.now();
 var weekday = [" ", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
-List<Map<String, String>> btnList = [
+List<Map<String, String>> dropMenuBtnList = [
   {'title': '添加设备', 'route': 'SnifferPage'},
-  {'title': '切换房间', 'route': 'Room'}
+  {'title': '切换房间', 'route': 'SelectRoomPage'}
 ];
 
 class CenterControlPage extends StatefulWidget {
@@ -44,32 +44,12 @@ class _CenterControlPageState extends State<CenterControlPage> {
   // true为温度盘 false为风速盘
   bool airConditionPanel = true;
 
-  List<Map<String, String>> btnList = [
-    {
-      'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png',
-      'text': '自动',
-      'key': 'auto'
-    },
-    {
-      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
-      'text': '制冷',
-      'key': 'cool'
-    },
-    {
-      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
-      'text': '制热',
-      'key': 'heat'
-    },
-    {
-      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
-      'text': '送风',
-      'key': 'fan'
-    },
-    {
-      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
-      'text': '除湿',
-      'key': 'dry'
-    },
+  List<Map<String, String>> modeBtnList = [
+    {'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png', 'text': '自动', 'key': 'auto'},
+    {'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png', 'text': '制冷', 'key': 'cool'},
+    {'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png', 'text': '制热', 'key': 'heat'},
+    {'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png', 'text': '送风', 'key': 'fan'},
+    {'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png', 'text': '除湿', 'key': 'dry'},
   ];
 
   @override
@@ -97,7 +77,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   Map<String, String> getCurACMode() {
-    return btnList.where((element) => element["key"] == CenterControlService.airConditionMode(context)).toList()[0];
+    return modeBtnList.where((element) => element["key"] == CenterControlService.airConditionMode(context)).toList()[0];
   }
 
   void curtainHandle(bool onOff) {
@@ -133,16 +113,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   Future<void> updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
+    var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
       var homeInfo = res.data.homeList[0];
       var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo = roomList
-          .where((element) =>
-              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
-          .toList()[0];
+      Global.profile.roomInfo =
+          roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
     }
   }
 
@@ -162,14 +139,12 @@ class _CenterControlPageState extends State<CenterControlPage> {
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) ||
-              DeviceService.isVistual(deviceInfo))) {
+          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))) {
         // 调用provider拿detail存入状态管理里
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
-                  if (DeviceService.isVistual(deviceInfo))
-                    {DeviceService.setVistualDevice(context, deviceInfo)}
+                  if (DeviceService.isVistual(deviceInfo)) {DeviceService.setVistualDevice(context, deviceInfo)}
                 });
       } else {
         if (DeviceService.isVistual(deviceInfo)) {
@@ -196,12 +171,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                        "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
-                              HH,
-                              ':',
-                              nn
-                            ])}",
+                    Text("${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
                         style: const TextStyle(
                           color: Color(0XFFFFFFFF),
                           fontSize: 18.0,
@@ -216,7 +186,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                       )),
                       offset: const Offset(0, 36.0),
                       itemBuilder: (context) {
-                        return btnList.map((item) {
+                        return dropMenuBtnList.map((item) {
                           return PopupMenuItem<String>(
                               value: item['route'],
                               child: Container(
@@ -224,9 +194,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                 child: Text(
                                   item['title']!,
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: "MideaType-Regular",
-                                      fontWeight: FontWeight.w400),
+                                      fontSize: 18, fontFamily: "MideaType-Regular", fontWeight: FontWeight.w400),
                                 ),
                               ));
                         }).toList();
@@ -298,10 +266,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                             direction: Axis.horizontal,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              curtainControl(),
-                              Expanded(flex: 1, child: lightControl())
-                            ],
+                            children: [curtainControl(), Expanded(flex: 1, child: lightControl())],
                           ),
                           airConditionControl(),
                           quickScene()
@@ -333,14 +298,8 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 child: Column(
                   children: [
                     !CenterControlService.isCurtainPower(context)
-                        ? Image.asset(
-                            "assets/imgs/device/chuanglian_icon_on.png",
-                            width: 42,
-                            height: 42)
-                        : Image.asset(
-                            "assets/imgs/device/chuanglian_icon_off.png",
-                            width: 42,
-                            height: 42),
+                        ? Image.asset("assets/imgs/device/chuanglian_icon_on.png", width: 42, height: 42)
+                        : Image.asset("assets/imgs/device/chuanglian_icon_off.png", width: 42, height: 42),
                     Text(
                       '窗帘关',
                       style: TextStyle(
@@ -356,14 +315,8 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 child: Column(
                   children: [
                     CenterControlService.isCurtainPower(context)
-                        ? Image.asset(
-                            "assets/imgs/device/chuanglian_icon_on.png",
-                            width: 42,
-                            height: 42)
-                        : Image.asset(
-                            "assets/imgs/device/chuanglian_icon_off.png",
-                            width: 42,
-                            height: 42),
+                        ? Image.asset("assets/imgs/device/chuanglian_icon_on.png", width: 42, height: 42)
+                        : Image.asset("assets/imgs/device/chuanglian_icon_off.png", width: 42, height: 42),
                     Text(
                       '窗帘开',
                       style: TextStyle(
@@ -397,10 +350,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
                   child: Text(
                     '空调',
-                    style: TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 18,
-                        fontFamily: 'MideaType-Regular'),
+                    style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular'),
                   ),
                 ),
                 GestureDetector(
@@ -420,10 +370,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                           Image.asset('assets/imgs/device/wendu.png'),
                           const Text(
                             '温度',
-                            style: TextStyle(
-                                color: Color(0xFFFFFFFF),
-                                fontSize: 14,
-                                fontFamily: 'MideaType-Regular'),
+                            style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 14, fontFamily: 'MideaType-Regular'),
                           ),
                         ],
                       ),
@@ -447,10 +394,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                           Image.asset('assets/imgs/device/songfeng.png'),
                           const Text(
                             '风速',
-                            style: TextStyle(
-                                color: Color(0xFFFFFFFF),
-                                fontSize: 14,
-                                fontFamily: 'MideaType-Regular'),
+                            style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 14, fontFamily: 'MideaType-Regular'),
                           ),
                         ],
                       ),
@@ -468,7 +412,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     child: DropdownMenu(
                       menuWidth: 84,
                       arrowSize: 20,
-                      menu: btnList.map(
+                      menu: modeBtnList.map(
                         (item) {
                           return PopupMenuItem<String>(
                             padding: EdgeInsets.zero,
@@ -478,7 +422,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                 width: 80,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                  color: getCurACMode()["key"] == item['key']// TODO: 完善
+                                  color: getCurACMode()["key"] == item['key'] // TODO: 完善
                                       ? const Color(0xff575757)
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
@@ -490,11 +434,9 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Image.asset(item['icon']!,
-                                          width: 30, height: 30),
+                                      Image.asset(item['icon']!, width: 30, height: 30),
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            7, 0, 7, 0),
+                                        padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
                                         child: Text(
                                           item['text']!,
                                           style: const TextStyle(
@@ -516,10 +458,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         opacity: menuVisible ? 0.5 : 1,
                         child: Row(
                           children: [
-                            Image.asset(
-                                getCurACMode()["icon"]!,
-                                width: 30,
-                                height: 30),
+                            Image.asset(getCurACMode()["icon"]!, width: 30, height: 30),
                             Text(
                               getCurACMode()["text"]!,
                               style: const TextStyle(
@@ -539,7 +478,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         });
                       },
                       onSelected: (dynamic mode) {
-                        airConditionModeHandle(mode);
+                        return airConditionModeHandle(mode);
                       },
                     ),
                   ),
@@ -596,14 +535,10 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     const Text(
                       '灯光',
                       style: TextStyle(
-                          color: Color(0xFFFFFFFF),
-                          fontSize: 18,
-                          fontFamily: 'MideaType-Regular',
-                          letterSpacing: 1.0),
+                          color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular', letterSpacing: 1.0),
                     ),
                     GestureDetector(
-                      onTap: () => lightPowerHandle(
-                          !CenterControlService.isLightPower(context)),
+                      onTap: () => lightPowerHandle(!CenterControlService.isLightPower(context)),
                       child: Image.asset(
                         CenterControlService.isLightPower(context)
                             ? 'assets/imgs/device/on.png'
@@ -629,10 +564,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                       value: CenterControlService.lightTotalBrightness(context),
                       width: 290,
                       padding: const EdgeInsets.all(0),
-                      activeColors: const [
-                        Color(0xFFFFD185),
-                        Color(0xFFFFD185)
-                      ],
+                      activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
                       onChanged: lightBrightHandle,
                     ),
                     const Padding(padding: EdgeInsets.only(bottom: 14)),
@@ -640,19 +572,14 @@ class _CenterControlPageState extends State<CenterControlPage> {
                       padding: const EdgeInsets.only(bottom: 14),
                       child: Text(
                         '色温 | ${(3000 + (5700 - 3000) * CenterControlService.lightTotalColorTemperature(context) / 100).toInt()}K',
-                        style: const TextStyle(
-                            fontSize: 14, fontFamily: 'MideaType-Regular'),
+                        style: const TextStyle(fontSize: 14, fontFamily: 'MideaType-Regular'),
                       ),
                     ),
                     MzSlider(
-                      value: CenterControlService.lightTotalColorTemperature(
-                          context),
+                      value: CenterControlService.lightTotalColorTemperature(context),
                       width: 290,
                       padding: const EdgeInsets.all(0),
-                      activeColors: const [
-                        Color(0xFFFFD39F),
-                        Color(0xFF55A2FA)
-                      ],
+                      activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
                       onChanged: lightColorHandle,
                     )
                   ],
@@ -678,10 +605,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 const Text(
                   '快捷场景',
                   style: TextStyle(
-                      color: Color(0xFFFFFFFF),
-                      fontSize: 18,
-                      fontFamily: 'MideaType-Regular',
-                      letterSpacing: 1.0),
+                      color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular', letterSpacing: 1.0),
                 ),
                 Image.asset(
                   'assets/imgs/device/changjing.png',
@@ -706,11 +630,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/imgs/scene/huijia.png',
-                          width: 42, height: 42),
-                      const Text('回家')
-                    ],
+                    children: [Image.asset('assets/imgs/scene/huijia.png', width: 42, height: 42), const Text('回家')],
                   ),
                 ),
                 Container(
@@ -724,11 +644,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/imgs/scene/huijia.png',
-                          width: 42, height: 42),
-                      Text('回家')
-                    ],
+                    children: [Image.asset('assets/imgs/scene/huijia.png', width: 42, height: 42), Text('回家')],
                   ),
                 ),
                 Container(
@@ -742,11 +658,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/imgs/scene/huijia.png',
-                          width: 42, height: 42),
-                      Text('回家')
-                    ],
+                    children: [Image.asset('assets/imgs/scene/huijia.png', width: 42, height: 42), Text('回家')],
                   ),
                 ),
                 Container(
@@ -760,11 +672,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/imgs/scene/huijia.png',
-                          width: 42, height: 42),
-                      Text('回家')
-                    ],
+                    children: [Image.asset('assets/imgs/scene/huijia.png', width: 42, height: 42), Text('回家')],
                   ),
                 )
               ],
