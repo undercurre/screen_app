@@ -96,6 +96,7 @@ class _SelectSceneItem<T> extends StatelessWidget {
       rightSlot: MzRadio<bool>(
         value: true,
         groupValue: isSelect,
+        disable: true,
       ),
     );
   }

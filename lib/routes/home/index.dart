@@ -36,8 +36,8 @@ class HomeState extends State<Home> with AutoSniffer {
     super.initState();
     //初始化状态
     _pageController = PageController(initialPage: 1);
-    children.add(const CenterControlPage(text: '中控页'));
     children.add(const ScenePage(text: "场景页"));
+    children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
     initial();
   }

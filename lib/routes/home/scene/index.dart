@@ -45,7 +45,7 @@ class ScenePageState extends State<ScenePage> {
 
   List<Map<String, String>> btnList = [
     {'title': '添加设备', 'route': 'SnifferPage'},
-    {'title': '选择场景', 'route': 'SelectScenePage'}
+    {'title': '选择场景', 'route': 'SelectRoomPage'}
   ];
 
   void selectScene(Scene scene) {
