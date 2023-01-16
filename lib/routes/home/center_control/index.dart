@@ -4,6 +4,10 @@ import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/routes/home/center_control/air_condition_control.dart';
+import 'package:screen_app/routes/home/center_control/curtain_control.dart';
+import 'package:screen_app/routes/home/center_control/light_control.dart';
+import 'package:screen_app/routes/home/center_control/quick_scene.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -40,21 +44,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
     keepScrollOffset: true,
   );
 
-  bool menuVisible = false;
-
-  List<Scene> sceneList = [];
-
-  // true为温度盘 false为风速盘
-  bool airConditionPanel = true;
-
-  List<Map<String, String>> modeBtnList = [
-    {'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png', 'text': '自动', 'key': 'auto'},
-    {'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png', 'text': '制冷', 'key': 'cool'},
-    {'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png', 'text': '制热', 'key': 'heat'},
-    {'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png', 'text': '送风', 'key': 'fan'},
-    {'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png', 'text': '除湿', 'key': 'dry'},
-  ];
-
   @override
   initState() {
     super.initState();
@@ -73,48 +62,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
     Navigator.pushNamed(context, route);
   }
 
-  void switchACPanel(bool onOff) {
-    setState(() {
-      airConditionPanel = onOff;
-    });
-  }
-
-  Map<String, String> getCurACMode() {
-    return modeBtnList.where((element) => element["key"] == CenterControlService.airConditionMode(context)).toList()[0];
-  }
-
-  void curtainHandle(bool onOff) {
-    CenterControlService.curtainControl(context, onOff);
-  }
-
-  void lightPowerHandle(bool onOff) {
-    CenterControlService.lightPowerControl(context, onOff);
-  }
-
-  void lightBrightHandle(num value, Color color) {
-    CenterControlService.lightBrightnessControl(context, value);
-  }
-
-  void lightColorHandle(num value, Color color) {
-    CenterControlService.lightColorTemperatureControl(context, value);
-  }
-
-  void airConditionPowerHandle(bool onOff) {
-    CenterControlService.ACPowerControl(context, onOff);
-  }
-
-  void airConditionValueHandle(num value) {
-    if (airConditionPanel) {
-      CenterControlService.ACTemperatureControl(context, value);
-    } else {
-      CenterControlService.ACFengsuControl(context, value);
-    }
-  }
-
-  void airConditionModeHandle(String mode) {
-    CenterControlService.ACModeControl(context, mode);
-  }
-
   Future<void> updateHomeData() async {
     var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
 
@@ -127,11 +74,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   initPage() async {
-    // 加载场景信息
-    var sceneRes = await CenterControlService.initScene();
-    setState(() {
-      sceneList = sceneRes;
-    });
     // 更新家庭信息
     await updateHomeData();
     // 查灯组列表
@@ -280,10 +222,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
                             direction: Axis.horizontal,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [curtainControl(), Expanded(flex: 1, child: lightControl())],
+                            children: [
+                              CurtainControl(),
+                              const Expanded(flex: 1, child: LightControl())
+                            ],
                           ),
-                          airConditionControl(),
-                          quickScene()
+                          AirConditionControl(),
+                          QuickScene()
                         ],
                       ),
                     ),
@@ -293,383 +238,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget curtainControl() {
-    return MzMetalCard(
-      width: 103,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(28, 20, 28, 23),
-        child: SizedBox(
-          height: 164,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => curtainHandle(false),
-                child: Column(
-                  children: [
-                    !CenterControlService.isCurtainPower(context)
-                        ? Image.asset("assets/imgs/device/chuanglian_icon_on.png", width: 42, height: 42)
-                        : Image.asset("assets/imgs/device/chuanglian_icon_off.png", width: 42, height: 42),
-                    Text(
-                      '窗帘关',
-                      style: TextStyle(
-                        color: !CenterControlService.isCurtainPower(context)
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0x7AFFFFFF),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => curtainHandle(true),
-                child: Column(
-                  children: [
-                    CenterControlService.isCurtainPower(context)
-                        ? Image.asset("assets/imgs/device/chuanglian_icon_on.png", width: 42, height: 42)
-                        : Image.asset("assets/imgs/device/chuanglian_icon_off.png", width: 42, height: 42),
-                    Text(
-                      '窗帘开',
-                      style: TextStyle(
-                        color: CenterControlService.isCurtainPower(context)
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0x7AFFFFFF),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget airConditionControl() {
-    return MzMetalCard(
-      width: 440,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Flex(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              direction: Axis.horizontal,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                  child: Text(
-                    '空调',
-                    style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular'),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => switchACPanel(true),
-                  child: Container(
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(0, 0, 0, 0.3),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/imgs/device/wendu.png'),
-                          const Text(
-                            '温度',
-                            style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 14, fontFamily: 'MideaType-Regular'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => switchACPanel(false),
-                  child: Container(
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(0, 0, 0, 0.3),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/imgs/device/songfeng.png'),
-                          const Text(
-                            '风速',
-                            style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 14, fontFamily: 'MideaType-Regular'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(0, 0, 0, 0.3),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: DropdownMenu(
-                      menuWidth: 84,
-                      arrowSize: 20,
-                      menu: modeBtnList.map(
-                        (item) {
-                          return PopupMenuItem<String>(
-                            padding: EdgeInsets.zero,
-                            value: item['key'],
-                            child: Center(
-                              child: Container(
-                                width: 80,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: getCurACMode()["key"] == item['key'] // TODO: 完善
-                                      ? const Color(0xff575757)
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Opacity(
-                                  opacity: getCurACMode()["key"] == item['key'] // TODO: 完善
-                                      ? 1
-                                      : 0.7,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(item['icon']!, width: 30, height: 30),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
-                                        child: Text(
-                                          item['text']!,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: "MideaType",
-                                            fontWeight: FontWeight.w200,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      trigger: Opacity(
-                        opacity: menuVisible ? 0.5 : 1,
-                        child: Row(
-                          children: [
-                            Image.asset(getCurACMode()["icon"]!, width: 30, height: 30),
-                            Text(
-                              getCurACMode()["text"]!,
-                              style: const TextStyle(
-                                color: Color(0X7FFFFFFF),
-                                fontSize: 14.0,
-                                fontFamily: "MideaType",
-                                fontWeight: FontWeight.w200,
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      onVisibleChange: (visible) {
-                        setState(() {
-                          menuVisible = visible;
-                        });
-                      },
-                      onSelected: (dynamic mode) {
-                        airConditionModeHandle(mode);
-                      },
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => airConditionPowerHandle(!CenterControlService.isAirConditionPower(context)),
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset(
-                      CenterControlService.isAirConditionPower(context)
-                          ? 'assets/imgs/device/on.png'
-                          : 'assets/imgs/device/off.png',
-                      alignment: Alignment.centerRight,
-                      width: 50,
-                      height: 50,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          SliderButtonContent(
-            unit: airConditionPanel ? '℃' : '档',
-            min: airConditionPanel ? 17 : 1,
-            max: airConditionPanel ? 30 : 6,
-            value: airConditionPanel
-                ? CenterControlService.airConditionTemperature(context)
-                : CenterControlService.airConditionGear(context),
-            sliderWidth: 400,
-            onChanged: (value) {
-              airConditionValueHandle(value);
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget lightControl() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, bottom: 20),
-      child: SizedBox(
-        height: 210,
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: const DecorationImage(image: AssetImage('assets/imgs/center/zhuwo.png'), fit: BoxFit.cover)),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 4, 10, 14),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '灯光',
-                      style: TextStyle(
-                          color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular', letterSpacing: 1.0),
-                    ),
-                    GestureDetector(
-                      onTap: () => lightPowerHandle(!CenterControlService.isLightPower(context)),
-                      child: Image.asset(
-                        CenterControlService.isLightPower(context)
-                            ? 'assets/imgs/device/on.png'
-                            : 'assets/imgs/device/off.png',
-                        alignment: Alignment.centerRight,
-                        width: 50,
-                        height: 50,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Text(
-                        '亮度 | ${CenterControlService.lightTotalBrightness(context)}%',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    MzSlider(
-                      value: CenterControlService.lightTotalBrightness(context),
-                      width: 290,
-                      padding: const EdgeInsets.all(0),
-                      activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
-                      onChanged: lightBrightHandle,
-                    ),
-                    const Padding(padding: EdgeInsets.only(bottom: 14)),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Text(
-                        '色温 | ${(3000 + (5700 - 3000) * CenterControlService.lightTotalColorTemperature(context) / 100).toInt()}K',
-                        style: const TextStyle(fontSize: 14, fontFamily: 'MideaType-Regular'),
-                      ),
-                    ),
-                    MzSlider(
-                      value: CenterControlService.lightTotalColorTemperature(context),
-                      width: 290,
-                      padding: const EdgeInsets.all(0),
-                      activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
-                      onChanged: lightColorHandle,
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget quickScene() {
-    return MzMetalCard(
-      width: 440,
-      child: Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: const DecorationImage(image: AssetImage('assets/imgs/center/changjing-BG.png'), fit: BoxFit.cover)),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    '快捷场景',
-                    style: TextStyle(
-                        color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular', letterSpacing: 1.0),
-                  ),
-                  Image.asset(
-                    'assets/imgs/device/changjing.png',
-                    alignment: Alignment.centerRight,
-                    width: 50,
-                    height: 50,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  for (int i = 1; i <= sceneList.length; i++)
-                    GestureDetector(
-                      onTap: () => CenterControlService.selectScene(sceneList[i - 1]),
-                      child: Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          gradient: const RadialGradient(
-                            colors: [Color(0xFF393E43), Color(0xFF333135)],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(sceneList[i - 1].icon, width: 42, height: 42),
-                            Text(sceneList[i - 1].name)
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              )
-            ],
-          ),
-        ),
       ),
     );
   }
