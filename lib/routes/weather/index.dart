@@ -186,6 +186,7 @@ class WeatherPageState extends State<WeatherPage> {
           ],
         ),
         onTap: () {
+          Provider.of<WeatherChangeNotifier>(context, listen: false).weatherPageActive = false;
           Navigator.of(context).pop();
         });
   }
