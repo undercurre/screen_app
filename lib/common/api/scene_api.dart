@@ -35,7 +35,7 @@ class SceneApi {
             ));
     debugPrint('拿到场景响应$res');
     var modelRes = res.result;
-    var filterList = modelRes.list.where((element) => element.sceneType == 2).toList();
+    var filterList = modelRes.list.where((element) => element.sceneType == 2 && element.sceneStatus != 3).toList();
     debugPrint('过滤后的场景$filterList');
     var sceneList = filterList.map((e) => Scene(
           'assets/imgs/scene/${Random().nextInt(5) + 1}.png',

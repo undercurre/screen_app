@@ -28,31 +28,32 @@ class MzCell extends StatefulWidget {
   final Function? onTap; // tap emit
   final Function? onLongPress; // long press emit
 
-  const MzCell(
-      {super.key,
-      this.title = '',
-      this.titleSlot,
-      this.rightSlot,
-      this.desc,
-      this.tag,
-      this.titleColor = Colors.white,
-      this.titleSize = 20.0,
-      this.fontWeight = FontWeight.normal,
-      this.titleMaxLines = 2,
-      this.bgColor = Colors.black,
-      this.avatarIcon,
-      this.rightIcon,
-      this.rightText,
-      this.hasArrow = false,
-      this.hasSwitch = false,
-      this.initSwitchValue = false,
-      this.borderColor = const Color.fromRGBO(151, 151, 151, 0.2),
-      this.hasTopBorder = false,
-      this.hasBottomBorder = false,
-      this.padding = const EdgeInsets.symmetric(vertical: 6, horizontal: 26),
-      this.onSwitch,
-      this.onTap,
-      this.onLongPress});
+  const MzCell({
+    super.key,
+    this.title = '',
+    this.titleSlot,
+    this.rightSlot,
+    this.desc,
+    this.tag,
+    this.titleColor = Colors.white,
+    this.titleSize = 20.0,
+    this.fontWeight = FontWeight.normal,
+    this.titleMaxLines = 2,
+    this.bgColor = Colors.black,
+    this.avatarIcon,
+    this.rightIcon,
+    this.rightText,
+    this.hasArrow = false,
+    this.hasSwitch = false,
+    this.initSwitchValue = false,
+    this.borderColor = const Color.fromRGBO(151, 151, 151, 0.2),
+    this.hasTopBorder = false,
+    this.hasBottomBorder = false,
+    this.padding = const EdgeInsets.symmetric(vertical: 6, horizontal: 26),
+    this.onSwitch,
+    this.onTap,
+    this.onLongPress,
+  });
 
   @override
   State<MzCell> createState() => _CellState();
@@ -76,9 +77,7 @@ class _CellState extends State<MzCell> {
   Widget build(BuildContext context) {
     // 属性校验
     if (widget.titleSlot != null &&
-        (widget.title != '' ||
-            StrUtils.isNotNullAndEmpty(widget.desc) ||
-            StrUtils.isNotNullAndEmpty(widget.tag))) {
+        (widget.title != '' || StrUtils.isNotNullAndEmpty(widget.desc) || StrUtils.isNotNullAndEmpty(widget.tag))) {
       throw Error.safeToString('titleSlot与其他title属性不应同时赋值');
     }
     if (widget.titleSlot == null && widget.title == '') {
@@ -112,8 +111,7 @@ class _CellState extends State<MzCell> {
                 margin: const EdgeInsets.only(left: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: const BoxDecoration(
-                    color: Color.fromRGBO(216, 216, 216, 0.3),
-                    borderRadius: BorderRadius.all(Radius.circular(11.0))),
+                    color: Color.fromRGBO(216, 216, 216, 0.3), borderRadius: BorderRadius.all(Radius.circular(11.0))),
                 child: Text(
                   widget.tag!,
                   maxLines: 1,
@@ -155,10 +153,7 @@ class _CellState extends State<MzCell> {
 
     List<Widget> cellChildren = <Widget>[
       // 判断是否插入左边图标
-      if (widget.avatarIcon != null)
-        Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: widget.avatarIcon!),
+      if (widget.avatarIcon != null) Padding(padding: const EdgeInsets.only(right: 10), child: widget.avatarIcon!),
 
       // 插入中间列，middleCell || titleSlot
       Expanded(
@@ -191,9 +186,7 @@ class _CellState extends State<MzCell> {
             )),
 
       // 判断是否插入右边图标
-      if (widget.rightIcon != null)
-        Padding(
-            padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
+      if (widget.rightIcon != null) Padding(padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
 
       // 判断是否插入右边箭头
       if (widget.hasSwitch)
@@ -215,20 +208,15 @@ class _CellState extends State<MzCell> {
       if (widget.hasArrow)
         Padding(
             padding: const EdgeInsets.only(left: 10),
-            child:
-                Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)),
+            child: Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)),
     ];
 
     // 背景、边框设置
     BoxDecoration cellDecoration = BoxDecoration(
         color: widget.bgColor,
         border: Border(
-            top: widget.hasTopBorder
-                ? BorderSide(color: widget.borderColor)
-                : BorderSide.none,
-            bottom: widget.hasBottomBorder
-                ? BorderSide(color: widget.borderColor)
-                : BorderSide.none));
+            top: widget.hasTopBorder ? BorderSide(color: widget.borderColor) : BorderSide.none,
+            bottom: widget.hasBottomBorder ? BorderSide(color: widget.borderColor) : BorderSide.none));
 
     return GestureDetector(
         child: DecoratedBox(
