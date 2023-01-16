@@ -6,15 +6,18 @@ abstract class AbstractChannel {
   // 通道名称
   final String _channelName;
 
-  // 构造器函数
-  AbstractChannel.fromName(this._channelName);
-
   // *****真正的通信Channel******
-  late final MethodChannel _MethodChannel = _initialMethodChannel();
+  late MethodChannel _MethodChannel;
+
+  // 构造器函数
+  AbstractChannel.fromName(this._channelName) {
+    _MethodChannel = _initialMethodChannel();
+  }
 
   MethodChannel get methodChannel => _MethodChannel;
 
   MethodChannel _initialMethodChannel() {
+    debugPrint("初始化 ${this.runtimeType} ");
     var channel = MethodChannel(_channelName, const JSONMethodCodec());
     // 持续性的数据上报，写到此处
     channel.setMethodCallHandler(onMethodCallHandler);
