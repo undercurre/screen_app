@@ -5,6 +5,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/api/user_api.dart';
@@ -14,7 +15,6 @@ import '../../../states/room_change_notifier.dart';
 import '../../../widgets/plugins/slider_button_content.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
-import 'package:screen_app/routes/home/scene/scene.dart';
 
 var time = DateTime.now();
 var weekday = [" ", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
@@ -179,23 +179,27 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
-                        style: const TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType-Regular",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        ),),
+                    Text(
+                      "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
+                      style: const TextStyle(
+                        color: Color(0XFFFFFFFF),
+                        fontSize: 18.0,
+                        fontFamily: "MideaType-Regular",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                     PopupMenuButton(
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
-                      )),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
                       offset: const Offset(0, 36.0),
                       itemBuilder: (context) {
-                        return dropMenuBtnList.map((item) {
-                          return PopupMenuItem<String>(
+                        return dropMenuBtnList.map(
+                          (item) {
+                            return PopupMenuItem<String>(
                               value: item['route'],
                               child: Container(
                                 alignment: Alignment.center,
@@ -204,8 +208,10 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                   style: const TextStyle(
                                       fontSize: 18, fontFamily: "MideaType-Regular", fontWeight: FontWeight.w400),
                                 ),
-                              ));
-                        }).toList();
+                              ),
+                            );
+                          },
+                        ).toList();
                       },
                       onSelected: (String route) {
                         toConfigPage(route);
@@ -311,9 +317,10 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     Text(
                       '窗帘关',
                       style: TextStyle(
-                          color: !CenterControlService.isCurtainPower(context)
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0x7AFFFFFF)),
+                        color: !CenterControlService.isCurtainPower(context)
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0x7AFFFFFF),
+                      ),
                     )
                   ],
                 ),
@@ -328,9 +335,10 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     Text(
                       '窗帘开',
                       style: TextStyle(
-                          color: CenterControlService.isCurtainPower(context)
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0x7AFFFFFF)),
+                        color: CenterControlService.isCurtainPower(context)
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0x7AFFFFFF),
+                      ),
                     )
                   ],
                 ),
@@ -430,15 +438,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                 width: 80,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                  color: getCurACMode()["key"] ==
-                                          item['key'] // TODO: 完善
+                                  color: getCurACMode()["key"] == item['key'] // TODO: 完善
                                       ? const Color(0xff575757)
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Opacity(
-                                  opacity: getCurACMode()["key"] ==
-                                          item['key'] // TODO: 完善
+                                  opacity: getCurACMode()["key"] == item['key'] // TODO: 完善
                                       ? 1
                                       : 0.7,
                                   child: Row(
@@ -494,8 +500,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => airConditionPowerHandle(
-                      !CenterControlService.isAirConditionPower(context)),
+                  onTap: () => airConditionPowerHandle(!CenterControlService.isAirConditionPower(context)),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: Image.asset(
@@ -536,9 +541,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              image: const DecorationImage(
-                  image: AssetImage('assets/imgs/center/zhuwo.png'),
-                  fit: BoxFit.cover)),
+              image: const DecorationImage(image: AssetImage('assets/imgs/center/zhuwo.png'), fit: BoxFit.cover)),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(14, 4, 10, 14),
             child: Column(
@@ -614,9 +617,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
       child: Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            image: const DecorationImage(
-                image: AssetImage('assets/imgs/center/changjing-BG.png'),
-                fit: BoxFit.cover)),
+            image: const DecorationImage(image: AssetImage('assets/imgs/center/changjing-BG.png'), fit: BoxFit.cover)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
           child: Column(
@@ -628,10 +629,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   const Text(
                     '快捷场景',
                     style: TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 18,
-                        fontFamily: 'MideaType-Regular',
-                        letterSpacing: 1.0),
+                        color: Color(0xFFFFFFFF), fontSize: 18, fontFamily: 'MideaType-Regular', letterSpacing: 1.0),
                   ),
                   Image.asset(
                     'assets/imgs/device/changjing.png',
@@ -652,16 +650,16 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         width: 90,
                         height: 90,
                         decoration: BoxDecoration(
-                            gradient: const RadialGradient(
-                              colors: [Color(0xFF393E43), Color(0xFF333135)],
-                            ),
-                            borderRadius: BorderRadius.circular(10)),
+                          gradient: const RadialGradient(
+                            colors: [Color(0xFF393E43), Color(0xFF333135)],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset(sceneList[i - 1].icon,
-                                width: 42, height: 42),
+                            Image.asset(sceneList[i - 1].icon, width: 42, height: 42),
                             Text(sceneList[i - 1].name)
                           ],
                         ),
