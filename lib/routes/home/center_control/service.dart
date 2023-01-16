@@ -334,7 +334,7 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
-      res = await AirConditionApi.gearLua(deviceInfo.applianceCode, value * 20);
+      res = await AirConditionApi.gearLua(deviceInfo.applianceCode, (value - 1) * 20 + 1);
       if (res.isSuccess) {
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
       }
