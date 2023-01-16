@@ -18,6 +18,7 @@ void main() async {
     runApp(const App());
     // 初始化Native配置
     WidgetsFlutterBinding.ensureInitialized();
+    buildChannel();
     configChannel.initNativeConfig(const String.fromEnvironment('env'));
   });
 }

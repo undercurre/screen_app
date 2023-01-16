@@ -2,58 +2,51 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 
 import './models/wifi_scan_result.dart';
 
-class NetMethodChannel {
-  // 通道名称
-  final String _channelName;
+class NetMethodChannel extends AbstractChannel {
 
   // 构造器函数
-  NetMethodChannel.fromName(this._channelName);
+  NetMethodChannel.fromName(super.channelName) : super.fromName();
 
   // 储存扫描附近wifi结果的回调
   late final _nearbyWiFiCallbacks = <void Function(List<WiFiScanResult>)>[];
   // 存储监听网络状态变化的回调
   late final _netChangeCallbacks = <void Function(NetState)>[];
 
-  // *****真正的通信Channel******
-  late final MethodChannel _netMethodChannel = _initialMethodChannel();
-
   // *****当前的网络状态*********
   late NetState _currentNetState = NetState();
   // 获取当前设备网络状态
   NetState get currentNetState => _currentNetState;
 
-  MethodChannel _initialMethodChannel() {
-    var channel = MethodChannel(_channelName, const JSONMethodCodec());
-    // 持续性的数据上报，写到此处
-    channel.setMethodCallHandler((call) => Future(() {
-          final method = call.method;
-          final args = call.arguments;
-          switch (method) {
-            case "replyNearbyWiFi":
-              List<WiFiScanResult>? wifis = WiFiScanResult.scanResultListFromJsonArray(args);
-              transmitDataToNearbyWiFiCallBack(wifis);
-              break;
-            case "replyConnectChange":
-              debugPrint("接收到replyConnectChange");
-              NetState netState = NetState.fromJson(args);
-              _currentNetState = netState;
-              transmitDataToNetChangeCallBack(netState);
-              debugPrint(
-                  """
+  // 接收原生请求
+  Future<dynamic> onMethodCallHandler(MethodCall call) async {
+    debugPrint('Method= ${call.method} arguments= ${call.arguments}');
+    final method = call.method;
+    final args = call.arguments;
+    switch (method) {
+      case "replyNearbyWiFi":
+        List<WiFiScanResult>? wifis = WiFiScanResult.scanResultListFromJsonArray(args);
+        transmitDataToNearbyWiFiCallBack(wifis);
+        break;
+      case "replyConnectChange":
+        debugPrint("接收到replyConnectChange");
+        NetState netState = NetState.fromJson(args);
+        _currentNetState = netState;
+        transmitDataToNetChangeCallBack(netState);
+        debugPrint(
+            """
                   以太网状态：${netState.ethernetState == 2 ? "连接成功" : "连接失败" }
                         WiFi状态: ${ netState.wifiState == 2 ? "连接成功" : "连接失败" }  ${netState.wiFiScanResult?.ssid}
                   """
-              );
-              break;
-            default:
-              throw Exception("没有支持的方法");
-          }
-        }));
-    return channel;
+        );
+        break;
+      default:
+        throw Exception("没有支持的方法");
+    }
   }
 
 
@@ -108,7 +101,7 @@ class NetMethodChannel {
 
   Future<bool> connectedWiFi(String ssid, String? pwd, bool changePwd) async {
     try {
-     bool connected = await _netMethodChannel.invokeMethod('connectWiFi',
+     bool connected = await methodChannel.invokeMethod('connectWiFi',
          {'ssid': ssid,
            if(pwd != null) 'pwd': pwd,
            'changePwd': changePwd
@@ -122,7 +115,7 @@ class NetMethodChannel {
   /// 查询当前连接的wifi本地记录
   Future<ConnectedWiFiRecord?> checkConnectedWiFiRecord() async {
     try {
-      final result = await _netMethodChannel.invokeMethod('checkConnectWiFiInfo');
+      final result = await methodChannel.invokeMethod('checkConnectWiFiInfo');
       return ConnectedWiFiRecord.fromJson(result);
     } on PlatformException catch(e) {
       debugPrint(e.message);
@@ -132,7 +125,7 @@ class NetMethodChannel {
 
   // 忘记掉已经连接的WiFi
   Future<bool> forgetWiFi(WiFiScanResult wifi) async {
-    bool result = await _netMethodChannel.invokeMethod('forgetWiFi', {'ssid': wifi.ssid, 'bssid': wifi.bssid});
+    bool result = await methodChannel.invokeMethod('forgetWiFi', {'ssid': wifi.ssid, 'bssid': wifi.bssid});
     debugPrint("忘记wifi密码是否成功 = $result");
     return result;
   }
@@ -141,7 +134,7 @@ class NetMethodChannel {
   Future<bool> wifiIsOpen() async {
     var result = await supportWiFiControl();
     if(!result) return false;
-    result = await _netMethodChannel.invokeMethod('wifiIsOpen');
+    result = await methodChannel.invokeMethod('wifiIsOpen');
     return result;
   }
 
@@ -149,49 +142,49 @@ class NetMethodChannel {
   Future<bool> ethernetIsOpen() async {
     var result = await supportEthernetControl();
     if(!result) return false;
-    result = await _netMethodChannel.invokeMethod('ethernetIsOpen');
+    result = await methodChannel.invokeMethod('ethernetIsOpen');
     return result;
   }
 
   Future<bool> enableEthernet(bool enable) async {
-    bool result =  await _netMethodChannel.invokeMethod('enableEthernet', {'enable': enable});
+    bool result =  await methodChannel.invokeMethod('enableEthernet', {'enable': enable});
     return result;
   }
 
   Future<bool> enableWiFi(bool enable) async {
-    bool result =  await _netMethodChannel.invokeMethod('enableWiFi', {'enable': enable});
+    bool result =  await methodChannel.invokeMethod('enableWiFi', {'enable': enable});
     return result;
   }
 
   // 返回的结果bool
   Future<bool> supportWiFiControl() async {
-    bool support =  await  _netMethodChannel.invokeMethod('supportWiFiControl');
+    bool support =  await  methodChannel.invokeMethod('supportWiFiControl');
     return support;
   }
 
   // 返回的是bool
   Future<bool> supportEthernetControl() async {
-    bool support =  await _netMethodChannel.invokeMethod('supportEthernetControl');
+    bool support =  await methodChannel.invokeMethod('supportEthernetControl');
     return support;
   }
 
   // 启动观察网络连接状态
   void startObserverNetState() {
-    _netMethodChannel.invokeMethod("listenerConnectState");
+    methodChannel.invokeMethod("listenerConnectState");
   }
   // 关闭观察网络连接状态
   void stopObserverNetState() {
-    _netMethodChannel.invokeMethod("removeListenerConnectState");
+    methodChannel.invokeMethod("removeListenerConnectState");
   }
 
   // 启动扫描WiFi
   void scanNearbyWiFi() {
-    _netMethodChannel.invokeMethod("scanNearbyWiFi");
+    methodChannel.invokeMethod("scanNearbyWiFi");
   }
 
   // 停止扫描WiFi
   void stopScanNearbyWiFi() {
-    _netMethodChannel.invokeMethod("stopScanNearbyWiFi");
+    methodChannel.invokeMethod("stopScanNearbyWiFi");
   }
 
 }

@@ -15,19 +15,27 @@ const String channelSetting = "com.midea.light/set";
 const String channelDeviceManager = "com.midea.light/deviceManager";
 const String channelAi = "com.midea.light/ai";
 
-
-// 网络channel
-NetMethodChannel netMethodChannel = NetMethodChannel.fromName(channelMethodNet);
+late NetMethodChannel netMethodChannel;
 // 配置channel
-ConfigChannel configChannel = ConfigChannel.fromName(channelConfig);
+late ConfigChannel configChannel;
 // 配置关于页的channel
-AboutSystemChannel aboutSystemChannel = AboutSystemChannel.fromName(channelAboutSystem);
+late AboutSystemChannel aboutSystemChannel;
 // 升级的channel
-OtaChannel otaChannel = OtaChannel.fromName(channelOTA);
+late OtaChannel otaChannel;
 // 系统设置channel
-SettingMethodChannel settingMethodChannel = SettingMethodChannel.fromName(channelSetting);
+late SettingMethodChannel settingMethodChannel;
 // 设备管理channel
-DeviceManagerChannel deviceManagerChannel = DeviceManagerChannel.fromName(channelDeviceManager);
-
+late DeviceManagerChannel deviceManagerChannel;
 // 语音channel
-AiMethodChannel aiMethodChannel = AiMethodChannel.fromName(channelAi);
+late AiMethodChannel aiMethodChannel;
+
+// 构建所有的Channel
+void buildChannel() {
+  netMethodChannel = NetMethodChannel.fromName(channelMethodNet);
+  configChannel = ConfigChannel.fromName(channelConfig);
+  aboutSystemChannel = AboutSystemChannel.fromName(channelAboutSystem);
+  otaChannel = OtaChannel.fromName(channelOTA);
+  settingMethodChannel = SettingMethodChannel.fromName(channelSetting);
+  deviceManagerChannel = DeviceManagerChannel.fromName(channelDeviceManager);
+  aiMethodChannel = AiMethodChannel.fromName(channelAi);
+}
