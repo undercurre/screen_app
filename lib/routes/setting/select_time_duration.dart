@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:screen_app/common/helper.dart';
 import 'package:screen_app/common/index.dart';
 
+import '../../common/setting.dart';
+
 
 
 class SelectTimeDurationPage extends StatefulWidget {
@@ -29,6 +31,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
   /// 是否显示第二天
   bool _showNextDay = false;
 
+
   /// 所有小时
   List<int> hours = List.generate(24, (index) => index);
   /// 所有分钟
@@ -39,6 +42,16 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
   @override
   void initState() {
     super.initState();
+    Pair<int, int> startTime = Setting.instant().getScreedDetailTime(Setting.instant().getScreedDuration().value1);
+    Pair<int, int> endTime = Setting.instant().getScreedDetailTime(Setting.instant().getScreedDuration().value2);
+    if(startTime.value1 < 0 || startTime.value2 < 0 || endTime.value1 < 0 || endTime.value2 < 0){
+      return;
+    }
+
+    startHour = startTime.value1 % 24;
+    startMinute = startTime.value2;
+    endHour = endTime.value1 % 24;
+    endMinute = endTime.value2;
   }
 
   @override
@@ -131,12 +144,15 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                             fixedSize: const Size(double.infinity, 64)
                         ),
                         onPressed: () {
-                          Navigator.of(context).pop(
-                              Pair.of(
-                                  generateTime(startHour, startMinute, 0),
-                                  generateTime(endHour, endMinute, _showNextDay ? 24 : 0)
-                              )
-                          );
+                          final startTime = generateTime(startHour, startMinute, 0);
+                          final endTime = generateTime(endHour, endMinute, _showNextDay ? 24 * 60 : 0);
+                          if(startTime >= endTime) {
+                            TipsUtils.toast(content: "请选择正确的时间段");
+                          } else {
+                            Navigator.of(context).pop(
+                                Pair.of(startTime, endTime)
+                            );
+                          }
                         },
                         child: const Text(
                             "确定",
@@ -181,6 +197,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                           itemExtent: 50,
                           perspective: 0.007,
                           useMagnifier: true,
+                          controller: FixedExtentScrollController(initialItem: startHour),
                           magnification: 1.2,
                           offAxisFraction: 0.05,
                           overAndUnderCenterOpacity: 0.65,
@@ -221,6 +238,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                           perspective: 0.007,
                           useMagnifier: true,
                           magnification: 1.2,
+                          controller: FixedExtentScrollController(initialItem: startMinute),
                           physics: const FixedExtentScrollPhysics(),
                           overAndUnderCenterOpacity: 0.65,
                           onSelectedItemChanged: (index) {
@@ -282,6 +300,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                 useMagnifier: true,
                                 magnification: 1.2,
                                 offAxisFraction: 0.05,
+                                controller: FixedExtentScrollController(initialItem: endHour),
                                 overAndUnderCenterOpacity: 0.65,
                                 physics: const FixedExtentScrollPhysics(),
                                 onSelectedItemChanged: (index) {
@@ -320,6 +339,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                 perspective: 0.007,
                                 useMagnifier: true,
                                 magnification: 1.2,
+                                controller: FixedExtentScrollController(initialItem: endMinute),
                                 physics: const FixedExtentScrollPhysics(),
                                 overAndUnderCenterOpacity: 0.65,
                                 onSelectedItemChanged: (index) {

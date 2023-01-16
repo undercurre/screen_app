@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/setting/select_time_duration.dart';
 
 import 'boot/index.dart';
 import 'develop/develop_helper.dart';
@@ -39,6 +40,7 @@ var routes = <String, WidgetBuilder>{
   "StandbyTimeChoicePage": (context) => const StandbyTimeChoicePage(),
   "developer": (context) => const DeveloperHelperPage(),
   "DropDownPage": (context) => const DropDownPage(),
+  "SelectTimeDurationPage": (context) => const SelectTimeDurationPage(),
 
 
   "0x13": (context) => const WifiLightPage(),

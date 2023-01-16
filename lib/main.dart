@@ -7,19 +7,22 @@ import 'package:screen_app/widgets/event_bus.dart';
 
 import './channel/index.dart';
 import 'common/index.dart';
+import 'common/setting.dart';
 import 'routes/index.dart';
 import 'states/index.dart';
 import 'widgets/pointer_listener.dart';
 
 void main() async {
-  // 加载环境配置
+  /// 加载环境配置
   await setupConfig();
   Global.init().then((e) async {
     runApp(const App());
-    // 初始化Native配置
+    /// 初始化Native配置
     WidgetsFlutterBinding.ensureInitialized();
     buildChannel();
     configChannel.initNativeConfig(const String.fromEnvironment('env'));
+    /// 初始化设置配置
+    Setting.instant().init();
   });
 }
 
