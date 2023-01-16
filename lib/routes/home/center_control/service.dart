@@ -6,11 +6,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
-import 'package:screen_app/routes/home/scene/scene.dart';
 
 import '../../../common/api/device_api.dart';
 import '../../../common/api/scene_api.dart';
@@ -318,37 +318,40 @@ class CenterControlService {
   }
 
   static Future<void> ACTemperatureControl(BuildContext context, num value) async {
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    final deviceListModel = context.read<DeviceListModel>();
+    final airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
       res = await AirConditionApi.temperatureLua(deviceInfo.applianceCode, value);
       if (res.isSuccess) {
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+        deviceListModel.updateDeviceDetail(deviceInfo);
       }
     }
   }
 
   static Future<void> ACFengsuControl(BuildContext context, num value) async {
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    final deviceListModel = context.read<DeviceListModel>();
+    final airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
       res = await AirConditionApi.gearLua(deviceInfo.applianceCode, (value - 1) * 20 + 1);
       if (res.isSuccess) {
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+        deviceListModel.updateDeviceDetail(deviceInfo);
       }
     }
   }
 
   static Future<void> ACModeControl(BuildContext context, String mode) async {
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    final deviceListModel = context.read<DeviceListModel>();
+    final airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
       res = await AirConditionApi.modeLua(deviceInfo.applianceCode, mode);
       if (res.isSuccess) {
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+        deviceListModel.updateDeviceDetail(deviceInfo);
       }
     }
   }

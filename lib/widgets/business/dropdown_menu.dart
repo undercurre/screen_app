@@ -91,7 +91,7 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
     getPosition();
     visible = true;
     widget.onVisibleChange?.call(visible);
-    doArrawAnimation();
+    doArrowAnimation();
     final res = await showMenu(
       context: context,
       position: position,
@@ -107,11 +107,13 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
     );
     visible = false;
     widget.onVisibleChange?.call(visible);
-    widget.onSelected?.call(res);
-    doArrawAnimation();
+    if (res != null) {
+      widget.onSelected?.call(res);
+    }
+    doArrowAnimation();
   }
 
-  doArrawAnimation() {
+  doArrowAnimation() {
     if (widget.hideArrow) {
       return;
     }

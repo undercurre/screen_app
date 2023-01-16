@@ -26,9 +26,21 @@ mixin Standby<T extends StatefulWidget> on State<T> {
       _timer = Timer.periodic(Duration(seconds: weatherNotifier.standbyTimer.value),
           (_) {
         _timer.cancel();
-        if (NetUtils.getNetState() != null) {
-          Navigator.of(context).pushNamed('Weather');
+        var routePath = ModalRoute.of(context)?.settings.name;
+        debugPrint("current route: $routePath, 'getNetState(): ${NetUtils.getNetState()}, weatherPageActive: ${weatherNotifier.weatherPageActive}");
+
+        //临时注释
+        //if (NetUtils.getNetState() == null) {
+            // return;
+        //}
+
+        if (weatherNotifier.weatherPageActive) {
+          return;
         }
+
+        weatherNotifier.weatherPageActive = true;
+        Navigator.of(context).pushNamed('Weather');
+        debugPrint('WeatherPage pushed');
       });
     });
   }
@@ -42,6 +54,8 @@ mixin Standby<T extends StatefulWidget> on State<T> {
     // 有用户操作，则取消原有定时，重新生成定时器
     // ! 特别地，如果用户设置了新的待机等待时间，也会触发此处操作，重新生成定时器
     bus.on("onPointerDown", (arg) {
+      debugPrint('onPointerDown');
+
       _timer.cancel();
 
       noMoveTimer();

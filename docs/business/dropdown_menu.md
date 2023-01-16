@@ -21,4 +21,3 @@
 |-----------------|-------------------------------|-------|--------------|
 | onSelected      | void Function(dynamic result) | false | 选中或者点击其他地方触发 |
 | onVisibleChange | void Function(bool visible)   | false | 菜单是否展示       |
-

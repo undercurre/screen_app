@@ -9,6 +9,7 @@ import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
 import 'package:screen_app/routes/home/center_control/quick_scene.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/api/user_api.dart';
@@ -18,14 +19,13 @@ import '../../../states/room_change_notifier.dart';
 import '../../../widgets/plugins/slider_button_content.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
-import 'package:screen_app/routes/home/scene/scene.dart';
 
 var time = DateTime.now();
 var weekday = [" ", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
-List<Map<String, String>> btnList = [
+List<Map<String, String>> dropMenuBtnList = [
   {'title': '添加设备', 'route': 'SnifferPage'},
-  {'title': '切换房间', 'route': 'Room'}
+  {'title': '切换房间', 'route': 'SelectRoomPage'}
 ];
 
 class CenterControlPage extends StatefulWidget {
@@ -63,16 +63,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   Future<void> updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
+    var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
       var homeInfo = res.data.homeList[0];
       var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo = roomList
-          .where((element) =>
-              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
-          .toList()[0];
+      Global.profile.roomInfo =
+          roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
     }
   }
 
@@ -92,14 +89,12 @@ class _CenterControlPageState extends State<CenterControlPage> {
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) ||
-              DeviceService.isVistual(deviceInfo))) {
+          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))) {
         // 调用provider拿detail存入状态管理里
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
             callback: () => {
                   // todo: 优化刷新效率
-                  if (DeviceService.isVistual(deviceInfo))
-                    {DeviceService.setVistualDevice(context, deviceInfo)}
+                  if (DeviceService.isVistual(deviceInfo)) {DeviceService.setVistualDevice(context, deviceInfo)}
                 });
       } else {
         if (DeviceService.isVistual(deviceInfo)) {
@@ -127,39 +122,38 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                        "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
-                              HH,
-                              ':',
-                              nn
-                            ])}",
-                        style: const TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType-Regular",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
+                      "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
+                      style: const TextStyle(
+                        color: Color(0XFFFFFFFF),
+                        fontSize: 18.0,
+                        fontFamily: "MideaType-Regular",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                     PopupMenuButton(
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
-                      )),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
                       offset: const Offset(0, 36.0),
                       itemBuilder: (context) {
-                        return btnList.map((item) {
-                          return PopupMenuItem<String>(
+                        return dropMenuBtnList.map(
+                          (item) {
+                            return PopupMenuItem<String>(
                               value: item['route'],
                               child: Container(
                                 alignment: Alignment.center,
                                 child: Text(
                                   item['title']!,
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: "MideaType-Regular",
-                                      fontWeight: FontWeight.w400),
+                                      fontSize: 18, fontFamily: "MideaType-Regular", fontWeight: FontWeight.w400),
                                 ),
-                              ));
-                        }).toList();
+                              ),
+                            );
+                          },
+                        ).toList();
                       },
                       onSelected: (String route) {
                         toConfigPage(route);
