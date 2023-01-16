@@ -1,8 +1,5 @@
-import 'package:screen_app/generated/json/base/json_convert_content.dart';
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
-import 'package:json_annotation/json_annotation.dart';
-
-import 'package:screen_app/common/utils.dart';
+import 'package:screen_app/generated/json/base/json_convert_content.dart';
 
 WiFiScanResult $WiFiScanResultFromJson(Map<String, dynamic> json) {
   final WiFiScanResult wiFiScanResult = WiFiScanResult();

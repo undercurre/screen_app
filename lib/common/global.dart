@@ -1,15 +1,16 @@
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:screen_app/widgets/event_bus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+import '../models/index.dart';
 import 'api/index.dart';
 import 'utils.dart';
-import '../models/index.dart';
-import 'package:screen_app/widgets/event_bus.dart';
-import '../channel/index.dart';
 
 /// 日志打印工具
 var logger = Logger(
@@ -20,7 +21,8 @@ class Global {
   // 是否为release版
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
 
-  static var productCode = 'MSP-A101D-01';
+  static var productCode = 'D3ZZKP-Z';
+  static var sn8 = 'MSGWZ010';
 
   static late SharedPreferences _prefs;
   static ProfileEntity profile = ProfileEntity();

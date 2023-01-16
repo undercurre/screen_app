@@ -1,11 +1,12 @@
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/index.dart';
 
-import '../../../models/device_entity.dart';
-import '../../../states/device_change_notifier.dart';
 import './api.dart';
 import './mode_list.dart';
-import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/index.dart';
+import '../../../models/device_entity.dart';
+import '../../../states/device_change_notifier.dart';
 
 class BathroomMaster extends StatefulWidget {
   const BathroomMaster({super.key});
@@ -21,6 +22,9 @@ class BathroomMasterState extends State<BathroomMaster> {
   bool isSingleMotor = true; // todo: 添加单双电机浴霸判断
   late DeviceListModel deviceList;
   late DeviceEntity device;
+  late EasyRefreshController refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+  );
 
   Map<String, bool> runMode = <String, bool>{};
   bool mainLight = false;
@@ -98,62 +102,79 @@ class BathroomMasterState extends State<BathroomMaster> {
                       width: 150,
                     ),
                     Expanded(
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          ModeCard(
-                            modeList: bathroomMasterMode,
-                            selectedKeys: runMode,
-                            spacing: 40,
-                            onTap: (e) => handleModeCardClick(e),
-                          ),
-                          FunctionCard(
-                            icon: Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: const Color(0x38ffffff),
-                                borderRadius: BorderRadius.circular(15.0),
+                      child: EasyRefresh(
+                        controller: refreshController,
+                        header: const ClassicHeader(
+                          dragText: '下拉刷新',
+                          armedText: '释放执行刷新',
+                          readyText: '正在刷新...',
+                          processingText: '正在刷新...',
+                          processedText: '刷新完成',
+                          noMoreText: '没有更多信息',
+                          failedText: '失败',
+                          messageText: '上次更新 %T',
+                          mainAxisAlignment: MainAxisAlignment.end,
+                        ),
+                        onRefresh: handleRefresh,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 10,
                               ),
-                              child: const Image(
-                                height: 22,
-                                width: 22,
-                                image: AssetImage(
-                                    'assets/imgs/plugins/0x26/night_light.png'),
+                              ModeCard(
+                                modeList: bathroomMasterMode,
+                                selectedKeys: runMode,
+                                spacing: 40,
+                                onTap: (e) => handleModeCardClick(e),
                               ),
-                            ),
-                            title: '小夜灯',
-                            child: MzSwitch(
-                              value: nightLight,
-                              onTap: (e) => toggleNightLight(),
-                            ),
+                              FunctionCard(
+                                icon: Container(
+                                  width: 30,
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x38ffffff),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: const Image(
+                                    height: 22,
+                                    width: 22,
+                                    image: AssetImage(
+                                        'assets/imgs/plugins/0x26/night_light.png'),
+                                  ),
+                                ),
+                                title: '小夜灯',
+                                child: MzSwitch(
+                                  value: nightLight,
+                                  onTap: (e) => toggleNightLight(),
+                                ),
+                              ),
+                              FunctionCard(
+                                icon: Container(
+                                  width: 30,
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x38ffffff),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: const Image(
+                                    height: 22,
+                                    width: 22,
+                                    image: AssetImage(
+                                        'assets/imgs/plugins/0x26/delay_off.png'),
+                                  ),
+                                ),
+                                title: '延时关机',
+                                child: MzSwitch(
+                                  value: delayClose,
+                                  onTap: (e) => toggleDelayClose(),
+                                ),
+                              ),
+                            ],
                           ),
-                          FunctionCard(
-                            icon: Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: const Color(0x38ffffff),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: const Image(
-                                height: 22,
-                                width: 22,
-                                image: AssetImage(
-                                    'assets/imgs/plugins/0x26/delay_off.png'),
-                              ),
-                            ),
-                            title: '延时关机',
-                            child: MzSwitch(
-                              value: delayClose,
-                              onTap: (e) => toggleDelayClose(),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -167,6 +188,21 @@ class BathroomMasterState extends State<BathroomMaster> {
         ],
       ),
     );
+  }
+
+  handleRefresh() async {
+    final index = deviceList.deviceList
+        .indexWhere((element) => element.applianceCode == deviceId);
+    try {
+      final res = await DeviceListApiImpl().getDeviceDetail(device);
+      deviceList.deviceList[index].detail = res;
+      deviceList.notifyListeners();
+    } catch (e) {
+      // 接口请求失败
+      print(e);
+    } finally {
+      refreshController.finishRefresh();
+    }
   }
 
   void luaDeviceDetailToState() {
@@ -239,7 +275,7 @@ class BathroomMasterState extends State<BathroomMaster> {
     } else {
       // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
       runMode[mode.key] =
-      runMode[mode.key] != null && runMode[mode.key]! ? false : true;
+          runMode[mode.key] != null && runMode[mode.key]! ? false : true;
       device.detail!['mode'] = runMode[mode.key]! ? mode.key : '';
     }
     deviceList.setProviderDeviceInfo(device);

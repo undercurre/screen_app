@@ -6,10 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/global.dart';
 
-import '../../routes/scene/config.dart';
-import '../../routes/scene/scene.dart';
-import 'api.dart';
 import '../../models/index.dart';
+import '../../routes/home/scene/scene.dart';
+import 'api.dart';
 
 class SceneSource {
   String name;

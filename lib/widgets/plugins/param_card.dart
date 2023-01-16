@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/mz_metal_card.dart';
 import 'package:screen_app/widgets/mz_slider.dart';
-import 'package:screen_app/mixins/throttle.dart';
 
 // 普通的带滑动条卡片
 class ParamCard extends StatefulWidget {

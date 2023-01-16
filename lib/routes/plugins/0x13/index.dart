@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/routes/device/service.dart';
-
-import '../../../states/device_change_notifier.dart';
-import './mode_list.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
+
+import './mode_list.dart';
+import '../../../states/device_change_notifier.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
   Map<String, dynamic> deviceWatch = {

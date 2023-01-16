@@ -96,6 +96,7 @@ flutter:
     - assets/imgs/dropDown/
     - assets/imgs/setting/
     - assets/imgs/device/
+    - assets/imgs/center/
     - assets/imgs/
     - assets/
     - .sit.env

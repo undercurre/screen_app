@@ -1,22 +1,28 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/center_control/index.dart';
+
+import '../../mixins/auto_sniffer.dart';
+import './center_control/index.dart';
+import './device/index.dart';
+import './scene/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
-import '../device/index.dart';
-import '../scene/index.dart';
+
+export './center_control/index.dart';
+export './device/index.dart';
+export './scene/index.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key, this.initValue = 0});
+  const Home({super.key, this.initValue = 0});
 
   final int initValue;
 
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home> {
+class HomeState extends State<Home> with AutoSniffer {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -37,16 +43,20 @@ class _HomeState extends State<Home> {
   }
 
   initial() async {
-    num lightValue = await settingMethodChannel.getSystemLight();
-    num soundValue = await settingMethodChannel.getSystemVoice();
-    Global.soundValue = soundValue;
-    Global.lightValue = lightValue;
-    String? deviceSn =await aboutSystemChannel.getGatewaySn();
-    String? deviceId =Global.profile.deviceId;
-    String macAddress = await aboutSystemChannel.getMacAddress();
-    var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
-    var parsedJson = json.decode(jsonData);
-    await aiMethodChannel.initialAi(parsedJson);
+    try {
+      num lightValue = await settingMethodChannel.getSystemLight();
+      num soundValue = await settingMethodChannel.getSystemVoice();
+      Global.soundValue = soundValue;
+      Global.lightValue = lightValue;
+      String? deviceSn =await aboutSystemChannel.getGatewaySn();
+      String? deviceId =Global.profile.deviceId;
+      String macAddress = await aboutSystemChannel.getMacAddress();
+      var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
+      var parsedJson = json.decode(jsonData);
+      await aiMethodChannel.initialAi(parsedJson);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override

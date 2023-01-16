@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../index.dart';
 import '../../models/index.dart';
+import '../index.dart';
 
 class WeatherApi {
   /// 获取天气
@@ -13,6 +13,7 @@ class WeatherApi {
           "appId": "APP",
           'cityId': cityId,
         },
+        isShowLoading: false,
         options: Options(method: 'POST'));
 
     return res;
@@ -27,10 +28,10 @@ class WeatherApi {
           "appId": "APP",
           'cityId': cityId,
         },
+        isShowLoading: false,
         options: Options(
-          method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
-        ));
+            method: 'POST',
+            headers: {'accessToken': Global.user?.accessToken}));
 
     return res;
   }

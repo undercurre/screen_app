@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
+
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+
 import '../../common/index.dart';
 import '../../mixins/index.dart';
 import '../../mixins/ota.dart';
@@ -103,9 +105,13 @@ class _Boot extends State<Boot> with Standby, Ota {
   /// 启动完成
   void bootFinish() {
     debugPrint('bootFinish trigger');
+    var isFinishLogin = Global.isLogin &&
+        Global.profile.homeInfo != null &&
+        Global.profile.roomInfo != null;
+
     Navigator.pushNamed(
       context,
-      'Login',
+      isFinishLogin ? 'Home' : 'Login',
     );
   }
 }

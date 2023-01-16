@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/generated/json/profile_entity.g.dart';
-import 'package:screen_app/models/user_entity.dart';
 import 'package:screen_app/models/home_entity.dart';
 import 'package:screen_app/models/room_entity.dart';
+import 'package:screen_app/models/user_entity.dart';
 
 @JsonSerializable()
 class ProfileEntity {

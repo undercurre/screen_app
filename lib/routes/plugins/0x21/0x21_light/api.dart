@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
+
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/device/register_controller.dart';
+import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,8 +24,11 @@ class WrapZigbeeLight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    MzResponseEntity<String> gatewayInfo =
+    await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     return await ZigbeeLightApi.powerPDM(
-        deviceInfo.masterId, onOff, deviceInfo.applianceCode);
+        deviceInfo.masterId, onOff, infoMap['nodeid']);
   }
 
   @override

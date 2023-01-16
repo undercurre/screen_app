@@ -1,9 +1,9 @@
-import 'package:screen_app/generated/json/base/json_field.dart';
-import 'package:screen_app/generated/json/weather_of_city_entity.g.dart';
 import 'dart:convert';
 
-import 'package:screen_app/models/weather_entity.dart';
+import 'package:screen_app/generated/json/base/json_field.dart';
+import 'package:screen_app/generated/json/weather_of_city_entity.g.dart';
 import 'package:screen_app/models/location_entity.dart';
+import 'package:screen_app/models/weather_entity.dart';
 
 @JsonSerializable()
 class WeatherOfCityEntity {

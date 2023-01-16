@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/generated/json/device_p_d_m_entity.g.dart';
-import 'dart:convert';
 
 @JsonSerializable()
 class DevicePDMEntity {

@@ -1,11 +1,13 @@
 ﻿import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/states/index.dart';
 import 'package:screen_app/common/index.dart';
-import 'show_datetime.dart';
+import 'package:screen_app/states/index.dart';
+
 import 'code_to_image.dart';
+import 'show_datetime.dart';
 
 // 页面定义
 class WeatherPageState extends State<WeatherPage> {
@@ -184,6 +186,7 @@ class WeatherPageState extends State<WeatherPage> {
           ],
         ),
         onTap: () {
+          Provider.of<WeatherChangeNotifier>(context, listen: false).weatherPageActive = false;
           Navigator.of(context).pop();
         });
   }

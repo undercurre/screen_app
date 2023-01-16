@@ -1,11 +1,13 @@
 import 'dart:async';
-import '../../device/service.dart';
-import './mode_list.dart';
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/mixins/auto_sniffer.dart';
+import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
-import 'package:screen_app/models/device_entity.dart';
+
+import './mode_list.dart';
+import '../../home/device/service.dart';
 
 class WifiCurtainPageState extends State<WifiCurtainPage> with AutoSniffer {
   String deviceId = '178120883713504'; // 暂时写死设备编码

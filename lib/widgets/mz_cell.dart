@@ -1,6 +1,6 @@
 /// @doc ~/docs/mz_cell.md
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
 
 class MzCell extends StatefulWidget {

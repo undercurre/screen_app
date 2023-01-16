@@ -1,8 +1,7 @@
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
-import 'package:screen_app/models/weather_of_city_entity.dart';
-import 'package:screen_app/models/weather_entity.dart';
-
 import 'package:screen_app/models/location_entity.dart';
+import 'package:screen_app/models/weather_entity.dart';
+import 'package:screen_app/models/weather_of_city_entity.dart';
 
 
 WeatherOfCityEntity $WeatherOfCityEntityFromJson(Map<String, dynamic> json) {

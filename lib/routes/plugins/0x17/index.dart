@@ -1,9 +1,9 @@
-import 'package:provider/provider.dart';
-
-import '../../../states/device_change_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
+
+import '../../../states/device_change_notifier.dart';
 
 class WifiLightPageState extends State<WifiLightPage> {
 

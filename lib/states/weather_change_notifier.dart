@@ -34,6 +34,7 @@ class WeatherChangeNotifier extends ChangeNotifier {
   /// public current state
   StandbyTimer get standbyTimer => _standbyTimer;
   String get weatherCode => _weatherCode;
+  bool weatherPageActive = false; // 天气页激活标志，以免重复打开
 
   /// setters
   set weatherCode(String code) {

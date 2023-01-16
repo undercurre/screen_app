@@ -32,12 +32,12 @@ class WrapWIFILight implements DeviceInterface {
 
   @override
   bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["power"] : false;
+    return deviceInfo.detail != null && deviceInfo.detail != {} ? deviceInfo.detail!["power"] : false;
   }
 
   @override
   String getAttr (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
+    return deviceInfo.detail != null && deviceInfo.detail != {} ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : '';
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -78,35 +79,40 @@ class _ScanCode extends State<ScanCode> {
   }
 
   /// 大屏端轮询授权状态接口
-  void updateLoginStatus() {
-    updateLoginStatusTime =
-        Timer.periodic(const Duration(seconds: 3), (timer) async {
-      if (StrUtils.isNullOrEmpty(sessionId)) {
-        return;
+  void updateLoginStatus() async {
+    var delaySec = 2; // 2s轮询间隔
+    if (StrUtils.isNullOrEmpty(sessionId)) {
+      updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
+        updateLoginStatus();
+      });
+      return;
+    }
+
+    var res = await UserApi.getAccessToken(sessionId ?? '');
+
+    if (res.isSuccess) {
+      updateQrCodeTime?.cancel(); // 取消登录状态查询定时
+
+      String? sn;
+      try {
+        sn = await aboutSystemChannel.getGatewaySn(true, Global.user?.seed);
+      } catch (error) {
+        logger.e('getGatewaySn-error: $error');
       }
+      debugPrint('getGatewaySn: $sn');
 
-      var res = await UserApi.getAccessToken(sessionId ?? '');
+      Global.profile.deviceSn = sn;
 
-      if (res.isSuccess) {
-        timer.cancel(); // 取消登录状态查询定时
+      await System.refreshToken();
 
-        String? sn;
-        try {
-          sn = await aboutSystemChannel.getGatewaySn(true, Global.user?.seed);
-        } catch (error) {
-          logger.e('getGatewaySn-error: $error');
-        }
-        debugPrint('getGatewaySn: $sn');
-
-        Global.profile.deviceSn = sn;
-
-        await System.refreshToken();
-
-        debugPrint('getAccessToken: ${res.toJson()}');
-        TipsUtils.toast(content: '授权成功');
-        widget.onSuccess!();
-      }
-    });
+      debugPrint('getAccessToken: ${res.toJson()}');
+      TipsUtils.toast(content: '授权成功');
+      widget.onSuccess!();
+    } else {
+      updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
+        updateLoginStatus();
+      });
+    }
   }
 }
 

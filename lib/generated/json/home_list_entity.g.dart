@@ -1,6 +1,6 @@
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
-import 'package:screen_app/models/home_list_entity.dart';
 import 'package:screen_app/models/home_entity.dart';
+import 'package:screen_app/models/home_list_entity.dart';
 
 
 HomeListEntity $HomeListEntityFromJson(Map<String, dynamic> json) {

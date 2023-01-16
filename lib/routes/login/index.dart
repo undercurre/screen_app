@@ -1,13 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/models/index.dart';
-import 'dart:io';
 
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
-import 'scan_code.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/util/net_utils.dart';
+import 'scan_code.dart';
 
 class Step {
   String title;
@@ -18,7 +19,7 @@ class Step {
 
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
-  var stepNum = Global.isLogin ? 3 : 1;
+  var stepNum = 1;
 
   /// 上一步
   void prevStep() {
@@ -43,11 +44,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
-
+      // todo: linux运行屏蔽，push前解放
       // var bindRes = await UserApi.bindHome(
       //     sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
       //     applianceType: '0x16');
-
+      //
       // if (!bindRes.isSuccess) {
       //   TipsUtils.toast(content: '绑定家庭失败');
       //   return;
@@ -73,9 +74,9 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     super.initState();
 
     // 初始化
-    if (Platform.isAndroid && !isConnected()) {
-      stepNum = 1;
-    } else {
+    if (Global.isLogin) {
+      stepNum = 3;
+    } else if (Platform.isAndroid && isConnected()) {
       stepNum = 2;
     }
   }

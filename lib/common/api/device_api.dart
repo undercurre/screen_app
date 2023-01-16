@@ -2,8 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
-import 'api.dart';
+
 import '../../models/index.dart';
+import 'api.dart';
 
 class DeviceApi {
   /// 获取设备详情（lua）

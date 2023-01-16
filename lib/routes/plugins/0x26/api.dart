@@ -1,5 +1,6 @@
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
+
 import '../../../models/mz_response_entity.dart';
 import '../device_interface.dart';
 
