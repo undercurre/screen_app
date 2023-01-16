@@ -10,8 +10,10 @@ import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
+import 'package:screen_app/routes/home/scene/scene.dart';
 
 import '../../../common/api/device_api.dart';
+import '../../../common/api/scene_api.dart';
 import '../../../models/mz_response_entity.dart';
 import '../../../states/device_change_notifier.dart';
 
@@ -350,8 +352,14 @@ class CenterControlService {
       }
     }
   }
-// /// 场景
-// static bool isScenePower() {
-//
-// }
+  /// 场景
+  static Future<List<Scene>> initScene() async {
+    var sceneList = await SceneApi.getSceneList();
+    debugPrint('场景列表:$sceneList');
+    return sceneList.sublist(0, 4);
+  }
+
+  static selectScene(Scene scene) {
+    SceneApi.execScene(scene.key);
+  }
 }
