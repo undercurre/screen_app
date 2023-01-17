@@ -29,6 +29,8 @@ class MultiClick extends StatelessWidget {
         hits[hits.length - 1] = millisecond;
         if(hits[0] >= millisecond - duration) {
           clickListener?.call();
+          /// 重新清除数组内容
+          hits.fillRange(0, count, 0);
         }
       },
       child: child,

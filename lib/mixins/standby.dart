@@ -49,17 +49,17 @@ mixin Standby<T extends StatefulWidget> on State<T> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    noMoveTimer();
-
-    // 有用户操作，则取消原有定时，重新生成定时器
-    // ! 特别地，如果用户设置了新的待机等待时间，也会触发此处操作，重新生成定时器
-    bus.on("onPointerDown", (arg) {
-      debugPrint('onPointerDown');
-
-      _timer.cancel();
-
-      noMoveTimer();
-    });
+    // noMoveTimer();
+    //
+    // // 有用户操作，则取消原有定时，重新生成定时器
+    // // ! 特别地，如果用户设置了新的待机等待时间，也会触发此处操作，重新生成定时器
+    // bus.on("onPointerDown", (arg) {
+    //   debugPrint('onPointerDown');
+    //
+    //   _timer.cancel();
+    //
+    //   noMoveTimer();
+    // });
   }
 
   @override

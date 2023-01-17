@@ -22,31 +22,46 @@ class _SelectSceneListState extends State<SelectSceneList> {
   Widget build(BuildContext context) {
     final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
     sceneList = sceneChangeNotifier.sceneList;
-    return ListView.builder(
-      shrinkWrap: true,
-      prototypeItem: const MzCell(title: '123'),
-      itemCount: sceneList.length,
-      itemBuilder: (context, index) {
-        return _SelectSceneItem<Scene>(
-          isSelect: selectList.contains(sceneList[index].key),
-          title: sceneList[index].name,
-          value: sceneList[index],
-          onTap: (value) {
-            setState(() {
-              final findIndex = selectList.indexWhere((element) => element == value.key);
-              if (findIndex != -1) {
-                selectList.removeAt(findIndex);
-                return;
-              } else if (selectList.length > 3) {
-                TipsUtils.toast(content: '最多选择4个场景');
-                return;
-              }
-              selectList.add(value.key);
-            });
-          },
-        );
-      },
-    );
+    // TODO: 需要切换到正确的图片
+    Widget content = sceneList.isEmpty
+        ? Center(
+            child: Image.asset(
+              'assets/imgs/weather/bg-cloudy.png',
+              width: 100,
+              height: 100,
+            ),
+          )
+        : ListView.builder(
+            shrinkWrap: true,
+            prototypeItem: _SelectSceneItem(
+              isSelect: true,
+              title: '123',
+              value: true,
+              onTap: (_) {},
+            ),
+            itemCount: sceneList.length,
+            itemBuilder: (context, index) {
+              return _SelectSceneItem<Scene>(
+                isSelect: selectList.contains(sceneList[index].key),
+                title: sceneList[index].name,
+                value: sceneList[index],
+                onTap: (value) {
+                  setState(() {
+                    final findIndex = selectList.indexWhere((element) => element == value.key);
+                    if (findIndex != -1) {
+                      selectList.removeAt(findIndex);
+                      return;
+                    } else if (selectList.length > 3) {
+                      TipsUtils.toast(content: '最多选择4个场景');
+                      return;
+                    }
+                    selectList.add(value.key);
+                  });
+                },
+              );
+            },
+          );
+    return content;
   }
 
   @override
@@ -55,19 +70,18 @@ class _SelectSceneListState extends State<SelectSceneList> {
     bus.on('selectSceneConfirm', (arg) {
       confirm();
     });
-    Future.delayed(Duration.zero, () {
-      final sceneChangeNotifier = context.read<SceneChangeNotifier>();
-      selectList = List.from(sceneChangeNotifier.selectList);
-      if (sceneChangeNotifier.sceneList.isEmpty) {
-        // 可能场景加载失败，再请求一次
-        sceneChangeNotifier.updateSceneList();
-      }
-    });
+    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
+    selectList = List.from(sceneChangeNotifier.selectList);
+    if (sceneChangeNotifier.sceneList.isEmpty) {
+      // 可能场景加载失败，再请求一次
+      sceneChangeNotifier.updateSceneList();
+    }
   }
 
   void confirm() {
     final sceneChangeNotifier = context.read<SceneChangeNotifier>();
     sceneChangeNotifier.selectList = selectList;
+    print(sceneChangeNotifier.selectList);
     Navigator.pop(context, 'confirm');
   }
 }
@@ -88,15 +102,17 @@ class _SelectSceneItem<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MzCell(
-      hasTopBorder: true,
-      title: title,
-      titleSize: 20.0,
-      onTap: () => onTap(value),
-      rightSlot: MzRadio<bool>(
-        value: true,
-        groupValue: isSelect,
-        disable: true,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 100),
+      child: MzCell(
+        hasTopBorder: true,
+        title: title,
+        titleSize: 20.0,
+        onTap: () => onTap(value),
+        rightSlot: MzRadio<bool>(
+          value: true,
+          groupValue: isSelect,
+        ),
       ),
     );
   }

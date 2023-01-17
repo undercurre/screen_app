@@ -9,6 +9,9 @@ class SceneChangeNotifier extends ChangeNotifier {
 
   updateSceneList() async {
     sceneList = await SceneApi.getSceneList();
+    // 去除一下之前选中但是场景列表中已经不存在的场景
+    final sceneKeyList = sceneList.map((e) => e.key);
+    selectList = selectList.where((element) => sceneKeyList.contains(element)).toList();
     print(sceneList[0]);
     notifyListeners();
   }
