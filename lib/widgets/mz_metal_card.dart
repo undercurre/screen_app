@@ -10,7 +10,6 @@ class MzMetalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         border: Border.all(width: 0.2, color: const Color(0xff979797)),

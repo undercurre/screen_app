@@ -33,6 +33,34 @@ class CenterControlService {
     return totalPower;
   }
 
+  static bool isCurtainSupport(BuildContext context) {
+    var totalSupport = false;
+    var curtainList = context.read<DeviceListModel>().curtainList;
+    for (var i = 1; i <= curtainList.length; i++) {
+      var deviceInfo = curtainList[i - 1];
+      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      if (DeviceService.isOnline(deviceInfo)) {
+        totalSupport = true;
+      }
+    }
+    debugPrint('窗帘中控结果$totalSupport');
+    return totalSupport;
+  }
+
+  static bool isLightSupport(BuildContext context) {
+    var totalSupport = false;
+    var curtainList = context.read<DeviceListModel>().curtainList;
+    for (var i = 1; i <= curtainList.length; i++) {
+      var deviceInfo = curtainList[i - 1];
+      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      if (DeviceService.isOnline(deviceInfo)) {
+        totalSupport = true;
+      }
+    }
+    debugPrint('窗帘中控结果$totalSupport');
+    return totalSupport;
+  }
+
   static Future<void> curtainControl(BuildContext context, bool onOff) async {
     var curtainList = context.read<DeviceListModel>().curtainList;
     for (var i = 1; i <= curtainList.length; i++) {

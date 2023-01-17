@@ -8,6 +8,7 @@ import 'package:screen_app/routes/home/center_control/air_condition_control.dart
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
 import 'package:screen_app/routes/home/center_control/quick_scene.dart';
+import 'package:screen_app/routes/home/center_control/service.dart';
 
 import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
@@ -213,14 +214,15 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Flex(
-                            direction: Axis.horizontal,
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              CurtainControl(),
-                              const Expanded(flex: 1, child: LightControl())
+                              CurtainControl(disabled: !CenterControlService.isCurtainSupport(context),),
+                              Expanded(flex: 1, child: LightControl(disabled: !CenterControlService.isLightSupport(context)))
                             ],
                           ),
                           AirConditionControl(),
