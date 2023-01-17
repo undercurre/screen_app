@@ -89,42 +89,45 @@ class _CellState extends State<MzCell> {
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
         Expanded(
-            flex: 2,
-            child: Text(
-              widget.title!,
-              maxLines: widget.titleMaxLines,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: widget.titleSize,
-                fontFamily: "MideaType",
-                fontWeight: widget.fontWeight,
-                decoration: TextDecoration.none,
-                color: widget.titleColor,
-              ),
-            )),
+          flex: 2,
+          child: Text(
+            widget.title!,
+            maxLines: widget.titleMaxLines,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: widget.titleSize,
+              fontFamily: "MideaType",
+              fontWeight: widget.fontWeight,
+              decoration: TextDecoration.none,
+              color: widget.titleColor,
+            ),
+          ),
+        ),
 
       // 插入tag
       if (StrUtils.isNotNullAndEmpty(widget.tag))
         Expanded(
-            flex: 1,
-            child: Container(
-                margin: const EdgeInsets.only(left: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                decoration: const BoxDecoration(
-                    color: Color.fromRGBO(216, 216, 216, 0.3), borderRadius: BorderRadius.all(Radius.circular(11.0))),
-                child: Text(
-                  widget.tag!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.w100,
-                    decoration: TextDecoration.none,
-                    color: Color.fromRGBO(255, 255, 255, 0.85),
-                    height: 1.5,
-                  ),
-                ))),
+          flex: 1,
+          child: Container(
+            margin: const EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            decoration: const BoxDecoration(
+                color: Color.fromRGBO(216, 216, 216, 0.3), borderRadius: BorderRadius.all(Radius.circular(11.0))),
+            child: Text(
+              widget.tag!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w100,
+                decoration: TextDecoration.none,
+                color: Color.fromRGBO(255, 255, 255, 0.85),
+                height: 1.5,
+              ),
+            ),
+          ),
+        ),
     ];
 
     // 中间列
@@ -142,12 +145,13 @@ class _CellState extends State<MzCell> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-              fontSize: 13,
-              fontFamily: "MideaType",
-              fontWeight: FontWeight.w100,
-              decoration: TextDecoration.none,
-              color: Color.fromRGBO(255, 255, 255, 0.85),
-              height: 1),
+            fontSize: 13,
+            fontFamily: "MideaType",
+            fontWeight: FontWeight.w100,
+            decoration: TextDecoration.none,
+            color: Color.fromRGBO(255, 255, 255, 0.85),
+            height: 1,
+          ),
         )
     ];
 
@@ -171,19 +175,20 @@ class _CellState extends State<MzCell> {
       // rightText
       if (StrUtils.isNotNullAndEmpty(widget.rightText))
         Expanded(
-            flex: 1,
-            child: Text(
-              widget.rightText!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 18,
-                fontFamily: "MideaType",
-                fontWeight: FontWeight.w100,
-                decoration: TextDecoration.none,
-                color: Color.fromRGBO(0, 145, 255, 1),
-              ),
-            )),
+          flex: 1,
+          child: Text(
+            widget.rightText!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 18,
+              fontFamily: "MideaType",
+              fontWeight: FontWeight.w100,
+              decoration: TextDecoration.none,
+              color: Color.fromRGBO(0, 145, 255, 1),
+            ),
+          ),
+        ),
 
       // 判断是否插入右边图标
       if (widget.rightIcon != null) Padding(padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
@@ -191,18 +196,20 @@ class _CellState extends State<MzCell> {
       // 判断是否插入右边箭头
       if (widget.hasSwitch)
         Transform.scale(
-            scale: 1,
-            child: CupertinoSwitch(
-                value: switchValue,
-                activeColor: Colors.blue,
-                trackColor: const Color.fromRGBO(62, 62, 62, 1),
-                thumbColor: Colors.white,
-                onChanged: (bool value) {
-                  setState(() => switchValue = value);
-                  if (widget.onSwitch != null) {
-                    widget.onSwitch!(value);
-                  }
-                })),
+          scale: 1,
+          child: CupertinoSwitch(
+            value: switchValue,
+            activeColor: Colors.blue,
+            trackColor: const Color.fromRGBO(62, 62, 62, 1),
+            thumbColor: Colors.white,
+            onChanged: (bool value) {
+              setState(() => switchValue = value);
+              if (widget.onSwitch != null) {
+                widget.onSwitch!(value);
+              }
+            },
+          ),
+        ),
 
       // 判断是否插入右箭头，图标库箭头太粗，换一个
       if (widget.hasArrow)

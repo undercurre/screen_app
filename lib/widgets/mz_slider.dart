@@ -278,6 +278,7 @@ class _MzSliderState extends State<MzSlider>
   }
 
   void onPanUpdate(DragUpdateDetails e) {
+    print(e);
     if (widget.disabled) return;
     isPanUpdate = true;
     latestPosition = e.globalPosition;

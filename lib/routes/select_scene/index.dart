@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../widgets/index.dart';
 
@@ -7,7 +9,7 @@ class SelectScenePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SelectSceneList list = const SelectSceneList();
+    final scene = context.watch<SceneChangeNotifier>();
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
@@ -18,23 +20,24 @@ class SelectScenePage extends StatelessWidget {
               Navigator.pop(context, 'back');
             },
           ),
-          Expanded(
+          const Expanded(
             flex: 1,
-            child: list,
+            child: SelectSceneList(),
           ),
-          RawMaterialButton(
-            constraints: const BoxConstraints(minHeight: 64, maxHeight: 64, minWidth: double.infinity),
-            onPressed: () {
-              bus.emit('selectSceneConfirm');
-            },
-            elevation: 0,
-            padding: EdgeInsets.zero,
-            fillColor: const Color(0xff267aff),
-            child: const Text(
-              '确定',
-              style: TextStyle(fontSize: 24, fontFamily: "MideaType", fontWeight: FontWeight.w400),
-            ),
-          )
+          if (scene.sceneList.isNotEmpty)
+            RawMaterialButton(
+              constraints: const BoxConstraints(minHeight: 64, maxHeight: 64, minWidth: double.infinity),
+              onPressed: () {
+                bus.emit('selectSceneConfirm');
+              },
+              elevation: 0,
+              padding: EdgeInsets.zero,
+              fillColor: const Color(0xff267aff),
+              child: const Text(
+                '确定',
+                style: TextStyle(fontSize: 24, fontFamily: "MideaType", fontWeight: FontWeight.w400),
+              ),
+            )
         ],
       ),
     );
