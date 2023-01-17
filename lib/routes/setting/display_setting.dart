@@ -1,23 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../channel/index.dart';
+import '../../common/helper.dart';
+import '../../common/setting.dart';
 import '../../states/weather_change_notifier.dart';
 import '../../widgets/mz_slider.dart';
 
 class DisplaySettingPage extends StatefulWidget {
-  const DisplaySettingPage({Key? key});
+  const DisplaySettingPage({super.key});
 
   @override
-  _DisplaySettingPageState createState() => _DisplaySettingPageState();
+  DisplaySettingPageState createState() => DisplaySettingPageState();
 }
 
-class _DisplaySettingPageState extends State<DisplaySettingPage> {
+class DisplaySettingPageState extends State<DisplaySettingPage> {
   late double po;
   bool autoLight = true;
   bool nearWakeup = true;
   num lightValue = 0;
+  String duration = '';
 
   @override
   void initState() {
@@ -25,13 +29,15 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
     //初始化状态
     print("initState");
     initial();
+
   }
 
   initial() async {
+    setState(() {
+      duration = Setting.instant().getScreedDurationDetail();
+    });
     lightValue = await settingMethodChannel.getSystemLight();
     autoLight = await settingMethodChannel.getAutoLight();
-    print("亮度大小:$lightValue");
-    setState(() {});
   }
 
   @override
@@ -253,168 +259,87 @@ class _DisplaySettingPageState extends State<DisplaySettingPage> {
                         decoration: TextDecoration.none,
                       )),
                 ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                      child: const Text("待机设置",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 24.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                            child: Consumer<WeatherChangeNotifier>(
-                                builder: (_, model, child) {
-                              return Text(model.standbyTimer.title,
-                                  style: const TextStyle(
-                                    color: Color(0XFF0091FF),
-                                    fontSize: 18.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  ));
-                            })),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                'StandbyTimeChoicePage',
-                              );
-                            },
-                            iconSize: 20.0,
-                            icon: Image.asset(
-                              "assets/imgs/icon/arrow-right.png",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                      child: const Text("待机样式",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 24.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                          child: const Text("表盘1",
-                              style: TextStyle(
-                                color: Color(0XFF0091FF),
-                                fontSize: 18.0,
-                                fontFamily: "MideaType",
-                                fontWeight: FontWeight.normal,
-                                decoration: TextDecoration.none,
-                              )),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
-                          child: IconButton(
-                            onPressed: () {},
-                            iconSize: 20.0,
-                            icon: Image.asset(
-                              "assets/imgs/icon/arrow-right.png",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                      child: const Text("息屏时间段",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 24.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                          child: const Text("20:00-08：00",
-                              style: TextStyle(
-                                color: Color(0XFF0091FF),
-                                fontSize: 18.0,
-                                fontFamily: "MideaType",
-                                fontWeight: FontWeight.normal,
-                                decoration: TextDecoration.none,
-                              )),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
-                          child: IconButton(
-                            onPressed: () {},
-                            iconSize: 20.0,
-                            icon: Image.asset(
-                              "assets/imgs/icon/arrow-right.png",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                Consumer<WeatherChangeNotifier>(
+                    builder: (_, model, child) {
+                      return settingItem(
+                          "待机设置",
+                          model.standbyTimer.title, () {
+                        Navigator.pushNamed(
+                          context,
+                          'StandbyTimeChoicePage',
+                        );
+                      });
+                    }),
+                const Divider(height: 1, indent: 0 , endIndent: 0, color: Color(0xff232323)),
+                settingItem("待机样式", "表盘1", () { }),
+                const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
+                settingItem("息屏时间段", duration, () {
+                  Navigator.of(context)
+                      .pushNamed("SelectTimeDurationPage")
+                      .then((value) {
+                        final result = value as Pair<int, int>;
+                        final startTime = result.value1;
+                        final endTime = result.value2;
+                        debugPrint("开始时间：$startTime 结束时间: $endTime");
+                        Setting.instant().setScreedDuration(result);
+                        setState(() {
+                          duration = Setting.instant().getScreedDurationDetail();
+                        });
+                      }
+                  );
+                })
               ],
             ))
           ],
         ),
       )),
+    );
+  }
+
+
+  Widget settingItem(String name, String value, GestureTapCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+            child: Text(name,
+                style: const TextStyle(
+                  color: Color(0XFFFFFFFF),
+                  fontSize: 24.0,
+                  fontFamily: "MideaType",
+                  fontWeight: FontWeight.normal,
+                  decoration: TextDecoration.none,
+                )),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                child: Text(value,
+                    style: const TextStyle(
+                      color: Color(0XFF0091FF),
+                      fontSize: 18.0,
+                      fontFamily: "MideaType",
+                      fontWeight: FontWeight.normal,
+                      decoration: TextDecoration.none,
+                    )),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
+                child: Image.asset(
+                  "assets/imgs/icon/arrow-right.png",
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
