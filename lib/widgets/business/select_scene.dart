@@ -71,15 +71,11 @@ class _SelectSceneListState extends State<SelectSceneList> {
       confirm();
     });
     final sceneChangeNotifier = context.read<SceneChangeNotifier>();
-    Future.delayed(Duration.zero, () {
-      selectList = List.from(sceneChangeNotifier.selectList);
-      print(sceneChangeNotifier.selectList);
-      print(selectList);
-      if (sceneChangeNotifier.sceneList.isEmpty) {
-        // 可能场景加载失败，再请求一次
-        sceneChangeNotifier.updateSceneList();
-      }
-    });
+    selectList = List.from(sceneChangeNotifier.selectList);
+    if (sceneChangeNotifier.sceneList.isEmpty) {
+      // 可能场景加载失败，再请求一次
+      sceneChangeNotifier.updateSceneList();
+    }
   }
 
   void confirm() {
