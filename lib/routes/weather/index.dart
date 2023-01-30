@@ -34,7 +34,7 @@ class WeatherPageState extends State<WeatherPage> {
   Future<void> initQuery() async {
     // 预加载背景图
     weatherCode =
-        Provider.of<WeatherChangeNotifier>(context, listen: false).weatherCode;
+        Provider.of<StandbyChangeNotifier>(context, listen: false).weatherCode;
 
     String imageName = codeToImage[weatherCode]!;
 
@@ -72,7 +72,7 @@ class WeatherPageState extends State<WeatherPage> {
           weatherBg = 'poor-air';
         }
         // 天气码变化 && 天气码有定义对应背景 才切换背景图
-        else if (Provider.of<WeatherChangeNotifier>(context, listen: false)
+        else if (Provider.of<StandbyChangeNotifier>(context, listen: false)
                     .weatherCode !=
                 d.weather.weatherCode &&
             codeToImage.containsKey(d.weather.weatherCode)) {
@@ -80,7 +80,7 @@ class WeatherPageState extends State<WeatherPage> {
           weatherBg = codeToImage[d.weather.weatherCode]!;
 
           // 保存到系统设置中
-          Provider.of<WeatherChangeNotifier>(context, listen: false)
+          Provider.of<StandbyChangeNotifier>(context, listen: false)
               .weatherCode = d.weather.weatherCode;
         }
       });
@@ -186,7 +186,7 @@ class WeatherPageState extends State<WeatherPage> {
           ],
         ),
         onTap: () {
-          Provider.of<WeatherChangeNotifier>(context, listen: false).weatherPageActive = false;
+          Provider.of<StandbyChangeNotifier>(context, listen: false).standbyPageActive = false;
           Navigator.of(context).pop();
         });
   }

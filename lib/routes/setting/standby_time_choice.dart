@@ -17,7 +17,7 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
   void initState() {
     super.initState();
 
-    groupValue = Provider.of<WeatherChangeNotifier>(context, listen: false).standbyTimer.key;
+    groupValue = Provider.of<StandbyChangeNotifier>(context, listen: false).standbyTimeOpt.key;
     debugPrint('key: $groupValue');
 
     //初始化状态
@@ -277,7 +277,7 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Provider.of<WeatherChangeNotifier>(context, listen: false).setTimerByNum = groupValue;
+                    Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = groupValue;
                     Navigator.pop(context);
                   },
                   child: Container(
