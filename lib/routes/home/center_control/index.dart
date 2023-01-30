@@ -225,8 +225,8 @@ class _CenterControlPageState extends State<CenterControlPage> {
                               Expanded(flex: 1, child: LightControl(disabled: !CenterControlService.isLightSupport(context)))
                             ],
                           ),
-                          const AirConditionControl(),
-                          QuickScene()
+                          AirConditionControl(disabled: !CenterControlService.isAirConditionSupport(context)),
+                          const QuickScene()
                         ],
                       ),
                     ),

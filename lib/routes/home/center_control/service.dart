@@ -43,7 +43,7 @@ class CenterControlService {
         totalSupport = true;
       }
     }
-    debugPrint('窗帘中控结果$totalSupport');
+    debugPrint('窗帘support：$totalSupport');
     return totalSupport;
   }
 
@@ -57,7 +57,21 @@ class CenterControlService {
         totalSupport = true;
       }
     }
-    debugPrint('窗帘中控结果$totalSupport');
+    debugPrint('灯光support：$totalSupport');
+    return totalSupport;
+  }
+
+  static bool isAirConditionSupport(BuildContext context) {
+    var totalSupport = false;
+    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    for (var i = 1; i <= airConditionList.length; i++) {
+      var deviceInfo = airConditionList[i - 1];
+      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      if (DeviceService.isOnline(deviceInfo)) {
+        totalSupport = true;
+      }
+    }
+    debugPrint('空调support：$totalSupport');
     return totalSupport;
   }
 

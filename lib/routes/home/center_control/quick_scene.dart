@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 
+import '../../../common/global.dart';
 import '../../../widgets/mz_metal_card.dart';
 import '../scene/scene.dart';
 
 class QuickScene extends StatefulWidget {
+  const QuickScene({super.key});
+
   @override
   QuickSceneState createState() => QuickSceneState();
 }

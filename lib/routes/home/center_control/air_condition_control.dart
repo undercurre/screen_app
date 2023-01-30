@@ -58,7 +58,7 @@ class AirConditionControlState extends State<AirConditionControl> {
   Map<String, String> getCurACMode() {
     return btnList
         .where((element) =>
-            element["key"] == CenterControlService.airConditionMode(context))
+    element["key"] == CenterControlService.airConditionMode(context))
         .toList()[0];
   }
 
@@ -76,6 +76,28 @@ class AirConditionControlState extends State<AirConditionControl> {
 
   void airConditionModeHandle(String mode) {
     CenterControlService.ACModeControl(context, mode);
+  }
+
+  sliderPart() {
+    return airConditionPanel ? SliderButtonContent(
+      unit: '℃',
+      min: 17,
+      max: 30,
+      value: CenterControlService.airConditionTemperature(context),
+      sliderWidth: 400,
+      onChanged: (value) {
+        airConditionValueHandle(value);
+      },
+    ) : SliderButtonContent(
+      unit: '档',
+      min: 1,
+      max: 6,
+      value: CenterControlService.airConditionGear(context),
+      sliderWidth: 400,
+      onChanged: (value) {
+        airConditionValueHandle(value);
+      },
+    );
   }
 
   @override
@@ -98,13 +120,9 @@ class AirConditionControlState extends State<AirConditionControl> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                        child: Text(
-                          '空调',
-                          style: TextStyle(
-                              color: Color(0xFFFFFFFF),
-                              fontSize: 18,
-                              fontFamily: 'MideaType-Regular'),
-                        ),
+                        child: SizedBox(
+                          width: 36,
+                        )
                       ),
                       GestureDetector(
                         onTap: () => switchACPanel(true),
@@ -172,7 +190,7 @@ class AirConditionControlState extends State<AirConditionControl> {
                             menuWidth: 84,
                             arrowSize: 20,
                             menu: btnList.map(
-                              (item) {
+                                  (item) {
                                 return PopupMenuItem<String>(
                                   padding: EdgeInsets.zero,
                                   value: item['key'],
@@ -182,26 +200,26 @@ class AirConditionControlState extends State<AirConditionControl> {
                                       height: 50,
                                       decoration: BoxDecoration(
                                         color: getCurACMode()["key"] ==
-                                                item['key'] // TODO: 完善
+                                            item['key'] // TODO: 完善
                                             ? const Color(0xff575757)
                                             : Colors.transparent,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Opacity(
                                         opacity: getCurACMode()["key"] ==
-                                                item['key'] // TODO: 完善
+                                            item['key'] // TODO: 完善
                                             ? 1
                                             : 0.7,
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                           children: [
                                             Image.asset(item['icon']!,
                                                 width: 30, height: 30),
                                             Padding(
                                               padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      7, 0, 7, 0),
+                                              const EdgeInsets.fromLTRB(
+                                                  7, 0, 7, 0),
                                               child: Text(
                                                 item['text']!,
                                                 style: const TextStyle(
@@ -250,8 +268,10 @@ class AirConditionControlState extends State<AirConditionControl> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => airConditionPowerHandle(
-                            !CenterControlService.isAirConditionPower(context)),
+                        onTap: () =>
+                            airConditionPowerHandle(
+                                !CenterControlService.isAirConditionPower(
+                                    context)),
                         child: Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: Image.asset(
@@ -267,19 +287,27 @@ class AirConditionControlState extends State<AirConditionControl> {
                     ],
                   ),
                 ),
-                SliderButtonContent(
-                  unit: airConditionPanel ? '℃' : '档',
-                  min: airConditionPanel ? 17 : 1,
-                  max: airConditionPanel ? 30 : 6,
-                  value: airConditionPanel
-                      ? CenterControlService.airConditionTemperature(context)
-                      : CenterControlService.airConditionGear(context),
-                  sliderWidth: 400,
-                  onChanged: (value) {
-                    airConditionValueHandle(value);
-                  },
-                )
+                sliderPart()
               ],
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color.fromRGBO(55, 55, 55, 0.50)),
+            ),
+          ),
+          const Positioned(
+            left: 14,
+            top: 23,
+            child: Text(
+              '空调',
+              style: TextStyle(
+                  color: Color(0xFFFFFFFF),
+                  fontSize: 18,
+                  fontFamily: 'MideaType-Regular',
+                  letterSpacing: 1.0),
             ),
           )
         ] : [
@@ -448,8 +476,10 @@ class AirConditionControlState extends State<AirConditionControl> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => airConditionPowerHandle(
-                            !CenterControlService.isAirConditionPower(context)),
+                        onTap: () =>
+                            airConditionPowerHandle(
+                                !CenterControlService.isAirConditionPower(
+                                    context)),
                         child: Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: Image.asset(
