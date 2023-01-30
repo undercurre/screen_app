@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../channel/index.dart';
 import '../../common/helper.dart';
 import '../../common/setting.dart';
-import '../../states/weather_change_notifier.dart';
+import '../../states/standby_notifier.dart';
 import '../../widgets/mz_slider.dart';
 
 class DisplaySettingPage extends StatefulWidget {
@@ -259,11 +259,11 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         decoration: TextDecoration.none,
                       )),
                 ),
-                Consumer<WeatherChangeNotifier>(
+                Consumer<StandbyChangeNotifier>(
                     builder: (_, model, child) {
                       return settingItem(
                           "待机设置",
-                          model.standbyTimer.title, () {
+                          model.standbyTimeOpt.title, () {
                         Navigator.pushNamed(
                           context,
                           'StandbyTimeChoicePage',

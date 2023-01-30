@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/index.dart';
@@ -12,37 +11,37 @@ mixin Standby<T extends StatefulWidget> on State<T> {
 
     // onPointerDown 早于 onTap，故等待下一Frame再执行，以免 standbyTime 未更新
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var weatherNotifier =
-          Provider.of<WeatherChangeNotifier>(context, listen: false);
+      var standbyNotifier =
+          Provider.of<StandbyChangeNotifier>(context, listen: false);
 
       debugPrint(
-          'weatherNotifier.standbyTime: ${weatherNotifier.standbyTimer.value}');
+          'standbyTimeOpt: ${standbyNotifier.standbyTimeOpt.value}');
 
-      if (weatherNotifier.weatherTimer != null) {
-        weatherNotifier.weatherTimer!.cancel();
+      if (standbyNotifier.standbyTimer != null) {
+        standbyNotifier.standbyTimer!.cancel();
       }
 
       // 永不待机
-      if (weatherNotifier.standbyTimer.value == -1) {
+      if (standbyNotifier.standbyTimeOpt.value == -1) {
         return;
       }
 
-      weatherNotifier.weatherTimer = Timer.periodic(
-          Duration(seconds: weatherNotifier.standbyTimer.value), (_) {
+      standbyNotifier.standbyTimer = Timer.periodic(
+          Duration(seconds: standbyNotifier.standbyTimeOpt.value), (_) {
         var routePath = ModalRoute.of(context)?.settings.name;
         debugPrint(
-            "current route: $routePath, 'getNetState(): ${NetUtils.getNetState()}, weatherPageActive: ${weatherNotifier.weatherPageActive}, standbyTimer: ${weatherNotifier.standbyTimer.value}");
+            "current route: $routePath, 'getNetState(): ${NetUtils.getNetState()}, standbyPageActive: ${standbyNotifier.standbyPageActive}, standbyTimeOpt: ${standbyNotifier.standbyTimeOpt.value}");
 
         //临时注释
         //if (NetUtils.getNetState() == null) {
         // return;
         //}
 
-        if (weatherNotifier.weatherPageActive) {
+        if (standbyNotifier.standbyPageActive) {
           return;
         }
 
-        weatherNotifier.weatherPageActive = true;
+        standbyNotifier.standbyPageActive = true;
         Navigator.of(context).pushNamed('Weather');
         debugPrint('WeatherPage pushed');
       });
@@ -66,11 +65,11 @@ mixin Standby<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
-    var weatherNotifier =
-    Provider.of<WeatherChangeNotifier>(context, listen: false);
+    var standbyNotifier =
+    Provider.of<StandbyChangeNotifier>(context, listen: false);
 
-    if (weatherNotifier.weatherTimer != null) {
-      weatherNotifier.weatherTimer!.cancel();
+    if (standbyNotifier.standbyTimer != null) {
+      standbyNotifier.standbyTimer!.cancel();
     }
     bus.off("onPointerDown");
     super.dispose();

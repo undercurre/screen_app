@@ -45,7 +45,7 @@ class _App extends State<App> {
       providers: [
         ChangeNotifierProvider(create: (_) => DeviceListModel()),
         ChangeNotifierProvider(create: (_) => RoomModel()),
-        ChangeNotifierProvider(create: (_) => WeatherChangeNotifier()),
+        ChangeNotifierProvider(create: (_) => StandbyChangeNotifier()),
         ChangeNotifierProvider(create: (_) => SceneChangeNotifier()),
       ],
       child: PointerDownListener(

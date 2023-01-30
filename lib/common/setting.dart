@@ -17,13 +17,21 @@ class Setting {
   late Pair<int , int> _screedDuration;
   late SharedPreferences _prefs;
 
+  /// 待机时间选择序号
+  late int standbyTimeOptNum;
+
+  /// 待机时间持久化存储key
+  final String _standbyTimeKey = 'standby_time_key';
+
   void init() async {
     _prefs = await SharedPreferences.getInstance();
     int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
     int screedEndTime = _prefs.getInt("setting_screed_end_time") ?? -1;
     _screedDuration = Pair.of(screedStartTime, screedEndTime);
 
+    standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
   }
+
   /// 设置息屏时间段
   void setScreedDuration(Pair<int, int> duration) async {
     if(duration.value2 < 0 || duration.value1 <0 || duration.value1 >= duration.value2) {
@@ -68,4 +76,8 @@ class Setting {
     }
   }
 
+  /// 设置待机时间选择序号
+  void setStandbyTimeOptNum(int opt) {
+    _prefs.setInt(_standbyTimeKey, opt);
+  }
 }
