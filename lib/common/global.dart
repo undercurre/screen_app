@@ -111,6 +111,7 @@ class Global {
   static num soundValue = 10;
 }
 
+/// 全局路由监听
 class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   @override
   void didPush(Route route, Route? previousRoute) {

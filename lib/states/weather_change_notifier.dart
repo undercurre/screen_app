@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class StandbyTimer {
@@ -35,6 +37,7 @@ class WeatherChangeNotifier extends ChangeNotifier {
   StandbyTimer get standbyTimer => _standbyTimer;
   String get weatherCode => _weatherCode;
   bool weatherPageActive = false; // 天气页激活标志，以免重复打开
+  Timer? weatherTimer; // Timer改成全局
 
   /// setters
   set weatherCode(String code) {
