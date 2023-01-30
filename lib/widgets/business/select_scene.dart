@@ -81,8 +81,8 @@ class _SelectSceneListState extends State<SelectSceneList> {
   void confirm() {
     final sceneChangeNotifier = context.read<SceneChangeNotifier>();
     sceneChangeNotifier.selectList = selectList;
-    print(sceneChangeNotifier.selectList);
-    Navigator.pop(context, 'confirm');
+    sceneChangeNotifier.updateSceneList();
+    Navigator.pop(context);
   }
 }
 
