@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:screen_app/common/setting.dart';
 import 'package:flutter/material.dart';
 
 class StandbyTimer {
@@ -30,14 +30,14 @@ List<StandbyTimer> timerList = [
 
 class WeatherChangeNotifier extends ChangeNotifier {
   /// private state holder
-  StandbyTimer _standbyTimer = timerList[2]; // 默认3分钟
+  StandbyTimer _standbyTimer = timerList[Setting.instant().standbyTimerNum]; // 默认3分钟
   String _weatherCode = '00';
 
   /// public current state
   StandbyTimer get standbyTimer => _standbyTimer;
   String get weatherCode => _weatherCode;
-  bool weatherPageActive = false; // 天气页激活标志，以免重复打开
-  Timer? weatherTimer; // Timer改成全局
+  bool weatherPageActive = false; // 天气页激活标志，以免重复打开天气页
+  Timer? weatherTimer; // Timer实例，有且仅有一个实例，以免重复触发定时器
 
   /// setters
   set weatherCode(String code) {
@@ -48,6 +48,7 @@ class WeatherChangeNotifier extends ChangeNotifier {
 
   set setTimerByNum(int opt) {
     _standbyTimer = timerList[opt];
+    Setting.instant().setStandbyTimerNum(opt);
 
     notifyListeners();
   }
