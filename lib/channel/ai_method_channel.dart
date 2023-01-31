@@ -12,6 +12,8 @@ class AiMethodChannel {
   AiMethodChannel.fromName(this._channelName);
 
   late final _aiChangeCallbacks = <void Function(AiMusicState)>[];
+  late final _aiStateCallbacks = <void Function(int)>[];
+
 
 
   late final MethodChannel _AiMethodChannel = _initialMethodChannel();
@@ -25,6 +27,9 @@ class AiMethodChannel {
             case "musicResult":
               AiMusicState musicState = AiMusicState.fromJson(args);
               transmitDataToAiChangeCallBack(musicState);
+              break;
+            case "aiWakeUpState":
+              transmitDataToAiStatCallBack(args);
               break;
             default:
               throw Exception("没有支持的方法");
@@ -95,8 +100,31 @@ class AiMethodChannel {
     }
   }
 
+  // 注册回调
+  void registerAiStateCallBack(
+      void Function(int) action) {
+    if (!_aiStateCallbacks.contains(action)) {
+      _aiStateCallbacks.add(action);
+    }
+  }
+
+  // 注销回调
+  void unregisterAiStateCallBack(
+      void Function(int) action) {
+    final position = _aiStateCallbacks.indexOf(action);
+    if (position != -1) {
+      _aiStateCallbacks.remove(action);
+    }
+  }
+
   void transmitDataToAiChangeCallBack(AiMusicState state) {
     for (var callback in _aiChangeCallbacks) {
+      callback.call(state);
+    }
+  }
+
+  void transmitDataToAiStatCallBack(int state) {
+    for (var callback in _aiStateCallbacks) {
       callback.call(state);
     }
   }
