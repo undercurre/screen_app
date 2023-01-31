@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../common/index.dart';
-import '../../mixins/index.dart';
 import '../../mixins/ota.dart';
+import '../../widgets/standby.dart';
 
-class _Boot extends State<Boot> with Standby, Ota {
+class _Boot extends State<Boot> with Ota {
   final videoPlayerController =
       VideoPlayerController.asset('assets/video/boot.mp4');
 
@@ -29,6 +29,8 @@ class _Boot extends State<Boot> with Standby, Ota {
     }
 
     checkLogin();
+
+    ShowStandby.startTimer();
   }
 
   @override
@@ -54,6 +56,8 @@ class _Boot extends State<Boot> with Standby, Ota {
     super.dispose();
     videoPlayerController.dispose();
     chewieController?.dispose();
+
+    ShowStandby.disposeTimer();
   }
 
   /// 检查是否已经登录

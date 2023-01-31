@@ -3,13 +3,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/event_bus.dart';
-
 import './channel/index.dart';
 import 'common/index.dart';
 import 'common/setting.dart';
 import 'routes/index.dart';
 import 'states/index.dart';
 import 'widgets/pointer_listener.dart';
+import 'widgets/standby.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   /// 加载环境配置
@@ -36,6 +38,15 @@ class _App extends State<App> {
   @override
   void initState() {
     super.initState();
+
+    ShowStandby.aiRestartTimer();
+  }
+
+  @override
+  void dispose() {
+    ShowStandby.disposeTimer();
+
+    super.dispose();
   }
 
   // This widget is the root of your application.
@@ -57,11 +68,14 @@ class _App extends State<App> {
             //注册路由表
             routes: routes,
             navigatorObservers: [globalRouteObserver],
+            navigatorKey: navigatorKey,
             builder: EasyLoading.init(),
           ),
           // 全局点击操作监听
           onPointerDown: (e) {
             bus.emit("onPointerDown");
+
+            ShowStandby.startTimer();
           }),
     );
   }

@@ -1,11 +1,11 @@
 ﻿import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/main.dart';
 import 'package:screen_app/states/index.dart';
-
+import '../../channel/index.dart';
 import 'code_to_image.dart';
 import 'show_datetime.dart';
 
@@ -22,12 +22,34 @@ class WeatherPageState extends State<WeatherPage> {
   void initState() {
     super.initState();
     initQuery();
+
+    aiMethodChannel.registerAiStateCallBack(dropStandby);
   }
 
   @override
   void dispose() {
     _timer.cancel();
     super.dispose();
+    aiMethodChannel.unregisterAiStateCallBack(dropStandby);
+  }
+
+  // 退出待机页
+  void dropStandby(int? state) {
+    debugPrint("begin of dropStandby");
+
+    // 若不带state，则直接退出
+    if (state != null && state != 1) {
+      return;
+    }
+
+    debugPrint("语音状态: state==1, 退出待机页");
+
+    navigatorKey.currentState?.pop();
+    Provider.of<StandbyChangeNotifier>(navigatorKey.currentContext ?? context,
+            listen: false)
+        .standbyPageActive = false;
+
+    debugPrint("end of dropStandby");
   }
 
   // 获取家庭组
@@ -95,7 +117,7 @@ class WeatherPageState extends State<WeatherPage> {
     if (forecastRes.isSuccess) {
       var forecastData = forecastRes.data.first;
       final now = DateTime.now();
-      final dateStr = DateFormat('y-M-dd').format(now);
+      final dateStr = DateFormat('y-MM-dd').format(now);
       final timeSunrise = DateTime.parse('$dateStr ${forecastData.sunrise}');
       final timeSunset = DateTime.parse('$dateStr ${forecastData.sunset}');
 
@@ -186,8 +208,9 @@ class WeatherPageState extends State<WeatherPage> {
           ],
         ),
         onTap: () {
-          Provider.of<StandbyChangeNotifier>(context, listen: false).standbyPageActive = false;
-          Navigator.of(context).pop();
+          navigatorKey.currentState?.pop();
+          Provider.of<StandbyChangeNotifier>(context, listen: false)
+              .standbyPageActive = false;
         });
   }
 }
