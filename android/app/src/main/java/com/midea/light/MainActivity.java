@@ -83,7 +83,6 @@ public class MainActivity extends FlutterActivity {
         });
         AiManager.getInstance().addWakUpStateCallBack(b -> {
             if (b) {
-                mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",1);
                 isFlashMusic=false;
                 if (!isScreenOn()) {
                     sendKeyEvent(KeyEvent.KEYCODE_BACK);
@@ -91,13 +90,17 @@ public class MainActivity extends FlutterActivity {
                 if (isAiSleep) {
                     isAiSleep = false;
                     isMusicPlay = MusicManager.getInstance().isPaying();
+                    mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",1);
+
                 }
                 if (MusicManager.getInstance().isPaying()) {
                     MusicManager.getInstance().pauseMusic();
                 }
             } else {
-                mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",0);
-                isAiSleep = true;
+                if(isAiSleep==false){
+                    isAiSleep = true;
+                    mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",0);
+                }
                 if (isMusicPlay||isFlashMusic) {
                     MusicManager.getInstance().startMusic();
                 }
