@@ -6,8 +6,6 @@ import 'package:screen_app/widgets/event_bus.dart';
 import 'package:screen_app/widgets/mz_notice.dart';
 
 mixin AutoSniffer<T extends StatefulWidget> on State<T> {
-  late Timer _timer;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -23,8 +21,7 @@ mixin AutoSniffer<T extends StatefulWidget> on State<T> {
           });
 
       // HACK 延时弹出，否则会因页面context不完整报错
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-        _timer.cancel();
+      Future.delayed(const Duration(seconds: 1), () async {
         await mzNotice.show(context);
       });
     });
@@ -33,7 +30,6 @@ mixin AutoSniffer<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     bus.off("backHome");
-    _timer.cancel();
     super.dispose();
   }
 }
