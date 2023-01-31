@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../common/index.dart';
 import '../../mixins/ota.dart';
-import '../../widgets/standby.dart';
 
 class _Boot extends State<Boot> with Ota {
   final videoPlayerController =
@@ -29,8 +26,6 @@ class _Boot extends State<Boot> with Ota {
     }
 
     checkLogin();
-
-    ShowStandby.startTimer();
   }
 
   @override
@@ -56,8 +51,6 @@ class _Boot extends State<Boot> with Ota {
     super.dispose();
     videoPlayerController.dispose();
     chewieController?.dispose();
-
-    ShowStandby.disposeTimer();
   }
 
   /// 检查是否已经登录

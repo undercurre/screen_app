@@ -39,6 +39,7 @@ class _App extends State<App> {
   void initState() {
     super.initState();
 
+    ShowStandby.startTimer();
     ShowStandby.aiRestartTimer();
   }
 
