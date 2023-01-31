@@ -21,7 +21,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0.0'
 }
 
-project.setProperty('target-platform', 'android-arm')
+try {
+    project.setProperty('target-platform', 'android-arm')
+}catch(Exception exception){
+
+}
+
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'

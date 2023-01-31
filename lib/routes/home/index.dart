@@ -57,6 +57,7 @@ class HomeState extends State<Home> with AutoSniffer {
     } catch (e) {
       debugPrint(e.toString());
     }
+
   }
 
   @override
