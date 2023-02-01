@@ -77,7 +77,7 @@ class ScenePageState extends State<ScenePage> {
 
   void toConfigPage(String route) async {
     final res = await Navigator.pushNamed(context, route);
-     // TODO: 点击确认场景返回 'confirm' 点击返回按钮返回 'back'
+    // TODO: 点击确认场景返回 'confirm' 点击返回按钮返回 'back'
   }
 
   @override
@@ -89,14 +89,17 @@ class ScenePageState extends State<ScenePage> {
   @override
   Widget build(BuildContext context) {
     final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
-    var sceneWidgetList = sceneChangeNotifier.sceneList.map((scene) => SceneCard(scene: scene)).toList();
-    
+    var sceneWidgetList = sceneChangeNotifier.sceneList
+        .map((scene) => SceneCard(scene: scene))
+        .toList();
+
     return DecoratedBox(
       decoration: const BoxDecoration(color: Colors.black),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(top: 26, left: 26.5, bottom: 10, right: 18),
+            padding: const EdgeInsets.only(
+                top: 26, left: 26.5, bottom: 10, right: 18),
             child: Flex(
               direction: Axis.horizontal,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,8 +117,8 @@ class ScenePageState extends State<ScenePage> {
                 PopupMenuButton(
                   shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
-                      )),
+                    Radius.circular(10.0),
+                  )),
                   offset: const Offset(0, 36.0),
                   itemBuilder: (context) {
                     return btnList.map((item) {
@@ -125,7 +128,9 @@ class ScenePageState extends State<ScenePage> {
                             alignment: Alignment.center,
                             child: Text(item['title']!,
                                 style: const TextStyle(
-                                    fontSize: 18, fontFamily: "MideaType", fontWeight: FontWeight.w400)),
+                                    fontSize: 18,
+                                    fontFamily: "MideaType",
+                                    fontWeight: FontWeight.w400)),
                           ));
                     }).toList();
                   },
@@ -177,9 +182,6 @@ class ScenePageState extends State<ScenePage> {
               ),
               onRefresh: () async {
                 await sceneChangeNotifier.updateSceneList();
-                setState(() {
-
-                });
               },
               child: ReorderableWrap(
                 spacing: 8.0,
@@ -216,7 +218,36 @@ class ScenePageState extends State<ScenePage> {
                   //this callback is optional
                   logger.i('开始移动');
                 },
-                children: sceneWidgetList,
+                children:
+                sceneChangeNotifier.sceneList.isEmpty
+                    ?
+                      <Widget> [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Image(
+                                image:
+                                    AssetImage('assets/imgs/scene/empty.png'),
+                                width: 200,
+                                height: 200),
+                            Opacity(
+                              opacity: 0.5,
+                              child: Text(
+                                '请到美居APP内添加场景',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18.0,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ]
+                    : sceneWidgetList,
               ),
             ),
           )
