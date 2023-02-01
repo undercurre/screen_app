@@ -49,7 +49,7 @@ class CenterControlService {
 
   static bool isLightSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.read<DeviceListModel>().curtainList;
+    var curtainList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');

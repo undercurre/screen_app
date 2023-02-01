@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 import 'dart:math';
 
@@ -7,6 +8,7 @@ import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/global.dart';
 
 import '../../models/index.dart';
+import '../../routes/home/scene/config.dart';
 import '../../routes/home/scene/scene.dart';
 import 'api.dart';
 
@@ -35,13 +37,24 @@ class SceneApi {
             ));
     debugPrint('拿到场景响应$res');
     var modelRes = res.result;
-    var filterList = modelRes.list.where((element) => element.sceneType == 2 && element.sceneStatus != 3).toList();
+    var filterList = modelRes.list
+        .where((element) => element.sceneType == 2 && element.sceneStatus != 3)
+        .toList();
     debugPrint('过滤后的场景$filterList');
-    var sceneList = filterList.map((e) => Scene(
-          'assets/imgs/scene/${Random().nextInt(5) + 1}.png',
+    var previousBgIndex = 1;
+    var sceneList = filterList.map((e) {
+      var currentBgIndex = Random().nextInt(6) + 1;
+      if (previousBgIndex == currentBgIndex) {
+        currentBgIndex = (currentBgIndex % 6) + 1;
+      }
+      previousBgIndex = currentBgIndex;
+      return Scene(
+          'assets/imgs/scene/$currentBgIndex.png',
           e.name,
-          'assets/imgs/scene/huijia.png',
-          e.sceneId.toString())).toList();
+          iconMap[e.image] ?? 'assets/imgs/scene/huijia.png',
+          e.sceneId.toString(),
+          e.image);
+    }).toList();
     return sceneList;
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StrUtils {
   StrUtils._();
@@ -25,5 +26,21 @@ class TipsUtils {
   /// 轻提示弹窗
   static void toast({String content = '', int duration = 2000}) {
     EasyLoading.showToast(content, duration: Duration(milliseconds: duration));
+  }
+}
+
+class LocalStorage {
+  LocalStorage._();
+  /// Flutter版localStorage
+  // 存储数据
+  static Future<void> setItem(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+  }
+
+  // 读取数据
+  static Future<String?> getItem(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
   }
 }

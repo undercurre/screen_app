@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
 import 'package:screen_app/routes/home/scene/scene_card.dart';
 
@@ -32,34 +33,33 @@ class ScenePageState extends State<ScenePage> {
     timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       //TODO
       setState(() {
-        time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
+        time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
       });
     });
   }
 
-  List<Scene> sceneList = [huijia, lijia, huike, jiucan, shuimian, chenqi, qiye, yuedu];
+  // List<Scene> sceneList = [huijia, lijia, huike, jiucan, shuimian, chenqi, qiye, yuedu];
 
-  String selectedSceneKey = 'huijia';
-
-  List<Widget> sceneWidgetList = [];
+  // String selectedSceneKey = 'huijia';
 
   List<Map<String, String>> btnList = [
     {'title': '添加设备', 'route': 'SnifferPage'},
-    {'title': '选择场景', 'route': 'SelectRoomPage'}
+    {'title': '切换房间', 'route': 'SelectRoomPage'}
   ];
 
-  void selectScene(Scene scene) {
-    setState(() {
-      selectedSceneKey = scene.key;
-      sceneWidgetList = [
-        ...sceneList.map((scene) => SceneCard(power: selectedSceneKey == scene.key, scene: scene, onClick: selectScene))
-      ].toList();
-    });
-    SceneApi.execScene(scene.key);
-  }
+  // void selectScene(Scene scene) {
+  //   setState(() {
+  //     selectedSceneKey = scene.key;
+  //     Timer(const Duration(seconds: 3), () {
+  //       selectedSceneKey = '';
+  //     });
+  //   });
+  //   SceneApi.execScene(scene.key);
+  // }
 
   void initScene() async {
-    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
+    var sceneChangeNotifier = context.read<SceneChangeNotifier>();
+    sceneChangeNotifier.initSceneList();
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
         final offset = min(_scrollController.offset, 150);
@@ -69,23 +69,15 @@ class ScenePageState extends State<ScenePage> {
       }
     });
     await initializeDateFormatting('zh_CN', null);
-    if (sceneChangeNotifier.sceneList.isEmpty) {
-      print('updateSceneList:${sceneChangeNotifier.sceneList.length}');
-      // 可能场景加载失败，再请求一次
-      sceneChangeNotifier.updateSceneList();
-    }
     setState(() {
-      time = DateFormat('MM月d日 E kk:mm', 'zh_CN').format(DateTime.now());
+      time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
       startTimer();
-      sceneWidgetList = [
-        ...sceneList.map((scene) => SceneCard(power: selectedSceneKey == scene.key, scene: scene, onClick: selectScene))
-      ].toList();
     });
   }
 
   void toConfigPage(String route) async {
     final res = await Navigator.pushNamed(context, route);
-    print(res); // TODO: 点击确认场景返回 'confirm' 点击返回按钮返回 'back'
+     // TODO: 点击确认场景返回 'confirm' 点击返回按钮返回 'back'
   }
 
   @override
@@ -97,8 +89,8 @@ class ScenePageState extends State<ScenePage> {
   @override
   Widget build(BuildContext context) {
     final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
-    sceneList = sceneChangeNotifier.sceneList;
-    print('sceneList:${sceneList.length}');
+    var sceneWidgetList = sceneChangeNotifier.sceneList.map((scene) => SceneCard(scene: scene)).toList();
+    
     return DecoratedBox(
       decoration: const BoxDecoration(color: Colors.black),
       child: Column(
@@ -184,7 +176,10 @@ class ScenePageState extends State<ScenePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
               ),
               onRefresh: () async {
-                debugPrint('刷新');
+                await sceneChangeNotifier.updateSceneList();
+                setState(() {
+
+                });
               },
               child: ReorderableWrap(
                 spacing: 8.0,
@@ -211,20 +206,15 @@ class ScenePageState extends State<ScenePage> {
                   );
                 },
                 onReorder: (int oldIndex, int newIndex) {
-                  setState(() {
-                    Widget row = sceneWidgetList.removeAt(oldIndex);
-                    Scene sceneRow = sceneList.removeAt(oldIndex);
-                    sceneWidgetList.insert(newIndex, row);
-                    sceneList.insert(newIndex, sceneRow);
-                  });
+                  sceneChangeNotifier.shiftElement(oldIndex, newIndex);
                 },
                 onNoReorder: (int index) {
                   //this callback is optional
-                  debugPrint('${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                  logger.i('结束移动');
                 },
                 onReorderStarted: (int index) {
                   //this callback is optional
-                  debugPrint('${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                  logger.i('开始移动');
                 },
                 children: sceneWidgetList,
               ),

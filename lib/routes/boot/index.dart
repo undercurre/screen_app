@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../common/index.dart';
-import '../../mixins/index.dart';
 import '../../mixins/ota.dart';
 
-class _Boot extends State<Boot> with Standby, Ota {
+class _Boot extends State<Boot> with Ota {
   final videoPlayerController =
       VideoPlayerController.asset('assets/video/boot.mp4');
 

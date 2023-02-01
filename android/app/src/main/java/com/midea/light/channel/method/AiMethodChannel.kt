@@ -29,6 +29,8 @@ private const val TAG = "Ai"
 class AiMethodChannel constructor(override val context: Context) : AbsMZMethodChannel(context) {
 
 
+    lateinit var cMethodChannel: MethodChannel
+
     companion object {
         fun create(
             channel: String,
@@ -44,6 +46,7 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
     override fun setup(binaryMessenger: BinaryMessenger, channel: String) {
         super.setup(binaryMessenger, channel)
         LogUtil.tag(TAG).msg("语音设置通道启动")
+        cMethodChannel=mMethodChannel
         RxBus.getInstance().toObservableInSingle( MusicPlayEvent::class.java)
             .subscribe { MusicPlayEvent: MusicPlayEvent? -> flashMusicInfor() }
     }
