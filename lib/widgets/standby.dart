@@ -37,9 +37,7 @@ class ShowStandby {
       standbyNotifier.standbyPageActive = true;
 
       // 进入待机页
-      // TODO 根据系统设置，跳转到对应的待机页
-      const currentStandbyPage = 'Weather';
-      navigatorKey.currentState?.pushNamed(currentStandbyPage);
+      navigatorKey.currentState?.pushNamed("ScreenSaver");
 
       debugPrint('StandbyPage pushed');
     });

@@ -20,6 +20,10 @@ class Setting {
   /// 待机时间选择序号
   late int standbyTimeOptNum;
 
+  /// 屏保样式ID
+  /// 0 ~ 8
+  late int _screenSaverId;
+
   /// 待机时间持久化存储key
   final String _standbyTimeKey = 'standby_time_key';
 
@@ -30,16 +34,35 @@ class Setting {
     _screedDuration = Pair.of(screedStartTime, screedEndTime);
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
+    _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 0; ///默认的屏保样式为0
+  }
+
+  /// 保存屏保的序号id
+  void saveScreenSaverId(int id) {
+    if(id < 0 || id > 8) throw Exception("请设置正确范围的屏保Id值");
+    _prefs.setInt('setting_screen_saver_id', id);
+    _screenSaverId = id;
+  }
+
+  /// 获取屏保的序号
+  int get screenSaverId => _screenSaverId;
+
+  /// 保存屏保的序号
+  set screenSaverId(int id) {
+    if(id < 0 || id > 9) throw Exception("请设置正确范围的屏保Id值");
+    _prefs.setInt('setting_screen_saver_id', id);
+    _screenSaverId = id;
   }
 
   /// 设置息屏时间段
-  void setScreedDuration(Pair<int, int> duration) async {
+  Future<bool> setScreedDuration(Pair<int, int> duration) async {
     if(duration.value2 < 0 || duration.value1 <0 || duration.value1 >= duration.value2) {
       throw Exception("请设置正确的时间区间");
     }
     _screedDuration = duration;
     _prefs.setInt("setting_screed_start_time", duration.value1);
     _prefs.setInt("setting_screed_end_time", duration.value2);
+    return true;
   }
   /// 获取息屏时间段
   Pair<int, int> getScreedDuration() {
@@ -62,7 +85,8 @@ class Setting {
       return "$startHour:$startMinute - $endHour:$endMinute";
     }
   }
-  /// 获取息屏--开始时间
+  /// 解析息屏时间
+  /// 参数：[time] 具体的时间
   /// Pair.value1为小时 Pair.value2为分钟
   Pair<int, int> getScreedDetailTime(int time) {
     if(time < 0 ) {
