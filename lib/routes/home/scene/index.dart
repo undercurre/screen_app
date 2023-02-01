@@ -90,6 +90,7 @@ class ScenePageState extends State<ScenePage> {
   Widget build(BuildContext context) {
     final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
     var sceneWidgetList = sceneChangeNotifier.sceneList.map((scene) => SceneCard(scene: scene)).toList();
+    
     return DecoratedBox(
       decoration: const BoxDecoration(color: Colors.black),
       child: Column(
@@ -174,8 +175,11 @@ class ScenePageState extends State<ScenePage> {
                 messageText: '上次更新 %T',
                 mainAxisAlignment: MainAxisAlignment.end,
               ),
-              onRefresh: () {
-                sceneChangeNotifier.updateSceneList();
+              onRefresh: () async {
+                await sceneChangeNotifier.updateSceneList();
+                setState(() {
+
+                });
               },
               child: ReorderableWrap(
                 spacing: 8.0,

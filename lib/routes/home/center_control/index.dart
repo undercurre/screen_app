@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/center_control/air_condition_control.dart';
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
@@ -16,9 +19,6 @@ import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
-
-var time = DateTime.now();
-var weekday = [" ", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
 List<Map<String, String>> dropMenuBtnList = [
   {'title': '添加设备', 'route': 'SnifferPage'},
@@ -36,6 +36,23 @@ class CenterControlPage extends StatefulWidget {
 
 class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
+
+  // 获取现在日期
+  String time = '';
+
+  // 定时器
+  late Timer timeTimer = Timer(const Duration(seconds: 1), () {}); // 定义定时器
+
+  void startTimer() {
+    timeTimer.cancel(); // 取消定时器
+    timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      //TODO
+      setState(() {
+        time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
+      });
+    });
+  }
+
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
@@ -71,6 +88,11 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   initPage() async {
+    await initializeDateFormatting('zh_CN', null);
+    setState(() {
+      time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
+      startTimer();
+    });
     // 更新家庭信息
     await updateHomeData();
     // 查灯组列表
@@ -119,7 +141,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
+                      time,
                       style: const TextStyle(
                         color: Color(0XFFFFFFFF),
                         fontSize: 18.0,
