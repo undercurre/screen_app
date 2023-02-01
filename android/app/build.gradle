@@ -21,9 +21,13 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0.0'
 }
 
-project.setProperty('target-platform', 'android-arm')
+try {
+    project.setProperty('target-platform', 'android-arm')
+} catch(MissingPropertyException e) {
+    e.printStackTrace()
+}
 
-apply plugin: 'com.android.application'
+                                                                                                                                                                                                                                                                                   apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
