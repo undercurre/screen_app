@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../channel/index.dart';
@@ -22,6 +21,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
   bool nearWakeup = true;
   num lightValue = 0;
   String duration = '';
+  late int screenSaverId;
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
     //初始化状态
     print("initState");
     initial();
-
+    screenSaverId = Setting.instant().screenSaverId;
   }
 
   initial() async {
@@ -271,7 +271,17 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                       });
                     }),
                 const Divider(height: 1, indent: 0 , endIndent: 0, color: Color(0xff232323)),
-                settingItem("待机样式", "表盘1", () { }),
+                settingItem("待机样式", "表盘${screenSaverId + 1}", () {
+                  Navigator
+                      .of(context)
+                      .pushNamed('SelectStandbyStylePage').then((value) {
+                        if(value != null) {
+                          setState(() {
+                            screenSaverId = value as int;
+                          });
+                        }
+                      });
+                }),
                 const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
                 settingItem("息屏时间段", duration, () {
                   Navigator.of(context)
@@ -281,8 +291,8 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         final startTime = result.value1;
                         final endTime = result.value2;
                         debugPrint("开始时间：$startTime 结束时间: $endTime");
-                        Setting.instant().setScreedDuration(result);
-                        setState(() {
+                        setState(() async {
+                          await Setting.instant().setScreedDuration(result);
                           duration = Setting.instant().getScreedDurationDetail();
                         });
                       }

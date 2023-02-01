@@ -42,7 +42,7 @@ mixin Standby<T extends StatefulWidget> on State<T> {
         }
 
         standbyNotifier.standbyPageActive = true;
-        Navigator.of(context).pushNamed('Weather');
+        Navigator.of(context).pushNamed('ScreenSaver');
         debugPrint('WeatherPage pushed');
       });
     });

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/setting/screen_saver/index.dart';
+import 'package:screen_app/routes/setting/screen_saver/screen_saver_hand_clock.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
+import 'package:screen_app/routes/setting/standby_style_select.dart';
 
 import 'boot/index.dart';
 import 'develop/develop_helper.dart';
@@ -28,7 +31,7 @@ var routes = <String, WidgetBuilder>{
   "Home": (context) => const Home(),
   "SelectRoomPage": (context) => const SelectRoomPage(),
   "SelectScenePage": (context) => const SelectScenePage(),
-  "Weather": (context) => const WeatherPage(),
+  "ScreenSaver": (context) => const ScreenSaver(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
   "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
@@ -43,6 +46,7 @@ var routes = <String, WidgetBuilder>{
   "developer": (context) => const DeveloperHelperPage(),
   "DropDownPage": (context) => const DropDownPage(),
   "SelectTimeDurationPage": (context) => const SelectTimeDurationPage(),
+  "SelectStandbyStylePage": (contest) => const SelectStandbyStylePage(),
 
 
   "0x13": (context) => const WifiLightPage(),
