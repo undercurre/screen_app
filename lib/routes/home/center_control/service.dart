@@ -4,6 +4,42 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
@@ -21,15 +57,25 @@ class CenterControlService {
   /// 窗帘
   static bool isCurtainPower(BuildContext context) {
     var totalPower = false;
-    var curtainList = context.read<DeviceListModel>().curtainList;
+    var curtainList = context.watch<DeviceListModel>().curtainList;
+    var log = '';
+    var openCount = 0;
+    var closeCount = 0;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      log = log + deviceInfo.name + (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)).toString();
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        totalPower = true;
+        openCount += 1;
+      } else {
+        closeCount += 1;
       }
     }
-    debugPrint('窗帘中控结果$totalPower');
+    if (openCount > closeCount) {
+      totalPower = true;
+    } else {
+      totalPower = false;
+    }
+    // logger.i('中控窗帘开关状态$log');
     return totalPower;
   }
 
@@ -38,12 +84,12 @@ class CenterControlService {
     var curtainList = context.read<DeviceListModel>().curtainList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isOnline(deviceInfo)) {
         totalSupport = true;
       }
     }
-    debugPrint('窗帘support：$totalSupport');
+    // logger.i('窗帘support：$totalSupport');
     return totalSupport;
   }
 
@@ -52,12 +98,12 @@ class CenterControlService {
     var curtainList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isOnline(deviceInfo)) {
         totalSupport = true;
       }
     }
-    debugPrint('灯光support：$totalSupport');
+    // logger.i('灯光support：$totalSupport');
     return totalSupport;
   }
 
@@ -66,12 +112,12 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isOnline(deviceInfo)) {
         totalSupport = true;
       }
     }
-    debugPrint('空调support：$totalSupport');
+    // logger.i('空调support：$totalSupport');
     return totalSupport;
   }
 
@@ -80,6 +126,7 @@ class CenterControlService {
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       var res = await DeviceService.setPower(deviceInfo, onOff);
+      logger.i('控制结果', "${deviceInfo.name}: $res");
       if (res) {
         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
       }
@@ -92,12 +139,12 @@ class CenterControlService {
     var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
-    debugPrint('灯光中控结果$totalPower');
+    // logger.i('灯光中控结果$totalPower');
     return totalPower;
   }
 
@@ -107,10 +154,10 @@ class CenterControlService {
     var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
-        debugPrint('该设备detial${res["detail"]}');
+        // logger.i('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
@@ -123,7 +170,7 @@ class CenterControlService {
         } else {
           value = (res["detail"]["brightValue"] / 255) * 100 ?? 0;
         }
-        debugPrint('中控${deviceInfo.name}亮度$value');
+        // logger.i('中控${deviceInfo.name}亮度$value');
         totalBrightnessList.add(value);
       }
     }
@@ -133,7 +180,7 @@ class CenterControlService {
     } else {
       totalBrightnessValue = 0;
     }
-    debugPrint('灯光中控亮度结果$totalBrightnessValue');
+    // logger.i('灯光中控亮度结果$totalBrightnessValue');
     return totalBrightnessValue.round();
   }
 
@@ -143,8 +190,8 @@ class CenterControlService {
     var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
-      debugPrint(
-          '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
+      // logger.i(
+      //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
         late num value;
@@ -159,7 +206,7 @@ class CenterControlService {
         } else {
           value = res["detail"]["colorTemperature"] ?? 0;
         }
-        debugPrint('中控${deviceInfo.name}色温$value');
+        logger.i('中控${deviceInfo.name}色温$value');
         totalColorTemperatureList.add(value);
       }
     }
@@ -169,18 +216,18 @@ class CenterControlService {
     } else {
       totalColorTemperatureValue = 0;
     }
-    debugPrint('灯光中控色温结果$totalColorTemperatureValue');
+    // logger.i('灯光中控色温结果$totalColorTemperatureValue');
     return totalColorTemperatureValue.round();
   }
 
   static Future<void> lightPowerControl(BuildContext context, bool onOff) async {
-    debugPrint('发送中控指令: ${onOff ? '开灯' : '关灯'}');
+    // logger.i('发送中控指令: ${onOff ? '开灯' : '关灯'}');
     var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        debugPrint('${deviceInfo.name}${res ? '成功' : '失败'}');
+        // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
@@ -258,12 +305,12 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
-    debugPrint('空调中控结果$totalPower');
+    // logger.i('空调中控结果$totalPower');
     return totalPower;
   }
 
@@ -273,12 +320,12 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
-        debugPrint('该设备detial${res["detail"]}');
+        // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["mode"] ?? 'auto';
-        debugPrint('中控${deviceInfo.name}风速$value');
+        // logger.i('中控${deviceInfo.name}风速$value');
         totalModeList.add(value);
       }
     }
@@ -288,7 +335,7 @@ class CenterControlService {
 
     totalModeValue = frequency.keys.isNotEmpty ? frequency.keys.firstWhere((k) => frequency[k] == maxFrequency) : 'auto';
 
-    debugPrint('空调中控模式$totalModeValue');
+    // logger.i('空调中控模式$totalModeValue');
     return totalModeValue;
   }
 
@@ -298,12 +345,12 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
-        debugPrint('该设备detial${res["detail"]}');
+        // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["wind_speed"] / 20 + 1;
-        debugPrint('中控${deviceInfo.name}风速$value');
+        // logger.i('中控${deviceInfo.name}风速$value');
         totalGearList.add(value);
       }
     }
@@ -313,7 +360,7 @@ class CenterControlService {
     } else {
       totalGearValue = 0;
     }
-    debugPrint('空调中控风速$totalGearValue');
+    // logger.i('空调中控风速$totalGearValue');
     return totalGearValue.round();
   }
 
@@ -323,12 +370,12 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      debugPrint('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
-        debugPrint('该设备detial${res["detail"]}');
+        // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["temperature"];
-        debugPrint('中控${deviceInfo.name}温度$value');
+        // logger.i('中控${deviceInfo.name}温度$value');
         totalTemperatureList.add(value);
       }
     }
@@ -338,18 +385,18 @@ class CenterControlService {
     } else {
       totalTemperatureValue = 0;
     }
-    debugPrint('空调中控温度$totalTemperatureValue');
+    // logger.i('空调中控温度$totalTemperatureValue');
     return totalTemperatureValue.round();
   }
 
   static Future<void> ACPowerControl(BuildContext context, bool onOff) async {
-    debugPrint('发送中控指令: ${onOff ? '开' : '关'}');
+    // logger.i('发送中控指令: ${onOff ? '开' : '关'}');
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        debugPrint('${deviceInfo.name}${res ? '成功' : '失败'}');
+        // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
@@ -400,7 +447,7 @@ class CenterControlService {
   /// 场景
   static Future<List<Scene>> initScene() async {
     var sceneList = await SceneApi.getSceneList();
-    debugPrint('场景列表:$sceneList');
+    // logger.i('场景列表:$sceneList');
     return sceneList.sublist(0, 4);
   }
 

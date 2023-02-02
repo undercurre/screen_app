@@ -57,7 +57,7 @@ class SelectRoomPageState extends State<SelectRoomPage> {
                     Global.profile.roomInfo = room;
                     context.read<RoomModel>().roomInfo = room;
                     context.read<DeviceListModel>().deviceList = room.applianceList;
-                    context.read<DeviceListModel>().deviceList.forEach((deviceInfo) {
+                    context.watch<DeviceListModel>().deviceList.forEach((deviceInfo) {
                       // 查看品类控制器看是否支持该品类
                       var hasController = getController(deviceInfo) != null;
                       if (hasController &&
