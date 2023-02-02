@@ -198,6 +198,7 @@ class _SliderButtonContentState extends State<SliderButtonContent> {
           MzSlider(
             value: value,
             width: widget.sliderWidth ?? 270,
+            height: 20,
             max: widget.max,
             min: widget.min,
             step: widget.step,
