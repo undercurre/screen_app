@@ -35,7 +35,9 @@ class SceneChangeNotifier extends ChangeNotifier {
   }
 
   updateSceneList() async {
-    sceneList = await SceneApi.getSceneList();
+    sceneList.clear();
+    var res = await SceneApi.getSceneList();
+    sceneList = await reSort(res);
     // 去除一下之前选中但是场景列表中已经不存在的场景
     final sceneKeyList = sceneList.map((e) => e.key);
     selectList =
@@ -59,6 +61,36 @@ class SceneChangeNotifier extends ChangeNotifier {
     logger.i('移动元素');
     var element = sceneList.removeAt(oldIndex);
     sceneList.insert(newIndex, element);
+    logger.i('sceneSort缓存存储', sceneList.map((e) => e.name).toList());
+    LocalStorage.setItem(
+        'sceneSort', json.encode(sceneList.map((e) => e.key).toList()));
     notifyListeners();
+  }
+
+  Future<List<Scene>> reSort(List<Scene> newList) async {
+    var res = await LocalStorage.getItem('sceneSort');
+    logger.i('sceneSort缓存获取', res);
+    if (res != null) {
+      List<dynamic> sortKeyList = json.decode(res);
+      List<Scene> sortList = [];
+      List<Scene> noSortList = [];
+      for (var newOne in newList) {
+        if (sortKeyList.contains(newOne.key)) {
+          sortList.add(newOne);
+        } else {
+          noSortList.add(newOne);
+        }
+      }
+      for (int i = 0; i < sortKeyList.length; i ++) {
+        var indexInList = sortList.indexWhere((element) => element.key == sortKeyList[i]);
+        var element = sortList.removeAt(indexInList);
+        sortList.insert(i, element);
+      }
+      sortList.addAll(noSortList);
+      logger.i('重排', sortList.map((e) => e.name).toList());
+      return sortList;
+    } else {
+      return newList;
+    }
   }
 }
