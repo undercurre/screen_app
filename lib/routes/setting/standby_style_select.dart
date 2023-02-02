@@ -18,9 +18,9 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
     'assets/imgs/setting/dial1.png',
     'assets/imgs/setting/dial2.png',
     'assets/imgs/setting/dial3.png',
-    'assets/imgs/setting/dial7.png',
-    'assets/imgs/setting/dial8.png',
-    'assets/imgs/setting/dial9.png',
+    'assets/imgs/setting/dial4.png',
+    'assets/imgs/setting/dial5.png',
+    'assets/imgs/setting/dial6.png',
     'assets/imgs/setting/dial7.png',
     'assets/imgs/setting/dial8.png',
     'assets/imgs/setting/dial9.png',
@@ -88,7 +88,11 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(35, 10, 35, 10),
                     sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisExtent: 164,
+                            crossAxisSpacing: 10
+                        ),
                         delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
                               return generateClockStyleItem(0, index, currentSelectPosition, (position) {
                                 setState(() {
@@ -118,7 +122,11 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(35, 10, 35, 10),
                     sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisExtent: 164,
+                            crossAxisSpacing: 10
+                        ),
                         delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
                               return generateClockStyleItem(3, index, currentSelectPosition, (position) {
                                 setState(() {
@@ -149,7 +157,7 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                     sliver: SliverGrid(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
-                            mainAxisExtent: 140,
+                            mainAxisExtent: 164,
                             crossAxisSpacing: 10
                         ),
                         delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
