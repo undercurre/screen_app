@@ -81,7 +81,7 @@ class CenterControlService {
 
   static bool isCurtainSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.read<DeviceListModel>().curtainList;
+    var curtainList = context.watch<DeviceListModel>().curtainList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -95,7 +95,7 @@ class CenterControlService {
 
   static bool isLightSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.read<DeviceListModel>().lightList;
+    var curtainList = context.watch<DeviceListModel>().lightList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -109,7 +109,7 @@ class CenterControlService {
 
   static bool isAirConditionSupport(BuildContext context) {
     var totalSupport = false;
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var airConditionList = context.watch<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -122,13 +122,14 @@ class CenterControlService {
   }
 
   static Future<void> curtainControl(BuildContext context, bool onOff) async {
-    var curtainList = context.read<DeviceListModel>().curtainList;
+    var deviceModel = context.read<DeviceListModel>();
+    var curtainList = context.watch<DeviceListModel>().curtainList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       var res = await DeviceService.setPower(deviceInfo, onOff);
       logger.i('控制结果', "${deviceInfo.name}: $res");
       if (res) {
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+        deviceModel.updateDeviceDetail(deviceInfo);
       }
     }
   }
@@ -136,7 +137,7 @@ class CenterControlService {
   /// 灯光
   static bool isLightPower(BuildContext context) {
     var totalPower = false;
-    var lightList = context.read<DeviceListModel>().lightList;
+    var lightList = context.watch<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
@@ -151,12 +152,12 @@ class CenterControlService {
   static num lightTotalBrightness(BuildContext context) {
     late num totalBrightnessValue;
     List<num> totalBrightnessList = [];
-    var lightList = context.read<DeviceListModel>().lightList;
+    var lightList = context.watch<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = context.watch<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
@@ -187,13 +188,13 @@ class CenterControlService {
   static num lightTotalColorTemperature(BuildContext context) {
     late num totalColorTemperatureValue;
     List<num> totalColorTemperatureList = [];
-    var lightList = context.read<DeviceListModel>().lightList;
+    var lightList = context.watch<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       // logger.i(
       //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = context.watch<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
         late num value;
         if (deviceInfo.type == '0x21') {
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
@@ -222,7 +223,8 @@ class CenterControlService {
 
   static Future<void> lightPowerControl(BuildContext context, bool onOff) async {
     // logger.i('发送中控指令: ${onOff ? '开灯' : '关灯'}');
-    var lightList = context.read<DeviceListModel>().lightList;
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
@@ -230,7 +232,7 @@ class CenterControlService {
         // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
-            context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+            deviceModel.updateDeviceDetail(deviceInfo);
           });
         }
       }
@@ -238,7 +240,8 @@ class CenterControlService {
   }
 
   static Future<void> lightBrightnessControl(BuildContext context, num value) async {
-    var lightList = context.read<DeviceListModel>().lightList;
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       late MzResponseEntity<dynamic> res;
@@ -263,14 +266,15 @@ class CenterControlService {
           res = await LightGroupApi.brightnessPDM(deviceInfo, value);
         }
         if (res.isSuccess) {
-          context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+          deviceModel.updateDeviceDetail(deviceInfo);
         }
       }
     }
   }
 
   static Future<void> lightColorTemperatureControl(BuildContext context, num value) async {
-    var lightList = context.read<DeviceListModel>().lightList;
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       late MzResponseEntity<dynamic> res;
@@ -294,7 +298,7 @@ class CenterControlService {
         res = await LightGroupApi.colorTemperaturePDM(deviceInfo, value);
       }
       if (res.isSuccess) {
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+        deviceModel.updateDeviceDetail(deviceInfo);
       }
     }
   }
@@ -302,7 +306,8 @@ class CenterControlService {
   /// 空调
   static bool isAirConditionPower(BuildContext context) {
     var totalPower = false;
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var deviceModel = context.watch<DeviceListModel>();
+    var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
@@ -317,12 +322,13 @@ class CenterControlService {
   static String airConditionMode(BuildContext context) {
     late String totalModeValue;
     List<String> totalModeList = [];
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var deviceModel = context.watch<DeviceListModel>();
+    var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["mode"] ?? 'auto';
         // logger.i('中控${deviceInfo.name}风速$value');
@@ -342,12 +348,13 @@ class CenterControlService {
   static num airConditionGear(BuildContext context) {
     late num totalGearValue;
     List<num> totalGearList = [];
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var deviceModel = context.watch<DeviceListModel>();
+    var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["wind_speed"] / 20 + 1;
         // logger.i('中控${deviceInfo.name}风速$value');
@@ -367,12 +374,13 @@ class CenterControlService {
   static num airConditionTemperature(BuildContext context) {
     late num totalTemperatureValue;
     List<num> totalTemperatureList = [];
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var deviceModel = context.watch<DeviceListModel>();
+    var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["temperature"];
         // logger.i('中控${deviceInfo.name}温度$value');
@@ -391,7 +399,8 @@ class CenterControlService {
 
   static Future<void> ACPowerControl(BuildContext context, bool onOff) async {
     // logger.i('发送中控指令: ${onOff ? '开' : '关'}');
-    var airConditionList = context.read<DeviceListModel>().airConditionList;
+    var deviceModel = context.read<DeviceListModel>();
+    var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
@@ -399,7 +408,7 @@ class CenterControlService {
         // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
-            context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+            deviceModel.updateDeviceDetail(deviceInfo);
           });
         }
       }
@@ -408,7 +417,7 @@ class CenterControlService {
 
   static Future<void> ACTemperatureControl(BuildContext context, num value) async {
     final deviceListModel = context.read<DeviceListModel>();
-    final airConditionList = context.read<DeviceListModel>().airConditionList;
+    final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
@@ -421,7 +430,7 @@ class CenterControlService {
 
   static Future<void> ACFengsuControl(BuildContext context, num value) async {
     final deviceListModel = context.read<DeviceListModel>();
-    final airConditionList = context.read<DeviceListModel>().airConditionList;
+    final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
@@ -434,7 +443,7 @@ class CenterControlService {
 
   static Future<void> ACModeControl(BuildContext context, String mode) async {
     final deviceListModel = context.read<DeviceListModel>();
-    final airConditionList = context.read<DeviceListModel>().airConditionList;
+    final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       late MzResponseEntity<dynamic> res;
