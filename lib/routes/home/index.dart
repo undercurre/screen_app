@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/states/life_cycle_state.dart';
 
-import '../../mixins/auto_sniffer.dart';
+import '../sniffer/auto_sniffer.dart';
+import '../sniffer/device_manager_sdk_initializer.dart';
 import './center_control/index.dart';
 import './device/index.dart';
 import './scene/index.dart';
@@ -22,7 +24,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer {
+class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitialize , LifeCycleState {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -58,6 +60,17 @@ class HomeState extends State<Home> with AutoSniffer {
       debugPrint(e.toString());
     }
 
+  }
+
+  @override
+  void onResume() {
+    super.onResume();
+    onSniffer();
+  }
+
+  @override
+  void onPause() {
+    super.onPause();
   }
 
   @override

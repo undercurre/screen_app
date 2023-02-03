@@ -33,29 +33,51 @@ class _LinkNetworkModel with ChangeNotifier {
       ];
 
   _LinkNetworkModel(BuildContext context) {
-    _data = _LinkNetworkData(isWiFiOn: true, isEthernetOn: false);
+    _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
     _context = context;
     init();
   }
 
   void init() async {
+
     bool supportWifi = await netMethodChannel.supportWiFiControl();
     bool supportEthernet = await netMethodChannel.supportEthernetControl();
+    bool wifiOpen = await netMethodChannel.wifiIsOpen();
+    bool ethernetOpen = await netMethodChannel.ethernetIsOpen();
+
     _data.supportWiFi = supportWifi;
     _data.supportEthernet = supportEthernet;
-    if (supportWifi) {
-      netMethodChannel.scanNearbyWiFi();
+    _data.isWiFiOn = wifiOpen;
+    _data.isEthernetOn = ethernetOpen;
+
+    /// 假如WiFi与EthernetOpen同时连接，则断开全部
+    if(wifiOpen && ethernetOpen) {
+      await netMethodChannel.enableWiFi(false);
+      await netMethodChannel.enableEthernet(false);
+      _data.isWiFiOn = false;
+      _data.isEthernetOn = false;
+    }
+
+    if (_data.supportWiFi) {
       netMethodChannel.registerScanWiFiCallBack(_wiFiListCallback);
     }
+
     netMethodChannel.startObserverNetState();
     netMethodChannel.registerNetChangeCallBack(_connectStateCallback);
+
+    if(_data.supportWiFi && _data.isWiFiOn) {
+      netMethodChannel.scanNearbyWiFi();
+    }
+
     notifyListeners();
+
   }
 
   @override
   void dispose() {
     super.dispose();
     netMethodChannel.stopObserverNetState();
+    netMethodChannel.stopScanNearbyWiFi();
     netMethodChannel.unregisterNetChangeCallBack(_connectStateCallback);
     netMethodChannel.unregisterScanWiFiCallBack(_wiFiListCallback);
   }
@@ -63,10 +85,10 @@ class _LinkNetworkModel with ChangeNotifier {
   void _connectStateCallback(NetState state) {
     int ethernetState = state.ethernetState;
     int wifiState = state.wifiState;
-    if (wifiState == 0) {
-      _data.currentConnect = null;
-    } else if (wifiState == 2) {
+    if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
+    } else {
+      _data.currentConnect = null;
     }
     notifyListeners();
   }
@@ -76,12 +98,17 @@ class _LinkNetworkModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeSwitch(bool wifiOpen, bool ethernetOpen) {
+  void changeSwitch(bool wifiOpen, bool ethernetOpen) async {
     if (_data.supportWiFi) {
-      netMethodChannel.enableWiFi(wifiOpen);
+      await netMethodChannel.enableWiFi(wifiOpen);
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
+      if(wifiOpen) {
+        netMethodChannel.scanNearbyWiFi();
+      } else {
+        netMethodChannel.stopScanNearbyWiFi();
+      }
     }
     if (_data.supportEthernet) {
       _data.isEthernetOn = ethernetOpen;
@@ -128,6 +155,9 @@ class LinkNetwork extends StatefulWidget {
 }
 
 class _LinkNetwork extends State<LinkNetwork> {
+
+  late _LinkNetworkModel _model;
+
   @override
   void initState() {
     super.initState();
@@ -135,6 +165,7 @@ class _LinkNetwork extends State<LinkNetwork> {
 
   @override
   dispose() {
+    _model.dispose();
     super.dispose();
   }
 
@@ -143,58 +174,53 @@ class _LinkNetwork extends State<LinkNetwork> {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
         value: _LinkNetworkModel(context),
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
-          return Expanded(
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                  color: Color.fromRGBO(216, 216, 216, 0.1)),
-              child: ListView.builder(
-                  itemCount: model.pageData.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    // 有线网络
-                    if (model.pageData[index] == 'headerTag') {
-                      return header(model);
+          _model = model;
+          return ListView.builder(
+              itemCount: model.pageData.length,
+              itemBuilder: (BuildContext context, int index) {
+                // 有线网络
+                if (model.pageData[index] == 'headerTag') {
+                  return header(model);
+                }
+                WiFiScanResult item =
+                    model.pageData[index] as WiFiScanResult;
+                // wifi的子Item
+                return MzCell(
+                  avatarIcon: const Icon(
+                    Icons.wifi,
+                    color: Color.fromRGBO(255, 255, 255, 0.85),
+                    size: 24.0,
+                  ),
+                  rightIcon: const Icon(Icons.lock_outline_sharp,
+                      color: Color.fromRGBO(255, 255, 255, 0.85)),
+                  title: item.ssid,
+                  titleSize: 18.0,
+                  hasTopBorder: true,
+                  bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
+                  onTap: () {
+                    if (item.auth == 'open') {
+                      // 尝试连接开放型WiFi
+                      model.connectWiFi(
+                          result: item,
+                          password: null,
+                          callback: (result) {});
+                    } else if (item.alreadyConnected) {
+                      // 尝试连接曾经的WiFi
+                      model.connectWiFi(
+                          result: item,
+                          password: null,
+                          callback: (result) {
+                            if (!result) {
+                              showInputPasswordDialog(item, model);
+                            }
+                          });
+                    } else {
+                      // 连接新WiFi
+                      showInputPasswordDialog(item, model);
                     }
-                    WiFiScanResult item =
-                        model.pageData[index] as WiFiScanResult;
-                    // wifi的子Item
-                    return MzCell(
-                      avatarIcon: const Icon(
-                        Icons.wifi,
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                        size: 24.0,
-                      ),
-                      rightIcon: const Icon(Icons.lock_outline_sharp,
-                          color: Color.fromRGBO(255, 255, 255, 0.85)),
-                      title: item.ssid,
-                      titleSize: 18.0,
-                      hasTopBorder: true,
-                      bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-                      onTap: () {
-                        if (item.auth == 'open') {
-                          // 尝试连接开放型WiFi
-                          model.connectWiFi(
-                              result: item,
-                              password: null,
-                              callback: (result) {});
-                        } else if (item.alreadyConnected) {
-                          // 尝试连接曾经的WiFi
-                          model.connectWiFi(
-                              result: item,
-                              password: null,
-                              callback: (result) {
-                                if (!result) {
-                                  showInputPasswordDialog(item, model);
-                                }
-                              });
-                        } else {
-                          // 连接新WiFi
-                          showInputPasswordDialog(item, model);
-                        }
-                      },
-                    );
-                  }),
-            ),
-          );
+                  },
+                );
+              });
         }));
   }
 

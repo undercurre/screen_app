@@ -31,6 +31,7 @@ object ScanNearbyWiFiHandler {
     }
 
     var register = false
+    var startScan = false
     val callbacks = lazy { mutableSetOf<ICallBack>() }
     lateinit var wifiManager: WifiManager
 
@@ -58,18 +59,18 @@ object ScanNearbyWiFiHandler {
             context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
                 addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
             })
-            wifiManager =
-                context.getSystemService(android.content.Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-            wifiManager.startScan()
             register = true
         }
+        wifiManager =
+            context.getSystemService(android.content.Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+        wifiManager.startScan()
     }
 
     fun stop(context: Context) {
         if (register) {
-            callbacks.value.clear()
             context.unregisterReceiver(mScanWiFiReceiver)
             register = false
+            startScan = false
         }
     }
 

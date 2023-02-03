@@ -201,6 +201,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 wifiList?.put(scanResult.SSID, scanResult)
             }
         }
+        LogUtil.tag(TAG).array(result)
         onReplyNearbyWiFi(result)
     }
 

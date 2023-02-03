@@ -30,7 +30,7 @@ class WiFiDeviceManager extends StatelessWidget {
                   deviceManagerChannel.init(
                       dotenv.get("IOT_URL"),
                       Global.user?.accessToken ?? "",
-                      dotenv.get("SECRET"),
+                      dotenv.get("HTTP_SIGN_SECRET"),
                       Global.user?.seed ?? "",
                       Global.user?.key ?? "",
                       Global.profile.deviceId ?? "",

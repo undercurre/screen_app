@@ -124,9 +124,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 stepSum: stepList.length,
                 stepNum: stepNum,
                 title: stepItem.title),
-            stepNum == 1
-                ? stepItem.view
-                : Expanded(flex: 1, child: stepItem.view),
+                Expanded(flex: 1, child: stepItem.view),
             Row(children: [
               if (stepNum > 1)
                 Expanded(

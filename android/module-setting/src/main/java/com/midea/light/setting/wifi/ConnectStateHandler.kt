@@ -84,7 +84,6 @@ object ConnectStateHandler {
 
     fun stop(context: Context) {
         if(register) {
-            callbacks.value.clear()
             context.unregisterReceiver(mScanWiFiReceiver)
             register = false
         }
