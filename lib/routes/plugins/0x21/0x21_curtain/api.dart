@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
@@ -23,11 +24,22 @@ class WrapZigbeeCurtain implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    MzResponseEntity<String> gatewayInfo =
-    await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceInfo.applianceCode, deviceInfo.masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
-    return await ZigbeeCurtainApi.powerPDM(
-        deviceInfo.masterId, onOff, infoMap["nodeid"]);
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_one' ||
+        zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_curtain_panel_two') {
+      return await ZigbeeCurtainApi.powerPDM(
+          deviceInfo.masterId, onOff, infoMap["nodeid"]);
+    } else {
+      num percent = onOff ? 100 : 0;
+      var dianjiRes = await ZigbeeCurtainApi.curtainPercentPDM(
+          deviceInfo.masterId, percent, infoMap["nodeid"]);
+      logger.i('窗帘电机控制接口调用');
+      return dianjiRes;
+    }
   }
 
   @override
@@ -39,22 +51,16 @@ class WrapZigbeeCurtain implements DeviceInterface {
   @override
   bool isPower(DeviceEntity deviceInfo) {
     if (zigbeeControllerList[deviceInfo.modelNumber] ==
-        '0x21_curtain_panel_one' ||
+            '0x21_curtain_panel_one' ||
         zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_curtain_panel_two') {
       return (deviceInfo.detail != null &&
-          deviceInfo.detail!
-              .keys
-              .toList()
-              .isNotEmpty)
+              deviceInfo.detail!.keys.toList().isNotEmpty)
           ? deviceInfo.detail!["deviceControlList"][0]["attribute"] == 1
           : false;
     } else {
       return (deviceInfo.detail != null &&
-          deviceInfo.detail!
-              .keys
-              .toList()
-              .isNotEmpty)
+              deviceInfo.detail!.keys.toList().isNotEmpty)
           ? deviceInfo.detail!["curtainDeviceList"][0]["attribute"] == 1
           : false;
     }
@@ -70,7 +76,8 @@ class WrapZigbeeCurtain implements DeviceInterface {
     } else {
       return (deviceInfo.detail != null &&
               deviceInfo.detail!.keys.toList().isNotEmpty)
-          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"].toString()
+          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"]
+              .toString()
           : '0';
     }
   }
@@ -102,12 +109,13 @@ class WrapZigbeeCurtain implements DeviceInterface {
 
 class ZigbeeCurtainApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getCurtainDetail(DeviceEntity deviceInfo) async {
-    MzResponseEntity<String> gatewayInfo =
-        await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+  static Future<MzResponseEntity> getCurtainDetail(
+      DeviceEntity deviceInfo) async {
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceInfo.applianceCode, deviceInfo.masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     if (zigbeeControllerList[deviceInfo.modelNumber] ==
-        '0x21_curtain_panel_one' ||
+            '0x21_curtain_panel_one' ||
         zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_curtain_panel_two') {
       var res = await DeviceApi.sendPDMOrder(
@@ -203,7 +211,7 @@ class ZigbeeCurtainApi {
       String deviceId, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'subDeviceControl',
+        'curtainOpenPerControl',
         deviceId,
         {
           "msgId": uuid.v4(),
@@ -223,7 +231,7 @@ class ZigbeeCurtainApi {
       String deviceId, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'subDeviceControl',
+        'curtainOpenPerControl',
         deviceId,
         {
           "msgId": uuid.v4(),
@@ -237,12 +245,13 @@ class ZigbeeCurtainApi {
 
     return res;
   }
+
   /// 窗帘电机——暂停
   static Future<MzResponseEntity> curtainStopPDM(
       String deviceId, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'subDeviceControl',
+        'curtainOpenPerControl',
         deviceId,
         {
           "msgId": uuid.v4(),
@@ -256,12 +265,14 @@ class ZigbeeCurtainApi {
 
     return res;
   }
+
   /// 窗帘电机——百分比
   static Future<MzResponseEntity> curtainPercentPDM(
       String deviceId, num percent, String nodeId) async {
+
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
-        'subDeviceControl',
+        'curtainOpenPerControl',
         deviceId,
         {
           "msgId": uuid.v4(),

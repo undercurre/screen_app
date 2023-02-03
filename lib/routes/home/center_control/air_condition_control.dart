@@ -58,7 +58,7 @@ class AirConditionControlState extends State<AirConditionControl> {
   Map<String, String> getCurACMode() {
     return btnList
         .where((element) =>
-    element["key"] == CenterControlService.airConditionMode(context))
+            element["key"] == CenterControlService.airConditionMode(context))
         .toList()[0];
   }
 
@@ -79,25 +79,27 @@ class AirConditionControlState extends State<AirConditionControl> {
   }
 
   sliderPart() {
-    return airConditionPanel ? SliderButtonContent(
-      unit: '℃',
-      min: 17,
-      max: 30,
-      value: CenterControlService.airConditionTemperature(context),
-      sliderWidth: 400,
-      onChanged: (value) {
-        airConditionValueHandle(value);
-      },
-    ) : SliderButtonContent(
-      unit: '档',
-      min: 1,
-      max: 6,
-      value: CenterControlService.airConditionGear(context),
-      sliderWidth: 400,
-      onChanged: (value) {
-        airConditionValueHandle(value);
-      },
-    );
+    return airConditionPanel
+        ? SliderButtonContent(
+            unit: '℃',
+            min: 17,
+            max: 30,
+            value: CenterControlService.airConditionTemperature(context),
+            sliderWidth: 400,
+            onChanged: (value) {
+              airConditionValueHandle(value);
+            },
+          )
+        : SliderButtonContent(
+            unit: '档',
+            min: 1,
+            max: 6,
+            value: CenterControlService.airConditionGear(context),
+            sliderWidth: 400,
+            onChanged: (value) {
+              airConditionValueHandle(value);
+            },
+          );
   }
 
   @override
@@ -107,410 +109,459 @@ class AirConditionControlState extends State<AirConditionControl> {
       child: Stack(
         children: widget.disabled ?? false
             ? [
-          MzMetalCard(
-            width: 440,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Flex(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    direction: Axis.horizontal,
+                MzMetalCard(
+                  width: 440,
+                  child: Column(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                        child: SizedBox(
-                          width: 36,
-                        )
-                      ),
-                      GestureDetector(
-                        onTap: () => switchACPanel(true),
-                        child: Container(
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(0, 0, 0, 0.3),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/imgs/device/wendu.png'),
-                                const Text(
-                                  '温度',
-                                  style: TextStyle(
-                                      color: Color(0xFFFFFFFF),
-                                      fontSize: 14,
-                                      fontFamily: 'MideaType-Regular'),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Flex(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          direction: Axis.horizontal,
+                          children: [
+                            const Padding(
+                                padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                                child: SizedBox(
+                                  width: 36,
+                                )),
+                            GestureDetector(
+                              onTap: () => switchACPanel(true),
+                              child: Container(
+                                width: 70,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => switchACPanel(false),
-                        child: Container(
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(0, 0, 0, 0.3),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/imgs/device/songfeng.png'),
-                                const Text(
-                                  '风速',
-                                  style: TextStyle(
-                                      color: Color(0xFFFFFFFF),
-                                      fontSize: 14,
-                                      fontFamily: 'MideaType-Regular'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(0, 0, 0, 0.3),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: DropdownMenu(
-                            menuWidth: 84,
-                            arrowSize: 20,
-                            menu: btnList.map(
-                                  (item) {
-                                return PopupMenuItem<String>(
-                                  padding: EdgeInsets.zero,
-                                  value: item['key'],
-                                  child: Center(
-                                    child: Container(
-                                      width: 80,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: getCurACMode()["key"] ==
-                                            item['key'] // TODO: 完善
-                                            ? const Color(0xff575757)
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(10),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                          'assets/imgs/device/wendu.png'),
+                                      const Text(
+                                        '温度',
+                                        style: TextStyle(
+                                            color: Color(0xFFFFFFFF),
+                                            fontSize: 14,
+                                            fontFamily: 'MideaType-Regular'),
                                       ),
-                                      child: Opacity(
-                                        opacity: getCurACMode()["key"] ==
-                                            item['key'] // TODO: 完善
-                                            ? 1
-                                            : 0.7,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(item['icon']!,
-                                                width: 30, height: 30),
-                                            Padding(
-                                              padding:
-                                              const EdgeInsets.fromLTRB(
-                                                  7, 0, 7, 0),
-                                              child: Text(
-                                                item['text']!,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: "MideaType",
-                                                  fontWeight: FontWeight.w200,
-                                                ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => switchACPanel(false),
+                              child: Container(
+                                width: 70,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                          'assets/imgs/device/songfeng.png'),
+                                      const Text(
+                                        '风速',
+                                        style: TextStyle(
+                                            color: Color(0xFFFFFFFF),
+                                            fontSize: 14,
+                                            fontFamily: 'MideaType-Regular'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: DropdownMenu(
+                                  menuWidth: 84,
+                                  arrowSize: 20,
+                                  menu: btnList.map(
+                                    (item) {
+                                      return PopupMenuItem<String>(
+                                        padding: EdgeInsets.zero,
+                                        value: item['key'],
+                                        child: Center(
+                                          child: Container(
+                                            width: 80,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: getCurACMode()["key"] ==
+                                                      item['key'] // TODO: 完善
+                                                  ? const Color(0xff575757)
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Opacity(
+                                              opacity: getCurACMode()["key"] ==
+                                                      item['key'] // TODO: 完善
+                                                  ? 1
+                                                  : 0.7,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(item['icon']!,
+                                                      width: 30, height: 30),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(7, 0, 7, 0),
+                                                    child: Text(
+                                                      item['text']!,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: "MideaType",
+                                                        fontWeight:
+                                                            FontWeight.w200,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
+                                      );
+                                    },
+                                  ).toList(),
+                                  trigger: Opacity(
+                                    opacity: menuVisible ? 0.5 : 1,
+                                    child: Row(
+                                      children: [
+                                        Image.asset(getCurACMode()["icon"]!,
+                                            width: 30, height: 30),
+                                        Text(
+                                          getCurACMode()["text"]!,
+                                          style: const TextStyle(
+                                            color: Color(0X7FFFFFFF),
+                                            fontSize: 14.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.w200,
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ).toList(),
-                            trigger: Opacity(
-                              opacity: menuVisible ? 0.5 : 1,
-                              child: Row(
+                                  onVisibleChange: (visible) {
+                                    setState(() {
+                                      menuVisible = visible;
+                                    });
+                                  },
+                                  onSelected: (dynamic mode) {
+                                    airConditionModeHandle(mode);
+                                  },
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => airConditionPowerHandle(
+                                  !CenterControlService.isAirConditionPower(
+                                      context)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Image.asset(
+                                  CenterControlService.isAirConditionPower(
+                                          context)
+                                      ? 'assets/imgs/device/on.png'
+                                      : 'assets/imgs/device/off.png',
+                                  alignment: Alignment.centerRight,
+                                  width: 50,
+                                  height: 50,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      sliderPart()
+                    ],
+                  ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromRGBO(55, 55, 55, 0.50)),
+                  ),
+                ),
+                const Positioned(
+                  left: 14,
+                  top: 23,
+                  child: Text(
+                    '空调',
+                    style: TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 18,
+                        fontFamily: 'MideaType-Regular',
+                        letterSpacing: 1.0),
+                  ),
+                )
+              ]
+            : [
+                MzMetalCard(
+                  width: 440,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Flex(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          direction: Axis.horizontal,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                              child: Text(
+                                '空调',
+                                style: TextStyle(
+                                    color: Color(0xFFFFFFFF),
+                                    fontSize: 18,
+                                    fontFamily: 'MideaType-Regular'),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => switchACPanel(true),
+                              child: Stack(children: [
+                                airConditionPanel
+                                    ? const Positioned(
+                                        child: Image(
+                                          image: AssetImage(
+                                              'assets/imgs/center/lanse.png'),
+                                        ),
+                                      )
+                                    : Container(color: Colors.transparent),
+                                Container(
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                            'assets/imgs/device/wendu.png'),
+                                        const Text(
+                                          '温度',
+                                          style: TextStyle(
+                                              color: Color(0xFFFFFFFF),
+                                              fontSize: 14,
+                                              fontFamily: 'MideaType-Regular'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ),
+                            GestureDetector(
+                              onTap: () => switchACPanel(false),
+                              child: Stack(
                                 children: [
-                                  Image.asset(getCurACMode()["icon"]!,
-                                      width: 30, height: 30),
-                                  Text(
-                                    getCurACMode()["text"]!,
-                                    style: const TextStyle(
-                                      color: Color(0X7FFFFFFF),
-                                      fontSize: 14.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.w200,
-                                      decoration: TextDecoration.none,
+                                  !airConditionPanel
+                                      ? const Positioned(
+                                          child: Image(
+                                            image: AssetImage(
+                                                'assets/imgs/center/lanse.png'),
+                                          ),
+                                        )
+                                      : Container(color: Colors.transparent),
+                                  Container(
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                              'assets/imgs/device/songfeng.png'),
+                                          const Text(
+                                            '风速',
+                                            style: TextStyle(
+                                                color: Color(0xFFFFFFFF),
+                                                fontSize: 14,
+                                                fontFamily:
+                                                    'MideaType-Regular'),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            onVisibleChange: (visible) {
-                              setState(() {
-                                menuVisible = visible;
-                              });
-                            },
-                            onSelected: (dynamic mode) {
-                              airConditionModeHandle(mode);
-                            },
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () =>
-                            airConditionPowerHandle(
-                                !CenterControlService.isAirConditionPower(
-                                    context)),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Image.asset(
-                            CenterControlService.isAirConditionPower(context)
-                                ? 'assets/imgs/device/on.png'
-                                : 'assets/imgs/device/off.png',
-                            alignment: Alignment.centerRight,
-                            width: 50,
-                            height: 50,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                sliderPart()
-              ],
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: const Color.fromRGBO(55, 55, 55, 0.50)),
-            ),
-          ),
-          const Positioned(
-            left: 14,
-            top: 23,
-            child: Text(
-              '空调',
-              style: TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 18,
-                  fontFamily: 'MideaType-Regular',
-                  letterSpacing: 1.0),
-            ),
-          )
-        ] : [
-          MzMetalCard(
-            width: 440,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Flex(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    direction: Axis.horizontal,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                        child: Text(
-                          '空调',
-                          style: TextStyle(
-                              color: Color(0xFFFFFFFF),
-                              fontSize: 18,
-                              fontFamily: 'MideaType-Regular'),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => switchACPanel(true),
-                        child: Container(
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(0, 0, 0, 0.3),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/imgs/device/wendu.png'),
-                                const Text(
-                                  '温度',
-                                  style: TextStyle(
-                                      color: Color(0xFFFFFFFF),
-                                      fontSize: 14,
-                                      fontFamily: 'MideaType-Regular'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => switchACPanel(false),
-                        child: Container(
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(0, 0, 0, 0.3),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/imgs/device/songfeng.png'),
-                                const Text(
-                                  '风速',
-                                  style: TextStyle(
-                                      color: Color(0xFFFFFFFF),
-                                      fontSize: 14,
-                                      fontFamily: 'MideaType-Regular'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(0, 0, 0, 0.3),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: DropdownMenu(
-                            menuWidth: 84,
-                            arrowSize: 20,
-                            menu: btnList.map(
-                                  (item) {
-                                return PopupMenuItem<String>(
-                                  padding: EdgeInsets.zero,
-                                  value: item['key'],
-                                  child: Center(
-                                    child: Container(
-                                      width: 80,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: getCurACMode()["key"] ==
-                                            item['key'] // TODO: 完善
-                                            ? const Color(0xff575757)
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Opacity(
-                                        opacity: getCurACMode()["key"] ==
-                                            item['key'] // TODO: 完善
-                                            ? 1
-                                            : 0.7,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(item['icon']!,
-                                                width: 30, height: 30),
-                                            Padding(
-                                              padding:
-                                              const EdgeInsets.fromLTRB(
-                                                  7, 0, 7, 0),
-                                              child: Text(
-                                                item['text']!,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: "MideaType",
-                                                  fontWeight: FontWeight.w200,
-                                                ),
+                            Container(
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: DropdownMenu(
+                                  menuWidth: 84,
+                                  arrowSize: 20,
+                                  menu: btnList.map(
+                                    (item) {
+                                      return PopupMenuItem<String>(
+                                        padding: EdgeInsets.zero,
+                                        value: item['key'],
+                                        child: Center(
+                                          child: Container(
+                                            width: 80,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: getCurACMode()["key"] ==
+                                                      item['key'] // TODO: 完善
+                                                  ? const Color(0xff575757)
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Opacity(
+                                              opacity: getCurACMode()["key"] ==
+                                                      item['key'] // TODO: 完善
+                                                  ? 1
+                                                  : 0.7,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(item['icon']!,
+                                                      width: 30, height: 30),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(7, 0, 7, 0),
+                                                    child: Text(
+                                                      item['text']!,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: "MideaType",
+                                                        fontWeight:
+                                                            FontWeight.w200,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
+                                      );
+                                    },
+                                  ).toList(),
+                                  trigger: Opacity(
+                                    opacity: menuVisible ? 0.5 : 1,
+                                    child: Row(
+                                      children: [
+                                        Image.asset(getCurACMode()["icon"]!,
+                                            width: 30, height: 30),
+                                        Text(
+                                          getCurACMode()["text"]!,
+                                          style: const TextStyle(
+                                            color: Color(0X7FFFFFFF),
+                                            fontSize: 14.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.w200,
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ).toList(),
-                            trigger: Opacity(
-                              opacity: menuVisible ? 0.5 : 1,
-                              child: Row(
-                                children: [
-                                  Image.asset(getCurACMode()["icon"]!,
-                                      width: 30, height: 30),
-                                  Text(
-                                    getCurACMode()["text"]!,
-                                    style: const TextStyle(
-                                      color: Color(0X7FFFFFFF),
-                                      fontSize: 14.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.w200,
-                                      decoration: TextDecoration.none,
-                                    ),
-                                  ),
-                                ],
+                                  onVisibleChange: (visible) {
+                                    setState(() {
+                                      menuVisible = visible;
+                                    });
+                                  },
+                                  onSelected: (dynamic mode) {
+                                    airConditionModeHandle(mode);
+                                  },
+                                ),
                               ),
                             ),
-                            onVisibleChange: (visible) {
-                              setState(() {
-                                menuVisible = visible;
-                              });
-                            },
-                            onSelected: (dynamic mode) {
-                              airConditionModeHandle(mode);
-                            },
-                          ),
+                            GestureDetector(
+                              onTap: () => airConditionPowerHandle(
+                                  !CenterControlService.isAirConditionPower(
+                                      context)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Image.asset(
+                                  CenterControlService.isAirConditionPower(
+                                          context)
+                                      ? 'assets/imgs/device/on.png'
+                                      : 'assets/imgs/device/off.png',
+                                  alignment: Alignment.centerRight,
+                                  width: 50,
+                                  height: 50,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () =>
-                            airConditionPowerHandle(
-                                !CenterControlService.isAirConditionPower(
-                                    context)),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Image.asset(
-                            CenterControlService.isAirConditionPower(context)
-                                ? 'assets/imgs/device/on.png'
-                                : 'assets/imgs/device/off.png',
-                            alignment: Alignment.centerRight,
-                            width: 50,
-                            height: 50,
-                          ),
-                        ),
-                      )
+                      airConditionPanel
+                          ? SliderButtonContent(
+                              unit: '℃',
+                              min: 17,
+                              max: 30,
+                              value:
+                                  CenterControlService.airConditionTemperature(
+                                      context),
+                              sliderWidth: 380,
+                              onChanged: (value) {
+                                airConditionValueHandle(value);
+                              },
+                            )
+                          : SliderButtonContent(
+                              unit: '',
+                              min: 1,
+                              max: 6,
+                              value: CenterControlService.airConditionGear(
+                                  context),
+                              sliderWidth: 380,
+                              onChanged: (value) {
+                                airConditionValueHandle(value);
+                              },
+                            )
                     ],
                   ),
-                ),
-                SliderButtonContent(
-                  unit: airConditionPanel ? '℃' : '档',
-                  min: airConditionPanel ? 17 : 1,
-                  max: airConditionPanel ? 30 : 6,
-                  value: airConditionPanel
-                      ? CenterControlService.airConditionTemperature(context)
-                      : CenterControlService.airConditionGear(context),
-                  sliderWidth: 400,
-                  onChanged: (value) {
-                    airConditionValueHandle(value);
-                  },
                 )
               ],
-            ),
-          )
-        ],
       ),
     );
   }

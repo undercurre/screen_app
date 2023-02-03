@@ -60,7 +60,7 @@ class CurtainApi implements DeviceInterface {
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
     var res = await DeviceApi.sendLuaOrder(
-        '0x14', deviceInfo.applianceCode, {"curtain_status": '', 'curtain_direction': 'positive'});
+        '0x14', deviceInfo.applianceCode, {"curtain_status": onOff ? 'open' : 'close', 'curtain_direction': 'positive'});
     return res;
   }
 }

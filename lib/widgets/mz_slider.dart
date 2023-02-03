@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/global.dart';
 
 class MzSlider extends StatefulWidget {
   // 渐变色数组
@@ -201,6 +202,9 @@ class _MzSliderState extends State<MzSlider>
 
   // 获取激活部分滑动条长度
   double get activeRailWidth {
+    if (widget.height + valueToPercentage(value) * (widget.width - widget.height) < 0) {
+      logger.i('错误原因', {widget.height, widget.width, value, widget.max, widget.min, valueToPercentage(value)});
+    }
     return widget.height + valueToPercentage(value) * (widget.width - widget.height);
   }
 
@@ -209,6 +213,9 @@ class _MzSliderState extends State<MzSlider>
   }
 
   num valueToPercentage(num value) {
+    if (value - widget.min < 0) {
+      return 0;
+    }
     return (value - widget.min) / (widget.max - widget.min);
   }
 

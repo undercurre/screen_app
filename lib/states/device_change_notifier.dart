@@ -41,21 +41,21 @@ class DeviceListModel extends ProfileChangeNotifier {
 
   List<DeviceEntity> get deviceList => _deviceListResource;
 
-  List<DeviceEntity> get curtainList => _deviceListResource.where(curtainFilter).toList();
+  List<DeviceEntity> get curtainList => deviceList.where(curtainFilter).toList();
 
-  List<DeviceEntity> get lightList => _deviceListResource.where(lightFilter).toList();
+  List<DeviceEntity> get lightList => deviceList.where(lightFilter).toList();
 
-  List<DeviceEntity> get airConditionList => _deviceListResource.where(airConditionFilter).toList();
+  List<DeviceEntity> get airConditionList => deviceList.where(airConditionFilter).toList();
 
   set deviceList(List<DeviceEntity> newList) {
     _deviceListResource = newList;
-    logger.i("DeviceListModelChange: $deviceList");
+    logger.i("DeviceListChange: $deviceList");
     notifyListeners();
   }
 
   // 根据设备id获取设备的deviceInfo
   DeviceEntity getDeviceInfoById(String deviceId) {
-    var curDeviceList = _deviceListResource
+    var curDeviceList = deviceList
         .where((element) => element.applianceCode == deviceId)
         .toList();
     if (curDeviceList.isNotEmpty) {
@@ -68,7 +68,7 @@ class DeviceListModel extends ProfileChangeNotifier {
 
   // 根据设备id获取设备的deviceInfo
   DeviceEntity getDeviceInfoByIdAndType(String deviceId, String type) {
-    var curDeviceList = _deviceListResource
+    var curDeviceList = deviceList
         .where((element) => element.applianceCode == deviceId && element.type == type)
         .toList();
     if (curDeviceList.isNotEmpty) {
@@ -81,7 +81,7 @@ class DeviceListModel extends ProfileChangeNotifier {
 
   // 根据设备id获取设备的detail
   Map<String, dynamic> getDeviceDetail(String deviceId) {
-    var curDeviceList = _deviceListResource
+    var curDeviceList = deviceList
         .where((element) => element.applianceCode == deviceId)
         .toList();
     if (curDeviceList.isNotEmpty) {
@@ -103,7 +103,7 @@ class DeviceListModel extends ProfileChangeNotifier {
   Future<void> updateDeviceDetail(DeviceEntity deviceInfo,
       {Function? callback}) async {
     // todo: 优化数据更新diff
-    var curDeviceList = _deviceListResource
+    var curDeviceList = deviceList
         .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
         .toList();
     if (curDeviceList.isNotEmpty) {
@@ -131,9 +131,9 @@ class DeviceListModel extends ProfileChangeNotifier {
 
   // 重置设备detail
   void setProviderDeviceInfo(DeviceEntity device, {Function? callback}) {
-    final index = _deviceListResource
+    final index = deviceList
         .indexWhere((element) => element.applianceCode == device.applianceCode);
-    _deviceListResource[index] = device;
+    deviceList[index] = device;
     notifyListeners();
     if (callback != null) callback();
   }
@@ -204,7 +204,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         "applianceList": group["applianceList"],
         "detail": detail
       };
-      _deviceListResource.add(vistualDeviceForGroup);
+      deviceList.add(vistualDeviceForGroup);
       notifyListeners();
       logger.i("vistualDeviceForGroup: $vistualDeviceForGroup");
     }

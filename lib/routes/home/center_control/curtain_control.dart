@@ -107,7 +107,7 @@ class CurtainControlState extends State<CurtainControl> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           GestureDetector(
-                            onTap: () => curtainHandle(false),
+                            onTap: () => curtainHandle(true),
                             child: Opacity(
                               opacity:
                                   CenterControlService.isCurtainPower(context)
@@ -131,7 +131,7 @@ class CurtainControlState extends State<CurtainControl> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => curtainHandle(true),
+                            onTap: () => curtainHandle(false),
                             child: Opacity(
                               opacity:
                                   !CenterControlService.isCurtainPower(context)

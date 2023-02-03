@@ -56,8 +56,9 @@ class SelectRoomPageState extends State<SelectRoomPage> {
                     debugPrint('SelectRoom: ${room.toJson()}');
                     Global.profile.roomInfo = room;
                     context.read<RoomModel>().roomInfo = room;
-                    context.read<DeviceListModel>().deviceList = room.applianceList;
-                    context.read<DeviceListModel>().deviceList.forEach((deviceInfo) {
+                    var deviceModel = context.read<DeviceListModel>();
+                    deviceModel.deviceList = room.applianceList;
+                    for (var deviceInfo in deviceModel.deviceList) {
                       // 查看品类控制器看是否支持该品类
                       var hasController = getController(deviceInfo) != null;
                       if (hasController &&
@@ -66,7 +67,7 @@ class SelectRoomPageState extends State<SelectRoomPage> {
                         // 调用provider拿detail存入状态管理里
                         context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
                       }
-                    });
+                    }
                   }
               )
           )
