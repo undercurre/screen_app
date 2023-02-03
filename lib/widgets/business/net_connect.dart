@@ -85,10 +85,10 @@ class _LinkNetworkModel with ChangeNotifier {
   void _connectStateCallback(NetState state) {
     int ethernetState = state.ethernetState;
     int wifiState = state.wifiState;
-    if (wifiState == 0) {
-      _data.currentConnect = null;
-    } else if (wifiState == 2) {
+    if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
+    } else {
+      _data.currentConnect = null;
     }
     notifyListeners();
   }
@@ -175,58 +175,52 @@ class _LinkNetwork extends State<LinkNetwork> {
         value: _LinkNetworkModel(context),
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
           _model = model;
-          return Expanded(
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                  color: Color.fromRGBO(216, 216, 216, 0.1)),
-              child: ListView.builder(
-                  itemCount: model.pageData.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    // 有线网络
-                    if (model.pageData[index] == 'headerTag') {
-                      return header(model);
+          return ListView.builder(
+              itemCount: model.pageData.length,
+              itemBuilder: (BuildContext context, int index) {
+                // 有线网络
+                if (model.pageData[index] == 'headerTag') {
+                  return header(model);
+                }
+                WiFiScanResult item =
+                    model.pageData[index] as WiFiScanResult;
+                // wifi的子Item
+                return MzCell(
+                  avatarIcon: const Icon(
+                    Icons.wifi,
+                    color: Color.fromRGBO(255, 255, 255, 0.85),
+                    size: 24.0,
+                  ),
+                  rightIcon: const Icon(Icons.lock_outline_sharp,
+                      color: Color.fromRGBO(255, 255, 255, 0.85)),
+                  title: item.ssid,
+                  titleSize: 18.0,
+                  hasTopBorder: true,
+                  bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
+                  onTap: () {
+                    if (item.auth == 'open') {
+                      // 尝试连接开放型WiFi
+                      model.connectWiFi(
+                          result: item,
+                          password: null,
+                          callback: (result) {});
+                    } else if (item.alreadyConnected) {
+                      // 尝试连接曾经的WiFi
+                      model.connectWiFi(
+                          result: item,
+                          password: null,
+                          callback: (result) {
+                            if (!result) {
+                              showInputPasswordDialog(item, model);
+                            }
+                          });
+                    } else {
+                      // 连接新WiFi
+                      showInputPasswordDialog(item, model);
                     }
-                    WiFiScanResult item =
-                        model.pageData[index] as WiFiScanResult;
-                    // wifi的子Item
-                    return MzCell(
-                      avatarIcon: const Icon(
-                        Icons.wifi,
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                        size: 24.0,
-                      ),
-                      rightIcon: const Icon(Icons.lock_outline_sharp,
-                          color: Color.fromRGBO(255, 255, 255, 0.85)),
-                      title: item.ssid,
-                      titleSize: 18.0,
-                      hasTopBorder: true,
-                      bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-                      onTap: () {
-                        if (item.auth == 'open') {
-                          // 尝试连接开放型WiFi
-                          model.connectWiFi(
-                              result: item,
-                              password: null,
-                              callback: (result) {});
-                        } else if (item.alreadyConnected) {
-                          // 尝试连接曾经的WiFi
-                          model.connectWiFi(
-                              result: item,
-                              password: null,
-                              callback: (result) {
-                                if (!result) {
-                                  showInputPasswordDialog(item, model);
-                                }
-                              });
-                        } else {
-                          // 连接新WiFi
-                          showInputPasswordDialog(item, model);
-                        }
-                      },
-                    );
-                  }),
-            ),
-          );
+                  },
+                );
+              });
         }));
   }
 

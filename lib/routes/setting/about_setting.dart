@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +56,11 @@ class AboutSettingProvider with ChangeNotifier {
   }
 
   void clearUserData() {
+    System.loginOut();
 
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      aboutSystemChannel.reboot();
+    });
   }
 
 }
@@ -88,6 +94,7 @@ class AboutSettingPage extends StatelessWidget {
               title: "清除用户数据",
               content: "此操作将退出当前账号，清除所有用户数据并重启，是否确认清除",
               confirmAction: () {
+                TipsUtils.showLoading("正在清除中...");
                 // 此处执行清除数据的业务逻辑
                 provider.clearUserData();
               },

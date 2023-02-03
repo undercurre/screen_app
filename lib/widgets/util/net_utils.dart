@@ -15,6 +15,8 @@ enum NetType { ethernet, wifi }
 class MZNetState {
   final NetType type;
   MZNetState(this.type);
+  get isWifi => type == NetType.wifi;
+  get isEthernet => type == NetType.ethernet;
 }
 
 /// 任意组件用来监听网络连接情况
