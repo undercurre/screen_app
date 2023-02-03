@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:screen_app/mixins/auto_sniffer.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -9,7 +8,7 @@ import 'package:screen_app/widgets/index.dart';
 import './mode_list.dart';
 import '../../home/device/service.dart';
 
-class WifiCurtainPageState extends State<WifiCurtainPage> with AutoSniffer {
+class WifiCurtainPageState extends State<WifiCurtainPage> {
   String deviceId = '178120883713504'; // 暂时写死设备编码
   String deviceName = '智能窗帘';
   String deviceType = '0x14';

@@ -59,6 +59,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => RoomModel()),
         ChangeNotifierProvider(create: (_) => StandbyChangeNotifier()),
         ChangeNotifierProvider(create: (_) => SceneChangeNotifier()),
+        ChangeNotifierProvider(create: (_) => GlobalRouteObserverProvider())
       ],
       child: PointerDownListener(
           child: MaterialApp(
@@ -75,7 +76,6 @@ class _App extends State<App> {
           // 全局点击操作监听
           onPointerDown: (e) {
             bus.emit("onPointerDown");
-
             ShowStandby.startTimer();
           }),
     );
