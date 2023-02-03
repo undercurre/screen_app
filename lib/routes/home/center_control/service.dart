@@ -50,6 +50,7 @@ import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
 import '../../../common/api/device_api.dart';
 import '../../../common/api/scene_api.dart';
+import '../../../models/device_entity.dart';
 import '../../../models/mz_response_entity.dart';
 import '../../../states/device_change_notifier.dart';
 
@@ -304,23 +305,23 @@ class CenterControlService {
   }
 
   /// 空调
-  static bool isAirConditionPower(BuildContext context) {
+  static bool isAirConditionPower(List<DeviceEntity> airConditionList) {
     var totalPower = false;
-    var deviceModel = context.watch<DeviceListModel>();
-    var airConditionList = deviceModel.airConditionList;
+    var log = '';
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      log = log + '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
+      // logger.i('$log');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
-    // logger.i('空调中控结果$totalPower');
+    // logger.i('空调中控开关结果$totalPower');
     return totalPower;
   }
 
   static String airConditionMode(BuildContext context) {
-    late String totalModeValue;
+    String totalModeValue = 'auto';
     List<String> totalModeList = [];
     var deviceModel = context.watch<DeviceListModel>();
     var airConditionList = deviceModel.airConditionList;
@@ -338,8 +339,7 @@ class CenterControlService {
     Map frequency = {for (var e in totalModeList) e: totalModeList.where((i) => i == e).length};
 
     var maxFrequency = frequency.values.toList().isNotEmpty ? frequency.values.toList().reduce((value, element) => max) : 0;
-
-    totalModeValue = frequency.keys.isNotEmpty ? frequency.keys.firstWhere((k) => frequency[k] == maxFrequency) : 'auto';
+    totalModeValue = (frequency.keys.toList().isNotEmpty && (maxFrequency is num) && maxFrequency != 0) ? frequency.keys.toList().firstWhere((k) => frequency[k] == maxFrequency) : 'auto';
 
     // logger.i('空调中控模式$totalModeValue');
     return totalModeValue;
@@ -405,7 +405,7 @@ class CenterControlService {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
+        logger.i('空调开关${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);
@@ -420,10 +420,13 @@ class CenterControlService {
     final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      late MzResponseEntity<dynamic> res;
-      res = await AirConditionApi.temperatureLua(deviceInfo.applianceCode, value);
-      if (res.isSuccess) {
-        deviceListModel.updateDeviceDetail(deviceInfo);
+      if (DeviceService.isOnline(deviceInfo)) {
+        var res = await AirConditionApi.temperatureLua(
+            deviceInfo.applianceCode, value);
+        logger.i('空调温控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
+        if (res.isSuccess) {
+          deviceListModel.updateDeviceDetail(deviceInfo);
+        }
       }
     }
   }
@@ -433,10 +436,13 @@ class CenterControlService {
     final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      late MzResponseEntity<dynamic> res;
-      res = await AirConditionApi.gearLua(deviceInfo.applianceCode, (value - 1) * 20 + 1);
-      if (res.isSuccess) {
-        deviceListModel.updateDeviceDetail(deviceInfo);
+      if (DeviceService.isOnline(deviceInfo)) {
+        var res = await AirConditionApi.gearLua(
+            deviceInfo.applianceCode, value > 1 ? ((value - 1) * 20) : 1);
+        logger.i('空调风控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
+        if (res.isSuccess) {
+          deviceListModel.updateDeviceDetail(deviceInfo);
+        }
       }
     }
   }
@@ -446,8 +452,7 @@ class CenterControlService {
     final airConditionList = deviceListModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      late MzResponseEntity<dynamic> res;
-      res = await AirConditionApi.modeLua(deviceInfo.applianceCode, mode);
+      var res = await AirConditionApi.modeLua(deviceInfo.applianceCode, mode);
       if (res.isSuccess) {
         deviceListModel.updateDeviceDetail(deviceInfo);
       }

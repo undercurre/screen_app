@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
+import 'package:screen_app/routes/sniffer/device_item.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../widgets/business/dropdown_menu.dart';
 import '../../../widgets/mz_metal_card.dart';
@@ -50,6 +53,8 @@ class AirConditionControlState extends State<AirConditionControl> {
   ];
 
   void switchACPanel(bool onOff) {
+    if (!CenterControlService.isAirConditionPower(
+        context.read<DeviceListModel>().airConditionList)) return;
     setState(() {
       airConditionPanel = onOff;
     });
@@ -104,6 +109,7 @@ class AirConditionControlState extends State<AirConditionControl> {
 
   @override
   Widget build(BuildContext context) {
+    var airConditionList = context.watch<DeviceListModel>().airConditionList;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
@@ -278,12 +284,12 @@ class AirConditionControlState extends State<AirConditionControl> {
                             GestureDetector(
                               onTap: () => airConditionPowerHandle(
                                   !CenterControlService.isAirConditionPower(
-                                      context)),
+                                      airConditionList)),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
                                   CenterControlService.isAirConditionPower(
-                                          context)
+                                          airConditionList)
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -517,12 +523,12 @@ class AirConditionControlState extends State<AirConditionControl> {
                             GestureDetector(
                               onTap: () => airConditionPowerHandle(
                                   !CenterControlService.isAirConditionPower(
-                                      context)),
+                                      airConditionList)),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
                                   CenterControlService.isAirConditionPower(
-                                          context)
+                                          airConditionList)
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -546,6 +552,9 @@ class AirConditionControlState extends State<AirConditionControl> {
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
+                              disabled:
+                                  !CenterControlService.isAirConditionPower(
+                                      airConditionList),
                             )
                           : SliderButtonContent(
                               unit: '',
@@ -557,6 +566,9 @@ class AirConditionControlState extends State<AirConditionControl> {
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
+                              disabled:
+                                  !CenterControlService.isAirConditionPower(
+                                      airConditionList),
                             )
                     ],
                   ),
