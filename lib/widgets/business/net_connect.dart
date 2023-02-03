@@ -33,29 +33,51 @@ class _LinkNetworkModel with ChangeNotifier {
       ];
 
   _LinkNetworkModel(BuildContext context) {
-    _data = _LinkNetworkData(isWiFiOn: true, isEthernetOn: false);
+    _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
     _context = context;
     init();
   }
 
   void init() async {
+
     bool supportWifi = await netMethodChannel.supportWiFiControl();
     bool supportEthernet = await netMethodChannel.supportEthernetControl();
+    bool wifiOpen = await netMethodChannel.wifiIsOpen();
+    bool ethernetOpen = await netMethodChannel.ethernetIsOpen();
+
     _data.supportWiFi = supportWifi;
     _data.supportEthernet = supportEthernet;
-    if (supportWifi) {
-      netMethodChannel.scanNearbyWiFi();
+    _data.isWiFiOn = wifiOpen;
+    _data.isEthernetOn = ethernetOpen;
+
+    /// 假如WiFi与EthernetOpen同时连接，则断开全部
+    if(wifiOpen && ethernetOpen) {
+      await netMethodChannel.enableWiFi(false);
+      await netMethodChannel.enableEthernet(false);
+      _data.isWiFiOn = false;
+      _data.isEthernetOn = false;
+    }
+
+    if (_data.supportWiFi) {
       netMethodChannel.registerScanWiFiCallBack(_wiFiListCallback);
     }
+
     netMethodChannel.startObserverNetState();
     netMethodChannel.registerNetChangeCallBack(_connectStateCallback);
+
+    if(_data.supportWiFi && _data.isWiFiOn) {
+      netMethodChannel.scanNearbyWiFi();
+    }
+
     notifyListeners();
+
   }
 
   @override
   void dispose() {
     super.dispose();
     netMethodChannel.stopObserverNetState();
+    netMethodChannel.stopScanNearbyWiFi();
     netMethodChannel.unregisterNetChangeCallBack(_connectStateCallback);
     netMethodChannel.unregisterScanWiFiCallBack(_wiFiListCallback);
   }
@@ -76,12 +98,17 @@ class _LinkNetworkModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeSwitch(bool wifiOpen, bool ethernetOpen) {
+  void changeSwitch(bool wifiOpen, bool ethernetOpen) async {
     if (_data.supportWiFi) {
-      netMethodChannel.enableWiFi(wifiOpen);
+      await netMethodChannel.enableWiFi(wifiOpen);
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
+      if(wifiOpen) {
+        netMethodChannel.scanNearbyWiFi();
+      } else {
+        netMethodChannel.stopScanNearbyWiFi();
+      }
     }
     if (_data.supportEthernet) {
       _data.isEthernetOn = ethernetOpen;
@@ -128,6 +155,9 @@ class LinkNetwork extends StatefulWidget {
 }
 
 class _LinkNetwork extends State<LinkNetwork> {
+
+  late _LinkNetworkModel _model;
+
   @override
   void initState() {
     super.initState();
@@ -135,6 +165,7 @@ class _LinkNetwork extends State<LinkNetwork> {
 
   @override
   dispose() {
+    _model.dispose();
     super.dispose();
   }
 
@@ -143,6 +174,7 @@ class _LinkNetwork extends State<LinkNetwork> {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
         value: _LinkNetworkModel(context),
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
+          _model = model;
           return Expanded(
             child: DecoratedBox(
               decoration: const BoxDecoration(
