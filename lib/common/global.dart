@@ -160,3 +160,9 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
 
 final GlobalRouteObserver<PageRoute> globalRouteObserver =
     GlobalRouteObserver<PageRoute>();
+
+
+class GlobalRouteObserverProvider with ChangeNotifier {
+  final GlobalRouteObserver<PageRoute> _globalRouteObserver = globalRouteObserver;
+  get routeObserver => _globalRouteObserver;
+}
