@@ -25,9 +25,11 @@ class DeviceListModel extends ProfileChangeNotifier {
   bool lightFilter(DeviceEntity device) {
     return device.type == '0x13' ||
         (device.type == '0x21' &&
-            (zigbeeControllerList[device.modelNumber] == '0x21_light_colorful' ||
+            (zigbeeControllerList[device.modelNumber] ==
+                    '0x21_light_colorful' ||
                 zigbeeControllerList[device.modelNumber] ==
-                    '0x21_light_noColor'));
+                    '0x21_light_noColor')) ||
+        device.type == 'lightGroup';
   }
 
   // 空调判断式
@@ -35,17 +37,18 @@ class DeviceListModel extends ProfileChangeNotifier {
     return device.type == '0xAC';
   }
 
-
   List<DeviceEntity> _deviceListResource =
       Global.profile.roomInfo!.applianceList;
 
   List<DeviceEntity> get deviceList => _deviceListResource;
 
-  List<DeviceEntity> get curtainList => deviceList.where(curtainFilter).toList();
+  List<DeviceEntity> get curtainList =>
+      deviceList.where(curtainFilter).toList();
 
   List<DeviceEntity> get lightList => deviceList.where(lightFilter).toList();
 
-  List<DeviceEntity> get airConditionList => deviceList.where(airConditionFilter).toList();
+  List<DeviceEntity> get airConditionList =>
+      deviceList.where(airConditionFilter).toList();
 
   set deviceList(List<DeviceEntity> newList) {
     _deviceListResource = newList;
@@ -69,7 +72,8 @@ class DeviceListModel extends ProfileChangeNotifier {
   // 根据设备id获取设备的deviceInfo
   DeviceEntity getDeviceInfoByIdAndType(String deviceId, String type) {
     var curDeviceList = deviceList
-        .where((element) => element.applianceCode == deviceId && element.type == type)
+        .where((element) =>
+            element.applianceCode == deviceId && element.type == type)
         .toList();
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
@@ -80,7 +84,7 @@ class DeviceListModel extends ProfileChangeNotifier {
   }
 
   // 根据设备id获取设备的detail
-  Map<String, dynamic> getDeviceDetail(String deviceId) {
+  Map<String, dynamic> getDeviceDetailById(String deviceId) {
     var curDeviceList = deviceList
         .where((element) => element.applianceCode == deviceId)
         .toList();
@@ -104,21 +108,30 @@ class DeviceListModel extends ProfileChangeNotifier {
       {Function? callback}) async {
     // todo: 优化数据更新diff
     var curDeviceList = deviceList
-        .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
+        .where((element) =>
+            element.applianceCode == deviceInfo.applianceCode &&
+            element.type == deviceInfo.type)
         .toList();
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
       if (deviceInfo.type == 'lightGroup') {
         curDevice.detail!["detail"] = newDetail;
-      } else if (deviceInfo.type == 'smartControl-1' || deviceInfo.type == 'smartControl-2') {
-        curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1' ? newDetail['panelOne'] : newDetail['panelTwo'];
+      } else if (deviceInfo.type == 'smartControl-1' ||
+          deviceInfo.type == 'smartControl-2') {
+        curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1'
+            ? newDetail['panelOne']
+            : newDetail['panelTwo'];
         debugPrint('智慧屏$newDetail');
-      } else if (deviceInfo.type == 'singlePanel-1' || deviceInfo.type == 'singlePanel-2' || deviceInfo.type == 'singlePanel-3' || deviceInfo.type == 'singlePanel-4') {
+      } else if (deviceInfo.type == 'singlePanel-1' ||
+          deviceInfo.type == 'singlePanel-2' ||
+          deviceInfo.type == 'singlePanel-3' ||
+          deviceInfo.type == 'singlePanel-4') {
         debugPrint('面板${curDevice.detail!['status']["endPoint"]}');
         var panelIndex = curDevice.detail!['status']["endPoint"] - 1;
         debugPrint('面板${newDetail["deviceControlList"]}');
-        curDevice.detail!['status'] = newDetail["deviceControlList"][panelIndex];
+        curDevice.detail!['status'] =
+            newDetail["deviceControlList"][panelIndex];
       } else {
         curDevice.detail = newDetail;
       }
@@ -180,7 +193,6 @@ class DeviceListModel extends ProfileChangeNotifier {
             "uid": Global.profile.user?.uid,
           }));
       var detail = result.result["result"];
-      debugPrint("灯组$group详情$detail");
       var vistualDeviceForGroup = DeviceEntity();
       vistualDeviceForGroup.applianceCode = group["groupId"].toString();
       vistualDeviceForGroup.modelNumber = '';
@@ -204,11 +216,86 @@ class DeviceListModel extends ProfileChangeNotifier {
         "applianceList": group["applianceList"],
         "detail": detail
       };
+      deviceList.removeWhere((element) => element.type == 'lightGroup');
       deviceList.add(vistualDeviceForGroup);
       notifyListeners();
       logger.i("vistualDeviceForGroup: $vistualDeviceForGroup");
     }
     logger.i("lightGroupListInRoom: $groupListInRoom");
     logger.i("deviceList: $deviceList");
+  }
+
+  Future<void> updateAllDetail() async {
+    // 更新设备detail
+    for (int xx = 1; xx <= deviceList.length; xx++) {
+      var deviceInfo = deviceList[xx - 1];
+      // 查看品类控制器看是否支持该品类
+      var hasController = getController(deviceInfo) != null;
+      if (hasController &&
+          DeviceService.isOnline(deviceInfo) &&
+          (DeviceService.isSupport(deviceInfo) ||
+              DeviceService.isVistual(deviceInfo))) {
+        // 调用provider拿detail存入状态管理里
+        updateDeviceDetail(deviceInfo,
+            callback: () => {
+                  // todo: 优化刷新效率
+                  if (DeviceService.isVistual(deviceInfo))
+                    {setVistualDevice(deviceInfo)}
+                });
+      } else {
+        if (DeviceService.isVistual(deviceInfo)) {
+          setVistualDevice(deviceInfo);
+        }
+      }
+    }
+  }
+
+  // 放置虚拟设备
+  void setVistualDevice(DeviceEntity deviceInfo) {
+    // 智慧屏线控器
+    if (deviceInfo.type == '0x16' &&
+        (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
+      if (deviceList
+          .where((element) =>
+              element.applianceCode == deviceInfo.applianceCode &&
+              element.type == 'smartControl-1')
+          .toList()
+          .isEmpty) {
+        productVistualDevice(
+            deviceInfo, '${deviceInfo.name}线控器1', "smartControl-1", "panelOne");
+      }
+      if (deviceList
+          .where((element) =>
+              element.applianceCode == deviceInfo.applianceCode &&
+              element.type == 'smartControl-2')
+          .toList()
+          .isEmpty) {
+        productVistualDevice(
+            deviceInfo, '${deviceInfo.name}线控器2', "smartControl-2", "panelTwo");
+      }
+    }
+    // 面板
+    if (deviceInfo.type == '0x21' &&
+        zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
+      if (deviceInfo.detail != null) {
+        debugPrint(
+            '制造面板中${deviceInfo.detail},一共${deviceInfo.detail!["deviceControlList"].length}路');
+        for (int xx = 1;
+            xx <= deviceInfo.detail!["deviceControlList"].length;
+            xx++) {
+          if (deviceList
+                  .where((element) =>
+                      element.applianceCode == deviceInfo.applianceCode &&
+                      element.type == 'singlePanel')
+                  .toList()
+                  .length <
+              deviceInfo.detail!["deviceControlList"].length) {
+            productVistualDevice(deviceInfo, '${deviceInfo.name}$xx路',
+                "singlePanel-$xx", "deviceControlList",
+                indexOfList: xx - 1);
+          }
+        }
+      }
+    }
   }
 }

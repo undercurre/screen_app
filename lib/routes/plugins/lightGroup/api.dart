@@ -34,7 +34,6 @@ class WrapLightGroup implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    debugPrint('判断$deviceInfo');
     return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["group"]["switchStatus"] == "1" : false;
   }
 

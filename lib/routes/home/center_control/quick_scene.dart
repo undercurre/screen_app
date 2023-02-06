@@ -33,8 +33,8 @@ class QuickSceneState extends State<QuickScene> {
   Widget build(BuildContext context) {
     final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
     sceneList = sceneChangeNotifier.selectSceneList;
-    logger.i(
-        'ViewSceneNotice${sceneChangeNotifier.selectSceneList.map((e) => e.name).toList()}');
+    // logger.i(
+    //     'ViewSceneNotice${sceneChangeNotifier.selectSceneList.map((e) => e.name).toList()}');
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: MzMetalCard(

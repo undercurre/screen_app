@@ -98,29 +98,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
     // 查灯组列表
     if (!mounted) return;
     context.read<DeviceListModel>().selectLightGroupList();
-    // 更新设备detail
-    var deviceList = context.read<DeviceListModel>().deviceList;
-    debugPrint('加载到的设备列表$deviceList');
-    for (int xx = 1; xx <= deviceList.length; xx++) {
-      var deviceInfo = deviceList[xx - 1];
-      debugPrint('遍历中$deviceInfo');
-      // 查看品类控制器看是否支持该品类
-      var hasController = getController(deviceInfo) != null;
-      if (hasController &&
-          DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))) {
-        // 调用provider拿detail存入状态管理里
-        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo,
-            callback: () => {
-                  // todo: 优化刷新效率
-                  if (DeviceService.isVistual(deviceInfo)) {DeviceService.setVistualDevice(context, deviceInfo)}
-                });
-      } else {
-        if (DeviceService.isVistual(deviceInfo)) {
-          DeviceService.setVistualDevice(context, deviceInfo);
-        }
-      }
-    }
+    context.read<DeviceListModel>().updateAllDetail();
   }
 
   @override

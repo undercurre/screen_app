@@ -95,7 +95,7 @@ class LightGroupPageState extends State<LightGroupPage> {
       setState(() {
         deviceWatch = context
             .read<DeviceListModel>()
-            .getDeviceDetail(deviceWatch["deviceId"]);
+            .getDeviceDetailById(deviceWatch["deviceId"]);
       });
       deviceInfoById = context
           .read<DeviceListModel>()

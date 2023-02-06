@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../widgets/mz_slider.dart';
 
@@ -29,6 +31,7 @@ class LightControlState extends State<LightControl> {
 
   @override
   Widget build(BuildContext context) {
+    var lightList = context.watch<DeviceListModel>().deviceList;
     return Padding(
       padding: const EdgeInsets.only(left: 20, bottom: 16),
       child: Stack(
@@ -61,9 +64,9 @@ class LightControlState extends State<LightControl> {
                             ),
                             GestureDetector(
                               onTap: () => lightPowerHandle(
-                                  !CenterControlService.isLightPower(context)),
+                                  !CenterControlService.isLightPower(lightList)),
                               child: Image.asset(
-                                CenterControlService.isLightPower(context)
+                                CenterControlService.isLightPower(lightList)
                                     ? 'assets/imgs/device/on.png'
                                     : 'assets/imgs/device/off.png',
                                 alignment: Alignment.centerRight,
@@ -169,9 +172,9 @@ class LightControlState extends State<LightControl> {
                             ),
                             GestureDetector(
                               onTap: () => lightPowerHandle(
-                                  !CenterControlService.isLightPower(context)),
+                                  !CenterControlService.isLightPower(lightList)),
                               child: Image.asset(
-                                CenterControlService.isLightPower(context)
+                                CenterControlService.isLightPower(lightList)
                                     ? 'assets/imgs/device/on.png'
                                     : 'assets/imgs/device/off.png',
                                 alignment: Alignment.centerRight,

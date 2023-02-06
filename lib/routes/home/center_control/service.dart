@@ -136,17 +136,19 @@ class CenterControlService {
   }
 
   /// 灯光
-  static bool isLightPower(BuildContext context) {
+  static bool isLightPower(List<DeviceEntity> lightList) {
     var totalPower = false;
-    var lightList = context.watch<DeviceListModel>().lightList;
+    var log = '';
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
+      log = '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
     // logger.i('灯光中控结果$totalPower');
+    // logger.i(log);
     return totalPower;
   }
 
@@ -154,11 +156,12 @@ class CenterControlService {
     late num totalBrightnessValue;
     List<num> totalBrightnessList = [];
     var lightList = context.watch<DeviceListModel>().lightList;
-    for (var i = 1; i <= lightList.length; i++) {
+    var log = '';
+    for (var i = 1; i <= lightList.length; i ++) {
       var deviceInfo = lightList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.watch<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = context.watch<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
@@ -168,12 +171,13 @@ class CenterControlService {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
           }
         } else if (deviceInfo.type == 'lightGroup') {
-          value = res["detail"]["brightness"] ?? 0;
+          value = num.parse(res["detail"]["detail"]["group"]["brightness"]);
         } else {
           value = (res["detail"]["brightValue"] / 255) * 100 ?? 0;
         }
         // logger.i('中控${deviceInfo.name}亮度$value');
         totalBrightnessList.add(value);
+        log = '$log${deviceInfo.name}:$value';
       }
     }
     if (totalBrightnessList.isNotEmpty) {
@@ -182,7 +186,7 @@ class CenterControlService {
     } else {
       totalBrightnessValue = 0;
     }
-    // logger.i('灯光中控亮度结果$totalBrightnessValue');
+    // logger.i('灯光中控亮度结果$totalBrightnessValue', log);
     return totalBrightnessValue.round();
   }
 
@@ -195,20 +199,20 @@ class CenterControlService {
       // logger.i(
       //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.watch<DeviceListModel>().getDeviceDetail(deviceInfo.applianceCode);
+        var res = context.watch<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
         late num value;
         if (deviceInfo.type == '0x21') {
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
             value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
           } else if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-            value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
+            value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 100;
           }
         } else if (deviceInfo.type == '0x13') {
           value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
         } else {
-          value = res["detail"]["colorTemperature"] ?? 0;
+          value = num.parse(res["detail"]["detail"]["group"]["colorTemperature"]);
         }
-        logger.i('中控${deviceInfo.name}色温$value');
+        // logger.i('中控${deviceInfo.name}色温$value');
         totalColorTemperatureList.add(value);
       }
     }
@@ -218,7 +222,7 @@ class CenterControlService {
     } else {
       totalColorTemperatureValue = 0;
     }
-    // logger.i('灯光中控色温结果$totalColorTemperatureValue');
+    // logger.i('灯光中控色温结果$totalColorTemperatureValue', totalColorTemperatureList);
     return totalColorTemperatureValue.round();
   }
 
@@ -255,12 +259,12 @@ class CenterControlService {
           Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
           var nodeId = infoMap["nodeid"];
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
-            res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, value,
+            res = await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, value,
                 deviceInfo.detail!["lightPanelDeviceList"][0]["colorTemperature"], nodeId);
           }
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-            res = await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, value,
-                deviceInfo.detail!["lightPanelDeviceList"][0]["colorTemperature"], nodeId);
+            res = await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, value,
+                0, nodeId);
           }
         } else {
           // 灯组
@@ -288,11 +292,11 @@ class CenterControlService {
         var nodeId = infoMap["nodeid"];
         if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
           res =
-              await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
+              await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"], value, nodeId);
         }
         if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
           res =
-              await ZigbeeLightApi.adjustPDM(deviceInfo.applianceCode, deviceInfo.detail!["brightness"], value, nodeId);
+              await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"], value, nodeId);
         }
       } else {
         // 灯组
@@ -329,7 +333,7 @@ class CenterControlService {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["mode"] ?? 'auto';
         // logger.i('中控${deviceInfo.name}风速$value');
@@ -354,7 +358,7 @@ class CenterControlService {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["wind_speed"] / 20 + 1;
         // logger.i('中控${deviceInfo.name}风速$value');
@@ -380,7 +384,7 @@ class CenterControlService {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = deviceModel.getDeviceDetail(deviceInfo.applianceCode);
+        var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["temperature"];
         // logger.i('中控${deviceInfo.name}温度$value');

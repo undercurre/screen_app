@@ -93,7 +93,7 @@ class _DevicePageState extends State<DevicePage> {
   updateBins(DeviceEntity deviceInfo) {
     debugPrint('加载bins$deviceInfo');
     if (DeviceService.isVistual(deviceInfo)) {
-      DeviceService.setVistualDevice(context, deviceInfo);
+      context.read<DeviceListModel>().setVistualDevice(deviceInfo);
     }
     setState(() {
       deviceWidgetList = deviceEntityList.map((device) => DeviceCard(deviceInfo: device)).toList();

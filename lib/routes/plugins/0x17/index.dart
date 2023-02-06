@@ -62,7 +62,7 @@ class WifiLightPageState extends State<WifiLightPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
-      deviceWatch = context.read<DeviceListModel>().getDeviceDetail(deviceWatch["deviceId"]);
+      deviceWatch = context.read<DeviceListModel>().getDeviceDetailById(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
