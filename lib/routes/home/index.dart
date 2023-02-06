@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:screen_app/states/life_cycle_state.dart';
+import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
