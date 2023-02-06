@@ -24,28 +24,35 @@ class WrapZigbeeLight implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    MzResponseEntity<String> gatewayInfo =
-    await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceInfo.applianceCode, deviceInfo.masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     return await ZigbeeLightApi.powerPDM(
         deviceInfo.masterId, onOff, infoMap['nodeid']);
   }
 
   @override
-  bool isSupport (DeviceEntity deviceInfo) {
+  bool isSupport(DeviceEntity deviceInfo) {
     // 过滤modelNumber
-    return zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful' || zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
+    return zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_light_colorful' ||
+        zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor';
   }
 
   @override
-  bool isPower (DeviceEntity deviceInfo) {
-
-    return (deviceInfo.detail != null && deviceInfo.detail!.keys.toList().isNotEmpty) ? deviceInfo.detail!["lightPanelDeviceList"][0]["attribute"] == 1 : false;
+  bool isPower(DeviceEntity deviceInfo) {
+    return (deviceInfo.detail != null &&
+            deviceInfo.detail!.keys.toList().isNotEmpty)
+        ? deviceInfo.detail!["lightPanelDeviceList"][0]["attribute"] == 1
+        : false;
   }
 
   @override
-  String getAttr (DeviceEntity deviceInfo) {
-    return (deviceInfo.detail != null && deviceInfo.detail!.keys.toList().isNotEmpty) ? deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"].toString() : '0';
+  String getAttr(DeviceEntity deviceInfo) {
+    return (deviceInfo.detail != null &&
+            deviceInfo.detail!.keys.toList().isNotEmpty)
+        ? deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"].toString()
+        : '0';
   }
 
   @override
@@ -68,21 +75,23 @@ class WrapZigbeeLight implements DeviceInterface {
 
 class ZigbeeLightApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getLightDetail(String deviceId,
-      String masterId) async {
-    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
-        deviceId, masterId);
+  static Future<MzResponseEntity> getLightDetail(
+      String deviceId, String masterId) async {
+    MzResponseEntity<String> gatewayInfo =
+        await DeviceApi.getGatewayInfo(deviceId, masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
-    var res = await DeviceApi.sendPDMOrder('0x16', 'lightPanleGetStatus',
-        deviceId,
+    var res = await DeviceApi.sendPDMOrder(
+        '0x16',
+        'lightPanleGetStatus',
+        masterId,
         {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
         method: 'POST');
     return res;
   }
 
   /// 设置延时关灯（物模型）
-  static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff,
-      String nodeId) async {
+  static Future<MzResponseEntity> delayPDM(
+      String deviceId, bool onOff, String nodeId) async {
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'lightDelayControl',
@@ -101,20 +110,19 @@ class ZigbeeLightApi {
   }
 
   /// 开关控制（物模型）
-  static Future<MzResponseEntity> powerPDM(String deviceId, bool onOff,
-      String nodeId) async {
+  static Future<MzResponseEntity> powerPDM(
+      String deviceId, bool onOff, String nodeId) async {
+    var command = {
+      "msgId": uuid.v4(),
+      "deviceId": deviceId,
+      "nodeId": nodeId,
+      "deviceControlList": [
+        {"endPoint": 1, "attribute": onOff ? 1 : 0 }
+      ]
+    };
+
     var res = await DeviceApi.sendPDMOrder(
-        '0x16',
-        'lightControl',
-        deviceId,
-        {
-          "brightness": 0,
-          "msgId": uuid.v4(),
-          "power": onOff,
-          "deviceId": deviceId,
-          "nodeId": nodeId,
-          "colorTemperature": 0
-        },
+        '0x16', 'subDeviceControl', deviceId, command,
         method: 'PUT');
 
     return res;

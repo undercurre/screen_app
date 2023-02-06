@@ -23,11 +23,7 @@ class WrapWIFILight implements DeviceInterface {
   @override
   bool isSupport (DeviceEntity deviceInfo) {
     // 过滤sn8
-    if (deviceInfo.sn8 == '79009833') {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 
   @override

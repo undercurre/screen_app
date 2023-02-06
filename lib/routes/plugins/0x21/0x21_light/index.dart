@@ -160,7 +160,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
       setState(() {
         deviceWatch = context
             .read<DeviceListModel>()
-            .getDeviceDetail(deviceWatch["deviceId"]);
+            .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
       });
     });

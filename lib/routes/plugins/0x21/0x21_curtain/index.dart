@@ -181,7 +181,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
       setState(() {
         deviceWatch = context
             .read<DeviceListModel>()
-            .getDeviceDetail(deviceWatch["deviceId"]);
+            .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
         initView();
       });
