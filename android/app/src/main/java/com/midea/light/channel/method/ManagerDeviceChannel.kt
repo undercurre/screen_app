@@ -166,6 +166,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     private fun findZigbeeHandle(methodType: String, bundle: Bundle) {
         if(methodType == Portal.METHOD_SCAN_ZIGBEE_START) {
             val devices = bundle.getParcelableArrayList<ZigbeeScanResult>(Portal.RESULT_SCAN_ZIGBEE_DEVICES)
+            LogUtil.tag("device_zigbee_wifi").array(devices)
             if(devices?.isNotEmpty() == true) {
                 zigbeeDevices.addAll(devices)
                 val json = GsonUtils.stringify(devices)

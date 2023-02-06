@@ -32,13 +32,13 @@ public class FindWiFiDeviceFactory implements IServiceControllerFactory<IService
     public IServiceController getOrCreate(PortalContext context, Bundle bundle) {
         synchronized (FindWiFiDeviceFactory.class) {
             Objects.requireNonNull(bundle, "请保证传入的Bundle不为空");
-            if(bundle.getBoolean(Portal.PARAM_SCAN_WIFI_LOOPER, true)) {
+            if(bundle.getBoolean(Portal.PARAM_SCAN_WIFI_LOOPER, false)) {
                 if (findDeviceController == null) {
                     findDeviceController = new FindWiFiDeviceController(context);
                     findDeviceController.setDeviceRepository(this.repository);
                 }
                 return findDeviceController;
-            } else if (bundle.getBoolean(Portal.PARAM_AUTO_SCAN_WIFI_LOOPER, true)) {
+            } else if (bundle.getBoolean(Portal.PARAM_AUTO_SCAN_WIFI_LOOPER, false)) {
                 if (autoScanDeviceController == null) {
                     autoScanDeviceController = new AutoFindWiFiDeviceController(context);
                     autoScanDeviceController.setDeviceRepository(this.repository);

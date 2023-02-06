@@ -26,6 +26,8 @@ import com.midea.light.log.LogUtil;
 import com.midea.light.utils.CollectionUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
     // wifi管理器
     private WifiManager wifiManager;
     // 用于保存此已经提醒过的设备[静态变量]
-    protected static Map<String, ScanResult> alreadyMap = new HashMap<>();
+    protected Map<String, ScanResult> alreadyMap = new HashMap<>();
     // 标识当前的WiFi扫描是否启动
     private Boolean startScan = Boolean.FALSE;
     // 定时器句柄
@@ -94,12 +96,10 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
     public void startLoopScanWifi() {
         if(!startScan) {
             // 初始化接收器
-            if (mWifiScanReceiver == null) {
-                mWifiScanReceiver = new WifiScanReceiver();
-                getContext().registerReceiver(
-                        mWifiScanReceiver,
-                        new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-            }
+            mWifiScanReceiver = new WifiScanReceiver();
+            getContext().registerReceiver(
+                    mWifiScanReceiver,
+                    new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             startScan = Boolean.TRUE;
             // 启动定时器
@@ -133,8 +133,11 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
         if(mDisposable != null && !mDisposable.isDisposed()) {
             mDisposable.dispose();
         }
+        if(mWifiScanReceiver != null) {
+            getContext().unregisterReceiver(mWifiScanReceiver);
+            mWifiScanReceiver = null;
+        }
         startScan = Boolean.FALSE;
-        mWifiScanReceiver = null;
     }
 
     // 通知wifi列表内容发生变化
@@ -142,11 +145,11 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
         if (!startScan) { return; }
         @SuppressLint("MissingPermission")
         List<ScanResult> wifiList = wifiManager.getScanResults();
+        LogUtil.i("扫描到的wifi数量: " + wifiList.size());
         if(CollectionUtil.isNotEmpty(wifiList)) {
 
             wifiList = wifiList.stream()
                     .filter(FindWiFiDeviceController.this::isRssiPass)
-                    .peek(e -> alreadyMap.put(e.SSID, e))
                     .collect(Collectors.toList());
 
             if(CollectionUtil.isNotEmpty(wifiList)) {
@@ -165,33 +168,39 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
         if (!scanResult.SSID.isEmpty() && scanResult.SSID.replaceAll(WIFI_TEMPLATE, "").equals("")) {
             if (scanResult.level < 0 && scanResult.level > -82) {
                 LogUtil.i("找寻到设备热点的WiFi" + scanResult.toString());
-                return false;
+                return true;
             } else {
                 LogUtil.i("强度不够：设备热点的WiFi" + scanResult.toString());
-                return true;
+                return false;
             }
         }
-        return true;
+        return false;
     }
 
-    public void sendDataToClient(List<ScanResult> list) {
+    public int sendDataToClient(List<ScanResult> list) {
+        int count = 0;
         try {
+            ArrayList<WiFiScanResult> newList = convert(list);
+            count = newList != null ? newList.size() : 0;
             for (ClientMessenger messenger : getMessengerList()) {
                 Message message = Message.obtain();
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList(Portal.RESULT_SCAN_WIFI_DEVICES, convert(list));
+                bundle.putParcelableArrayList(Portal.RESULT_SCAN_WIFI_DEVICES, newList);
                 message.setData(bundle);
                 messenger.send(message);
             }
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        return count;
     }
 
     protected ArrayList<WiFiScanResult> convert(List<ScanResult> list) {
         if(CollectionUtil.isEmpty(list)) return null;
 
         return (ArrayList<WiFiScanResult>) list.stream()
+                .peek(e -> alreadyMap.put(e.SSID, e))
                 .map(scanResult -> {
                     WiFiScanResult scanResult1 = new WiFiScanResult();
                     scanResult1.setScanResult(scanResult);
