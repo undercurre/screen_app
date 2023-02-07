@@ -37,22 +37,34 @@ public class AutoFindWiFiDeviceController extends FindWiFiDeviceController {
 
     @Override
     protected void notifyWiFiListChange() {
-        super.notifyWiFiListChange();
-        currentScanCount --;
-        if(currentScanCount == 0) {
+        // 最多尝试到currentScanCount值为0就停止扫描
+        if(currentScanCount <= 0) {
             stopLoopScanWifi();
+        } else {
+            super.notifyWiFiListChange();
         }
+        currentScanCount --;
     }
 
     @Override
-    protected ArrayList<WiFiScanResult> convert(List<ScanResult> list) {
-        ArrayList<WiFiScanResult> wiFiScanResults = super.convert(list);
-        if(CollectionUtil.isNotEmpty(wiFiScanResults)) {
-            wiFiScanResults = (ArrayList<WiFiScanResult>) wiFiScanResults.stream()
-                    .filter(e-> alreadyMap.containsKey(e.SSID()))
+    protected ArrayList<WiFiScanResult> convert(final List<ScanResult> list) {
+        List<ScanResult> newList = null;
+        if(CollectionUtil.isNotEmpty(list)) {
+            newList = list.stream()
+                    .filter(s -> !alreadyMap.containsKey(s.SSID))
                     .collect(Collectors.toList());
         }
-        return wiFiScanResults;
+        return super.convert(newList);
+    }
+
+    @Override
+    public int sendDataToClient(List<ScanResult> list) {
+        int count = super.sendDataToClient(list);
+        if(count > 0) {
+            currentScanCount = 0;
+            stopLoopScanWifi();
+        }
+        return count;
     }
 
 }

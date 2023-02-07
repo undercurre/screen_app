@@ -22,6 +22,12 @@ class NetMethodChannel extends AbstractChannel {
   // 获取当前设备网络状态
   NetState get currentNetState => _currentNetState;
 
+  @override
+  void initChannel() {
+    super.initChannel();
+    startObserverNetState();
+  }
+
   // 接收原生请求
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
     debugPrint('Method= ${call.method} arguments= ${call.arguments}');

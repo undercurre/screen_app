@@ -12,6 +12,12 @@ abstract class AbstractChannel {
   // 构造器函数
   AbstractChannel.fromName(this._channelName) {
     _MethodChannel = _initialMethodChannel();
+    /// 2023/2/6 新增从初始化方法
+    try {
+      initChannel();
+    } on Exception catch(e) {
+      debugPrint(e.toString());
+    }
   }
 
   MethodChannel get methodChannel => _MethodChannel;
@@ -23,6 +29,9 @@ abstract class AbstractChannel {
     channel.setMethodCallHandler(onMethodCallHandler);
     return channel;
   }
+
+  @mustCallSuper
+  void initChannel() {}
 
   // 接收原生请求
   Future<dynamic> onMethodCallHandler(MethodCall call) async {

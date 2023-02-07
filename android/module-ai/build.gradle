@@ -51,7 +51,6 @@ dependencies {
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.rxbus
-    implementation rootProject.ext.nexus.it_server
     implementation rootProject.other.ijkplayer_java
     implementation rootProject.other.ijkplayer_exo
     implementation rootProject.ext.other.apng
