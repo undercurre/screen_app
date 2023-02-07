@@ -83,7 +83,10 @@ class LightGroupPageState extends State<LightGroupPage> {
     setState(() {
       deviceWatch["detail"]["detail"] = result.result["result"];
     });
-    debugPrint('插件中获取到的详情：$deviceWatch');
+    deviceInfo.detail!["detail"]["detail"] = result.result["result"];
+    if (mounted) {
+      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+    }
   }
 
   @override
@@ -186,28 +189,34 @@ class LightGroupPageState extends State<LightGroupPage> {
                                 padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                                 child: Column(
                                   children: [
-                                    ParamCard(
-                                      title: '亮度',
-                                      value: int.parse(deviceWatch["detail"]
-                                          ["detail"]["group"]["brightness"]),
-                                      activeColors: const [
-                                        Color(0xFFFFD185),
-                                        Color(0xFFFFD185)
-                                      ],
-                                      onChanged: brightnessHandle,
-                                      onChanging: brightnessHandle,
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 16),
+                                      child: ParamCard(
+                                        title: '亮度',
+                                        value: int.parse(deviceWatch["detail"]
+                                            ["detail"]["group"]["brightness"]),
+                                        activeColors: const [
+                                          Color(0xFFFFD185),
+                                          Color(0xFFFFD185)
+                                        ],
+                                        onChanged: brightnessHandle,
+                                        onChanging: brightnessHandle,
+                                      ),
                                     ),
-                                    ParamCard(
-                                      title: '色温',
-                                      value: int.parse(deviceWatch["detail"]
-                                              ["detail"]["group"]
-                                          ["colorTemperature"]),
-                                      activeColors: const [
-                                        Color(0xFFFFD39F),
-                                        Color(0xFF55A2FA)
-                                      ],
-                                      onChanged: colorTemperatureHandle,
-                                      onChanging: colorTemperatureHandle,
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 16),
+                                      child: ParamCard(
+                                        title: '色温',
+                                        value: int.parse(deviceWatch["detail"]
+                                                ["detail"]["group"]
+                                            ["colorTemperature"]),
+                                        activeColors: const [
+                                          Color(0xFFFFD39F),
+                                          Color(0xFF55A2FA)
+                                        ],
+                                        onChanged: colorTemperatureHandle,
+                                        onChanging: colorTemperatureHandle,
+                                      ),
                                     ),
                                   ],
                                 ),

@@ -103,11 +103,13 @@ class WifiLightPageState extends State<WifiLightPage> {
     var deviceInfo = context
         .read<DeviceListModel>()
         .getDeviceInfoById(deviceWatch["deviceId"]);
-    var detail =
-        await DeviceService.getDeviceDetail(deviceInfo);
+    var detail = await DeviceService.getDeviceDetail(deviceInfo);
     setState(() {
       deviceWatch["detail"] = detail;
     });
+    if (mounted) {
+      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+    }
     debugPrint('插件中获取到的详情：$deviceWatch');
   }
 
@@ -207,61 +209,79 @@ class WifiLightPageState extends State<WifiLightPage> {
                                       .copyWith(scrollbars: false),
                                   child: Column(
                                     children: [
-                                      ParamCard(
-                                        title: '亮度',
-                                        value: formatValue(deviceWatch["detail"]
-                                            ["brightValue"]),
-                                        activeColors: const [
-                                          Color(0xFFFFD185),
-                                          Color(0xFFFFD185)
-                                        ],
-                                        onChanged: brightnessHandle,
-                                        onChanging: brightnessHandle,
+                                      Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: ParamCard(
+                                          title: '亮度',
+                                          value: formatValue(
+                                              deviceWatch["detail"]
+                                                  ["brightValue"]),
+                                          activeColors: const [
+                                            Color(0xFFFFD185),
+                                            Color(0xFFFFD185)
+                                          ],
+                                          onChanged: brightnessHandle,
+                                          onChanging: brightnessHandle,
+                                        ),
                                       ),
-                                      ParamCard(
-                                        title: '色温',
-                                        value: formatValue(deviceWatch["detail"]
-                                            ["colorTemperatureValue"]),
-                                        activeColors: const [
-                                          Color(0xFFFFD39F),
-                                          Color(0xFF55A2FA)
-                                        ],
-                                        onChanged: colorTemperatureHandle,
-                                        onChanging: colorTemperatureHandle,
+                                      Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: ParamCard(
+                                          title: '色温',
+                                          value: formatValue(
+                                              deviceWatch["detail"]
+                                                  ["colorTemperatureValue"]),
+                                          activeColors: const [
+                                            Color(0xFFFFD39F),
+                                            Color(0xFF55A2FA)
+                                          ],
+                                          onChanged: colorTemperatureHandle,
+                                          onChanging: colorTemperatureHandle,
+                                        ),
                                       ),
-                                      ModeCard(
-                                        modeList: lightModes,
-                                        selectedKeys: getSelectedKeys(),
-                                        onTap: modeHandle,
+                                      Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: ModeCard(
+                                          modeList: lightModes,
+                                          selectedKeys: getSelectedKeys(),
+                                          onTap: modeHandle,
+                                        ),
                                       ),
-                                      FunctionCard(
-                                        title: '延时关灯',
-                                        subTitle: deviceWatch["detail"]
-                                                    ["timeOff"] ==
-                                                0
-                                            ? '未设置'
-                                            : '${deviceWatch["detail"]["timeOff"]}分钟后关灯',
-                                        child: Listener(
-                                          onPointerDown: (e) => delayHandle(),
-                                          child: Container(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: BoxDecoration(
-                                              color: deviceWatch["detail"]
-                                                          ["timeOff"] ==
-                                                      0
-                                                  ? const Color(0xFF000000)
-                                                  : const Color(0xFFFFFFFF),
-                                              borderRadius:
-                                                  BorderRadius.circular(16.0),
-                                            ),
-                                            child: Image(
-                                              image: AssetImage(deviceWatch[
-                                                              "detail"]
-                                                          ["timeOff"] ==
-                                                      0
-                                                  ? 'assets/imgs/plugins/0x13/delay_off.png'
-                                                  : 'assets/imgs/plugins/0x13/delay_on.png'),
+                                      Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: FunctionCard(
+                                          title: '延时关灯',
+                                          subTitle: deviceWatch["detail"]
+                                                      ["timeOff"] ==
+                                                  0
+                                              ? '未设置'
+                                              : '${deviceWatch["detail"]["timeOff"]}分钟后关灯',
+                                          child: Listener(
+                                            onPointerDown: (e) => delayHandle(),
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                color: deviceWatch["detail"]
+                                                            ["timeOff"] ==
+                                                        0
+                                                    ? const Color(0xFF000000)
+                                                    : const Color(0xFFFFFFFF),
+                                                borderRadius:
+                                                    BorderRadius.circular(16.0),
+                                              ),
+                                              child: Image(
+                                                image: AssetImage(deviceWatch[
+                                                                "detail"]
+                                                            ["timeOff"] ==
+                                                        0
+                                                    ? 'assets/imgs/plugins/0x13/delay_off.png'
+                                                    : 'assets/imgs/plugins/0x13/delay_on.png'),
+                                              ),
                                             ),
                                           ),
                                         ),

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/index.dart';
+import '../states/device_change_notifier.dart';
 import 'api/index.dart';
 import 'utils.dart';
 
@@ -125,6 +127,10 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
     super.didPop(route, previousRoute);
     debugPrint(
         'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+    if (previousRoute?.settings.name == 'Home') {
+      logger.i('更新设备信息');
+      DeviceListModel().updateAllDetail();
+    }
     const blacklist = [null, 'SnifferPage'];
     if (previousRoute?.settings.name == 'Home' &&
         !blacklist.contains(route.settings.name)) {

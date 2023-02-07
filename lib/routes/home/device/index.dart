@@ -47,57 +47,34 @@ class _DevicePageState extends State<DevicePage> {
   List<DeviceEntity> deviceEntityList = [];
 
   initPage() async {
-    var deviceListModel = context.read<DeviceListModel>();
-    var deviceList = deviceListModel.deviceList;
     // 更新房间信息
-    updateHomeData();
+    await updateHomeData();
     // 查灯组列表
-    await context.read<DeviceListModel>().selectLightGroupList();
-    // 更新设备detail
-    debugPrint('加载到的设备列表$deviceList');
-    setState(() {
-      deviceEntityList = deviceList;
-    });
-    for (int xx = 1; xx <= deviceList.length; xx++) {
-      var deviceInfo = deviceList[xx - 1];
-      debugPrint('遍历中$deviceInfo');
-      // 查看品类控制器看是否支持该品类
-      var hasController = getController(deviceInfo) != null;
-      if (hasController &&
-          DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) || DeviceService.isVistual(deviceInfo))
-      ) {
-        // 调用provider拿detail存入状态管理里
-        deviceListModel.updateDeviceDetail(deviceInfo,
-            callback: () => {
-                  // todo: 优化刷新效率
-                  updateBins(deviceInfo)
-                });
-      } else {
-        updateBins(deviceInfo);
-      }
+    if (mounted) {
+      var deviceModel = context.read<DeviceListModel>();
+      await deviceModel.selectLightGroupList();
+      // 更新设备detail
+      await deviceModel.updateAllDetail();
+      setState(() {
+        deviceWidgetList = deviceEntityList
+            .map((device) => DeviceCard(deviceInfo: device))
+            .toList();
+      });
     }
   }
 
-  void updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
+  Future<void> updateHomeData() async {
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
       var homeInfo = res.data.homeList[0];
       var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo =
-          roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
+      Global.profile.roomInfo = roomList
+          .where((element) =>
+              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
+          .toList()[0];
     }
-  }
-
-  updateBins(DeviceEntity deviceInfo) {
-    debugPrint('加载bins$deviceInfo');
-    if (DeviceService.isVistual(deviceInfo)) {
-      context.read<DeviceListModel>().setVistualDevice(deviceInfo);
-    }
-    setState(() {
-      deviceWidgetList = deviceEntityList.map((device) => DeviceCard(deviceInfo: device)).toList();
-    });
   }
 
   @override
@@ -141,6 +118,12 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    deviceEntityList = context.watch<DeviceListModel>().deviceList;
+    setState(() {
+      deviceWidgetList = deviceEntityList
+          .map((device) => DeviceCard(deviceInfo: device))
+          .toList();
+    });
     return Container(
       decoration: const BoxDecoration(
         color: Colors.black,
@@ -156,7 +139,12 @@ class _DevicePageState extends State<DevicePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [HH, ':', nn])}",
+                    Text(
+                        "${time.month}月${time.day}日  ${weekday[time.weekday]}     ${formatDate(time, [
+                              HH,
+                              ':',
+                              nn
+                            ])}",
                         style: const TextStyle(
                           color: Color(0XFFFFFFFF),
                           fontSize: 18.0,
@@ -179,7 +167,9 @@ class _DevicePageState extends State<DevicePage> {
                                 child: Text(
                                   item['title']!,
                                   style: const TextStyle(
-                                      fontSize: 18, fontFamily: "MideaType", fontWeight: FontWeight.w400),
+                                      fontSize: 18,
+                                      fontFamily: "MideaType",
+                                      fontWeight: FontWeight.w400),
                                 ),
                               ));
                         }).toList();
@@ -272,18 +262,21 @@ class _DevicePageState extends State<DevicePage> {
                     onReorder: (int oldIndex, int newIndex) {
                       setState(() {
                         Widget row = deviceWidgetList.removeAt(oldIndex);
-                        DeviceEntity deviceRow = deviceEntityList.removeAt(oldIndex);
+                        DeviceEntity deviceRow =
+                            deviceEntityList.removeAt(oldIndex);
                         deviceWidgetList.insert(newIndex, row);
                         deviceEntityList.insert(newIndex, deviceRow);
                       });
                     },
                     onNoReorder: (int index) {
                       //this callback is optional
-                      debugPrint('${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                      debugPrint(
+                          '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
                     },
                     onReorderStarted: (int index) {
                       //this callback is optional
-                      debugPrint('${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                      debugPrint(
+                          '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
                     },
                     children: deviceWidgetList,
                   ),
@@ -312,7 +305,8 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  void onDragAccept(List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
+  void onDragAccept(
+      List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
     debugPrint('onDragAccept: $beforeIndex -> $afterIndex');
   }
 
