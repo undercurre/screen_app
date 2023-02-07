@@ -11,7 +11,12 @@ class AirConditionPageState extends State<AirConditionPage> {
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": '空调',
-    "detail": {"mode": 'auto', "temperature": 26, "small_temperature": 0.5, "wind_speed": 102}
+    "detail": {
+      "mode": 'auto',
+      "temperature": 26,
+      "small_temperature": 0.5,
+      "wind_speed": 102
+    }
   };
 
   bool menuVisible = false;
@@ -21,27 +26,32 @@ class AirConditionPageState extends State<AirConditionPage> {
   }
 
   Future<void> powerHandle() async {
-    var res = await AirConditionApi.powerLua(deviceWatch["deviceId"], !(deviceWatch["detail"]["power"] == 'on'));
+    var res = await AirConditionApi.powerLua(
+        deviceWatch["deviceId"], !(deviceWatch["detail"]["power"] == 'on'));
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["power"] = deviceWatch["detail"]["power"] == "on" ? "off" : "on";
+        deviceWatch["detail"]["power"] =
+            deviceWatch["detail"]["power"] == "on" ? "off" : "on";
       });
     }
   }
 
   Future<void> gearHandle(value) async {
-    var res = await AirConditionApi.gearLua(deviceWatch["deviceId"], value);
+    var res = await AirConditionApi.gearLua(
+        deviceWatch["deviceId"], value > 0 ? (value - 1) * 20 : 1);
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["wind_speed"] = deviceWatch["detail"]["wind_speed"] = value;
+        deviceWatch["detail"]["wind_speed"] =
+            deviceWatch["detail"]["wind_speed"] = value;
       });
     }
   }
 
   Future<void> temperatureHandle(value) async {
-    var res = await AirConditionApi.temperatureLua(deviceWatch["deviceId"], value);
+    var res =
+        await AirConditionApi.temperatureLua(deviceWatch["deviceId"], value);
 
     if (res.isSuccess) {
       setState(() {
@@ -64,12 +74,14 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[deviceWatch["detail"]["screenModel"]] = true;
+    selectKeys[deviceWatch["detail"]["mode"]] = true;
     return selectKeys;
   }
 
   Future<void> updateDetail() async {
-    var deviceInfo = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
+    var deviceInfo = context
+        .read<DeviceListModel>()
+        .getDeviceInfoById(deviceWatch["deviceId"]);
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
     setState(() {
       deviceWatch["detail"] = detail;
@@ -84,24 +96,49 @@ class AirConditionPageState extends State<AirConditionPage> {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
       setState(() {
-        deviceWatch = context.read<DeviceListModel>().getDeviceDetailById(deviceWatch["deviceId"]);
+        deviceWatch = context
+            .read<DeviceListModel>()
+            .getDeviceDetailById(deviceWatch["deviceId"]);
       });
-      deviceWatch = context.read<DeviceListModel>().getDeviceDetailById(deviceWatch["deviceId"]);
+      deviceWatch = context
+          .read<DeviceListModel>()
+          .getDeviceDetailById(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
   }
 
   List<Map<String, String>> btnList = [
-    {'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png', 'text': '自动', 'key': 'auto'},
-    {'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png', 'text': '制冷', 'key': 'cool'},
-    {'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png', 'text': '制热', 'key': 'heat'},
-    {'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png', 'text': '送风', 'key': 'fan'},
-    {'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png', 'text': '除湿', 'key': 'dry'},
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png',
+      'text': '自动',
+      'key': 'auto'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
+      'text': '制冷',
+      'key': 'cool'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
+      'text': '制热',
+      'key': 'heat'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
+      'text': '送风',
+      'key': 'fan'
+    },
+    {
+      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
+      'text': '除湿',
+      'key': 'dry'
+    },
   ];
 
   Map<String, String> getCurModeConfig() {
-    Map<String, String> curMode =
-        btnList.where((element) => element["key"] == deviceWatch["detail"]["mode"]).toList()[0];
+    Map<String, String> curMode = btnList
+        .where((element) => element["key"] == deviceWatch["detail"]["mode"])
+        .toList()[0];
     return curMode;
   }
 
@@ -181,173 +218,131 @@ class AirConditionPageState extends State<AirConditionPage> {
                             Expanded(
                               child: Column(
                                 children: [
-                                  FunctionCard(
-                                    title: '模式',
-                                    child: DropdownMenu(
-                                      menu: btnList.map(
-                                        (item) {
-                                          return PopupMenuItem<String>(
-                                            padding: EdgeInsets.zero,
-                                            value: item['key'],
-                                            child: Center(
-                                              child: Container(
-                                                width: 130,
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  color: true // TODO: 完善
-                                                      ? const Color(0xff575757)
-                                                      : Colors.transparent,
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                child: Opacity(
-                                                  opacity: true // TODO: 完善
-                                                      ? 1
-                                                      : 0.7,
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Image.asset(item['icon']!),
-                                                      Padding(
-                                                        padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
-                                                        child: Text(
-                                                          item['text']!,
-                                                          style: const TextStyle(
-                                                            fontSize: 18,
-                                                            fontFamily: "MideaType",
-                                                            fontWeight: FontWeight.w200,
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: FunctionCard(
+                                      title: '模式',
+                                      child: DropdownMenu(
+                                        menu: btnList.map(
+                                          (item) {
+                                            return PopupMenuItem<String>(
+                                              padding: EdgeInsets.zero,
+                                              value: item['key'],
+                                              child: Center(
+                                                child: Container(
+                                                  width: 130,
+                                                  height: 50,
+                                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: true // TODO: 完善
+                                                        ? const Color(
+                                                            0xff575757)
+                                                        : Colors.transparent,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: Opacity(
+                                                    opacity: true // TODO: 完善
+                                                        ? 1
+                                                        : 0.7,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Image.asset(
+                                                            item['icon']!),
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    7, 0, 7, 0),
+                                                            child: Text(
+                                                              item['text']!,
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 18,
+                                                                fontFamily:
+                                                                    "MideaType",
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w200,
+                                                              ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      ).toList(),
-                                      trigger: Opacity(
-                                        opacity: menuVisible ? 0.5 : 1,
-                                        child: Row(
-                                          children: [
-                                            Image.asset(getCurModeConfig()["icon"] ??
-                                                "assets/imgs/plugins/0xAC/zidong_icon.png"),
-                                            Padding(
-                                              padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
-                                              child: Text(
-                                                getCurModeConfig()["text"] ?? '自动',
-                                                style: const TextStyle(
-                                                  color: Color(0X7FFFFFFF),
-                                                  fontSize: 18.0,
-                                                  fontFamily: "MideaType",
-                                                  fontWeight: FontWeight.w200,
-                                                  decoration: TextDecoration.none,
+                                            );
+                                          },
+                                        ).toList(),
+                                        trigger: Opacity(
+                                          opacity: menuVisible ? 0.5 : 1,
+                                          child: Row(
+                                            children: [
+                                              Image.asset(getCurModeConfig()[
+                                                      "icon"] ??
+                                                  "assets/imgs/plugins/0xAC/zidong_icon.png"),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        7, 0, 7, 0),
+                                                child: Text(
+                                                  getCurModeConfig()["text"] ??
+                                                      '自动',
+                                                  style: const TextStyle(
+                                                    color: Color(0X7FFFFFFF),
+                                                    fontSize: 18.0,
+                                                    fontFamily: "MideaType",
+                                                    fontWeight: FontWeight.w200,
+                                                    decoration:
+                                                        TextDecoration.none,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
+                                        onVisibleChange: (visible) {
+                                          setState(() {
+                                            menuVisible = visible;
+                                          });
+                                        },
+                                        onSelected: (dynamic mode) {
+                                          if (mode != null &&
+                                              mode != getSelectedKeys()) {
+                                            modeHandle(mode);
+                                          }
+                                        },
                                       ),
-                                      onVisibleChange: (visible) {
-                                        setState(() {
-                                          menuVisible = visible;
-                                        });
-                                      },
-                                      onSelected: (dynamic mode) {
-                                        if (mode != null && mode != getSelectedKeys()) {
-                                          modeHandle(mode);
-                                        }
-                                      },
                                     ),
-                                    // child: PopupMenuButton(
-                                    //   shape: const RoundedRectangleBorder(
-                                    //       borderRadius: BorderRadius.all(
-                                    //     Radius.circular(10.0),
-                                    //   )),
-                                    //   offset: const Offset(0, 36.0),
-                                    //   itemBuilder: (context) {
-                                    //     return btnList.map(
-                                    //       (item) {
-                                    //         return PopupMenuItem<String>(
-                                    //           value: item['key'],
-                                    //           child: Container(
-                                    //             alignment: Alignment.center,
-                                    //             child: SizedBox(
-                                    //               width: 80,
-                                    //               height: 50,
-                                    //               child: Opacity(
-                                    //                 opacity: 0.5,
-                                    //                 child: Row(
-                                    //                   children: [
-                                    //                     Image.asset(
-                                    //                         item['icon']!),
-                                    //                     Text(item['text']!,
-                                    //                         style: const TextStyle(
-                                    //                             fontSize: 18,
-                                    //                             fontFamily:
-                                    //                                 "MideaType",
-                                    //                             fontWeight:
-                                    //                                 FontWeight
-                                    //                                     .w400))
-                                    //                   ],
-                                    //                 ),
-                                    //               ),
-                                    //             ),
-                                    //           ),
-                                    //         );
-                                    //       },
-                                    //     ).toList();
-                                    //   },
-                                    //   onSelected: (String mode) {
-                                    //     modeHandle(mode);
-                                    //   },
-                                    //   child: Row(
-                                    //     children: [
-                                    //       Opacity(
-                                    //           opacity: 0.5,
-                                    //           child: Image.asset(getCurModeConfig()["icon"] ?? "assets/imgs/plugins/0xAC/zidong_icon.png")
-                                    //       ),
-                                    //       Padding(
-                                    //         padding:
-                                    //             const EdgeInsets.fromLTRB(7, 0, 7, 0),
-                                    //         child: Text(
-                                    //           getCurModeConfig()["text"] ?? '自动',
-                                    //           style: const TextStyle(
-                                    //             color: Color(0X7FFFFFFF),
-                                    //             fontSize: 18.0,
-                                    //             fontFamily: "MideaType",
-                                    //             fontWeight: FontWeight.normal,
-                                    //             decoration: TextDecoration.none,
-                                    //           ),
-                                    //         ),
-                                    //       ),
-                                    //       Stack(
-                                    //         children: const [
-                                    //           SizedBox(
-                                    //             width: 36,
-                                    //             height: 36,
-                                    //           ),
-                                    //           // Positioned(
-                                    //           //     top: -2,
-                                    //           //     left: 0,
-                                    //           //     child: AnimatedArrow())
-                                    //         ],
-                                    //       )
-                                    //     ],
-                                    //   ),
-                                    // ),
                                   ),
-                                  SliderButtonCard(
-                                    min: 17,
-                                    max: 30,
-                                    step: 0.5,
-                                    value: deviceWatch["detail"]["temperature"] +
-                                        deviceWatch["detail"]["small_temperature"],
-                                    onChanged: temperatureHandle,
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: SliderButtonCard(
+                                      min: 17,
+                                      max: 30,
+                                      step: 0.5,
+                                      value: deviceWatch["detail"]
+                                              ["temperature"] +
+                                          deviceWatch["detail"]
+                                              ["small_temperature"],
+                                      onChanged: temperatureHandle,
+                                    ),
                                   ),
-                                  GearCard(
-                                    value: (deviceWatch["detail"]["wind_speed"] / 20).truncate() + 1,
-                                    onChanged: gearHandle,
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: GearCard(
+                                      value: (deviceWatch["detail"]
+                                                      ["wind_speed"] /
+                                                  20)
+                                              .truncate() +
+                                          1,
+                                      onChanged: gearHandle,
+                                    ),
                                   ),
                                 ],
                               ),
