@@ -87,6 +87,9 @@ class AirConditionPageState extends State<AirConditionPage> {
       deviceWatch["detail"] = detail;
     });
     debugPrint('插件中获取到的详情：$deviceWatch');
+    if (mounted) {
+      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+    }
   }
 
   @override
