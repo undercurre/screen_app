@@ -47,33 +47,15 @@ class _DevicePageState extends State<DevicePage> {
   List<DeviceEntity> deviceEntityList = [];
 
   initPage() async {
-    // 更新房间信息
-    await updateHomeData();
-    // 查灯组列表
     if (mounted) {
       var deviceModel = context.read<DeviceListModel>();
-      await deviceModel.selectLightGroupList();
       // 更新设备detail
       await deviceModel.updateAllDetail();
       setState(() {
-        deviceWidgetList = deviceEntityList
+        deviceWidgetList = deviceModel.deviceList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
-    }
-  }
-
-  Future<void> updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
-
-    if (res.isSuccess) {
-      var homeInfo = res.data.homeList[0];
-      var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo = roomList
-          .where((element) =>
-              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
-          .toList()[0];
     }
   }
 
