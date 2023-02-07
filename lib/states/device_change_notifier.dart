@@ -180,9 +180,10 @@ class DeviceListModel extends ProfileChangeNotifier {
         .where((element) =>
             element["roomId"].toString() == Global.profile.roomInfo?.roomId)
         .toList();
+    logger.i('当前房间', groupListInRoom);
     // 遍历
-    for (int i = 1; i <= groupList.length; i++) {
-      var group = groupList[i - 1];
+    for (int i = 1; i <= groupListInRoom.length; i++) {
+      var group = groupListInRoom[i - 1];
       // 查找该灯组的详情
       var result = await DeviceApi.groupRelated(
           'findLampGroupDetails',
@@ -214,7 +215,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         "id": group["id"],
         "groupId": group["groupId"],
         "applianceList": group["applianceList"],
-        "detail": detail
+        "detail": detail,
       };
       deviceList.removeWhere((element) => element.type == 'lightGroup');
       deviceList.add(vistualDeviceForGroup);

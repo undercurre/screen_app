@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -18,7 +19,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     "deviceId": "",
     "deviceName": 'Zigbee智能窗帘',
     "sn8": '',
-    "modelNumber": '',
+    "modelNumber": '1107',
     "detail": {
       "deviceLatestVersion": "s0.0.3",
       "modelId": "midea.curtain.003.003",
@@ -78,8 +79,17 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         });
       }
     } else {
-      var res = await ZigbeeCurtainApi.curtainOpenPDM(
-          deviceWatch["masterId"], deviceWatch["detail"]["nodeId"]);
+      MzResponseEntity res;
+      if (mode.key == 'open') {
+        res = await ZigbeeCurtainApi.curtainOpenPDM(
+            deviceWatch["masterId"], deviceWatch["detail"]["nodeId"]);
+      } else if (mode.key == 'close') {
+        res = await ZigbeeCurtainApi.curtainClosePDM(
+            deviceWatch["masterId"], deviceWatch["detail"]["nodeId"]);
+      } else {
+        res = await ZigbeeCurtainApi.curtainStopPDM(
+            deviceWatch["masterId"], deviceWatch["detail"]["nodeId"]);
+      }
       if (res.isSuccess) {
         setState(() {
           screenModel1 = mode.key;
@@ -88,7 +98,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           } else if (mode.key == 'close') {
             position1 = 0;
           } else {
-            updateDetail();
+            Future.delayed(const Duration(seconds: 3)).then((_) async {
+              updateDetail();
+            });
           }
         });
       }
@@ -124,6 +136,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     });
     ZigbeeCurtainApi.curtainPercentPDM(
         deviceWatch["masterId"], value, deviceWatch["detail"]["nodeId"]);
+    Future.delayed(const Duration(seconds: 3)).then((_) async {
+      updateDetail();
+    });
   }
 
   Map<String, bool?> getSelectedKeys1() {
@@ -146,7 +161,11 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     setState(() {
       deviceWatch["detail"] = detail;
     });
+    deviceInfo.detail = detail;
     debugPrint('插件中获取到的详情：$deviceWatch');
+    if (mounted) {
+      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+    }
     initView();
   }
 
@@ -169,6 +188,33 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
       } else {
         screenModel1 = 'open';
       }
+    } else if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+        '0x21_curtain_panel_two') {
+      position1 =
+          deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+              ? 100
+              : 0;
+      position2 =
+          deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1
+              ? 100
+              : 0;
+      screenModel1 =
+          deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+              ? 'open'
+              : 'close';
+      screenModel2 =
+          deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1
+              ? 'open'
+              : 'close';
+    } else {
+      position1 =
+          deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+              ? 100
+              : 0;
+      screenModel1 =
+          deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+              ? 'open'
+              : 'close';
     }
   }
 
@@ -191,12 +237,15 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
   @override
   Widget build(BuildContext context) {
     var curtain = [
-      SliderButtonCard(
-          unit: '%',
-          value: position1,
-          min: 0,
-          max: 100,
-          onChanged: curtainHandle),
+      Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: SliderButtonCard(
+            unit: '%',
+            value: position1,
+            min: 0,
+            max: 100,
+            onChanged: curtainHandle),
+      ),
       ModeCard(
         title: "模式",
         spacing: 40,
@@ -207,24 +256,6 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     ];
 
     var curtainPanelOne = [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(
-          0,
-          80,
-          0,
-          0,
-        ),
-        child: ModeCard(
-          title: "窗帘1",
-          spacing: 80,
-          modeList: curtainPanelModes1,
-          selectedKeys: getSelectedKeys1(),
-          onTap: modeHandle1,
-        ),
-      )
-    ];
-
-    var curtainPanelTwo = [
       ModeCard(
         title: "窗帘1",
         spacing: 80,
@@ -232,12 +263,39 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         selectedKeys: getSelectedKeys1(),
         onTap: modeHandle1,
       ),
-      ModeCard(
-        title: "窗帘2",
-        spacing: 80,
-        modeList: curtainPanelModes2,
-        selectedKeys: getSelectedKeys2(),
-        onTap: modeHandle2,
+    ];
+
+    var curtainPanelTwo = [
+      GestureDetector(
+        onTap: () {
+          setState(() {
+            curtainNum = 1;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ModeCard(
+            title: "窗帘1",
+            spacing: 80,
+            modeList: curtainPanelModes1,
+            selectedKeys: getSelectedKeys1(),
+            onTap: modeHandle1,
+          ),
+        ),
+      ),
+      GestureDetector(
+        onTap: () {
+          setState(() {
+            curtainNum = 2;
+          });
+        },
+        child: ModeCard(
+          title: "窗帘2",
+          spacing: 80,
+          modeList: curtainPanelModes2,
+          selectedKeys: getSelectedKeys2(),
+          onTap: modeHandle2,
+        ),
       ),
     ];
 
@@ -247,23 +305,37 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
       "0x21_curtain_panel_two": curtainPanelTwo,
     };
 
-    bool curtainPanelOnePower =
-        deviceWatch["detail"]["deviceControlList"] != null
-            ? deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
-            : false;
+    bool curtainPanelOnePower() {
+      if (deviceWatch["detail"]["deviceControlList"] != null) {
+        return deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1;
+      } else {
+        return false;
+      }
+    }
 
-    bool curtainPanelTwoPower = deviceWatch["detail"]["deviceControlList"] !=
-            null
-        ? (deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1) &&
-            (deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1)
-        : false;
+    bool curtainPanelTwoPower() {
+      if (deviceWatch["detail"]["deviceControlList"] != null &&
+          deviceWatch["detail"]["deviceControlList"].length == 2) {
+        return (deviceWatch["detail"]["deviceControlList"][0]["attribute"] ==
+                1) &&
+            (deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1);
+      } else {
+        return false;
+      }
+    }
 
     Map<String, bool> powerList = {
-      "0x21_curtain":
-          deviceWatch["detail"]["curtainDeviceList"][0]["attribute"] == 1,
-      "0x21_curtain_panel_one": curtainPanelOnePower,
-      "0x21_curtain_panel_two": curtainPanelTwoPower,
+      "0x21_curtain": deviceWatch["detail"]["curtainDeviceList"] != null
+          ? deviceWatch["detail"]["curtainDeviceList"][0]["attribute"] == 1
+          : false,
+      "0x21_curtain_panel_one": curtainPanelOnePower(),
+      "0x21_curtain_panel_two": curtainPanelTwoPower(),
     };
+
+    getPowerStatus() {
+      return powerList[zigbeeControllerList[deviceWatch["modelNumber"]]] ??
+          false;
+    }
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -274,20 +346,28 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           Positioned(
             left: -16, // 向左偏移
             top: 0,
-            child: curtainNum == 1
-                ? AnimationCurtain(
-                    position: position1.toDouble(),
-                  )
-                : AnimationCurtain(
-                    position: position2.toDouble(),
-                  ),
+            child: Opacity(
+              opacity: curtainNum == 1 ? 1 : 0,
+              child: AnimationCurtain(
+                position: position1.toDouble(),
+              ),
+            ),
+          ),
+          Positioned(
+            left: -16, // 向左偏移
+            top: 0,
+            child: Opacity(
+              opacity: curtainNum == 2 ? 1 : 0,
+              child: AnimationCurtain(
+                position: position2.toDouble(),
+              ),
+            ),
           ),
           Flex(
             direction: Axis.vertical,
             children: <Widget>[
               Container(
                 color: Colors.transparent,
-                margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     minWidth: double.infinity,
@@ -296,9 +376,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     title: deviceWatch["deviceName"],
-                    power: powerList[
-                            zigbeeControllerList[deviceWatch["modelNumber"]]] ??
-                        false,
+                    power: getPowerStatus(),
                     hasPower: false,
                   ),
                 ),
@@ -307,6 +385,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
                 flex: 1,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
                   child: Center(
                     child: EasyRefresh(
                       header: const ClassicHeader(
@@ -338,10 +417,17 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                                child: Column(
-                                    children: childList[zigbeeControllerList[
-                                            deviceWatch["modelNumber"]]] ??
-                                        curtain),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  height:
+                                      MediaQuery.of(context).size.height - 60,
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: childList[zigbeeControllerList[
+                                              deviceWatch["modelNumber"]]] ??
+                                          curtain),
+                                ),
                               ),
                             ),
                           ],
