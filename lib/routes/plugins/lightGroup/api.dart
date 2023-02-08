@@ -34,12 +34,12 @@ class WrapLightGroup implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["group"]["switchStatus"] == "1" : false;
+    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["switchStatus"] == "1" : false;
   }
 
   @override
   String getAttr(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["group"]["brightness"] : '';
+    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["brightness"] : '';
   }
 
   @override
@@ -68,7 +68,7 @@ class LightGroupApi {
         'findLampGroupDetails',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["groupId"],
           "modelId": "midea.light.003.001",
           "uid": Global.profile.user?.uid,
         }));
@@ -81,7 +81,7 @@ class LightGroupApi {
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '0',
           "lampAttributeValue": power ? '1' : '0',
@@ -99,7 +99,7 @@ class LightGroupApi {
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '1',
           "lampAttributeValue": value.toString(),
@@ -117,7 +117,7 @@ class LightGroupApi {
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["group"]["groupId"],
+          "groupId": deviceInfo.detail?["detail"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '2',
           "lampAttributeValue": value.toString(),

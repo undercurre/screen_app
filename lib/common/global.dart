@@ -128,7 +128,6 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
     debugPrint(
         'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
     if (previousRoute?.settings.name == 'Home') {
-      logger.i('更新设备信息');
       DeviceListModel().updateAllDetail();
     }
     const blacklist = [null, 'SnifferPage'];

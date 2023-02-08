@@ -33,7 +33,7 @@ class WrapSmartControl implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    return deviceInfo.detail!["status"];
+    return deviceInfo.detail != null ? (deviceInfo.type == 'smartControl-1' ? deviceInfo.detail!["panelOne"] : deviceInfo.detail!["panelTwo"]) : false;
   }
 
   @override

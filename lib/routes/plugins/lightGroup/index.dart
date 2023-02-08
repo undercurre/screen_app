@@ -20,7 +20,6 @@ class LightGroupPageState extends State<LightGroupPage> {
         {"parentApplianceCode": "", "applianceCode": ""}
       ],
       "detail": {
-        "group": {
           "groupId": "1",
           "groupName": "灯光分组",
           "brightness": "0",
@@ -28,7 +27,6 @@ class LightGroupPageState extends State<LightGroupPage> {
           "switchStatus": "0",
           "maxColorTemp": "6500",
           "minColorTemp": "2700"
-        }
       }
     }
   };
@@ -41,11 +39,11 @@ class LightGroupPageState extends State<LightGroupPage> {
 
   Future<void> powerHandle() async {
     var res = await LightGroupApi.powerPDM(deviceInfoById,
-        !(deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1"));
+        !(deviceWatch["detail"]["detail"]["switchStatus"] == "1"));
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["switchStatus"] =
-            deviceWatch["detail"]["detail"]["group"]["switchStatus"] == "1"
+        deviceWatch["detail"]["detail"]["switchStatus"] =
+            deviceWatch["detail"]["detail"]["switchStatus"] == "1"
                 ? "0"
                 : "1";
       });
@@ -57,7 +55,7 @@ class LightGroupPageState extends State<LightGroupPage> {
     var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["brightness"] =
+        deviceWatch["detail"]["detail"]["brightness"] =
             value.toString();
       });
       updateDetail();
@@ -68,7 +66,7 @@ class LightGroupPageState extends State<LightGroupPage> {
     var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["detail"]["group"]["colorTemperature"] =
+        deviceWatch["detail"]["detail"]["colorTemperature"] =
             value.toString();
       });
       updateDetail();
@@ -81,9 +79,9 @@ class LightGroupPageState extends State<LightGroupPage> {
         .getDeviceInfoById(deviceWatch["deviceId"]);
     var result = await LightGroupApi.getLightDetail(deviceInfo);
     setState(() {
-      deviceWatch["detail"]["detail"] = result.result["result"];
+      deviceWatch["detail"]["detail"] = result.result["result"]["group"];
     });
-    deviceInfo.detail!["detail"]["detail"] = result.result["result"];
+    deviceInfo.detail!["detail"] = result.result["result"]["group"];
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
@@ -126,9 +124,9 @@ class LightGroupPageState extends State<LightGroupPage> {
               top: 0,
               child: LightBall(
                 brightness: int.parse(
-                    deviceWatch["detail"]["detail"]["group"]["brightness"]),
+                    deviceWatch["detail"]["detail"]["brightness"]),
                 colorTemperature: 100 -
-                    int.parse(deviceWatch["detail"]["detail"]["group"]
+                    int.parse(deviceWatch["detail"]["detail"]
                         ["colorTemperature"]),
               )),
           Flex(
@@ -146,7 +144,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["detail"]["group"]
+                    power: deviceWatch["detail"]["detail"]
                             ["switchStatus"] ==
                         "1",
                     hasPower: true,
@@ -194,7 +192,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                       child: ParamCard(
                                         title: '亮度',
                                         value: int.parse(deviceWatch["detail"]
-                                            ["detail"]["group"]["brightness"]),
+                                            ["detail"]["brightness"]),
                                         activeColors: const [
                                           Color(0xFFFFD185),
                                           Color(0xFFFFD185)
@@ -208,7 +206,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                       child: ParamCard(
                                         title: '色温',
                                         value: int.parse(deviceWatch["detail"]
-                                                ["detail"]["group"]
+                                                ["detail"]
                                             ["colorTemperature"]),
                                         activeColors: const [
                                           Color(0xFFFFD39F),

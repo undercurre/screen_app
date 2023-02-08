@@ -171,7 +171,7 @@ class CenterControlService {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
           }
         } else if (deviceInfo.type == 'lightGroup') {
-          value = num.parse(res["detail"]["detail"]["group"]["brightness"]);
+          value = num.parse(res["detail"]["detail"]["brightness"]);
         } else {
           value = (res["detail"]["brightValue"] / 255) * 100 ?? 0;
         }
@@ -210,7 +210,7 @@ class CenterControlService {
         } else if (deviceInfo.type == '0x13') {
           value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
         } else {
-          value = num.parse(res["detail"]["detail"]["group"]["colorTemperature"]);
+          value = num.parse(res["detail"]["detail"]["colorTemperature"]);
         }
         // logger.i('中控${deviceInfo.name}色温$value');
         totalColorTemperatureList.add(value);

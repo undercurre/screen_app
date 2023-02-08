@@ -52,7 +52,7 @@ class _DevicePageState extends State<DevicePage> {
       // 更新设备detail
       await deviceModel.updateAllDetail();
       setState(() {
-        deviceWidgetList = deviceModel.deviceList
+        deviceWidgetList = deviceModel.showList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
@@ -100,7 +100,7 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    deviceEntityList = context.watch<DeviceListModel>().deviceList;
+    deviceEntityList = context.watch<DeviceListModel>().showList;
     setState(() {
       deviceWidgetList = deviceEntityList
           .map((device) => DeviceCard(deviceInfo: device))

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
@@ -32,8 +33,9 @@ class WrapSinglePanel implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
+    var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]) - 1;
     return deviceInfo.detail != null
-        ? deviceInfo.detail!["status"]["attribute"] == 1
+        ? deviceInfo.detail!["deviceControlList"][panelIndex]["attribute"] == 1
         : false;
   }
 
@@ -73,19 +75,21 @@ class SinglePanelApi {
   /// 开关控制（物模型）
   static Future<MzResponseEntity> controlGatewaySwitchPDM(
       DeviceEntity deviceInfo, bool onOff) async {
-    var curEnd = deviceInfo.detail!["status"]["endPoint"];
+    var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]) - 1;
     var detailRes = await getDetail(deviceInfo.applianceCode, deviceInfo.masterId);
     var endList = detailRes.result["deviceControlList"];
-    endList[curEnd - 1]["attribute"] = endList[curEnd - 1]["attribute"] == 1 ? 0 : 1;
-    debugPrint("指令：$endList");
+    endList[panelIndex]["attribute"] = endList[panelIndex]["attribute"] == 1 ? 0 : 1;
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceInfo.applianceCode, deviceInfo.masterId);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'controlPanelFour',
-        deviceInfo.applianceCode,
+        deviceInfo.masterId,
         {
-          "msgId": "12345",
-          "deviceId": "183618441839263",
-          "nodeId": "60A423FFFE1D3199",
+          "msgId": uuid.v4(),
+          "deviceId": deviceInfo.masterId,
+          "nodeId": infoMap["nodeid"],
           "deviceControlList": endList
         },
         method: 'PUT');
