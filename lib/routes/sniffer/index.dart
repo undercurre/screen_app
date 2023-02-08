@@ -9,38 +9,11 @@ import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
+import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
 import 'device_item.dart';
-
-/// 安全类型的State
-abstract class SafeState<T extends StatefulWidget> extends State<T> {
-  bool dirty = false;
-
-  @override
-  @mustCallSuper
-  void initState() {
-    dirty = false;
-    super.initState();
-  }
-
-  void setSafeState(VoidCallback fn) {
-    if(!dirty) {
-      setState(fn);
-    } else {
-      debugPrint('$this 请注意 ## 当前的State有在生命周期之外更新UI状态');
-    }
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    super.dispose();
-    dirty = true;
-  }
-
-}
 
 class SnifferViewModel {
 
@@ -261,7 +234,12 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
   }
 
   @override
-  Widget build(BuildContext context) {
+  void netChange(MZNetState? state) {
+    _currentNetState = state;
+  }
+
+  @override
+  Widget saveBuild(BuildContext context) {
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -347,11 +325,6 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
         ],
       ),
     );
-  }
-
-  @override
-  void netChange(MZNetState? state) {
-    _currentNetState = state;
   }
 
 }
