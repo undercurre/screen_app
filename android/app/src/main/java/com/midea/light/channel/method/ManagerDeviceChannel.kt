@@ -38,6 +38,10 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val method = call.method
         when(method) {
+            "updateToken" -> {
+                val token = requireNotNull(call.argument<String>("token"))
+                updateToken(token)
+            }
             "init" -> {
                 val host = requireNotNull(call.argument<String?>("host"))
                 val token = requireNotNull(call.argument<String?>("token"))
@@ -161,6 +165,10 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 }
             }
         }
+    }
+
+    private fun updateToken(token: String) {
+        Portal.updateToken(token)
     }
 
     private fun findZigbeeHandle(methodType: String, bundle: Bundle) {

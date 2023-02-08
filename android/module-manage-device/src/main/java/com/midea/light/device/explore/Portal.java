@@ -110,6 +110,11 @@ public class Portal implements PortalContext {
         MideaSDK.getInstance().initLogin(baseConfig.getToken(), baseConfig.getKey());
     }
 
+    // 更新token
+    public static void updateToken(String token) {
+        getBaseConfig().updateToken(token);
+    }
+
     public static void resetBaseConfig() {
         BASE_CONFIG = null;
         MideaSDK.getInstance().unInitLogin();
