@@ -53,7 +53,7 @@ class SelectRoomPageState extends State<SelectRoomPage> {
               child: SelectRoom(
                   value: Global.profile.roomInfo?.roomId ?? '',
                   onChange: (RoomEntity room) {
-                    debugPrint('SelectRoom: ${room.toJson()}');
+                    logger.i('SelectRoom: ${room.toJson()}');
                     Global.profile.roomInfo = room;
                     context.read<RoomModel>().roomInfo = room;
                     var deviceModel = context.read<DeviceListModel>();

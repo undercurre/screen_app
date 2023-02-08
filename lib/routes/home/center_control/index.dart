@@ -93,11 +93,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
       time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
       startTimer();
     });
-    // 更新家庭信息
-    await updateHomeData();
-    // 查灯组列表
     if (!mounted) return;
-    context.read<DeviceListModel>().selectLightGroupList();
     context.read<DeviceListModel>().updateAllDetail();
   }
 

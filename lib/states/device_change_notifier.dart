@@ -6,6 +6,7 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/states/profile_change_notifier.dart';
 
+import '../common/api/user_api.dart';
 import '../models/index.dart';
 import '../routes/home/device/service.dart';
 
@@ -37,10 +38,25 @@ class DeviceListModel extends ProfileChangeNotifier {
     return device.type == '0xAC';
   }
 
+  // 隐藏判断式
+  bool showFilter(DeviceEntity device) {
+    return !DeviceService.isVistual(device);
+  }
+
+  // 虚拟判断式
+  bool vistualFilter(DeviceEntity device) {
+    return DeviceService.isVistual(device);
+  }
+
   List<DeviceEntity> _deviceListResource =
       Global.profile.roomInfo!.applianceList;
 
   List<DeviceEntity> get deviceList => _deviceListResource;
+
+  List<DeviceEntity> get showList => deviceList.where(showFilter).toList();
+
+  List<DeviceEntity> get vistualList =>
+      deviceList.where(vistualFilter).toList();
 
   List<DeviceEntity> get curtainList =>
       deviceList.where(curtainFilter).toList();
@@ -117,22 +133,24 @@ class DeviceListModel extends ProfileChangeNotifier {
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
       if (deviceInfo.type == 'lightGroup') {
         curDevice.detail!["detail"] = newDetail;
-      } else if (deviceInfo.type == 'smartControl-1' ||
-          deviceInfo.type == 'smartControl-2') {
-        curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1'
-            ? newDetail['panelOne']
-            : newDetail['panelTwo'];
-        debugPrint('智慧屏$newDetail');
-      } else if (deviceInfo.type == 'singlePanel-1' ||
-          deviceInfo.type == 'singlePanel-2' ||
-          deviceInfo.type == 'singlePanel-3' ||
-          deviceInfo.type == 'singlePanel-4') {
-        debugPrint('面板${curDevice.detail!['status']["endPoint"]}');
-        var panelIndex = curDevice.detail!['status']["endPoint"] - 1;
-        debugPrint('面板${newDetail["deviceControlList"]}');
-        curDevice.detail!['status'] =
-            newDetail["deviceControlList"][panelIndex];
-      } else {
+      }
+      // else if (deviceInfo.type == 'smartControl-1' ||
+      //     deviceInfo.type == 'smartControl-2') {
+      //   curDevice.detail!['status'] = deviceInfo.type == 'smartControl-1'
+      //       ? newDetail['panelOne']
+      //       : newDetail['panelTwo'];
+      //   debugPrint('智慧屏$newDetail');
+      // } else if (deviceInfo.type == 'singlePanel-1' ||
+      //     deviceInfo.type == 'singlePanel-2' ||
+      //     deviceInfo.type == 'singlePanel-3' ||
+      //     deviceInfo.type == 'singlePanel-4') {
+      //   debugPrint('面板${curDevice.detail!['status']["endPoint"]}');
+      //   var panelIndex = curDevice.detail!['status']["endPoint"] - 1;
+      //   debugPrint('面板${newDetail["deviceControlList"]}');
+      //   curDevice.detail!['status'] =
+      //       newDetail["deviceControlList"][panelIndex];
+      // }
+      else {
         curDevice.detail = newDetail;
       }
       logger.i(
@@ -180,9 +198,10 @@ class DeviceListModel extends ProfileChangeNotifier {
         .where((element) =>
             element["roomId"].toString() == Global.profile.roomInfo?.roomId)
         .toList();
+    logger.i('当前房间', groupListInRoom);
     // 遍历
-    for (int i = 1; i <= groupList.length; i++) {
-      var group = groupList[i - 1];
+    for (int i = 1; i <= groupListInRoom.length; i++) {
+      var group = groupListInRoom[i - 1];
       // 查找该灯组的详情
       var result = await DeviceApi.groupRelated(
           'findLampGroupDetails',
@@ -214,7 +233,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         "id": group["id"],
         "groupId": group["groupId"],
         "applianceList": group["applianceList"],
-        "detail": detail
+        "detail": detail,
       };
       deviceList.removeWhere((element) => element.type == 'lightGroup');
       deviceList.add(vistualDeviceForGroup);
@@ -226,6 +245,13 @@ class DeviceListModel extends ProfileChangeNotifier {
   }
 
   Future<void> updateAllDetail() async {
+    // 更新房间的信息
+    await updateHomeData();
+    logger.i('更新房间', deviceList.map((e) => e.name));
+    logger.i('源房间', _deviceListResource.map((e) => e.name));
+    logger.i('元房间', Global.profile.roomInfo!.applianceList.map((e) => e.name));
+    // 查灯组
+    await selectLightGroupList();
     // 更新设备detail
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
@@ -233,20 +259,28 @@ class DeviceListModel extends ProfileChangeNotifier {
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
-          (DeviceService.isSupport(deviceInfo) ||
-              DeviceService.isVistual(deviceInfo))) {
+          DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        updateDeviceDetail(deviceInfo,
-            callback: () => {
-                  // todo: 优化刷新效率
-                  if (DeviceService.isVistual(deviceInfo))
-                    {setVistualDevice(deviceInfo)}
-                });
-      } else {
-        if (DeviceService.isVistual(deviceInfo)) {
-          setVistualDevice(deviceInfo);
-        }
+        updateDeviceDetail(deviceInfo);
       }
+    }
+  }
+
+  Future<void> updateHomeData() async {
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
+
+    if (res.isSuccess) {
+      var homeInfo = res.data.homeList[0];
+      var roomList = homeInfo.roomList ?? [];
+      Global.profile.roomInfo = roomList
+          .where((element) =>
+              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
+          .toList()[0];
+      deviceList = roomList
+          .where((element) =>
+      element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
+          .toList()[0].applianceList;
     }
   }
 

@@ -47,7 +47,7 @@ class _DeviceCardState extends State<DeviceCard> {
         var res = await DeviceService.setPower(
             widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
         if (res) {
-          Future.delayed(const Duration(seconds: 2)).then((_) async {
+          Future.delayed(const Duration(seconds: 3)).then((_) async {
             await context.read<DeviceListModel>().updateDeviceDetail(widget.deviceInfo!);
             setState(() {
               widget.deviceInfo = context.read<DeviceListModel>().getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode, widget.deviceInfo!.type);

@@ -48,6 +48,10 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     setState(() {
       deviceWatch["detail"] = detail;
     });
+    deviceInfo.detail = detail;
+    if (mounted) {
+      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
+    }
     judgeModel();
     debugPrint('插件中获取到的详情：$deviceWatch');
   }
@@ -71,7 +75,14 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         !(deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1),
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
-      updateDetail();
+      setState(() {
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] = deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1 ? 1 : 0;
+      });
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
     }
   }
 
@@ -85,10 +96,17 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     });
     var res = await ZigbeeLightApi.delayPDM(
         deviceWatch["detail"]["deviceId"],
-        !(deviceWatch["detail"]["delayClose"] == 0),
+        !(deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 0),
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
-      updateDetail();
+      setState(() {
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] = deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 3 ? 0 : 3;
+      });
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
     }
   }
 
@@ -96,13 +114,20 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     setState(() {
       fakeModel = mode.key;
     });
-    var curMode = lightModes.where((element) => element.key == fakeModel).toList()[0] as ZigbeeLightMode;
-    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
-        curMode.brightness, curMode.colorTemperature, deviceWatch["detail"]["nodeId"]);
+    var curMode = lightModes
+        .where((element) => element.key == fakeModel)
+        .toList()[0] as ZigbeeLightMode;
+    var res = await ZigbeeLightApi.adjustPDM(
+        deviceWatch["detail"]["deviceId"],
+        curMode.brightness,
+        curMode.colorTemperature,
+        deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = curMode.brightness;
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] = curMode.colorTemperature;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] =
+            curMode.brightness;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
+            curMode.colorTemperature;
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -113,8 +138,11 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
-        value, deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"], deviceWatch["detail"]["nodeId"]);
+    var res = await ZigbeeLightApi.adjustPDM(
+        deviceWatch["detail"]["deviceId"],
+        value,
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0,
+        deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
       setState(() {
         deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
@@ -135,7 +163,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] = value;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
+            value;
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -170,98 +199,119 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   Widget build(BuildContext context) {
     var colorful = Column(
       children: [
-        ParamCard(
-          title: '亮度',
-          value: deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
-          activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
-          onChanged: brightnessHandle,
-          onChanging: brightnessHandle,
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ParamCard(
+            title: '亮度',
+            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                ["brightness"],
+            activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
+            onChanged: brightnessHandle,
+            onChanging: brightnessHandle,
+          ),
         ),
-        ParamCard(
-          title: '色温',
-          value: deviceWatch["detail"]["lightPanelDeviceList"][0]
-              ["colorTemperature"],
-          activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
-          onChanged: colorTemperatureHandle,
-          onChanging: colorTemperatureHandle,
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ParamCard(
+            title: '色温',
+            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                    ["colorTemperature"] ??
+                0,
+            activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
+            onChanged: colorTemperatureHandle,
+            onChanging: colorTemperatureHandle,
+          ),
         ),
-        ModeCard(
-          modeList: lightModes,
-          selectedKeys: getSelectedKeys(),
-          onTap: modeHandle,
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ModeCard(
+            modeList: lightModes,
+            selectedKeys: getSelectedKeys(),
+            onTap: modeHandle,
+          ),
         ),
-        FunctionCard(
-          title: '延时关灯',
-          subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                      ["delayClose"] ==
-                  0
-              ? '未设置'
-              : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
-          child: Listener(
-            onPointerDown: (e) => delayHandle(),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                            ["delayClose"] ==
-                        0
-                    ? const Color(0xFF000000)
-                    : const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: Image(
-                image: AssetImage(deviceWatch["detail"]["lightPanelDeviceList"]
-                            [0]["delayClose"] ==
-                        0
-                    ? 'assets/imgs/plugins/0x13/delay_off.png'
-                    : 'assets/imgs/plugins/0x13/delay_on.png'),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: FunctionCard(
+            title: '延时关灯',
+            subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                        ["delayClose"] ==
+                    0
+                ? '未设置'
+                : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
+            child: Listener(
+              onPointerDown: (e) => delayHandle(),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                              ["delayClose"] ==
+                          0
+                      ? const Color(0xFF000000)
+                      : const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Image(
+                  image: AssetImage(deviceWatch["detail"]
+                              ["lightPanelDeviceList"][0]["delayClose"] ==
+                          0
+                      ? 'assets/imgs/plugins/0x13/delay_off.png'
+                      : 'assets/imgs/plugins/0x13/delay_on.png'),
+                ),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
 
     var noColor = Column(
       children: [
-        ParamCard(
-          title: '亮度',
-          value: deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
-          activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
-          onChanged: brightnessHandle,
-          onChanging: brightnessHandle,
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ParamCard(
+            title: '亮度',
+            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                ["brightness"],
+            activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
+            onChanged: brightnessHandle,
+            onChanging: brightnessHandle,
+          ),
         ),
-        FunctionCard(
-          title: '延时关灯',
-          subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                      ["delayClose"] ==
-                  0
-              ? '未设置'
-              : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
-          child: Listener(
-            onPointerDown: (e) => delayHandle(),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                            ["delayClose"] ==
-                        0
-                    ? const Color(0xFF000000)
-                    : const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: Image(
-                image: AssetImage(deviceWatch["detail"]["lightPanelDeviceList"]
-                            [0]["delayClose"] ==
-                        0
-                    ? 'assets/imgs/plugins/0x13/delay_off.png'
-                    : 'assets/imgs/plugins/0x13/delay_on.png'),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: FunctionCard(
+            title: '延时关灯',
+            subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                        ["delayClose"] ==
+                    0
+                ? '未设置'
+                : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
+            child: Listener(
+              onPointerDown: (e) => delayHandle(),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                              ["delayClose"] ==
+                          0
+                      ? const Color(0xFF000000)
+                      : const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Image(
+                  image: AssetImage(deviceWatch["detail"]
+                              ["lightPanelDeviceList"][0]["delayClose"] ==
+                          0
+                      ? 'assets/imgs/plugins/0x13/delay_off.png'
+                      : 'assets/imgs/plugins/0x13/delay_on.png'),
+                ),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
 
@@ -283,8 +333,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                 brightness: deviceWatch["detail"]["lightPanelDeviceList"][0]
                     ["brightness"],
                 colorTemperature: 100 -
-                    deviceWatch["detail"]["lightPanelDeviceList"][0]
-                        ["colorTemperature"],
+                    (deviceWatch["detail"]["lightPanelDeviceList"][0]
+                            ["colorTemperature"] ??
+                        0),
               )),
           Flex(
             direction: Axis.vertical,
