@@ -101,8 +101,8 @@ class MzDialog {
           style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
           child: Text(btns![i], style: textStyle),
           onPressed: () {
-            onPressed?.call(btns![i], i);
-            Navigator.of(context).pop(isLast);
+            onPressed?.call(btns![i], i, context);
+
           }, //关闭对话框
         )));
         if (!isLast) {

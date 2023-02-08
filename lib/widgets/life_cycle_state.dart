@@ -16,14 +16,16 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   @mustCallSuper
   @protected
   void didPop() {
-    onCreate();
+    onPause();
+    onDestroy();
   }
 
   @override
   @mustCallSuper
   @protected
   void didPush() {
-    onDestroy();
+    onCreate();
+    onResume();
   }
 
   @override

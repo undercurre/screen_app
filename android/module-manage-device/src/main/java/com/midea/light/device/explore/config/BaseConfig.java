@@ -37,6 +37,11 @@ public class BaseConfig {
         this.httpHeaderDataKey = httpHeaderDataKey;
     }
 
+    // 因为token的有效期为三个小时，所以对外需要暴露更新token的方法
+    public void updateToken(String token) {
+        this.token = token;
+    }
+
     public String getHttpHeaderDataKey() {
         return httpHeaderDataKey;
     }

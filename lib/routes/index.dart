@@ -34,7 +34,7 @@ var routes = <String, WidgetBuilder>{
   "ScreenSaver": (context) => const ScreenSaver(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
-  "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
+  // "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
 
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),

@@ -1,12 +1,30 @@
 
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
 
-class FindZigbeeResult {
-
+abstract class IFindDeviceResult {
+  late String name;
   late String icon;
+}
+
+class FindZigbeeResult implements IFindDeviceResult {
+
+  @override
+  late String icon;
+  @override
   late String name;
   late FindZigbeeResultInfo device;
   FindZigbeeResult();
+
+  @override
+  operator ==(Object other) {
+    if(runtimeType != other.runtimeType) return false;
+    return other is FindZigbeeResult
+        && other.name == name && other.icon == icon
+        && other.device.sn == device.sn;
+  }
+
+  @override
+  int get hashCode => Object.hash(name, icon, device.sn);
 
   factory FindZigbeeResult.fromJson(Map<dynamic, dynamic> map) => FindZigbeeResult()
       ..icon = map["icon"]
@@ -158,11 +176,34 @@ class ModifyDeviceResult {
 
 }
 
-class FindWiFiResult {
+class FindWiFiResult implements IFindDeviceResult {
+  @override
   late String icon;
+  @override
   late String name;
   late WiFiScanResult info;
   FindWiFiResult();
+
+  @override
+  operator ==(Object? other) {
+    if(runtimeType != other.runtimeType) return false;
+    return other is FindWiFiResult
+        && other.info.ssid == info.ssid
+        && other.info.bssid == info.bssid;
+  }
+
+
+  @override
+  String toString() {
+    return {
+      'icon': icon,
+      'name': name,
+      'info': {
+        'ssid': info.ssid,
+        'bssid': info.bssid
+      }
+    }.toString();
+  }
 
   factory FindWiFiResult.fromJson(Map<dynamic, dynamic> map) => FindWiFiResult()
       ..icon = map["icon"]
@@ -184,5 +225,8 @@ class FindWiFiResult {
     }
     return result;
   }
+
+  @override
+  int get hashCode => Object.hash(info.ssid, info.bssid);
 
 }
