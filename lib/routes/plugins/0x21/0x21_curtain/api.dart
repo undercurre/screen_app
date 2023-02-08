@@ -96,13 +96,35 @@ class WrapZigbeeCurtain implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    // todo: 改成凉霸图标
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_one') {
+      return 'assets/imgs/device/yilu_off.png';
+    }
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_two') {
+      return 'assets/imgs/device/erlu-01-off.png';
+    }
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain') {
+      return 'assets/imgs/device/chuanglian_icon_off.png';
+    }
     return 'assets/imgs/device/chuanglian_icon_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    // todo: 改成凉霸图标
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_one') {
+      return 'assets/imgs/device/yilu_on.png';
+    }
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain_panel_two') {
+      return 'assets/imgs/device/erlu-01-on.png';
+    }
+    if (zigbeeControllerList[deviceInfo.modelNumber] ==
+        '0x21_curtain') {
+      return 'assets/imgs/device/chuanglian_icon_on.png';
+    }
     return 'assets/imgs/device/chuanglian_icon_on.png';
   }
 }
