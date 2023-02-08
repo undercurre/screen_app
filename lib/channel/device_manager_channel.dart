@@ -91,6 +91,11 @@ class DeviceManagerChannel extends AbstractChannel {
     findZigbeeCallback?.call(zigbeeDevices);
   }
 
+
+  void updateToken(String token) async {
+    methodChannel.invokeMethod('updateToken', {'token': token});
+  }
+
   // 初始化
   void init(String host, String token, String httpSign, String seed, String key,
       String deviceId, String userId, String iotAppCount, String iotSecret, String httpHeaderDataKey) async {

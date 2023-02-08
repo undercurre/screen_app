@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 
-class Device extends Mode {
-  String icon;
-  bool selected = false;
+import '../../channel/models/manager_devic.dart';
 
-  Device({key, name, required this.icon, required this.selected})
-      : super(key, name, icon, icon);
+class SelectDeviceModel {
+  bool selected = false;
+  IFindDeviceResult data;
+  SelectDeviceModel.create(this.data);
+
+  @override
+  operator ==(Object other) {
+    if(runtimeType != other.runtimeType) return false;
+    return other is SelectDeviceModel && other.data == data;
+  }
+
+  @override
+  int get hashCode => data.hashCode;
+
 }
 
 class DeviceItem extends StatelessWidget {
-  final Device device;
+  final SelectDeviceModel device;
   final double boxSize;
   final double circleSize;
   final double fontSize;
-  final void Function(Device device)? onTap;
+  final void Function(SelectDeviceModel device)? onTap;
 
   const DeviceItem(
       {Key? key,
@@ -40,7 +50,6 @@ class DeviceItem extends StatelessWidget {
                 Container(
                   width: circleSize,
                   height: circleSize,
-                  margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       color: device.selected
@@ -61,10 +70,10 @@ class DeviceItem extends StatelessWidget {
                           spreadRadius: 2,
                         )
                       ]),
-                  child: Image(
-                    height: 50,
-                    width: 50,
-                    image: AssetImage(device.onIcon),
+                  child: Image.network(
+                      device.data.icon,
+                      height: 50,
+                      width: 50
                   ),
                 ),
                 if (device.selected)
@@ -80,14 +89,15 @@ class DeviceItem extends StatelessWidget {
               ],
             ),
             Text(
-              device.name,
+              device.data.name,
+              textAlign: TextAlign.justify,
+              maxLines: 1,
               style: TextStyle(
                 fontFamily: 'MideaType',
                 fontSize: fontSize,
                 fontWeight: FontWeight.w400,
                 color: Colors.white,
                 decoration: TextDecoration.none,
-                height: 1,
               ),
             ),
           ],

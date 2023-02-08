@@ -1,76 +1,160 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/utils.dart';
+import 'package:screen_app/widgets/life_cycle_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
 import 'device_item.dart';
 
-// 模拟数据 TODO 改为接口查询 @魏
-var mockData = [
-  {
-    "type": "0x13",
-    "name": '吸顶灯',
-  },
-  {
-    "type": "0x13",
-    "name": '吸顶灯',
-  },
-  {
-    "type": "0x14",
-    "name": '智能窗帘',
-  },
-  {
-    "type": "0x26",
-    "name": '浴霸',
-  },
-  {
-    "type": "0x09",
-    "name": '智能门锁',
-  },
-  {
-    "type": "0x2B",
-    "name": '摄像头',
-  },
-  {
-    "type": "0x2B",
-    "name": '摄像头',
+/// 安全类型的State
+abstract class SafeState<T extends StatefulWidget> extends State<T> {
+  bool dirty = false;
+
+  @override
+  @mustCallSuper
+  void initState() {
+    dirty = false;
+    super.initState();
   }
-].map((d) => DeviceEntity.fromJson(d)).toList();
 
-class Wifi {
-  String name;
-  int? strength; // WIFI信号强度
+  void setSafeState(VoidCallback fn) {
+    if(!dirty) {
+      setState(fn);
+    } else {
+      debugPrint('$this 请注意 ## 当前的State有在生命周期之外更新UI状态');
+    }
+  }
 
-  Wifi({required this.name, this.strength});
+  @override
+  @mustCallSuper
+  void dispose() {
+    super.dispose();
+    dirty = true;
+  }
+
 }
 
-class SnifferState extends State<SnifferPage> {
-  late Timer _timer; // to be deleted
-  double turns = 0; // 控制扫描动画圈数
-  final int timeout = 30; // 设备查找时间
-  final int timePerTurn = 3; // 转一圈所需时间
-  List<Device> dList = []; // 格式化后的设备列表数据，带 selected 属性
+class SnifferViewModel {
+
+  final SnifferState _state;
+  /// 探测到的zigbee设备
   List<FindZigbeeResult> zigbeeList = <FindZigbeeResult>[];
+  /// 探测到的wifi设备
+  List<FindWiFiResult> wifiList = <FindWiFiResult>[];
 
-  var wifiInfo = Wifi(name: "Midea", strength: 2); // WIFI 名称，强度 TODO
+  /// 整合的设备列表
+  List<SelectDeviceModel> combineList = <SelectDeviceModel>[];
 
-  bool hasSelected() {
-    return dList.any((d) => d.selected);
+  SnifferViewModel(this._state);
+
+  /// 当页面在前台时，自动进行扫描
+  void onStateResume(BuildContext context) {
+    debugPrint('开始扫描设备');
+    if(Global.user?.accessToken != null) {
+      deviceManagerChannel.updateToken(Global.user!.accessToken);
+    }
+    sniffer(context);
   }
 
-  void goBack() {
-    stopSnifferZigbee(); // ! 页面离开前停止扫描
-    Navigator.pop(context);
+  /// 当页面在后台时，暂停自动扫描
+  void onStatePause(BuildContext context) {
+    debugPrint('停止扫描设备');
+    stopSniffer(context);
   }
+
+  /// 是否存在已经选中的Model
+  bool hasSelected() => combineList.any((e) => e.selected);
+
+  /// 开始探测设备
+  void sniffer(BuildContext context) {
+    debugPrint('NetUtils.getNetState(): ${NetUtils.getNetState()}');
+    if (NetUtils.getNetState() == null || !NetUtils.getNetState()?.isWifi) {
+      debugPrint('showWiFiDialog');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _state.showWifiDialog();
+      });
+      return;
+    }
+    /// 探测zigbee类型设备
+    _snifferZigbee();
+    /// 探测wifi类型设备
+    //_snifferWiFi();
+  }
+
+  /// 跳转到连接页
+  void toDeviceConnect(BuildContext context) {
+    if (!hasSelected()) {
+      TipsUtils.toast(content: '请选择要绑定的设备');
+      return;
+    }
+    Navigator.pushNamed(context, 'DeviceConnectPage');
+  }
+
+  /// 停止探测设备
+  void stopSniffer(BuildContext context) {
+    _stopSnifferZigbee();
+    //_stopSnifferWiFi();
+  }
+
+  void _snifferZigbee() {
+
+    deviceManagerChannel.setFindZigbeeListener((result) {
+      debugPrint('zigbeeList: $result');
+      zigbeeList.addAll(result.where((element) => !zigbeeList.contains(element)).toList());
+      combineList.addAll(zigbeeList.where((element1) => !combineList.any((element2) => element2.data == element1)).map((e) => SelectDeviceModel.create(e)));
+      notifyStateChange(() { });
+    });
+
+    deviceManagerChannel.findZigbee(
+        Global.profile.homeInfo?.homegroupId ?? "",
+        Global.profile.applianceCode ?? ""
+    );
+
+  }
+
+  void _stopSnifferZigbee() {
+    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+    deviceManagerChannel.setFindZigbeeListener(null);
+  }
+
+  void _snifferWiFi() {
+    deviceManagerChannel.setFindWiFiCallback((result) {
+      debugPrint('wifiList: $result');
+      wifiList.addAll(result.where((element) => !wifiList.contains(element)));
+      combineList.addAll(wifiList.where((element1) => !combineList.any((element2) => element2.data == element1)).map((e) => SelectDeviceModel.create(e)));
+      notifyStateChange(() { });
+    });
+    deviceManagerChannel.findWiFi();
+  }
+
+  void _stopSnifferWiFi() {
+    deviceManagerChannel.stopFindWiFi();
+    deviceManagerChannel.setFindWiFiCallback(null);
+  }
+
+  void notifyStateChange(VoidCallback fun) {
+    _state.setSafeState(fun);
+  }
+
+}
+
+class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNetState {
+  double turns = 0; // 控制扫描动画圈数
+  final int timeout = 90000; // 设备查找时间
+  final int timePerTurn = 3; // 转一圈所需时间
+  late SnifferViewModel viewModel;
+  MZNetState? _currentNetState;
 
   Widget selectWifi() {
+
     return GestureDetector(
         onTap: () => Navigator.pushNamed(context, 'NetSettingPage'),
         child: Container(
@@ -84,10 +168,10 @@ class SnifferState extends State<SnifferPage> {
                 Padding(
                     padding: const EdgeInsets.only(right: 7),
                     child: Image.asset(
-                        "assets/imgs/icon/wifi-${wifiInfo.strength}.png",
+                        "assets/imgs/icon/wifi-3.png",
                         width: 24.0)),
                 Text(
-                  wifiInfo.name,
+                  _currentNetState == null ? '暂未连接': _currentNetState!.isWifi ? NetUtils.getRawNetState().wiFiScanResult!.ssid : '暂未连接',
                   style: const TextStyle(
                       fontSize: 18,
                       fontFamily: 'MideaType',
@@ -107,7 +191,7 @@ class SnifferState extends State<SnifferPage> {
             )));
   }
 
-  void showWifiDialog() async {
+  void showWifiDialog() {
     MzDialog mzDialog = MzDialog(
         title: '连接家庭网络',
         desc: '请确认当前网络是2.4GHZ',
@@ -115,67 +199,26 @@ class SnifferState extends State<SnifferPage> {
         contentSlot: selectWifi(),
         maxWidth: 425,
         contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
-        onPressed: (String item, int index) {
+        onPressed: (String item, int index, dialogContext) {
           logger.i('$index: $item');
+          if(index == 0) {
+            Navigator.pop(dialogContext);
+            Navigator.pop(context);
+          } else {
+            if(NetUtils.getNetState()?.isWifi) {
+              Navigator.pop(dialogContext);
+            } else {
+              TipsUtils.toast(content: '请先连接wifi，然后再尝试');
+            }
+          }
         });
 
-    bool? result = await mzDialog.show(context);
-    logger.i('mzDialog: $result');
-  }
-
-  void toDeviceConnect() {
-    if (!hasSelected()) {
-      TipsUtils.toast(content: '请选择要绑定的设备');
-      return;
-    }
-    if (NetUtils.getNetState() == null) {
-      showWifiDialog();
-      return;
-    }
-
-    stopSnifferZigbee(); // ! 页面离开前停止扫描
-    Navigator.pushNamed(context, 'DeviceConnectPage');
-  }
-
-  // TODO 初始化SDK的逻辑或将放到原生中
-  void initSDK() {
-    deviceManagerChannel.init(
-        dotenv.get("IOT_URL"),
-        Global.user?.accessToken ?? "",
-        dotenv.get("HTTP_SIGN_SECRET"),
-        Global.user?.seed ?? "",
-        Global.user?.key ?? "",
-        Global.profile.deviceId ?? "",
-        Global.user?.uid ?? "",
-        dotenv.get("IOT_APP_COUNT"),
-        dotenv.get("IOT_SECRET"),
-        dotenv.get("IOT_REQUEST_HEADER_DATA_KEY"));
-    zigbeeList.clear();
-  }
-
-  void snifferZigbee() {
-    debugPrint('NetUtils.getNetState(): ${NetUtils.getNetState()}');
-    if (NetUtils.getNetState() == null) {
-      showWifiDialog();
-      return;
-    }
-
-    deviceManagerChannel.setFindZigbeeListener((result) {
-      debugPrint('zigbeeList: $result');
-      zigbeeList.addAll(result);
-    });
-    deviceManagerChannel.findZigbee(Global.profile.homeInfo?.homegroupId ?? "",
-        Global.profile.applianceCode ?? "");
-  }
-
-  void stopSnifferZigbee() {
-    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
-    deviceManagerChannel.setFindZigbeeListener(null);
+    mzDialog.show(context);
   }
 
   // 生成设备列表
   List<Widget> _listView() {
-    return dList
+    return viewModel.combineList
         .map((device) => DeviceItem(
             device: device,
             onTap: (d) {
@@ -184,45 +227,37 @@ class SnifferState extends State<SnifferPage> {
         .toList();
   }
 
-  // TODO 完善数据查询 @魏
-  Future<void> initQuery() async {
-    // ! 模拟发现设备过程
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      timer.cancel();
-
-      // 格式化数据
-      setState(() => dList = mockData.map((d) {
-            var hasController = controllerList.keys.any((key) => key == d.type);
-            var icon = hasController
-                ? DeviceService.getOnIcon(d)
-                : 'assets/imgs/device/phone_on.png'; // TODO 替换为无类型设备图标
-
-            return Device(
-                key: d.type, name: d.name, icon: icon, selected: false);
-          }).toList());
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-
-    initQuery();
     // 页面加载完成，即开始执行扫描动画
     // HACK 0.5 使扫描光线图片恰好转到视图下方，无法看到
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      initSDK();
-      snifferZigbee();
-
       setState(() => turns -= timeout / timePerTurn - 0.5);
     });
   }
 
   @override
-  void dispose() {
-    _timer.cancel();
-    stopSnifferZigbee();
-    super.dispose();
+  void onCreate() {
+    super.onCreate();
+    viewModel = SnifferViewModel(this);
+  }
+
+  @override
+  void onResume() {
+    super.onResume();
+    viewModel.onStateResume(context);
+  }
+
+  @override
+  void onPause() {
+    super.onPause();
+    viewModel.onStatePause(context);
+  }
+
+  @override
+  void onDestroy() {
+    super.onDestroy();
   }
 
   @override
@@ -249,7 +284,7 @@ class SnifferState extends State<SnifferPage> {
         children: [
           // 顶部导航
           MzNavigationBar(
-            onLeftBtnTap: goBack,
+            onLeftBtnTap: () => Navigator.pop(context),
             title: '发现设备',
           ),
 
@@ -278,7 +313,7 @@ class SnifferState extends State<SnifferPage> {
                   runSpacing: 6,
                   children: _listView())),
 
-          if (dList.isEmpty)
+          if (viewModel.combineList.isEmpty)
             Positioned(
               top: MediaQuery.of(context).size.height / 2,
               width: MediaQuery.of(context).size.width,
@@ -292,7 +327,7 @@ class SnifferState extends State<SnifferPage> {
               ),
             ),
 
-          if (dList.isNotEmpty)
+          if (viewModel.combineList.isNotEmpty)
             Positioned(
                 left: 0,
                 bottom: 0,
@@ -300,9 +335,9 @@ class SnifferState extends State<SnifferPage> {
                 child: Row(children: [
                   Expanded(
                     child: TextButton(
-                        style: hasSelected() ? buttonStyleOn : buttonStyle,
-                        onPressed: () => toDeviceConnect(),
-                        child: Text(hasSelected() ? '添加设备' : '选择设备',
+                        style: viewModel.hasSelected() ? buttonStyleOn : buttonStyle,
+                        onPressed: () => viewModel.toDeviceConnect(context),
+                        child: Text(viewModel.hasSelected() ? '添加设备' : '选择设备',
                             style: const TextStyle(
                                 fontSize: 24,
                                 color: Colors.white,
@@ -313,6 +348,12 @@ class SnifferState extends State<SnifferPage> {
       ),
     );
   }
+
+  @override
+  void netChange(MZNetState? state) {
+    _currentNetState = state;
+  }
+
 }
 
 class SnifferPage extends StatefulWidget {

@@ -70,6 +70,9 @@ class NetUtils {
     return netMethodChannel.checkConnectedWiFiRecord();
   }
 
+  /// 获取原始的网络连接类型
+  static NetState getRawNetState() => netMethodChannel.currentNetState;
+
   /// 解析当前连接状态
   static _parse(NetState state) {
     bool wifiConnected = state.wifiState == 2;
