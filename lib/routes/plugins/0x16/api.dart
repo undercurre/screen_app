@@ -24,7 +24,7 @@ class WrapGateway implements DeviceInterface {
   @override
   bool isSupport(DeviceEntity deviceInfo) {
     // 过滤sn8
-    return true;
+    return false;
   }
 
   @override

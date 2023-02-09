@@ -24,7 +24,7 @@ import '../../plugins/singlePanel/api.dart';
 Map<String, DeviceInterface> controllerList = {
   "0x13": WrapWIFILight(),
   "0x14": CurtainApi(),
-  "0x17": cate0x17.DeviceListApiImpl(),
+  "0x17": cate0x17.WrapLiangyi(),
   "0x21_light_colorful": WrapZigbeeLight(),
   "0x21_light_noColor": WrapZigbeeLight(),
   "0x21_panel": WrapPanel(),

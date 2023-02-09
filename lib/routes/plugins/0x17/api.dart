@@ -1,71 +1,43 @@
 import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/routes/plugins/device_interface.dart';
 
 import '../../../models/mz_response_entity.dart';
-import '../device_interface.dart';
 
-/// 浴霸控制接口
-class BaseApi {
-  /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getDetail(String deviceId) async {
-    var res = await DeviceApi.sendPDMOrder(
-      '0x26',
-      '__fullQuery__',
-      deviceId,
-      {},
-      method: 'GET',
-    );
-    return res;
-  }
-
-  /// 查询设备状态（lua）
-  static Future<MzResponseEntity> getDetailByLua(String deviceId) async {
-    var res = await DeviceApi.getDeviceDetail('0x26', deviceId);
-    return res;
-  }
-
-  /// 物模型控制
-  static Future<MzResponseEntity> wotControl(
-      String deviceId, String command, Map data) async {
-    var res = await DeviceApi.sendPDMOrder('0x26', command, deviceId, data,
-        method: 'POST');
-    return res;
-  }
-
-  /// Lua控制
-  static Future<MzResponseEntity> luaControl(String deviceId, Map data) async {
-    var res = await DeviceApi.sendLuaOrder('0x26', deviceId, data);
-    return res;
-  }
-}
-
-/// 提供给DeviceList调用的接口实现
-class DeviceListApiImpl implements DeviceInterface {
+class WrapLiangyi implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    final res = await BaseApi.getDetailByLua(deviceInfo.applianceCode);
-    if (res.success) {
+    var res = await WIFILiangyiApi.getLiangyiDetail(deviceInfo.applianceCode);
+    if (res.code == 0) {
       return res.result;
     } else {
-      throw Error();
+      return {};
     }
   }
 
   @override
-  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) {
+  Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    var order = 'pause';
     if (onOff) {
-      // 设备列表点击开电源，打开
-      return BaseApi.luaControl(
-        deviceInfo.applianceCode,
-        {'mode': 'ventilation'},
-      );
+      order = 'down';
     } else {
-      // 全关
-      return BaseApi.luaControl(
-        deviceInfo.applianceCode,
-        {'mode': 'close_all', 'light_mode': ''},
-      );
+      order = 'up';
     }
+    return await WIFILiangyiApi.updwonLua(deviceInfo.applianceCode, order);
+  }
+
+  @override
+  bool isSupport(DeviceEntity deviceInfo) {
+    // 过滤sn8
+    return true;
+  }
+
+  @override
+  bool isPower(DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null && deviceInfo.detail != {}
+        ? (deviceInfo.detail!["location_status"] == 'lower_limit' ||
+            deviceInfo.detail!["updown"] == 'down')
+        : false;
   }
 
   @override
@@ -80,30 +52,36 @@ class DeviceListApiImpl implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/bath_heater_off.png';
+    return 'assets/imgs/device/clothes_hanger_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/bath_heater_on.png';
+    return 'assets/imgs/device/clothes_hanger_on.png';
+  }
+}
+
+class WIFILiangyiApi {
+  /// 查询设备状态（Lua）
+  static Future<MzResponseEntity> getLiangyiDetail(String deviceId) async {
+    var res = await DeviceApi.getDeviceDetail('0x17', deviceId);
+
+    return res;
   }
 
-  @override
-  bool isPower(DeviceEntity deviceInfo) {
-    final data = deviceInfo.detail;
-    if (data == null) {
-      return false;
-    }
-    if (data['mode'] != 'close_all' || data['light_mode'] != 'close_all') {
-      return true;
-    } else {
-      return false;
-    }
+  /// 照明控制（lua）
+  static Future<MzResponseEntity> lightLua(String deviceId, bool onOff) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0x17', deviceId, {"light": onOff ? 'on' : 'off'});
+
+    return res;
   }
 
-  @override
-  bool isSupport(DeviceEntity deviceInfo) {
-    // 目前的所有晾衣架都支持
-    return true;
+  /// 升降控制（lua）
+  static Future<MzResponseEntity> updwonLua(String deviceId, String order) async {
+    var res =
+        await DeviceApi.sendLuaOrder('0x17', deviceId, {"updown": order});
+
+    return res;
   }
 }

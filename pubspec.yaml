@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/imgs/plugins/0x13/
     - assets/imgs/plugins/0x14/
+    - assets/imgs/plugins/0x17/
     - assets/imgs/plugins/0x26/
     - assets/imgs/plugins/0x40/
     - assets/imgs/plugins/0xAC/

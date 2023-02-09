@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/plugins/0x17/index.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/screen_saver/screen_saver_hand_clock.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
@@ -51,6 +52,7 @@ var routes = <String, WidgetBuilder>{
 
   "0x13": (context) => const WifiLightPage(),
   "0x14": (context) => const WifiCurtainPage(),
+  "0x17": (context) => const WifiLiangyiPage(),
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
   "0x21_light_colorful": (context) => const ZigbeeLightPage(),
