@@ -1,6 +1,8 @@
 
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
 
+import '../../common/global.dart';
+
 abstract class IFindDeviceResult {
   late String name;
   late String icon;
@@ -19,7 +21,6 @@ class FindZigbeeResult implements IFindDeviceResult {
   operator ==(Object other) {
     if(runtimeType != other.runtimeType) return false;
     return other is FindZigbeeResult
-        && other.name == name && other.icon == icon
         && other.device.sn == device.sn;
   }
 
@@ -99,7 +100,7 @@ class FindZigbeeResultInfo {
 
 // 如果类型为BindResult<FindZigbeeResult> 说明为zigbee绑定的结果
 // 如果类型为BindResult<FindWiFiResult> 说明为wifi绑定的结果
-class BindResult<T> {
+class BindResult<T extends IFindDeviceResult> {
   late int code; // 0表示成功 -1表示失败
   late String message;// 如果失败会有失败的原因
   late int waitDeviceBind; //剩下多少设备需要绑定
@@ -113,7 +114,7 @@ class BindResult<T> {
   ..message = map['message']
   ..waitDeviceBind = map['waitDeviceBind']
   ..findResult = FindZigbeeResult.fromJson(map['findResult']) as T
-  ..bindResult = ApplianceBean.parse(map['bindResult']);
+  ..bindResult = ApplianceBean.parse(map['bindInfo']);
 
   // 转换为wifi设备的绑定结果
   factory BindResult.convertWiFiFromJson(Map<dynamic, dynamic> map) => BindResult()
@@ -121,7 +122,18 @@ class BindResult<T> {
     ..message = map['message']
     ..waitDeviceBind = map['waitDeviceBind']
     ..findResult = FindWiFiResult.fromJson(map['findResult']) as T
-    ..bindResult = ApplianceBean.parse(map['bindResult']);
+    ..bindResult = ApplianceBean.parse(map['bindInfo']);
+
+  @override
+  String toString() {
+    return {
+      'code': code,
+      'message': message,
+      'waitDeviceBind': waitDeviceBind,
+      'findResult': findResult,
+      'bindResult': bindResult
+    }.toString();
+  }
 
 }
 
@@ -135,6 +147,7 @@ class ApplianceBean {
   late String activeStatus;
   late String homegroupId; // 绑定的家庭id
   late String roomId;// 绑定房间id
+  late String roomName;// 绑定的房间名称
   late String rawSn; // 设备sn
   ApplianceBean();
 
@@ -148,6 +161,7 @@ class ApplianceBean {
     ..homegroupId = map["homegroupId"]
     ..roomId = map["roomId"]
     ..rawSn = map["rawSn"]
+    ..roomName = Global.profile.homeInfo?.roomList?.firstWhere((element) => element.id == map["roomId"]).name ?? ''
     ..onlineStatus = map["onlineStatus"];
 
   static ApplianceBean? parse(Map<dynamic, dynamic>? map) {
@@ -156,6 +170,17 @@ class ApplianceBean {
     } else {
       return ApplianceBean.fromJson(map);
     }
+  }
+
+  @override
+  String toString() {
+    return {
+      'applianceCode': applianceCode,
+      'onlineStatus': onlineStatus,
+      'type': type,
+      'homegroupId': homegroupId,
+      'roomId': roomId
+    }.toString();
   }
 
 }

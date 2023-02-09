@@ -18,7 +18,7 @@ mixin AutoSniffer<T extends StatefulWidget> on State<T> {
             title: '发现${result.length}个新设备',
             backgroundColor: const Color(0XFF575757),
             onPressed: () {
-              Navigator.of(context).pushNamed('developer');
+              Navigator.of(context).pushNamed('SnifferPage');
             });
 
         mzNotice.show(context);

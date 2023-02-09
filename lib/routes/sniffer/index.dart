@@ -59,22 +59,35 @@ class SnifferViewModel {
     /// 探测zigbee类型设备
     _snifferZigbee();
     /// 探测wifi类型设备
-    //_snifferWiFi();
+    _snifferWiFi();
   }
 
   /// 跳转到连接页
   void toDeviceConnect(BuildContext context) {
+
     if (!hasSelected()) {
       TipsUtils.toast(content: '请选择要绑定的设备');
       return;
     }
-    Navigator.pushNamed(context, 'DeviceConnectPage');
+
+    NetUtils.checkConnectedWiFiRecord().then((value) {
+      if(value == null) {
+        _state.showIgnoreWiFiDialog();
+      } else {
+        Navigator.pushNamed(context, 'DeviceConnectPage',
+            arguments: combineList
+                .where((element) => element.selected)
+                .map((e) => e.data)
+                .toList());
+      }
+    });
+
   }
 
   /// 停止探测设备
   void stopSniffer(BuildContext context) {
     _stopSnifferZigbee();
-    //_stopSnifferWiFi();
+    _stopSnifferWiFi();
   }
 
   void _snifferZigbee() {
@@ -184,6 +197,22 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
               TipsUtils.toast(content: '请先连接wifi，然后再尝试');
             }
           }
+        });
+
+    mzDialog.show(context);
+  }
+
+  void showIgnoreWiFiDialog() {
+    MzDialog mzDialog = MzDialog(
+        title: '抱歉',
+        desc: '请忘记当前网络，然后进行重新连接',
+        btns: ['取消', '确认'],
+        contentSlot: selectWifi(),
+        maxWidth: 425,
+        contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
+        onPressed: (String item, int index, dialogContext) {
+          Navigator.pushNamed(context, 'NetSettingPage');
+          Navigator.pop(dialogContext);
         });
 
     mzDialog.show(context);
