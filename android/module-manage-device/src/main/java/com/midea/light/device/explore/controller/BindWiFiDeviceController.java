@@ -190,14 +190,14 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
             //找到目标Bean，并重新设置STATE_WAIT状态
             for (int i = 0; i < queue.size(); i++) {
                 WrapBindingState wrapBean = queue.get(i);
-                if (Objects.equals(bean, wrapBean) && wrapBean.getState() == WrapBindingState.STATE_CONNECTED_ERR) {
+                if (Objects.equals(bean, wrapBean) && wrapBean.getState() != WrapBindingState.STATE_WAIT) {
                     targetIndex = i;
                     break;
                 }
             }
 
             //更改完状态之后，重新插入到队尾
-            if (targetIndex != null && targetIndex < queue.size() - 1) {
+            if (targetIndex != null && targetIndex < queue.size()) {
                 queue.remove((int)targetIndex);
                 queue.offer(bean);
             }

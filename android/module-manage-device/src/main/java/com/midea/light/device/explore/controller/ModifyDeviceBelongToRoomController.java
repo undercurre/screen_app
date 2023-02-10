@@ -67,7 +67,8 @@ public class ModifyDeviceBelongToRoomController extends AbstractController imple
                 });
             }
             getMessengerList().remove(clientMessenger);
+        } else {
+            throw new RuntimeException("暂时没有实现该方法：" + method);
         }
-        throw new RuntimeException("暂时没有实现该方法：" + method);
     }
 }
