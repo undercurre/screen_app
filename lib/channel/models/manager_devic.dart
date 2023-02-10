@@ -161,7 +161,7 @@ class ApplianceBean {
     ..homegroupId = map["homegroupId"]
     ..roomId = map["roomId"]
     ..rawSn = map["rawSn"]
-    ..roomName = Global.profile.homeInfo?.roomList?.firstWhere((element) => element.id == map["roomId"]).name ?? ''
+    ..roomName = Global.profile.roomInfo?.name ?? ''
     ..onlineStatus = map["onlineStatus"];
 
   static ApplianceBean? parse(Map<dynamic, dynamic>? map) {
@@ -187,7 +187,7 @@ class ApplianceBean {
 
 
 class ModifyDeviceResult {
-  late int suc; // 0表示成功 -1表示失败
+  late bool suc;
   late String homeGroupId; // 如果成功的话，这个值就是当前绑定的家庭id
   late String roomId; // 如果成功的话，这个值就是当前房间id
   late String applianceCode; // 设备的code

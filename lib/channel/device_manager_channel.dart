@@ -37,6 +37,10 @@ class DeviceManagerChannel extends AbstractChannel {
     this.bindZigbeeCallback = bindZigbeeCallback;
   }
 
+  void setModifyDevicePositionListener(IModifyDevicePositionCallback? modifyDevicePositionCallback) {
+    this.modifyDevicePositionCallback = modifyDevicePositionCallback;
+  }
+
   @override
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
     super.onMethodCallHandler(call);
@@ -158,7 +162,7 @@ class DeviceManagerChannel extends AbstractChannel {
     methodChannel.invokeMethod("modifyDevicePosition", {
       "homeGroupId": homeGroupId,
       "roomId": roomId,
-      "applianceCode": "applianceCode"
+      "applianceCode": applianceCode
     });
   }
 

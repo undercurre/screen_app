@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 
@@ -17,16 +18,36 @@ class DeviceConnectViewModel {
   List<BindResult> alreadyAddedList = [];
   /// 还待添加的设备
   List<IFindDeviceResult> toBeAddedList = [];
+  /// 房间列表
+  List<RoomEntity> rooms = [];
 
   bool startBinding = false;
+
+  /// 切换房间
+  void changeRoom(ApplianceBean bindResult, String roomName, String homeGroupId) {
+
+    for (var value in rooms) {
+      if(roomName == value.name) {
+        deviceManagerChannel.setModifyDevicePositionListener((result) {
+          deviceManagerChannel.setModifyDevicePositionListener(null);
+          bindResult.roomName = roomName;
+          _state.setSafeState(() { });
+        });
+        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId!, bindResult.applianceCode);
+        break;
+      }
+    }
+
+  }
 
   /// 初始化
   void init(BuildContext context) {
     var args = ModalRoute.of(context)?.settings.arguments;
-    if(args is! List<IFindDeviceResult>) {
+    if(args is! Map<String, dynamic>) {
       throw Exception('请传入正确的参数 ${args.runtimeType}');
     }
-    startBind(args);
+    startBind(args['devices']);
+    rooms = args['rooms'];
   }
 
   /// 发起绑定
@@ -143,36 +164,40 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
       return MzCell(
         title: d.findResult.name,
         titleSize: 24,
-        // rightSlot: DropdownButtonHideUnderline(
-        //     child: DropdownButton(
-        //       value: d.bindResult!.roomName,
-        //       borderRadius: const BorderRadius.all(Radius.circular(10)),
-        //       alignment: AlignmentDirectional.topCenter,
-        //       items: Global.profile.homeInfo!.roomList!
-        //           .map<DropdownMenuItem<String>>((RoomEntity item) {
-        //         return DropdownMenuItem<String>(
-        //           value: item.name,
-        //           child: Container(
-        //             alignment: Alignment.center,
-        //             constraints: const BoxConstraints(minWidth: 100),
-        //             child: Text(item.name,
-        //                 style: const TextStyle(
-        //                     fontSize: 24,
-        //                     fontFamily: "MideaType",
-        //                     fontWeight: FontWeight.w400)),
-        //           ),
-        //         );
-        //       }).toList(),
-        //       dropdownColor: const Color(0XFF626262),
-        //       focusColor: Colors.blue,
-        //       icon: const Icon(Icons.keyboard_arrow_down_outlined),
-        //       iconSize: 30,
-        //       iconEnabledColor: Colors.white,
-        //       onChanged: (data) {
-        //         d.bindResult!.roomName = data as String;
-        //         setSafeState(() { });
-        //       }
-        //     )),
+        rightSlot: DropdownButtonHideUnderline(
+            child: DropdownButton(
+              value: d.bindResult!.roomName,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              alignment: AlignmentDirectional.topCenter,
+              items: viewModel.rooms
+                  .map<DropdownMenuItem<String>>((RoomEntity item) {
+                return DropdownMenuItem<String>(
+                  value: item.name,
+                  child: Container(
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(minWidth: 100),
+                    child: Text(item.name,
+                        style: const TextStyle(
+                            fontSize: 24,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.w400)),
+                  ),
+                );
+              }).toList(),
+              dropdownColor: const Color(0XFF626262),
+              focusColor: Colors.blue,
+              icon: const Icon(Icons.keyboard_arrow_down_outlined),
+              iconSize: 30,
+              iconEnabledColor: Colors.white,
+              onChanged: (String? data) {
+                /// 改变房间
+                viewModel.changeRoom(
+                    d.bindResult!,
+                    data!,
+                    Global.profile.homeInfo!.homegroupId
+                );
+              }
+            )),
         hasBottomBorder: true,
         padding:
         const EdgeInsets.symmetric(vertical: 17, horizontal: 26),
@@ -235,30 +260,14 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
               left: 0,
               bottom: 0,
               width: MediaQuery.of(context).size.width,
-              child: Row(children: [
-                Expanded(
-                  child: TextButton(
-                      style: buttonStyle,
-                      onPressed: () {
-                        viewModel.goBack(context);
-                      },
-                      child: const Text('上一步',
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontFamily: 'MideaType'))),
-                ),
-                Expanded(
-                  child: TextButton(
-                      style: buttonStyleOn,
-                      onPressed: () => viewModel.goBack(context),
-                      child: const Text('完成添加',
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontFamily: 'MideaType'))),
-                ),
-              ])),
+              child: TextButton(
+                  style: viewModel.toBeAddedList.isEmpty ? buttonStyleOn : buttonStyle,
+                  onPressed: () => viewModel.goBack(context),
+                  child: Text(viewModel.toBeAddedList.isEmpty ? '完成添加' : '停止添加',
+                      style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontFamily: 'MideaType')))),
         ],
       ),
     );

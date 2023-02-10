@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
@@ -11,6 +12,8 @@ import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import '../../common/api/user_api.dart';
+import '../../models/home_entity.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
 import 'device_item.dart';
@@ -22,9 +25,18 @@ class SnifferViewModel {
   List<FindZigbeeResult> zigbeeList = <FindZigbeeResult>[];
   /// 探测到的wifi设备
   List<FindWiFiResult> wifiList = <FindWiFiResult>[];
-
   /// 整合的设备列表
   List<SelectDeviceModel> combineList = <SelectDeviceModel>[];
+
+  /// 获取指定家庭信息
+  Future<List<RoomEntity>?> getHomeData() async {
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
+
+    if (res.isSuccess) {
+      return res.data.homeList[0].roomList;
+    }
+  }
 
   SnifferViewModel(this._state);
 
@@ -34,6 +46,13 @@ class SnifferViewModel {
     if(Global.user?.accessToken != null) {
       deviceManagerChannel.updateToken(Global.user!.accessToken);
     }
+
+    _state.setSafeState(() {
+      combineList.clear();
+      wifiList.clear();
+      zigbeeList.clear();
+    });
+
     sniffer(context);
   }
 
@@ -74,11 +93,18 @@ class SnifferViewModel {
       if(value == null) {
         _state.showIgnoreWiFiDialog();
       } else {
-        Navigator.pushNamed(context, 'DeviceConnectPage',
-            arguments: combineList
-                .where((element) => element.selected)
-                .map((e) => e.data)
-                .toList());
+        getHomeData().then((value) {
+          if(value != null) {
+            Navigator.pushNamed(context, 'DeviceConnectPage',
+                arguments: {
+                  'devices': combineList.where((element) => element.selected).map((e) => e.data).toList(),
+                  'rooms': value
+                });
+          } else {
+            TipsUtils.toast(content: '获取房间失败');
+          }
+        });
+
       }
     });
 
