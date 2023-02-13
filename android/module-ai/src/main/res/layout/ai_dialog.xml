@@ -18,9 +18,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_30"
-            android:text="你可以这样说: 打开空调"
-            android:textColor="@color/Gray41"
-            android:textSize="@dimen/sp_24" />
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28" />
 
 
         <FrameLayout

@@ -12,7 +12,7 @@ public class BaseConfig {
     String host; // 当前服务器url
     String token; // 当前登录的it Token
     String httpSign; // 当前环境的http请求密钥
-    String seed; // 登录成功之后，云端返回的敏感数据加密密钥
+    String seed; // 登录成功之后，云端返回的敏感数据加密密钥 比如加密SN等
     String key; // 登录成功之后，云端返回的敏感数据加密密钥
     String deviceId; // 设备ID
     String userId; // 当前IT uid

@@ -9,6 +9,7 @@ import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
+import com.midea.light.utils.CommandExecution;
 
 import androidx.multidex.MultiDex;
 
@@ -44,6 +45,14 @@ public class MainApplication extends BaseApplication {
                 .build());
         // 初始化网关
         GateWayUtils.init();
+
+        //wifi 10秒刷新一次
+//        CommandExecution.execCommand("wpa_cli bss_expire_age 10", true);
+        //wifi 缓冲为1
+//        CommandExecution.execCommand("wpa_cli bss_expire_count 1", true);
+        //bss flush
+//        CommandExecution.execCommand("wpa_cli bss_flush", true);
+
     }
 
 

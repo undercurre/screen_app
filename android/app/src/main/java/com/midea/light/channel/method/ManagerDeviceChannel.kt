@@ -98,18 +98,18 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 assert(isInit)
                 val homeGroupId = requireNotNull(call.argument<String?>("homeGroupId"))
                 val roomId = requireNotNull(call.argument<String?>("roomId"))
-                val wifiBssId = requireNotNull(call.argument<String?>("wifiBssId"))
+                val wifiBssId = requireNotNull(call.argument<String?>("wifiBssid"))
                 val wifiSsid = requireNotNull(call.argument<String?>("wifiSsid"))
                 val wifiPassword = requireNotNull(call.argument<String?>("wifiPassword"))
                 val encrypt = requireNotNull(call.argument<String?>("wifiEncrypt"))
 
                 val devices = JSONArrayUtils.toJsonArray(requireNotNull(call.argument<JSONArray?>("devices")))
-                val scanResults = mutableListOf<android.net.wifi.ScanResult>()
+                val scanResults = mutableListOf<WiFiScanResult>()
                 devices.forEach {
                     val ssid = it.get("ssid")
                     val bssid = it.get("bssid")
                     val scanResult = requireNotNull(wifiDevices.find { it.SSID() == ssid && it.BSSID() == bssid })
-                    scanResults.add(scanResult.scanResult)
+                    scanResults.add(scanResult)
                 }
 
                 if(CollectionUtil.isEmpty(scanResults)) {
@@ -206,7 +206,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 json.put("code", bindResult.code) // 0成功 -1失败
                 json.put("message", bindResult.message) // 如果失败会有报错的原因，此字段用处不大
                 json.put("waitDeviceBind", bindResult.waitDeviceBind) // 剩下多少设备需要绑定
-                json.put("findInfo", JSONObjectUtils.objectToJson(bindResult.deviceInfo as ZigbeeScanResult))
+                json.put("findResult", JSONObjectUtils.objectToJson(bindResult.deviceInfo as ZigbeeScanResult))
                 if(bindResult.code == 0) {
                     json.put("bindInfo", JSONObjectUtils.objectToJson(bindResult.bindResult as ApplianceBean))
                 }
@@ -360,7 +360,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         wifiName: String,
         wifiPassword: String,
         encrypt: String,
-        scanResults: MutableList<ScanResult>
+        scanResults: MutableList<WiFiScanResult>
     ) {
         val message = Message()
         val data = Bundle()
@@ -404,13 +404,14 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
     // 7. 绑定wifi设备结果
     private fun wifiBindMethodHandle(methodType: String, data: Bundle) {
+        LogUtil.tag("BindDeviceController").bundle(data)
         if(methodType == Portal.METHOD_BIND_WIFI) {
             val bindResult: BindResult = requireNotNull(data.getParcelable(Portal.RESULT_BIND_WIFI_DEVICES))
             val json = JSONObject()
             json.put("code", bindResult.code) // 0成功 -1失败
             json.put("message", bindResult.message) // 如果失败会有报错的原因，此字段用处不大
             json.put("waitDeviceBind", bindResult.waitDeviceBind) // 剩下多少设备需要绑定
-            json.put("findInfo", (covertWiFiScanResultToFlutterType(bindResult.deviceInfo as WiFiScanResult)))
+            json.put("findResult", (covertWiFiScanResultToFlutterType(bindResult.deviceInfo as WiFiScanResult)))
             if(bindResult.code == 0) {
                 json.put("bindInfo", JSONObjectUtils.objectToJson(bindResult.bindResult as ApplianceBean))
             }

@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 
@@ -20,7 +21,7 @@ class DeviceManagerChannel extends AbstractChannel {
   IBindWiFiCallback? bindWiFiCallback;
   IModifyDevicePositionCallback? modifyDevicePositionCallback;
 
-  void setBindWiFiCallback(IBindWiFiCallback callback) {
+  void setBindWiFiCallback(IBindWiFiCallback? callback) {
     bindWiFiCallback = callback;
   }
 
@@ -34,6 +35,10 @@ class DeviceManagerChannel extends AbstractChannel {
 
   void setBindZigbeeListener(IBindZigbeeCallback? bindZigbeeCallback) {
     this.bindZigbeeCallback = bindZigbeeCallback;
+  }
+
+  void setModifyDevicePositionListener(IModifyDevicePositionCallback? modifyDevicePositionCallback) {
+    this.modifyDevicePositionCallback = modifyDevicePositionCallback;
   }
 
   @override
@@ -60,6 +65,7 @@ class DeviceManagerChannel extends AbstractChannel {
   }
 
   void wifiBindResultHandle(arguments) {
+    debugPrint('接收到wifi绑定成功的设备$arguments');
     final result = BindResult<FindWiFiResult>.convertWiFiFromJson(arguments);
     bindWiFiCallback?.call(result);
   }
@@ -156,7 +162,7 @@ class DeviceManagerChannel extends AbstractChannel {
     methodChannel.invokeMethod("modifyDevicePosition", {
       "homeGroupId": homeGroupId,
       "roomId": roomId,
-      "applianceCode": "applianceCode"
+      "applianceCode": applianceCode
     });
   }
 

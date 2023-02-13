@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x17/index.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
-import 'package:screen_app/routes/setting/screen_saver/screen_saver_hand_clock.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
 import 'package:screen_app/routes/setting/standby_style_select.dart';
 
@@ -23,8 +22,6 @@ import 'select_scene/index.dart';
 import 'setting/index.dart';
 import 'sniffer/device_connect.dart';
 import 'sniffer/index.dart';
-import 'sniffer/self_discovery.dart';
-import 'weather/index.dart';
 
 var routes = <String, WidgetBuilder>{
   '/': (context) => const Boot(),
@@ -35,7 +32,7 @@ var routes = <String, WidgetBuilder>{
   "ScreenSaver": (context) => const ScreenSaver(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
-  // "SelfDiscoveryPage": (context) => const SelfDiscoveryPage(),
+
 
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),

@@ -1,49 +1,182 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/common/index.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
+import 'package:screen_app/widgets/safe_state.dart';
 
+import '../../channel/index.dart';
+import '../../channel/models/manager_devic.dart';
 import '../../common/global.dart';
-import '../../states/device_change_notifier.dart';
+import '../../widgets/util/net_utils.dart';
 
-// 模拟数据 TODO 改为接口查询 @魏
-var roomList = {'客厅': '客厅', '餐厅': '餐厅', '主卧': '主卧', '客卧': '客卧', '阳台': '阳台'};
+class DeviceConnectViewModel {
+  final DeviceConnectState _state;
+  DeviceConnectViewModel(this._state);
+  /// 已经添加的设备
+  List<BindResult> alreadyAddedList = [];
+  /// 还待添加的设备
+  List<IFindDeviceResult> toBeAddedList = [];
+  /// 房间列表
+  List<RoomEntity> rooms = [];
 
-class DeviceWithRoom extends DeviceEntity {
-  late String room;
-  DeviceWithRoom(): super();
-}
+  bool startBinding = false;
 
-class DeviceConnectState extends State<DeviceConnectPage> {
-  bool isLoading = true;
-  late Timer _timer; // to be deleted
-  List<DeviceWithRoom> dList = [];
+  /// 切换房间
+  void changeRoom(ApplianceBean bindResult, String roomName, String homeGroupId) {
 
-  void goBack() {
+    for (var value in rooms) {
+      if(roomName == value.name) {
+        deviceManagerChannel.setModifyDevicePositionListener((result) {
+          deviceManagerChannel.setModifyDevicePositionListener(null);
+          bindResult.roomName = roomName;
+          _state.setSafeState(() { });
+        });
+        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId!, bindResult.applianceCode);
+        break;
+      }
+    }
+
+  }
+
+  /// 初始化
+  void init(BuildContext context) {
+    var args = ModalRoute.of(context)?.settings.arguments;
+    if(args is! Map<String, dynamic>) {
+      throw Exception('请传入正确的参数 ${args.runtimeType}');
+    }
+    startBind(args['devices']);
+    rooms = args['rooms'];
+  }
+
+  /// 发起绑定
+  void startBind(List<IFindDeviceResult> findResult) {
+    if(!startBinding) {
+      if(findResult.isEmpty) throw Exception('请确保数据不为空');
+      toBeAddedList.addAll(findResult);
+
+      /// 待绑定的wifi设备
+      List<FindWiFiResult> wifiType = [];
+      /// 待绑定zigbee设备
+      List<FindZigbeeResult> zigbeeType = [];
+      for (var element in findResult) {
+        if(element is FindZigbeeResult) {
+          zigbeeType.add(element);
+        } else if(element is FindWiFiResult) {
+          wifiType.add(element);
+        }
+      }
+
+      if(zigbeeType.isNotEmpty) {
+        bindZigbee(zigbeeType);
+      }
+
+      if(wifiType.isNotEmpty) {
+        bindWiFi(wifiType);
+      }
+      _state.setSafeState(() { });
+      startBinding = true;
+    }
+  }
+
+  /// 停止绑定
+  void stopBind() {
+    if(startBinding) {
+      stopBindZigbee();
+      stopBindWiFi();
+      startBinding = false;
+    }
+  }
+
+  void bindWiFi(List<FindWiFiResult> findResult) {
+    NetUtils.checkConnectedWiFiRecord().then((value) {
+      if(value == null) throw Exception('当前的wifi密码保存失败');
+      deviceManagerChannel.setBindWiFiCallback((result) {
+        logger.i('wifi设备绑定结果: $result');
+        if(toBeAddedList.contains(result.findResult)) {
+          if(result.code != 0) {
+            TipsUtils.toast(content: '绑定${result.findResult.name}失败');
+          } else {
+            alreadyAddedList.add(result);
+          }
+          toBeAddedList.remove(result.findResult);
+          _state.setSafeState(() {});
+        }
+      });
+      deviceManagerChannel.binWiFi(
+          value.ssid,
+          value.bssid,
+          value.password,
+          value.encryptType,
+          Global.profile.homeInfo?.homegroupId ?? "",
+          Global.profile.roomInfo?.roomId ?? "",
+          findResult // 指定需要绑定的wifi设备
+      );
+    });
+  }
+
+  void stopBindWiFi() {
+    deviceManagerChannel.stopBindWiFi();
+    deviceManagerChannel.setBindWiFiCallback(null);
+  }
+
+  void bindZigbee(List<FindZigbeeResult> findResult) {
+    deviceManagerChannel.setBindZigbeeListener((result) {
+      logger.i('zigbee设备绑定结果: $result');
+      if(toBeAddedList.contains(result.findResult)) {
+        if(result.code != 0) {
+          TipsUtils.toast(content: '绑定${result.findResult.name}失败');
+        } else {
+          alreadyAddedList.add(result);
+        }
+        toBeAddedList.remove(result.findResult);
+        _state.setSafeState(() {});
+      }
+    });
+    deviceManagerChannel.bindZigbee(
+        Global.profile.homeInfo?.homegroupId ?? "",
+        Global.profile.roomInfo?.roomId ?? "",
+        findResult // 指定需要绑定的zigbee设备
+    );
+  }
+
+  void stopBindZigbee() {
+    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+    deviceManagerChannel.setBindZigbeeListener(null);
+  }
+
+  /// 退出
+  void goBack(BuildContext context) {
+    stopBind();
     Navigator.pop(context);
   }
 
+}
+
+class DeviceConnectState extends SafeState<DeviceConnectPage> {
+  late Timer _timer; // to be deleted
+  late DeviceConnectViewModel viewModel;
+
   // 生成设备列表
   List<MzCell> _listView() {
-    return dList.map((d) {
+    return viewModel.alreadyAddedList.map((d) {
       return MzCell(
-        title: d.name,
+        title: d.findResult.name,
         titleSize: 24,
         rightSlot: DropdownButtonHideUnderline(
             child: DropdownButton(
-              value: d.room,
+              value: d.bindResult!.roomName,
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               alignment: AlignmentDirectional.topCenter,
-              items: roomList.keys
-                  .map<DropdownMenuItem<String>>((String item) {
+              items: viewModel.rooms
+                  .map<DropdownMenuItem<String>>((RoomEntity item) {
                 return DropdownMenuItem<String>(
-                  value: item,
+                  value: item.name,
                   child: Container(
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 100),
-                    child: Text(item,
+                    child: Text(item.name,
                         style: const TextStyle(
                             fontSize: 24,
                             fontFamily: "MideaType",
@@ -56,9 +189,14 @@ class DeviceConnectState extends State<DeviceConnectPage> {
               icon: const Icon(Icons.keyboard_arrow_down_outlined),
               iconSize: 30,
               iconEnabledColor: Colors.white,
-              onChanged: (String? value) {
-                setState(() => d.room = value!);
-              },
+              onChanged: (String? data) {
+                /// 改变房间
+                viewModel.changeRoom(
+                    d.bindResult!,
+                    data!,
+                    Global.profile.homeInfo!.homegroupId
+                );
+              }
             )),
         hasBottomBorder: true,
         padding:
@@ -67,46 +205,16 @@ class DeviceConnectState extends State<DeviceConnectPage> {
     }).toList();
   }
 
-  // TODO 完善数据查询 @魏
-  Future<void> initQuery() async {
-    // ! 模拟设备连接过程
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      timer.cancel();
-
-      // ! 模拟数据 直接从已有设备列表中截取数据，实际上应该从查找到的数据中匹配显示
-      var deviceList = context.read<DeviceListModel>().deviceList;
-      setState(() => isLoading = false);
-      setState(() => dList = deviceList.map((d) {
-        var res = DeviceWithRoom();
-        res.name = d.name;
-        res.room = roomList.keys.first;
-        return res;
-      }).toList());
-
-      // 模拟弹出网络异常
-      MzDialog mzDialog = MzDialog(
-          desc: '油烟机连接失败，请确认网络环境后重试',
-          descMaxLines: 2,
-          descSize: 24,
-          btns: ['确定'],
-          maxWidth: 420,
-          titlePadding: const EdgeInsets.symmetric(vertical: 45, horizontal: 70),
-          onPressed: (String item, int index) {
-            logger.i('$index: $item');
-          });
-
-      await mzDialog.show(context);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
+    viewModel = DeviceConnectViewModel(this);
+  }
 
-    // 页面加载完成
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      initQuery();
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    viewModel.init(context);
   }
 
   @override
@@ -116,7 +224,7 @@ class DeviceConnectState extends State<DeviceConnectPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget saveBuild(BuildContext context) {
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -134,10 +242,10 @@ class DeviceConnectState extends State<DeviceConnectPage> {
         children: [
           // 顶部导航
           MzNavigationBar(
-            onLeftBtnTap: goBack,
+            onLeftBtnTap: () => viewModel.goBack(context),
             title: '设备连接',
-            desc: '已成功添加${dList.length}台设备',
-            isLoading: isLoading,
+            desc: '已成功添加${viewModel.alreadyAddedList.length}台设备',
+            isLoading: viewModel.toBeAddedList.isNotEmpty,
             hasBottomBorder: true,
           ),
 
@@ -152,31 +260,14 @@ class DeviceConnectState extends State<DeviceConnectPage> {
               left: 0,
               bottom: 0,
               width: MediaQuery.of(context).size.width,
-              child: Row(children: [
-                Expanded(
-                  child: TextButton(
-                      style: buttonStyle,
-                      onPressed: () {
-                        // 先清空已连接的WIFI设备
-                        goBack();
-                      },
-                      child: const Text('上一步',
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontFamily: 'MideaType'))),
-                ),
-                Expanded(
-                  child: TextButton(
-                      style: buttonStyleOn,
-                      onPressed: goBack,
-                      child: const Text('完成添加',
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontFamily: 'MideaType'))),
-                ),
-              ])),
+              child: TextButton(
+                  style: viewModel.toBeAddedList.isEmpty ? buttonStyleOn : buttonStyle,
+                  onPressed: () => viewModel.goBack(context),
+                  child: Text(viewModel.toBeAddedList.isEmpty ? '完成添加' : '停止添加',
+                      style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontFamily: 'MideaType')))),
         ],
       ),
     );

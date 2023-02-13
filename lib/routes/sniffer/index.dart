@@ -3,44 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/models/device_entity.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
+import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import '../../common/api/user_api.dart';
+import '../../models/home_entity.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
 import 'device_item.dart';
-
-/// 安全类型的State
-abstract class SafeState<T extends StatefulWidget> extends State<T> {
-  bool dirty = false;
-
-  @override
-  @mustCallSuper
-  void initState() {
-    dirty = false;
-    super.initState();
-  }
-
-  void setSafeState(VoidCallback fn) {
-    if(!dirty) {
-      setState(fn);
-    } else {
-      debugPrint('$this 请注意 ## 当前的State有在生命周期之外更新UI状态');
-    }
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    super.dispose();
-    dirty = true;
-  }
-
-}
 
 class SnifferViewModel {
 
@@ -49,9 +25,18 @@ class SnifferViewModel {
   List<FindZigbeeResult> zigbeeList = <FindZigbeeResult>[];
   /// 探测到的wifi设备
   List<FindWiFiResult> wifiList = <FindWiFiResult>[];
-
   /// 整合的设备列表
   List<SelectDeviceModel> combineList = <SelectDeviceModel>[];
+
+  /// 获取指定家庭信息
+  Future<List<RoomEntity>?> getHomeData() async {
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
+
+    if (res.isSuccess) {
+      return res.data.homeList[0].roomList;
+    }
+  }
 
   SnifferViewModel(this._state);
 
@@ -61,6 +46,13 @@ class SnifferViewModel {
     if(Global.user?.accessToken != null) {
       deviceManagerChannel.updateToken(Global.user!.accessToken);
     }
+
+    _state.setSafeState(() {
+      combineList.clear();
+      wifiList.clear();
+      zigbeeList.clear();
+    });
+
     sniffer(context);
   }
 
@@ -86,22 +78,42 @@ class SnifferViewModel {
     /// 探测zigbee类型设备
     _snifferZigbee();
     /// 探测wifi类型设备
-    //_snifferWiFi();
+    _snifferWiFi();
   }
 
   /// 跳转到连接页
   void toDeviceConnect(BuildContext context) {
+
     if (!hasSelected()) {
       TipsUtils.toast(content: '请选择要绑定的设备');
       return;
     }
-    Navigator.pushNamed(context, 'DeviceConnectPage');
+
+    NetUtils.checkConnectedWiFiRecord().then((value) {
+      if(value == null) {
+        _state.showIgnoreWiFiDialog();
+      } else {
+        getHomeData().then((value) {
+          if(value != null) {
+            Navigator.pushNamed(context, 'DeviceConnectPage',
+                arguments: {
+                  'devices': combineList.where((element) => element.selected).map((e) => e.data).toList(),
+                  'rooms': value
+                });
+          } else {
+            TipsUtils.toast(content: '获取房间失败');
+          }
+        });
+
+      }
+    });
+
   }
 
   /// 停止探测设备
   void stopSniffer(BuildContext context) {
     _stopSnifferZigbee();
-    //_stopSnifferWiFi();
+    _stopSnifferWiFi();
   }
 
   void _snifferZigbee() {
@@ -216,6 +228,22 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
     mzDialog.show(context);
   }
 
+  void showIgnoreWiFiDialog() {
+    MzDialog mzDialog = MzDialog(
+        title: '抱歉',
+        desc: '请忘记当前网络，然后进行重新连接',
+        btns: ['取消', '确认'],
+        contentSlot: selectWifi(),
+        maxWidth: 425,
+        contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
+        onPressed: (String item, int index, dialogContext) {
+          Navigator.pushNamed(context, 'NetSettingPage');
+          Navigator.pop(dialogContext);
+        });
+
+    mzDialog.show(context);
+  }
+
   // 生成设备列表
   List<Widget> _listView() {
     return viewModel.combineList
@@ -261,7 +289,12 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
   }
 
   @override
-  Widget build(BuildContext context) {
+  void netChange(MZNetState? state) {
+    _currentNetState = state;
+  }
+
+  @override
+  Widget saveBuild(BuildContext context) {
     ButtonStyle buttonStyle = TextButton.styleFrom(
         backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -347,11 +380,6 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
         ],
       ),
     );
-  }
-
-  @override
-  void netChange(MZNetState? state) {
-    _currentNetState = state;
   }
 
 }

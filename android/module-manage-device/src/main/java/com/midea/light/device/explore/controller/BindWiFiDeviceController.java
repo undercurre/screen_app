@@ -8,6 +8,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import android.util.Log;
 
 import com.midea.iot.sdk.MideaProgressCallback;
 import com.midea.iot.sdk.MideaSDK;
+import com.midea.iot.sdk.common.security.SecurityUtils;
 import com.midea.iot.sdk.config.ConfigType;
 import com.midea.iot.sdk.config.DeviceConfigStep;
 import com.midea.iot.sdk.config.ap.DeviceApConfigParams;
@@ -42,6 +44,42 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+
+// 定义一个异步线程回调的绑定监听器
+class AsyncMideaProgressCallback<T, Progress> extends MideaProgressCallback<T, Progress> {
+    Handler asyncHandler;
+    MideaProgressCallback<T, Progress> callback;
+
+    public AsyncMideaProgressCallback(Handler asyncHandler) {
+        this.asyncHandler = asyncHandler;
+    }
+
+    MideaProgressCallback<T, Progress> wrap(MideaProgressCallback<T, Progress> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    @Override
+    public void onProgressUpdate(Progress progress) {
+        asyncHandler.post(()->{
+            if(callback != null) callback.onProgressUpdate(progress);
+        });
+    }
+
+    @Override
+    public void onComplete(T t) {
+        asyncHandler.post(()->{
+            if(callback != null) callback.onComplete(t);
+        });
+    }
+
+    @Override
+    public void onError(MideaErrorMessage mideaErrorMessage) {
+        asyncHandler.post(()->{
+            if(callback != null) callback.onError(mideaErrorMessage);
+        });
+    }
+}
 /**
  * @ClassName BindWiFiDeviceController
  * @Description 绑定wifi类型的设备
@@ -89,8 +127,9 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
         } else if (method.equals(Portal.METHOD_STOP_WIFI_BIND)) {
             mTaskCollection.clear();
             MideaSDK.getInstance().getDeviceManager().stopConfigureDevice();
+        } else {
+            throw new RuntimeException("暂无实现此方法 = " + method);
         }
-        throw new RuntimeException("暂无实现此方法 = " + method);
     }
 
     @Override
@@ -123,6 +162,7 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
             bindResult.setBindType(bindType);
             bundle.putParcelable(Portal.RESULT_BIND_WIFI_DEVICES, bindResult);
             message.setData(bundle);
+            LogUtil.tag("BindDeviceController").msg("测试3");
             try {
                 messenger.send(message);
             } catch (RemoteException e) {
@@ -150,14 +190,14 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
             //找到目标Bean，并重新设置STATE_WAIT状态
             for (int i = 0; i < queue.size(); i++) {
                 WrapBindingState wrapBean = queue.get(i);
-                if (Objects.equals(bean, wrapBean) && wrapBean.getState() == WrapBindingState.STATE_CONNECTED_ERR) {
+                if (Objects.equals(bean, wrapBean) && wrapBean.getState() != WrapBindingState.STATE_WAIT) {
                     targetIndex = i;
                     break;
                 }
             }
 
             //更改完状态之后，重新插入到队尾
-            if (targetIndex != null && targetIndex < queue.size() - 1) {
+            if (targetIndex != null && targetIndex < queue.size()) {
                 queue.remove((int)targetIndex);
                 queue.offer(bean);
             }
@@ -186,7 +226,7 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
     }
 
     private void doBind(WrapBindingState wrapBean, String wifiName, String wifiPassword, String wifiEncryptType, String wifiBssId) {
-        ScanResult result = (ScanResult) wrapBean.getScanResult();
+        ScanResult result = ((WiFiScanResult) wrapBean.getScanResult()).getScanResult();
         LogUtil.i("Wifi设备 ： " + result + "进入配网");
 
         if (wifiManager.getConnectionInfo() == null) {
@@ -217,72 +257,74 @@ public class BindWiFiDeviceController extends AbstractController implements ISer
 
         LogUtil.i("当前绑定的wifi" + wifiManager.getConnectionInfo());
 
-        MideaSDK.getInstance().getDeviceManager().startConfigureDevice(params, ConfigType.TYPE_AP, new MideaProgressCallback<MideaDevice, DeviceConfigStep>() {
+        MideaSDK.getInstance().getDeviceManager().startConfigureDevice(params, ConfigType.TYPE_AP, new AsyncMideaProgressCallback<MideaDevice, DeviceConfigStep>(getHandler())
+                .wrap(new MideaProgressCallback<MideaDevice, DeviceConfigStep>() {
 
-            @Override
-            public void onProgressUpdate(DeviceConfigStep deviceConfigStep) {
-                Log.i("BindDeviceController", "onProgressUpdate" + deviceConfigStep.getStepName().name() + "(" + deviceConfigStep.getStep() + "/" + deviceConfigStep.getTotal() + ")" + deviceConfigStep.getMideaDevice());
-                if (deviceConfigStep.getStep() == 11) {
-                    forgetDeviceWifiAndConnectTargetWifi(result,  wifiName, wifiPassword, wifiEncryptType, wifiBssId);
-                }
-            }
+                        @Override
+                        public void onProgressUpdate(DeviceConfigStep deviceConfigStep) {
+                            Log.i("BindDeviceController", "onProgressUpdate" + deviceConfigStep.getStepName().name() + "(" + deviceConfigStep.getStep() + "/" + deviceConfigStep.getTotal() + ")" + deviceConfigStep.getMideaDevice());
+                            if (deviceConfigStep.getStep() == 11) {
+                                forgetDeviceWifiAndConnectTargetWifi(result,  wifiName, wifiPassword, wifiEncryptType, wifiBssId);
+                            }
+                        }
 
-            @Override
-            public void onComplete(MideaDevice mideaDevice) {
-                Log.i("BindDeviceController", "MideaSDK 流程跑通 回调的进程为 = " + Thread.currentThread());
-                ApplianceBean applianceBean = null;
-                // 请求绑定设备，最多尝试三次
-                for (int i = 0; i < 3; i++) {
-                    if(applianceBean == null) {
-                        applianceBean = getApiService()
-                                .bindDevice(
-                                        Portal.getBaseConfig().getUserId(), wrapBean.getHomeGroupId(),
-                                        wrapBean.getRoomId(), mideaDevice.getDeviceType(),
-                                        mideaDevice.getDeviceSN(), mideaDevice.getDeviceName(),
-                                        UUID.randomUUID().toString(), TimeUtil.getTimestamp()
-                                );
+                        @Override
+                        public void onComplete(MideaDevice mideaDevice) {
+                            Log.i("BindDeviceController", "MideaSDK 流程跑通 回调的进程为 = " + Thread.currentThread());
+                            ApplianceBean applianceBean = null;
+                            // 请求绑定设备，最多尝试三次
+                            for (int i = 0; i < 3; i++) {
+                                if(applianceBean == null) {
+                                    applianceBean = getApiService()
+                                            .bindDevice(
+                                                    Portal.getBaseConfig().getUserId(), wrapBean.getHomeGroupId(),
+                                                    wrapBean.getRoomId(), mideaDevice.getDeviceType(),
+                                                    SecurityUtils.encodeAES128(mideaDevice.getDeviceSN(), Portal.getBaseConfig().getSeed()),
+                                                    mideaDevice.getDeviceName(), UUID.randomUUID().toString(), TimeUtil.getTimestamp()
+                                            );
+                                }
+                            }
+                            if(applianceBean != null) {
+                                Log.i("BindDeviceController", " 调用Bind接口成功 ");
+                                // 请求成功
+                                Message message = Message.obtain();
+                                message.what = 1;
+                                message.obj = wrapBean;
+                                wrapBean.setState(WrapBindingState.STATE_CONNECTED_SUC);
+                                wrapBean.setBindResult(applianceBean);
+                                getHandler().sendMessage(message);
+                            } else {
+                                Log.i("BindDeviceController", " 调用Bind接口失败 ");
+                                // 请求失败
+                                Message message = Message.obtain();
+                                message.what = -1;
+                                message.obj = wrapBean;
+                                wrapBean.setState(WrapBindingState.STATE_CONNECTED_ERR);
+                                wrapBean.setErrorMsg("网络异常：当前连接wifi信息："+ wifiManager.getConnectionInfo());
+                                getHandler().sendMessage(message);
+                            }
+
+                            // 继续执行剩下的任务
+                            findSuitableDeviceAndBind(wifiName, wifiPassword, wifiEncryptType, wifiBssId);
+                        }
+
+                        @Override
+                        public void onError(MideaErrorMessage mideaErrorMessage) {
+                            LogUtil.i("MIDEA_SDK_流程失败");
+                            forgetDeviceWifiAndConnectTargetWifi(result, wifiName, wifiPassword, wifiEncryptType, wifiBssId);
+                            MideaSDK.getInstance().getDeviceManager().stopConfigureDevice();
+                            Message message = Message.obtain();
+                            message.what = -1;
+                            message.obj = wrapBean;
+                            wrapBean.setState(WrapBindingState.STATE_CONNECTED_ERR);
+                            wrapBean.setErrorMsg("MideaSDk 报错：" + mideaErrorMessage.getErrorMessage());
+                            getHandler().sendMessage(message);
+                            Log.i("BindDeviceController","onError" + mideaErrorMessage.getErrorMessage()+" "+mideaErrorMessage.getErrorCode());
+                            // 继续执行剩下的任务
+                            findSuitableDeviceAndBind(wifiName, wifiPassword, wifiEncryptType, wifiBssId);
+                        }
                     }
-                }
-                if(applianceBean != null) {
-                    Log.i("BindDeviceController", " 调用Bind接口成功 ");
-                    // 请求成功
-                    Message message = Message.obtain();
-                    message.what = 1;
-                    message.obj = wrapBean;
-                    wrapBean.setState(WrapBindingState.STATE_CONNECTED_SUC);
-                    wrapBean.setBindResult(applianceBean);
-                    getHandler().sendMessage(message);
-                } else {
-                    Log.i("BindDeviceController", " 调用Bind接口失败 ");
-                    // 请求失败
-                    Message message = Message.obtain();
-                    message.what = -1;
-                    message.obj = wrapBean;
-                    wrapBean.setState(WrapBindingState.STATE_CONNECTED_ERR);
-                    wrapBean.setErrorMsg("网络异常：当前连接wifi信息："+ wifiManager.getConnectionInfo());
-                    getHandler().sendMessage(message);
-                }
-
-                // 继续执行剩下的任务
-                findSuitableDeviceAndBind(wifiName, wifiPassword, wifiEncryptType, wifiBssId);
-            }
-
-            @Override
-            public void onError(MideaErrorMessage mideaErrorMessage) {
-                LogUtil.i("MIDEA_SDK_流程失败");
-                forgetDeviceWifiAndConnectTargetWifi(result, wifiName, wifiPassword, wifiEncryptType, wifiBssId);
-                MideaSDK.getInstance().getDeviceManager().stopConfigureDevice();
-                Message message = Message.obtain();
-                message.what = -1;
-                message.obj = wrapBean;
-                wrapBean.setState(WrapBindingState.STATE_CONNECTED_ERR);
-                wrapBean.setErrorMsg("MideaSDk 报错：" + mideaErrorMessage.getErrorMessage());
-                getHandler().sendMessage(message);
-                Log.i("BindDeviceController","onError" + mideaErrorMessage.getErrorMessage()+" "+mideaErrorMessage.getErrorCode());
-                // 继续执行剩下的任务
-                findSuitableDeviceAndBind(wifiName, wifiPassword, wifiEncryptType, wifiBssId);
-            }
-        });
+        ));
     }
 
 
