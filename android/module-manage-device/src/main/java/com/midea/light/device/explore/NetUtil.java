@@ -65,8 +65,8 @@ public class NetUtil {
 
     // 去除双引号
     public static boolean equalRemoveDoubleQuotes(String value1, String value2) {
-        value1 = value1.replace("\"","");
-        value2 = value2.replace("\"","");
+        value1 = value1 == null ? null : value1.replace("\"","");
+        value2 = value2 == null ? null : value2.replace("\"","");
         return Objects.equals(value1, value2);
     }
 

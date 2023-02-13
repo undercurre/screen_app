@@ -71,7 +71,6 @@ class WiFiDeviceManager extends StatelessWidget {
                       print("wifi还没启动，请跳转到wifi设置页，启动wifi");
                     }
                   });
-
                 },
                 child: const Text("开始扫描WiFi设备"),
               ),
