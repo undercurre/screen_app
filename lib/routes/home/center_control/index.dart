@@ -95,6 +95,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
     });
     if (!mounted) return;
     context.read<DeviceListModel>().updateAllDetail();
+
   }
 
   @override

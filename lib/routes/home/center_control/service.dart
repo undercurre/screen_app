@@ -155,13 +155,13 @@ class CenterControlService {
   static num lightTotalBrightness(BuildContext context) {
     late num totalBrightnessValue;
     List<num> totalBrightnessList = [];
-    var lightList = context.watch<DeviceListModel>().lightList;
+    var lightList = context.read<DeviceListModel>().lightList;
     var log = '';
     for (var i = 1; i <= lightList.length; i ++) {
       var deviceInfo = lightList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.watch<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
+        var res = context.read<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
@@ -193,13 +193,13 @@ class CenterControlService {
   static num lightTotalColorTemperature(BuildContext context) {
     late num totalColorTemperatureValue;
     List<num> totalColorTemperatureList = [];
-    var lightList = context.watch<DeviceListModel>().lightList;
+    var lightList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       // logger.i(
       //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
       if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.watch<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
+        var res = context.read<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
         late num value;
         if (deviceInfo.type == '0x21') {
           if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
