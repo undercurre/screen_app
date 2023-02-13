@@ -51,7 +51,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;
       String? deviceSn =await aboutSystemChannel.getGatewaySn();
-      String? deviceId =Global.profile.deviceId;
+      String? deviceId =Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
       var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
       var parsedJson = json.decode(jsonData);
