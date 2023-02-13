@@ -90,7 +90,8 @@ public class MainActivity extends FlutterActivity {
                 if (isAiSleep) {
                     isAiSleep = false;
                     isMusicPlay = MusicManager.getInstance().isPaying();
-                    mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",1);
+                    runOnUiThread(() ->  mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",1));
+
 
                 }
                 if (MusicManager.getInstance().isPaying()) {
@@ -99,7 +100,8 @@ public class MainActivity extends FlutterActivity {
             } else {
                 if(isAiSleep==false){
                     isAiSleep = true;
-                    mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",0);
+                    runOnUiThread(() ->  mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",0));
+
                 }
                 if (isMusicPlay||isFlashMusic) {
                     MusicManager.getInstance().startMusic();
