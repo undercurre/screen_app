@@ -234,7 +234,7 @@ class CenterControlService {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        // logger.i('${deviceInfo.name}${res ? '成功' : '失败'}');
+        logger.i('灯光中控开关${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);

@@ -65,8 +65,7 @@ class MzSlider extends StatefulWidget {
   State<MzSlider> createState() => _MzSliderState();
 }
 
-class _MzSliderState extends State<MzSlider>
-    with TickerProviderStateMixin {
+class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   // 轨道的key
   final GlobalKey _railKey = GlobalKey();
 
@@ -88,8 +87,8 @@ class _MzSliderState extends State<MzSlider>
     value = widget.value < widget.min
         ? widget.min
         : widget.value > widget.max
-        ? widget.max
-        : widget.value;
+            ? widget.max
+            : widget.value;
   }
 
   @override
@@ -140,7 +139,8 @@ class _MzSliderState extends State<MzSlider>
               ),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: activeColor),
+                  gradient: LinearGradient(
+                      colors: widget.disabled ? disableColor : activeColor),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -175,20 +175,48 @@ class _MzSliderState extends State<MzSlider>
   List<Color> get activeColor {
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
-    int curRed =
-    ((rightColor.red - leftColor.red) * valueToPercentage(value) + leftColor.red)
+    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
+            leftColor.red)
         .round();
     int curGreen =
-    ((rightColor.green - leftColor.green) * valueToPercentage(value) + leftColor.green)
-        .round();
+        ((rightColor.green - leftColor.green) * valueToPercentage(value) +
+                leftColor.green)
+            .round();
     int curBlue =
-    ((rightColor.blue - leftColor.blue) * valueToPercentage(value) + leftColor.blue)
-        .round();
+        ((rightColor.blue - leftColor.blue) * valueToPercentage(value) +
+                leftColor.blue)
+            .round();
     int curAlpha =
-    ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) + leftColor.alpha)
-        .round();
+        ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) +
+                leftColor.alpha)
+            .round();
     return [
       widget.activeColors[0],
+      Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
+    ];
+  }
+
+  // 获取当前圆点的滑动条颜色
+  List<Color> get disableColor {
+    Color leftColor = const Color(0xFF8F8F8F);
+    Color rightColor = const Color(0xFF8F8F8F);
+    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
+            leftColor.red)
+        .round();
+    int curGreen =
+        ((rightColor.green - leftColor.green) * valueToPercentage(value) +
+                leftColor.green)
+            .round();
+    int curBlue =
+        ((rightColor.blue - leftColor.blue) * valueToPercentage(value) +
+                leftColor.blue)
+            .round();
+    int curAlpha =
+        ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) +
+                leftColor.alpha)
+            .round();
+    return [
+      const Color(0xFF8F8F8F),
       Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
     ];
   }
@@ -202,10 +230,20 @@ class _MzSliderState extends State<MzSlider>
 
   // 获取激活部分滑动条长度
   double get activeRailWidth {
-    if (widget.height + valueToPercentage(value) * (widget.width - widget.height) < 0) {
-      logger.i('错误原因', {widget.height, widget.width, value, widget.max, widget.min, valueToPercentage(value)});
+    if (widget.height +
+            valueToPercentage(value) * (widget.width - widget.height) <
+        0) {
+      logger.i('错误原因', {
+        widget.height,
+        widget.width,
+        value,
+        widget.max,
+        widget.min,
+        valueToPercentage(value)
+      });
     }
-    return widget.height + valueToPercentage(value) * (widget.width - widget.height);
+    return widget.height +
+        valueToPercentage(value) * (widget.width - widget.height);
   }
 
   num clampValue(num value) {
@@ -235,10 +273,15 @@ class _MzSliderState extends State<MzSlider>
   num steppingValue(num nextValue) {
     if (widget.step <= 0) return nextValue;
     final currentStep =
-    num.parse((nextValue / widget.step).toStringAsFixed(precision));
-    final leftStep = num.parse((currentStep.floor() * widget.step).toStringAsFixed(precision));
-    final rightStep = num.parse(((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
-    final closestStep = (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0 ? rightStep : leftStep;
+        num.parse((nextValue / widget.step).toStringAsFixed(precision));
+    final leftStep = num.parse(
+        (currentStep.floor() * widget.step).toStringAsFixed(precision));
+    final rightStep = num.parse(
+        ((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
+    final closestStep =
+        (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0
+            ? rightStep
+            : leftStep;
     return closestStep;
   }
 
@@ -256,9 +299,9 @@ class _MzSliderState extends State<MzSlider>
         vsync: this,
       );
       CurvedAnimation curve =
-      CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
+          CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
       Animation<num> animation =
-      Tween(begin: oldValue, end: newValue).animate(curve);
+          Tween(begin: oldValue, end: newValue).animate(curve);
       animation.addListener(() {
         setState(() {
           value = animation.value;
@@ -275,8 +318,10 @@ class _MzSliderState extends State<MzSlider>
   /// 事件处理
   void onPanDown(DragDownDetails e) {
     if (widget.disabled) return;
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx /
+        railRenderObject.paintBounds.width);
     latestPosition = e.globalPosition;
     isPanning = true;
     isPanUpdate = false;
@@ -285,13 +330,14 @@ class _MzSliderState extends State<MzSlider>
   }
 
   void onPanUpdate(DragUpdateDetails e) {
-    print(e);
     if (widget.disabled) return;
     isPanUpdate = true;
     latestPosition = e.globalPosition;
     //用户手指滑动时，更新偏移，重新构建
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx /
+        railRenderObject.paintBounds.width);
     final percentageValue = percentageToValue(percentage);
     final emitValue = clampValue(steppingValue(percentageValue));
     setState(() {
@@ -303,8 +349,10 @@ class _MzSliderState extends State<MzSlider>
 
   void onPanUp() {
     if (widget.disabled) return;
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx /
+        railRenderObject.paintBounds.width);
     final temp = clampValue(steppingValue(percentageToValue(percentage)));
     isPanning = false;
     setState(() {

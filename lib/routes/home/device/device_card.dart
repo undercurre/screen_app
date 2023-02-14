@@ -81,7 +81,7 @@ class _DeviceCardState extends State<DeviceCard> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF979797), width: 0.8),
+            border: Border.all(color: const Color(0xFF979797), width: 0.4),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -90,9 +90,10 @@ class _DeviceCardState extends State<DeviceCard> {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 136,
+                width: 112,
                 child: Flex(
                   direction: Axis.vertical,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,7 +106,7 @@ class _DeviceCardState extends State<DeviceCard> {
                           ? widget.deviceInfo!.name
                           : '加载中',
                       style: const TextStyle(
-                        fontSize: 22.0,
+                        fontSize: 20.0,
                         color: Color(0XFFFFFFFF),
                       ),
                     ),
@@ -153,8 +154,8 @@ class _DeviceCardState extends State<DeviceCard> {
   List<Color> _getContainerBgc() {
     return widget.deviceInfo != null &&
             DeviceService.isPower(widget.deviceInfo!)
-        ? [const Color(0xFF393E43), const Color(0xFF333135)]
-        : [const Color(0xFF000000), const Color(0xFF000000)];
+        ? [const Color(0xFF3B3E41), const Color(0xFF3B3E41)]
+        : [const Color(0x5A393E43), const Color(0x5A393E43)];
   }
 
   /// attr文字

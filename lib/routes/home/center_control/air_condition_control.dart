@@ -5,8 +5,10 @@ import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/sniffer/device_item.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
+import '../../../models/device_entity.dart';
 import '../../../widgets/business/dropdown_menu.dart';
 import '../../../widgets/mz_metal_card.dart';
+import '../../../widgets/mz_notice.dart';
 import '../../../widgets/plugins/slider_button_content.dart';
 
 class AirConditionControl extends StatefulWidget {
@@ -71,6 +73,17 @@ class AirConditionControlState extends State<AirConditionControl> {
     CenterControlService.ACPowerControl(context, onOff);
   }
 
+  void disableHandle() {
+    MzNotice mzNotice = MzNotice(
+        icon: const SizedBox(width: 0, height: 0),
+        btnText: '我知道了',
+        title: '房间内没有相关设备',
+        backgroundColor: const Color(0XFF575757),
+        onPressed: () {});
+
+    mzNotice.show(context);
+  }
+
   void airConditionValueHandle(num value) {
     if (airConditionPanel) {
       CenterControlService.ACTemperatureControl(context, value);
@@ -83,7 +96,7 @@ class AirConditionControlState extends State<AirConditionControl> {
     CenterControlService.ACModeControl(context, mode);
   }
 
-  sliderPart() {
+  sliderPart(List<DeviceEntity> airConditionList) {
     return airConditionPanel
         ? SliderButtonContent(
             unit: '℃',
@@ -94,6 +107,8 @@ class AirConditionControlState extends State<AirConditionControl> {
             onChanged: (value) {
               airConditionValueHandle(value);
             },
+            disabled:
+                !CenterControlService.isAirConditionPower(airConditionList),
           )
         : SliderButtonContent(
             unit: '档',
@@ -104,6 +119,8 @@ class AirConditionControlState extends State<AirConditionControl> {
             onChanged: (value) {
               airConditionValueHandle(value);
             },
+            disabled:
+                !CenterControlService.isAirConditionPower(airConditionList),
           );
   }
 
@@ -301,15 +318,18 @@ class AirConditionControlState extends State<AirConditionControl> {
                           ],
                         ),
                       ),
-                      sliderPart()
+                      sliderPart(airConditionList)
                     ],
                   ),
                 ),
                 Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromRGBO(55, 55, 55, 0.50)),
+                  child: GestureDetector(
+                    onTap: () => disableHandle(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color.fromRGBO(55, 55, 55, 0.50)),
+                    ),
                   ),
                 ),
                 const Positioned(

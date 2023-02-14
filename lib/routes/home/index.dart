@@ -41,7 +41,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 1);
+    _pageController = PageController(initialPage: 3);
     children.add(const ScenePage(text: "场景页"));
     children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));

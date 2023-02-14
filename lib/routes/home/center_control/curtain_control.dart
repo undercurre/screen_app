@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 
 import '../../../widgets/mz_metal_card.dart';
+import '../../../widgets/mz_notice.dart';
 
 class CurtainControl extends StatefulWidget {
   final bool? disabled;
@@ -15,8 +17,22 @@ class CurtainControl extends StatefulWidget {
 
 class CurtainControlState extends State<CurtainControl> {
   void curtainHandle(bool onOff) {
-    if (widget.disabled ?? false) return;
+    if (widget.disabled ?? false) {
+      disableHandle();
+      return;
+    }
     CenterControlService.curtainControl(context, onOff);
+  }
+
+  void disableHandle() {
+    MzNotice mzNotice = MzNotice(
+        icon: const SizedBox(width: 0, height: 0),
+        btnText: '我知道了',
+        title: '房间内没有相关设备',
+        backgroundColor: const Color(0XFF575757),
+        onPressed: () {});
+
+    mzNotice.show(context);
   }
 
   @override
@@ -88,10 +104,13 @@ class CurtainControlState extends State<CurtainControl> {
                   ),
                 ),
                 Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromRGBO(55, 55, 55, 0.50)),
+                    child: GestureDetector(
+                      onTap: () => disableHandle(),
+                      child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color.fromRGBO(55, 55, 55, 0.50)),
+                    ),
                   ),
                 ),
               ]
