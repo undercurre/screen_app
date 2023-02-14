@@ -6,6 +6,7 @@ import android.app.SmatekManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -296,11 +297,14 @@ class LDSystemUtil {
     }
 
     public static void setScreenAutoMode(boolean isAutoMode) {
-        throw new RuntimeException("暂不支持此操作");
+        SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("isScreenAutoMode", isAutoMode).commit();
     }
 
     public static boolean isScreenAutoMode() {
-        throw new RuntimeException("暂不支持此操作");
+        SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4", Context.MODE_PRIVATE);
+        return sp.getBoolean("isScreenAutoMode", false);
     }
 
     /**
@@ -693,7 +697,7 @@ public class SystemUtil {
 
 
     public static String getMacAddress() {
-        if(AppCommonConfig.getChannel().equals("JH")) {
+        if (AppCommonConfig.getChannel().equals("JH")) {
             return MacUtil.macAddress("wlan0");
         } else {
             return MacUtil.macAddress("p2p0");
@@ -706,11 +710,11 @@ public class SystemUtil {
 
     public static void getGatewaySn(Function<String, String> callback) {
         String sn = GateWayRepository.getInstance().getGatewaySn();
-        if(StringUtils.isEmpty(sn)) {
-            GateWayUtils.bindGateWay(new GatewayCallback.SN(System.currentTimeMillis() + 4000,  TimeUnit.MILLISECONDS) {
+        if (StringUtils.isEmpty(sn)) {
+            GateWayUtils.bindGateWay(new GatewayCallback.SN(System.currentTimeMillis() + 4000, TimeUnit.MILLISECONDS) {
                 @Override
                 protected void callback(SNCodeBean msg) {
-                    if(null == msg) {
+                    if (null == msg) {
                         // 获取失败
                         callback.apply("");
                     } else {
@@ -746,7 +750,7 @@ class IpAddressUtil {
         if (info != null && info.isConnected()) {
             if (info.getType() == ConnectivityManager.TYPE_WIFI) {//当前使用无线网络
                 return getIpAddress("wlan0");
-            } else if(info.getType() == ConnectivityManager.TYPE_ETHERNET) {
+            } else if (info.getType() == ConnectivityManager.TYPE_ETHERNET) {
                 return getIpAddress("eth0");
             }
         }
@@ -757,7 +761,7 @@ class IpAddressUtil {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
-                if(!Objects.equals(intf.getDisplayName(), interfaceName)) continue;
+                if (!Objects.equals(intf.getDisplayName(), interfaceName)) continue;
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {

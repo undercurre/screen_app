@@ -3,16 +3,23 @@ package com.midea.light;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 
 import com.midea.light.ai.AiManager;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
+import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.setting.SystemUtil;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
@@ -41,7 +48,12 @@ public class MainActivity extends FlutterActivity {
         requestPermissions(permissions, 0x18);
         super.onCreate(bundle);
         MainApplication.mMainActivity=this;
-
+        if (AppCommonConfig.getChannel().equals("LD")) {
+            SensorManager mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
+            MySensorEventListener sensorEventListener = new MySensorEventListener();
+            Sensor als = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            mSensorManager.registerListener(sensorEventListener, als, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
@@ -177,6 +189,122 @@ public class MainActivity extends FlutterActivity {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private final class MySensorEventListener implements SensorEventListener {
+        long curUpdateTime;
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            boolean isCheck = SystemUtil.isScreenAutoMode();
+            if (isCheck) {
+                if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+                    if (event.values[0] > 2500) {
+                        changeSystemBrightness(255);
+                    } else if (event.values[0] > 2400 && event.values[0] < 2500) {
+                        changeSystemBrightness(250);
+                    } else if (event.values[0] > 2300 && event.values[0] < 2400) {
+                        changeSystemBrightness(245);
+                    } else if (event.values[0] > 2200 && event.values[0] < 2300) {
+                        changeSystemBrightness(240);
+                    } else if (event.values[0] > 2100 && event.values[0] < 2200) {
+                        changeSystemBrightness(235);
+                    } else if (event.values[0] > 2000 && event.values[0] < 2100) {
+                        changeSystemBrightness(230);
+                    } else if (event.values[0] > 1900 && event.values[0] < 2000) {
+                        changeSystemBrightness(225);
+                    } else if (event.values[0] > 1800 && event.values[0] < 1900) {
+                        changeSystemBrightness(220);
+                    } else if (event.values[0] > 1700 && event.values[0] < 1800) {
+                        changeSystemBrightness(215);
+                    } else if (event.values[0] > 1600 && event.values[0] < 1700) {
+                        changeSystemBrightness(210);
+                    } else if (event.values[0] > 1500 && event.values[0] < 1600) {
+                        changeSystemBrightness(205);
+                    } else if (event.values[0] > 1400 && event.values[0] < 1500) {
+                        changeSystemBrightness(200);
+                    } else if (event.values[0] > 1300 && event.values[0] < 1400) {
+                        changeSystemBrightness(195);
+                    } else if (event.values[0] > 1200 && event.values[0] < 1300) {
+                        changeSystemBrightness(190);
+                    } else if (event.values[0] > 1100 && event.values[0] < 1200) {
+                        changeSystemBrightness(185);
+                    } else if (event.values[0] > 1000 && event.values[0] < 1100) {
+                        changeSystemBrightness(180);
+                    } else if (event.values[0] > 900 && event.values[0] < 1000) {
+                        changeSystemBrightness(175);
+                    } else if (event.values[0] > 850 && event.values[0] < 900) {
+                        changeSystemBrightness(160);
+                    } else if (event.values[0] > 700 && event.values[0] < 850) {
+                        changeSystemBrightness(155);
+                    } else if (event.values[0] > 650 && event.values[0] < 700) {
+                        changeSystemBrightness(150);
+                    } else if (event.values[0] > 600 && event.values[0] < 650) {
+                        changeSystemBrightness(145);
+                    } else if (event.values[0] > 550 && event.values[0] < 600) {
+                        changeSystemBrightness(140);
+                    } else if (event.values[0] > 500 && event.values[0] < 550) {
+                        changeSystemBrightness(135);
+                    } else if (event.values[0] > 450 && event.values[0] < 500) {
+                        changeSystemBrightness(130);
+                    } else if (event.values[0] > 350 && event.values[0] < 400) {
+                        changeSystemBrightness(125);
+                    } else if (event.values[0] > 300 && event.values[0] < 350) {
+                        changeSystemBrightness(120);
+                    } else if (event.values[0] > 250 && event.values[0] < 300) {
+                        changeSystemBrightness(110);
+                    } else if (event.values[0] > 200 && event.values[0] < 250) {
+                        changeSystemBrightness(100);
+                    } else if (event.values[0] > 150 && event.values[0] < 200) {
+                        changeSystemBrightness(90);
+                    } else if (event.values[0] > 100 && event.values[0] < 150) {
+                        changeSystemBrightness(80);
+                    } else if (event.values[0] > 80 && event.values[0] < 100) {
+                        changeSystemBrightness(70);
+                    } else if (event.values[0] > 60 && event.values[0] < 80) {
+                        changeSystemBrightness(60);
+                    } else if (event.values[0] > 40 && event.values[0] < 60) {
+                        changeSystemBrightness(50);
+                    } else if (event.values[0] > 20 && event.values[0] < 40) {
+                        changeSystemBrightness(40);
+                    } else if (event.values[0] < 20) {
+                        changeSystemBrightness(0);
+                    }
+
+                }
+            }
+
+
+        }
+
+        long maxUpdateTime = 0;
+        long tempUpdateTime = 0;
+
+        synchronized void changeSystemBrightness(int value) {
+            if (SystemClock.uptimeMillis() - curUpdateTime >= 3000) {
+                MainActivity.this.changeSystemBrightness(value);
+                curUpdateTime = SystemClock.uptimeMillis();
+                maxUpdateTime = 500;
+                tempUpdateTime = System.currentTimeMillis();
+            } else if (maxUpdateTime > 0) {
+                MainActivity.this.changeSystemBrightness(value);
+                maxUpdateTime = 500 - (System.currentTimeMillis() - tempUpdateTime);
+            } else {
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    }
+
+    public void changeSystemBrightness(int brightness) {
+        if (brightness > 255) {
+            SystemUtil.lightSet(255);
+        } else {
+            SystemUtil.lightSet(brightness);
+        }
+
     }
 
 }
