@@ -16,6 +16,8 @@ class DeviceCard extends StatefulWidget {
 }
 
 class _DeviceCardState extends State<DeviceCard> {
+  bool power = false;
+
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
     if (widget.deviceInfo != null &&
@@ -45,7 +47,10 @@ class _DeviceCardState extends State<DeviceCard> {
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
         var res = await DeviceService.setPower(
-            widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
+            widget.deviceInfo!, !power);
+        setState(() {
+          power = !power;
+        });
         if (res) {
           Future.delayed(const Duration(seconds: 3)).then((_) async {
             await context
@@ -71,6 +76,9 @@ class _DeviceCardState extends State<DeviceCard> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      power = DeviceService.isPower(widget.deviceInfo!);
+    });
   }
 
   @override
@@ -151,7 +159,7 @@ class _DeviceCardState extends State<DeviceCard> {
   /// 设备图片
   String _getDeviceIconPath() {
     return widget.deviceInfo != null
-        ? (DeviceService.isPower(widget.deviceInfo!)
+        ? (power
             ? DeviceService.getOnIcon(widget.deviceInfo!)
             : DeviceService.getOffIcon(widget.deviceInfo!))
         : 'assets/imgs/device/phone_off.png';
@@ -160,7 +168,7 @@ class _DeviceCardState extends State<DeviceCard> {
   /// 卡片背景色
   List<Color> _getContainerBgc() {
     return widget.deviceInfo != null &&
-            DeviceService.isPower(widget.deviceInfo!)
+            power
         ? [const Color(0xFF3B3E41), const Color(0xFF3B3E41)]
         : [const Color(0x5A393E43), const Color(0x5A393E43)];
   }
@@ -203,7 +211,7 @@ class _DeviceCardState extends State<DeviceCard> {
           );
         } else {
           return Image.asset(
-            DeviceService.isPower(widget.deviceInfo!)
+            power
                 ? "assets/imgs/device/device_power_on.png"
                 : "assets/imgs/device/device_power_off.png",
             width: 150,

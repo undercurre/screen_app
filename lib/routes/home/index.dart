@@ -33,14 +33,15 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
   late PageController _pageController;
   String pressPath = "assets/imgs/icon/button_press.png";
   String unPressPath = "assets/imgs/icon/button_normal.png";
-  String selectDevice = "assets/imgs/icon/button_press.png";
+  String selectDevice = "assets/imgs/icon/button_normal.png";
+  String selectCenter = "assets/imgs/icon/button_press.png";
   String selectScene = "assets/imgs/icon/button_normal.png";
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 3);
+    _pageController = PageController(initialPage: 2);
     children.add(const ScenePage(text: "场景页"));
     children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
@@ -103,9 +104,15 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
                         setState(() {
                           if (index == 0) {
                             selectDevice = unPressPath;
+                            selectCenter = unPressPath;
                             selectScene = pressPath;
+                          } else if (index == 1) {
+                            selectDevice = unPressPath;
+                            selectCenter = pressPath;
+                            selectScene = unPressPath;
                           } else {
                             selectDevice = pressPath;
+                            selectCenter = unPressPath;
                             selectScene = unPressPath;
                           }
                         });
@@ -122,6 +129,11 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
                           children: [
                             Image.asset(
                               selectScene,
+                              width: 30,
+                              height: 2,
+                            ),
+                            Image.asset(
+                              selectCenter,
                               width: 30,
                               height: 2,
                             ),
