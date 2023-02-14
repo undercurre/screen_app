@@ -89,7 +89,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
                 },
                 onVerticalDragUpdate: (details) {
                   debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
-                  if (po <= 14) {
+                  if (po <= 40) {
 
                     Navigator.of(context).push(PageAnimationTransition(page: const DropDownPage(), pageAnimationType: TopToBottomTransition()));
 
