@@ -124,7 +124,7 @@ class CenterControlService {
 
   static Future<void> curtainControl(BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
-    var curtainList = context.watch<DeviceListModel>().curtainList;
+    var curtainList = deviceModel.curtainList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       var res = await DeviceService.setPower(deviceInfo, onOff);
