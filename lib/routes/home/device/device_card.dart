@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
@@ -23,7 +26,11 @@ class _DeviceCardState extends State<DeviceCard> {
     if (widget.deviceInfo != null &&
         widget.deviceInfo?.detail != null &&
         !isVistual(widget.deviceInfo!)) {
-      if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
+      if (widget.deviceInfo!
+          .detail!
+          .keys
+          .toList()
+          .isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);
         Navigator.pushNamed(context, type,
@@ -46,11 +53,11 @@ class _DeviceCardState extends State<DeviceCard> {
           e.localPosition.dx < 90 &&
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
-        var res = await DeviceService.setPower(
-            widget.deviceInfo!, !power);
         setState(() {
           power = !power;
         });
+        var res = await DeviceService.setPower(
+            widget.deviceInfo!, power);
         if (res) {
           Future.delayed(const Duration(seconds: 3)).then((_) async {
             await context
@@ -60,7 +67,7 @@ class _DeviceCardState extends State<DeviceCard> {
               widget.deviceInfo = context
                   .read<DeviceListModel>()
                   .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
-                      widget.deviceInfo!.type);
+                  widget.deviceInfo!.type);
             });
           });
         }
@@ -80,6 +87,22 @@ class _DeviceCardState extends State<DeviceCard> {
       power = DeviceService.isPower(widget.deviceInfo!);
     });
   }
+
+  // @override
+  // void didUpdateWidget(covariant DeviceCard oldWidget) {
+  //   // TODO: implement didUpdateWidget
+  //   super.didUpdateWidget(oldWidget);
+  //   if (widget.deviceInfo?.detail != null &&
+  //       widget.deviceInfo!.detail!.isNotEmpty) {
+  //     // logger.i('状态更新', DeviceService.isPower(widget.deviceInfo!));
+  //     Timer(const Duration(seconds: 5), ()
+  //     {
+  //       setState(() {
+  //         power = DeviceService.isPower(widget.deviceInfo!);
+  //       });
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -160,15 +183,15 @@ class _DeviceCardState extends State<DeviceCard> {
   String _getDeviceIconPath() {
     return widget.deviceInfo != null
         ? (power
-            ? DeviceService.getOnIcon(widget.deviceInfo!)
-            : DeviceService.getOffIcon(widget.deviceInfo!))
+        ? DeviceService.getOnIcon(widget.deviceInfo!)
+        : DeviceService.getOffIcon(widget.deviceInfo!))
         : 'assets/imgs/device/phone_off.png';
   }
 
   /// 卡片背景色
   List<Color> _getContainerBgc() {
     return widget.deviceInfo != null &&
-            power
+        power
         ? [const Color(0xFF3B3E41), const Color(0xFF3B3E41)]
         : [const Color(0x5A393E43), const Color(0x5A393E43)];
   }
@@ -176,11 +199,13 @@ class _DeviceCardState extends State<DeviceCard> {
   /// attr文字
   String _getAttrString() {
     return widget.deviceInfo != null &&
-            DeviceService.isSupport(widget.deviceInfo!) &&
-            DeviceService.isOnline(widget.deviceInfo!)
+        DeviceService.isSupport(widget.deviceInfo!) &&
+        DeviceService.isOnline(widget.deviceInfo!)
         ? (DeviceService.getAttr(widget.deviceInfo!) != ''
-            ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
-            : "")
+        ? "${widget.deviceInfo != null ? (DeviceService.getAttr(
+        widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService
+        .getAttrUnit(widget.deviceInfo!)) : ''}"
+        : "")
         : "";
   }
 
