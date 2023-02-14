@@ -79,7 +79,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                       po = details.globalPosition.dy;
                     },
                     onVerticalDragUpdate: (details) {
-                      if (po - details.globalPosition.dy > 100) {
+                      if (po - details.globalPosition.dy > 50) {
                         Navigator.pop(context);
                       }
                     },
