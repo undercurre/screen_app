@@ -48,9 +48,14 @@ class _DeviceCardState extends State<DeviceCard> {
             widget.deviceInfo!, !DeviceService.isPower(widget.deviceInfo!));
         if (res) {
           Future.delayed(const Duration(seconds: 3)).then((_) async {
-            await context.read<DeviceListModel>().updateDeviceDetail(widget.deviceInfo!);
+            await context
+                .read<DeviceListModel>()
+                .updateDeviceDetail(widget.deviceInfo!);
             setState(() {
-              widget.deviceInfo = context.read<DeviceListModel>().getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode, widget.deviceInfo!.type);
+              widget.deviceInfo = context
+                  .read<DeviceListModel>()
+                  .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
+                      widget.deviceInfo!.type);
             });
           });
         }
@@ -70,7 +75,6 @@ class _DeviceCardState extends State<DeviceCard> {
 
   @override
   Widget build(BuildContext context) {
-
     return SizedBox(
       width: 136,
       height: 190,
@@ -113,10 +117,13 @@ class _DeviceCardState extends State<DeviceCard> {
                   ],
                 ),
               ),
-              Image.asset(
-                _getDeviceIconPath(),
-                width: 50,
-                height: 50,
+              Container(
+                margin: const EdgeInsets.only(top: 6),
+                child: Image.asset(
+                  _getDeviceIconPath(),
+                  width: 50,
+                  height: 50,
+                ),
               ),
               SizedBox(
                 height: 24,
