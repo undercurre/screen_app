@@ -94,11 +94,10 @@ class _DeviceCardState extends State<DeviceCard> {
   //   super.didUpdateWidget(oldWidget);
   //   if (widget.deviceInfo?.detail != null &&
   //       widget.deviceInfo!.detail!.isNotEmpty) {
-  //     // logger.i('状态更新', DeviceService.isPower(widget.deviceInfo!));
   //     Timer(const Duration(seconds: 5), ()
   //     {
   //       setState(() {
-  //         power = DeviceService.isPower(widget.deviceInfo!);
+  //         power = DeviceService.isPower(widget.deviceInfo!) ? true : false;
   //       });
   //     });
   //   }
