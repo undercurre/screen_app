@@ -346,6 +346,7 @@ public class MainActivity extends FlutterActivity {
 //                            if (!isScreenOn()) {
 //                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
 //                            }
+                            MainApplication.standbyState=false;
                             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
                             new Thread(){
                                 public void run(){
@@ -386,6 +387,7 @@ public class MainActivity extends FlutterActivity {
                 SensorArry.clear();
                 if (max - min > 50&&MainApplication.standbyState) {
                     LogUtil.e("######接触唤醒 -> 手机屏幕");
+                    MainApplication.standbyState=false;
 //                    if (!isScreenOn()) {
 //                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
 //                    }
