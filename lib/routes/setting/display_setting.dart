@@ -163,6 +163,13 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         max: 255,
                         value: lightValue.toDouble(),
                         activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                        onChanged: (value, actieColor) => {
+                          settingMethodChannel.setSystemLight(value),
+                          setState(() {
+                            lightValue = value;
+                            Global.lightValue = lightValue;
+                          })
+                        },
                         onChanging: (value, actieColor) => {
                           settingMethodChannel.setSystemLight(value),
                           setState(() {

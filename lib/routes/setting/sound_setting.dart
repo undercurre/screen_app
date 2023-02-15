@@ -117,6 +117,11 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     value: soundValue,
                     max: 15,
                     activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                    onChanged: (value, actieColor) => {
+                      settingMethodChannel.setSystemVoice(value),
+                      soundValue = value,
+                      Global.soundValue = soundValue,
+                    },
                     onChanging: (value, actieColor) => {
                       settingMethodChannel.setSystemVoice(value),
                       soundValue = value,
