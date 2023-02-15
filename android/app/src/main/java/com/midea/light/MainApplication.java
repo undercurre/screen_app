@@ -9,7 +9,6 @@ import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
-import com.midea.light.utils.CommandExecution;
 
 import androidx.multidex.MultiDex;
 
@@ -17,6 +16,7 @@ public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
     public static MainActivity mMainActivity;
+    public static boolean standbyState=false;
 
     @Override
     protected void attachBaseContext(Context base) {

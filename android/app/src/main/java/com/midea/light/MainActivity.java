@@ -342,7 +342,7 @@ public class MainActivity extends FlutterActivity {
                     float value = event.values[0];
                     if (value != -1) {
 //                        Log.e("sky", "距离传感器值:" + (value));
-                        if (value == 0) {
+                        if (value == 0&&MainApplication.standbyState) {
 //                            if (!isScreenOn()) {
 //                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
 //                            }
@@ -384,7 +384,7 @@ public class MainActivity extends FlutterActivity {
                 float min = Collections.min(SensorArry);
 //                Log.e("sky","差值:"+(max-min));
                 SensorArry.clear();
-                if (max - min > 50) {
+                if (max - min > 50&&MainApplication.standbyState) {
                     LogUtil.e("######接触唤醒 -> 手机屏幕");
 //                    if (!isScreenOn()) {
 //                        sendKeyEvent(KeyEvent.KEYCODE_BACK);

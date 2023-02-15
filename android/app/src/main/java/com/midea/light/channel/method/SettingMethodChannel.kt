@@ -2,6 +2,7 @@ package com.midea.light.channel.method
 
 import android.content.Context
 import android.os.PowerManager
+import com.midea.light.MainApplication
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
@@ -63,6 +64,9 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             }
             "SettingNearWakeup" -> {
                 SystemUtil.setNearWakeup(call.arguments as Boolean)
+            }
+            "NoticeNativeStandbySate" -> {
+                MainApplication.standbyState=(call.arguments as Boolean)
             }
             "openOrCloseScreen" -> {
                 SystemUtil.openOrCloseScreen(call.arguments as Boolean)

@@ -8,7 +8,7 @@ import 'package:screen_app/channel/index.dart';
 class ShowStandby {
   static void startTimer() async {
     debugPrint('[ShowStandby]standbyTimer begin');
-
+    settingMethodChannel.noticeNativeStandbySate(false);
     await Future.delayed(const Duration(seconds: 0));
 
     var standbyNotifier = Provider.of<StandbyChangeNotifier>(
@@ -38,7 +38,7 @@ class ShowStandby {
 
       // 进入待机页
       navigatorKey.currentState?.pushNamed("ScreenSaver");
-
+      settingMethodChannel.noticeNativeStandbySate(true);
       debugPrint('StandbyPage pushed');
     });
   }
