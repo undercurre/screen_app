@@ -42,7 +42,7 @@ class Api {
   static void init() {
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       if (options.extra['isShowLoading'] == true) {
-        TipsUtils.showLoading();
+        // TipsUtils.showLoading();
       }
 
       if (options.extra['isLog'] != false) {
@@ -62,7 +62,7 @@ class Api {
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onResponse: (response, handler) {
       if (response.requestOptions.extra['isShowLoading'] == true) {
-        TipsUtils.hideLoading();
+        // TipsUtils.hideLoading();
       }
 
       if (response.requestOptions.extra['isLog'] != false) {
@@ -76,7 +76,7 @@ class Api {
       // 这样请求将被中止并触发异常，上层catchError会被调用。
     }, onError: (DioError e, handler) {
       if (e.requestOptions.extra['isShowLoading'] == true) {
-        TipsUtils.hideLoading();
+        // TipsUtils.hideLoading();
       }
 
       logger.e('onError:\n'

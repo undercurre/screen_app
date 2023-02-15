@@ -6,6 +6,7 @@ import 'package:screen_app/channel/ota_channel.dart';
 import 'package:screen_app/channel/setting_method_channel.dart';
 
 import 'ai_method_channel.dart';
+import 'gateway_channel.dart';
 
 const String channelMethodNet = "com.midea.light/net";
 const String channelConfig = "com.midea.light/config";
@@ -14,6 +15,7 @@ const String channelOTA = "com.midea.light/ota";
 const String channelSetting = "com.midea.light/set";
 const String channelDeviceManager = "com.midea.light/deviceManager";
 const String channelAi = "com.midea.light/ai";
+const String channelGateway = "com.midea.light/gateway";
 
 late NetMethodChannel netMethodChannel;
 // 配置channel
@@ -28,6 +30,8 @@ late SettingMethodChannel settingMethodChannel;
 late DeviceManagerChannel deviceManagerChannel;
 // 语音channel
 late AiMethodChannel aiMethodChannel;
+// 网关channel
+late GatewayChannel gatewayChannel;
 
 // 构建所有的Channel
 void buildChannel() {
@@ -38,4 +42,5 @@ void buildChannel() {
   settingMethodChannel = SettingMethodChannel.fromName(channelSetting);
   deviceManagerChannel = DeviceManagerChannel.fromName(channelDeviceManager);
   aiMethodChannel = AiMethodChannel.fromName(channelAi);
+  gatewayChannel = GatewayChannel.fromName(channelGateway);
 }

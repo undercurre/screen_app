@@ -34,6 +34,8 @@ abstract class AbstractChannel {
   void initChannel() {}
 
   // 接收原生请求
+  @mustCallSuper
+  @protected
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
     debugPrint('Method= ${call.method} arguments= ${call.arguments}');
   }
