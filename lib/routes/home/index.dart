@@ -75,7 +75,6 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   }
 
   void _aiSetVoiceCallback(int voice) {
-    print("语音音量:$voice");
     Global.soundValue=voice;
   }
 
