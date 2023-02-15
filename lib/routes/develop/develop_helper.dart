@@ -1,6 +1,7 @@
 // 开发者帮助类
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/develop/screen_on_off.dart';
 import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/develop/zigbee_manager.dart';
 
@@ -20,30 +21,22 @@ class DeveloperHelperPage extends StatelessWidget {
       ),
       body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,  MaterialPageRoute(builder: (context) => ZigbeeDeviceManager())
-                  );
-                },
-                child: const Text("进入添加Zigbee子设备"),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,  MaterialPageRoute(builder: (context) => WiFiDeviceManager())
-                  );
-                },
-                child: const Text("进入添加WiFi子设备"),
-              ),
-            ),
+            item("进入添加Zigbee子设备", () => Navigator
+                .push(context, MaterialPageRoute(builder: (context) => ZigbeeDeviceManager()))),
+            item("进入添加WiFi子设备", () => Navigator
+                .push(context, MaterialPageRoute(builder: (context) => const WiFiDeviceManager()))),
+            item("息屏亮屏测试", () => Navigator
+                .push(context, MaterialPageRoute(builder: (context) => const ScreenOnOffPage()))),
           ]),
     );
   }
+
+  Widget item(String title, void Function() onPress) => Padding(
+    padding: const EdgeInsets.all(20),
+    child: ElevatedButton(
+      onPressed: onPress,
+      child: Text(title),
+    ),
+  );
 
 }

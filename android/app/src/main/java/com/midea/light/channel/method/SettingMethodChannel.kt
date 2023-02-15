@@ -1,8 +1,10 @@
 package com.midea.light.channel.method
 
+import android.app.KeyguardManager
 import android.content.Context
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
+import android.os.PowerManager
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.channel.HybridResult
 import com.midea.light.log.LogUtil
@@ -71,7 +73,18 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             }
             "SettingAutoLight" -> {
                 SystemUtil.setScreenAutoMode(call.arguments as Boolean)
+            }
+            "openOrCloseScreen" -> {
+                SystemUtil.openOrCloseScreen(call.arguments as Boolean)
+                result.success(true)
+            }
+            "screenOpenCloseState" -> {
+//                var manager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+//                onCallSuccess(result, manager.inKeyguardRestrictedInputMode())
 
+                val pm =  context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                val isScreenOn = pm.isScreenOn()
+                onCallSuccess(result, isScreenOn)
             }
             "GettingAutoLight" -> {
                 result.success(SystemUtil.isScreenAutoMode())

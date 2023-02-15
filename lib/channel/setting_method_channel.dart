@@ -57,4 +57,12 @@ class SettingMethodChannel {
     return result;
   }
 
+  Future<bool> setScreenClose(bool close) async {
+    return await _SettingMethodChannel.invokeMethod("openOrCloseScreen", close) as bool;
+  }
+
+  Future<bool> getScreenOpenCloseState() async {
+    return await _SettingMethodChannel.invokeMethod('screenOpenCloseState') as bool;
+  }
+
 }

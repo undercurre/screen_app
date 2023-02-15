@@ -47,7 +47,7 @@ class AboutSettingProvider with ChangeNotifier {
         otaChannel.checkUpgrade();
       }
     } else {
-      TipsUtils.toast(content: "请先登录");
+      TipsUtils.toast(content: "已经是最新版本");
     }
   }
 
