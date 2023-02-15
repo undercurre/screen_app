@@ -19,7 +19,13 @@ import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.log.LogUtil;
 import com.midea.light.setting.SystemUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
@@ -44,16 +50,37 @@ public class MainActivity extends FlutterActivity {
             Manifest.permission.CHANGE_WIFI_STATE,
     };
 
+    private ArrayList<Float> SensorArry = new ArrayList<>();
+    private float value;
+
     public void onCreate(Bundle bundle) {
         requestPermissions(permissions, 0x18);
         super.onCreate(bundle);
-        MainApplication.mMainActivity=this;
+        MainApplication.mMainActivity = this;
         if (AppCommonConfig.getChannel().equals("LD")) {
             SensorManager mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
             MySensorEventListener sensorEventListener = new MySensorEventListener();
             Sensor als = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
             mSensorManager.registerListener(sensorEventListener, als, SensorManager.SENSOR_DELAY_NORMAL);
+
+            Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
+            Integer cacheTime = 1;
+            Timer timer = new Timer();
+            // (TimerTask task, long delay, long period)任务，延迟时间，多久执行
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    getSensor(value);
+                }
+            }, 0, cacheTime);
+        }else if(AppCommonConfig.getChannel().equals("JH")){
+            SensorManager mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
+            MyJHSensorEventListener sensorEventListener = new MyJHSensorEventListener();
+            Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
         }
+
     }
 
     @Override
@@ -64,45 +91,45 @@ public class MainActivity extends FlutterActivity {
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
     }
 
-    public void initialAi(String sn,String deviceId,String mac,boolean aiEnable){
+    public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {
         new Thread(() -> {
             //复制assets/xiaomei文件夹中的文件到SD卡
             FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
-            runOnUiThread(() ->  startAiService(sn,deviceId,mac,aiEnable));
+            runOnUiThread(() -> startAiService(sn, deviceId, mac, aiEnable));
         }).start();
     }
 
-    private void startAiService(String sn,String deviceId,String mac,boolean aiEnable) {
+    private void startAiService(String sn, String deviceId, String mac, boolean aiEnable) {
         AiManager.getInstance().startAiServer(this, isBind -> {
             if (isBind) {
-                setDeviceInfor(sn,deviceId,mac);
+                setDeviceInfor(sn, deviceId, mac);
             }
         }, isInitial -> {
             if (isInitial) {
                 AiManager.getInstance().setAiEnable(aiEnable);
-            }else{
+            } else {
                 runOnUiThread(() -> DialogUtil.showToast("语音初始化失败,请重新启动智慧屏"));
             }
         });
     }
 
-    private void setDeviceInfor(String sn,String deviceId,String mac) {
+    private void setDeviceInfor(String sn, String deviceId, String mac) {
         AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
         MusicManager.getInstance().startMusicServer(this);
         AiManager.getInstance().addFlashMusicListCallBack(list -> {
-            isFlashMusic=true;
+            isFlashMusic = true;
             MusicManager.getInstance().setPlayList(list);
         });
         AiManager.getInstance().addWakUpStateCallBack(b -> {
             if (b) {
-                isFlashMusic=false;
+                isFlashMusic = false;
                 if (!isScreenOn()) {
                     sendKeyEvent(KeyEvent.KEYCODE_BACK);
                 }
                 if (isAiSleep) {
                     isAiSleep = false;
                     isMusicPlay = MusicManager.getInstance().isPaying();
-                    runOnUiThread(() ->  mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",1));
+                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
 
 
                 }
@@ -110,42 +137,42 @@ public class MainActivity extends FlutterActivity {
                     MusicManager.getInstance().pauseMusic();
                 }
             } else {
-                if(isAiSleep==false){
+                if (isAiSleep == false) {
                     isAiSleep = true;
-                    runOnUiThread(() ->  mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState",0));
+                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 0));
 
                 }
-                if (isMusicPlay||isFlashMusic) {
+                if (isMusicPlay || isFlashMusic) {
                     MusicManager.getInstance().startMusic();
                 }
             }
 
         });
         AiManager.getInstance().addMusicPlayControlBack(Control -> {
-            if(MusicManager.getInstance().getPlayMusicInfor()==null){
+            if (MusicManager.getInstance().getPlayMusicInfor() == null) {
                 return;
             }
             switch (Control) {
                 case "RESUME":
-                    isMusicPlay=true;
+                    isMusicPlay = true;
                     MusicManager.getInstance().startMusic();
                     AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "PAUSE":
-                    isMusicPlay=false;
+                    isMusicPlay = false;
                     MusicManager.getInstance().pauseMusic();
                     AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "pause");
                     break;
                 case "STOP":
-                    isMusicPlay=false;
+                    isMusicPlay = false;
                     MusicManager.getInstance().stopMusic();
                     AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "stop");
                     break;
                 case "prev":
-                    isMusicPlay=true;
+                    isMusicPlay = true;
                     if (MusicManager.getInstance().getCurrentIndex() == 0) {
                         DialogUtil.showToast("已经是第一首了");
                         return;
@@ -155,7 +182,7 @@ public class MainActivity extends FlutterActivity {
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "next":
-                    isMusicPlay=true;
+                    isMusicPlay = true;
                     if (MusicManager.getInstance().getCurrentIndex() == 14) {
                         DialogUtil.showToast("已经是最后一首了");
                         return;
@@ -273,6 +300,14 @@ public class MainActivity extends FlutterActivity {
 
                 }
             }
+            boolean isNCheck = SystemUtil.isNearWakeup();
+            if (isNCheck) {
+                if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                    value = event.values[0];
+                }
+            } else {
+                value = -1;
+            }
 
 
         }
@@ -298,11 +333,79 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
+    private final class MyJHSensorEventListener implements SensorEventListener {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            boolean isNCheck = SystemUtil.isNearWakeup();
+            if (isNCheck) {
+                if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                    float value = event.values[0];
+                    if (value != -1) {
+//                        Log.e("sky", "距离传感器值:" + (value));
+                        if (value == 0) {
+//                            if (!isScreenOn()) {
+//                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
+//                            }
+                            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
+                            new Thread(){
+                                public void run(){
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 0));
+                                }
+                            }.start();
+                        }
+                    }
+                }
+            }
+        }
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    }
+
     public void changeSystemBrightness(int brightness) {
         if (brightness > 255) {
             SystemUtil.lightSet(255);
         } else {
             SystemUtil.lightSet(brightness);
+        }
+
+    }
+
+    private void getSensor(float value) {
+        if (value != -1) {
+            SensorArry.add(value);
+            if (SensorArry.size() > 200) {
+                float max = Collections.max(SensorArry);
+                float min = Collections.min(SensorArry);
+//                Log.e("sky","差值:"+(max-min));
+                SensorArry.clear();
+                if (max - min > 50) {
+                    LogUtil.e("######接触唤醒 -> 手机屏幕");
+//                    if (!isScreenOn()) {
+//                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
+//                    }
+                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
+                    new Thread(){
+                        public void run(){
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 0));
+                        }
+                    }.start();
+                    SensorArry.clear();
+                }
+            }
+
+        } else {
+            SensorArry.clear();
         }
 
     }

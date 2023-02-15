@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../channel/index.dart';
+import '../../common/global.dart';
 import '../../widgets/mz_slider.dart';
 
 class SoundSettingPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class SoundSettingPage extends StatefulWidget {
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
   late double po;
-  num soundValue = 0;
+  num soundValue = Global.soundValue;
 
   @override
   void initState() {
@@ -24,7 +25,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   }
 
   initial() async {
-    soundValue = await settingMethodChannel.getSystemVoice();
+    soundValue = Global.soundValue;
     print("音量大小:$soundValue");
     aiMethodChannel.registerAiStateCallBack(_aiMusicStateCallback);
     setState(() {});
@@ -119,6 +120,8 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     onChanging: (value, actieColor) => {
                       settingMethodChannel.setSystemVoice(value),
                       soundValue = value,
+                      Global.soundValue = soundValue,
+
                     },
                   ),
                 ),

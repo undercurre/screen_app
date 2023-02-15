@@ -27,8 +27,8 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
   var musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
 
   initial() async {
-    lightValue = await settingMethodChannel.getSystemLight();
-    soundValue = await settingMethodChannel.getSystemVoice();
+    lightValue = Global.lightValue;
+    soundValue = Global.soundValue;
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
     await aiMethodChannel.musicInforGet();
 
@@ -281,7 +281,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                       onValueChanged: (newValue) => {
                                         settingMethodChannel.setSystemVoice(newValue.toInt()),
                                         soundValue = newValue,
-                                        Global.soundValue = soundValue,
+                                        Global.soundValue = newValue,
                                       },
                                     ),
                                   ),

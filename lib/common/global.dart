@@ -111,6 +111,12 @@ class Global {
 
   ///全局音量
   static num soundValue = 10;
+
+  ///全局自动亮度
+  static bool autoLight = false;
+
+  ///全局靠近唤醒
+  static bool nearWakeup = true;
 }
 
 /// 全局路由监听

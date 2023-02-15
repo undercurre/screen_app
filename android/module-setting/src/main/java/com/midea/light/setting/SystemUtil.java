@@ -307,6 +307,7 @@ class LDSystemUtil {
         return sp.getBoolean("isScreenAutoMode", false);
     }
 
+
     /**
      * 重启
      */
@@ -506,6 +507,17 @@ public class SystemUtil {
         } else {
             return LDSystemUtil.isScreenAutoMode();
         }
+    }
+
+    public static void setNearWakeup(boolean isNearWakeup) {
+        SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("NearWakeup", isNearWakeup).commit();
+    }
+
+    public static boolean isNearWakeup() {
+        SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4", Context.MODE_PRIVATE);
+        return sp.getBoolean("NearWakeup", false);
     }
 
     /**
