@@ -31,10 +31,28 @@ abstract class AbsMZMethodChannel constructor(open val context: Context) : Metho
 
     abstract override fun onMethodCall(call: MethodCall, result: MethodChannel.Result)
 
+    @Deprecated("此方法过期建议使用下面的方法", ReplaceWith(
+        "MethodChannel.Result.safeSuccess(any: Any)"
+    ))
     open fun onCallSuccess(result: MethodChannel.Result, any: Any) {
         MainThread.run { result.success(any) }
     }
 
+    fun MethodChannel.Result.safeSuccess(any: Any) {
+        MainThread.run { this.success(any) }
+    }
+
+    fun MethodChannel.Result.safeError(errorCode :String = "-1",
+                                 errorMessage: String = "请求异常",
+                                 errorDetail: Any? = null) {
+        MainThread.run { this.error(errorCode, errorMessage, errorDetail) }
+    }
+
+    @Deprecated("此方法过期建议使用下面的方法", ReplaceWith(
+        "MethodChannel.Result.safeError(errorCode :String = \"-1\",\n" +
+                "                                 errorMessage: String = \"请求异常\", \n" +
+                "                                 errorDetail: Any? = null)"
+    ))
     open fun onCallError(result: MethodChannel.Result, errorCode :String = "-1",
                          errorMessage: String = "请求异常", errorDetail: Any? = null) {
         MainThread.run { result.error(errorCode, errorMessage, errorDetail) }
