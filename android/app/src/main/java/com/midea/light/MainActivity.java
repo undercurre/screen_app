@@ -194,9 +194,7 @@ public class MainActivity extends FlutterActivity {
                     break;
             }
         });
-        AiManager.getInstance().addAISetVoiceCallBack(Voice -> {
-
-        });
+        AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
 
     }
 

@@ -50,6 +50,9 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
 
   initial() async {
     try {
+      Future.delayed(const Duration(milliseconds: 4000), () {
+        aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+      });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
       bool autoLight = await settingMethodChannel.getAutoLight();
@@ -69,6 +72,11 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void _aiSetVoiceCallback(int voice) {
+    print("语音音量:$voice");
+    Global.soundValue=voice;
   }
 
   @override
@@ -155,6 +163,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     );
   }
 
+
   @override
   void didUpdateWidget(Home oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -170,6 +179,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   @override
   void dispose() {
     super.dispose();
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     debugPrint("dispose");
   }
 

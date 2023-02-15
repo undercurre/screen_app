@@ -26,14 +26,15 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
 
   initial() async {
     soundValue = Global.soundValue;
-    print("音量大小:$soundValue");
-    aiMethodChannel.registerAiStateCallBack(_aiMusicStateCallback);
-    setState(() {});
+    aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+
   }
 
-  void _aiMusicStateCallback(int state) {
-    print("语音状态:$state");
-
+  void _aiSetVoiceCallback(int voice) {
+    setState(() {
+      Global.soundValue=voice;
+      soundValue = Global.soundValue;
+    });
   }
 
   @override
@@ -173,7 +174,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   @override
   void dispose() {
     super.dispose();
-    aiMethodChannel.unregisterAiStateCallBack(_aiMusicStateCallback);
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     print("dispose");
   }
 
