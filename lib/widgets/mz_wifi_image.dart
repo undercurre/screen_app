@@ -1,0 +1,22 @@
+
+import 'package:flutter/material.dart';
+
+class MzWiFiImage extends StatelessWidget {
+
+  int level;// 0 - 3 范围
+  Size? size;
+
+  MzWiFiImage({super.key, required this.level, this.size});
+
+  @override
+  Widget build(BuildContext context) => Image.asset(parse(level), width: size?.width, height: size?.height,);
+
+  String parse(int level) {
+    if(level > 1) {
+      return 'assets/imgs/icon/wifi-3.png';
+    } else {
+      return 'assets/imgs/icon/wifi-2.png';
+    }
+  }
+
+}
