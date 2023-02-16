@@ -18,7 +18,6 @@ class SelectRoomPage extends StatefulWidget {
 }
 
 class SelectRoomPageState extends State<SelectRoomPage> {
-
   void goBack() {
     Navigator.pop(context);
   }
@@ -31,47 +30,54 @@ class SelectRoomPageState extends State<SelectRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Flex(
-        direction: Axis.vertical,
-        children: <Widget>[
-          Container(
-            color: Colors.black,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
+    return Flex(direction: Axis.vertical, children: <Widget>[
+      Container(
+        color: Colors.black,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: double.infinity,
+            maxHeight: 60.0,
+          ),
+          child: MzNavigationBar(
+            onLeftBtnTap: goBack,
+            title: '选择房间',
+            hasPower: false,
+          ),
+        ),
+      ),
+      Expanded(
+        flex: 1,
+        child: Container(
+          color: Colors.black,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
                 minWidth: double.infinity,
-                maxHeight: 60.0,
-              ),
-              child: MzNavigationBar(
-                onLeftBtnTap: goBack,
-                title: '选择房间',
-                hasPower: false,
-              ),
+                minHeight: MediaQuery.of(context).size.height - 60),
+            child: SelectRoom(
+              value: Global.profile.roomInfo?.roomId ?? '',
+              onChange: (RoomEntity room) {
+                logger.i('SelectRoom: ${room.toJson()}');
+                Global.profile.roomInfo = room;
+                context.read<RoomModel>().roomInfo = room;
+                var deviceModel = context.read<DeviceListModel>();
+                deviceModel.deviceList = room.applianceList;
+                for (var deviceInfo in deviceModel.deviceList) {
+                  // 查看品类控制器看是否支持该品类
+                  var hasController = getController(deviceInfo) != null;
+                  if (hasController &&
+                      DeviceService.isOnline(deviceInfo) &&
+                      DeviceService.isSupport(deviceInfo)) {
+                    // 调用provider拿detail存入状态管理里
+                    context
+                        .read<DeviceListModel>()
+                        .updateDeviceDetail(deviceInfo);
+                  }
+                }
+              },
             ),
           ),
-          Expanded(
-              flex: 1,
-              child: SelectRoom(
-                  value: Global.profile.roomInfo?.roomId ?? '',
-                  onChange: (RoomEntity room) {
-                    logger.i('SelectRoom: ${room.toJson()}');
-                    Global.profile.roomInfo = room;
-                    context.read<RoomModel>().roomInfo = room;
-                    var deviceModel = context.read<DeviceListModel>();
-                    deviceModel.deviceList = room.applianceList;
-                    for (var deviceInfo in deviceModel.deviceList) {
-                      // 查看品类控制器看是否支持该品类
-                      var hasController = getController(deviceInfo) != null;
-                      if (hasController &&
-                          DeviceService.isOnline(deviceInfo) &&
-                          DeviceService.isSupport(deviceInfo)) {
-                        // 调用provider拿detail存入状态管理里
-                        context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
-                      }
-                    }
-                  }
-              )
-          )
-        ]
-    );
+        ),
+      ),
+    ]);
   }
 }
