@@ -6,6 +6,8 @@ import com.midea.light.RxBus
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.config.GatewayConfig
 import com.midea.light.issued.relay.RelayDeviceChangeEvent
+import com.midea.light.setting.relay.VoiceIssuedHandler
+import com.midea.light.setting.relay.VoiceIssuedMatch
 import com.midea.light.thread.MainThread
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -62,6 +64,9 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
             }
             "relay2IsOpen" -> {
                 result.safeSuccess(GatewayConfig.relayControl.isRelay2Open)
+            }
+            "allowLink" -> {
+                VoiceIssuedMatch.allowLink()
             }
         }
     }

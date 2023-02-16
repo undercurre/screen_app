@@ -1,7 +1,6 @@
 package com.midea.light.setting.relay;
 
 
-import com.midea.light.RxBus;
 import com.midea.light.issued.IIssuedMatch;
 
 import org.json.JSONException;
@@ -15,16 +14,12 @@ import org.json.JSONObject;
  */
 public class VoiceIssuedMatch implements IIssuedMatch<VoiceIssuedHandler> {
 
-    public VoiceIssuedMatch() {
-//        RxBus.getInstance().toObservableInSingle(ZigbeeScanEvent.class)
-//            .subscribe(new Consumer<ZigbeeScanEvent>() {
-//                @Override
-//                public void accept(ZigbeeScanEvent zigbeeScanEvent) throws Throwable {
-//                    VoiceIssuedHandler.allowCnt = 0;
-//                    VoiceIssuedHandler.isStart = zigbeeScanEvent.isStart;
-//                }
-//            });
+    public static void allowLink() {
+        VoiceIssuedHandler.allowCnt = 0;
+//        VoiceIssuedHandler.isStart = zigbeeScanEvent.isStart;
     }
+
+    public VoiceIssuedMatch() {}
 
     @Override
     public VoiceIssuedHandler onMather(String data) {

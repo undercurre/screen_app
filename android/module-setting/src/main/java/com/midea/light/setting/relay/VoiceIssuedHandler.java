@@ -34,9 +34,10 @@ public class VoiceIssuedHandler implements IIssuedHandler, MediaPlayer.OnPrepare
             return;
          String broadcast = root.getString("audioBroadcast");
          if(broadcast.equals("permit") && allowCnt == 0) {
-            if (isStart) {
-               allowCnt ++;
-            }
+//            if (isStart) {
+//               allowCnt ++;
+//            }
+            allowCnt ++;
 
             Schedulers.io().scheduleDirect(new Runnable() {
                @Override
