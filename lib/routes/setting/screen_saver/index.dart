@@ -167,7 +167,7 @@ abstract class AbstractSaverScreen extends StatefulWidget {
 }
 
 mixin StandbyOnSaverScreen on AbstractSaverScreen {
-  final List<bool?> array = [false, true, false, true, false, true, false, true, false, true];
+  final List<bool?> array = List.generate(10, (index) => null);
   bool? inClose;
 
   @override
