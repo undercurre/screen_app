@@ -6,6 +6,7 @@ import 'package:screen_app/common/index.dart';
 import 'package:screen_app/main.dart';
 import 'package:screen_app/states/index.dart';
 import '../../channel/index.dart';
+import '../setting/screen_saver/index.dart';
 import 'code_to_image.dart';
 import 'show_datetime.dart';
 
@@ -17,6 +18,7 @@ class WeatherPageState extends State<WeatherPage> {
   String weatherIcon = '';
   late String weatherCode;
   late Timer _timer;
+  int lastUpdateWeatherTime = 0; // 最后刷新天气的时间
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class WeatherPageState extends State<WeatherPage> {
     _timer.cancel();
     super.dispose();
     aiMethodChannel.unregisterAiStateCallBack(dropStandby);
+    widget.exit();
   }
 
   // 退出待机页
@@ -73,12 +76,20 @@ class WeatherPageState extends State<WeatherPage> {
     updateWeather(areaid);
 
     // 每10分钟刷新天气
-    _timer = Timer.periodic(const Duration(minutes: 10), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       updateWeather(areaid!);
+      widget.onTick();
     });
   }
 
   Future<void> updateWeather(String cityId) async {
+    /// 2023-2-16 增加时间间隔过滤
+    /// 严格控制接口的刷新次数，此接口按次收费
+    if(DateTime.now().millisecondsSinceEpoch - lastUpdateWeatherTime < 2 * 60 * 60 * 1000) {
+      return;
+    }
+    lastUpdateWeatherTime = DateTime.now().millisecondsSinceEpoch;
+
     var weatherOfCityRes = await WeatherApi.getWeather(cityId: cityId);
     if (weatherOfCityRes.isSuccess) {
       var d = weatherOfCityRes.data;
@@ -211,12 +222,14 @@ class WeatherPageState extends State<WeatherPage> {
           navigatorKey.currentState?.pop();
           Provider.of<StandbyChangeNotifier>(context, listen: false)
               .standbyPageActive = false;
+          widget.onClickScreen();
         });
   }
 }
 
-class WeatherPage extends StatefulWidget {
-  const WeatherPage({super.key});
+class WeatherPage extends AbstractSaverScreen with StandbyOnSaverScreen {
+
+  WeatherPage({super.key});
 
   @override
   State<WeatherPage> createState() => WeatherPageState();

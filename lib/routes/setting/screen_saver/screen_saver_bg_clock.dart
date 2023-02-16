@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../states/standby_notifier.dart';
+import 'index.dart';
 
 class ScreenSaverBgClockConfig {
   String imgBg;
@@ -13,7 +14,7 @@ class ScreenSaverBgClockConfig {
   ScreenSaverBgClockConfig(this.imgBg, this.textColor);
 }
 
-abstract class ScreenSaverBgClock extends StatefulWidget {
+abstract class ScreenSaverBgClock extends AbstractSaverScreen {
 
   const ScreenSaverBgClock({super.key});
 
@@ -38,6 +39,7 @@ class ScreenSaverBgClockState extends State<ScreenSaverBgClock> {
     updateTime();
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       updateTime();
+      widget.onTick();
       setState(() {});
     });
   }
@@ -46,8 +48,8 @@ class ScreenSaverBgClockState extends State<ScreenSaverBgClock> {
   void dispose() {
     super.dispose();
     _timer.cancel();
+    widget.exit();
   }
-
 
   void updateTime() {
     final dateTime = DateTime.now();

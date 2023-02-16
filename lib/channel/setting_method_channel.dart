@@ -57,4 +57,27 @@ class SettingMethodChannel {
     return result;
   }
 
+  Future<bool> setNearWakeup(bool value) async {
+    bool result =  await _SettingMethodChannel.invokeMethod('SettingNearWakeup', value);
+    return result;
+  }
+
+  Future<bool> noticeNativeStandbySate(bool value) async {
+    bool result =  await _SettingMethodChannel.invokeMethod('NoticeNativeStandbySate', value);
+    return result;
+  }
+
+  Future<bool> getNearWakeup() async {
+    bool result =  await _SettingMethodChannel.invokeMethod('GettingNearWakeup');
+    return result;
+  }
+
+  Future<bool> setScreenClose(bool close) async {
+    return await _SettingMethodChannel.invokeMethod("openOrCloseScreen", close) as bool;
+  }
+
+  Future<bool> getScreenOpenCloseState() async {
+    return await _SettingMethodChannel.invokeMethod('screenOpenCloseState') as bool;
+  }
+
 }

@@ -27,8 +27,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home>
-    with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState {
+class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -42,7 +41,7 @@ class HomeState extends State<Home>
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 0);
+    _pageController = PageController(initialPage: 1);
     children.add(const ScenePage(text: "场景页"));
     children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
@@ -51,20 +50,32 @@ class HomeState extends State<Home>
 
   initial() async {
     try {
+      Future.delayed(const Duration(milliseconds: 4000), () {
+        aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+      });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
+      bool autoLight = await settingMethodChannel.getAutoLight();
+      bool nearWakeup = await settingMethodChannel.getNearWakeup();
+
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;
+      Global.autoLight = autoLight;
+      Global.nearWakeup = nearWakeup;
+
       String? deviceSn = await aboutSystemChannel.getGatewaySn();
       String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
-      var jsonData =
-          '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
+      var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
       var parsedJson = json.decode(jsonData);
       await aiMethodChannel.initialAi(parsedJson);
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void _aiSetVoiceCallback(int voice) {
+    Global.soundValue=voice;
   }
 
   @override
@@ -89,12 +100,9 @@ class HomeState extends State<Home>
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {
-                  debugPrint(
-                      "onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 40) {
-                    Navigator.of(context).push(PageAnimationTransition(
-                        page: const DropDownPage(),
-                        pageAnimationType: TopToBottomTransition()));
+                    Navigator.of(context).push(PageAnimationTransition(page: const DropDownPage(), pageAnimationType: TopToBottomTransition()));
                   }
                 },
                 child: Stack(
@@ -169,6 +177,7 @@ class HomeState extends State<Home>
   @override
   void dispose() {
     super.dispose();
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     debugPrint("dispose");
   }
 

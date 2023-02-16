@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../channel/index.dart';
+import '../../common/global.dart';
 import '../../common/helper.dart';
 import '../../common/setting.dart';
 import '../../states/standby_notifier.dart';
@@ -17,9 +18,9 @@ class DisplaySettingPage extends StatefulWidget {
 
 class DisplaySettingPageState extends State<DisplaySettingPage> {
   late double po;
-  bool autoLight = true;
-  bool nearWakeup = true;
-  num lightValue = 0;
+  bool autoLight = Global.autoLight;
+  bool nearWakeup = Global.nearWakeup;
+  num lightValue = Global.lightValue;
   String duration = '';
   late int screenSaverId;
 
@@ -36,8 +37,6 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
     setState(() {
       duration = Setting.instant().getScreedDurationDetail();
     });
-    lightValue = await settingMethodChannel.getSystemLight();
-    autoLight = await settingMethodChannel.getAutoLight();
   }
 
   @override
@@ -122,9 +121,11 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         value: autoLight,
                         activeColor: Colors.blue,
                         onChanged: (bool value) {
-                          settingMethodChannel.setAutoLight(autoLight);
+                          print("开启状态:$value");
+                          settingMethodChannel.setAutoLight(value);
                           setState(() {
                             autoLight = value;
+                            Global.autoLight = value;
                           });
                         },
                       ),
@@ -159,14 +160,22 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                       width: 320,
                       child: MzSlider(
                         width: 320,
-                        value: lightValue,
-                        activeColors: const [
-                          Color(0xFF267AFF),
-                          Color(0xFF267AFF)
-                        ],
+                        max: 255,
+                        value: lightValue.toDouble(),
+                        activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                        onChanged: (value, actieColor) => {
+                          settingMethodChannel.setSystemLight(value),
+                          setState(() {
+                            lightValue = value;
+                            Global.lightValue = lightValue;
+                          })
+                        },
                         onChanging: (value, actieColor) => {
                           settingMethodChannel.setSystemLight(value),
-                          lightValue = value,
+                          setState(() {
+                            lightValue = value;
+                            Global.lightValue = lightValue;
+                          })
                         },
                       ),
                     ),
@@ -231,8 +240,10 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         value: nearWakeup,
                         activeColor: Colors.blue,
                         onChanged: (bool value) {
+                          settingMethodChannel.setNearWakeup(value);
                           setState(() {
                             nearWakeup = value;
+                            Global.nearWakeup = value;
                           });
                         },
                       ),
@@ -249,8 +260,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
-                  child: const Text(
-                      '当人靠近距离50cm时，从待机状态进入到首页状态。                     ',
+                  child: const Text('当人靠近距离50cm时，从待机状态进入到首页状态。                     ',
                       style: TextStyle(
                         color: Color(0XFF979797),
                         fontSize: 14.0,
@@ -259,44 +269,36 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                         decoration: TextDecoration.none,
                       )),
                 ),
-                Consumer<StandbyChangeNotifier>(
-                    builder: (_, model, child) {
-                      return settingItem(
-                          "待机设置",
-                          model.standbyTimeOpt.title, () {
-                        Navigator.pushNamed(
-                          context,
-                          'StandbyTimeChoicePage',
-                        );
-                      });
-                    }),
-                const Divider(height: 1, indent: 0 , endIndent: 0, color: Color(0xff232323)),
+                Consumer<StandbyChangeNotifier>(builder: (_, model, child) {
+                  return settingItem("待机设置", model.standbyTimeOpt.title, () {
+                    Navigator.pushNamed(
+                      context,
+                      'StandbyTimeChoicePage',
+                    );
+                  });
+                }),
+                const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
                 settingItem("待机样式", "表盘${screenSaverId + 1}", () {
-                  Navigator
-                      .of(context)
-                      .pushNamed('SelectStandbyStylePage').then((value) {
-                        if(value != null) {
-                          setState(() {
-                            screenSaverId = value as int;
-                          });
-                        }
+                  Navigator.of(context).pushNamed('SelectStandbyStylePage').then((value) {
+                    if (value != null) {
+                      setState(() {
+                        screenSaverId = value as int;
                       });
+                    }
+                  });
                 }),
                 const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
                 settingItem("息屏时间段", duration, () {
-                  Navigator.of(context)
-                      .pushNamed("SelectTimeDurationPage")
-                      .then((value) {
-                        final result = value as Pair<int, int>;
-                        final startTime = result.value1;
-                        final endTime = result.value2;
-                        debugPrint("开始时间：$startTime 结束时间: $endTime");
-                        setState(() async {
-                          await Setting.instant().setScreedDuration(result);
-                          duration = Setting.instant().getScreedDurationDetail();
-                        });
-                      }
-                  );
+                  Navigator.of(context).pushNamed("SelectTimeDurationPage").then((value) {
+                    final result = value as Pair<int, int>;
+                    final startTime = result.value1;
+                    final endTime = result.value2;
+                    debugPrint("开始时间：$startTime 结束时间: $endTime");
+                    setState(() async {
+                      await Setting.instant().setScreedDuration(result);
+                      duration = Setting.instant().getScreedDurationDetail();
+                    });
+                  });
                 })
               ],
             ))
@@ -306,49 +308,51 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
     );
   }
 
-
   Widget settingItem(String name, String value, GestureTapCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-            child: Text(name,
-                style: const TextStyle(
-                  color: Color(0XFFFFFFFF),
-                  fontSize: 24.0,
-                  fontFamily: "MideaType",
-                  fontWeight: FontWeight.normal,
-                  decoration: TextDecoration.none,
-                )),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                child: Text(value,
-                    style: const TextStyle(
-                      color: Color(0XFF0091FF),
-                      fontSize: 18.0,
-                      fontFamily: "MideaType",
-                      fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none,
-                    )),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
-                child: Image.asset(
-                  "assets/imgs/icon/arrow-right.png",
-                  width: 30,
-                  height: 30,
+      child: Container(
+        color: Colors.black,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+              child: Text(name,
+                  style: const TextStyle(
+                    color: Color(0XFFFFFFFF),
+                    fontSize: 24.0,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.normal,
+                    decoration: TextDecoration.none,
+                  )),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                  child: Text(value,
+                      style: const TextStyle(
+                        color: Color(0XFF0091FF),
+                        fontSize: 18.0,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none,
+                      )),
                 ),
-              ),
-            ],
-          ),
-        ],
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
+                  child: Image.asset(
+                    "assets/imgs/icon/arrow-right.png",
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

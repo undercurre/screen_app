@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
 
 import '../../../states/standby_notifier.dart';
+import 'index.dart';
 
 class HandClockConfig {
 
@@ -19,6 +20,7 @@ class HandClockConfig {
   int secondDistance;
   int minuteDistance;
   int hourDistance;
+  Widget? widgetBg;
 
   HandClockConfig({
     required this.imgDisc, this.imgSecond,
@@ -26,7 +28,8 @@ class HandClockConfig {
     this.imgBackground,
     this.secondDistance = 20,
     this.minuteDistance = 20,
-    this.hourDistance = 20
+    this.hourDistance = 20,
+    this.widgetBg
   });
 
 }
@@ -47,7 +50,7 @@ class ClockStyle {
 
 
 
-abstract class ScreenSaverHandClock extends StatefulWidget {
+abstract class ScreenSaverHandClock extends AbstractSaverScreen {
 
   const ScreenSaverHandClock({super.key});
 
@@ -65,6 +68,7 @@ class ScreenSaverHandClockState extends State<ScreenSaverHandClock> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      widget.onTick();
       setState(() {});
     });
   }
@@ -73,6 +77,7 @@ class ScreenSaverHandClockState extends State<ScreenSaverHandClock> {
   void dispose() {
     super.dispose();
     _timer.cancel();
+    widget.exit();
   }
 
   @override
@@ -90,6 +95,8 @@ class ScreenSaverHandClockState extends State<ScreenSaverHandClock> {
           return Stack(
             alignment: Alignment.center,
             children:[
+              if(buildConfig.widgetBg != null)
+                  buildConfig.widgetBg!,
               if(buildConfig.imgBackground != null)
                 Image.asset(buildConfig.imgBackground!),
               CustomPaint(

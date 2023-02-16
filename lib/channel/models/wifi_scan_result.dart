@@ -31,6 +31,16 @@ class WiFiScanResult {
   static List<WiFiScanResult>? scanResultListFromJsonArray(List<dynamic>? list) =>
       _$scanResultListFromJsonArray(list);
 
+  @override
+  bool operator ==(Object other) {
+    if(other.runtimeType != runtimeType) return false;
+    return other is WiFiScanResult && other.ssid == ssid && other.bssid == bssid;
+  }
+
+  @override
+  int get hashCode => Object.hash(ssid, bssid);
+
+
 }
 
 WiFiScanResult _$ScanResultFromJson(Map<dynamic, dynamic> json) => WiFiScanResult()

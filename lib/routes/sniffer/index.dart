@@ -1,21 +1,17 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:screen_app/channel/models/net_state.dart';
-import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/models/index.dart';
-import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/utils.dart';
+import 'package:screen_app/models/index.dart';
+import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+
 import '../../common/api/user_api.dart';
-import '../../models/home_entity.dart';
-import '../home/device/register_controller.dart';
-import '../home/device/service.dart';
 import 'device_item.dart';
 
 class SnifferViewModel {
@@ -117,6 +113,8 @@ class SnifferViewModel {
   }
 
   void _snifferZigbee() {
+    /// 播报允许连入语音
+    gatewayChannel.broadcastAllowLink();
 
     deviceManagerChannel.setFindZigbeeListener((result) {
       debugPrint('zigbeeList: $result');

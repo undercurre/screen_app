@@ -3,6 +3,7 @@
 // _LinkNetwork页面的 dataclass
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/mz_wifi_image.dart';
 
 import '../../channel/index.dart';
 import '../../channel/models/net_state.dart';
@@ -25,7 +26,6 @@ class _LinkNetworkData {
 // _LinkNetwork 界面的 业务逻辑层
 class _LinkNetworkModel with ChangeNotifier {
   late _LinkNetworkData _data;
-  late BuildContext _context;
 
   List<dynamic> get pageData => <dynamic>[
         'headerTag',
@@ -34,7 +34,6 @@ class _LinkNetworkModel with ChangeNotifier {
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
-    _context = context;
     init();
   }
 
@@ -83,10 +82,11 @@ class _LinkNetworkModel with ChangeNotifier {
   }
 
   void _connectStateCallback(NetState state) {
-    int ethernetState = state.ethernetState;
+    // int ethernetState = state.ethernetState;
     int wifiState = state.wifiState;
     if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
+      _data.wifiList?.removeWhere((element) => element == state.wiFiScanResult);
     } else {
       _data.currentConnect = null;
     }
@@ -95,6 +95,9 @@ class _LinkNetworkModel with ChangeNotifier {
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
     _data.wifiList = list;
+    if(_data.currentConnect?.type == UpdateType.SUCCESS) {
+      _data.wifiList?.removeWhere((element) => element == _data.currentConnect?.data);
+    }
     notifyListeners();
   }
 
@@ -186,11 +189,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                     model.pageData[index] as WiFiScanResult;
                 // wifi的子Item
                 return MzCell(
-                  avatarIcon: const Icon(
-                    Icons.wifi,
-                    color: Color.fromRGBO(255, 255, 255, 0.85),
-                    size: 24.0,
-                  ),
+                  avatarIcon: MzWiFiImage(level: item.level.toInt(), size: const Size.square(28)),
                   rightIcon: const Icon(Icons.lock_outline_sharp,
                       color: Color.fromRGBO(255, 255, 255, 0.85)),
                   title: item.ssid,
@@ -254,11 +253,7 @@ class _LinkNetwork extends State<LinkNetwork> {
             visible: model._data.currentConnect != null &&
                 model._data.currentConnect!.type != UpdateType.ERROR,
             child: MzCell(
-              avatarIcon: const Icon(
-                Icons.wifi,
-                color: Color.fromRGBO(255, 255, 255, 0.85),
-                size: 24.0,
-              ),
+              avatarIcon: MzWiFiImage(level: model._data.currentConnect?.data.level.toInt() ?? 0, size: const Size.square(24)),
               rightIcon: model._data.currentConnect?.data.auth == 'encryption'
                   ? const Icon(Icons.lock_outline_sharp,
                       color: Color.fromRGBO(255, 255, 255, 0.85))

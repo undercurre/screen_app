@@ -98,7 +98,7 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                                 setState(() {
                                   debugPrint("点击位置$position");
                                   /// 时钟
-                                  Setting.instant().screenSaverId = index;
+                                  Setting.instant().screenSaverId = position;
                                   currentSelectPosition = position;
                                 });
                               });
@@ -131,7 +131,7 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                               return generateClockStyleItem(3, index, currentSelectPosition, (position) {
                                 setState(() {
                                   /// 星空
-                                  Setting.instant().screenSaverId = index;
+                                  Setting.instant().screenSaverId = position;
                                   currentSelectPosition = position;
                                 });
                               });
@@ -164,7 +164,7 @@ class SelectStandbyStylePageState extends State<SelectStandbyStylePage> {
                               return generateClockStyleItem(6, index, currentSelectPosition, (position) {
                                 setState(() {
                                   /// 自然
-                                  Setting.instant().screenSaverId = index;
+                                  Setting.instant().screenSaverId = position;
                                   currentSelectPosition = position;
                                 });
                               });

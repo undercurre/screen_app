@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,7 +77,7 @@ class Setting {
     }
     final format = NumberFormat('00', 'en_US');
     final startHour = format.format(result.value1 ~/ 60 % 24);
-    final startMinute = format.format(result.value2 % 60);
+    final startMinute = format.format(result.value1 % 60);
     final endHour = format.format(result.value2 ~/ 60 % 24);
     final endMinute = format.format(result.value2 % 60);
     if(result.value2 ~/ 60 >= 24) {
@@ -103,5 +104,17 @@ class Setting {
   /// 设置待机时间选择序号
   void setStandbyTimeOptNum(int opt) {
     _prefs.setInt(_standbyTimeKey, opt);
+  }
+
+  /// 当前是否在息屏时间段
+  bool isStandByDuration() {
+    Pair<int, int> duration = getScreedDuration();
+    if(duration.value2 < 0 || duration.value1 < 0) return false;
+    final now = DateTime.now();
+    final index = now.hour * 60 + now.minute;
+    final start = duration.value1;
+    final end = duration.value2;
+    debugPrint('start = $start end = $end index = $index');
+    return index >= start && index < end;
   }
 }
