@@ -24,12 +24,28 @@ class _SelectSceneListState extends State<SelectSceneList> {
     sceneList = sceneChangeNotifier.sceneList;
     // TODO: 需要切换到正确的图片
     Widget content = sceneList.isEmpty
-        ? Center(
-            child: Image.asset(
-              'assets/imgs/weather/bg-cloudy.png',
-              width: 100,
-              height: 100,
-            ),
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Image(
+                  image: AssetImage('assets/imgs/scene/empty.png'),
+                  width: 200,
+                  height: 200),
+              Opacity(
+                opacity: 0.5,
+                child: Text(
+                  '请到美居APP内添加场景',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.0,
+                    fontFamily: 'MideaType',
+                    fontWeight: FontWeight.normal,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
           )
         : ListView.builder(
             shrinkWrap: true,
@@ -47,7 +63,8 @@ class _SelectSceneListState extends State<SelectSceneList> {
                 value: sceneList[index],
                 onTap: (value) {
                   setState(() {
-                    final findIndex = selectList.indexWhere((element) => element == value.key);
+                    final findIndex = selectList
+                        .indexWhere((element) => element == value.key);
                     if (findIndex != -1) {
                       selectList.removeAt(findIndex);
                       return;
