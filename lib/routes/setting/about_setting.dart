@@ -76,7 +76,7 @@ class AboutSettingPage extends StatelessWidget {
           builder: (buildContext) {
             return RebootDialog(
               title: "重启设备",
-              content: "此操作将使网关自设备暂时离线，是否确认重启？",
+              content: "此操作将使网关子设备暂时离线，是否确认重启？",
               confirmAction: () {
                 provider.reboot();
               },
@@ -391,27 +391,28 @@ class AboutSettingPage extends StatelessWidget {
                                   color: Color(0xff232323),
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                                    child: const Text("应用升级",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => {
-                                      context.read<AboutSettingProvider>().checkUpgrade()
-                                    },
-                                    child: Container(
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => {
+                                  context.read<AboutSettingProvider>().checkUpgrade()
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                                      child: const Text("应用升级",
+                                          style: TextStyle(
+                                            color: Color(0XFFFFFFFF),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ),
+                                    Container(
                                       padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-                                      margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(80),
                                         color: const Color(0x2f0091FF),
@@ -431,38 +432,36 @@ class AboutSettingPage extends StatelessWidget {
                                             decoration: TextDecoration.none,
                                           )),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Container(
                                 width: 464,
                                 height: 1,
-                                margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
                                 decoration: const BoxDecoration(
                                   color: Color(0xff232323),
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                                    child: const Text("重启系统",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => {
-                                      showRebootDialog(context, context.read<AboutSettingProvider>())
-                                    },
-                                    child: Container(
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => showRebootDialog(context, context.read<AboutSettingProvider>()),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                                      child: const Text("重启系统",
+                                          style: TextStyle(
+                                            color: Color(0XFFFFFFFF),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ),
+                                    Container(
                                       padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-                                      margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(80),
                                         color: const Color(0x2f0091FF),
@@ -482,39 +481,36 @@ class AboutSettingPage extends StatelessWidget {
                                             decoration: TextDecoration.none,
                                           )),
                                     ),
-
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Container(
                                 width: 464,
                                 height: 1,
-                                margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
                                 decoration: const BoxDecoration(
                                   color: Color(0xff232323),
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                                    child: const Text("清除用户数据",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => {
-                                      showClearUserDataDialog(context, context.read<AboutSettingProvider>())
-                                    },
-                                    child: Container(
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => showClearUserDataDialog(context, context.read<AboutSettingProvider>()),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                                      child: const Text("清除用户数据",
+                                          style: TextStyle(
+                                            color: Color(0XFFFFFFFF),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ),
+                                    Container(
                                       padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-                                      margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(80),
                                         color: const Color(0x2fFF1B12),
@@ -534,18 +530,9 @@ class AboutSettingPage extends StatelessWidget {
                                             decoration: TextDecoration.none,
                                           )),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                width: 464,
-                                height: 1,
-                                margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff232323),
+                                  ],
                                 ),
                               ),
-
                             ],
                           ),
                         ))
