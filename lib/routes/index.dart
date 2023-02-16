@@ -30,6 +30,7 @@ var routes = <String, WidgetBuilder>{
   "SelectRoomPage": (context) => const SelectRoomPage(),
   "SelectScenePage": (context) => const SelectScenePage(),
   "ScreenSaver": (context) => const ScreenSaver(),
+  "SpecialBlackBgSaverScreen": (context) => const SpecialBlackBgSaverScreen(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
 

@@ -1,10 +1,16 @@
+
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/routes/setting/screen_saver/screen_saver_bg_clock.dart';
 import 'package:screen_app/routes/setting/screen_saver/screen_saver_hand_clock.dart';
+import 'package:screen_app/routes/setting/screen_saver/screen_saver_help.dart';
 import 'package:screen_app/routes/weather/index.dart';
 
 import '../../../common/setting.dart';
+import '../../../main.dart';
+import '../../../states/standby_notifier.dart';
 
 class ScreenSaver extends StatelessWidget {
   const ScreenSaver({super.key});
@@ -149,52 +155,69 @@ class ScreenSaverBgClock9 extends ScreenSaverBgClock with StandbyOnSaverScreen {
 
 }
 
+/// 特殊的待机屏保
+class SpecialBlackBgSaverScreen extends StatefulWidget {
 
-/// 息屏设置
-abstract class AbstractSaverScreen extends StatefulWidget {
+  const SpecialBlackBgSaverScreen({super.key});
 
-  const AbstractSaverScreen({super.key});
 
-  /// 对外暴露定时器每次执行的回调方法
-  void onTick(){}
-
-  /// 点击屏幕
-  void onClickScreen() {}
-
-  /// 组件退出
-  void exit(){}
+  @override
+  State<StatefulWidget> createState() => SpecialBlackBgSaverScreenState();
 
 }
 
-mixin StandbyOnSaverScreen on AbstractSaverScreen {
-  final List<bool?> array = List.generate(10, (index) => null);
-  bool? inClose;
+class SpecialBlackBgSaverScreenState extends State<SpecialBlackBgSaverScreen> with AiWakeUPScreenSaverState {
+  late Timer _timer;
+  late bool inClose;
 
   @override
-  void onTick() {
-    super.onTick();
+  void initState() {
+    super.initState();
 
-    () async {
+    settingMethodChannel.setScreenClose(true);
+    inClose = true;
+
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+
       bool toBeClose = Setting.instant().isStandByDuration();
-
-      List.copyRange(array, 0, array, 1, array.length);
-      array[array.length - 1] = toBeClose;
-
-      debugPrint('toBeClose = $toBeClose');
-      debugPrint('inClose = $inClose');
-
-      if(array.every((element) => element == false) && inClose != false
-          || array.every((element) => element == true) && inClose != true) {
-        settingMethodChannel.setScreenClose(toBeClose);
+      if(inClose != toBeClose) {
+        if(toBeClose == false) {
+          settingMethodChannel.setScreenClose(false);
+          Navigator.pop(context);
+        } else {
+          settingMethodChannel.setScreenClose(true);
+        }
         inClose = toBeClose;
       }
-    }();
+    });
 
+  }
+  @override
+  void deactivate() {
+    Provider.of<StandbyChangeNotifier>(context, listen: false).standbyPageActive = false;
+    super.deactivate();
   }
 
   @override
-  void exit() {
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
     settingMethodChannel.setScreenClose(false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Container(
+        color: Colors.black,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+    );
   }
 
 }

@@ -5,13 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/main.dart';
 import 'package:screen_app/states/index.dart';
-import '../../channel/index.dart';
-import '../setting/screen_saver/index.dart';
+import '../setting/screen_saver/screen_saver_help.dart';
 import 'code_to_image.dart';
 import 'show_datetime.dart';
 
 // 页面定义
-class WeatherPageState extends State<WeatherPage> {
+class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState {
   String temperature = '--';
   String weatherString = '--';
   String weatherBg = '';
@@ -25,34 +24,13 @@ class WeatherPageState extends State<WeatherPage> {
     super.initState();
     initQuery();
 
-    aiMethodChannel.registerAiStateCallBack(dropStandby);
   }
 
   @override
   void dispose() {
     _timer.cancel();
     super.dispose();
-    aiMethodChannel.unregisterAiStateCallBack(dropStandby);
     widget.exit();
-  }
-
-  // 退出待机页
-  void dropStandby(int? state) {
-    debugPrint("begin of dropStandby");
-
-    // 若不带state，则直接退出
-    if (state != null && state != 1) {
-      return;
-    }
-
-    debugPrint("语音状态: state==1, 退出待机页");
-
-    navigatorKey.currentState?.pop();
-    Provider.of<StandbyChangeNotifier>(navigatorKey.currentContext ?? context,
-            listen: false)
-        .standbyPageActive = false;
-
-    debugPrint("end of dropStandby");
   }
 
   // 获取家庭组
@@ -222,7 +200,6 @@ class WeatherPageState extends State<WeatherPage> {
           navigatorKey.currentState?.pop();
           Provider.of<StandbyChangeNotifier>(context, listen: false)
               .standbyPageActive = false;
-          widget.onClickScreen();
         });
   }
 }

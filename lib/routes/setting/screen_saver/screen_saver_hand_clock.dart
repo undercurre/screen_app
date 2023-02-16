@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui' as ui;
 
 import 'package:provider/provider.dart';
+import 'package:screen_app/routes/setting/screen_saver/screen_saver_help.dart';
 
 import '../../../states/standby_notifier.dart';
 import 'index.dart';
@@ -60,7 +61,7 @@ abstract class ScreenSaverHandClock extends AbstractSaverScreen {
   HandClockConfig buildConfig();
 }
 
-class ScreenSaverHandClockState extends State<ScreenSaverHandClock> {
+class ScreenSaverHandClockState extends State<ScreenSaverHandClock> with AiWakeUPScreenSaverState {
 
   late Timer _timer;
 

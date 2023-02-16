@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/routes/setting/screen_saver/screen_saver_help.dart';
 
 import '../../../states/standby_notifier.dart';
 import 'index.dart';
@@ -25,7 +26,7 @@ abstract class ScreenSaverBgClock extends AbstractSaverScreen {
 
 }
 
-class ScreenSaverBgClockState extends State<ScreenSaverBgClock> {
+class ScreenSaverBgClockState extends State<ScreenSaverBgClock> with AiWakeUPScreenSaverState {
 
   late Timer _timer;
   late String clock;

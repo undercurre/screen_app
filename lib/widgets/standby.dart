@@ -5,6 +5,8 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/main.dart';
 import 'package:screen_app/channel/index.dart';
 
+import '../common/setting.dart';
+
 class ShowStandby {
   static void startTimer() async {
     debugPrint('[ShowStandby]standbyTimer begin');
@@ -22,25 +24,39 @@ class ShowStandby {
       debugPrint('previous Timer cancelled');
     }
 
-    // 永不待机
-    if (standbyNotifier.standbyTimeOpt.value == -1) {
-      return;
-    }
-
     standbyNotifier.standbyTimer =
-        Timer(Duration(seconds: standbyNotifier.standbyTimeOpt.value), () {
+        Timer(Duration(seconds: getStandbyTimeOpt(standbyNotifier)), () {
+
+          debugPrint('standbyPageActive = ${standbyNotifier.standbyPageActive}');
+
       if (standbyNotifier.standbyPageActive) {
         return;
       }
 
-      // 设置待机页标志为已启用
-      standbyNotifier.standbyPageActive = true;
+      if (standbyNotifier.standbyTimeOpt.value == -1) {
+        /// 设置为永不待机模式
+        /// 如果当前时间段为息屏，则启动特殊的屏保
+        if(Setting.instant().isStandByDuration()) {
+          standbyNotifier.standbyPageActive = true;
+          navigatorKey.currentState?.pushNamed("SpecialBlackBgSaverScreen");
+          settingMethodChannel.noticeNativeStandbySate(true);
+        }
+      } else {
+        /// 普通待机模式
+        standbyNotifier.standbyPageActive = true;
+        navigatorKey.currentState?.pushNamed("ScreenSaver");
+        settingMethodChannel.noticeNativeStandbySate(true);
+        debugPrint('StandbyPage pushed');
+      }
 
-      // 进入待机页
-      navigatorKey.currentState?.pushNamed("ScreenSaver");
-      settingMethodChannel.noticeNativeStandbySate(true);
-      debugPrint('StandbyPage pushed');
     });
+  }
+
+  static int getStandbyTimeOpt(StandbyChangeNotifier notifier) {
+    /// 如果待机时间为-1 ，则默认设置为3分钟
+    /// 因为这种情况也需要进入待机，当有设置息屏时间的时候
+    debugPrint('timeOpt ${notifier.standbyTimeOpt.value}');
+    return notifier.standbyTimeOpt.value == -1 ? 3 * 60 : notifier.standbyTimeOpt.value;
   }
 
   // AI 语音状态置于非激活，则重新生成定时器
