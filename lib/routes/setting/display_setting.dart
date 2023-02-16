@@ -310,45 +310,48 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
   Widget settingItem(String name, String value, GestureTapCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-            child: Text(name,
-                style: const TextStyle(
-                  color: Color(0XFFFFFFFF),
-                  fontSize: 24.0,
-                  fontFamily: "MideaType",
-                  fontWeight: FontWeight.normal,
-                  decoration: TextDecoration.none,
-                )),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                child: Text(value,
-                    style: const TextStyle(
-                      color: Color(0XFF0091FF),
-                      fontSize: 18.0,
-                      fontFamily: "MideaType",
-                      fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none,
-                    )),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
-                child: Image.asset(
-                  "assets/imgs/icon/arrow-right.png",
-                  width: 30,
-                  height: 30,
+      child: Container(
+        color: Colors.black,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+              child: Text(name,
+                  style: const TextStyle(
+                    color: Color(0XFFFFFFFF),
+                    fontSize: 24.0,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.normal,
+                    decoration: TextDecoration.none,
+                  )),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                  child: Text(value,
+                      style: const TextStyle(
+                        color: Color(0XFF0091FF),
+                        fontSize: 18.0,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none,
+                      )),
                 ),
-              ),
-            ],
-          ),
-        ],
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
+                  child: Image.asset(
+                    "assets/imgs/icon/arrow-right.png",
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
