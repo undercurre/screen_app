@@ -13,6 +13,8 @@ class AiMethodChannel {
 
   late final _aiChangeCallbacks = <void Function(AiMusicState)>[];
   late final _aiStateCallbacks = <void Function(int)>[];
+  late final _aiAiSetVoiceCallbacks = <void Function(int)>[];
+
 
 
 
@@ -30,6 +32,9 @@ class AiMethodChannel {
               break;
             case "aiWakeUpState":
               transmitDataToAiStatCallBack(args);
+              break;
+            case "AISetVoice":
+              transmitDataToAiSetVoiceCallBack(args);
               break;
             default:
               throw Exception("没有支持的方法");
@@ -117,6 +122,23 @@ class AiMethodChannel {
     }
   }
 
+  // 注册回调
+  void registerAiSetVoiceCallBack (
+      void Function(int) action) {
+    if (!_aiAiSetVoiceCallbacks.contains(action)) {
+      _aiAiSetVoiceCallbacks.add(action);
+    }
+  }
+
+  // 注销回调
+  void unregisterAiSetVoiceCallBack(
+      void Function(int) action) {
+    final position = _aiAiSetVoiceCallbacks.indexOf(action);
+    if (position != -1) {
+      _aiAiSetVoiceCallbacks.remove(action);
+    }
+  }
+
   void transmitDataToAiChangeCallBack(AiMusicState state) {
     for (var callback in _aiChangeCallbacks) {
       callback.call(state);
@@ -128,5 +150,12 @@ class AiMethodChannel {
       callback.call(state);
     }
   }
+
+  void transmitDataToAiSetVoiceCallBack(int voice) {
+    for (var callback in _aiAiSetVoiceCallbacks) {
+      callback.call(voice);
+    }
+  }
+
 
 }

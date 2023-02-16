@@ -24,6 +24,7 @@ public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
     public static MainActivity mMainActivity;
+    public static boolean standbyState=false;
 
     @Override
     protected void attachBaseContext(Context base) {

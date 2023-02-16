@@ -27,7 +27,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitialize , LifeCycleState {
+class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -50,12 +50,21 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
 
   initial() async {
     try {
+      Future.delayed(const Duration(milliseconds: 4000), () {
+        aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+      });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
+      bool autoLight = await settingMethodChannel.getAutoLight();
+      bool nearWakeup = await settingMethodChannel.getNearWakeup();
+
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;
-      String? deviceSn =await aboutSystemChannel.getGatewaySn();
-      String? deviceId =Global.profile.applianceCode;
+      Global.autoLight = autoLight;
+      Global.nearWakeup = nearWakeup;
+
+      String? deviceSn = await aboutSystemChannel.getGatewaySn();
+      String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
       var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
       var parsedJson = json.decode(jsonData);
@@ -63,7 +72,10 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
 
+  void _aiSetVoiceCallback(int voice) {
+    Global.soundValue=voice;
   }
 
   @override
@@ -90,9 +102,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
                 onVerticalDragUpdate: (details) {
                   debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 40) {
-
                     Navigator.of(context).push(PageAnimationTransition(page: const DropDownPage(), pageAnimationType: TopToBottomTransition()));
-
                   }
                 },
                 child: Stack(
@@ -152,6 +162,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
     );
   }
 
+
   @override
   void didUpdateWidget(Home oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -167,6 +178,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
   @override
   void dispose() {
     super.dispose();
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     debugPrint("dispose");
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../channel/index.dart';
+import '../../common/global.dart';
 import '../../widgets/mz_slider.dart';
 
 class SoundSettingPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class SoundSettingPage extends StatefulWidget {
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
   late double po;
-  num soundValue = 0;
+  num soundValue = Global.soundValue;
 
   @override
   void initState() {
@@ -24,15 +25,16 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   }
 
   initial() async {
-    soundValue = await settingMethodChannel.getSystemVoice();
-    print("音量大小:$soundValue");
-    aiMethodChannel.registerAiStateCallBack(_aiMusicStateCallback);
-    setState(() {});
+    soundValue = Global.soundValue;
+    aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+
   }
 
-  void _aiMusicStateCallback(int state) {
-    print("语音状态:$state");
-
+  void _aiSetVoiceCallback(int voice) {
+    setState(() {
+      Global.soundValue=voice;
+      soundValue = Global.soundValue;
+    });
   }
 
   @override
@@ -116,9 +118,16 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     value: soundValue,
                     max: 15,
                     activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
+                    onChanged: (value, actieColor) => {
+                      settingMethodChannel.setSystemVoice(value),
+                      soundValue = value,
+                      Global.soundValue = soundValue,
+                    },
                     onChanging: (value, actieColor) => {
                       settingMethodChannel.setSystemVoice(value),
                       soundValue = value,
+                      Global.soundValue = soundValue,
+
                     },
                   ),
                 ),
@@ -165,7 +174,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   @override
   void dispose() {
     super.dispose();
-    aiMethodChannel.unregisterAiStateCallBack(_aiMusicStateCallback);
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     print("dispose");
   }
 
