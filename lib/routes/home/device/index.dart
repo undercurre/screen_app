@@ -190,78 +190,79 @@ class _DevicePageState extends State<DevicePage> {
             ],
           ),
           Expanded(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: EasyRefresh(
-                  header: const ClassicHeader(
-                    dragText: '下拉刷新',
-                    armedText: '释放执行刷新',
-                    readyText: '正在刷新...',
-                    processingText: '正在刷新...',
-                    processedText: '刷新完成',
-                    noMoreText: '没有更多信息',
-                    failedText: '失败',
-                    messageText: '上次更新 %T',
-                    mainAxisAlignment: MainAxisAlignment.end,
-                  ),
-                  onRefresh: () async {
-                    await Future.delayed(const Duration(seconds: 2));
-                    if (!mounted) {
-                      return;
-                    }
-                    initPage();
-                    setState(() {
-                      count = 5;
-                    });
-                    _controller.finishRefresh();
-                    _controller.resetFooter();
-                  },
-                  child: ReorderableWrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    padding: const EdgeInsets.all(8),
-                    controller: _scrollController,
-                    buildDraggableFeedback: (context, constraints, child) {
-                      return Transform(
-                        transform: Matrix4.rotationZ(0),
-                        alignment: FractionalOffset.topLeft,
-                        child: Material(
-                          elevation: 6.0,
+            child: EasyRefresh(
+              header: const ClassicHeader(
+                dragText: '下拉刷新',
+                armedText: '释放执行刷新',
+                readyText: '正在刷新...',
+                processingText: '正在刷新...',
+                processedText: '刷新完成',
+                noMoreText: '没有更多信息',
+                failedText: '失败',
+                messageText: '上次更新 %T',
+                mainAxisAlignment: MainAxisAlignment.end,
+              ),
+              onRefresh: () async {
+                await Future.delayed(const Duration(seconds: 2));
+                if (!mounted) {
+                  return;
+                }
+                initPage();
+                setState(() {
+                  count = 5;
+                });
+                _controller.finishRefresh();
+                _controller.resetFooter();
+              },
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: double.infinity,
+                  minHeight: MediaQuery.of(context).size.height - 60,
+                ),
+                child: ReorderableWrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  padding: const EdgeInsets.all(8),
+                  controller: _scrollController,
+                  buildDraggableFeedback: (context, constraints, child) {
+                    return Transform(
+                      transform: Matrix4.rotationZ(0),
+                      alignment: FractionalOffset.topLeft,
+                      child: Material(
+                        elevation: 6.0,
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.zero,
+                        child: Card(
+                          // 将默认白色设置成透明
                           color: Colors.transparent,
-                          borderRadius: BorderRadius.zero,
-                          child: Card(
-                            // 将默认白色设置成透明
-                            color: Colors.transparent,
-                            child: ConstrainedBox(
-                              constraints: constraints,
-                              child: child,
-                            ),
+                          child: ConstrainedBox(
+                            constraints: constraints,
+                            child: child,
                           ),
                         ),
-                      );
-                    },
-                    onReorder: (int oldIndex, int newIndex) {
-                      setState(() {
-                        Widget row = deviceWidgetList.removeAt(oldIndex);
-                        DeviceEntity deviceRow =
-                            deviceEntityList.removeAt(oldIndex);
-                        deviceWidgetList.insert(newIndex, row);
-                        deviceEntityList.insert(newIndex, deviceRow);
-                      });
-                    },
-                    onNoReorder: (int index) {
-                      //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
-                    },
-                    onReorderStarted: (int index) {
-                      //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
-                    },
-                    children: deviceWidgetList,
-                  ),
+                      ),
+                    );
+                  },
+                  onReorder: (int oldIndex, int newIndex) {
+                    setState(() {
+                      Widget row = deviceWidgetList.removeAt(oldIndex);
+                      DeviceEntity deviceRow =
+                          deviceEntityList.removeAt(oldIndex);
+                      deviceWidgetList.insert(newIndex, row);
+                      deviceEntityList.insert(newIndex, deviceRow);
+                    });
+                  },
+                  onNoReorder: (int index) {
+                    //this callback is optional
+                    debugPrint(
+                        '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                  },
+                  onReorderStarted: (int index) {
+                    //this callback is optional
+                    debugPrint(
+                        '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                  },
+                  children: deviceWidgetList,
                 ),
               ),
             ),

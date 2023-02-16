@@ -81,10 +81,16 @@ class SceneChangeNotifier extends ChangeNotifier {
           noSortList.add(newOne);
         }
       }
-      for (int i = 0; i < sortKeyList.length; i ++) {
-        var indexInList = sortList.indexWhere((element) => element.key == sortKeyList[i]);
-        var element = sortList.removeAt(indexInList);
-        sortList.insert(i, element);
+      logger.i('场景缓存', sortKeyList);
+      if (sortKeyList.isNotEmpty) {
+        for (int i = 0; i < sortKeyList.length; i ++) {
+          var indexInList = sortList.indexWhere((element) =>
+          element.key == sortKeyList[i]);
+          if (indexInList != -1) {
+            var element = sortList.removeAt(indexInList);
+            sortList.insert(i, element);
+          }
+        }
       }
       sortList.addAll(noSortList);
       logger.i('重排', sortList.map((e) => e.name).toList());

@@ -162,7 +162,6 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     );
   }
 
-
   @override
   void didUpdateWidget(Home oldWidget) {
     super.didUpdateWidget(oldWidget);
