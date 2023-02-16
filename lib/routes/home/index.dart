@@ -27,7 +27,8 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitialize , LifeCycleState {
+class HomeState extends State<Home>
+    with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -41,7 +42,7 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 1);
+    _pageController = PageController(initialPage: 0);
     children.add(const ScenePage(text: "场景页"));
     children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
@@ -54,16 +55,16 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
       num soundValue = await settingMethodChannel.getSystemVoice();
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;
-      String? deviceSn =await aboutSystemChannel.getGatewaySn();
-      String? deviceId =Global.profile.applianceCode;
+      String? deviceSn = await aboutSystemChannel.getGatewaySn();
+      String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
-      var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
+      var jsonData =
+          '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
       var parsedJson = json.decode(jsonData);
       await aiMethodChannel.initialAi(parsedJson);
     } catch (e) {
       debugPrint(e.toString());
     }
-
   }
 
   @override
@@ -88,11 +89,12 @@ class HomeState extends State<Home> with AutoSniffer , DeviceManagerSDKInitializ
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {
-                  debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  debugPrint(
+                      "onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 40) {
-
-                    Navigator.of(context).push(PageAnimationTransition(page: const DropDownPage(), pageAnimationType: TopToBottomTransition()));
-
+                    Navigator.of(context).push(PageAnimationTransition(
+                        page: const DropDownPage(),
+                        pageAnimationType: TopToBottomTransition()));
                   }
                 },
                 child: Stack(

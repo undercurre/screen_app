@@ -183,71 +183,77 @@ class ScenePageState extends State<ScenePage> {
               onRefresh: () async {
                 await sceneChangeNotifier.updateSceneList();
               },
-              child: ReorderableWrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
-                controller: _scrollController,
-                padding: const EdgeInsets.all(8),
-                buildDraggableFeedback: (context, constraints, child) {
-                  return Transform(
-                    transform: Matrix4.rotationZ(0),
-                    alignment: FractionalOffset.topLeft,
-                    child: Material(
-                      elevation: 6.0,
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.zero,
-                      child: Card(
-                        // 将默认白色设置成透明
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: double.infinity,
+                  minHeight: MediaQuery.of(context).size.height - 60,
+                ),
+                child: ReorderableWrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(8),
+                  buildDraggableFeedback: (context, constraints, child) {
+                    return Transform(
+                      transform: Matrix4.rotationZ(0),
+                      alignment: FractionalOffset.topLeft,
+                      child: Material(
+                        elevation: 6.0,
                         color: Colors.transparent,
-                        child: ConstrainedBox(
-                          constraints: constraints,
-                          child: child,
+                        borderRadius: BorderRadius.zero,
+                        child: Card(
+                          // 将默认白色设置成透明
+                          color: Colors.transparent,
+                          child: ConstrainedBox(
+                            constraints: constraints,
+                            child: child,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-                onReorder: (int oldIndex, int newIndex) {
-                  sceneChangeNotifier.shiftElement(oldIndex, newIndex);
-                },
-                onNoReorder: (int index) {
-                  //this callback is optional
-                  logger.i('结束移动');
-                },
-                onReorderStarted: (int index) {
-                  //this callback is optional
-                  logger.i('开始移动');
-                },
-                children:
-                sceneChangeNotifier.sceneList.isEmpty
-                    ?
-                      <Widget> [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Image(
-                                image:
-                                    AssetImage('assets/imgs/scene/empty.png'),
-                                width: 200,
-                                height: 200),
-                            Opacity(
-                              opacity: 0.5,
-                              child: Text(
-                                '请到美居APP内添加场景',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontFamily: 'MideaType',
-                                  fontWeight: FontWeight.normal,
-                                  decoration: TextDecoration.none,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      ]
-                    : sceneWidgetList,
+                    );
+                  },
+                  onReorder: (int oldIndex, int newIndex) {
+                    sceneChangeNotifier.shiftElement(oldIndex, newIndex);
+                  },
+                  onNoReorder: (int index) {
+                    //this callback is optional
+                    logger.i('结束移动');
+                  },
+                  onReorderStarted: (int index) {
+                    //this callback is optional
+                    logger.i('开始移动');
+                  },
+                  children: sceneChangeNotifier.sceneList.isEmpty
+                      ? <Widget>[
+                          SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Image(
+                                      image: AssetImage(
+                                          'assets/imgs/scene/empty.png'),
+                                      width: 200,
+                                      height: 200),
+                                  Opacity(
+                                    opacity: 0.5,
+                                    child: Text(
+                                      '请到美居APP内添加场景',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18.0,
+                                        fontFamily: 'MideaType',
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.none,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
+                        ]
+                      : sceneWidgetList,
+                ),
               ),
             ),
           )
