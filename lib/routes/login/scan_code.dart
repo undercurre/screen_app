@@ -31,16 +31,21 @@ class _ScanCode extends State<ScanCode> {
       children: [
         Center(
           child: StrUtils.isNotNullAndEmpty(qrLink)
-              ? Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: QrImage(
-                    data: qrLink,
-                    version: QrVersions.auto,
-                    size: 270.0,
-                    padding: const EdgeInsets.all(20),
+              ? GestureDetector(
+                  onTap: () {
+                    updateQrCode();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: QrImage(
+                      data: qrLink,
+                      version: QrVersions.auto,
+                      size: 270.0,
+                      padding: const EdgeInsets.all(20),
+                    ),
                   ),
                 )
               : const CircularProgressIndicator(),
