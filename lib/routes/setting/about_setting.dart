@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
@@ -40,28 +41,28 @@ class AboutSettingProvider with ChangeNotifier {
   }
 
   void checkDirectUpgrade() {
-    TipsUtils.toast(content: '正在检查更新');
+    TipsUtils.toast(content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
     if(otaChannel.isInit) {
       if(otaChannel.isDownloading) {
-        TipsUtils.toast(content: "已经在下载中...");
+        TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
       } else {
         otaChannel.checkDirect();
       }
     } else {
-      TipsUtils.toast(content: "已经是最新版本");
+      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
     }
   }
 
   void checkUpgrade() {
-    TipsUtils.toast(content: '正在检查更新');
+    TipsUtils.toast(content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
     if(otaChannel.isInit) {
       if(otaChannel.isDownloading) {
-        TipsUtils.toast(content: "已经在下载中...");
+        TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
       } else {
         otaChannel.checkNormalAndRom(false);
       }
     } else {
-      TipsUtils.toast(content: "已经是最新版本");
+      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
     }
   }
 
