@@ -219,50 +219,52 @@ class _DevicePageState extends State<DevicePage> {
                   minWidth: double.infinity,
                   minHeight: MediaQuery.of(context).size.height - 60,
                 ),
-                child: ReorderableWrap(
-                  spacing: 8.0,
-                  runSpacing: 8.0,
-                  padding: const EdgeInsets.all(8),
-                  controller: _scrollController,
-                  buildDraggableFeedback: (context, constraints, child) {
-                    return Transform(
-                      transform: Matrix4.rotationZ(0),
-                      alignment: FractionalOffset.topLeft,
-                      child: Material(
-                        elevation: 6.0,
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.zero,
-                        child: Card(
-                          // 将默认白色设置成透明
+                child: Center(
+                  child: ReorderableWrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    padding: const EdgeInsets.all(8),
+                    controller: _scrollController,
+                    buildDraggableFeedback: (context, constraints, child) {
+                      return Transform(
+                        transform: Matrix4.rotationZ(0),
+                        alignment: FractionalOffset.topLeft,
+                        child: Material(
+                          elevation: 6.0,
                           color: Colors.transparent,
-                          child: ConstrainedBox(
-                            constraints: constraints,
-                            child: child,
+                          borderRadius: BorderRadius.zero,
+                          child: Card(
+                            // 将默认白色设置成透明
+                            color: Colors.transparent,
+                            child: ConstrainedBox(
+                              constraints: constraints,
+                              child: child,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                  onReorder: (int oldIndex, int newIndex) {
-                    setState(() {
-                      Widget row = deviceWidgetList.removeAt(oldIndex);
-                      DeviceEntity deviceRow =
-                          deviceEntityList.removeAt(oldIndex);
-                      deviceWidgetList.insert(newIndex, row);
-                      deviceEntityList.insert(newIndex, deviceRow);
-                    });
-                  },
-                  onNoReorder: (int index) {
-                    //this callback is optional
-                    debugPrint(
-                        '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
-                  },
-                  onReorderStarted: (int index) {
-                    //this callback is optional
-                    debugPrint(
-                        '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
-                  },
-                  children: deviceWidgetList,
+                      );
+                    },
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        Widget row = deviceWidgetList.removeAt(oldIndex);
+                        DeviceEntity deviceRow =
+                            deviceEntityList.removeAt(oldIndex);
+                        deviceWidgetList.insert(newIndex, row);
+                        deviceEntityList.insert(newIndex, deviceRow);
+                      });
+                    },
+                    onNoReorder: (int index) {
+                      //this callback is optional
+                      debugPrint(
+                          '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                    },
+                    onReorderStarted: (int index) {
+                      //this callback is optional
+                      debugPrint(
+                          '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                    },
+                    children: deviceWidgetList,
+                  ),
                 ),
               ),
             ),
