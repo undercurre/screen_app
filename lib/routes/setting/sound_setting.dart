@@ -114,7 +114,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                   margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
                   width: 320,
                   child: MzSlider(
-                    width: 320,
+                    width: 270,
                     value: soundValue,
                     max: 15,
                     activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
