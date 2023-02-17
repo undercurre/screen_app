@@ -10,6 +10,8 @@ import com.midea.light.upgrade.entity.UpgradeResultEntity;
  * @Version 1.0
  */
 public interface V2IUpdateProgressCallback {
+    void downloadSuc(); // 下载成功
+    void downloadFail(); // 下载失败
     void upgradeSuc(UpgradeResultEntity entity);//更新成功
     void upgradeFail(int code , String msg);//更新失败
     void upgradeProcess(int process);//更新进度

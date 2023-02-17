@@ -5,6 +5,7 @@ import 'package:page_animation_transition/animations/top_to_bottom_transition.da
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
+import '../../channel/ota_channel.dart';
 import '../dropdown/drop_down_page.dart';
 import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
@@ -27,7 +28,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState {
+class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, OtaSdkInitialize {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;

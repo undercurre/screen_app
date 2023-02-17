@@ -34,56 +34,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.internal.Util;
 
-
-class ProxyV2IOTCallback implements V2IOTCallback {
-
-    V2IOTCallback callback;
-
-    @Override
-    public void setDownloadControl(UpgradeDownloadControl downloadControl) {
-        callback.setDownloadControl(downloadControl);
-    }
-
-    @Override
-    public void setUpgradeInstallControl(UpgradeInstallControl control) {
-        callback.setUpgradeInstallControl(control);
-    }
-
-    public ProxyV2IOTCallback(V2IOTCallback callback) {
-        this.callback = Objects.requireNonNull(callback);
-    }
-
-    @Override
-    public void newVersion(UpgradeResultEntity entity) {
-        callback.newVersion(entity);
-    }
-
-    @Override
-    public void noUpgrade() {
-        callback.noUpgrade();
-    }
-
-    @Override
-    public void confirmInstall(UpgradeResultEntity entity) {
-        callback.confirmInstall(entity);
-    }
-
-    @Override
-    public void upgradeSuc(UpgradeResultEntity entity) {
-        callback.upgradeSuc(entity);
-    }
-
-    @Override
-    public void upgradeFail(int code, String msg) {
-        callback.upgradeFail(code, msg);
-    }
-
-    @Override
-    public void upgradeProcess(int process) {
-        callback.upgradeProcess(process);
-    }
-}
-
 class RoomUtils {
     /**
      * 这里的版本号规则为：1.0 1.2 1.3  2.0 2.1 3.0 3.2 等等
@@ -138,46 +88,90 @@ public class OTAUpgradeHelper {
     public static boolean hasNewUpgrade = false;
     public static boolean isInit = false;
 
+    //定义配置
+    public static boolean supportNormalOTA = false; //是否支持普通模式ota
+    public static boolean supportDirectOTA = false; //是否支持定向ota
+    public static boolean supportRomOTA = false; //是否支持Rom升级
+
     public static void init(Context context, V2IOTCallback callback, String uid,String deviceId, String mzToken, String gatewaySn) {
         String channel = AppCommonConfig.getChannel();
-        String roomCategoryCode = Objects.equals(channel, "JH") ? "JH-Q" : "LD-Q";
-        String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
-        UpgradeConfig room = new UpgradeConfig()
-                .withOtaType(2)
-                .withVersion(RoomUtils.getRoomVersion())
-                .withCategoryCode(roomCategoryCode)
-                .withDebug(true)
-//                .withDebug(BuildConfig.DEBUG)
-                .withExecutorService(executorService)
-                .withUserIdFunction(_void -> uid)
-                .withInstallerFunction(UpgradeConfig.JH_ROOM_INSTALLER_FUNCTION)
-                .withFilePath("/sdcard/")
-                .withFileCompressName("update.zip")
-                .withApiServiceFunction(debug -> {
-                    NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
-                    service1.setDebug(true);
-                    return service1;
-                });
-        UpgradeConfig normal = new UpgradeConfig()
-                .withOtaType(4)
-                .withVersion(Integer.parseInt(SystemUtil.getGatewayVersion()))
-                .withCategoryCode(appCategoryCode)
-                .withDebug(true)
-                .withExecutorService(executorService)
-                .withSn(_void -> gatewaySn)
-                .withUserIdFunction(_void -> uid)
-                .withApiServiceFunction(debug -> {
-                    NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
-                    service1.setDebug(true);
-                    return service1;
-                });
-        UpgradeClient.getInstant().putConfig(UpgradeType.NORMAL, normal);
-        UpgradeClient.getInstant().putConfig(UpgradeType.DIRECT, normal);
-        UpgradeClient.getInstant().putConfig(UpgradeType.ROOM, room);
-        UpgradeClient.getInstant().init(context);
+        // 初始化支持的OTA类型
+        supportNormalOTA = Objects.equals("JH", channel) || Objects.equals("LD", channel);
+        supportDirectOTA = Objects.equals("JH", channel) || Objects.equals("LD", channel);
+        supportRomOTA = Objects.equals("JH", channel);
 
+        initRomOTAConfig(channel, uid, deviceId, mzToken);
+        initNormalOTAConfig(channel, uid, deviceId, mzToken);
+        initDirectOTAConfig(channel, uid, deviceId, mzToken, gatewaySn);
+
+        UpgradeClient.getInstant().init(context);
         defaultCallback = Objects.requireNonNull(callback);
         isInit = true;
+    }
+
+
+    static void initRomOTAConfig(String channel, String uid, String deviceId, String mzToken) {
+        if(supportRomOTA) {
+            String roomCategoryCode = Objects.equals(channel, "JH") ? "JH-Q" : "LD-Q";
+            UpgradeConfig room = new UpgradeConfig()
+                    .withOtaType(2)
+                    .withVersion(RoomUtils.getRoomVersion())
+                    .withCategoryCode(roomCategoryCode)
+                    .withDebug(true)
+//                .withDebug(BuildConfig.DEBUG)
+                    .withExecutorService(executorService)
+                    .withUserIdFunction(_void -> uid)
+                    .withInstallerFunction(UpgradeConfig.JH_ROOM_INSTALLER_FUNCTION)
+                    .withFilePath("/sdcard/")
+                    .withFileCompressName("update.zip")
+                    .withApiServiceFunction(debug -> {
+                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
+                        service1.setDebug(true);
+                        return service1;
+                    });
+            UpgradeClient.getInstant().putConfig(UpgradeType.ROOM, room);
+        }
+    }
+
+    public static void initDirectOTAConfig(String channel, String uid, String deviceId, String mzToken, String gatewaySn) {
+        if(supportDirectOTA) {
+            String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
+
+            UpgradeConfig direct = new UpgradeConfig()
+                    .withOtaType(4)
+                    .withVersion(Integer.parseInt(SystemUtil.getGatewayVersion()))
+                    .withCategoryCode(appCategoryCode)
+                    .withDebug(true)
+                    .withSn(_void-> gatewaySn)
+                    .withExecutorService(executorService)
+                    .withUserIdFunction(_void -> uid)
+                    .withApiServiceFunction(debug -> {
+                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
+                        service1.setDebug(true);
+                        return service1;
+                    });
+            UpgradeClient.getInstant().putConfig(UpgradeType.DIRECT, direct);
+        }
+    }
+
+    public static void initNormalOTAConfig(String channel, String uid, String deviceId, String mzToken) {
+        if(supportNormalOTA) {
+            String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
+
+            UpgradeConfig normal = new UpgradeConfig()
+                    .withOtaType(4)
+                    .withVersion(Integer.parseInt(SystemUtil.getGatewayVersion()))
+                    .withCategoryCode(appCategoryCode)
+                    .withDebug(true)
+                    .withExecutorService(executorService)
+                    .withUserIdFunction(_void -> uid)
+                    .withApiServiceFunction(debug -> {
+                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
+                        service1.setDebug(true);
+                        return service1;
+                    });
+            UpgradeClient.getInstant().putConfig(UpgradeType.NORMAL, normal);
+        }
     }
 
     public static void treatDown() {
@@ -194,25 +188,8 @@ public class OTAUpgradeHelper {
         return UpgradeClient.getInstant().isDownloading();
     }
 
-    public static void queryAppAndRoomUpgrade(boolean background) {
-
-        ProxyV2IOTCallback proxy = new ProxyV2IOTCallback(defaultCallback) {
-            UpgradeType type = UpgradeType.NORMAL;
-
-            @Override
-            public void noUpgrade() {
-                if (type == UpgradeType.ROOM) {
-                    super.noUpgrade();
-                }
-                if (type == UpgradeType.NORMAL) {
-                    type = UpgradeType.ROOM;
-                    queryUpgrade(UpgradeType.ROOM, this);
-                }
-            }
-        };
-        // 先查询ROOM
-        queryUpgrade(UpgradeType.NORMAL, proxy);
-
+    public static boolean queryUpgrade(UpgradeType type) {
+        return queryUpgrade(type, defaultCallback);
     }
 
     public static boolean queryUpgrade(UpgradeType type, V2IOTCallback iotaCallback) {
@@ -222,7 +199,7 @@ public class OTAUpgradeHelper {
         UpgradeClient.getInstant().queryUpgrade(type, new Callback() {
             @Override
             public void result(int type, UpgradeResultEntity entity, IUpgradeControl control) {
-                LogUtil.i("type = " + type);
+                LogUtil.i("ota-type = " + type);
                 if (Callback.TYPE_DOWNLOAD == type) {
                     // 是否需要下载
                     if (control instanceof UpgradeDownloadControl) {
@@ -235,12 +212,13 @@ public class OTAUpgradeHelper {
 
                             @Override
                             public void downloadFail() {
-                                iotaCallback.upgradeFail(-1, "网络异常");
+                                iotaCallback.downloadFail();
                             }
 
                             @Override
                             public void downloadComplete() {
                                 iotaCallback.upgradeProcess(100);
+                                iotaCallback.downloadSuc();
                             }
                         });
                         iotaCallback.setDownloadControl(downloadControl);

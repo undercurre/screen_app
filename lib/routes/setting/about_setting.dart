@@ -39,12 +39,26 @@ class AboutSettingProvider with ChangeNotifier {
     }.call();
   }
 
-  void checkUpgrade() {
+  void checkDirectUpgrade() {
+    TipsUtils.toast(content: '正在检查更新');
     if(otaChannel.isInit) {
       if(otaChannel.isDownloading) {
         TipsUtils.toast(content: "已经在下载中...");
       } else {
-        otaChannel.checkUpgrade();
+        otaChannel.checkDirect();
+      }
+    } else {
+      TipsUtils.toast(content: "已经是最新版本");
+    }
+  }
+
+  void checkUpgrade() {
+    TipsUtils.toast(content: '正在检查更新');
+    if(otaChannel.isInit) {
+      if(otaChannel.isDownloading) {
+        TipsUtils.toast(content: "已经在下载中...");
+      } else {
+        otaChannel.checkNormalAndRom(false);
       }
     } else {
       TipsUtils.toast(content: "已经是最新版本");
@@ -242,34 +256,41 @@ class AboutSettingPage extends StatelessWidget {
                                   color: Color(0xff232323),
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                                    child: const Text(
-                                        "系统版本",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
-                                    child: Text(
-                                        context.watch<AboutSettingProvider>().systemVersion ?? '',
-                                        style:const TextStyle(
-                                          color: Color(0X7fFFFFFF),
-                                          fontSize: 18.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                ],
+                              MultiClick(
+                                duration: 3000,
+                                count: 5,
+                                clickListener: () {
+                                  context.read<AboutSettingProvider>().checkDirectUpgrade();
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
+                                      child: const Text(
+                                          "系统版本",
+                                          style: TextStyle(
+                                            color: Color(0XFFFFFFFF),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
+                                      child: Text(
+                                          context.watch<AboutSettingProvider>().systemVersion ?? '',
+                                          style:const TextStyle(
+                                            color: Color(0X7fFFFFFF),
+                                            fontSize: 18.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Container(
                                 width: 464,
@@ -278,8 +299,12 @@ class AboutSettingPage extends StatelessWidget {
                                 decoration: const BoxDecoration(
                                   color: Color(0xff232323),
                                 ),
-                              ), MultiClick(
-                                Row(
+                              ),
+                              MultiClick(
+                                count: 5,
+                                duration: 3000,
+                                clickListener: () => Navigator.of(context).pushNamed("developer"),
+                                child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
@@ -307,9 +332,6 @@ class AboutSettingPage extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                                count: 5,
-                                duration: 3000,
-                                clickListener: () => Navigator.of(context).pushNamed("developer"),
                               ),
                               Container(
                                 width: 464,
