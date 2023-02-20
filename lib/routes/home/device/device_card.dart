@@ -48,7 +48,7 @@ class _DeviceCardState extends State<DeviceCard> {
     return false;
   }
 
-  Future<void> clickMethod(TapDownDetails e) async {
+  Future<void> clickMethod(TapUpDetails e) async {
     if (widget.deviceInfo != null) {
       if (e.localPosition.dx > 40 &&
           e.localPosition.dx < 90 &&
@@ -121,7 +121,7 @@ class _DeviceCardState extends State<DeviceCard> {
       width: 136,
       height: 190,
       child: GestureDetector(
-        onTapDown: (e) => clickMethod(e),
+        onTapUp: (e) => clickMethod(e),
         child: Container(
           padding: const EdgeInsets.fromLTRB(0, 17, 0, 0),
           alignment: Alignment.center,
