@@ -53,7 +53,8 @@ class _DevicePageState extends State<DevicePage> {
       // 更新设备detail
       await deviceModel.updateAllDetail();
       setState(() {
-        deviceWidgetList = deviceModel.showList
+        deviceEntityList = deviceModel.showList;
+        deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
@@ -102,12 +103,6 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    deviceEntityList = context.watch<DeviceListModel>().showList;
-    setState(() {
-      deviceWidgetList = deviceEntityList
-          .map((device) => DeviceCard(deviceInfo: device))
-          .toList();
-    });
     return Container(
       decoration: const BoxDecoration(
         color: Colors.black,
@@ -247,12 +242,14 @@ class _DevicePageState extends State<DevicePage> {
                       );
                     },
                     onReorder: (int oldIndex, int newIndex) {
+                      Widget row = deviceWidgetList.removeAt(oldIndex);
+                      DeviceEntity deviceRow =
+                      deviceEntityList.removeAt(oldIndex);
+                      deviceEntityList.insert(newIndex, deviceRow);
+                      deviceWidgetList.insert(newIndex, row);
                       setState(() {
-                        Widget row = deviceWidgetList.removeAt(oldIndex);
-                        DeviceEntity deviceRow =
-                            deviceEntityList.removeAt(oldIndex);
-                        deviceWidgetList.insert(newIndex, row);
-                        deviceEntityList.insert(newIndex, deviceRow);
+                        deviceEntityList = deviceEntityList;
+                        deviceWidgetList = deviceWidgetList;
                       });
                     },
                     onNoReorder: (int index) {

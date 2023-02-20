@@ -31,8 +31,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
             '0x21_curtain_panel_one' ||
         zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_curtain_panel_two') {
-      return await ZigbeeCurtainApi.powerPDM(
-          deviceInfo.masterId, onOff, infoMap["nodeid"]);
+      return MzResponseEntity();
     } else {
       num percent = onOff ? 100 : 0;
       var dianjiRes = await ZigbeeCurtainApi.curtainPercentPDM(
