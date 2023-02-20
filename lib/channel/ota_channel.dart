@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/channel/index.dart';
 import '../common/index.dart';
@@ -118,7 +119,7 @@ class OtaChannel extends AbstractChannel {
     checkUpgrade(OtaUpgradeType.normal, () {
       checkUpgrade(OtaUpgradeType.rom, () {
         if(!isBackground) {
-          TipsUtils.toast(content: "已经是最新版本");
+          TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
         }
       });
     });
@@ -127,7 +128,7 @@ class OtaChannel extends AbstractChannel {
   /// 定向检查更新
   void checkDirect() {
     checkUpgrade(OtaUpgradeType.direct, () {
-      TipsUtils.toast(content: "已经是最新版本");
+      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
     });
   }
 
