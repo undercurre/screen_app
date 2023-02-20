@@ -1,4 +1,5 @@
 import 'package:screen_app/common/api/device_api.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
@@ -9,7 +10,7 @@ class WrapSmartControl implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await SmartControlApi.getGatewayDetail(deviceInfo.applianceCode);
-    if (res.code == 0) {
+    if (res.code == 0 && res.result != null) {
       return res.result;
     } else {
       return {};
@@ -72,8 +73,10 @@ class SmartControlApi {
   /// 开关控制（物模型）
   static Future<MzResponseEntity> controlGatewaySwitchPDM(DeviceEntity deviceInfo, bool onOff) async {
     var detailRes = await getGatewayDetail(deviceInfo.applianceCode);
+    logger.i('智慧屏当前状态', detailRes.result);
     var panelOne = deviceInfo.type == 'smartControl-1' ? onOff : detailRes.result["panelOne"];
     var panelTwo = deviceInfo.type == 'smartControl-1' ? detailRes.result["panelTwo"] : onOff;
+    logger.i('智慧屏线控器操作', [panelOne, panelTwo]);
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'gatewaySwitchControl',

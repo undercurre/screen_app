@@ -15,6 +15,7 @@ import 'package:screen_app/states/device_change_notifier.dart';
 import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
 import '../../../states/room_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 import 'device_card.dart';
 
 class DevicePage extends StatefulWidget {
@@ -56,11 +57,13 @@ class _DevicePageState extends State<DevicePage> {
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
+      bus.emit('updateDeviceCardState');
     }
   }
 
   @override
   void initState() {
+    super.initState();
     _controller = EasyRefreshController(
       controlFinishRefresh: true,
       controlFinishLoad: true,
@@ -79,7 +82,6 @@ class _DevicePageState extends State<DevicePage> {
         });
       }
     });
-    super.initState();
   }
 
   void setTime(Timer timer) {

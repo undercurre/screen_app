@@ -8,6 +8,7 @@ import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../models/device_entity.dart';
+import '../../../widgets/event_bus.dart';
 
 class DeviceCard extends StatefulWidget {
   late DeviceEntity? deviceInfo;
@@ -68,6 +69,7 @@ class _DeviceCardState extends State<DeviceCard> {
                   .read<DeviceListModel>()
                   .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
                   widget.deviceInfo!.type);
+              power = DeviceService.isPower(widget.deviceInfo!);
             });
           });
         }
@@ -83,9 +85,19 @@ class _DeviceCardState extends State<DeviceCard> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      power = DeviceService.isPower(widget.deviceInfo!);
+    setDate();
+    bus.on('updateDeviceCardState', (arg) async {
+      setDate();
     });
+  }
+
+  setDate() async {
+    if (widget.deviceInfo != null) {
+      await context.read<DeviceListModel>().updateDeviceDetail(widget.deviceInfo!);
+      setState(() {
+        power = DeviceService.isPower(widget.deviceInfo!);
+      });
+    }
   }
 
   // @override
@@ -190,7 +202,7 @@ class _DeviceCardState extends State<DeviceCard> {
   /// 卡片背景色
   List<Color> _getContainerBgc() {
     return widget.deviceInfo != null &&
-        power
+        power && DeviceService.isOnline(widget.deviceInfo!)
         ? [const Color(0xFF3B3E41), const Color(0xFF3B3E41)]
         : [const Color(0x5A393E43), const Color(0x5A393E43)];
   }
@@ -216,6 +228,10 @@ class _DeviceCardState extends State<DeviceCard> {
         height: 60,
       );
     } else {
+      if (zigbeeControllerList[widget.deviceInfo!.modelNumber] ==
+          '0x21_curtain_panel_two') {
+        return Container();
+      }
       if (!DeviceService.isOnline(widget.deviceInfo!)) {
         return Image.asset(
           "assets/imgs/device/offline.png",
