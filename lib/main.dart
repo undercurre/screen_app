@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/states/global_route_observer_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import './channel/index.dart';
 import 'common/index.dart';
@@ -59,7 +60,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => RoomModel()),
         ChangeNotifierProvider(create: (_) => StandbyChangeNotifier()),
         ChangeNotifierProvider(create: (_) => SceneChangeNotifier()),
-        ChangeNotifierProvider(create: (_) => GlobalRouteObserverProvider())
+        ChangeNotifierProvider(create: (_) => GlobalRouteObserverNotifier())
       ],
       child: PointerDownListener(
           child: MaterialApp(

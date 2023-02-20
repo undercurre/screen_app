@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-import '../common/global.dart';
-
+import '../states/global_route_observer_notifier.dart';
 
 
 /// 重新定义组件的生命周期
@@ -67,14 +66,14 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final observer = Provider.of<GlobalRouteObserverProvider>(context).routeObserver;
+    final observer = Provider.of<GlobalRouteObserverNotifier>(context).routeObserver;
     observer.subscribe(this, ModalRoute.of(context)!);
   }
 
   @override
   void dispose() {
     super.dispose();
-    final observer = Provider.of<GlobalRouteObserverProvider>(context).routeObserver;
+    final observer = Provider.of<GlobalRouteObserverNotifier>(context).routeObserver;
     observer.unSubscribe(this);
   }
 
