@@ -15,13 +15,14 @@ class MultiClick extends StatelessWidget {
   /// 点击事件
   void Function()? clickListener;
 
-  MultiClick(this.child, {super.key, this.count = 2, this.duration = 1000, this.clickListener}) {
+  MultiClick({super.key,required this.child,  this.count = 2, this.duration = 1000, this.clickListener}) {
     hits = List.filled(count, 0);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         /// 数组向左移动一位
         List.copyRange(hits, 0, hits, 1, hits.length);

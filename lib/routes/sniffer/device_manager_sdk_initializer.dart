@@ -10,16 +10,16 @@ mixin DeviceManagerSDKInitialize<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
-    initSDK();
+    initDeviceSDK();
   }
 
   @override
   void dispose() {
     super.dispose();
-    resetSDK();
+    resetDeviceSDK();
   }
 
-  void initSDK() {
+  void initDeviceSDK() {
     /// 初始化入口，可重复初始化[幂等函数]
     deviceManagerChannel.init(
         dotenv.get("IOT_URL"),
@@ -35,7 +35,7 @@ mixin DeviceManagerSDKInitialize<T extends StatefulWidget> on State<T> {
     );
   }
 
-  void resetSDK() {
+  void resetDeviceSDK() {
     /// 重置SDK
     deviceManagerChannel.reset();
   }

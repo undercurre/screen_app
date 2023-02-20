@@ -4,6 +4,7 @@ import android.content.Context
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.setting.ota.OTAUpgradeHelper
 import com.midea.light.setting.ota.V2IOTCallback
+import com.midea.light.upgrade.UpgradeType
 import com.midea.light.upgrade.control.UpgradeDownloadControl
 import com.midea.light.upgrade.control.UpgradeInstallControl
 import io.flutter.plugin.common.BinaryMessenger
@@ -47,12 +48,21 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
             this@OtaChannel.installControl = control
         }
 
-        override fun upgradeSuc(entity: com.midea.light.upgrade.entity.UpgradeResultEntity?) {
+        override fun downloadSuc() {
             mMethodChannel.invokeMethod("downloadSuc", null)
         }
 
-        override fun upgradeFail(code: Int, msg: String?) {
+        override fun downloadFail() {
             mMethodChannel.invokeMethod("downloadFail", null)
+
+        }
+
+        override fun upgradeSuc(entity: com.midea.light.upgrade.entity.UpgradeResultEntity?) {
+            mMethodChannel.invokeMethod("installSuc", null)
+        }
+
+        override fun upgradeFail(code: Int, msg: String?) {
+            mMethodChannel.invokeMethod("installFail", null)
         }
 
         override fun upgradeProcess(process: Int) {
@@ -90,6 +100,15 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
                 OTAUpgradeHelper.init(context, callback, uid, deviceId, mzToken, sn)
                 onCallSuccess(result, true)
             }
+            "supportNormalOTA" -> {
+                result.safeSuccess(OTAUpgradeHelper.supportNormalOTA)
+            }
+            "supportDirectOTA" -> {
+                result.safeSuccess(OTAUpgradeHelper.supportDirectOTA)
+            }
+            "supportRomOTA" -> {
+                result.safeSuccess(OTAUpgradeHelper.supportRomOTA)
+            }
             "reset" -> {
                 OTAUpgradeHelper.treatDown()
                 onCallSuccess(result, true)
@@ -100,8 +119,12 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
                 } else if(OTAUpgradeHelper.isDownload()) {
                     onCallError(result, errorCode = "-2", errorMessage = "已经在下载或者安装中")
                 } else {
-                    val background = call.argument<Boolean?>("background") ?: false
-                    OTAUpgradeHelper.queryAppAndRoomUpgrade(background)
+                    val type = call.arguments as Int
+                    OTAUpgradeHelper.queryUpgrade(when(type) {
+                        3 -> UpgradeType.ROOM
+                        2 -> UpgradeType.DIRECT
+                        else -> UpgradeType.NORMAL
+                    })
                     onCallSuccess(result, true)
                 }
             }

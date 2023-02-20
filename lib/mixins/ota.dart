@@ -1,5 +1,7 @@
 
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
@@ -80,14 +82,19 @@ class _OtaState extends State<_OtaDialog> {
   // 记录当前更新阶段
   int step = _stepNormal;
   double progress = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // 七月份的十寸，改版。11月份的插件动态化，现在的Flutter
-    bus.on('ota-downloading', (arg) {
+
+    bus.on('ota-download-loading', (arg) {
       print("当前下载的进度为：$arg");
-      setState((){progress = arg;});
+      setState(() {
+        step = _stepDownload;
+        state = _DownloadState.downloading;
+        progress = arg;
+      });
     });
     bus.on('ota-download-fail', (arg) {
       debugPrint('ota-download-fail');
@@ -99,8 +106,19 @@ class _OtaState extends State<_OtaDialog> {
         state = _DownloadState.downloadSuc;
         step = _stepInstall;
         progress = 0;
+        _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+          setState(() {
+            progress += 0.01;
+          });
+        });
       });
     });
+    bus.on('ota-install-suc', (arg) {
+      state = _DownloadState.downloadSuc;
+      step = _stepInstall;
+      progress = 1;
+    });
+
   }
 
   void cancelReDownload() {
@@ -109,7 +127,7 @@ class _OtaState extends State<_OtaDialog> {
 
   void reDownload() {
     Navigator.of(context).pop();
-    otaChannel.checkUpgrade();
+    otaChannel.checkNormalAndRom(false);
   }
 
   void cancelDownload() {
@@ -129,7 +147,8 @@ class _OtaState extends State<_OtaDialog> {
   @override
   void dispose() {
     super.dispose();
-    bus.off('ota-downloading');
+    _timer?.cancel();
+    bus.off('ota-download-loading');
     bus.off('ota-download-fail');
     bus.off('ota-download-suc');
   }
@@ -211,6 +230,7 @@ class _OtaState extends State<_OtaDialog> {
                             flex: 1,
                             child: TextButton(
                               style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(const Size.fromHeight(50)),
                                   backgroundColor: MaterialStateProperty.all(const Color(0xff282828)),
                                   shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
                               onPressed: () {
@@ -231,6 +251,7 @@ class _OtaState extends State<_OtaDialog> {
                             flex: 1,
                             child: TextButton(
                               style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(const Size.fromHeight(50)),
                                   backgroundColor: MaterialStateProperty.all(const Color(0xff267AFF)),
                                   shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
                               onPressed: () {
@@ -253,15 +274,14 @@ class _OtaState extends State<_OtaDialog> {
                             flex: 1,
                             child: TextButton(
                               style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(const Size.fromHeight(50)),
                                   backgroundColor: MaterialStateProperty.all(const Color(0xff282828)),
                                   shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
                               onPressed: () {
-                                //if(step == _stepDownload) {
                                   cancelDownload();
-                                //}
                               },
                               child: Text(
-                                (step == _stepDownload ? '取消' : "${progress/100}%"),
+                                (step == _stepDownload ? '取消' : "${(progress * 100).floor()}%"),
                                 style: const TextStyle(color: Colors.white, fontSize: 18),),
                             ),
                           )

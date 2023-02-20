@@ -149,9 +149,9 @@ public class AppCommonConfig {
             HTTP_REQUEST_HEADER_DATA_KEY = "PROD_VnoClJI9aikS8dyy";
             WIFI_DEVICE_SERVER_DOMAIN = "iot1.midea.com.cn";
             ROM_UP_GRADE_HOST = "https://mzcategory.meizgd.com/v1/base2pro/uploadFile";
-            MZ_HOST = "http://47.106.94.129:8001";
-            MZ_APP_ID = "testMidea001";
-            MZ_APP_SECRET = "test001";
+            MZ_HOST = "https://mzaio.meizgd.com";
+            MZ_APP_ID = "smartScreen001";
+            MZ_APP_SECRET = "6f7d48b9d40f41f7b841885b5fe12829";
             ROM_UP_GRADE_HOST= "https://mzcategory.meizgd.com/v1/base2pro/uploadFile";
             SSE_HOST = "sse.smartmidea.net";
             ASD_ID = 0x010101;
