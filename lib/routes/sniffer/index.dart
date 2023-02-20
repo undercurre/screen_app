@@ -43,11 +43,11 @@ class SnifferViewModel {
       deviceManagerChannel.updateToken(Global.user!.accessToken);
     }
 
-    _state.setSafeState(() {
-      combineList.clear();
-      wifiList.clear();
-      zigbeeList.clear();
-    });
+    // _state.setSafeState(() {
+    //   combineList.clear();
+    //   wifiList.clear();
+    //   zigbeeList.clear();
+    // });
 
     sniffer(context);
   }

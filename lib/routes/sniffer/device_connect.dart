@@ -149,7 +149,10 @@ class DeviceConnectViewModel {
   /// 退出
   void goBack(BuildContext context) {
     stopBind();
-    Navigator.pop(context);
+    Navigator.popUntil(context, (route) {
+      return route.settings.name != "SnifferPage"
+          && route.settings.name != "DeviceConnectPage";
+    });
   }
 
 }
