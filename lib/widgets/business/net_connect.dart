@@ -190,8 +190,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                 // wifi的子Item
                 return MzCell(
                   avatarIcon: MzWiFiImage(level: item.level.toInt(), size: const Size.square(28)),
-                  rightIcon: const Icon(Icons.lock_outline_sharp,
-                      color: Color.fromRGBO(255, 255, 255, 0.85)),
+                  rightIcon: item.auth == 'encryption' ? const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)) : null,
                   title: item.ssid,
                   titleSize: 18.0,
                   hasTopBorder: true,
@@ -294,11 +293,12 @@ class _LinkNetwork extends State<LinkNetwork> {
   }
 
   void showInputPasswordDialog(
-      WiFiScanResult result, _LinkNetworkModel model) async {
+      WiFiScanResult result, _LinkNetworkModel model, [bool connectedError = false]) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return InputPasswordDialog(
+            connectedError: connectedError,
             result: result,
             confirmAction: (_, password) {
               model.connectWiFi(
@@ -307,7 +307,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                   callback: (suc) {
                     if (!suc) {
                       // 连接失败继续显示弹窗
-                      showInputPasswordDialog(result, model);
+                      showInputPasswordDialog(result, model, true);
                     }
                   });
             },
@@ -401,9 +401,10 @@ class IgnorePasswordDialog extends StatelessWidget {
 class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
   final void Function(WiFiScanResult result, String password) confirmAction;
+  final bool connectedError;
 
   const InputPasswordDialog(
-      {super.key, required this.result, required this.confirmAction});
+      {super.key, required this.result, required this.confirmAction, required this.connectedError});
 
   @override
   State<StatefulWidget> createState() {
@@ -412,7 +413,7 @@ class InputPasswordDialog extends StatefulWidget {
 }
 
 class _InputPasswordDialogState extends State<InputPasswordDialog> {
-  var obscrue = true;
+  var closeEye = true;
   final TextEditingController _nameController = TextEditingController();
   _InputPasswordDialogState();
 
@@ -429,9 +430,18 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                 flex: 1,
                 child: Container(
                     alignment: Alignment.center,
-                    child: Text('输入“${widget.result.ssid}”的密码',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 24)))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                            '输入“${widget.result.ssid}”的密码',
+                            style: const TextStyle(color: Colors.white, fontSize: 24)),
+                        if(widget.connectedError)
+                          const Text(
+                            '密码错误',
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                          ),
+                    ],))),
             Expanded(
                 flex: 1,
                 child: Container(
@@ -451,7 +461,7 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             Expanded(
                                 child: TextField(
                               controller: _nameController,
-                              obscureText: obscrue,
+                              obscureText: closeEye,
                               maxLines: 1,
                               decoration:
                                   InputDecoration(border: InputBorder.none),
@@ -459,10 +469,10 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    obscrue = !obscrue;
+                                    closeEye = !closeEye;
                                   });
                                 },
-                                icon: obscrue
+                                icon: closeEye
                                     ? Image.asset(
                                         'assets/imgs/icon/eye-close.png')
                                     : Image.asset(
