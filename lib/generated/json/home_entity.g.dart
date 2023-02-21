@@ -69,7 +69,7 @@ HomeEntity $HomeEntityFromJson(Map<String, dynamic> json) {
 	if (memberCount != null) {
 		homeEntity.memberCount = memberCount;
 	}
-	final dynamic? members = jsonConvert.convert<dynamic>(json['members']);
+	final dynamic members = jsonConvert.convert<dynamic>(json['members']);
 	if (members != null) {
 		homeEntity.members = members;
 	}

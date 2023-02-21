@@ -70,12 +70,31 @@ class AboutSettingProvider with ChangeNotifier {
     aboutSystemChannel.reboot();
   }
 
-  void clearUserData() {
-    System.loginOut();
-
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      aboutSystemChannel.reboot();
+  void clearUserData() async {
+    // 删除网关设备，并且尝试五次删除
+    deleteGateway(5);
+    // 重置网关设备
+    gatewayChannel.resetGateway();
+    // 删除所有的wifi记录
+    netMethodChannel.removeAllWiFiRecord();
+    // 定时十秒
+    Timer(const Duration(seconds: 8), () {
+      System.loginOut();
+      Timer(const Duration(seconds: 2), () {
+        aboutSystemChannel.reboot();
+      });
     });
+  }
+
+  void deleteGateway(int tryCount) {
+    DeviceApi.deleteDevices([Global.profile.applianceCode ?? ''], Global.profile.homeInfo?.homegroupId ?? '')
+        .then((value) {
+            logger.i(value.data.errorList.toString());
+        }, onError: (e) {
+            if(tryCount > 0) {
+              deleteGateway(--tryCount);
+            }
+        });
   }
 
 }

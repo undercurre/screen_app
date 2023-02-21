@@ -171,6 +171,9 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             "ethernetIsOpen" -> {
                 onCallSuccess(result, EthernetUtil.connectedState(context) != 0)
             }
+            "removeAllWiFiRecord" -> {
+                WifiUtil.removeAllConfiguration(context)
+            }
             else -> {
                 onCallNotImplement(result)
             }

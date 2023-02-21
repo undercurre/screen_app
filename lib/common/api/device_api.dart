@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 
+import '../../models/delete_device_result_entity.dart';
 import '../../models/index.dart';
 import 'api.dart';
 
@@ -175,4 +176,28 @@ class DeviceApi {
 
     return res;
   }
+
+  /// 批量删除设备
+  static Future<MideaResponseEntity<DeleteDeviceResultEntity>> deleteDevices(List<String> applianceCodes, String homeGroupID) async {
+
+    final devices = applianceCodes.map((e) => {
+      'applianceCode': e,
+      'homegroupId': homeGroupID,
+      'isOtherEquipment': '0'
+    }).toList();
+
+    var res = await Api.requestMideaIot<DeleteDeviceResultEntity>(
+        '/mas/v5/app/proxy?alias=/v1/appliance/batch/delete',
+        data: {
+          'applianceList': devices,
+          "reqId": uuid.v4(),
+          "stamp": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+          "uid": Global.profile.user?.uid
+        });
+
+    return res;
+
+  }
+
+
 }

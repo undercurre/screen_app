@@ -1,6 +1,6 @@
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
-import 'package:screen_app/models/scene_info_entity.dart';
 import 'package:screen_app/models/scene_list_entity.dart';
+import 'package:screen_app/models/scene_info_entity.dart';
 
 
 SceneListEntity $SceneListEntityFromJson(Map<String, dynamic> json) {

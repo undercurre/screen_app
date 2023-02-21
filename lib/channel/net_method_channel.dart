@@ -192,5 +192,9 @@ class NetMethodChannel extends AbstractChannel {
   void stopScanNearbyWiFi() {
     methodChannel.invokeMethod("stopScanNearbyWiFi");
   }
+  // 清除所有的wifi记录
+  void removeAllWiFiRecord() {
+    methodChannel.invokeMethod('removeAllWiFiRecord');
+  }
 
 }

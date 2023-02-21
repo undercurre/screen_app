@@ -342,6 +342,7 @@ class PreviewStandbyStylePageState extends State<PreviewStandbyPage> {
 }
 
 /// 圆形指示器
+@immutable
 class CircleIndicator extends StatelessWidget {
 
   double circleWidth = 4;

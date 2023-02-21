@@ -32,7 +32,7 @@ class AboutSystemChannel extends AbstractChannel {
     return null;
   }
 
-  Future<String> reboot() async {
+  Future<bool> reboot() async {
     return await methodChannel.invokeMethod("reboot");
   }
   
