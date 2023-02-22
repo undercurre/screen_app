@@ -1,6 +1,8 @@
 // 说明：网络连接
 
 // _LinkNetwork页面的 dataclass
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
@@ -19,7 +21,7 @@ class _LinkNetworkData {
   bool isWiFiOn; // WiFi 是否打开
   bool isEthernetOn; // 有线以太网 是否打开
   UpdateState<WiFiScanResult>? currentConnect; // 当前连接状态
-  List<WiFiScanResult>? wifiList; // wifi 列表数据
+  Set<WiFiScanResult>? wifiList; // wifi 列表数据
   _LinkNetworkData({required this.isWiFiOn, required this.isEthernetOn});
 }
 
@@ -34,7 +36,9 @@ class _LinkNetworkModel with ChangeNotifier {
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
-    init();
+    Timer(const Duration(milliseconds: 250), () async {
+      init();
+    });
   }
 
   void init() async {
@@ -94,7 +98,7 @@ class _LinkNetworkModel with ChangeNotifier {
   }
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
-    _data.wifiList = list;
+    _data.wifiList = list.toSet();
     if(_data.currentConnect?.type == UpdateType.SUCCESS) {
       _data.wifiList?.removeWhere((element) => element == _data.currentConnect?.data);
     }
