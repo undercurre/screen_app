@@ -339,6 +339,7 @@ class IgnorePasswordDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
+        color: const Color(0xff1b1b1b),
         width: 423,
         height: 204,
         child: Column(
@@ -355,46 +356,46 @@ class IgnorePasswordDialog extends StatelessWidget {
                     ),
                   ),
                 )),
-            Expanded(
-                flex: 1,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text(
-                          '取消',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color(0xff282828)),
+                        shape: MaterialStateProperty.all(
+                            const RoundedRectangleBorder())),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () {
-                          netMethodChannel.forgetWiFi(result);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          '确定',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    )
-                  ],
-                )),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color(0xff267AFF)),
+                        shape: MaterialStateProperty.all(
+                            const RoundedRectangleBorder())),
+                    onPressed: () {
+                      netMethodChannel.forgetWiFi(result);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      '确定',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),
