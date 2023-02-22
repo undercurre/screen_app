@@ -25,10 +25,9 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
   var musicIconUrl = "";
 
   var musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
-
+  var lightLogo = "assets/imgs/dropDown/light-black.png";
+  var soundLogo = "assets/imgs/dropDown/sound-black.png";
   initial() async {
-    lightValue = Global.lightValue;
-    soundValue = Global.soundValue;
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
     await aiMethodChannel.musicInforGet();
   }
@@ -61,6 +60,18 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
       curve: Curves.linear,
     );
     controller.stop();
+    lightValue = Global.lightValue;
+    soundValue = Global.soundValue;
+    if (soundValue > 7) {
+      soundLogo = "assets/imgs/dropDown/sound-black.png";
+    } else {
+      soundLogo = "assets/imgs/dropDown/sound-white.png";
+    }
+    if (lightValue > 128) {
+      lightLogo = "assets/imgs/dropDown/light-black.png";
+    } else {
+      lightLogo = "assets/imgs/dropDown/light-white.png";
+    }
     initial();
   }
 
@@ -270,6 +281,13 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     settingMethodChannel.setSystemVoice(newValue.toInt()),
                                     soundValue = newValue,
                                     Global.soundValue = newValue,
+                                    if (newValue > 7) {
+                                      soundLogo = "assets/imgs/dropDown/sound-black.png"
+                                    }
+                                    else {
+                                      soundLogo = "assets/imgs/dropDown/sound-white.png"
+                                    },
+                                    setState(() {})
                                   },
                                 ),
                               ),
@@ -277,7 +295,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
                                 child: Image.asset(
-                                  "assets/imgs/dropDown/sound-black.png",
+                                  soundLogo,
                                   width: 60,
                                   height: 60,
                                 ),
@@ -299,6 +317,11 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     settingMethodChannel.setSystemLight(newValue.toInt()),
                                     lightValue = newValue,
                                     Global.lightValue = lightValue,
+                                    if (newValue > 128)
+                                      {lightLogo = "assets/imgs/dropDown/light-black.png"}
+                                    else
+                                      {lightLogo = "assets/imgs/dropDown/light-white.png"},
+                                    setState(() {})
                                   },
                                 ),
                               ),
@@ -306,7 +329,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
                                 child: Image.asset(
-                                  "assets/imgs/dropDown/light-black.png",
+                                  lightLogo,
                                   width: 60,
                                   height: 60,
                                 ),
