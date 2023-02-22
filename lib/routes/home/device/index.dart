@@ -52,8 +52,35 @@ class _DevicePageState extends State<DevicePage> {
       var deviceModel = context.read<DeviceListModel>();
       // 更新设备detail
       await deviceModel.updateAllDetail();
+      var entityList = deviceModel.showList;
+      List<DeviceEntity> sortList = [];
+      List<DeviceEntity> supportList = entityList
+          .where((element) => DeviceService.isSupport(element))
+          .toList();
+      List<DeviceEntity> nosupportList = entityList
+          .where((element) => !DeviceService.isSupport(element))
+          .toList();
+      List<DeviceEntity> onlineList = supportList
+          .where((element) => DeviceService.isOnline(element))
+          .toList();
+      List<DeviceEntity> outlineList = supportList
+          .where((element) => DeviceService.isOnline(element))
+          .toList();
+      onlineList.sort((a, b) {
+          if (a.activeTime == '' || b.activeTime == '' || a.activeTime == null || b.activeTime == null) {
+            return 1;
+          }
+          if (DateTime.parse(a.activeTime).compareTo(DateTime.parse(b.activeTime)) == 0) {
+            return 1;
+          }
+          return DateTime.parse(a.activeTime).compareTo(DateTime.parse(b.activeTime));
+      });
+      sortList.addAll(onlineList);
+      sortList.addAll(outlineList);
+      sortList.addAll(nosupportList);
       setState(() {
-        deviceEntityList = deviceModel.showList;
+        deviceEntityList = sortList;
+
         deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
@@ -211,12 +238,12 @@ class _DevicePageState extends State<DevicePage> {
                 _controller.finishRefresh();
                 _controller.resetFooter();
               },
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: double.infinity,
-                  minHeight: MediaQuery.of(context).size.height - 60,
-                ),
-                child: Center(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: double.infinity,
+                    minHeight: MediaQuery.of(context).size.height - 60,
+                  ),
                   child: ReorderableWrap(
                       spacing: 8.0,
                       runSpacing: 8.0,

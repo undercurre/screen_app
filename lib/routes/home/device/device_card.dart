@@ -27,11 +27,7 @@ class _DeviceCardState extends State<DeviceCard> {
     if (widget.deviceInfo != null &&
         widget.deviceInfo?.detail != null &&
         !isVistual(widget.deviceInfo!)) {
-      if (widget.deviceInfo!
-          .detail!
-          .keys
-          .toList()
-          .isNotEmpty &&
+      if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);
         Navigator.pushNamed(context, type,
@@ -57,8 +53,7 @@ class _DeviceCardState extends State<DeviceCard> {
         setState(() {
           power = !power;
         });
-        var res = await DeviceService.setPower(
-            widget.deviceInfo!, power);
+        var res = await DeviceService.setPower(widget.deviceInfo!, power);
         if (res) {
           Future.delayed(const Duration(seconds: 3)).then((_) async {
             await context
@@ -68,7 +63,7 @@ class _DeviceCardState extends State<DeviceCard> {
               widget.deviceInfo = context
                   .read<DeviceListModel>()
                   .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
-                  widget.deviceInfo!.type);
+                      widget.deviceInfo!.type);
               power = DeviceService.isPower(widget.deviceInfo!);
             });
           });
@@ -93,7 +88,9 @@ class _DeviceCardState extends State<DeviceCard> {
 
   setDate() async {
     if (widget.deviceInfo != null) {
-      await context.read<DeviceListModel>().updateDeviceDetail(widget.deviceInfo!);
+      await context
+          .read<DeviceListModel>()
+          .updateDeviceDetail(widget.deviceInfo!);
       setState(() {
         power = DeviceService.isPower(widget.deviceInfo!);
       });
@@ -194,15 +191,16 @@ class _DeviceCardState extends State<DeviceCard> {
   String _getDeviceIconPath() {
     return widget.deviceInfo != null
         ? (power
-        ? DeviceService.getOnIcon(widget.deviceInfo!)
-        : DeviceService.getOffIcon(widget.deviceInfo!))
+            ? DeviceService.getOnIcon(widget.deviceInfo!)
+            : DeviceService.getOffIcon(widget.deviceInfo!))
         : 'assets/imgs/device/phone_off.png';
   }
 
   /// 卡片背景色
   List<Color> _getContainerBgc() {
     return widget.deviceInfo != null &&
-        power && DeviceService.isOnline(widget.deviceInfo!)
+            power &&
+            DeviceService.isOnline(widget.deviceInfo!)
         ? [const Color(0xFF3B3E41), const Color(0xFF3B3E41)]
         : [const Color(0x5A393E43), const Color(0x5A393E43)];
   }
@@ -210,13 +208,11 @@ class _DeviceCardState extends State<DeviceCard> {
   /// attr文字
   String _getAttrString() {
     return widget.deviceInfo != null &&
-        DeviceService.isSupport(widget.deviceInfo!) &&
-        DeviceService.isOnline(widget.deviceInfo!)
+            DeviceService.isSupport(widget.deviceInfo!) &&
+            DeviceService.isOnline(widget.deviceInfo!)
         ? (DeviceService.getAttr(widget.deviceInfo!) != ''
-        ? "${widget.deviceInfo != null ? (DeviceService.getAttr(
-        widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService
-        .getAttrUnit(widget.deviceInfo!)) : ''}"
-        : "")
+            ? "${widget.deviceInfo != null ? (DeviceService.getAttr(widget.deviceInfo!)) : '0'}${widget.deviceInfo != null ? (DeviceService.getAttrUnit(widget.deviceInfo!)) : ''}"
+            : "")
         : "";
   }
 
@@ -232,22 +228,22 @@ class _DeviceCardState extends State<DeviceCard> {
           '0x21_curtain_panel_two') {
         return Container();
       }
-      if (!DeviceService.isOnline(widget.deviceInfo!)) {
-        return Image.asset(
-          "assets/imgs/device/offline.png",
-          width: 150,
-          height: 60,
+      if (!DeviceService.isSupport(widget.deviceInfo!) ||
+          DeviceService.isVistual(widget.deviceInfo!)) {
+        return const Text(
+          "仅支持APP控制",
+          style: TextStyle(
+              fontSize: 14.0,
+              color: Color(0X80FFFFFF),
+              fontWeight: FontWeight.w400,
+              fontFamily: 'MideaType-Regular'),
         );
       } else {
-        if (!DeviceService.isSupport(widget.deviceInfo!) ||
-            DeviceService.isVistual(widget.deviceInfo!)) {
-          return const Text(
-            "仅支持APP控制",
-            style: TextStyle(
-                fontSize: 14.0,
-                color: Color(0X80FFFFFF),
-                fontWeight: FontWeight.w400,
-                fontFamily: 'MideaType-Regular'),
+        if (!DeviceService.isOnline(widget.deviceInfo!)) {
+          return Image.asset(
+            "assets/imgs/device/offline.png",
+            width: 150,
+            height: 60,
           );
         } else {
           return Image.asset(

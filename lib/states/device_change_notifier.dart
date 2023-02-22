@@ -284,7 +284,7 @@ class DeviceListModel extends ProfileChangeNotifier {
       }
       // 面板
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
-        if (deviceInfo.detail != null) {
+        if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
           for (int lu = 1; lu <= deviceInfo.detail!["deviceControlList"].length; lu ++) {
             productVistualDevice(deviceInfo, '${deviceInfo.name}$lu路', "singlePanel-$lu");
           }

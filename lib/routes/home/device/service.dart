@@ -9,7 +9,7 @@ import '../../../states/device_change_notifier.dart';
 
 class DeviceService {
   static bool isOnline(DeviceEntity deviceInfo) {
-    return deviceInfo.onlineStatus == '1';
+    return deviceInfo.onlineStatus == '1' && isSupport(deviceInfo);
   }
 
   static Future<Map<String, dynamic>> getDeviceDetail(

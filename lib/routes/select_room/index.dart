@@ -6,6 +6,7 @@ import '../../common/global.dart';
 import '../../models/room_entity.dart';
 import '../../states/device_change_notifier.dart';
 import '../../widgets/business/select_room.dart';
+import '../../widgets/event_bus.dart';
 import '../../widgets/mz_navigation_bar.dart';
 import '../home/device/register_controller.dart';
 import '../home/device/service.dart';
