@@ -8,6 +8,7 @@ import '../../common/helper.dart';
 import '../../common/setting.dart';
 import '../../states/standby_notifier.dart';
 import '../../widgets/mz_slider.dart';
+import '../../widgets/mz_slider_noball.dart';
 
 class DisplaySettingPage extends StatefulWidget {
   const DisplaySettingPage({super.key});
@@ -141,25 +142,18 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                   ),
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 60,
-                      height: 60,
-                      margin: const EdgeInsets.fromLTRB(15, 9, 0, 9),
-                      child: IconButton(
-                        onPressed: () {},
-                        iconSize: 40.0,
-                        icon: Image.asset(
-                          "assets/imgs/setting/liangdu01.png",
-                        ),
+                      margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
+                      child: Image.asset(
+                        "assets/imgs/setting/liangdu01.png",width: 30,
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-                      width: 320,
-                      child: MzSlider(
-                        width: 320,
+                      child: mz_slider_noball(
+                        width: 340,
                         max: 255,
                         value: lightValue.toDouble(),
                         activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
@@ -180,15 +174,9 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                       ),
                     ),
                     Container(
-                      width: 60,
-                      height: 60,
-                      margin: const EdgeInsets.fromLTRB(0, 9, 15, 9),
-                      child: IconButton(
-                        onPressed: () {},
-                        iconSize: 40.0,
-                        icon: Image.asset(
-                          "assets/imgs/setting/liangdu.png",
-                        ),
+                      margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
+                      child: Image.asset(
+                        "assets/imgs/setting/liangdu.png",width: 30,
                       ),
                     ),
                   ],

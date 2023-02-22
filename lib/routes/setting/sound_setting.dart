@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
 import '../../widgets/mz_slider.dart';
+import '../../widgets/mz_slider_noball.dart';
 
 class SoundSettingPage extends StatefulWidget {
   const SoundSettingPage({Key? key});
@@ -96,25 +97,18 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
               ),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
                   margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  child: IconButton(
-                    onPressed: () {},
-                    iconSize: 80.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/yinliang-empty.png",
-                    ),
+                  child: Image.asset(
+                    "assets/imgs/setting/yinliang-empty.png",
                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  width: 320,
-                  child: MzSlider(
-                    width: 270,
+                  child: mz_slider_noball(
+                    width: 360,
                     value: soundValue,
                     max: 15,
                     activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
@@ -127,20 +121,13 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                       settingMethodChannel.setSystemVoice(value),
                       soundValue = value,
                       Global.soundValue = soundValue,
-
                     },
                   ),
                 ),
                 Container(
-                  width: 80,
-                  height: 80,
                   margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  child: IconButton(
-                    onPressed: () {},
-                    iconSize: 80.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/yinliang-full.png",
-                    ),
+                  child: Image.asset(
+                    "assets/imgs/setting/yinliang-full.png",
                   ),
                 ),
               ],
