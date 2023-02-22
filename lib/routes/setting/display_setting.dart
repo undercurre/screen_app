@@ -7,7 +7,6 @@ import '../../common/global.dart';
 import '../../common/helper.dart';
 import '../../common/setting.dart';
 import '../../states/standby_notifier.dart';
-import '../../widgets/mz_slider.dart';
 import '../../widgets/mz_slider_noball.dart';
 
 class DisplaySettingPage extends StatefulWidget {
