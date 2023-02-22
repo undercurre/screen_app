@@ -177,10 +177,12 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                 return DropdownMenuItem<String>(
                   value: item.name,
                   child: Container(
+                    width: 55,
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(minWidth: 100),
                     child: Text(item.name,
                         style: const TextStyle(
+                            overflow: TextOverflow.ellipsis,
                             fontSize: 24,
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.w400)),

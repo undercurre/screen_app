@@ -29,6 +29,12 @@ class GatewayChannel extends AbstractChannel {
     methodChannel.invokeMethod('allowLink');
     return true;
   }
+  /// 重置本地网关
+  Future<bool> resetGateway() async {
+    methodChannel.invokeMethod('resetGateway');
+    return true;
+  }
+
 
   @override
   Future<dynamic> onMethodCallHandler(MethodCall call) async {

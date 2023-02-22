@@ -1,6 +1,6 @@
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
-import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/models/room_entity.dart';
+import 'package:screen_app/models/device_entity.dart';
 
 
 RoomEntity $RoomEntityFromJson(Map<String, dynamic> json) {

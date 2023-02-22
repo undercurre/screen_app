@@ -57,6 +57,13 @@ class NetSettingPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                Container(
+                  width: double.infinity,
+                  height: 1,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+                ),
                 const Expanded(
                   child: LinkNetwork(),
                 ),

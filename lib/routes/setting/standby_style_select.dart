@@ -295,45 +295,54 @@ class PreviewStandbyStylePageState extends State<PreviewStandbyPage> {
               child: CircleIndicator(pageCount: 9, selectPosition: initPosition),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Align(
-                alignment: Alignment.bottomLeft,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))),
-                      backgroundColor: MaterialStateProperty.all(const Color(0xff565656).withOpacity(0.6)),
-                      fixedSize: MaterialStateProperty.all(Size(104, 50))
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("取消", style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22
-                    ),)
-                )
-            ),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                        width: 104,
+                        height: 50,
+                        alignment: Alignment.center,
+                        decoration: ShapeDecoration(
+                            color: const Color(0xff565656).withOpacity(0.6),
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))
+                        ),
+                        child: const Text("取消", style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22
+                        )
+                        ))
+                )),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Align(
-                alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all(const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))),
-                      backgroundColor: MaterialStateProperty.all(const Color(0xff565656).withOpacity(0.6)),
-                      fixedSize: MaterialStateProperty.all(Size(104, 50))
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Navigator.of(context).pop(initPosition);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Align(
+                  alignment: Alignment.bottomRight,
+                child: Container(
+                  width: 104,
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: ShapeDecoration(
+                      color: const Color(0xff565656).withOpacity(0.6),
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop(initPosition);
-                  },
                   child: const Text("设定", style: TextStyle(
                       color: Colors.white,
                       fontSize: 22
                   )
-              )),
-          ))
+                ))
+            )),
+          )
         ],
       ),
     );
@@ -342,6 +351,7 @@ class PreviewStandbyStylePageState extends State<PreviewStandbyPage> {
 }
 
 /// 圆形指示器
+@immutable
 class CircleIndicator extends StatelessWidget {
 
   double circleWidth = 4;

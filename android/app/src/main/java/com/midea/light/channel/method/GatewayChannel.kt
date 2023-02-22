@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer
 import com.midea.light.RxBus
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.config.GatewayConfig
+import com.midea.light.gateway.GateWayUtils
 import com.midea.light.issued.relay.RelayDeviceChangeEvent
 import com.midea.light.setting.relay.VoiceIssuedHandler
 import com.midea.light.setting.relay.VoiceIssuedMatch
@@ -67,6 +68,10 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
             }
             "allowLink" -> {
                 VoiceIssuedMatch.allowLink()
+            }
+            "resetGateway" -> {
+                GateWayUtils.resetGateway()
+                result.safeSuccess(true)
             }
         }
     }

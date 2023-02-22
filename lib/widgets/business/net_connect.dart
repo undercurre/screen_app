@@ -1,6 +1,8 @@
 // 说明：网络连接
 
 // _LinkNetwork页面的 dataclass
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
@@ -19,7 +21,7 @@ class _LinkNetworkData {
   bool isWiFiOn; // WiFi 是否打开
   bool isEthernetOn; // 有线以太网 是否打开
   UpdateState<WiFiScanResult>? currentConnect; // 当前连接状态
-  List<WiFiScanResult>? wifiList; // wifi 列表数据
+  Set<WiFiScanResult>? wifiList; // wifi 列表数据
   _LinkNetworkData({required this.isWiFiOn, required this.isEthernetOn});
 }
 
@@ -34,7 +36,9 @@ class _LinkNetworkModel with ChangeNotifier {
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
-    init();
+    Timer(const Duration(milliseconds: 250), () async {
+      init();
+    });
   }
 
   void init() async {
@@ -94,7 +98,7 @@ class _LinkNetworkModel with ChangeNotifier {
   }
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
-    _data.wifiList = list;
+    _data.wifiList = list.toSet();
     if(_data.currentConnect?.type == UpdateType.SUCCESS) {
       _data.wifiList?.removeWhere((element) => element == _data.currentConnect?.data);
     }
@@ -190,8 +194,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                 // wifi的子Item
                 return MzCell(
                   avatarIcon: MzWiFiImage(level: item.level.toInt(), size: const Size.square(28)),
-                  rightIcon: const Icon(Icons.lock_outline_sharp,
-                      color: Color.fromRGBO(255, 255, 255, 0.85)),
+                  rightIcon: item.auth == 'encryption' ? const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)) : null,
                   title: item.ssid,
                   titleSize: 18.0,
                   hasTopBorder: true,
@@ -294,11 +297,12 @@ class _LinkNetwork extends State<LinkNetwork> {
   }
 
   void showInputPasswordDialog(
-      WiFiScanResult result, _LinkNetworkModel model) async {
+      WiFiScanResult result, _LinkNetworkModel model, [bool connectedError = false]) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return InputPasswordDialog(
+            connectedError: connectedError,
             result: result,
             confirmAction: (_, password) {
               model.connectWiFi(
@@ -307,7 +311,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                   callback: (suc) {
                     if (!suc) {
                       // 连接失败继续显示弹窗
-                      showInputPasswordDialog(result, model);
+                      showInputPasswordDialog(result, model, true);
                     }
                   });
             },
@@ -335,6 +339,7 @@ class IgnorePasswordDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
+        color: const Color(0xff1b1b1b),
         width: 423,
         height: 204,
         child: Column(
@@ -351,46 +356,46 @@ class IgnorePasswordDialog extends StatelessWidget {
                     ),
                   ),
                 )),
-            Expanded(
-                flex: 1,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text(
-                          '取消',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color(0xff282828)),
+                        shape: MaterialStateProperty.all(
+                            const RoundedRectangleBorder())),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () {
-                          netMethodChannel.forgetWiFi(result);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          '确定',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    )
-                  ],
-                )),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color(0xff267AFF)),
+                        shape: MaterialStateProperty.all(
+                            const RoundedRectangleBorder())),
+                    onPressed: () {
+                      netMethodChannel.forgetWiFi(result);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      '确定',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),
@@ -401,9 +406,10 @@ class IgnorePasswordDialog extends StatelessWidget {
 class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
   final void Function(WiFiScanResult result, String password) confirmAction;
+  final bool connectedError;
 
   const InputPasswordDialog(
-      {super.key, required this.result, required this.confirmAction});
+      {super.key, required this.result, required this.confirmAction, required this.connectedError});
 
   @override
   State<StatefulWidget> createState() {
@@ -412,7 +418,7 @@ class InputPasswordDialog extends StatefulWidget {
 }
 
 class _InputPasswordDialogState extends State<InputPasswordDialog> {
-  var obscrue = true;
+  var closeEye = true;
   final TextEditingController _nameController = TextEditingController();
   _InputPasswordDialogState();
 
@@ -429,9 +435,18 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                 flex: 1,
                 child: Container(
                     alignment: Alignment.center,
-                    child: Text('输入“${widget.result.ssid}”的密码',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 24)))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                            '输入“${widget.result.ssid}”的密码',
+                            style: const TextStyle(color: Colors.white, fontSize: 24)),
+                        if(widget.connectedError)
+                          const Text(
+                            '密码错误',
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                          ),
+                    ],))),
             Expanded(
                 flex: 1,
                 child: Container(
@@ -451,7 +466,7 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             Expanded(
                                 child: TextField(
                               controller: _nameController,
-                              obscureText: obscrue,
+                              obscureText: closeEye,
                               maxLines: 1,
                               decoration:
                                   InputDecoration(border: InputBorder.none),
@@ -459,10 +474,10 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    obscrue = !obscrue;
+                                    closeEye = !closeEye;
                                   });
                                 },
-                                icon: obscrue
+                                icon: closeEye
                                     ? Image.asset(
                                         'assets/imgs/icon/eye-close.png')
                                     : Image.asset(
