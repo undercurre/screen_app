@@ -226,31 +226,32 @@ class ScenePageState extends State<ScenePage> {
                   children: sceneChangeNotifier.sceneList.isEmpty
                       ? <Widget>[
                           SizedBox(
-                              width: double.infinity,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Image(
-                                      image: AssetImage(
-                                          'assets/imgs/scene/empty.png'),
-                                      width: 200,
-                                      height: 200),
-                                  Opacity(
-                                    opacity: 0.5,
-                                    child: Text(
-                                      '请到美居APP内添加场景',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18.0,
-                                        fontFamily: 'MideaType',
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      ),
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Image(
+                                    image: AssetImage(
+                                        'assets/imgs/scene/empty.png'),
+                                    width: 200,
+                                    height: 200),
+                                Opacity(
+                                  opacity: 0.5,
+                                  child: Text(
+                                    '请到美居APP内添加场景',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18.0,
+                                      fontFamily: 'MideaType',
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.none,
                                     ),
                                   ),
-                                ],
-                              )),
+                                ),
+                              ],
+                            ),
+                          ),
                         ]
                       : sceneWidgetList,
                 ),

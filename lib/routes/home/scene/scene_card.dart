@@ -5,6 +5,7 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
 
 import '../../../common/api/scene_api.dart';
+import '../../../common/utils.dart';
 
 class SceneCard extends StatefulWidget {
   final Scene scene;
@@ -28,7 +29,7 @@ class _SceneCardState extends State<SceneCard> {
     scene = widget.scene;
   }
 
-  execScene() {
+  execScene() async {
     logger.i('执行自身');
     setState(() {
       selfPower = true;
@@ -38,7 +39,12 @@ class _SceneCardState extends State<SceneCard> {
         selfPower = false;
       });
     });
-    SceneApi.execScene(scene.key);
+    var res = await SceneApi.execScene(scene.key);
+    if (res.success) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+    }
   }
 
   @override
