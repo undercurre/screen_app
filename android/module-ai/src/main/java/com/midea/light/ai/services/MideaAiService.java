@@ -121,7 +121,7 @@ public class MideaAiService extends Service {
 
         Log.e(TAG, "deviceInfo:" + deviceInfo);
         mAiDialog = new AiDialog(Acontext, this);
-        mWeatherDialog= new WeatherDialog(Acontext, this);
+        mWeatherDialog = new WeatherDialog(Acontext, this);
 
         Thread thread = new Thread() {
             public void run() {
@@ -491,7 +491,7 @@ public class MideaAiService extends Service {
                 player.playList(ttsList);
             }
         }
-        if(isWeather(data)){
+        if (isWeather(data)) {
             //如果是天气就只播音频不显示文字
             ttsList.get(0).setLabel("");
         }
@@ -702,10 +702,10 @@ public class MideaAiService extends Service {
     }
 
     private void sayOver() {
-        if(mAiDialog!=null){
+        if (mAiDialog != null) {
             mAiDialog.timeOut();
         }
-        if(mWeatherDialog!=null){
+        if (mWeatherDialog != null) {
             mWeatherDialog.timeOut();
         }
 //        GateWayLightControlUtil.stopLightShow();
@@ -1013,13 +1013,16 @@ public class MideaAiService extends Service {
                         }
                     }
                 } else if (data_array.getJSONObject(0).getString("skillType").equals("weather")) {
-                    JSONObject generalSkill= data_array.getJSONObject(0).getJSONObject("data").getJSONObject("generalSkill");
-                    String cityName= generalSkill.getString("cityName");
-                    String level= generalSkill.getJSONObject("index").getJSONObject("aqi").getString("aQL");
-                    String low= generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("lowTemp");
-                    String high= generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("highTemp");
-                    String weather= generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("weather");
-                    showWeatherScreen(cityName,low,high,weather,level);
+                    if (isClickOut) {
+                        return;
+                    }
+                    JSONObject generalSkill = data_array.getJSONObject(0).getJSONObject("data").getJSONObject("generalSkill");
+                    String cityName = generalSkill.getString("cityName");
+                    String level = generalSkill.getJSONObject("index").getJSONObject("aqi").getString("aQL");
+                    String low = generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("lowTemp");
+                    String high = generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("highTemp");
+                    String weather = generalSkill.getJSONArray("forecasts").getJSONObject(0).getString("weather");
+                    showWeatherScreen(cityName, low, high, weather, level);
                 }
             }
         } catch (JSONException e) {
@@ -1028,7 +1031,7 @@ public class MideaAiService extends Service {
     }
 
     private void showWeatherScreen(String place, String low, String high, String weather, String level) {
-        if(mWeatherDialog!=null){
+        if (mWeatherDialog != null) {
             mWeatherDialog.setWeatherDetail(place, low, high, weather, level);
             Message message = new Message();
             message.arg1 = 11;
@@ -1125,7 +1128,7 @@ public class MideaAiService extends Service {
                     break;
                 case 4:
                     if (CollectionUtil.isNotEmpty(ttsList)) {
-                        if(!TextUtils.isEmpty(ttsList.get(0).getLabel())){
+                        if (!TextUtils.isEmpty(ttsList.get(0).getLabel())) {
                             setAnsString(ttsList.get(0).getLabel());
                         }
                     } else {
