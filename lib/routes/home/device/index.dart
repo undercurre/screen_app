@@ -218,52 +218,81 @@ class _DevicePageState extends State<DevicePage> {
                 ),
                 child: Center(
                   child: ReorderableWrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    padding: const EdgeInsets.all(8),
-                    controller: _scrollController,
-                    buildDraggableFeedback: (context, constraints, child) {
-                      return Transform(
-                        transform: Matrix4.rotationZ(0),
-                        alignment: FractionalOffset.topLeft,
-                        child: Material(
-                          elevation: 6.0,
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.zero,
-                          child: Card(
-                            // 将默认白色设置成透明
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      padding: const EdgeInsets.all(8),
+                      controller: _scrollController,
+                      buildDraggableFeedback: (context, constraints, child) {
+                        return Transform(
+                          transform: Matrix4.rotationZ(0),
+                          alignment: FractionalOffset.topLeft,
+                          child: Material(
+                            elevation: 6.0,
                             color: Colors.transparent,
-                            child: ConstrainedBox(
-                              constraints: constraints,
-                              child: child,
+                            borderRadius: BorderRadius.zero,
+                            child: Card(
+                              // 将默认白色设置成透明
+                              color: Colors.transparent,
+                              child: ConstrainedBox(
+                                constraints: constraints,
+                                child: child,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    onReorder: (int oldIndex, int newIndex) {
-                      Widget row = deviceWidgetList.removeAt(oldIndex);
-                      DeviceEntity deviceRow =
-                      deviceEntityList.removeAt(oldIndex);
-                      deviceEntityList.insert(newIndex, deviceRow);
-                      deviceWidgetList.insert(newIndex, row);
-                      setState(() {
-                        deviceEntityList = deviceEntityList;
-                        deviceWidgetList = deviceWidgetList;
-                      });
-                    },
-                    onNoReorder: (int index) {
-                      //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
-                    },
-                    onReorderStarted: (int index) {
-                      //this callback is optional
-                      debugPrint(
-                          '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
-                    },
-                    children: deviceWidgetList,
-                  ),
+                        );
+                      },
+                      onReorder: (int oldIndex, int newIndex) {
+                        Widget row = deviceWidgetList.removeAt(oldIndex);
+                        DeviceEntity deviceRow =
+                            deviceEntityList.removeAt(oldIndex);
+                        deviceEntityList.insert(newIndex, deviceRow);
+                        deviceWidgetList.insert(newIndex, row);
+                        setState(() {
+                          deviceEntityList = deviceEntityList;
+                          deviceWidgetList = deviceWidgetList;
+                        });
+                      },
+                      onNoReorder: (int index) {
+                        //this callback is optional
+                        debugPrint(
+                            '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                      },
+                      onReorderStarted: (int index) {
+                        //this callback is optional
+                        debugPrint(
+                            '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                      },
+                      children: deviceEntityList.isNotEmpty
+                          ? deviceWidgetList
+                          : <Widget>[
+                              SizedBox(
+                                width: double.infinity,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Image(
+                                        image: AssetImage(
+                                            'assets/imgs/scene/empty.png'),
+                                        width: 200,
+                                        height: 200),
+                                    Opacity(
+                                      opacity: 0.5,
+                                      child: Text(
+                                        '当前房间无设备',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18.0,
+                                          fontFamily: 'MideaType',
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
                 ),
               ),
             ),
