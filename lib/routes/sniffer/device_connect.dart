@@ -9,6 +9,7 @@ import 'package:screen_app/widgets/safe_state.dart';
 import '../../channel/index.dart';
 import '../../channel/models/manager_devic.dart';
 import '../../common/global.dart';
+import '../../widgets/event_bus.dart';
 import '../../widgets/util/net_utils.dart';
 
 class DeviceConnectViewModel {
@@ -149,6 +150,7 @@ class DeviceConnectViewModel {
   /// 退出
   void goBack(BuildContext context) {
     stopBind();
+    bus.emit('updateDeviceCardState');
     Navigator.popUntil(context, (route) {
       return route.settings.name != "SnifferPage"
           && route.settings.name != "DeviceConnectPage";

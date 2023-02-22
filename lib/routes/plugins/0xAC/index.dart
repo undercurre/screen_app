@@ -5,6 +5,7 @@ import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../states/device_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 import '../../home/device/service.dart';
 
 class AirConditionPageState extends State<AirConditionPage> {
@@ -22,6 +23,7 @@ class AirConditionPageState extends State<AirConditionPage> {
   bool menuVisible = false;
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

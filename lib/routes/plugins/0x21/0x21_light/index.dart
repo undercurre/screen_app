@@ -7,6 +7,7 @@ import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../../states/device_change_notifier.dart';
+import '../../../../widgets/event_bus.dart';
 import '../../../home/device/register_controller.dart';
 import '../../../home/device/service.dart';
 import 'mode_list.dart';
@@ -37,6 +38,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   String fakeModel = '';
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

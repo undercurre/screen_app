@@ -6,6 +6,7 @@ import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../states/device_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 
 class LightGroupPageState extends State<LightGroupPage> {
   Map<String, dynamic> deviceWatch = {
@@ -34,6 +35,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   late DeviceEntity deviceInfoById;
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

@@ -7,6 +7,7 @@ import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import '../../../states/device_change_notifier.dart';
 
@@ -24,6 +25,7 @@ class WifiLightPageState extends State<WifiLightPage> {
   };
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

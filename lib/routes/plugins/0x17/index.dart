@@ -8,6 +8,7 @@ import 'package:screen_app/routes/plugins/0x17/api.dart';
 import 'package:screen_app/routes/plugins/0x17/entity.dart';
 import 'package:screen_app/widgets/index.dart';
 import '../../../states/device_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 import 'mode_list.dart';
 
 class WifiLiangyiPageState extends State<WifiLiangyiPage> {
@@ -42,6 +43,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   }
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

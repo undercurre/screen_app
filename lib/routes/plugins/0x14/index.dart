@@ -5,6 +5,7 @@ import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import '../../home/device/service.dart';
 
@@ -17,6 +18,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   String curtainDirection = 'positive';
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 

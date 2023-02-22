@@ -64,7 +64,7 @@ class _DevicePageState extends State<DevicePage> {
           .where((element) => DeviceService.isOnline(element))
           .toList();
       List<DeviceEntity> outlineList = supportList
-          .where((element) => DeviceService.isOnline(element))
+          .where((element) => !DeviceService.isOnline(element))
           .toList();
       onlineList.sort((a, b) {
           if (a.activeTime == '' || b.activeTime == '' || a.activeTime == null || b.activeTime == null) {

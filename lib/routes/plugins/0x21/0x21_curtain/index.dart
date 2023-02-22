@@ -7,6 +7,7 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_curtain/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import '../../../../common/api/device_api.dart';
 import '../../../../models/mz_response_entity.dart';
@@ -45,6 +46,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
   num curtainNum = 1;
 
   void goBack() {
+    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 
