@@ -34,12 +34,12 @@ class WrapLightGroup implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["switchStatus"] == "1" : false;
+    return deviceInfo.detail != null && deviceInfo.detail!["detail"] != null ? deviceInfo.detail!["detail"]["switchStatus"] == "1" : false;
   }
 
   @override
   String getAttr(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null ? deviceInfo.detail!["detail"]["brightness"] : '';
+    return deviceInfo.detail != null && deviceInfo.detail!["detail"] != null ? deviceInfo.detail!["detail"]["brightness"] : '';
   }
 
   @override
@@ -64,11 +64,12 @@ class LightGroupApi {
   /// 查询设备状态（物模型）
   static Future<MzResponseEntity> getLightDetail(
       DeviceEntity deviceInfo) async {
+    logger.i('灯组状态', deviceInfo);
     var res = await DeviceApi.groupRelated(
         'findLampGroupDetails',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["groupId"],
+          "groupId": deviceInfo.detail!["groupId"],
           "modelId": "midea.light.003.001",
           "uid": Global.profile.user?.uid,
         }));
