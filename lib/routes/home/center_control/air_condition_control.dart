@@ -5,8 +5,10 @@ import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/sniffer/device_item.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
+import '../../../common/global.dart';
 import '../../../models/device_entity.dart';
 import '../../../widgets/business/dropdown_menu.dart';
+import '../../../widgets/event_bus.dart';
 import '../../../widgets/mz_metal_card.dart';
 import '../../../widgets/mz_notice.dart';
 import '../../../widgets/plugins/slider_button_content.dart';
@@ -21,10 +23,28 @@ class AirConditionControl extends StatefulWidget {
 }
 
 class AirConditionControlState extends State<AirConditionControl> {
+  num temperature = 26;
+  num gear = 1;
+  String mode = 'auto';
+  bool power = false;
+
   bool menuVisible = false;
 
   // true为温度盘 false为风速盘
   bool airConditionPanel = true;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bus.on('updateCenterControlState', (arg) async {
+        logger.i('装载空调中控数据事件总线');
+        setData();
+      });
+      setData();
+    });
+  }
 
   List<Map<String, String>> btnList = [
     {
@@ -55,18 +75,14 @@ class AirConditionControlState extends State<AirConditionControl> {
   ];
 
   void switchACPanel(bool onOff) {
-    if (!CenterControlService.isAirConditionPower(
-        context.read<DeviceListModel>().airConditionList)) return;
+    if (!power) return;
     setState(() {
       airConditionPanel = onOff;
     });
   }
 
   Map<String, String> getCurACMode() {
-    return btnList
-        .where((element) =>
-            element["key"] == CenterControlService.airConditionMode(context))
-        .toList()[0];
+    return btnList.where((element) => element["key"] == mode).toList()[0];
   }
 
   void airConditionPowerHandle(bool onOff) {
@@ -96,37 +112,45 @@ class AirConditionControlState extends State<AirConditionControl> {
     CenterControlService.ACModeControl(context, mode);
   }
 
-  sliderPart(List<DeviceEntity> airConditionList) {
+  sliderPart() {
     return airConditionPanel
         ? SliderButtonContent(
             unit: '℃',
             min: 17,
             max: 30,
-            value: CenterControlService.airConditionTemperature(context),
+            value: temperature,
             sliderWidth: 400,
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled:
-                !CenterControlService.isAirConditionPower(airConditionList),
+            disabled: !power,
           )
         : SliderButtonContent(
             unit: '档',
             min: 1,
             max: 6,
-            value: CenterControlService.airConditionGear(context),
+            value: gear,
             sliderWidth: 400,
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled:
-                !CenterControlService.isAirConditionPower(airConditionList),
+            disabled: !power,
           );
+  }
+
+  setData() {
+    setState(() {
+      var airConditionList = context.read<DeviceListModel>().airConditionList;
+      temperature = CenterControlService.airConditionTemperature(context);
+      gear = CenterControlService.airConditionGear(context);
+      mode = CenterControlService.airConditionMode(context);
+      power = CenterControlService.isAirConditionPower(airConditionList);
+      debugPrint('装载空调中控数据');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var airConditionList = context.watch<DeviceListModel>().airConditionList;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
@@ -299,14 +323,11 @@ class AirConditionControlState extends State<AirConditionControl> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => airConditionPowerHandle(
-                                  !CenterControlService.isAirConditionPower(
-                                      airConditionList)),
+                              onTap: () => airConditionPowerHandle(!power),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
-                                  CenterControlService.isAirConditionPower(
-                                          airConditionList)
+                                  power
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -318,7 +339,7 @@ class AirConditionControlState extends State<AirConditionControl> {
                           ],
                         ),
                       ),
-                      sliderPart(airConditionList)
+                      sliderPart()
                     ],
                   ),
                 ),
@@ -541,14 +562,11 @@ class AirConditionControlState extends State<AirConditionControl> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => airConditionPowerHandle(
-                                  !CenterControlService.isAirConditionPower(
-                                      airConditionList)),
+                              onTap: () => airConditionPowerHandle(power),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
-                                  CenterControlService.isAirConditionPower(
-                                          airConditionList)
+                                  power
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -565,30 +583,23 @@ class AirConditionControlState extends State<AirConditionControl> {
                               unit: '℃',
                               min: 17,
                               max: 30,
-                              value:
-                                  CenterControlService.airConditionTemperature(
-                                      context),
+                              value: temperature,
                               sliderWidth: 380,
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled:
-                                  !CenterControlService.isAirConditionPower(
-                                      airConditionList),
+                              disabled: !power,
                             )
                           : SliderButtonContent(
                               unit: '',
                               min: 1,
                               max: 6,
-                              value: CenterControlService.airConditionGear(
-                                  context),
+                              value: gear,
                               sliderWidth: 380,
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled:
-                                  !CenterControlService.isAirConditionPower(
-                                      airConditionList),
+                              disabled: !power,
                             )
                     ],
                   ),

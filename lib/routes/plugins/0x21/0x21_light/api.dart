@@ -15,7 +15,7 @@ class WrapZigbeeLight implements DeviceInterface {
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await ZigbeeLightApi.getLightDetail(
         deviceInfo.applianceCode, deviceInfo.masterId);
-    if (res.code == 0) {
+    if (res.code == 0 && res.result != null) {
       return res.result;
     } else {
       return {};
@@ -50,9 +50,9 @@ class WrapZigbeeLight implements DeviceInterface {
   @override
   String getAttr(DeviceEntity deviceInfo) {
     return (deviceInfo.detail != null &&
-            deviceInfo.detail!.keys.toList().isNotEmpty)
+            deviceInfo.detail!.keys.toList().isNotEmpty && deviceInfo.detail!["lightPanelDeviceList"][0]["attribute"] == 1)
         ? deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"].toString()
-        : '0';
+        : '';
   }
 
   @override

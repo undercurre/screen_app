@@ -73,7 +73,7 @@ class _DevicePageState extends State<DevicePage> {
           if (DateTime.parse(a.activeTime).compareTo(DateTime.parse(b.activeTime)) == 0) {
             return 1;
           }
-          return DateTime.parse(a.activeTime).compareTo(DateTime.parse(b.activeTime));
+          return DateTime.parse(a.activeTime).compareTo(DateTime.parse(b.activeTime)) > 0 ? -1 : 1;
       });
       sortList.addAll(onlineList);
       sortList.addAll(outlineList);
@@ -238,13 +238,13 @@ class _DevicePageState extends State<DevicePage> {
                 _controller.finishRefresh();
                 _controller.resetFooter();
               },
-              child: Center(
-                child: ConstrainedBox(
+              child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: double.infinity,
                     minHeight: MediaQuery.of(context).size.height - 60,
                   ),
-                  child: ReorderableWrap(
+                  child: Center(
+                    child: ReorderableWrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
                       padding: const EdgeInsets.all(8),

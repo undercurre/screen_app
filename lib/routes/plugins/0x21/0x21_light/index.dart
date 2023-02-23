@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -78,7 +79,10 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] = deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1 ? 1 : 0;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] =
+            deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1
+                ? 1
+                : 0;
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -102,7 +106,10 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] = deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 3 ? 0 : 3;
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] =
+            deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 3
+                ? 0
+                : 3;
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -140,15 +147,16 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
+    setState(() {
+      deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
+    });
     var res = await ZigbeeLightApi.adjustPDM(
         deviceWatch["detail"]["deviceId"],
         value,
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0,
+        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ??
+            0,
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
-      });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -158,16 +166,17 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
+    logger.i('控制zigbee灯色温', value);
+    setState(() {
+      deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
+          value;
+    });
     var res = await ZigbeeLightApi.adjustPDM(
         deviceWatch["detail"]["deviceId"],
         deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
         value,
         deviceWatch["detail"]["nodeId"]);
     if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
-            value;
-      });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -204,6 +213,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
+            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                    ["attribute"] ==
+                0,
             title: '亮度',
             value: deviceWatch["detail"]["lightPanelDeviceList"][0]
                 ["brightness"],
@@ -215,6 +227,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
+            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                    ["attribute"] ==
+                0,
             title: '色温',
             value: deviceWatch["detail"]["lightPanelDeviceList"][0]
                     ["colorTemperature"] ??
@@ -230,6 +245,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: modeHandle,
+            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
+                    ["attribute"] ==
+                0,
           ),
         ),
         Container(
@@ -273,6 +291,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
+            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
+            ["attribute"] ==
+                0,
             title: '亮度',
             value: deviceWatch["detail"]["lightPanelDeviceList"][0]
                 ["brightness"],

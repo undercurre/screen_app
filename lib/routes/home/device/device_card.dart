@@ -7,6 +7,7 @@ import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
+import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../widgets/event_bus.dart';
 
@@ -67,6 +68,11 @@ class _DeviceCardState extends State<DeviceCard> {
               power = DeviceService.isPower(widget.deviceInfo!);
             });
           });
+        } else {
+          setState(() {
+            power = !power;
+          });
+          TipsUtils.toast(content: '执行失败');
         }
       } else {
         // 过滤网关

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
@@ -59,6 +60,7 @@ class LightControlState extends State<LightControl> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      logger.i('装载灯具中控数据');
       setState(() {
         lightnessValue = CenterControlService.lightTotalBrightness(context);
         colorTempValue =
@@ -156,7 +158,6 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)
                               ],
-                              onChanged: lightColorHandle,
                               onChanging: lightColorHandle,
                             )
                           ],

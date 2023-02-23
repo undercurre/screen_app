@@ -320,7 +320,7 @@ class CenterControlService {
         totalPower = true;
       }
     }
-    // logger.i('空调中控开关结果$totalPower');
+    logger.i('空调中控开关结果$totalPower');
     return totalPower;
   }
 

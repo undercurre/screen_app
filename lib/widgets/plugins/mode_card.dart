@@ -20,12 +20,14 @@ class ModeCard extends StatelessWidget {
   final double runSpacing; // 两行之间的间距
   final Function(Mode mode)? onTap;
   final String? title;
+  final bool disabled;
 
   const ModeCard({
     Key? key,
     required this.modeList,
     required this.selectedKeys,
     this.onTap,
+    this.disabled = false,
     this.padding = const EdgeInsets.only(top: 18, bottom: 16),
     this.spacing = 22,
     this.runSpacing = 41,
@@ -40,7 +42,10 @@ class ModeCard extends StatelessWidget {
             mode: mode,
             selected: selectedKeys[mode.key] != null &&
                 selectedKeys[mode.key] == true,
-            onTap: (e) => onTap?.call(e),
+            onTap: (e) {
+              if (disabled) return;
+              onTap?.call(e);
+            },
           ),
         )
         .toList();
@@ -50,29 +55,33 @@ class ModeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (title != null) Padding(
-              padding: const EdgeInsets.only(left: 18, bottom: 18),
-              child: Text(
-                '$title',
-                style: const TextStyle(
-                  fontFamily: "MideaType",
-                  fontSize: 18,
-                  height: 1.2,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                  decoration: TextDecoration.none,
+            if (title != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 18, bottom: 18),
+                child: Text(
+                  '$title',
+                  style: const TextStyle(
+                    fontFamily: "MideaType",
+                    fontSize: 18,
+                    height: 1.2,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                direction: Axis.horizontal,
-                alignment: WrapAlignment.center,
-                spacing: spacing,
-                runSpacing: runSpacing,
-                runAlignment: WrapAlignment.center,
-                children: itemList,
+            Opacity(
+              opacity: disabled ? 0.4 : 1,
+              child: SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  alignment: WrapAlignment.center,
+                  spacing: spacing,
+                  runSpacing: runSpacing,
+                  runAlignment: WrapAlignment.center,
+                  children: itemList,
+                ),
               ),
             ),
           ],

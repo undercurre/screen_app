@@ -17,6 +17,7 @@ import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 import '../device/register_controller.dart';
 import '../device/service.dart';
 
@@ -95,7 +96,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
     });
     if (!mounted) return;
     context.read<DeviceListModel>().updateAllDetail();
-
+    bus.emit('updateCenterControlState');
   }
 
   @override
