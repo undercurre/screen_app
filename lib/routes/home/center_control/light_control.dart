@@ -158,6 +158,7 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)
                               ],
+                              onChanged: lightColorHandle,
                               onChanging: lightColorHandle,
                             )
                           ],
