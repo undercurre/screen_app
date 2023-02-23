@@ -47,7 +47,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   setViewData(Map<String, dynamic> detail) {
     setState(() {
       localBrightness = detail["detail"]["lightPanelDeviceList"][0]["brightness"];
-      localColorTemperature = detail["detail"]["lightPanelDeviceList"][0]["colorTemperature"];
+      localColorTemperature = detail["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
       localPower = detail["detail"]["lightPanelDeviceList"][0]["attribute"] == 1;
       localDelayClose = deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"];
     });
