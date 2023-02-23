@@ -49,6 +49,9 @@ class CurtainApi implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
+    if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
+      return deviceInfo.detail!["curtain_position"] != '0';
+    }
     return true;
   }
 
