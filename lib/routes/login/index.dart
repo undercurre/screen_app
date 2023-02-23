@@ -57,10 +57,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Global.saveProfile();
       //导航到新路由
       if (mounted) {
-        Navigator.pushNamed(
-          context,
-          'Home',
-        );
+        Navigator.popAndPushNamed(context, 'Home');
       }
       return;
     }

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:screen_app/common/setting.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/standby.dart';
+
 class StandbyTimeOpt {
   int value = 30; // 值，秒为单位
   int key;
@@ -49,7 +51,7 @@ class StandbyChangeNotifier extends ChangeNotifier {
   set setTimerByNum(int opt) {
     _standbyTimeOpt = timerList[opt];
     Setting.instant().setStandbyTimeOptNum(opt);
-
+    ShowStandby.startTimer();
     notifyListeners();
   }
 }

@@ -99,7 +99,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    "上午9:00-下午07:00",
+                    "",
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white.withOpacity(0.57),

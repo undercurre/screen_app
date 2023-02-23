@@ -6,6 +6,8 @@ import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
+import '../../widgets/event_bus.dart';
+import '../../widgets/standby.dart';
 import '../dropdown/drop_down_page.dart';
 import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
@@ -47,6 +49,13 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     children.add(const CenterControlPage(text: '中控页'));
     children.add(const DevicePage(text: "设备页"));
     initial();
+
+    ShowStandby.startTimer();
+    ShowStandby.aiRestartTimer();
+    bus.on('onPointerDown', (arg) {
+      ShowStandby.startTimer();
+    });
+
   }
 
   initial() async {
@@ -88,6 +97,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   @override
   void onPause() {
     super.onPause();
+    ShowStandby.disposeTimer();
   }
 
   @override

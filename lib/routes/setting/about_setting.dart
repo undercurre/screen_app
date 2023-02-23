@@ -171,11 +171,7 @@ class AboutSettingPage extends StatelessWidget {
                             )),
                         IconButton(
                           onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(
-                              context,
-                              'Home',
-                            );
+                            Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                           },
                           iconSize: 60.0,
                           icon: Image.asset(
