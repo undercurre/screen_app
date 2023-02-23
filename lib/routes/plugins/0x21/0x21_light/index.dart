@@ -14,6 +14,7 @@ import '../../../home/device/service.dart';
 import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
+  // 本地原始数据
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": 'Zigbee智能灯',
@@ -36,6 +37,22 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     }
   };
 
+  // 本地视图getters
+  num localColorTemperature = 0;
+  num localBrightness = 0;
+  num localDelayClose = 0;
+  bool localPower = false;
+
+  // 填装视图数据
+  setViewData(Map<String, dynamic> detail) {
+    setState(() {
+      localBrightness = detail["detail"]["lightPanelDeviceList"][0]["brightness"];
+      localColorTemperature = detail["detail"]["lightPanelDeviceList"][0]["colorTemperature"];
+      localPower = detail["detail"]["lightPanelDeviceList"][0]["attribute"] == 1;
+      localDelayClose = deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"];
+    });
+  }
+
   String fakeModel = '';
 
   void goBack() {
@@ -52,6 +69,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
       deviceWatch["detail"] = detail;
     });
     deviceInfo.detail = detail;
+    setViewData(detail);
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
@@ -74,10 +92,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   Future<void> powerHandle() async {
     setState(() {
-      deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] =
-      deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1
-          ? 1
-          : 0;
+      localPower = !localPower;
     });
     var res = await ZigbeeLightApi.powerPDM(
         deviceWatch["detail"]["deviceId"],
@@ -91,10 +106,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
       Timer(timeout, () => {updateDetail()});
     } else {
       setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] =
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1
-            ? 1
-            : 0;
+        localPower = !localPower;
       });
     }
   }
@@ -173,7 +185,6 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    logger.i('控制zigbee灯色温', value);
     setState(() {
       deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
           value;
@@ -210,6 +221,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
       });
+      setViewData(deviceWatch);
     });
   }
 
@@ -386,9 +398,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                            ["attribute"] ==
-                        1,
+                    power: localPower,
                     hasPower: true,
                   ),
                 ),
