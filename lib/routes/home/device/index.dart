@@ -249,12 +249,13 @@ class _DevicePageState extends State<DevicePage> {
               },
               child: Container(
                 margin: const EdgeInsets.only(left: 16, right: 16),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: double.infinity,
-                    minHeight: MediaQuery.of(context).size.height - 60,
-                  ),
-                  child: SingleChildScrollView(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: double.infinity,
+                      minHeight: MediaQuery.of(context).size.height - 60,
+                    ),
                     child: Flex(
                       direction: Axis.vertical,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -264,7 +265,6 @@ class _DevicePageState extends State<DevicePage> {
                           spacing: 8.0,
                           runSpacing: 8.0,
                           padding: const EdgeInsets.all(8),
-                          controller: _scrollController,
                           buildDraggableFeedback:
                               (context, constraints, child) {
                             return Transform(
