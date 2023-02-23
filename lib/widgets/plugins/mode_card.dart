@@ -21,11 +21,13 @@ class ModeCard extends StatelessWidget {
   final Function(Mode mode)? onTap;
   final String? title;
   final bool disabled;
+  final bool hasHeightlight;
 
   const ModeCard({
     Key? key,
     required this.modeList,
     required this.selectedKeys,
+    this.hasHeightlight = true,
     this.onTap,
     this.disabled = false,
     this.padding = const EdgeInsets.only(top: 18, bottom: 16),
@@ -42,6 +44,7 @@ class ModeCard extends StatelessWidget {
             mode: mode,
             selected: selectedKeys[mode.key] != null &&
                 selectedKeys[mode.key] == true,
+            hasHeightlight: hasHeightlight,
             onTap: (e) {
               if (disabled) return;
               onTap?.call(e);
@@ -95,9 +98,10 @@ class ModeItem extends StatelessWidget {
   final Mode mode;
   final bool selected; // 当前模式是否选中
   final void Function(Mode mode)? onTap;
+  final bool hasHeightlight;
 
   const ModeItem(
-      {Key? key, required this.mode, this.selected = false, this.onTap})
+      {Key? key, required this.mode, this.selected = false, this.onTap, required this.hasHeightlight})
       : super(key: key);
 
   @override
@@ -113,14 +117,14 @@ class ModeItem extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 15),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: selected ? Colors.white : const Color(0x4c000000),
+              color: selected ? (hasHeightlight ? Colors.white : const Color(0x4c000000)) : const Color(0x4c000000),
               borderRadius: BorderRadius.circular(25.0),
             ),
             child: Image(
               height: 42,
               width: 42,
               image: AssetImage(
-                selected ? mode.onIcon : mode.offIcon,
+                selected ? (hasHeightlight ? mode.onIcon : mode.offIcon) : mode.offIcon,
               ),
             ),
           ),

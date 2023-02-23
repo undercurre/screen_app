@@ -213,6 +213,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
+            minValue: 1,
+            maxValue: 100,
             disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
                     ["attribute"] ==
                 0,
@@ -242,6 +244,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
+            hasHeightlight: false,
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: modeHandle,
@@ -291,6 +294,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
+            minValue: 1,
+            maxValue: 100,
             disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
             ["attribute"] ==
                 0,
