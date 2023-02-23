@@ -39,7 +39,7 @@ class CurtainApi implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return '';
+    return 'assets/imgs/device/chuanglian_icon_off.png';
   }
 
   @override
