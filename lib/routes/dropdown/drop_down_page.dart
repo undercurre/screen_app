@@ -128,6 +128,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(soundName,
+                                      maxLines: 1,
                                       style: const TextStyle(
                                         color: Color(0XFFFFFFFF),
                                         fontSize: 24.0,
@@ -136,6 +137,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                         decoration: TextDecoration.none,
                                       )),
                                   Text(singer,
+                                      maxLines: 1,
                                       style: const TextStyle(
                                         color: Color(0XFF8e8e8e),
                                         fontSize: 16.0,
