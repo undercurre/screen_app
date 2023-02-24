@@ -48,7 +48,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
 
   num airConditionTemp = 26;
   num airConditionGear = 6;
-  String airConditionMode = '';
+  String airConditionMode = 'auto';
 
   // 获取现在日期
   String time = '';
