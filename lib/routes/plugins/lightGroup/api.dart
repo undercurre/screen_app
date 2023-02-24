@@ -100,7 +100,7 @@ class LightGroupApi {
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["groupId"],
+          "groupId": deviceInfo.detail!["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '1',
           "lampAttributeValue": value.toString(),
@@ -118,7 +118,7 @@ class LightGroupApi {
         'lampGroupControl',
         const JsonEncoder().convert({
           "houseId": Global.profile.homeInfo?.homegroupId,
-          "groupId": deviceInfo.detail?["detail"]["groupId"],
+          "groupId": deviceInfo.detail?["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '2',
           "lampAttributeValue": value.toString(),
