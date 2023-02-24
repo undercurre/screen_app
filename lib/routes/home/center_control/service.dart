@@ -540,7 +540,12 @@ class CenterControlService {
     return sceneList.sublist(0, 4);
   }
 
-  static selectScene(Scene scene) {
-    SceneApi.execScene(scene.key);
+  static selectScene(Scene scene) async {
+    var res = await SceneApi.execScene(scene.key);
+    if (res.success) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+    }
   }
 }
