@@ -182,6 +182,7 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
         ]);
 
     return GestureDetector(
+        behavior: HitTestBehavior.opaque,
         child: Stack(
           fit: StackFit.expand,
           children: [
