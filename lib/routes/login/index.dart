@@ -163,20 +163,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                             color: Color.fromRGBO(255, 255, 255, 0.85),
                           )),
                 )),
-              Expanded(
-                  child: TextButton(
-                style: buttonStyle,
-                onPressed: () async {
-                  System.loginOut();
-                  setState(() {
-                    stepNum = 2;
-                  });
-                },
-                child: const Text('注销(测试）',
-                    style: TextStyle(
-                      color: Color.fromRGBO(255, 255, 255, 0.85),
-                    )),
-              )),
             ])
           ],
         )));
@@ -251,7 +237,7 @@ class LoginHeader extends StatelessWidget {
     const lineActiveImg =
         Image(image: AssetImage("assets/imgs/login/line-active.png"));
     const linePassiveImg =
-        Image(image: AssetImage("assets/imgs/login/line-active.png"));
+        Image(image: AssetImage("assets/imgs/login/line-passive.png"));
 
     var stepList = <Widget>[];
 
@@ -260,6 +246,8 @@ class LoginHeader extends StatelessWidget {
         stepList.add(lineActiveImg);
       } else if (stepNum < i && i > 1) {
         stepList.add(linePassiveImg);
+      } else {
+
       }
 
       if (stepNum > i) {
