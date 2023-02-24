@@ -10,20 +10,24 @@ import '../../../widgets/mz_slider.dart';
 
 class LightControl extends StatefulWidget {
   final bool? disabled;
+  final bool computedPower;
+  final num computedBightness;
+  final num computedColorTemp;
 
-  const LightControl({super.key, this.disabled});
+  const LightControl({super.key, this.disabled, required this.computedPower, required this.computedBightness, required this.computedColorTemp});
 
   @override
   LightControlState createState() => LightControlState();
 }
 
 class LightControlState extends State<LightControl> {
+  bool disabled = false;
   num lightnessValue = 0;
   num colorTempValue = 0;
   bool powerValue = false;
 
   void lightPowerHandle(bool onOff) {
-    if (widget.disabled ?? false) return;
+    if (disabled) return;
     setState(() {
       powerValue = !powerValue;
     });
@@ -60,24 +64,33 @@ class LightControlState extends State<LightControl> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      logger.i('装载灯具中控数据');
       setState(() {
-        lightnessValue = CenterControlService.lightTotalBrightness(context);
-        colorTempValue =
-            CenterControlService.lightTotalColorTemperature(context);
-        powerValue = CenterControlService.isLightPower(
-            context.read<DeviceListModel>().lightList);
+        disabled = widget.disabled ?? false;
+        lightnessValue = widget.computedBightness;
+        colorTempValue = widget.computedColorTemp;
+        powerValue = widget.computedPower;
       });
     });
   }
 
   @override
+  void didUpdateWidget(covariant LightControl oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      disabled = widget.disabled ?? false;
+      lightnessValue = widget.computedBightness;
+      colorTempValue = widget.computedColorTemp;
+      powerValue = widget.computedPower;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var lightList = context.watch<DeviceListModel>().deviceList;
     return Padding(
       padding: const EdgeInsets.only(left: 20, bottom: 16),
       child: Stack(
-        children: widget.disabled ?? false
+        children: disabled
             ? [
                 Container(
                   height: 210,

@@ -5,41 +5,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/home/scene/scene.dart';
@@ -50,6 +15,7 @@ import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 
 import '../../../common/api/device_api.dart';
 import '../../../common/api/scene_api.dart';
+import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/mz_response_entity.dart';
 import '../../../states/device_change_notifier.dart';
@@ -58,7 +24,7 @@ class CenterControlService {
   /// 窗帘
   static bool isCurtainPower(BuildContext context) {
     var totalPower = false;
-    var curtainList = context.watch<DeviceListModel>().curtainList;
+    var curtainList = context.read<DeviceListModel>().curtainList;
     var log = '';
     var openCount = 0;
     var closeCount = 0;
@@ -71,18 +37,18 @@ class CenterControlService {
         closeCount += 1;
       }
     }
-    if (openCount > closeCount) {
+    if (openCount >= closeCount) {
       totalPower = true;
     } else {
       totalPower = false;
     }
-    // logger.i('中控窗帘开关状态$log');
+    // logger.i('中控窗帘开关状态$totalPower$log');
     return totalPower;
   }
 
   static bool isCurtainSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.watch<DeviceListModel>().curtainList;
+    var curtainList = context.read<DeviceListModel>().curtainList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -90,13 +56,13 @@ class CenterControlService {
         totalSupport = true;
       }
     }
-    // logger.i('窗帘support：$totalSupport');
+    // logger.i('中控窗帘support：$totalSupport');
     return totalSupport;
   }
 
   static bool isLightSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.watch<DeviceListModel>().lightList;
+    var curtainList = context.read<DeviceListModel>().lightList;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -104,13 +70,13 @@ class CenterControlService {
         totalSupport = true;
       }
     }
-    // logger.i('灯光support：$totalSupport');
+    logger.i('灯光support：$totalSupport');
     return totalSupport;
   }
 
   static bool isAirConditionSupport(BuildContext context) {
     var totalSupport = false;
-    var airConditionList = context.watch<DeviceListModel>().airConditionList;
+    var airConditionList = context.read<DeviceListModel>().airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
@@ -122,21 +88,28 @@ class CenterControlService {
     return totalSupport;
   }
 
-  static Future<void> curtainControl(BuildContext context, bool onOff) async {
+  static Future<bool> curtainControl(BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
     var curtainList = deviceModel.curtainList;
+    var failList = [];
+    var successList = [];
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
       var res = await DeviceService.setPower(deviceInfo, onOff);
-      logger.i('控制结果', "${deviceInfo.name}: $res");
+      // logger.i('窗帘控制结果', "${deviceInfo.name}: $res");
       if (res) {
         deviceModel.updateDeviceDetail(deviceInfo);
+        successList.add(deviceInfo.name);
+      } else {
+        failList.add(deviceInfo.name);
       }
     }
+    return successList.isNotEmpty;
   }
 
   /// 灯光
-  static bool isLightPower(List<DeviceEntity> lightList) {
+  static bool isLightPower(BuildContext context) {
+    var lightList = context.read<DeviceListModel>().lightList;
     var totalPower = false;
     var log = '';
     for (var i = 1; i <= lightList.length; i++) {
@@ -147,7 +120,7 @@ class CenterControlService {
         totalPower = true;
       }
     }
-    // logger.i('灯光中控结果$totalPower');
+    logger.i('灯光中控结果$totalPower');
     // logger.i(log);
     return totalPower;
   }
@@ -186,7 +159,7 @@ class CenterControlService {
     } else {
       totalBrightnessValue = 0;
     }
-    // logger.i('灯光中控亮度结果$totalBrightnessValue', log);
+    logger.i('灯光中控亮度结果$totalBrightnessValue', log);
     return totalBrightnessValue.round();
   }
 
@@ -222,7 +195,7 @@ class CenterControlService {
     } else {
       totalColorTemperatureValue = 0;
     }
-    // logger.i('灯光中控色温结果$totalColorTemperatureValue', totalColorTemperatureList);
+    logger.i('灯光中控色温结果$totalColorTemperatureValue', totalColorTemperatureList);
     return totalColorTemperatureValue.round();
   }
 
@@ -309,7 +282,8 @@ class CenterControlService {
   }
 
   /// 空调
-  static bool isAirConditionPower(List<DeviceEntity> airConditionList) {
+  static bool isAirConditionPower(BuildContext context) {
+    var airConditionList = context.read<DeviceListModel>().airConditionList;
     var totalPower = false;
     var log = '';
     for (var i = 1; i <= airConditionList.length; i++) {
@@ -327,7 +301,7 @@ class CenterControlService {
   static String airConditionMode(BuildContext context) {
     String totalModeValue = 'auto';
     List<String> totalModeList = [];
-    var deviceModel = context.watch<DeviceListModel>();
+    var deviceModel = context.read<DeviceListModel>();
     var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
@@ -352,7 +326,7 @@ class CenterControlService {
   static num airConditionGear(BuildContext context) {
     late num totalGearValue;
     List<num> totalGearList = [];
-    var deviceModel = context.watch<DeviceListModel>();
+    var deviceModel = context.read<DeviceListModel>();
     var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
@@ -378,7 +352,7 @@ class CenterControlService {
   static num airConditionTemperature(BuildContext context) {
     late num totalTemperatureValue;
     List<num> totalTemperatureList = [];
-    var deviceModel = context.watch<DeviceListModel>();
+    var deviceModel = context.read<DeviceListModel>();
     var airConditionList = deviceModel.airConditionList;
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];

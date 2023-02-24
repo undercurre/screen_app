@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 
+import '../../../common/global.dart';
 import '../../../states/device_change_notifier.dart';
 
 class DeviceService {
