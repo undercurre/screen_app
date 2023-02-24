@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
@@ -27,6 +28,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
   var musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
   var lightLogo = "assets/imgs/dropDown/light-black.png";
   var soundLogo = "assets/imgs/dropDown/sound-black.png";
+
   initial() async {
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
     await aiMethodChannel.musicInforGet();
@@ -194,8 +196,22 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                               GestureDetector(
                                 onTap: () => {
                                   //手动开启语音
-                                  Navigator.pop(context),
-                                  aiMethodChannel.wakeUpAi(),
+                                  if (Global.profile.aiEnable)
+                                    {
+                                      Navigator.pop(context),
+                                      aiMethodChannel.wakeUpAi(),
+                                    }
+                                  else
+                                    {
+                                      Fluttertoast.showToast(
+                                          msg: "请先开启小美语音",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.black87,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0)
+                                    }
                                 },
                                 child: Container(
                                     margin: const EdgeInsets.fromLTRB(25, 16, 0, 0),
@@ -281,12 +297,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     settingMethodChannel.setSystemVoice(newValue.toInt()),
                                     soundValue = newValue,
                                     Global.soundValue = newValue,
-                                    if (newValue > 7) {
-                                      soundLogo = "assets/imgs/dropDown/sound-black.png"
-                                    }
-                                    else {
-                                      soundLogo = "assets/imgs/dropDown/sound-white.png"
-                                    },
+                                    if (newValue > 7) {soundLogo = "assets/imgs/dropDown/sound-black.png"} else {soundLogo = "assets/imgs/dropDown/sound-white.png"},
                                     setState(() {})
                                   },
                                 ),
