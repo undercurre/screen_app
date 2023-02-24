@@ -15,11 +15,7 @@ class WrapPanel implements DeviceInterface {
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await PanelApi.getDetail(
         deviceInfo.applianceCode, deviceInfo.masterId);
-    if (res.code == 0) {
-      return res.result;
-    } else {
-      return {};
-    }
+    return res;
   }
 
   @override
@@ -64,14 +60,19 @@ class WrapPanel implements DeviceInterface {
 
 class PanelApi {
   /// 查询设备状态（物模型）
-  static Future<MzResponseEntity> getDetail(
+  static Future<Map<String, dynamic>> getDetail(
       String deviceId, String masterId) async {
     MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceId, masterId);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     var res = await DeviceApi.sendPDMOrder('0x16', 'subDeviceGetStatus',
         masterId, {"msgId": uuid.v4(), "deviceId": masterId, "nodeId": infoMap["nodeid"]},
         method: 'POST');
-    return res;
+    if (res.code == 0) {
+      res.result["gatewayInfo"] = infoMap;
+      return res.result;
+    } else {
+      return {};
+    }
   }
 
   /// 开关控制（物模型）

@@ -3,25 +3,41 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 
+import '../../../common/utils.dart';
 import '../../../widgets/mz_metal_card.dart';
 import '../../../widgets/mz_notice.dart';
 
 class CurtainControl extends StatefulWidget {
   final bool? disabled;
+  final bool computedPower;
 
-  const CurtainControl({super.key, this.disabled});
+  const CurtainControl({super.key, this.disabled, required this.computedPower});
 
   @override
   CurtainControlState createState() => CurtainControlState();
 }
 
 class CurtainControlState extends State<CurtainControl> {
-  void curtainHandle(bool onOff) {
-    if (widget.disabled ?? false) {
+  bool disabled = false;
+  bool powerValue = false;
+
+  Future<void> curtainHandle(bool onOff) async {
+    if (disabled) {
       disableHandle();
       return;
     }
-    CenterControlService.curtainControl(context, onOff);
+    setState(() {
+      powerValue = !powerValue;
+    });
+    var res = await CenterControlService.curtainControl(context, onOff);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        powerValue = !powerValue;
+      });
+    }
   }
 
   void disableHandle() {
@@ -36,11 +52,33 @@ class CurtainControlState extends State<CurtainControl> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    disabled = widget.disabled ?? false;
+    powerValue = widget.computedPower;
+  }
+
+  @override
+  void didUpdateWidget(covariant CurtainControl oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if (widget.computedPower != oldWidget.computedPower) {
+      setState(() {
+        powerValue = widget.computedPower;
+      });
+    }
+    if (widget.disabled != oldWidget.disabled) {
+      disabled = widget.disabled ?? false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
-        children: widget.disabled ?? false
+        children: disabled
             ? [
                 MzMetalCard(
                   width: 103,
@@ -129,7 +167,7 @@ class CurtainControlState extends State<CurtainControl> {
                             onTap: () => curtainHandle(true),
                             child: Opacity(
                               opacity:
-                                  CenterControlService.isCurtainPower(context)
+                                  powerValue
                                       ? 1
                                       : 0.48,
                               child: Column(
@@ -153,7 +191,7 @@ class CurtainControlState extends State<CurtainControl> {
                             onTap: () => curtainHandle(false),
                             child: Opacity(
                               opacity:
-                                  !CenterControlService.isCurtainPower(context)
+                                  !powerValue
                                       ? 1
                                       : 0.48,
                               child: Column(

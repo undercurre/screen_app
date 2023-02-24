@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:date_format/date_format.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -18,8 +17,6 @@ import '../../../common/global.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
 import '../../../widgets/event_bus.dart';
-import '../device/register_controller.dart';
-import '../device/service.dart';
 
 List<Map<String, String>> dropMenuBtnList = [
   {'title': '添加设备', 'route': 'SnifferPage'},
@@ -37,6 +34,21 @@ class CenterControlPage extends StatefulWidget {
 
 class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
+
+  bool curtainSupport = true;
+  bool lightSupport = true;
+  bool airConditionSupport = true;
+
+  bool curtainPower = false;
+  bool lightPower = false;
+  bool airConditionPower = false;
+
+  num lightBrightness = 0;
+  num lightColorTemp = 0;
+
+  num airConditionTemp = 26;
+  num airConditionGear = 6;
+  String airConditionMode = '';
 
   // 获取现在日期
   String time = '';
@@ -78,13 +90,16 @@ class _CenterControlPageState extends State<CenterControlPage> {
   }
 
   Future<void> updateHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(homegroupId: Global.profile.homeInfo?.homegroupId);
+    var res = await UserApi.getHomeListWithDeviceList(
+        homegroupId: Global.profile.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
       var homeInfo = res.data.homeList[0];
       var roomList = homeInfo.roomList ?? [];
-      Global.profile.roomInfo =
-          roomList.where((element) => element.roomId == (Global.profile.roomInfo?.roomId ?? '')).toList()[0];
+      Global.profile.roomInfo = roomList
+          .where((element) =>
+              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
+          .toList()[0];
     }
   }
 
@@ -95,8 +110,23 @@ class _CenterControlPageState extends State<CenterControlPage> {
       startTimer();
     });
     if (!mounted) return;
-    context.read<DeviceListModel>().updateAllDetail();
-    bus.emit('updateCenterControlState');
+    await context.read<DeviceListModel>().updateAllDetail();
+    setState(() {
+      curtainSupport = CenterControlService.isCurtainSupport(context);
+      lightSupport = CenterControlService.isLightPower(context);
+      airConditionSupport = CenterControlService.isAirConditionSupport(context);
+
+      curtainPower = CenterControlService.isCurtainPower(context);
+      lightPower = CenterControlService.isLightPower(context);
+      airConditionPower = CenterControlService.isAirConditionPower(context);
+
+      lightBrightness = CenterControlService.lightTotalBrightness(context);
+      lightColorTemp = CenterControlService.lightTotalColorTemperature(context);
+
+      airConditionTemp = CenterControlService.airConditionTemperature(context);
+      airConditionGear = CenterControlService.airConditionGear(context);
+      airConditionMode = CenterControlService.airConditionMode(context);
+    });
   }
 
   @override
@@ -143,7 +173,9 @@ class _CenterControlPageState extends State<CenterControlPage> {
                                 child: Text(
                                   item['title']!,
                                   style: const TextStyle(
-                                      fontSize: 18, fontFamily: "MideaType-Regular", fontWeight: FontWeight.w400),
+                                      fontSize: 18,
+                                      fontFamily: "MideaType-Regular",
+                                      fontWeight: FontWeight.w400),
                                 ),
                               ),
                             );
@@ -219,11 +251,27 @@ class _CenterControlPageState extends State<CenterControlPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              CurtainControl(disabled: !CenterControlService.isCurtainSupport(context),),
-                              Expanded(flex: 1, child: LightControl(disabled: !CenterControlService.isLightSupport(context)))
+                              CurtainControl(
+                                disabled: !curtainSupport,
+                                computedPower: curtainPower,
+                              ),
+                              Expanded(
+                                  flex: 1,
+                                  child: LightControl(
+                                    disabled: !lightSupport,
+                                    computedPower: lightPower,
+                                    computedBightness: lightBrightness,
+                                    computedColorTemp: lightColorTemp,
+                                  ))
                             ],
                           ),
-                          AirConditionControl(disabled: !CenterControlService.isAirConditionSupport(context)),
+                          AirConditionControl(
+                              disabled: !airConditionSupport,
+                              computedPower: airConditionPower,
+                              computedGear: airConditionGear,
+                              computedMode: airConditionMode,
+                              computedTemp: airConditionTemp,
+                          ),
                           const QuickScene()
                         ],
                       ),

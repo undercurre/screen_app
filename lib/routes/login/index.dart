@@ -39,6 +39,14 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       return;
     }
 
+    if (stepNum == 3) {
+      if(Global.profile.homeInfo == null) {
+        // 必须选择家庭信息才能进行下一步
+        TipsUtils.toast(content: '请选择家庭');
+        return;
+      }
+    }
+
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步
       if (Global.profile.roomInfo == null) {

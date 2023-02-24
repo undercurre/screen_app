@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:screen_app/generated/json/base/json_convert_content.dart';
 
+import '../generated/json/base/json_field.dart';
+
 /// 美智光电Iot中台接口模型
+@JsonSerializable()
 class MzResponseEntity<T> {
   late int code;
   late String msg;
@@ -51,5 +54,6 @@ Map<String, dynamic> $MzResponseEntityToJson(MzResponseEntity entity) {
   data['msg'] = entity.msg;
   data['result'] = entity.result.toJson();
   data['success'] = entity.success;
+  data['isSuccess'] = entity.isSuccess;
   return data;
 }

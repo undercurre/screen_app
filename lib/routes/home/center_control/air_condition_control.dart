@@ -15,14 +15,19 @@ import '../../../widgets/plugins/slider_button_content.dart';
 
 class AirConditionControl extends StatefulWidget {
   final bool? disabled;
+  final bool computedPower;
+  final num computedTemp;
+  final num computedGear;
+  final String computedMode;
 
-  const AirConditionControl({super.key, this.disabled});
+  const AirConditionControl({super.key, this.disabled, required this.computedPower, required this.computedTemp, required this.computedGear, required this.computedMode});
 
   @override
   AirConditionControlState createState() => AirConditionControlState();
 }
 
 class AirConditionControlState extends State<AirConditionControl> {
+  bool disabled = false;
   num temperature = 26;
   num gear = 1;
   String mode = 'auto';
@@ -38,10 +43,6 @@ class AirConditionControlState extends State<AirConditionControl> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      bus.on('updateCenterControlState', (arg) async {
-        logger.i('装载空调中控数据事件总线');
-        setData();
-      });
       setData();
     });
   }
@@ -140,12 +141,25 @@ class AirConditionControlState extends State<AirConditionControl> {
 
   setData() {
     setState(() {
-      var airConditionList = context.read<DeviceListModel>().airConditionList;
-      temperature = CenterControlService.airConditionTemperature(context);
-      gear = CenterControlService.airConditionGear(context);
-      mode = CenterControlService.airConditionMode(context);
-      power = CenterControlService.isAirConditionPower(airConditionList);
+      disabled = widget.disabled ?? false;
+      temperature = widget.computedTemp;
+      gear = widget.computedGear;
+      mode = widget.computedMode;
+      power = widget.computedPower;
       debugPrint('装载空调中控数据');
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AirConditionControl oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      disabled = widget.disabled ?? false;
+      temperature = widget.computedTemp;
+      gear = widget.computedGear;
+      mode = widget.computedMode;
+      power = widget.computedPower;
     });
   }
 
@@ -154,7 +168,7 @@ class AirConditionControlState extends State<AirConditionControl> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
-        children: widget.disabled ?? false
+        children: disabled
             ? [
                 MzMetalCard(
                   width: 440,
