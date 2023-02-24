@@ -6,6 +6,9 @@ import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
+import '../../common/api/gateway_api.dart';
+import '../../common/system.dart';
+import '../../common/utils.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/standby.dart';
 import '../dropdown/drop_down_page.dart';
@@ -55,13 +58,13 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     bus.on('onPointerDown', (arg) {
       ShowStandby.startTimer();
     });
-
   }
 
   initial() async {
     try {
       Future.delayed(const Duration(milliseconds: 4000), () {
         aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+        aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
@@ -86,6 +89,19 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
 
   void _aiSetVoiceCallback(int voice) {
     Global.soundValue=voice;
+  }
+
+  void _aiControlDeviceError(){
+    /// 判定当前网关是否已经绑定
+    GatewayApi.check((bind) {
+      if(!bind) {
+        TipsUtils.toast(content: '智慧屏已删除，请重新登录');
+        System.loginOut();
+        Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
+      }
+    }, () {
+      //接口请求报错
+    });
   }
 
   @override
@@ -189,6 +205,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   void dispose() {
     super.dispose();
     aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
+    aiMethodChannel.unregisterAiControlDeviceErrorCallBack(_aiControlDeviceError);
     debugPrint("dispose");
   }
 

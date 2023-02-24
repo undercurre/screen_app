@@ -74,7 +74,7 @@ public class MainActivity extends FlutterActivity {
                     getSensor(value);
                 }
             }, 0, cacheTime);
-        }else if(AppCommonConfig.getChannel().equals("JH")){
+        } else if (AppCommonConfig.getChannel().equals("JH")) {
             SensorManager mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
             MyJHSensorEventListener sensorEventListener = new MyJHSensorEventListener();
             Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -195,7 +195,8 @@ public class MainActivity extends FlutterActivity {
             }
         });
         AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
-
+        AiManager.getInstance().addControlDeviceErrorCallBack(() -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiControlDeviceError",
+                true)));
     }
 
     public boolean isScreenOn() {
@@ -340,14 +341,14 @@ public class MainActivity extends FlutterActivity {
                     float value = event.values[0];
                     if (value != -1) {
 //                        Log.e("sky", "距离传感器值:" + (value));
-                        if (value == 0&&MainApplication.standbyState) {
+                        if (value == 0 && MainApplication.standbyState) {
 //                            if (!isScreenOn()) {
 //                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
 //                            }
-                            MainApplication.standbyState=false;
+                            MainApplication.standbyState = false;
                             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
-                            new Thread(){
-                                public void run(){
+                            new Thread() {
+                                public void run() {
                                     try {
                                         Thread.sleep(1000);
                                     } catch (InterruptedException e) {
@@ -361,6 +362,7 @@ public class MainActivity extends FlutterActivity {
                 }
             }
         }
+
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
@@ -383,15 +385,15 @@ public class MainActivity extends FlutterActivity {
                 float min = Collections.min(SensorArry);
 //                Log.e("sky","差值:"+(max-min));
                 SensorArry.clear();
-                if (max - min > 50&&MainApplication.standbyState) {
+                if (max - min > 50 && MainApplication.standbyState) {
                     LogUtil.e("######接触唤醒 -> 手机屏幕");
-                    MainApplication.standbyState=false;
+                    MainApplication.standbyState = false;
 //                    if (!isScreenOn()) {
 //                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
 //                    }
                     runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
-                    new Thread(){
-                        public void run(){
+                    new Thread() {
+                        public void run() {
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {

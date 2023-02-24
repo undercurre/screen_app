@@ -30,6 +30,7 @@ import com.midea.light.ai.AiSpeech.TTSItem;
 import com.midea.light.ai.AiSpeech.WeatherDialog;
 import com.midea.light.ai.brocast.NetWorkStateReceiver;
 import com.midea.light.ai.impl.AISetVoiceCallBack;
+import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
 import com.midea.light.ai.impl.FlashMusicListCallBack;
 import com.midea.light.ai.impl.MusicPlayControlBack;
 import com.midea.light.ai.impl.ServerBindCallBack;
@@ -69,6 +70,7 @@ public class MideaAiService extends Service {
     public WakUpStateCallBack mWakUpStateCallBack;
     private MusicPlayControlBack MusicPlayControl;
     private AISetVoiceCallBack voiceCallBack;
+    private AiControlDeviceErrorCallBack ControlDeviceErrorCallBack;
 
     private ArrayList<TTSItem> ttsList;
 
@@ -193,8 +195,6 @@ public class MideaAiService extends Service {
 
 
     public void wakeUpSession() {
-        //查询是否绑定网关
-
         isManLoadMusic = false;
         wakeUpState = true;
         isClickOut = false;
@@ -469,7 +469,24 @@ public class MideaAiService extends Service {
             mHandler.sendMessage(message);
             return;
         }
-
+        if(isDeviceControlError(data)){
+            ControlDeviceErrorCallBack.ControlDeviceError();
+            Uri playUri = Uri.parse("/sdcard/tts/deldevice.mp3");
+            MediaPlayer mm = new MediaPlayer();
+            try {
+                mm.setDataSource(this, playUri);
+                mm.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mm.setOnPreparedListener(mediaPlayer -> mm.start());
+            mm.setOnCompletionListener(mp -> {
+                mm.reset();
+                mm.release();
+            });
+            out();
+            return;
+        }
         wakeUpState = false;
         ttsList = loadTTSItem(data);
         JSONObject object = null;
@@ -497,6 +514,7 @@ public class MideaAiService extends Service {
             //如果是天气就只播音频不显示文字
             ttsList.get(0).setLabel("");
         }
+
         if (ttsList != null && ttsList.size() > 0) {
             player.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
                 @Override
@@ -1073,6 +1091,10 @@ public class MideaAiService extends Service {
         voiceCallBack = CallBack;
     }
 
+    public void addAIControlDeviceErrorCallBack(AiControlDeviceErrorCallBack CallBack) {
+        ControlDeviceErrorCallBack = CallBack;
+    }
+
     private boolean isMusic(String data) {
         boolean isMusic = false;
         try {
@@ -1114,6 +1136,33 @@ public class MideaAiService extends Service {
         }
         return isWeather;
     }
+
+    private boolean isDeviceControlError(String data) {
+        boolean isDeviceControl = false;
+        try {
+            JSONObject object = new JSONObject(data);
+            JSONObject nlu = object.getJSONObject("nlu").getJSONObject("skill");
+            if (nlu.has("skillType")) {
+                if (nlu.getString("skillType").equals("DeviceControl")) {
+                    JSONArray ttsArray = object.getJSONObject("nlu").getJSONObject("tts").optJSONArray("data");
+                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")){
+                        isDeviceControl = true;
+                    }else{
+                        isDeviceControl = false;
+                    }
+                } else {
+                    isDeviceControl = false;
+                }
+            } else {
+                isDeviceControl = false;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return isDeviceControl;
+    }
+
+
 
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
