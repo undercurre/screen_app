@@ -270,7 +270,7 @@ class DeviceListModel extends ProfileChangeNotifier {
   }
 
   // 放置虚拟设备
-  void setVistualDevice() {
+  Future<void> setVistualDevice() async {
     // todo: 需要优化点
     logger.i('放置虚拟设备');
     vistualProducts = [];
@@ -286,7 +286,7 @@ class DeviceListModel extends ProfileChangeNotifier {
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
         if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
           for (int lu = 1; lu <= deviceInfo.detail!["deviceControlList"].length; lu ++) {
-            productVistualDevice(deviceInfo, '${deviceInfo.name}$lu路', "singlePanel-$lu");
+            productVistualDevice(deviceInfo, deviceInfo.detail!["gatewayInfo"]["endlist"][lu - 1]["name"], "singlePanel-$lu");
           }
         }
       }

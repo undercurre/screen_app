@@ -6,6 +6,7 @@ import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
+import '../../widgets/keep_alive_wrapper.dart';
 import '../dropdown/drop_down_page.dart';
 import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
@@ -42,10 +43,10 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 1);
-    children.add(const ScenePage(text: "场景页"));
-    children.add(const CenterControlPage(text: '中控页'));
-    children.add(const DevicePage(text: "设备页"));
+    _pageController = PageController(initialPage: 2);
+    children.add(const KeepAliveWrapper(child: ScenePage(text: "场景页")));
+    children.add(const KeepAliveWrapper(child: CenterControlPage(text: '中控页')));
+    children.add(const KeepAliveWrapper(child: DevicePage(text: "设备页")));
     initial();
   }
 

@@ -52,9 +52,6 @@ class _DevicePageState extends State<DevicePage> {
       var deviceModel = context.read<DeviceListModel>();
       // 更新设备detail
       await deviceModel.updateAllDetail();
-      setState(() {
-        deviceEntityList = deviceModel.showList;
-      });
       var entityList = deviceModel.showList;
       List<DeviceEntity> sortList = [];
       List<DeviceEntity> supportList = entityList
