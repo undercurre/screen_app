@@ -204,9 +204,10 @@ class _SliderButtonContentState extends State<SliderButtonContent> {
             min: widget.min,
             step: widget.step,
             disabled: widget.disabled,
-            duration: widget.duration ?? const Duration(milliseconds: 100),
+            duration: widget.duration ?? const Duration(milliseconds: 0),
             onChanging: (e, _) => setState(() {
               value = e;
+              widget.onChanged?.call(value);
             }),
             onChanged: (e, _) => setState(() {
               value = e;

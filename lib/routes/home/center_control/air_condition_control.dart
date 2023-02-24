@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
@@ -6,6 +5,7 @@ import 'package:screen_app/routes/sniffer/device_item.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
 import '../../../common/global.dart';
+import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../widgets/business/dropdown_menu.dart';
 import '../../../widgets/event_bus.dart';
@@ -30,7 +30,7 @@ class AirConditionControlState extends State<AirConditionControl> {
   bool disabled = false;
   num temperature = 26;
   num gear = 1;
-  String mode = 'auto';
+  String modeValue = 'auto';
   bool power = false;
 
   bool menuVisible = false;
@@ -83,11 +83,23 @@ class AirConditionControlState extends State<AirConditionControl> {
   }
 
   Map<String, String> getCurACMode() {
-    return btnList.where((element) => element["key"] == mode).toList()[0];
+    return btnList.where((element) => element["key"] == modeValue).toList()[0];
   }
 
-  void airConditionPowerHandle(bool onOff) {
-    CenterControlService.ACPowerControl(context, onOff);
+  Future<void> airConditionPowerHandle(bool onOff) async {
+    if (disabled) return;
+    setState(() {
+      power = !power;
+    });
+    var res = await CenterControlService.ACPowerControl(context, power);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        power = !power;
+      });
+    }
   }
 
   void disableHandle() {
@@ -101,16 +113,54 @@ class AirConditionControlState extends State<AirConditionControl> {
     mzNotice.show(context);
   }
 
-  void airConditionValueHandle(num value) {
+  Future<void> airConditionValueHandle(num value) async {
+    if (disabled) return;
     if (airConditionPanel) {
-      CenterControlService.ACTemperatureControl(context, value);
+      var exValue = temperature;
+      setState(() {
+        temperature = value;
+      });
+      var res = await CenterControlService.ACTemperatureControl(context, value);
+      if (res) {
+        TipsUtils.toast(content: '执行成功');
+      } else {
+        TipsUtils.toast(content: '执行失败');
+        setState(() {
+          temperature = exValue;
+        });
+      }
     } else {
-      CenterControlService.ACFengsuControl(context, value);
+      var exValue = gear;
+      setState(() {
+        gear = value;
+      });
+      var res = await CenterControlService.ACFengsuControl(context, value);
+      if (res) {
+        TipsUtils.toast(content: '执行成功');
+      } else {
+        TipsUtils.toast(content: '执行失败');
+        setState(() {
+          gear = exValue;
+        });
+      }
     }
   }
 
-  void airConditionModeHandle(String mode) {
-    CenterControlService.ACModeControl(context, mode);
+  Future<void> airConditionModeHandle(String mode) async {
+    if (disabled) return;
+    var exValue = mode;
+    setState(() {
+      modeValue = mode;
+    });
+    var res = await CenterControlService.ACModeControl(context, mode);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        modeValue = exValue;
+      });
+    }
   }
 
   sliderPart() {
@@ -144,7 +194,7 @@ class AirConditionControlState extends State<AirConditionControl> {
       disabled = widget.disabled ?? false;
       temperature = widget.computedTemp;
       gear = widget.computedGear;
-      mode = widget.computedMode;
+      modeValue = widget.computedMode;
       power = widget.computedPower;
       debugPrint('装载空调中控数据');
     });
@@ -154,13 +204,31 @@ class AirConditionControlState extends State<AirConditionControl> {
   void didUpdateWidget(covariant AirConditionControl oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    setState(() {
-      disabled = widget.disabled ?? false;
-      temperature = widget.computedTemp;
-      gear = widget.computedGear;
-      mode = widget.computedMode;
-      power = widget.computedPower;
-    });
+    if (widget.computedPower != oldWidget.computedPower) {
+      setState(() {
+        power = widget.computedPower;
+      });
+    }
+    if (widget.disabled != oldWidget.disabled) {
+      setState(() {
+        disabled = widget.disabled ?? false;
+      });
+    }
+    if (widget.computedMode != oldWidget.computedMode) {
+      setState(() {
+        modeValue = widget.computedMode;
+      });
+    }
+    if (widget.computedTemp != oldWidget.computedTemp) {
+      setState(() {
+        temperature = widget.computedTemp;
+      });
+    }
+    if (widget.computedGear != oldWidget.computedGear) {
+      setState(() {
+        gear = widget.computedGear;
+      });
+    }
   }
 
   @override

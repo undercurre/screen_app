@@ -5,6 +5,7 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
+import '../../../common/utils.dart';
 import '../../../widgets/mz_notice.dart';
 import '../../../widgets/mz_slider.dart';
 
@@ -26,26 +27,54 @@ class LightControlState extends State<LightControl> {
   num colorTempValue = 0;
   bool powerValue = false;
 
-  void lightPowerHandle(bool onOff) {
+  Future<void> lightPowerHandle(bool onOff) async {
     if (disabled) return;
     setState(() {
       powerValue = !powerValue;
     });
-    CenterControlService.lightPowerControl(context, onOff);
+    var res = await CenterControlService.lightPowerControl(context, onOff);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        powerValue = !powerValue;
+      });
+    }
   }
 
-  void lightBrightHandle(num value, Color color) {
+  Future<void> lightBrightHandle(num value, Color color) async {
+    if (disabled) return;
+    var exValue = lightnessValue;
     setState(() {
       lightnessValue = value;
     });
-    CenterControlService.lightBrightnessControl(context, value);
+    var res = await CenterControlService.lightBrightnessControl(context, value);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        lightnessValue = exValue;
+      });
+    }
   }
 
-  void lightColorHandle(num value, Color color) {
+  Future<void> lightColorHandle(num value, Color color) async {
+    if (disabled) return;
+    var exValue = colorTempValue;
     setState(() {
       colorTempValue = value;
     });
-    CenterControlService.lightColorTemperatureControl(context, value);
+    var res = await CenterControlService.lightColorTemperatureControl(context, value);
+    if (res) {
+      TipsUtils.toast(content: '执行成功');
+    } else {
+      TipsUtils.toast(content: '执行失败');
+      setState(() {
+        colorTempValue = exValue;
+      });
+    }
   }
 
   void disableHandle() {
@@ -69,6 +98,7 @@ class LightControlState extends State<LightControl> {
         lightnessValue = widget.computedBightness;
         colorTempValue = widget.computedColorTemp;
         powerValue = widget.computedPower;
+        debugPrint('灯光数据装载');
       });
     });
   }
@@ -77,12 +107,26 @@ class LightControlState extends State<LightControl> {
   void didUpdateWidget(covariant LightControl oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    setState(() {
-      disabled = widget.disabled ?? false;
-      lightnessValue = widget.computedBightness;
-      colorTempValue = widget.computedColorTemp;
-      powerValue = widget.computedPower;
-    });
+    if (widget.computedPower != oldWidget.computedPower) {
+      setState(() {
+        powerValue = widget.computedPower;
+      });
+    }
+    if (widget.disabled != oldWidget.disabled) {
+      setState(() {
+        disabled = widget.disabled ?? false;
+      });
+    }
+    if (widget.computedBightness != oldWidget.computedBightness) {
+      setState(() {
+        lightnessValue = widget.computedBightness;
+      });
+    }
+    if (widget.computedColorTemp != oldWidget.computedColorTemp) {
+      setState(() {
+        colorTempValue = widget.computedColorTemp;
+      });
+    }
   }
 
   @override

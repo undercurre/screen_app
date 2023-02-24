@@ -30,8 +30,13 @@ class CenterControlService {
     var closeCount = 0;
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
-      log = log + deviceInfo.name + (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)).toString();
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      log = log +
+          deviceInfo.name +
+          (DeviceService.isPower(deviceInfo) &&
+                  DeviceService.isOnline(deviceInfo))
+              .toString();
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         openCount += 1;
       } else {
         closeCount += 1;
@@ -114,14 +119,16 @@ class CenterControlService {
     var log = '';
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
-      log = '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
-      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      log =
+          '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
+      logger.i(
+          '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
-    logger.i('灯光中控结果$totalPower');
-    // logger.i(log);
+    logger.i('灯光中控结果$totalPower$log');
     return totalPower;
   }
 
@@ -130,17 +137,22 @@ class CenterControlService {
     List<num> totalBrightnessList = [];
     var lightList = context.read<DeviceListModel>().lightList;
     var log = '';
-    for (var i = 1; i <= lightList.length; i ++) {
+    for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
+        var res = context
+            .read<DeviceListModel>()
+            .getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         late num value;
         if (deviceInfo.type == '0x21') {
-          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
+          if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_colorful') {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
-          } else if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
+          } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_noColor') {
             value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
           }
         } else if (deviceInfo.type == 'lightGroup') {
@@ -171,14 +183,23 @@ class CenterControlService {
       var deviceInfo = lightList[i - 1];
       // logger.i(
       //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
-        var res = context.read<DeviceListModel>().getDeviceDetailById(deviceInfo.applianceCode);
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
+        var res = context
+            .read<DeviceListModel>()
+            .getDeviceDetailById(deviceInfo.applianceCode);
         late num value;
         if (deviceInfo.type == '0x21') {
-          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
-            value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
-          } else if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-            value = res["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ?? 100;
+          if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_colorful') {
+            value = res["detail"]["lightPanelDeviceList"][0]
+                    ["colorTemperature"] ??
+                0;
+          } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_noColor') {
+            value = res["detail"]["lightPanelDeviceList"][0]
+                    ["colorTemperature"] ??
+                100;
           }
         } else if (deviceInfo.type == '0x13') {
           value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
@@ -199,45 +220,60 @@ class CenterControlService {
     return totalColorTemperatureValue.round();
   }
 
-  static Future<void> lightPowerControl(BuildContext context, bool onOff) async {
-    // logger.i('发送中控指令: ${onOff ? '开灯' : '关灯'}');
+  static Future<bool> lightPowerControl(
+      BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var failList = [];
+    var successList = [];
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        logger.i('灯光中控开关${deviceInfo.name}${res ? '成功' : '失败'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);
           });
+          successList.add(deviceInfo.name);
+        } else {
+          failList.add(deviceInfo.name);
         }
       }
     }
+    return successList.isNotEmpty;
   }
 
-  static Future<void> lightBrightnessControl(BuildContext context, num value) async {
+  static Future<bool> lightBrightnessControl(
+      BuildContext context, num value) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.detail != null && deviceInfo.detail != {}) {
         if (deviceInfo.type == '0x13') {
-          res = await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
+          res =
+              await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
         } else if (deviceInfo.type == '0x21') {
-          MzResponseEntity<String> gatewayInfo =
-              await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+          MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+              deviceInfo.applianceCode, deviceInfo.masterId);
           Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
           var nodeId = infoMap["nodeid"];
-          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
-            res = await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, value,
-                deviceInfo.detail!["lightPanelDeviceList"][0]["colorTemperature"], nodeId);
+          if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_colorful') {
+            res = await ZigbeeLightApi.adjustPDM(
+                deviceInfo.masterId,
+                value,
+                deviceInfo.detail!["lightPanelDeviceList"][0]
+                    ["colorTemperature"],
+                nodeId);
           }
-          if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-            res = await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, value,
-                0, nodeId);
+          if (zigbeeControllerList[deviceInfo.modelNumber] ==
+              '0x21_light_noColor') {
+            res = await ZigbeeLightApi.adjustPDM(
+                deviceInfo.masterId, value, 0, nodeId);
           }
         } else {
           // 灯组
@@ -245,31 +281,47 @@ class CenterControlService {
         }
         if (res.isSuccess) {
           deviceModel.updateDeviceDetail(deviceInfo);
+          successList.add(deviceInfo.name);
+        } else {
+          failList.add(deviceInfo.name);
         }
       }
     }
+    return successList.isNotEmpty;
   }
 
-  static Future<void> lightColorTemperatureControl(BuildContext context, num value) async {
+  static Future<bool> lightColorTemperatureControl(
+      BuildContext context, num value) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.type == '0x13') {
-        res = await WIFILightApi.colorTemperaturePDM(deviceInfo.applianceCode, value);
+        res = await WIFILightApi.colorTemperaturePDM(
+            deviceInfo.applianceCode, value);
       } else if (deviceInfo.type == '0x21') {
-        MzResponseEntity<String> gatewayInfo =
-            await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+        MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+            deviceInfo.applianceCode, deviceInfo.masterId);
         Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
         var nodeId = infoMap["nodeid"];
-        if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_colorful') {
-          res =
-              await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"], value, nodeId);
+        if (zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_light_colorful') {
+          res = await ZigbeeLightApi.adjustPDM(
+              deviceInfo.masterId,
+              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              value,
+              nodeId);
         }
-        if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_light_noColor') {
-          res =
-              await ZigbeeLightApi.adjustPDM(deviceInfo.masterId, deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"], value, nodeId);
+        if (zigbeeControllerList[deviceInfo.modelNumber] ==
+            '0x21_light_noColor') {
+          res = await ZigbeeLightApi.adjustPDM(
+              deviceInfo.masterId,
+              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              value,
+              nodeId);
         }
       } else {
         // 灯组
@@ -277,8 +329,12 @@ class CenterControlService {
       }
       if (res.isSuccess) {
         deviceModel.updateDeviceDetail(deviceInfo);
+        successList.add(deviceInfo.name);
+      } else {
+        failList.add(deviceInfo.name);
       }
     }
+    return successList.isNotEmpty;
   }
 
   /// 空调
@@ -288,9 +344,11 @@ class CenterControlService {
     var log = '';
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
-      log = log + '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
+      log = log +
+          '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
       // logger.i('$log');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         totalPower = true;
       }
     }
@@ -306,7 +364,8 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["mode"] ?? 'auto';
@@ -314,10 +373,20 @@ class CenterControlService {
         totalModeList.add(value);
       }
     }
-    Map frequency = {for (var e in totalModeList) e: totalModeList.where((i) => i == e).length};
+    Map frequency = {
+      for (var e in totalModeList) e: totalModeList.where((i) => i == e).length
+    };
 
-    var maxFrequency = frequency.values.toList().isNotEmpty ? frequency.values.toList().reduce((value, element) => max) : 0;
-    totalModeValue = (frequency.keys.toList().isNotEmpty && (maxFrequency is num) && maxFrequency != 0) ? frequency.keys.toList().firstWhere((k) => frequency[k] == maxFrequency) : 'auto';
+    var maxFrequency = frequency.values.toList().isNotEmpty
+        ? frequency.values.toList().reduce((value, element) => max)
+        : 0;
+    totalModeValue = (frequency.keys.toList().isNotEmpty &&
+            (maxFrequency is num) &&
+            maxFrequency != 0)
+        ? frequency.keys
+            .toList()
+            .firstWhere((k) => frequency[k] == maxFrequency)
+        : 'auto';
 
     // logger.i('空调中控模式$totalModeValue');
     return totalModeValue;
@@ -331,7 +400,8 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["wind_speed"] / 20 + 1;
@@ -357,7 +427,8 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)) {
+      if (DeviceService.isPower(deviceInfo) &&
+          DeviceService.isOnline(deviceInfo)) {
         var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["temperature"];
@@ -375,27 +446,36 @@ class CenterControlService {
     return totalTemperatureValue.round();
   }
 
-  static Future<void> ACPowerControl(BuildContext context, bool onOff) async {
+  static Future<bool> ACPowerControl(BuildContext context, bool onOff) async {
     // logger.i('发送中控指令: ${onOff ? '开' : '关'}');
     var deviceModel = context.read<DeviceListModel>();
     var airConditionList = deviceModel.airConditionList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
         var res = await DeviceService.setPower(deviceInfo, onOff);
-        logger.i('空调开关${deviceInfo.name}${res ? '成功' : '失败'}');
+        logger.i('空调开关${deviceInfo.name}${res ? '成功' : '失败'}发送中控指令: ${onOff ? '开' : '关'}');
         if (res) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);
           });
+          successList.add(deviceInfo.name);
+        } else {
+          failList.add(deviceInfo.name);
         }
       }
     }
+    return successList.isNotEmpty;
   }
 
-  static Future<void> ACTemperatureControl(BuildContext context, num value) async {
+  static Future<bool> ACTemperatureControl(
+      BuildContext context, num value) async {
     final deviceListModel = context.read<DeviceListModel>();
     final airConditionList = deviceListModel.airConditionList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
@@ -404,14 +484,20 @@ class CenterControlService {
         logger.i('空调温控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
         if (res.isSuccess) {
           deviceListModel.updateDeviceDetail(deviceInfo);
+          successList.add(deviceInfo.name);
+        } else {
+          failList.add(deviceInfo.name);
         }
       }
     }
+    return successList.isNotEmpty;
   }
 
-  static Future<void> ACFengsuControl(BuildContext context, num value) async {
+  static Future<bool> ACFengsuControl(BuildContext context, num value) async {
     final deviceListModel = context.read<DeviceListModel>();
     final airConditionList = deviceListModel.airConditionList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
@@ -420,22 +506,33 @@ class CenterControlService {
         logger.i('空调风控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
         if (res.isSuccess) {
           deviceListModel.updateDeviceDetail(deviceInfo);
+          successList.add(deviceInfo.name);
+        } else {
+          failList.add(deviceInfo.name);
         }
       }
     }
+    return successList.isNotEmpty;
   }
 
-  static Future<void> ACModeControl(BuildContext context, String mode) async {
+  static Future<bool> ACModeControl(BuildContext context, String mode) async {
     final deviceListModel = context.read<DeviceListModel>();
     final airConditionList = deviceListModel.airConditionList;
+    var successList = [];
+    var failList = [];
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       var res = await AirConditionApi.modeLua(deviceInfo.applianceCode, mode);
       if (res.isSuccess) {
         deviceListModel.updateDeviceDetail(deviceInfo);
+        successList.add(deviceInfo.name);
+      } else {
+        failList.add(deviceInfo.name);
       }
     }
+    return successList.isNotEmpty;
   }
+
   /// 场景
   static Future<List<Scene>> initScene() async {
     var sceneList = await SceneApi.getSceneList();
