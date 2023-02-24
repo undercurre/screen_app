@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
-import '../../widgets/mz_slider.dart';
 import '../../widgets/mz_slider_noball.dart';
 
 class SoundSettingPage extends StatefulWidget {
