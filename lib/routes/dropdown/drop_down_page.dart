@@ -7,6 +7,7 @@ import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
 import '../../common/utils.dart';
 import '../../widgets/AdvancedVerticalSeekBar.dart';
+import '../../widgets/mz_vslider.dart';
 
 class DropDownPage extends StatefulWidget {
   const DropDownPage({Key? key});
@@ -206,7 +207,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     }
                                   else
                                     {
-                                    TipsUtils.toast(content: "请先开启小美语音"),
+                                      TipsUtils.toast(content: "请先开启小美语音"),
                                     }
                                 },
                                 child: Container(
@@ -284,13 +285,22 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                               Container(
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
-                                child: AdvancedVerticalSeekBar(
+                                child: MzVSlider(
                                   height: 224.0,
                                   width: 130.0,
                                   max: 15,
                                   value: soundValue.toDouble(),
-                                  onValueChanged: (newValue) => {
-                                    settingMethodChannel.setSystemVoice(newValue.toInt()),
+                                  padding: const EdgeInsets.all(0),
+                                  activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
+                                  onChanging: (newValue, actieColor) async => {
+                                    await settingMethodChannel.setSystemVoice(newValue.toInt()),
+                                    soundValue = newValue,
+                                    Global.soundValue = newValue,
+                                    if (newValue > 7) {soundLogo = "assets/imgs/dropDown/sound-black.png"} else {soundLogo = "assets/imgs/dropDown/sound-white.png"},
+                                    setState(() {})
+                                  },
+                                  onChanged: (newValue, actieColor) async => {
+                                    await settingMethodChannel.setSystemVoice(newValue.toInt()),
                                     soundValue = newValue,
                                     Global.soundValue = newValue,
                                     if (newValue > 7) {soundLogo = "assets/imgs/dropDown/sound-black.png"} else {soundLogo = "assets/imgs/dropDown/sound-white.png"},
@@ -298,15 +308,17 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                   },
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
-                                alignment: Alignment.center,
-                                child: Image.asset(
-                                  soundLogo,
-                                  width: 60,
-                                  height: 60,
-                                ),
-                              )
+                              IgnorePointer(
+                                  ignoring: true,
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      soundLogo,
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                  )),
                             ],
                           ),
                           Stack(
@@ -315,13 +327,25 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                               Container(
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
-                                child: AdvancedVerticalSeekBar(
+                                child: MzVSlider(
                                   height: 224.0,
                                   width: 130.0,
                                   max: 255,
                                   value: lightValue.toDouble(),
-                                  onValueChanged: (newValue) => {
-                                    settingMethodChannel.setSystemLight(newValue.toInt()),
+                                  padding: const EdgeInsets.all(0),
+                                  activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
+                                  onChanged: (newValue, actieColor) async => {
+                                    await settingMethodChannel.setSystemLight(newValue.toInt()),
+                                    lightValue = newValue,
+                                    Global.lightValue = lightValue,
+                                    if (newValue > 128)
+                                      {lightLogo = "assets/imgs/dropDown/light-black.png"}
+                                    else
+                                      {lightLogo = "assets/imgs/dropDown/light-white.png"},
+                                    setState(() {})
+                                  },
+                                  onChanging: (newValue, actieColor) async => {
+                                    await settingMethodChannel.setSystemLight(newValue.toInt()),
                                     lightValue = newValue,
                                     Global.lightValue = lightValue,
                                     if (newValue > 128)
@@ -332,15 +356,17 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                   },
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
-                                alignment: Alignment.center,
-                                child: Image.asset(
-                                  lightLogo,
-                                  width: 60,
-                                  height: 60,
-                                ),
-                              )
+                              IgnorePointer(
+                                  ignoring: true,
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      lightLogo,
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                  )),
                             ],
                           ),
                         ],
