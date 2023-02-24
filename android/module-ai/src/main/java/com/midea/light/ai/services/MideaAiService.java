@@ -193,6 +193,8 @@ public class MideaAiService extends Service {
 
 
     public void wakeUpSession() {
+        //查询是否绑定网关
+
         isManLoadMusic = false;
         wakeUpState = true;
         isClickOut = false;

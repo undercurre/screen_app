@@ -85,6 +85,7 @@ class ScreenSaverHandClockState extends State<ScreenSaverHandClock> with AiWakeU
   Widget build(BuildContext context) {
     final buildConfig = widget.buildConfig();
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         Provider.of<StandbyChangeNotifier>(context, listen: false).standbyPageActive = false;
         Navigator.of(context).pop();

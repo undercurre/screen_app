@@ -28,7 +28,7 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
   void onTick() {
     super.onTick();
 
-        () async {
+    () async {
       bool toBeClose = Setting.instant().isStandByDuration();
 
       List.copyRange(array, 0, array, 1, array.length);

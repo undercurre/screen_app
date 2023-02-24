@@ -76,11 +76,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                       )),
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(
-                        context,
-                        'Home',
-                      );
+                      Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                     },
                     iconSize: 60.0,
                     icon: Image.asset(
@@ -265,7 +261,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                   });
                 }),
                 const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
-                settingItem("待机样式", "表盘${screenSaverId + 1}", () {
+                settingItem("待机样式", parseScreenSaverName(screenSaverId), () {
                   Navigator.of(context).pushNamed('SelectStandbyStylePage').then((value) {
                     if (value != null) {
                       setState(() {
@@ -342,6 +338,16 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
         ),
       ),
     );
+  }
+
+  String parseScreenSaverName(int index) {
+    if(index < 3) {
+      return '时钟${index + 1}';
+    } else if(index < 6) {
+      return '星空${index - 3 + 1}';
+    } else {
+      return '自然${index - 6 + 1}';
+    }
   }
 
   @override

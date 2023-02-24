@@ -62,6 +62,7 @@ class ScreenSaverBgClockState extends State<ScreenSaverBgClock> with AiWakeUPScr
   Widget build(BuildContext context) {
     ScreenSaverBgClockConfig config = widget.buildConfig();
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         Provider.of<StandbyChangeNotifier>(context, listen: false).standbyPageActive = false;
         Navigator.of(context).pop();

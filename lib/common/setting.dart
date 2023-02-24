@@ -35,7 +35,7 @@ class Setting {
     _screedDuration = Pair.of(screedStartTime, screedEndTime);
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
-    _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 0; ///默认的屏保样式为0
+    _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
   }
 
   /// 保存屏保的序号id

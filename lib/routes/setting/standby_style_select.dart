@@ -295,39 +295,39 @@ class PreviewStandbyStylePageState extends State<PreviewStandbyPage> {
               child: CircleIndicator(pageCount: 9, selectPosition: initPosition),
             ),
           ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                        width: 104,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: ShapeDecoration(
-                            color: const Color(0xff565656).withOpacity(0.6),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))
-                        ),
-                        child: const Text("取消", style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22
-                        )
-                        ))
-                )),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: GestureDetector(
+              // behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Container(
+                      width: 104,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: ShapeDecoration(
+                          color: const Color(0xff565656).withOpacity(0.6),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25)))
+                      ),
+                      child: const Text("取消", style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22
+                      )
+                      ))),
+            ),
           ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Navigator.of(context).pop(initPosition);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Align(
-                  alignment: Alignment.bottomRight,
+          Align(
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Navigator.of(context).pop(initPosition);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
                 child: Container(
                   width: 104,
                   height: 50,
@@ -340,8 +340,8 @@ class PreviewStandbyStylePageState extends State<PreviewStandbyPage> {
                       color: Colors.white,
                       fontSize: 22
                   )
-                ))
-            )),
+                ))),
+            ),
           )
         ],
       ),

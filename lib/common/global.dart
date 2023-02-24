@@ -17,6 +17,7 @@ import 'utils.dart';
 /// 日志打印工具
 var logger = Logger(
   printer: PrettyPrinter(printTime: true),
+  level: Level.info
 );
 
 class Global {

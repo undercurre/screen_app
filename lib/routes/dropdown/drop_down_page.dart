@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
+import '../../common/utils.dart';
 import '../../widgets/AdvancedVerticalSeekBar.dart';
 
 class DropDownPage extends StatefulWidget {
@@ -203,14 +204,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     }
                                   else
                                     {
-                                      Fluttertoast.showToast(
-                                          msg: "请先开启小美语音",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.black87,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0)
+                                    TipsUtils.toast(content: "请先开启小美语音"),
                                     }
                                 },
                                 child: Container(
