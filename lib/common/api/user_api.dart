@@ -42,7 +42,7 @@ class UserApi {
   }
 
   /// 自动登录接口
-  static Future<void> autoLogin() async {
+  static Future<bool> autoLogin() async {
     var rule = 1;
     var res = await Api.requestMideaIot("/muc/v5/app/mj/user/autoLogin",
         data: {
@@ -65,7 +65,7 @@ class UserApi {
     }
 
     if (!res.isSuccess) {
-      return;
+      return false;
     }
 
     // 刷新Global.user.accessToken
@@ -80,6 +80,7 @@ class UserApi {
       Global.user?.tokenPwd = res.data['tokenPwd'];
       Global.user?.expired = res.data['expiredDate'];
     }
+    return true;
   }
 
   /// 获取用户所有家庭的家电列表

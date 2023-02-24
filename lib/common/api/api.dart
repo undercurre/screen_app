@@ -8,7 +8,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 import 'package:uuid/uuid.dart';
+import 'package:screen_app/common/api/user_api.dart';
 
 import '../global.dart';
 
@@ -22,6 +24,10 @@ class Api {
   static var httpSignSecret = dotenv.get('HTTP_SIGN_SECRET');
 
   static final Api _instance = Api._internal();
+  static const int TOO_LONG_UNLOGIN = 1004;
+  static const int TOKEN_INVALID = 65012;
+  static const int TOKEN_EXPIRED = 65013;
+  static const int ACCOUNT_LOGOUT = 40002;
 
   static Dio dio = Dio(BaseOptions(
     headers: {},
@@ -92,7 +98,25 @@ class Api {
     // dio.options.headers[HttpHeaders.authorizationHeader] = Global.profile.token;
   }
 
+  static bool get isWillLoginExpire {
+    var time = DateTime.fromMillisecondsSinceEpoch(Global.user?.expired?.toInt() ?? 0);
+    return time.isBefore(DateTime.now().add(const Duration(minutes: 30)));
+  }
+
+  static var forceRefresh = true;
+
+  static tryToRefresh() async {
+    if (Global.isLogin && (isWillLoginExpire || forceRefresh)) {
+      forceRefresh = !await UserApi.autoLogin();
+      if (!forceRefresh) {
+        var res = await UserApi.authToken();
+        forceRefresh = !res.isSuccess;
+      }
+    }
+  }
+
   /// IOT接口发起公共接口
+  ///
   static Future<MideaResponseEntity<T>> requestMideaIot<T>(
     String path, {
     Map<String, dynamic>? data,
@@ -109,6 +133,8 @@ class Api {
     data ??= {};
     queryParameters ??= {};
     options.extra ??= {};
+
+    await tryToRefresh();
 
     // 是否显示loading标识
     options.extra!['isShowLoading'] = isShowLoading;
@@ -165,7 +191,16 @@ class Api {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return MideaResponseEntity<T>.fromJson(res.data);
+    var entity = MideaResponseEntity<T>.fromJson(res.data);
+
+    if (entity.code == TOO_LONG_UNLOGIN ||
+        entity.code == TOKEN_INVALID ||
+        entity.code == TOKEN_EXPIRED ||
+        entity.code == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+    }
+
+    return entity;
   }
 
   /// 美智光电IOT中台接口发起公共接口
@@ -185,6 +220,8 @@ class Api {
     data ??= {}; // data默认值
     queryParameters ??= {};
     options.extra = options.extra ?? {};
+
+    await tryToRefresh();
 
     // 是否显示loading标识
     // options.extra!['isShowLoading'] = isShowLoading;
@@ -241,6 +278,15 @@ class Api {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
-    return MzResponseEntity<T>.fromJson(res.data);
+
+    var entity = MzResponseEntity<T>.fromJson(res.data);
+    if (entity.code == TOO_LONG_UNLOGIN ||
+        entity.code == TOKEN_INVALID ||
+        entity.code == TOKEN_EXPIRED ||
+        entity.code == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+    }
+
+    return entity;
   }
 }

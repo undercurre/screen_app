@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/widgets/event_bus.dart';
 import 'package:video_player/video_player.dart';
 import '../../common/index.dart';
 import '../../mixins/ota.dart';
@@ -110,6 +111,12 @@ class _Boot extends State<Boot> with Ota {
       context,
       isFinishLogin ? 'Home' : 'Login',
     );
+
+    bus.on("logout",(arg) {
+      System.loginOut();
+      Navigator.popUntil(context, (route) => route.settings.name == "/");
+      Navigator.pushNamed(context,'Login');
+    });
   }
 }
 
