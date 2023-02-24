@@ -94,7 +94,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                   disabled: widget.disabled,
                   duration: widget.duration,
                   onChanged: widget.onChanged,
-                  onChanging: onChanging,
+                  onChanging: widget.onChanging,
                 ),
               ],
             ),

@@ -54,11 +54,12 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
 
-      var deviceInfo = DeviceEntity.fromJson({'applianceCode': deviceId, 'type': deviceType});
+      var deviceInfo = DeviceEntity.fromJson(
+          {'applianceCode': deviceId, 'type': deviceType});
       var res = await DeviceService.getDeviceDetail(deviceInfo);
       debugPrint('res: $res');
 
-       setState(() {
+      setState(() {
         curtainPosition = int.parse(res['curtain_position']);
         curtainStatus = res['curtain_status'];
         curtainDirection = res['curtain_direction'];
@@ -121,12 +122,15 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                               .copyWith(scrollbars: false),
                           child: ListView(
                             children: [
-                              SliderButtonCard(
-                                  unit: '%',
-                                  value: curtainPosition,
-                                  min: 1,
-                                  max: 100,
-                                  onChanged: curtainHandle),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: SliderButtonCard(
+                                    unit: '%',
+                                    value: curtainPosition,
+                                    min: 1,
+                                    max: 100,
+                                    onChanged: curtainHandle),
+                              ),
                               ModeCard(
                                 title: "模式",
                                 spacing: 40,
