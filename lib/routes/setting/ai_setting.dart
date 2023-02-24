@@ -221,7 +221,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
   }
 
   Future<void> AiAuthor() async {
-    var Res = await AiAuthorApi.AiAuthor(deviceId:Global.profile.deviceId);
+    var Res = await AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
     if (Res.isSuccess) {
       TipsUtils.toast(content: "授权成功");
     }

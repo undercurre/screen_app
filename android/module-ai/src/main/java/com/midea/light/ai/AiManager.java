@@ -10,6 +10,7 @@ import android.os.Message;
 
 import com.midea.light.ai.AiSpeech.TTSItem;
 import com.midea.light.ai.impl.AISetVoiceCallBack;
+import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
 import com.midea.light.ai.impl.FlashMusicListCallBack;
 import com.midea.light.ai.impl.MusicPlayControlBack;
 import com.midea.light.ai.impl.ServerBindCallBack;
@@ -33,6 +34,8 @@ public class AiManager {
     private ServerInitialBack InitialBack;
     private MusicPlayControlBack MusicPlayControl;
     private AISetVoiceCallBack SetVoiceCallBack;
+    private AiControlDeviceErrorCallBack ControlDeviceErrorCallBack;
+
     private Intent intent;
 
     private AiManager() {
@@ -106,6 +109,12 @@ public class AiManager {
         this.SetVoiceCallBack = CallBack;
         if (sever != null) {
             sever.addAISetVoiceCallBack(SetVoiceCallBack);
+        }
+    }
+    public void addControlDeviceErrorCallBack(AiControlDeviceErrorCallBack CallBack) {
+        this.ControlDeviceErrorCallBack = CallBack;
+        if (sever != null) {
+            sever.addAIControlDeviceErrorCallBack(ControlDeviceErrorCallBack);
         }
     }
 
