@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
+import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
@@ -12,6 +13,7 @@ import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../common/api/user_api.dart';
+import '../../common/system.dart';
 import 'device_item.dart';
 
 class SnifferViewModel {
@@ -71,6 +73,16 @@ class SnifferViewModel {
       });
       return;
     }
+    /// 判定当前网关是否已经绑定
+    GatewayApi.check((bind) {
+      if(!bind) {
+        System.loginOut();
+        Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
+      }
+    }, () {
+      //接口请求报错
+    });
+
     /// 探测zigbee类型设备
     _snifferZigbee();
     /// 探测wifi类型设备
