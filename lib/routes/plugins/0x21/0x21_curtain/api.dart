@@ -15,7 +15,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await ZigbeeCurtainApi.getCurtainDetail(deviceInfo);
-    if (res.code == 0) {
+    if (res.code == 0 && res.result != null) {
       return res.result;
     } else {
       return {};

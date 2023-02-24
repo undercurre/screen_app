@@ -5,6 +5,8 @@ import 'package:screen_app/widgets/mz_slider.dart';
 
 // 普通的带滑动条卡片
 class ParamCard extends StatefulWidget {
+  final maxValue;
+  final minValue;
   final List<Color> activeColors;
   final String title;
   final num value;
@@ -24,6 +26,8 @@ class ParamCard extends StatefulWidget {
     this.onChanging,
     this.onChanged,
     this.disabled = false,
+    this.maxValue = 100,
+    this.minValue = 0,
     this.throttle = const Duration(seconds: 1),
     this.duration,
   });
@@ -82,23 +86,25 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                   ),
                 ),
                 MzSlider(
+                  min: widget.minValue,
+                  max: widget.maxValue,
                   width: 270,
                   value: widget.value,
                   activeColors: widget.activeColors,
                   disabled: widget.disabled,
                   duration: widget.duration,
                   onChanged: widget.onChanged,
-                  onChanging: onChanging,
+                  onChanging: widget.onChanging,
                 ),
               ],
             ),
           ),
-          const Positioned(
+          Positioned(
             left: 21,
             bottom: 11,
             child: Text(
-              '0',
-              style: TextStyle(
+              '${widget.minValue}',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color.fromARGB(127, 255, 255, 255),
@@ -107,12 +113,12 @@ class _ParamCardState extends State<ParamCard> with Throttle {
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
             right: 21,
             bottom: 11,
             child: Text(
-              '100%',
-              style: TextStyle(
+              '${widget.maxValue}%',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color.fromARGB(127, 255, 255, 255),

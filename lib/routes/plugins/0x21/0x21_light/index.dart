@@ -14,6 +14,7 @@ import '../../../home/device/service.dart';
 import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
+  // 本地原始数据
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": 'Zigbee智能灯',
@@ -36,6 +37,23 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     }
   };
 
+  // 本地视图getters
+  num localColorTemperature = 0;
+  num localBrightness = 0;
+  num localDelayClose = 0;
+  bool localPower = false;
+
+  // 填装视图数据
+  setViewData(Map<String, dynamic> detail) {
+    setState(() {
+      localBrightness = detail["lightPanelDeviceList"][0]["brightness"];
+      localColorTemperature =
+          detail["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
+      localPower = detail["lightPanelDeviceList"][0]["attribute"] == 1;
+      localDelayClose = detail["lightPanelDeviceList"][0]["delayClose"];
+    });
+  }
+
   String fakeModel = '';
 
   void goBack() {
@@ -52,6 +70,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
       deviceWatch["detail"] = detail;
     });
     deviceInfo.detail = detail;
+    setViewData(detail);
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
@@ -73,17 +92,14 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> powerHandle() async {
+    setState(() {
+      localPower = !localPower;
+    });
     var res = await ZigbeeLightApi.powerPDM(
         deviceWatch["detail"]["deviceId"],
         !(deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1),
         deviceWatch["detail"]["nodeId"]);
-    if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] =
-            deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1
-                ? 1
-                : 0;
-      });
+    if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -104,13 +120,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["deviceId"],
         !(deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 0),
         deviceWatch["detail"]["nodeId"]);
-    if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] =
-            deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 3
-                ? 0
-                : 3;
-      });
+    if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -131,13 +141,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         curMode.brightness,
         curMode.colorTemperature,
         deviceWatch["detail"]["nodeId"]);
-    if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] =
-            curMode.brightness;
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
-            curMode.colorTemperature;
-      });
+    if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -148,6 +152,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
     setState(() {
+      localBrightness = value;
       deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
     });
     var res = await ZigbeeLightApi.adjustPDM(
@@ -156,7 +161,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ??
             0,
         deviceWatch["detail"]["nodeId"]);
-    if (res.isSuccess) {
+    if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -166,7 +171,6 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    logger.i('控制zigbee灯色温', value);
     setState(() {
       deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
           value;
@@ -176,7 +180,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
         value,
         deviceWatch["detail"]["nodeId"]);
-    if (res.isSuccess) {
+    if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
@@ -203,6 +207,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
       });
+      setViewData(deviceWatch['detail']);
     });
   }
 
@@ -213,12 +218,11 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
-            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                    ["attribute"] ==
-                0,
+            minValue: 1,
+            maxValue: 100,
+            disabled: !localPower,
             title: '亮度',
-            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                ["brightness"],
+            value: localBrightness,
             activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
             onChanged: brightnessHandle,
             onChanging: brightnessHandle,
@@ -242,6 +246,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
+            hasHeightlight: false,
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: modeHandle,
@@ -291,12 +296,11 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
-            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
-            ["attribute"] ==
-                0,
+            minValue: 1,
+            maxValue: 100,
+            disabled: !localPower,
             title: '亮度',
-            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                ["brightness"],
+            value: localBrightness,
             activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
             onChanged: brightnessHandle,
             onChanging: brightnessHandle,
@@ -365,7 +369,6 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             children: <Widget>[
               Container(
                 color: Colors.transparent,
-                margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     minWidth: double.infinity,
@@ -375,9 +378,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                            ["attribute"] ==
-                        1,
+                    power: localPower,
                     hasPower: true,
                   ),
                 ),
@@ -403,31 +404,35 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                         await updateDetail();
                       },
                       child: SingleChildScrollView(
-                        child: Row(
-                          children: [
-                            const Align(
-                              widthFactor: 1,
-                              heightFactor: 2,
-                              alignment: Alignment(-1.0, -0.63),
-                              child: SizedBox(
-                                width: 152,
-                                height: 200,
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 35.0),
+                          child: Row(
+                            children: [
+                              const Align(
+                                widthFactor: 1,
+                                heightFactor: 2,
+                                alignment: Alignment(-1.0, -0.63),
+                                child: SizedBox(
+                                  width: 152,
+                                  height: 200,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                                child: ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(scrollbars: false),
-                                    child: zigbeeControllerList[
-                                                deviceWatch["modelNumber"]] ==
-                                            '0x21_light_colorful'
-                                        ? colorful
-                                        : noColor),
+                              Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  child: ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(scrollbars: false),
+                                      child: zigbeeControllerList[
+                                                  deviceWatch["modelNumber"]] ==
+                                              '0x21_light_colorful'
+                                          ? colorful
+                                          : noColor),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
