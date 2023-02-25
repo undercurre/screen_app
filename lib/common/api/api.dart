@@ -10,7 +10,6 @@ import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import 'package:uuid/uuid.dart';
-import 'package:screen_app/common/api/user_api.dart';
 
 import '../global.dart';
 
@@ -98,6 +97,156 @@ class Api {
     // dio.options.headers[HttpHeaders.authorizationHeader] = Global.profile.token;
   }
 
+  static Future<bool> mzAutoLogin() async {
+    var options = Options();
+    options.extra ??= {};
+    options.headers ??= {};
+    var data = {
+      'deviceId': Global.user?.deviceId,
+      'appId': dotenv.get('APP_ID'),
+      'appSecret': dotenv.get('APP_SECRET'),
+      'itAccessToken': Global.user?.accessToken,
+      'tokenExpires': (24 * 60 * 60).toString(),
+    };
+    Map<String, dynamic>? queryParameters = {};
+
+    var reqId = uuid.v4();
+    var params = data;
+
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 增加美智云中台的公共参数
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+    params.addAll({
+      'reqId': reqId,
+      'timestamp': timestamp,
+      'systemSource': 'SMART_SCREEN',
+      'frontendType': 'ANDROID',
+    });
+
+    if (Global.isLogin) {
+      headers.addAll({
+        'deviceId': Global.user?.deviceId,
+      });
+
+      params['userId'] = Global.user?.uid;
+    }
+
+    if (StrUtils.isNotNullAndEmpty(Global.user?.mzAccessToken)) {
+      headers.addAll({
+        'Authorization': 'Bearer ${Global.user?.mzAccessToken}',
+      });
+    }
+
+    var md5Origin = dotenv.get('APP_SECRET'); // 拼接加密前字符串
+    md5Origin += json.encode(data);
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    var res = await dio.request(
+      "${dotenv.get('MZ_URL')}/v1/openApi/auth/midea/token",
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: null,
+      onSendProgress: null,
+      onReceiveProgress: null,
+    );
+
+    var entity = MzResponseEntity.fromJson(res.data);
+    if (entity.isSuccess) {
+      Global.user?.mzAccessToken = entity.result['accessToken'];
+    }
+    return entity.isSuccess;
+  }
+
+  static Future<bool> iotAutoLogin() async {
+    Map<String, dynamic>? queryParameters = {};
+    const int rule = 1;
+    Options options = Options();
+    options.extra ??= {};
+    options.headers ??= {};
+    options.extra?['isShowLoading'] = false;
+    options.extra?['isLog'] = true;
+
+    Map<String, dynamic> data = {
+      'data': {
+      'uid': Global.user?.uid,
+      'tokenPwd': Global.user?.tokenPwd,
+      'rule': rule,
+      'deviceId': Global.user?.deviceId,
+      'platform': 100,
+      }
+    };
+
+    var reqId = uuid.v4();
+    var params = data;
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 公共data参数
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+    params['openId'] = 'zhinengjiadian';
+    params['iotAppId'] = '12002';
+    params['reqId'] = reqId;
+    params['stamp'] = timestamp;
+    params['timestamp'] = timestamp;
+
+    if (Global.isLogin) {
+      params['uid'] = Global.user?.uid;
+      headers['accessToken'] = Global.user?.accessToken;
+    }
+
+    // 公共header参数
+    // 云端接口出错时，返回调试信息
+    if (!Global.isRelease) {
+      headers['debug'] = true;
+    }
+
+    // sign签名 start
+    var md5Origin = httpSignSecret; // 拼接加密前字符串
+    md5Origin += json.encode(data);
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    var res = await dio.request(
+      "${dotenv.get('IOT_URL')}/muc/v5/app/mj/user/autoLogin",
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: null,
+      onSendProgress: null,
+      onReceiveProgress: null,
+    );
+
+    var entity = MideaResponseEntity.fromJson(res.data);
+
+    if (!entity.isSuccess) {
+      return false;
+    }
+
+    // 刷新Global.user.accessToken
+    if (rule == 1) {
+      Global.user?.accessToken = entity.data['accessToken'];
+      Global.user?.expired = entity.data['expired'];
+      var time = DateTime.fromMillisecondsSinceEpoch(
+          Global.user?.expired?.toInt() ?? 0);
+      logger.d('美的Iot的token过期时间: $time');
+    } else if (rule == 0) {
+      // 刷新的令牌密码tokenPwd
+      Global.user?.tokenPwd = entity.data['tokenPwd'];
+      Global.user?.expired = entity.data['expiredDate'];
+    }
+    return true;
+  }
+
   static bool get isWillLoginExpire {
     var time = DateTime.fromMillisecondsSinceEpoch(Global.user?.expired?.toInt() ?? 0);
     return time.isBefore(DateTime.now().add(const Duration(minutes: 30)));
@@ -107,10 +256,9 @@ class Api {
 
   static tryToRefresh() async {
     if (Global.isLogin && (isWillLoginExpire || forceRefresh)) {
-      forceRefresh = !await UserApi.autoLogin();
+      forceRefresh = !await iotAutoLogin();
       if (!forceRefresh) {
-        var res = await UserApi.authToken();
-        forceRefresh = !res.isSuccess;
+        forceRefresh = !await mzAutoLogin();
       }
     }
   }
