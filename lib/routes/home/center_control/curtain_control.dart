@@ -69,7 +69,9 @@ class CurtainControlState extends State<CurtainControl> {
       });
     }
     if (widget.disabled != oldWidget.disabled) {
-      disabled = widget.disabled ?? false;
+      setState(() {
+        disabled = widget.disabled ?? false;
+      });
     }
   }
 

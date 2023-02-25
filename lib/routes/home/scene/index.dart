@@ -181,6 +181,9 @@ class ScenePageState extends State<ScenePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
               ),
               onRefresh: () async {
+                if (!mounted) {
+                  return;
+                }
                 await sceneChangeNotifier.updateSceneList();
               },
                 child: ConstrainedBox(

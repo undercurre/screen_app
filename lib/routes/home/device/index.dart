@@ -101,6 +101,11 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void initState() {
     super.initState();
+
+    bus.on('updateDeviceListState', (arg) async {
+      initPage();
+    });
+
     _controller = EasyRefreshController(
       controlFinishRefresh: true,
       controlFinishLoad: true,

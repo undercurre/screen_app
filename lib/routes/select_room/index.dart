@@ -20,6 +20,7 @@ class SelectRoomPage extends StatefulWidget {
 
 class SelectRoomPageState extends State<SelectRoomPage> {
   void goBack() {
+    bus.emit('updateDeviceListState');
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }

@@ -113,7 +113,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
     await context.read<DeviceListModel>().updateAllDetail();
     setState(() {
       curtainSupport = CenterControlService.isCurtainSupport(context);
-      lightSupport = CenterControlService.isLightPower(context);
+      lightSupport = CenterControlService.isLightSupport(context);
       airConditionSupport = CenterControlService.isAirConditionSupport(context);
 
       curtainPower = CenterControlService.isCurtainPower(context);
@@ -233,11 +233,10 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                   ),
                   onRefresh: () async {
-                    await Future.delayed(const Duration(seconds: 2));
                     if (!mounted) {
                       return;
                     }
-                    initPage();
+                    await initPage();
                   },
                   child: SingleChildScrollView(
                     controller: _scrollController,
@@ -247,23 +246,26 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CurtainControl(
-                                disabled: !curtainSupport,
-                                computedPower: curtainPower,
-                              ),
-                              Expanded(
-                                  flex: 1,
-                                  child: LightControl(
-                                    disabled: !lightSupport,
-                                    computedPower: lightPower,
-                                    computedBightness: lightBrightness,
-                                    computedColorTemp: lightColorTemp,
-                                  ))
-                            ],
+                          SizedBox(
+                            width: 440,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CurtainControl(
+                                  disabled: !curtainSupport,
+                                  computedPower: curtainPower,
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: LightControl(
+                                      disabled: !lightSupport,
+                                      computedPower: lightPower,
+                                      computedBightness: lightBrightness,
+                                      computedColorTemp: lightColorTemp,
+                                    ))
+                              ],
+                            ),
                           ),
                           AirConditionControl(
                               disabled: !airConditionSupport,
