@@ -9,6 +9,7 @@ import '../../channel/ota_channel.dart';
 import '../../common/api/gateway_api.dart';
 import '../../common/system.dart';
 import '../../common/utils.dart';
+import '../../mixins/ota.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/standby.dart';
 import '../../widgets/keep_alive_wrapper.dart';
@@ -34,7 +35,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, OtaSdkInitialize {
+class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, OtaSdkInitialize, Ota {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
