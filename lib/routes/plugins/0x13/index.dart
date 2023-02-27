@@ -24,17 +24,22 @@ class WifiLightPageState extends State<WifiLightPage> {
     }
   };
 
+  var localBrightness = 1;
+  var localColorTemp = 0;
+  var localPower = false;
+  var localScreenModel = 'manual';
+  var localTimeOff = 0;
+
   void goBack() {
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 
   Future<void> powerHandle() async {
-    var res = await WIFILightApi.powerLua(
-        deviceWatch["deviceId"], !deviceWatch["detail"]["power"]);
+    var res = await WIFILightApi.powerLua(deviceWatch["deviceId"], !localPower);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["power"] = !deviceWatch["detail"]["power"];
+        localPower = !localPower;
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -45,11 +50,11 @@ class WifiLightPageState extends State<WifiLightPage> {
   }
 
   Future<void> delayHandle() async {
-    if (deviceWatch["detail"]["timeOff"] == 0) {
+    if (localTimeOff == 0) {
       var res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], true);
       if (res.isSuccess) {
         setState(() {
-          deviceWatch["detail"]["timeOff"] = 3;
+          localTimeOff = 3;
         });
         updateDetail();
       }
@@ -57,7 +62,7 @@ class WifiLightPageState extends State<WifiLightPage> {
       var res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], false);
       if (res.isSuccess) {
         setState(() {
-          deviceWatch["detail"]["timeOff"] = 0;
+          localTimeOff = 0;
         });
         updateDetail();
       }
@@ -68,7 +73,7 @@ class WifiLightPageState extends State<WifiLightPage> {
     var res = await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["screenModel"] = mode.key;
+        localScreenModel = mode.key;
       });
       updateDetail();
     }
@@ -78,7 +83,7 @@ class WifiLightPageState extends State<WifiLightPage> {
     var res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["brightValue"] = unFormatValue(value);
+        localBrightness = unFormatValue(value);
       });
       updateDetail();
     }
@@ -89,7 +94,7 @@ class WifiLightPageState extends State<WifiLightPage> {
         await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["colorTemperatureValue"] = unFormatValue(value);
+        localColorTemp = unFormatValue(value);
       });
       updateDetail();
     }
@@ -97,7 +102,7 @@ class WifiLightPageState extends State<WifiLightPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[deviceWatch["detail"]["screenModel"]] = true;
+    selectKeys[localScreenModel] = true;
     return selectKeys;
   }
 
@@ -108,6 +113,11 @@ class WifiLightPageState extends State<WifiLightPage> {
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
     setState(() {
       deviceWatch["detail"] = detail;
+      localBrightness = detail["brightValue"];
+      localColorTemp = detail["colorTemperatureValue"];
+      localPower = detail["power"];
+      localScreenModel = detail["screenModel"];
+      localTimeOff = detail["timeOff"];
     });
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
@@ -121,12 +131,23 @@ class WifiLightPageState extends State<WifiLightPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
+      var deviceDetail = context
+          .read<DeviceListModel>()
+          .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
-        deviceWatch = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceWatch["deviceId"]);
+        deviceWatch = deviceDetail;
+        localBrightness = deviceDetail["detail"]["brightValue"];
+        localColorTemp = deviceDetail["detail"]["colorTemperatureValue"];
+        localPower = deviceDetail["detail"]["power"];
+        localScreenModel = deviceDetail["detail"]["screenModel"];
+        localTimeOff = deviceDetail["detail"]["timeOff"];
       });
       debugPrint('插件中获取到的详情：$deviceWatch');
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(milliseconds: 2000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () => {updateDetail()});
     });
   }
 
@@ -147,9 +168,8 @@ class WifiLightPageState extends State<WifiLightPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: formatValue(deviceWatch["detail"]["brightValue"]),
-                colorTemperature: 100 -
-                    formatValue(deviceWatch["detail"]["colorTemperatureValue"]),
+                brightness: formatValue(localBrightness),
+                colorTemperature: 100 - formatValue(localColorTemp),
               )),
           Flex(
             direction: Axis.vertical,
@@ -166,7 +186,7 @@ class WifiLightPageState extends State<WifiLightPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["power"],
+                    power: localPower,
                     hasPower: true,
                   ),
                 ),
@@ -216,9 +236,8 @@ class WifiLightPageState extends State<WifiLightPage> {
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
                                           title: '亮度',
-                                          value: formatValue(
-                                              deviceWatch["detail"]
-                                                  ["brightValue"]),
+                                          disabled: !localPower,
+                                          value: formatValue(localBrightness),
                                           activeColors: const [
                                             Color(0xFFFFD185),
                                             Color(0xFFFFD185)
@@ -232,9 +251,8 @@ class WifiLightPageState extends State<WifiLightPage> {
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
                                           title: '色温',
-                                          value: formatValue(
-                                              deviceWatch["detail"]
-                                                  ["colorTemperatureValue"]),
+                                          disabled: !localPower,
+                                          value: formatValue(localColorTemp),
                                           activeColors: const [
                                             Color(0xFFFFD39F),
                                             Color(0xFF55A2FA)
@@ -257,29 +275,23 @@ class WifiLightPageState extends State<WifiLightPage> {
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
                                           title: '延时关灯',
-                                          subTitle: deviceWatch["detail"]
-                                                      ["timeOff"] ==
-                                                  0
+                                          subTitle: localTimeOff == 0
                                               ? '未设置'
-                                              : '${deviceWatch["detail"]["timeOff"]}分钟后关灯',
+                                              : '$localTimeOff分钟后关灯',
                                           child: Listener(
                                             onPointerDown: (e) => delayHandle(),
                                             child: Container(
                                               width: 32,
                                               height: 32,
                                               decoration: BoxDecoration(
-                                                color: deviceWatch["detail"]
-                                                            ["timeOff"] ==
-                                                        0
+                                                color: localTimeOff == 0
                                                     ? const Color(0xFF000000)
                                                     : const Color(0xFFFFFFFF),
                                                 borderRadius:
                                                     BorderRadius.circular(16.0),
                                               ),
                                               child: Image(
-                                                image: AssetImage(deviceWatch[
-                                                                "detail"]
-                                                            ["timeOff"] ==
+                                                image: AssetImage(localTimeOff ==
                                                         0
                                                     ? 'assets/imgs/plugins/0x13/delay_off.png'
                                                     : 'assets/imgs/plugins/0x13/delay_on.png'),
