@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../common/global.dart';
 import './api.dart';
 import './mode_list.dart';
 import '../../../models/device_entity.dart';
@@ -61,8 +62,10 @@ class BathroomMasterState extends State<BathroomMaster> {
     final index = deviceList.deviceList
         .indexWhere((element) => element.applianceCode == deviceId);
     if (index >= 0) {
-      device = deviceList.deviceList[index];
-      deviceName = deviceList.deviceList[index].name;
+      setState(() {
+        device = deviceList.deviceList[index];
+        deviceName = deviceList.deviceList[index].name;
+      });
       luaDeviceDetailToState();
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
@@ -79,7 +82,7 @@ class BathroomMasterState extends State<BathroomMaster> {
       child: Column(
         children: [
           MzNavigationBar(
-            title: '浴霸',
+            title: deviceName,
             onLeftBtnTap: () => Navigator.pop(context),
           ),
           Expanded(
@@ -122,32 +125,38 @@ class BathroomMasterState extends State<BathroomMaster> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              ModeCard(
-                                modeList: bathroomMasterMode,
-                                selectedKeys: runMode,
-                                spacing: 40,
-                                onTap: (e) => handleModeCardClick(e),
-                              ),
-                              FunctionCard(
-                                icon: Container(
-                                  width: 30,
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x38ffffff),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  child: const Image(
-                                    height: 22,
-                                    width: 22,
-                                    image: AssetImage(
-                                        'assets/imgs/plugins/0x26/night_light.png'),
-                                  ),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: ModeCard(
+                                  modeList: bathroomMasterMode,
+                                  selectedKeys: runMode,
+                                  spacing: 40,
+                                  onTap: (e) => handleModeCardClick(e),
                                 ),
-                                title: '小夜灯',
-                                child: MzSwitch(
-                                  value: nightLight,
-                                  onTap: (e) => toggleNightLight(),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: FunctionCard(
+                                  icon: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x38ffffff),
+                                      borderRadius: BorderRadius.circular(15.0),
+                                    ),
+                                    child: const Image(
+                                      height: 22,
+                                      width: 22,
+                                      image: AssetImage(
+                                          'assets/imgs/plugins/0x26/night_light.png'),
+                                    ),
+                                  ),
+                                  title: '小夜灯',
+                                  child: MzSwitch(
+                                    value: nightLight,
+                                    onTap: (e) => toggleNightLight(),
+                                  ),
                                 ),
                               ),
                               FunctionCard(
@@ -168,6 +177,7 @@ class BathroomMasterState extends State<BathroomMaster> {
                                 ),
                                 title: '延时关机',
                                 child: MzSwitch(
+                                  disabled: runMode.values.toList().where((element) => element).toList().isEmpty,
                                   value: delayClose,
                                   onTap: (e) => toggleDelayClose(),
                                 ),
@@ -211,8 +221,7 @@ class BathroomMasterState extends State<BathroomMaster> {
     for (var mode in bathroomMasterMode) {
       runMode[mode.key] = activeModeList.contains(mode.key);
     }
-    runMode['light'] = detail['light_mode'] == 'main_light' ||
-        detail['light_mode'] == 'night_light';
+    runMode['light'] = detail['light_mode'] == 'main_light';
     setState(() {
       delayClose = detail['delay_enable'] == 'on';
       delayTime = int.parse(detail['delay_time']);
@@ -235,7 +244,11 @@ class BathroomMasterState extends State<BathroomMaster> {
   }
 
   void toggleDelayClose() {
-    delayClose = !delayClose;
+    if (runMode.values.toList().where((element) => element).toList().isEmpty) {
+      delayClose = false;
+    } else {
+      delayClose = !delayClose;
+    }
     // device.detail['']
     if (delayClose) {
       device.detail!['delay_enable'] = 'on';
@@ -279,10 +292,18 @@ class BathroomMasterState extends State<BathroomMaster> {
       device.detail!['mode'] = runMode[mode.key]! ? mode.key : '';
     }
     deviceList.setProviderDeviceInfo(device);
-    final res = await BaseApi.luaControl(
-      deviceId,
-      {'mode': runMode[mode.key]! ? mode.key : ''},
-    );
+    late dynamic res;
+    if (mode.key == 'heating') {
+      res = await BaseApi.luaControl(
+        deviceId,
+        {'mode': runMode[mode.key]! ? mode.key : '', 'heating_temperature': '30'},
+      );
+    } else {
+      res = await BaseApi.luaControl(
+        deviceId,
+        {'mode': runMode[mode.key]! ? mode.key : ''},
+      );
+    }
     device.detail = res.result['status'];
     deviceList.setProviderDeviceInfo(device);
   }
