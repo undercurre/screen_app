@@ -18,25 +18,25 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     "detail": {"updown": 'pause', "location_status": "normal", "light": "off"}
   };
 
+  var localUpdown = "pause";
+  var localStatus = "normal";
+  var localLight = "off";
+
   late Timer _timer;
 
   String fakerModel = '';
 
   String getUpdownStr() {
-    if (deviceWatch["detail"]["location_status"] == "normal" &&
-        deviceWatch["detail"]["updown"] == 'up') {
+    if (localStatus == "normal" && localUpdown == 'up') {
       return '上升中';
     }
-    if (deviceWatch["detail"]["location_status"] == "normal" &&
-        deviceWatch["detail"]["updown"] == 'up') {
+    if (localStatus == "normal" && localUpdown == 'down') {
       return '下降中';
     }
-    if (deviceWatch["detail"]["location_status"] == "upper_limit" &&
-        deviceWatch["detail"]["updown"] == 'pause') {
+    if (localStatus == "upper_limit" && localUpdown == 'pause') {
       return '最高点';
     }
-    if (deviceWatch["detail"]["location_status"] == "lower_limit" &&
-        deviceWatch["detail"]["updown"] == 'pause') {
+    if (localStatus == "lower_limit" && localUpdown == 'pause') {
       return '最低点';
     }
     return '暂停';
@@ -48,10 +48,8 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   }
 
   Future<void> modeHandle(Mode mode) async {
-    if ((deviceWatch["detail"]["location_status"] == "upper_limit" &&
-            mode.key == "up") ||
-        (deviceWatch["detail"]["location_status"] == "lower_limit" &&
-            mode.key == "down")) {
+    if ((localStatus == "upper_limit" && mode.key == "up") ||
+        (localStatus == "lower_limit" && mode.key == "down")) {
       MzNotice mzNotice = MzNotice(
           icon: const SizedBox(width: 0, height: 0),
           btnText: '我知道了',
@@ -79,9 +77,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    if (deviceWatch["detail"] != null) {
-      selectKeys[deviceWatch["detail"]["updown"]] = true;
-    }
+    selectKeys[localUpdown] = true;
     return selectKeys;
   }
 
@@ -93,6 +89,9 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     if (detail.isNotEmpty) {
       setState(() {
         deviceWatch["detail"] = detail;
+        localUpdown = detail["updown"];
+        localStatus = detail["location_status"];
+        localLight = detail["light"];
       });
     }
     if (mounted) {
@@ -110,10 +109,14 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
+      var deviceDetail = context
+          .read<DeviceListModel>()
+          .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
-        deviceWatch = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceWatch["deviceId"]);
+        deviceWatch = deviceDetail;
+        localLight = deviceDetail["detail"]["light"];
+        localStatus = deviceDetail["detail"]["location_status"];
+        localUpdown = deviceDetail["detail"]["updown"];
       });
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
@@ -145,7 +148,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: LiangyiEntity(light: deviceWatch["detail"]["light"] == 'on'),
+              child: LiangyiEntity(light: localLight == 'on'),
             ),
           ),
           Flex(
@@ -189,8 +192,8 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                       child: SingleChildScrollView(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            minHeight: MediaQuery.of(context).size.height - 60
-                          ),
+                              minHeight:
+                                  MediaQuery.of(context).size.height - 60),
                           child: Row(
                             children: [
                               Align(
@@ -216,7 +219,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                                   fontWeight: FontWeight.w400),
                                             ),
                                             Text(
-                                              '照明${deviceWatch["detail"]["light"] == 'on' ? '开' : '关'}',
+                                              '照明${localLight == 'on' ? '开' : '关'}',
                                               style: const TextStyle(
                                                   color: Color(0xFF8F8F8F),
                                                   fontSize: 18,
@@ -254,15 +257,10 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                               const EdgeInsets.only(bottom: 16),
                                           child: FunctionCard(
                                             title: '照明',
-                                            subTitle: deviceWatch["detail"]
-                                                        ["light"] ==
-                                                    'on'
-                                                ? '开'
-                                                : '关',
+                                            subTitle:
+                                                localLight == 'on' ? '开' : '关',
                                             child: MzSwitch(
-                                              value: deviceWatch["detail"]
-                                                      ["light"] ==
-                                                  'on',
+                                              value: localLight == 'on',
                                               onTap: (e) => lightHandle(e),
                                             ),
                                           ),

@@ -51,6 +51,7 @@ class _DeviceCardState extends State<DeviceCard> {
           e.localPosition.dx < 90 &&
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
+        if (!DeviceService.isSupport(widget.deviceInfo!)) return;
         setState(() {
           power = !power;
         });
@@ -231,7 +232,7 @@ class _DeviceCardState extends State<DeviceCard> {
       );
     } else {
       if (zigbeeControllerList[widget.deviceInfo!.modelNumber] ==
-          '0x21_curtain_panel_two') {
+          '0x21_curtain_panel_two' || (widget.deviceInfo!.type == '0x17' && widget.deviceInfo!.sn8 != '127PD03G')) {
         return Container();
       }
       if (!DeviceService.isSupport(widget.deviceInfo!) ||
