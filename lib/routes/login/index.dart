@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/index.dart';
 
 import '../../common/index.dart';
@@ -73,6 +74,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       //导航到新路由
       if (mounted) {
         Navigator.popAndPushNamed(context, 'Home');
+        Push.sseInit();
       }
       return;
     }
