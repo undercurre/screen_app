@@ -29,7 +29,11 @@ class WrapLiangyi implements DeviceInterface {
   @override
   bool isSupport(DeviceEntity deviceInfo) {
     // 过滤sn8
-    return true;
+    if (deviceInfo.sn8 == '127PD03G') {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @override
