@@ -88,7 +88,7 @@ class _DevicePageState extends State<DevicePage> {
       sortList.addAll(outlineList);
       sortList.addAll(nosupportList);
       setState(() {
-        deviceEntityList = sortList.sublist(0,2);
+        deviceEntityList = sortList;
 
         deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
@@ -258,7 +258,7 @@ class _DevicePageState extends State<DevicePage> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: 460,
-                      minWidth: MediaQuery.of(context).size.width - 32,
+                      minWidth: 460 - 32,
                       minHeight: MediaQuery.of(context).size.height - 60,
                     ),
                     child: ReorderableWrap(

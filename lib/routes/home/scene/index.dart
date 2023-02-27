@@ -189,7 +189,7 @@ class ScenePageState extends State<ScenePage> {
                 child: Center(child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: 460,
-                    minWidth: MediaQuery.of(context).size.width - 32,
+                    minWidth: 460 - 32,
                     minHeight: MediaQuery.of(context).size.height - 60,
                   ),
                   child: ReorderableWrap(
