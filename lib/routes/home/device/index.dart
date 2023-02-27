@@ -245,7 +245,7 @@ class _DevicePageState extends State<DevicePage> {
                 if (!mounted) {
                   return;
                 }
-                initPage();
+                await initPage();
                 setState(() {
                   count = 5;
                 });
