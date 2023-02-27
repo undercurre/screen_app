@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../common/index.dart';
 
@@ -49,10 +50,15 @@ class _Boot extends State<Boot> {
     );
 
     bus.on("logout",(arg) {
+      Push.dispose();
       System.loginOut();
       Navigator.popUntil(context, (route) => route.settings.name == "/");
       Navigator.pushNamed(context,'Login');
     });
+
+    if (isFinishLogin) {
+      Push.sseInit();
+    }
   }
 }
 
