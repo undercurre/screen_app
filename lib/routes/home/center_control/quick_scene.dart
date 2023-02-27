@@ -105,11 +105,14 @@ class QuickSceneState extends State<QuickScene> {
                                     children: [
                                       Image.asset(sceneList[i - 1].icon,
                                           width: 42, height: 42),
-                                      Padding(
+                                      Container(
+                                        width: 80,
                                         padding: const EdgeInsets.all(4),
-                                        child: Text(sceneList[i - 1].name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis),
+                                        child: Center(
+                                          child: Text(sceneList[i - 1].name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis),
+                                        ),
                                       ),
                                     ],
                                   ),
