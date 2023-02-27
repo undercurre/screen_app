@@ -186,8 +186,9 @@ class ScenePageState extends State<ScenePage> {
                 }
                 await sceneChangeNotifier.updateSceneList();
               },
-                child: ConstrainedBox(
+                child: Center(child: ConstrainedBox(
                   constraints: BoxConstraints(
+                    maxWidth: 460,
                     minWidth: MediaQuery.of(context).size.width - 32,
                     minHeight: MediaQuery.of(context).size.height - 60,
                   ),
@@ -259,6 +260,7 @@ class ScenePageState extends State<ScenePage> {
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
