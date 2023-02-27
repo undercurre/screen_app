@@ -27,9 +27,9 @@ class _Boot extends State<Boot> {
 
   /// 检查是否已经登录
   Future checkLogin() async {
-    if (Global.isLogin) {
-      await System.refreshToken();
-    }
+    // if (Global.isLogin) {
+    //   await System.refreshToken();
+    // }
 
      Timer(const Duration(seconds: 2), () {
        bootFinish();
