@@ -171,17 +171,36 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
         titleSize: 24,
         rightSlot: DropdownButtonHideUnderline(
             child: DropdownButton(
+              selectedItemBuilder:(context) => viewModel.rooms.map((item) =>
+                  Container(
+                    width: 100,
+                    alignment: Alignment.center,
+                    child: Text(item.name,
+                        style: const TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            fontSize: 24,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.w400)),
+              )).toList(),
               value: d.bindResult!.roomName,
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               alignment: AlignmentDirectional.topCenter,
               items: viewModel.rooms
                   .map<DropdownMenuItem<String>>((RoomEntity item) {
                 return DropdownMenuItem<String>(
+                  alignment: Alignment.center,
                   value: item.name,
                   child: Container(
-                    width: 55,
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: d.bindResult!.roomName == item.name ? const ShapeDecoration(
+                        color: Color(0xff575757),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(3))
+                        )
+                    ) : null,
+                    // padding: const EdgeInsets.symmetric(horizontal: 5),
+                    width: 120,
                     alignment: Alignment.center,
-                    constraints: const BoxConstraints(minWidth: 100),
                     child: Text(item.name,
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
