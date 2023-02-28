@@ -165,7 +165,7 @@ public class BindZigbeeDeviceController extends AbstractController implements IS
                 applianceBean = getApiService().bindDevice(
                         Portal.getBaseConfig().getUserId(), state.getHomeGroupId(), state.getRoomId(), zigbeeDevice.getApplianceType(),
                         zigbeeDevice.getSn(),
-                        zigbeeDevice.getName(), UUID.randomUUID().toString(), TimeUtil.getTimestamp()
+                        null, UUID.randomUUID().toString(), TimeUtil.getTimestamp()
                 );
             }
         }
