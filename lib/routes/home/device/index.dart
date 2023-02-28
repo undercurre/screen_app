@@ -115,7 +115,7 @@ class _DevicePageState extends State<DevicePage> {
       initPage();
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), setTime);
+    _timer = Timer.periodic(const Duration(seconds: 60), setTime);
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
         final offset = min(_scrollController.offset, 150);
@@ -212,7 +212,7 @@ class _DevicePageState extends State<DevicePage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      context.watch<RoomModel>().roomInfo.name,
+                      context.read<RoomModel>().roomInfo.name,
                       textScaleFactor: roomTitleScale,
                       style: const TextStyle(
                         color: Color(0XFFFFFFFF),

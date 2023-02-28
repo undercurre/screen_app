@@ -20,7 +20,7 @@ class _SelectSceneListState extends State<SelectSceneList> {
 
   @override
   Widget build(BuildContext context) {
-    final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
+    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
     sceneList = sceneChangeNotifier.sceneList;
     // TODO: 需要切换到正确的图片
     Widget content = sceneList.isEmpty

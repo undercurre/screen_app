@@ -52,7 +52,7 @@ class BathroomMasterState extends State<BathroomMaster> {
 
   @override
   Widget build(BuildContext context) {
-    deviceList = context.watch<DeviceListModel>();
+    deviceList = context.read<DeviceListModel>();
     // 第一次加载，先从路由取deviceId
     if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;

@@ -9,7 +9,7 @@ class SelectScenePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scene = context.watch<SceneChangeNotifier>();
+    final scene = context.read<SceneChangeNotifier>();
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
