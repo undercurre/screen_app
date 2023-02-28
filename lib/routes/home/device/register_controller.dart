@@ -85,6 +85,7 @@ Map<String, String> zigbeeControllerList = {
   "1101": "0x21_panel",
   "1103": "0x21_panel",
   "1099": "0x21_panel",
+  "71": "0x21_panel",
   "77": "0x21_panel",
   "78": "0x21_panel",
   "80": "0x21_panel",
