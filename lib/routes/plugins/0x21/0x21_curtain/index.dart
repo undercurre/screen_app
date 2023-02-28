@@ -38,6 +38,8 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
   };
 
+  Map<String, dynamic> localGatewayInfo = {};
+
   var screenModel1 = '';
   var screenModel2 = '';
 
@@ -170,6 +172,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
     initView();
+    getGatewayInfo();
   }
 
   getNodeId() async {
@@ -177,6 +180,15 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         deviceWatch["deviceId"], deviceWatch["masterId"]);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
     deviceWatch["detail"]["nodeId"] = infoMap["nodeid"];
+  }
+
+  getGatewayInfo() async {
+    MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        deviceWatch["deviceId"], deviceWatch["masterId"]);
+    Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+    setState(() {
+      localGatewayInfo = infoMap;
+    });
   }
 
   initView() {
@@ -239,6 +251,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
 
       // 延时调用一次 1秒后执行
       Timer(timeout, () => {updateDetail()});
+      getGatewayInfo();
     });
   }
 
@@ -265,7 +278,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
 
     var curtainPanelOne = [
       ModeCard(
-        title: "窗帘1",
+        title: localGatewayInfo["endlist"][0]["name"] ?? "窗帘1",
         spacing: 80,
         modeList: curtainPanelModes1,
         selectedKeys: getSelectedKeys1(),
@@ -283,7 +296,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
-            title: "窗帘1",
+            title: localGatewayInfo["endlist"][0]["name"] ?? "窗帘1",
             spacing: 80,
             modeList: curtainPanelModes1,
             selectedKeys: getSelectedKeys1(),
@@ -298,7 +311,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           });
         },
         child: ModeCard(
-          title: "窗帘2",
+          title: localGatewayInfo["endlist"].length > 1 ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2" : "窗帘2",
           spacing: 80,
           modeList: curtainPanelModes2,
           selectedKeys: getSelectedKeys2(),
