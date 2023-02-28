@@ -186,6 +186,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
         deviceWatch["deviceId"], deviceWatch["masterId"]);
     Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+    logger.i('开关信息', infoMap);
     setState(() {
       localGatewayInfo = infoMap;
     });
@@ -278,7 +279,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
 
     var curtainPanelOne = [
       ModeCard(
-        title: localGatewayInfo["endlist"][0]["name"] ?? "窗帘1",
+        title: localGatewayInfo.isNotEmpty ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1" : "窗帘1",
         spacing: 80,
         modeList: curtainPanelModes1,
         selectedKeys: getSelectedKeys1(),
@@ -296,7 +297,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
-            title: localGatewayInfo["endlist"][0]["name"] ?? "窗帘1",
+            title: localGatewayInfo.isNotEmpty ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1" : "窗帘1",
             spacing: 80,
             modeList: curtainPanelModes1,
             selectedKeys: getSelectedKeys1(),
@@ -311,7 +312,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           });
         },
         child: ModeCard(
-          title: localGatewayInfo["endlist"].length > 1 ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2" : "窗帘2",
+          title: localGatewayInfo.isNotEmpty ? (localGatewayInfo["endlist"].length > 1 ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2" : "窗帘2") : "窗帘2",
           spacing: 80,
           modeList: curtainPanelModes2,
           selectedKeys: getSelectedKeys2(),
