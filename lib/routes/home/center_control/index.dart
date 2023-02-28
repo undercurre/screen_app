@@ -200,7 +200,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      context.read<RoomModel>().roomInfo.name,
+                      context.watch<RoomModel>().roomInfo.name,
                       textScaleFactor: roomTitleScale,
                       style: const TextStyle(
                         color: Color(0XFFFFFFFF),

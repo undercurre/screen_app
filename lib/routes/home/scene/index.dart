@@ -88,7 +88,7 @@ class ScenePageState extends State<ScenePage> {
 
   @override
   Widget build(BuildContext context) {
-    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
+    final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
     var sceneWidgetList = sceneChangeNotifier.sceneList
         .map((scene) => SceneCard(scene: scene))
         .toList();

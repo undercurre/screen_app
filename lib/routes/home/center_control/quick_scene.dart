@@ -31,7 +31,7 @@ class QuickSceneState extends State<QuickScene> {
 
   @override
   Widget build(BuildContext context) {
-    final sceneChangeNotifier = context.read<SceneChangeNotifier>();
+    final sceneChangeNotifier = context.watch<SceneChangeNotifier>();
     sceneList = sceneChangeNotifier.selectSceneList;
     // logger.i(
     //     'ViewSceneNotice${sceneChangeNotifier.selectSceneList.map((e) => e.name).toList()}');
