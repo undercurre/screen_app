@@ -52,8 +52,7 @@ class _Boot extends State<Boot> {
     bus.on("logout",(arg) {
       Push.dispose();
       System.loginOut();
-      Navigator.popUntil(context, (route) => route.settings.name == "/");
-      Navigator.pushNamed(context,'Login');
+      Navigator.pushNamedAndRemoveUntil(context, 'Login', (route) => route.settings.name == "/");
     });
 
     if (isFinishLogin) {

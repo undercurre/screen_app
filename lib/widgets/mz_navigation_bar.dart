@@ -11,6 +11,7 @@ class MzNavigationBar extends StatefulWidget {
   final double sideBtnWidth;
   final void Function()? onRightBtnTap;
   final void Function()? onLeftBtnTap;
+  final bool leftBtnVisible;
 
   const MzNavigationBar({
     super.key,
@@ -20,6 +21,7 @@ class MzNavigationBar extends StatefulWidget {
     this.hasPower = false,
     this.isLoading = false,
     this.hasBottomBorder = false,
+    this.leftBtnVisible = true,
     this.rightSlot,
     this.sideBtnWidth = 70,
     this.onRightBtnTap,
@@ -72,20 +74,26 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左边按钮，返回
-          GestureDetector(
-              onTap: () => widget.onLeftBtnTap?.call(),
-              child: SizedBox(
-                  width: widget.sideBtnWidth,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Image.asset(
-                        'assets/imgs/plugins/common/arrow_left.png',
-                        alignment: Alignment
-                            .centerLeft, // 图标距离左端(40 / widget.sideBtnWidth - 1)*widget.sideBtnWidth/2 约20
-                        width: 40,
-                        height: 40),
-                  ))),
-
+          Opacity(
+              opacity: widget.leftBtnVisible ? 1.0: 0.0,
+              child: GestureDetector(
+                  onTap: () {
+                    if(widget.leftBtnVisible ) {
+                      widget.onLeftBtnTap?.call();
+                    }
+                  },
+                  child: SizedBox(
+                      width: widget.sideBtnWidth,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Image.asset(
+                            'assets/imgs/plugins/common/arrow_left.png',
+                            alignment: Alignment
+                                .centerLeft, // 图标距离左端(40 / widget.sideBtnWidth - 1)*widget.sideBtnWidth/2 约20
+                            width: 40,
+                            height: 40),
+                      )))
+          ),
           // 中间，标题、描述、Loading
           Column(
             mainAxisAlignment: MainAxisAlignment.center,

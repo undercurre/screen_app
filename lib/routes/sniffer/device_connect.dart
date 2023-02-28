@@ -52,7 +52,7 @@ class DeviceConnectViewModel {
   }
 
   /// 发起绑定
-  void startBind(List<IFindDeviceResult> findResult) {
+  void startBind(List<IFindDeviceResult> findResult) async {
     if(!startBinding) {
       if(findResult.isEmpty) throw Exception('请确保数据不为空');
       toBeAddedList.addAll(findResult);
@@ -71,11 +71,19 @@ class DeviceConnectViewModel {
 
       if(zigbeeType.isNotEmpty) {
         bindZigbee(zigbeeType);
+
+        /// 一直做查询, 直到zigbee设备绑定完成，才去绑定wifi设备
+        await Future.doWhile(() async {
+          await Future.delayed(const Duration(seconds: 1));
+          return toBeAddedList.any((element) => element is FindZigbeeResult);
+        });
+
       }
 
       if(wifiType.isNotEmpty) {
         bindWiFi(wifiType);
       }
+
       _state.setSafeState(() { });
       startBinding = true;
     }
@@ -122,7 +130,7 @@ class DeviceConnectViewModel {
     deviceManagerChannel.setBindWiFiCallback(null);
   }
 
-  void bindZigbee(List<FindZigbeeResult> findResult) {
+  void bindZigbee(List<FindZigbeeResult> findResult)  {
     deviceManagerChannel.setBindZigbeeListener((result) {
       logger.i('zigbee设备绑定结果: $result');
       if(toBeAddedList.contains(result.findResult)) {
@@ -268,6 +276,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
         children: [
           // 顶部导航
           MzNavigationBar(
+            leftBtnVisible: false,
             onLeftBtnTap: () => viewModel.goBack(context),
             title: '设备连接',
             desc: '已成功添加${viewModel.alreadyAddedList.length}台设备',

@@ -59,6 +59,7 @@ dependencies:
   page_animation_transition : ^0.0.9
   fluttertoast: ^8.2.1
   web_socket_channel: ^2.3.0
+  catcher: ^0.7.0
 
 dev_dependencies:
   flutter_test:
