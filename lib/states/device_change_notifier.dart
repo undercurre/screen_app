@@ -150,8 +150,6 @@ class DeviceListModel extends ProfileChangeNotifier {
           curDevice.detail = newDetail;
         }
       }
-      logger.i(
-          "源数据: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
       notifyListeners();
       if (callback != null) callback();
     }

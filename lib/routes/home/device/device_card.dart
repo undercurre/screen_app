@@ -61,13 +61,6 @@ class _DeviceCardState extends State<DeviceCard> {
             await context
                 .read<DeviceListModel>()
                 .updateDeviceDetail(widget.deviceInfo!);
-            setState(() {
-              widget.deviceInfo = context
-                  .read<DeviceListModel>()
-                  .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
-                      widget.deviceInfo!.type);
-              power = DeviceService.isPower(widget.deviceInfo!);
-            });
           });
         } else {
           setState(() {
@@ -94,7 +87,7 @@ class _DeviceCardState extends State<DeviceCard> {
   }
 
   setDate() async {
-    if (widget.deviceInfo != null) {
+    if (widget.deviceInfo != null && mounted) {
       await context
           .read<DeviceListModel>()
           .updateDeviceDetail(widget.deviceInfo!);

@@ -1,3 +1,4 @@
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
 import 'package:screen_app/routes/plugins/0x16/api.dart';
