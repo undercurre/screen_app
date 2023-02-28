@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class DropdownMenu extends StatefulWidget {
   final List<PopupMenuEntry<dynamic>> menu;
+  final bool disabled;
   final Widget trigger;
   final RelativeRect? position;
   final Duration? duration;
@@ -13,6 +14,7 @@ class DropdownMenu extends StatefulWidget {
 
   const DropdownMenu({
     super.key,
+    this.disabled = false,
     required this.menu,
     required this.trigger,
     this.position,
@@ -29,6 +31,7 @@ class DropdownMenu extends StatefulWidget {
 }
 
 class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixin {
+
   /// 箭头动画控制器
   late AnimationController _arrowAnimationController;
 
@@ -88,6 +91,7 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
   }
 
   handleTap() async {
+    if (widget.disabled) return;
     getPosition();
     visible = true;
     widget.onVisibleChange?.call(visible);
@@ -122,6 +126,7 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
       _arrowAnimationController.stop();
     }
     // 执行本次动画
+    if (widget.disabled) return;
     visible ? _arrowAnimationController.animateTo(0.5) : _arrowAnimationController.animateTo(0);
   }
 
