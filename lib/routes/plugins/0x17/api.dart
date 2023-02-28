@@ -29,14 +29,18 @@ class WrapLiangyi implements DeviceInterface {
   @override
   bool isSupport(DeviceEntity deviceInfo) {
     // 过滤sn8
-    return true;
+    if (deviceInfo.sn8 == '127PD03G') {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
     return deviceInfo.detail != null && deviceInfo.detail != {}
-        ? (deviceInfo.detail!["location_status"] == 'lower_limit' ||
-            deviceInfo.detail!["updown"] == 'down')
+        ? (deviceInfo.detail!["light"] != 'off' &&
+            deviceInfo.detail!["updown"] == 'pause')
         : false;
   }
 
@@ -52,12 +56,12 @@ class WrapLiangyi implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/clothes_hanger_off.png';
+    return 'assets/imgs/device/clothes_hanger_on.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/clothes_hanger_on.png';
+    return 'assets/imgs/device/clothes_hanger_off.png';
   }
 }
 

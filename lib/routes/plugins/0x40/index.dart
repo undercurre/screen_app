@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -101,32 +103,38 @@ class _CoolMasterState extends State<CoolMaster> {
                               const SizedBox(
                                 height: 50,
                               ),
-                              ModeCard(
-                                modeList: coolMasterMode,
-                                selectedKeys: mode,
-                                onTap: (e) => handleModeTap(e),
-                              ),
-                              FunctionCard(
-                                icon: Container(
-                                  width: 30,
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x38ffffff),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  child: const Image(
-                                    height: 22,
-                                    width: 22,
-                                    image: AssetImage(
-                                        'assets/imgs/plugins/0x40/swing.png'),
-                                  ),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: ModeCard(
+                                  modeList: coolMasterMode,
+                                  selectedKeys: mode,
+                                  onTap: (e) => handleModeTap(e),
                                 ),
-                                title: '摆风',
-                                child: MzSwitch(
-                                  value: swing,
-                                  disabled: swingDisabled(),
-                                  onTap: (e) => toggleSwing(),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: FunctionCard(
+                                  icon: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x38ffffff),
+                                      borderRadius: BorderRadius.circular(15.0),
+                                    ),
+                                    child: const Image(
+                                      height: 22,
+                                      width: 22,
+                                      image: AssetImage(
+                                          'assets/imgs/plugins/0x40/swing.png'),
+                                    ),
+                                  ),
+                                  title: '摆风',
+                                  child: MzSwitch(
+                                    value: swing,
+                                    disabled: swingDisabled(),
+                                    onTap: (e) => toggleSwing(),
+                                  ),
                                 ),
                               ),
                               FunctionCard(
@@ -321,6 +329,7 @@ class _CoolMasterState extends State<CoolMaster> {
         mode = mode;
       });
     }
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   handleRefresh() async {
@@ -344,6 +353,7 @@ class _CoolMasterState extends State<CoolMaster> {
       swing = !swing;
     });
     BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   void toggleSmelly() {
@@ -351,6 +361,7 @@ class _CoolMasterState extends State<CoolMaster> {
       smelly = !smelly;
     });
     BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 }
 

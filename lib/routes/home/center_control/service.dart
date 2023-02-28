@@ -369,7 +369,7 @@ class CenterControlService {
         var res = deviceModel.getDeviceDetailById(deviceInfo.applianceCode);
         // logger.i('该设备detial${res["detail"]}');
         var value = res["detail"]["mode"] ?? 'auto';
-        // logger.i('中控${deviceInfo.name}风速$value');
+        logger.i('中控${deviceInfo.name}风速$value');
         totalModeList.add(value);
       }
     }

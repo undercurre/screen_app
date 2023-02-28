@@ -30,7 +30,7 @@ class ScenePageState extends State<ScenePage> {
 
   void startTimer() {
     timeTimer.cancel(); // 取消定时器
-    timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    timeTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
       //TODO
       setState(() {
         time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
@@ -186,9 +186,10 @@ class ScenePageState extends State<ScenePage> {
                 }
                 await sceneChangeNotifier.updateSceneList();
               },
-                child: ConstrainedBox(
+                child: Center(child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minWidth: MediaQuery.of(context).size.width - 32,
+                    maxWidth: 460,
+                    minWidth: 460 - 32,
                     minHeight: MediaQuery.of(context).size.height - 60,
                   ),
                   child: ReorderableWrap(
@@ -259,6 +260,7 @@ class ScenePageState extends State<ScenePage> {
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

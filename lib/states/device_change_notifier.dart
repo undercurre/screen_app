@@ -150,8 +150,6 @@ class DeviceListModel extends ProfileChangeNotifier {
           curDevice.detail = newDetail;
         }
       }
-      logger.i(
-          "源数据: ${_deviceListResource.where((element) => element.applianceCode == deviceInfo.applianceCode).toList()[0].detail}");
       notifyListeners();
       if (callback != null) callback();
     }
@@ -286,8 +284,10 @@ class DeviceListModel extends ProfileChangeNotifier {
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
         if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
           for (int lu = 1; lu <= deviceInfo.detail!["deviceControlList"].length; lu ++) {
-            productVistualDevice(deviceInfo, deviceInfo.detail!["gatewayInfo"]["endlist"][lu - 1]["name"], "singlePanel-$lu");
+            productVistualDevice(deviceInfo, deviceInfo.detail!["gatewayInfo"]["endlist"][lu - 1]["name"] ?? '按键$lu', "singlePanel-$lu");
           }
+        } else {
+          logger.i('生产虚拟设备出错' ,deviceInfo);
         }
       }
     }

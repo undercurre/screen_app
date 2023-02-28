@@ -16,7 +16,6 @@ import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
-import '../../../widgets/event_bus.dart';
 
 List<Map<String, String>> dropMenuBtnList = [
   {'title': '添加设备', 'route': 'SnifferPage'},
@@ -58,7 +57,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
 
   void startTimer() {
     timeTimer.cancel(); // 取消定时器
-    timeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    timeTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
       //TODO
       setState(() {
         time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
@@ -135,7 +134,8 @@ class _CenterControlPageState extends State<CenterControlPage> {
       decoration: const BoxDecoration(
         color: Colors.black,
       ),
-      child: Flex(
+      child:
+      Flex(
         direction: Axis.vertical,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

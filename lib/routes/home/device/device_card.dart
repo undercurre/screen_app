@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
@@ -22,6 +23,8 @@ class DeviceCard extends StatefulWidget {
 
 class _DeviceCardState extends State<DeviceCard> {
   bool power = false;
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
 
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
@@ -51,6 +54,7 @@ class _DeviceCardState extends State<DeviceCard> {
           e.localPosition.dx < 90 &&
           e.localPosition.dy > 140 &&
           e.localPosition.dy < 175) {
+        if (!DeviceService.isSupport(widget.deviceInfo!)) return;
         setState(() {
           power = !power;
         });
@@ -60,13 +64,6 @@ class _DeviceCardState extends State<DeviceCard> {
             await context
                 .read<DeviceListModel>()
                 .updateDeviceDetail(widget.deviceInfo!);
-            setState(() {
-              widget.deviceInfo = context
-                  .read<DeviceListModel>()
-                  .getDeviceInfoByIdAndType(widget.deviceInfo!.applianceCode,
-                      widget.deviceInfo!.type);
-              power = DeviceService.isPower(widget.deviceInfo!);
-            });
           });
         } else {
           setState(() {
@@ -90,10 +87,41 @@ class _DeviceCardState extends State<DeviceCard> {
     bus.on('updateDeviceCardState', (arg) async {
       setDate();
     });
+    Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+      String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+      Map<String,dynamic> eventMap = json.decode(event);
+      String nodeId = eventMap['nodeId'] ?? "";
+
+      if (nodeId.isEmpty) {
+        if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
+          setDate();
+        }
+      } else {
+        if (widget.deviceInfo?.type == '0x21' && widget.deviceInfo?.detail?['nodeId'] == nodeId) {
+          setDate();
+        }
+      }
+    }));
+    
+    Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        if (arg.containsKey('applianceId')) {
+          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+            setDate();
+          }
+        }
+    }));
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   setDate() async {
-    if (widget.deviceInfo != null) {
+    if (widget.deviceInfo != null && mounted) {
       await context
           .read<DeviceListModel>()
           .updateDeviceDetail(widget.deviceInfo!);
@@ -231,7 +259,7 @@ class _DeviceCardState extends State<DeviceCard> {
       );
     } else {
       if (zigbeeControllerList[widget.deviceInfo!.modelNumber] ==
-          '0x21_curtain_panel_two') {
+          '0x21_curtain_panel_two' || (widget.deviceInfo!.type == '0x17' && widget.deviceInfo!.sn8 != '127PD03G')) {
         return Container();
       }
       if (!DeviceService.isSupport(widget.deviceInfo!) ||

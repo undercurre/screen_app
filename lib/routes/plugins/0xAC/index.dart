@@ -20,6 +20,12 @@ class AirConditionPageState extends State<AirConditionPage> {
     }
   };
 
+  var localPower = 'off';
+  var localMode = 'auto';
+  var localTemp = 26;
+  num localSmallTemp = 0.5;
+  var localWind = 102;
+
   bool menuVisible = false;
 
   void goBack() {
@@ -29,12 +35,11 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Future<void> powerHandle() async {
     var res = await AirConditionApi.powerLua(
-        deviceWatch["deviceId"], !(deviceWatch["detail"]["power"] == 'on'));
+        deviceWatch["deviceId"], !(localPower == 'on'));
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["power"] =
-            deviceWatch["detail"]["power"] == "on" ? "off" : "on";
+        localPower = localPower == "on" ? "off" : "on";
       });
     }
   }
@@ -45,8 +50,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["wind_speed"] =
-            deviceWatch["detail"]["wind_speed"] = value;
+        localWind = value;
       });
     }
   }
@@ -57,7 +61,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["temperature"] = value;
+        localTemp = value;
       });
     }
   }
@@ -67,7 +71,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
     if (res.isSuccess) {
       setState(() {
-        deviceWatch["detail"]["mode"] = mode;
+        localMode = mode;
       });
     }
   }
@@ -76,7 +80,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[deviceWatch["detail"]["mode"]] = true;
+    selectKeys[localMode] = true;
     return selectKeys;
   }
 
@@ -87,6 +91,11 @@ class AirConditionPageState extends State<AirConditionPage> {
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
     setState(() {
       deviceWatch["detail"] = detail;
+      localPower = detail["power"];
+      localMode = detail["mode"];
+      localTemp = detail["temperature"];
+      localSmallTemp = detail["small_temperature"];
+      localWind = detail["wind_speed"];
     });
     debugPrint('插件中获取到的详情：$deviceWatch');
     if (mounted) {
@@ -100,10 +109,16 @@ class AirConditionPageState extends State<AirConditionPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
+      var deviceDetail = context
+          .read<DeviceListModel>()
+          .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
-        deviceWatch = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceWatch["deviceId"]);
+        deviceWatch = deviceDetail;
+        localPower = deviceDetail["detail"]["power"];
+        localMode = deviceDetail["detail"]["mode"];
+        localTemp = deviceDetail["detail"]["temperature"];
+        localSmallTemp = deviceDetail["detail"]["small_temperature"];
+        localWind = deviceDetail["detail"]["wind_speed"];
       });
       deviceWatch = context
           .read<DeviceListModel>()
@@ -141,9 +156,8 @@ class AirConditionPageState extends State<AirConditionPage> {
   ];
 
   Map<String, String> getCurModeConfig() {
-    Map<String, String> curMode = btnList
-        .where((element) => element["key"] == deviceWatch["detail"]["mode"])
-        .toList()[0];
+    Map<String, String> curMode =
+        btnList.where((element) => element["key"] == localMode).toList()[0];
     return curMode;
   }
 
@@ -164,9 +178,9 @@ class AirConditionPageState extends State<AirConditionPage> {
               left: 0,
               top: 0,
               child: AirCondition(
-                temperature: deviceWatch["detail"]["temperature"],
-                windSpeed: deviceWatch["detail"]["windSpeed"],
-                mode: deviceWatch["detail"]["mode"],
+                temperature: localTemp,
+                windSpeed: localWind,
+                mode: localMode,
               )),
           Flex(
             direction: Axis.vertical,
@@ -183,7 +197,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["power"] == 'on',
+                    power: localPower == 'on',
                     hasPower: true,
                   ),
                 ),
@@ -228,37 +242,40 @@ class AirConditionPageState extends State<AirConditionPage> {
                                     child: FunctionCard(
                                       title: '模式',
                                       child: DropdownMenu(
+                                        disabled: localPower == 'off',
                                         menu: btnList.map(
                                           (item) {
                                             return PopupMenuItem<String>(
                                               padding: EdgeInsets.zero,
                                               value: item['key'],
-                                              child: Center(
-                                                child: Container(
-                                                  width: 130,
-                                                  height: 50,
-                                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                                  decoration: BoxDecoration(
-                                                    color: true // TODO: 完善
-                                                        ? const Color(
-                                                            0xff575757)
-                                                        : Colors.transparent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  child: Opacity(
-                                                    opacity: true // TODO: 完善
-                                                        ? 1
-                                                        : 0.7,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Image.asset(
-                                                            item['icon']!),
-                                                        Padding(
+                                              child: MouseRegion(
+                                                child: Center(
+                                                  child: Container(
+                                                    width: 130,
+                                                    height: 50,
+                                                    margin: const EdgeInsets
+                                                        .symmetric(vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: false // TODO: 完善
+                                                          ? const Color(
+                                                              0xff575757)
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    child: Opacity(
+                                                      opacity: true // TODO: 完善
+                                                          ? 1
+                                                          : 0.7,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Image.asset(
+                                                              item['icon']!),
+                                                          Padding(
                                                             padding:
                                                                 const EdgeInsets
                                                                         .fromLTRB(
@@ -276,7 +293,8 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                               ),
                                                             ),
                                                           ),
-                                                      ],
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -328,24 +346,22 @@ class AirConditionPageState extends State<AirConditionPage> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
+                                      disabled: localPower == 'off' ||
+                                          localMode == 'fan',
                                       min: 17,
                                       max: 30,
                                       step: 0.5,
-                                      value: deviceWatch["detail"]
-                                              ["temperature"] +
-                                          deviceWatch["detail"]
-                                              ["small_temperature"],
+                                      value: localTemp + localSmallTemp,
                                       onChanged: temperatureHandle,
                                     ),
                                   ),
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      value: (deviceWatch["detail"]
-                                                      ["wind_speed"] /
-                                                  20)
-                                              .truncate() +
-                                          1,
+                                      disabled: localPower == 'off' ||
+                                          localMode == 'auto' ||
+                                          localMode == 'dry',
+                                      value: (localWind / 20).truncate() + 1,
                                       onChanged: gearHandle,
                                     ),
                                   ),

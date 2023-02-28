@@ -91,6 +91,7 @@ class _GearCardState extends State<GearCard> {
                 duration: widget.duration ?? const Duration(milliseconds: 100),
                 onChanging: (e, _) => setState(() {
                   value = e;
+                  widget.onChanged?.call(value);
                 }),
                 onChanged: (e, _) => setState(() {
                   value = e;
