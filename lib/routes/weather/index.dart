@@ -56,6 +56,7 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
     // 每10分钟刷新天气
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       updateWeather(areaid!);
+      debugPrint('update weather');
       widget.onTick();
     });
   }

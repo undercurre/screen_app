@@ -168,6 +168,7 @@ class _LinkNetwork extends State<LinkNetwork> {
   @override
   void initState() {
     super.initState();
+    _model = _LinkNetworkModel(context);
   }
 
   @override
@@ -179,9 +180,8 @@ class _LinkNetwork extends State<LinkNetwork> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
-        value: _LinkNetworkModel(context),
+        value: _model,
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
-          _model = model;
           return ListView.builder(
               itemCount: model.pageData.length,
               itemBuilder: (BuildContext context, int index) {

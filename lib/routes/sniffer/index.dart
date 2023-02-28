@@ -349,7 +349,7 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
 
           // 设备阵列
           Positioned(
-              top: 128,
+              top: 100,
               width: MediaQuery.of(context).size.width,
               child: Wrap(
                   alignment: WrapAlignment.center,

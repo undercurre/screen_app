@@ -261,15 +261,20 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                   });
                 }),
                 const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
-                settingItem("待机样式", parseScreenSaverName(screenSaverId), () {
-                  Navigator.of(context).pushNamed('SelectStandbyStylePage').then((value) {
-                    if (value != null) {
-                      setState(() {
-                        screenSaverId = value as int;
-                      });
-                    }
-                  });
-                }),
+                Consumer<StandbyChangeNotifier>(builder: (_, model, child) {
+                  return settingItem("待机样式", parseScreenSaverName(screenSaverId), () {
+                    Navigator.of(context)
+                        .pushNamed('SelectStandbyStylePage')
+                        .then((value) {
+                      if (value != null) {
+                        setState(() {
+                          screenSaverId = value as int;
+                        });
+                      }
+                    });
+                  }, model.standbyTimeOpt.value != -1);
+                }
+                ),
                 const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
                 settingItem("息屏时间段", duration, () {
                   Navigator.of(context).pushNamed("SelectTimeDurationPage").then((value) {
@@ -291,50 +296,57 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
     );
   }
 
-  Widget settingItem(String name, String value, GestureTapCallback? onTap) {
+  Widget settingItem(String name, String value, GestureTapCallback? onTap, [bool enable = true]) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        color: Colors.black,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-              child: Text(name,
-                  style: const TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 24.0,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none,
-                  )),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                  child: Text(value,
-                      style: const TextStyle(
-                        color: Color(0XFF0091FF),
-                        fontSize: 18.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
-                  child: Image.asset(
-                    "assets/imgs/icon/arrow-right.png",
-                    width: 30,
-                    height: 30,
+      onTap: () {
+        if(enable) {
+          onTap?.call();
+        }
+      },
+      child: Opacity(
+        opacity: enable? 1.0: 0.3,
+        child: Container(
+          color: Colors.black,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                child: Text(name,
+                    style: const TextStyle(
+                      color: Color(0XFFFFFFFF),
+                      fontSize: 24.0,
+                      fontFamily: "MideaType",
+                      fontWeight: FontWeight.normal,
+                      decoration: TextDecoration.none,
+                    )),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
+                    child: Text(value,
+                        style: const TextStyle(
+                          color: Color(0XFF0091FF),
+                          fontSize: 18.0,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none,
+                        )),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
+                    child: Image.asset(
+                      "assets/imgs/icon/arrow-right.png",
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

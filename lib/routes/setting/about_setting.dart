@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
+import 'package:screen_app/widgets/index.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
@@ -101,37 +102,52 @@ class AboutSettingPage extends StatelessWidget {
     const AboutSettingPage({super.key});
 
     void showRebootDialog(BuildContext context, AboutSettingProvider provider) async {
-      showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (buildContext) {
-            return RebootDialog(
-              title: "重启设备",
-              content: "此操作将使网关子设备暂时离线，是否确认重启？",
-              confirmAction: () {
-                provider.reboot();
-              },
-            );
+      MzDialog(
+          title: '重启设备',
+          maxWidth: 400,
+          contentSlot: const Text(
+              '此操作将使网关子设备暂时离线，是否确认重启？',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+              fontSize: 20,
+              fontFamily: 'MideaType',
+              fontWeight: FontWeight.w100,
+              height: 1.2)
+          ),
+          btns: ['取消','确定'],
+          onPressed: (_, position, context) {
+            Navigator.pop(context);
+            if(position == 1) {
+              // 此处执行清除数据的业务逻辑
+              provider.reboot();
+            }
           }
-      );
+      ).show(context);
     }
 
     void showClearUserDataDialog(BuildContext context, AboutSettingProvider provider) async {
-      showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (buildContext) {
-            return RebootDialog(
-              title: "清除用户数据",
-              content: "此操作将退出当前账号，清除所有用户数据并重启，是否确认清除",
-              confirmAction: () {
-                TipsUtils.showLoading("正在清除中...");
-                // 此处执行清除数据的业务逻辑
-                provider.clearUserData();
-              },
-            );
+      MzDialog(
+        title: '清除用户数据',
+        maxWidth: 400,
+        contentSlot: const Text(
+            '此操作将退出当前账号，清除所有用户数据并重启，是否确认清除?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'MideaType',
+                fontWeight: FontWeight.w100,
+                height: 1.2)
+        ),
+        btns: ['取消','确定'],
+        onPressed: (_, position, context) {
+          Navigator.pop(context);
+          if(position == 1) {
+            TipsUtils.showLoading("正在清除中...");
+            // 此处执行清除数据的业务逻辑
+            provider.clearUserData();
           }
-      );
+        }
+      ).show(context);
     }
 
     @override
@@ -247,15 +263,68 @@ class AboutSettingPage extends StatelessWidget {
                                 ),
                                 Container(
                                   margin: const EdgeInsets.fromLTRB(28, 18, 28, 0),
-                                  child: Text(
-                                      context.watch<AboutSettingProvider>().familyName ?? '',
-                                      style: const TextStyle(
-                                        color: Color(0X7fFFFFFF),
-                                        fontSize: 18.0,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      )),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                          context.watch<AboutSettingProvider>().familyName ?? '',
+                                          style: const TextStyle(
+                                            color: Color(0X7fFFFFFF),
+                                            fontSize: 18.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                      GestureDetector(
+                                        onTap: () {
+                                          MzDialog(
+                                              contentSlot: const Text(
+                                                  '此操作将退出到扫码登录界面，是否继续?',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontFamily: 'MideaType',
+                                                      fontWeight: FontWeight.w100,
+                                                      height: 1.2)
+                                              ),
+                                              title: "登出",
+                                              maxWidth: 400,
+                                              btns: ['取消','确定'],
+                                              contentPadding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+                                              onPressed:(_, index, context) {
+                                                if(index == 1) {
+                                                  System.loginOut();
+                                                  Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
+                                                } else {
+                                                  Navigator.pop(context);
+                                                }
+                                              }
+                                          ).show(context);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
+                                          margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(80),
+                                            color: const Color(0x2f0091FF),
+                                            border: const Border(
+                                              top: BorderSide(width: 1.0, color: Color(0xff0091FF)),
+                                              left: BorderSide(width: 1.0, color: Color(0xff0091FF)),
+                                              right: BorderSide(width: 1.0, color: Color(0xff0091FF)),
+                                              bottom: BorderSide(width: 1.0, color: Color(0xff0091FF)),
+                                            ),
+                                          ),
+                                          child: const Text("登出",
+                                              style: TextStyle(
+                                                color: Color(0XFFFFFFFF),
+                                                fontSize: 22.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              )),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -576,84 +645,4 @@ class AboutSettingPage extends StatelessWidget {
             )),
       );
     }
-}
-
-class RebootDialog extends StatelessWidget {
-  final String title;
-  final String content;
-  final void Function() confirmAction;
-  const RebootDialog({super.key, required this.title, required this.content, required this.confirmAction});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
-        color: const Color(0xff1b1b1b),
-        width:423,
-        height: 204,
-        child: Column(
-          children: [
-            Expanded(
-                flex: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                )
-            ),
-            Expanded(
-                flex: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  child:Padding(padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
-                    child: Text(
-                      content,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                  ),)
-                )
-            ),
-            Expanded(
-                flex: 1,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(const Color(0xff282828)),
-                            shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('取消', style: TextStyle(color: Colors.white, fontSize: 18),),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(const Color(0xff267AFF)),
-                            shape: MaterialStateProperty.all(const RoundedRectangleBorder())),
-                        onPressed: () {
-                          confirmAction.call();
-                          Navigator.pop(context);
-                        },
-                        child: const Text('确定', style: TextStyle(color: Colors.white, fontSize: 18),),
-                      ),)
-                  ],
-                )
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
