@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -327,6 +329,7 @@ class _CoolMasterState extends State<CoolMaster> {
         mode = mode;
       });
     }
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   handleRefresh() async {
@@ -350,6 +353,7 @@ class _CoolMasterState extends State<CoolMaster> {
       swing = !swing;
     });
     BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   void toggleSmelly() {
@@ -357,6 +361,7 @@ class _CoolMasterState extends State<CoolMaster> {
       smelly = !smelly;
     });
     BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
+    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 }
 

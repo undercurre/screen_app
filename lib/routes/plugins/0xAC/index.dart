@@ -39,8 +39,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
     if (res.isSuccess) {
       setState(() {
-        localPower =
-            localPower == "on" ? "off" : "on";
+        localPower = localPower == "on" ? "off" : "on";
       });
     }
   }
@@ -157,9 +156,8 @@ class AirConditionPageState extends State<AirConditionPage> {
   ];
 
   Map<String, String> getCurModeConfig() {
-    Map<String, String> curMode = btnList
-        .where((element) => element["key"] == localMode)
-        .toList()[0];
+    Map<String, String> curMode =
+        btnList.where((element) => element["key"] == localMode).toList()[0];
     return curMode;
   }
 
@@ -250,32 +248,34 @@ class AirConditionPageState extends State<AirConditionPage> {
                                             return PopupMenuItem<String>(
                                               padding: EdgeInsets.zero,
                                               value: item['key'],
-                                              child: Center(
-                                                child: Container(
-                                                  width: 130,
-                                                  height: 50,
-                                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                                  decoration: BoxDecoration(
-                                                    color: true // TODO: 完善
-                                                        ? const Color(
-                                                            0xff575757)
-                                                        : Colors.transparent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  child: Opacity(
-                                                    opacity: true // TODO: 完善
-                                                        ? 1
-                                                        : 0.7,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Image.asset(
-                                                            item['icon']!),
-                                                        Padding(
+                                              child: MouseRegion(
+                                                child: Center(
+                                                  child: Container(
+                                                    width: 130,
+                                                    height: 50,
+                                                    margin: const EdgeInsets
+                                                        .symmetric(vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: false // TODO: 完善
+                                                          ? const Color(
+                                                              0xff575757)
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    child: Opacity(
+                                                      opacity: true // TODO: 完善
+                                                          ? 1
+                                                          : 0.7,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Image.asset(
+                                                              item['icon']!),
+                                                          Padding(
                                                             padding:
                                                                 const EdgeInsets
                                                                         .fromLTRB(
@@ -293,7 +293,8 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                               ),
                                                             ),
                                                           ),
-                                                      ],
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -345,23 +346,22 @@ class AirConditionPageState extends State<AirConditionPage> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: localPower == 'off' || localMode == 'fan',
+                                      disabled: localPower == 'off' ||
+                                          localMode == 'fan',
                                       min: 17,
                                       max: 30,
                                       step: 0.5,
-                                      value: localTemp +
-                                          localSmallTemp,
+                                      value: localTemp + localSmallTemp,
                                       onChanged: temperatureHandle,
                                     ),
                                   ),
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      disabled: localPower == 'off' || localMode == 'auto' || localMode == 'dry',
-                                      value: (localWind /
-                                                  20)
-                                              .truncate() +
-                                          1,
+                                      disabled: localPower == 'off' ||
+                                          localMode == 'auto' ||
+                                          localMode == 'dry',
+                                      value: (localWind / 20).truncate() + 1,
                                       onChanged: gearHandle,
                                     ),
                                   ),
