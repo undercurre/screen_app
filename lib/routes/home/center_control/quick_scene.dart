@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:provider/provider.dart';
 import '../../../common/global.dart';
@@ -106,12 +107,21 @@ class QuickSceneState extends State<QuickScene> {
                                       Image.asset(sceneList[i - 1].icon,
                                           width: 42, height: 42),
                                       Container(
-                                        width: 80,
+                                        width: 70,
                                         padding: const EdgeInsets.all(4),
                                         child: Center(
-                                          child: Text(sceneList[i - 1].name,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis),
+                                          child: Text(
+                                            sceneList[i - 1].name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12.0,
+                                              fontFamily: 'MideaType',
+                                              fontWeight: FontWeight.normal,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],

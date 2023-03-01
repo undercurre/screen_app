@@ -25,3 +25,7 @@
 `打包产物保存的路径：`\build\app\outputs\apk\JH\debug
 
 *** 注意: `--dart-define=env`为指定环境变量，值为`prod`正式环境，值为`sit`测试环境
+
+## adb传输命令
+
+> adb install -r -d <上面命令输出的打包路径>
