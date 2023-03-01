@@ -69,9 +69,16 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   }
 
   Future<void> lightHandle(bool e) async {
+    setState(() {
+      localLight = localLight == 'on' ? 'off' : 'on';
+    });
     var res = await WIFILiangyiApi.lightLua(deviceWatch["deviceId"], e);
     if (res.isSuccess) {
       updateDetail();
+    } else {
+      setState(() {
+        localLight = localLight == 'on' ? 'off' : 'on';
+      });
     }
   }
 
