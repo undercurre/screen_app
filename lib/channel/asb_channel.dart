@@ -11,7 +11,7 @@ abstract class AbstractChannel {
 
   // 构造器函数
   AbstractChannel.fromName(this._channelName) {
-    _MethodChannel = _initialMethodChannel();
+    _MethodChannel = initialMethodChannel(_channelName);
     /// 2023/2/6 新增从初始化方法
     try {
       initChannel();
@@ -22,9 +22,10 @@ abstract class AbstractChannel {
 
   MethodChannel get methodChannel => _MethodChannel;
 
-  MethodChannel _initialMethodChannel() {
-    debugPrint("初始化 ${this.runtimeType} ");
-    var channel = MethodChannel(_channelName, const JSONMethodCodec());
+  @protected
+  MethodChannel initialMethodChannel(String channelName) {
+    debugPrint("初始化 $runtimeType ");
+    var channel = MethodChannel(channelName, const JSONMethodCodec());
     // 持续性的数据上报，写到此处
     channel.setMethodCallHandler(onMethodCallHandler);
     return channel;
