@@ -58,7 +58,7 @@ class DeviceItem extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: device.selected
                           ? Border.all(
-                              strokeAlign: StrokeAlign.outside,
+                              strokeAlign: BorderSide.strokeAlignOutside,
                               color: const Color.fromRGBO(0, 145, 255, 1),
                               width: 3,
                               style: BorderStyle.solid)

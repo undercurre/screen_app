@@ -1,4 +1,5 @@
 import 'package:screen_app/channel/about_system_channel.dart';
+import 'package:screen_app/channel/bugly_report_channel.dart';
 import 'package:screen_app/channel/config_channel.dart';
 import 'package:screen_app/channel/device_manager_channel.dart';
 import 'package:screen_app/channel/net_method_channel.dart';
@@ -16,6 +17,7 @@ const String channelSetting = "com.midea.light/set";
 const String channelDeviceManager = "com.midea.light/deviceManager";
 const String channelAi = "com.midea.light/ai";
 const String channelGateway = "com.midea.light/gateway";
+const String channelBugly = "com.midea.light/bugly";
 
 late NetMethodChannel netMethodChannel;
 // 配置channel
@@ -32,6 +34,8 @@ late DeviceManagerChannel deviceManagerChannel;
 late AiMethodChannel aiMethodChannel;
 // 网关channel
 late GatewayChannel gatewayChannel;
+// Bugly Channel
+late BuglyReportChannel buglyReportChannel;
 
 // 构建所有的Channel
 void buildChannel() {
@@ -43,4 +47,5 @@ void buildChannel() {
   deviceManagerChannel = DeviceManagerChannel.fromName(channelDeviceManager);
   aiMethodChannel = AiMethodChannel.fromName(channelAi);
   gatewayChannel = GatewayChannel.fromName(channelGateway);
+  buglyReportChannel = BuglyReportChannel.fromName(channelBugly);
 }

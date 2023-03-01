@@ -43,6 +43,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="智慧屏"
         tools:replace="android:label">
+
+            <!--设置BuglyID -->
+        <meta-data
+            android:name="BUGLY_ID"
+            android:value="${BUGLY_APP_ID}" />
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
