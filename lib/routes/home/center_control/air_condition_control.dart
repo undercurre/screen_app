@@ -7,7 +7,7 @@ import 'package:screen_app/states/device_change_notifier.dart';
 import '../../../common/global.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
-import '../../../widgets/business/dropdown_menu.dart';
+import '../../../widgets/business/dropdown_menu.dart' as ui;
 import '../../../widgets/event_bus.dart';
 import '../../../widgets/mz_metal_card.dart';
 import '../../../widgets/mz_notice.dart';
@@ -322,7 +322,7 @@ class AirConditionControlState extends State<AirConditionControl> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
-                                child: DropdownMenu(
+                                child: ui.DropdownMenu(
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
@@ -561,7 +561,7 @@ class AirConditionControlState extends State<AirConditionControl> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
-                                child: DropdownMenu(
+                                child: ui.DropdownMenu(
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
