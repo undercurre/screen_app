@@ -13,7 +13,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   String deviceId = '178120883713504'; // 暂时写死设备编码
   String deviceName = '智能窗帘';
   String deviceType = '0x14';
-  int curtainPosition = 1;
+  int curtainPosition = 0;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
 
@@ -23,6 +23,16 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   }
 
   Future<void> modeHandle(Mode mode) async {
+
+    if (mode.key == 'open') {
+      setState(() {
+        curtainPosition = 100;
+      });
+    } else if (mode.key == 'close'){
+      setState(() {
+        curtainPosition = 0;
+      });
+    }
     setState(() {
       curtainStatus = mode.key;
     });
@@ -127,7 +137,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                                 child: SliderButtonCard(
                                     unit: '%',
                                     value: curtainPosition,
-                                    min: 1,
+                                    min: 0,
                                     max: 100,
                                     onChanged: curtainHandle),
                               ),

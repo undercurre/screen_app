@@ -96,20 +96,13 @@ class CenterControlService {
   static Future<bool> curtainControl(BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
     var curtainList = deviceModel.curtainList;
-    var failList = [];
-    var successList = [];
+    List<Future<bool>> futures = [];
     for (var i = 1; i <= curtainList.length; i++) {
       var deviceInfo = curtainList[i - 1];
-      var res = await DeviceService.setPower(deviceInfo, onOff);
-      // logger.i('窗帘控制结果', "${deviceInfo.name}: $res");
-      if (res) {
-        deviceModel.updateDeviceDetail(deviceInfo);
-        successList.add(deviceInfo.name);
-      } else {
-        failList.add(deviceInfo.name);
-      }
+      futures.add(DeviceService.setPower(deviceInfo, onOff));
     }
-    return successList.isNotEmpty;
+    var res = await Future.wait(futures);
+    return res.where((element) => element).toList().isNotEmpty;
   }
 
   /// 灯光

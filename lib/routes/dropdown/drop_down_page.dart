@@ -1,12 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
 import '../../common/utils.dart';
-import '../../widgets/AdvancedVerticalSeekBar.dart';
 import '../../widgets/mz_vslider.dart';
 
 class DropDownPage extends StatefulWidget {
@@ -110,15 +107,19 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     turns: animation,
                                     child: ClipOval(
                                         //圆形头像
-                                        child: CachedNetworkImage(
-                                      imageUrl: musicIconUrl,
-                                      placeholder: (context, url) => Image.asset(
-                                        "assets/imgs/dropDown/music-default.png",
-                                      ),
-                                      errorWidget: (context, url, error) => Image.asset(
-                                        "assets/imgs/dropDown/music-default.png",
-                                      ),
-                                    )))),
+                                        child: SizedBox(
+                                            width: 120.0,
+                                            height: 120.0,
+                                            child: CachedNetworkImage(
+                                              imageUrl: musicIconUrl,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) => Image.asset(
+                                                "assets/imgs/dropDown/music-default.png",
+                                              ),
+                                              errorWidget: (context, url, error) => Image.asset(
+                                                "assets/imgs/dropDown/music-default.png",
+                                              ),
+                                            ))))),
                             Container(
                               alignment: Alignment.center,
                               width: 290,

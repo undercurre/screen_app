@@ -81,9 +81,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   judgeModel() {
     for (var element in lightModes) {
       var curMode = element as ZigbeeLightMode;
-      if (deviceWatch["detail"]["brightness"] == curMode.brightness &&
-          deviceWatch["detail"]["colorTemperature"] ==
-              curMode.colorTemperature) {
+      if (localBrightness == curMode.brightness &&
+          localColorTemperature == curMode.colorTemperature) {
         setState(() {
           fakeModel = curMode.key;
         });
@@ -95,10 +94,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     setState(() {
       localPower = !localPower;
     });
-    var res = await ZigbeeLightApi.powerPDM(
-        deviceWatch["detail"]["deviceId"],
-        !(deviceWatch["detail"]["lightPanelDeviceList"][0]["attribute"] == 1),
-        deviceWatch["detail"]["nodeId"]);
+    var res = await ZigbeeLightApi.powerPDM(deviceWatch["detail"]["deviceId"],
+        localPower, deviceWatch["detail"]["nodeId"]);
     if (!res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
@@ -110,23 +107,20 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   Future<void> delayHandle() async {
     setState(() {
-      if (deviceWatch["detail"]["delayClose"] == 0) {
-        deviceWatch["detail"]["delayClose"] = 3;
+      if (localDelayClose == 0) {
+        localDelayClose = 3;
       } else {
-        deviceWatch["detail"]["delayClose"] = 0;
+        localDelayClose = 0;
       }
     });
-    var res = await ZigbeeLightApi.delayPDM(
-        deviceWatch["detail"]["deviceId"],
-        !(deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"] == 0),
-        deviceWatch["detail"]["nodeId"]);
-    if (!res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 1000);
+    var res = await ZigbeeLightApi.delayPDM(deviceWatch["detail"]["deviceId"],
+        !(localDelayClose == 0), deviceWatch["detail"]["nodeId"]);
 
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-    }
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(milliseconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () => {updateDetail()});
   }
 
   Future<void> modeHandle(Mode mode) async {
@@ -141,52 +135,40 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         curMode.brightness,
         curMode.colorTemperature,
         deviceWatch["detail"]["nodeId"]);
-    if (!res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 1000);
 
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-    }
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(milliseconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () => {updateDetail()});
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
     setState(() {
       localBrightness = value;
-      deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"] = value;
     });
-    var res = await ZigbeeLightApi.adjustPDM(
-        deviceWatch["detail"]["deviceId"],
-        value,
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] ??
-            0,
-        deviceWatch["detail"]["nodeId"]);
-    if (!res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 1000);
+    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
+        value, localColorTemperature, deviceWatch["detail"]["nodeId"]);
 
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-    }
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(milliseconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () => {updateDetail()});
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
     setState(() {
-      deviceWatch["detail"]["lightPanelDeviceList"][0]["colorTemperature"] =
-          value;
+      localColorTemperature = value;
     });
-    var res = await ZigbeeLightApi.adjustPDM(
-        deviceWatch["detail"]["deviceId"],
-        deviceWatch["detail"]["lightPanelDeviceList"][0]["brightness"],
-        value,
-        deviceWatch["detail"]["nodeId"]);
-    if (!res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 1000);
+    var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
+        localBrightness, value, deviceWatch["detail"]["nodeId"]);
 
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-    }
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(milliseconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () => {updateDetail()});
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -231,13 +213,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
-            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                    ["attribute"] ==
-                0,
+            disabled: !localPower,
             title: '色温',
-            value: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                    ["colorTemperature"] ??
-                0,
+            value: localColorTemperature,
             activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
             onChanged: colorTemperatureHandle,
             onChanging: colorTemperatureHandle,
@@ -250,37 +228,27 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: modeHandle,
-            disabled: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                    ["attribute"] ==
-                0,
+            disabled: !localPower,
           ),
         ),
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',
-            subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                        ["delayClose"] ==
-                    0
-                ? '未设置'
-                : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
+            subTitle: localDelayClose == 0 ? '未设置' : '$localDelayClose分钟后关灯',
             child: Listener(
               onPointerDown: (e) => delayHandle(),
               child: Container(
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                              ["delayClose"] ==
-                          0
+                  color: localDelayClose == 0
                       ? const Color(0xFF000000)
                       : const Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.circular(16.0),
                 ),
                 child: Image(
-                  image: AssetImage(deviceWatch["detail"]
-                              ["lightPanelDeviceList"][0]["delayClose"] ==
-                          0
+                  image: AssetImage(localDelayClose == 0
                       ? 'assets/imgs/plugins/0x13/delay_off.png'
                       : 'assets/imgs/plugins/0x13/delay_on.png'),
                 ),
@@ -310,28 +278,20 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',
-            subTitle: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                        ["delayClose"] ==
-                    0
-                ? '未设置'
-                : '${deviceWatch["detail"]["lightPanelDeviceList"][0]["delayClose"]}分钟后关灯',
+            subTitle: localDelayClose == 0 ? '未设置' : '$localDelayClose分钟后关灯',
             child: Listener(
               onPointerDown: (e) => delayHandle(),
               child: Container(
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                              ["delayClose"] ==
-                          0
+                  color: localDelayClose == 0
                       ? const Color(0xFF000000)
                       : const Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.circular(16.0),
                 ),
                 child: Image(
-                  image: AssetImage(deviceWatch["detail"]
-                              ["lightPanelDeviceList"][0]["delayClose"] ==
-                          0
+                  image: AssetImage(localDelayClose == 0
                       ? 'assets/imgs/plugins/0x13/delay_off.png'
                       : 'assets/imgs/plugins/0x13/delay_on.png'),
                 ),
@@ -357,12 +317,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: deviceWatch["detail"]["lightPanelDeviceList"][0]
-                    ["brightness"],
-                colorTemperature: 100 -
-                    (deviceWatch["detail"]["lightPanelDeviceList"][0]
-                            ["colorTemperature"] ??
-                        0),
+                brightness: localBrightness,
+                colorTemperature: 100 - localColorTemperature,
               )),
           Flex(
             direction: Axis.vertical,

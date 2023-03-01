@@ -102,7 +102,7 @@ class _DeviceCardState extends State<DeviceCard> {
         }
       }
     }));
-    
+
     Push.listen("appliance/status/report", _reportCallback = ((arg) {
         if (arg.containsKey('applianceId')) {
           if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
@@ -171,23 +171,16 @@ class _DeviceCardState extends State<DeviceCard> {
             children: [
               SizedBox(
                 width: 112,
-                child: Flex(
-                  direction: Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      widget.deviceInfo != null
-                          ? widget.deviceInfo!.name
-                          : '加载中',
-                      style: const TextStyle(
-                        fontSize: 20.0,
-                        color: Color(0XFFFFFFFF),
-                      ),
+                child: Center(
+                  child: Text(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Color(0XFFFFFFFF),
                     ),
-                  ],
+                  ),
                 ),
               ),
               Container(
@@ -259,7 +252,9 @@ class _DeviceCardState extends State<DeviceCard> {
       );
     } else {
       if (zigbeeControllerList[widget.deviceInfo!.modelNumber] ==
-          '0x21_curtain_panel_two' || (widget.deviceInfo!.type == '0x17' && widget.deviceInfo!.sn8 != '127PD03G')) {
+              '0x21_curtain_panel_two' ||
+          (widget.deviceInfo!.type == '0x17' &&
+              widget.deviceInfo!.sn8 != '127PD03G')) {
         return Container();
       }
       if (!DeviceService.isSupport(widget.deviceInfo!) ||

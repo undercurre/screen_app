@@ -234,6 +234,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     // 查灯组
     await selectLightGroupList();
     // 更新设备detail
+    List<Future<void>> futures = [];
     for (int xx = 1; xx <= deviceList.length; xx++) {
       var deviceInfo = deviceList[xx - 1];
       // 查看品类控制器看是否支持该品类
@@ -242,9 +243,10 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        await updateDeviceDetail(deviceInfo);
+        futures.add(updateDeviceDetail(deviceInfo));
       }
     }
+    await Future.wait(futures);
     // 放置虚拟设备
     setVistualDevice();
   }
