@@ -342,9 +342,9 @@ public class MainActivity extends FlutterActivity {
                     if (value != -1) {
 //                        Log.e("sky", "距离传感器值:" + (value));
                         if (value == 0 && MainApplication.standbyState) {
-//                            if (!isScreenOn()) {
-//                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
-//                            }
+                            if (!isScreenOn()) {
+                                sendKeyEvent(KeyEvent.KEYCODE_BACK);
+                            }
                             MainApplication.standbyState = false;
                             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
                             new Thread() {
@@ -388,9 +388,9 @@ public class MainActivity extends FlutterActivity {
                 if (max - min > 50 && MainApplication.standbyState) {
                     LogUtil.e("######接触唤醒 -> 手机屏幕");
                     MainApplication.standbyState = false;
-//                    if (!isScreenOn()) {
-//                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
-//                    }
+                    if (!isScreenOn()) {
+                        sendKeyEvent(KeyEvent.KEYCODE_BACK);
+                    }
                     runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
                     new Thread() {
                         public void run() {
