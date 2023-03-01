@@ -23,6 +23,7 @@ const val CHANNEL_CONFIG = "com.midea.light/config"
 const val CHANNEL_OTA = "com.midea.light/ota"
 const val CHANNEL_MANAGER_DEVICES = "com.midea.light/deviceManager"
 const val CHANNEL_GATEWAY = "com.midea.light/gateway";
+const val CHANNEL_BUGLY = "com.midea.light/bugly"
 
 class Channels {
     // Channel信使
@@ -38,6 +39,7 @@ class Channels {
     lateinit var otaChannel: OtaChannel
     lateinit var managerDeviceChannel: ManagerDeviceChannel
     lateinit var gatewayChannel: GatewayChannel
+    lateinit var buglyReportChannel: BuglyReportChannel
 
     private var isInit = false
 
@@ -53,6 +55,7 @@ class Channels {
             otaChannel = OtaChannel.create(CHANNEL_OTA, binaryMessenger, context)
             managerDeviceChannel = ManagerDeviceChannel.create(CHANNEL_MANAGER_DEVICES, binaryMessenger, context)
             gatewayChannel = GatewayChannel.create(CHANNEL_GATEWAY, binaryMessenger, context)
+            buglyReportChannel = BuglyReportChannel.create(CHANNEL_BUGLY, binaryMessenger, context)
             isInit = true
         }
     }
