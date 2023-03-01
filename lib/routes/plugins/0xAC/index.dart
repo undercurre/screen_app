@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -10,6 +13,9 @@ import '../../home/device/service.dart';
 import '../../../widgets/business/dropdown_menu.dart' as ui;
 
 class AirConditionPageState extends State<AirConditionPage> {
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
+
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": '空调',
@@ -125,7 +131,40 @@ class AirConditionPageState extends State<AirConditionPage> {
           .read<DeviceListModel>()
           .getDeviceDetailById(deviceWatch["deviceId"]);
       debugPrint('插件中获取到的详情：$deviceWatch');
+
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            updateDetail();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            updateDetail();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            updateDetail();
+          }
+        }
+      }));
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   List<Map<String, String>> btnList = [

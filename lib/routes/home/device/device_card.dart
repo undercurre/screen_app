@@ -24,8 +24,10 @@ class DeviceCard extends StatefulWidget {
 
 class _DeviceCardState extends State<DeviceCard> {
   bool power = false;
-  Function(Map<String, dynamic> arg)? _eventCallback;
-  Function(Map<String, dynamic> arg)? _reportCallback;
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String,dynamic> arg)? _onlineCallback;
+  Function(Map<String,dynamic> arg)? _offlineCallback;
 
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
@@ -108,22 +110,39 @@ class _DeviceCardState extends State<DeviceCard> {
           }
         }));
 
-    Push.listen(
-        "appliance/status/report",
-        _reportCallback = ((arg) {
-          if (arg.containsKey('applianceId')) {
-            if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
-              setDate();
-            }
+    Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        if (arg.containsKey('applianceId')) {
+          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+            setDate();
           }
-        }));
+        }
+    }));
+
+    Push.listen('appliance/online/status/on', _onlineCallback = ((arg) {
+      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+        setState(() {
+          widget.deviceInfo?.onlineStatus = "1";
+        });
+      }
+    }));
+
+    Push.listen('appliance/online/status/off', _offlineCallback = ((arg) {
+      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+        setState(() {
+          widget.deviceInfo?.onlineStatus = "0";
+        });
+      }
+    }));
   }
+
 
   @override
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report", _reportCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/online/status/on",_onlineCallback);
+    Push.dislisten("appliance/online/status/off",_offlineCallback);
   }
 
   setDate() async {

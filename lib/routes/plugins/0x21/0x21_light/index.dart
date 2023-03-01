@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_light/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -14,6 +16,8 @@ import '../../../home/device/service.dart';
 import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
   // 本地原始数据
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
@@ -190,7 +194,40 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         debugPrint('插件中获取到的详情：$deviceWatch');
       });
       setViewData(deviceWatch['detail']);
+
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            updateDetail();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            updateDetail();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            updateDetail();
+          }
+        }
+      }));
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   @override
