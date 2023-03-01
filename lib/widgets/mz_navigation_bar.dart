@@ -64,11 +64,11 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
       decoration: BoxDecoration(
           border: Border(
               bottom: widget.hasBottomBorder
-                  ?  const BorderSide(
+                  ? const BorderSide(
                       width: 1,
                       style: BorderStyle.solid,
                       color: Color(0xff979797),
-                      strokeAlign: BorderSide.strokeAlignCenter)
+                      strokeAlign: StrokeAlign.center)
                   : BorderSide.none)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
