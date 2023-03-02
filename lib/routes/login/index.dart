@@ -28,6 +28,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     if (stepNum == 1) {
       return;
     }
+    if (stepNum == 3) {
+      Global.profile.homeInfo = null;
+    }
+    if (stepNum == 4) {
+      Global.profile.roomInfo = null;
+    }
     setState(() {
       --stepNum;
     });
