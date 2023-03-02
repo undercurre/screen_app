@@ -68,7 +68,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
                       width: 1,
                       style: BorderStyle.solid,
                       color: Color(0xff979797),
-                      strokeAlign: StrokeAlign.center)
+                      )
                   : BorderSide.none)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
