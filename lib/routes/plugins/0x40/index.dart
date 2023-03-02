@@ -41,6 +41,35 @@ class _CoolMasterState extends State<CoolMaster> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       initView();
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        }
+      }));
     });
   }
 
@@ -365,42 +394,6 @@ class _CoolMasterState extends State<CoolMaster> {
     } finally {
       refreshController.finishRefresh();
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            handleRefresh();
-            luaDataConvToState();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-            handleRefresh();
-            luaDataConvToState();
-          }
-        }
-      }));
-
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-            handleRefresh();
-            luaDataConvToState();
-          }
-        }
-      }));
-    });
   }
 
   @override
