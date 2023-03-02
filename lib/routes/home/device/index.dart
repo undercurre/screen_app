@@ -131,7 +131,7 @@ class _DevicePageState extends State<DevicePage> {
     cb = (arg) {
       initPage();
       DeviceApi.checkBindInfo().then((res) {
-        if (res.data['homegroupId'] != Global.profile.homeInfo?.homegroupId) {
+        if (res.code == 1900) {
           bus.emit('logout');
         }
       });
