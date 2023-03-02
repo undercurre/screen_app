@@ -157,10 +157,22 @@ class Api {
       onReceiveProgress: null,
     );
 
-    var entity = MzResponseEntity.fromJson(res.data);
-    if (entity.isSuccess) {
-      Global.user?.mzAccessToken = entity.result['accessToken'];
+    if(res.statusCode != 200) {
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
     }
+
+    var entity = MzResponseEntity.fromJson(res.data);
+    if (!entity.isSuccess) {
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
+    }
+
+    Global.user?.mzAccessToken = entity.result['accessToken'];
     return entity.isSuccess;
   }
 
@@ -226,10 +238,20 @@ class Api {
       onReceiveProgress: null,
     );
 
+    if(res.statusCode != 200) {
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
+    }
+
     var entity = MideaResponseEntity.fromJson(res.data);
 
     if (!entity.isSuccess) {
-      return false;
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
     }
 
     // 刷新Global.user.accessToken
@@ -255,10 +277,12 @@ class Api {
   static var forceRefresh = true;
 
   static tryToRefresh() async {
-    if (Global.isLogin && (isWillLoginExpire || forceRefresh)) {
-      forceRefresh = !await iotAutoLogin();
-      if (!forceRefresh) {
-        forceRefresh = !await mzAutoLogin();
+    if(Global.isLogin) {
+      if(forceRefresh) {
+        forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
+      } else if(isWillLoginExpire) {
+        await iotAutoLogin();
+        await mzAutoLogin();
       }
     }
   }
@@ -338,6 +362,14 @@ class Api {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
+
+    
+    if(res.statusCode != 200) {
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
+    }
 
     var entity = MideaResponseEntity<T>.fromJson(res.data);
 
@@ -426,6 +458,14 @@ class Api {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
+
+    
+    if(res.statusCode != 200) {
+      throw DioError(
+        requestOptions: res.requestOptions,
+        response: res
+      );
+    }
 
     var entity = MzResponseEntity<T>.fromJson(res.data);
     if (entity.code == TOO_LONG_UNLOGIN ||
