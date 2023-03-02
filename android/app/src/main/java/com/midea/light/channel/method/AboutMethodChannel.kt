@@ -3,6 +3,7 @@ package com.midea.light.channel.method
 import android.content.Context
 import com.midea.iot.sdk.common.security.SecurityUtils
 import com.midea.light.channel.AbsMZMethodChannel
+import com.midea.light.common.utils.DataClearManager
 import com.midea.light.setting.SystemUtil
 import com.midea.smart.open.common.util.StringUtils
 import io.flutter.plugin.common.BinaryMessenger
@@ -49,10 +50,18 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
             "reboot" -> {
                 onHandlerReboot(result)
             }
+            "clearLocalCache" -> {
+                onHandlerClearLocalCache(result)
+            }
             else -> {
                 onCallNotImplement(result)
             }
         }
+    }
+
+    private fun onHandlerClearLocalCache(result: MethodChannel.Result) {
+        Thread { DataClearManager.cleanApplicationData() }.start()
+        result.safeSuccess(true)
     }
 
     private fun onHandlerReboot(result: MethodChannel.Result) {
