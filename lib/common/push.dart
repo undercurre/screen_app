@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:convert' as convert;
 import 'package:crypto/crypto.dart';
@@ -23,6 +24,9 @@ class Push {
 
   static Future<void> sseInit() async {
     if (Global.isLogin) {
+      _aliPushBind();
+      _updatePushToken();
+
       String host = 'wss://${dotenv.get('SSE_URL')}';
       String query = '/v1/ws/access?';
       query += 'src_token=1000&';
@@ -65,7 +69,6 @@ class Push {
   }
 
   static void _onData(event) {
-    logger.i('hjl event $event');
     Map<String,dynamic> eventMap = json.decode(event);
     switch(eventMap['event_type']) {
       case 0:
@@ -109,6 +112,13 @@ class Push {
         }
         break;
     }
+  }
+
+  static notifyPushMessage(String title) {
+    _emap[title]?.forEach((element) {
+      logger.i('hjl aliPushLog $title');
+      element({});
+    });
   }
 
   static listen(String type,EventCallback callback) {
@@ -171,6 +181,8 @@ class Push {
     }
 
     _channel?.sink.close();
+
+    _aliPushUnBind();
   }
 
   static _subscriptionSet() {
@@ -185,12 +197,51 @@ class Push {
         ));
   }
 
-  static _updatePushToken(String deviceId) {
-    Api.requestMideaIot(
+  static _aliPushBind() async {
+    await Api.requestMideaIot(
+        "/push/bind",
+        data: {
+          'alias': Global.profile.user?.uid,
+          'lang': 'zh_cn',
+          'android': {
+            'model' : 'ALIYUN',
+            'bundle_id' : 'com.media.light',
+            'token' : await aliPushChannel.getDeviceId(),
+            'deviceId' : Global.user?.deviceId
+          }
+        },
+        options: Options(
+          method: 'POST',
+          headers: {HttpHeaders.authorizationHeader : "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}"}
+        ));
+  }
+
+  static _aliPushUnBind() async {
+    await Api.requestMideaIot(
+        "/push/bind",
+        data: {
+          'alias': Global.profile.user?.uid,
+          'lang': 'zh_cn',
+          'android': {
+            'model' : 'ALIYUN',
+            'token' : '',
+            'cur_token' : await aliPushChannel.getDeviceId(),
+            'deviceId' : Global.user?.deviceId
+          }
+        },
+        options: Options(
+            method: 'POST',
+            headers: {'Authorization':HttpClientBasicCredentials(dotenv.get('ALI_PUSH_USER_NAME'),dotenv.get('ALI_PUSH_PASSWORD'))}
+        ));
+
+  }
+
+  static _updatePushToken() async {
+    await Api.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/user/push/token/update",
         data: {
           'uid': Global.profile.user?.uid,
-          'pushToken': deviceId,
+          'pushToken': await aliPushChannel.getDeviceId(),
           'clientType': 1,
           'pushType': 5,
           'reqId': const Uuid().v4(),

@@ -158,10 +158,10 @@ class _ParamCardState extends State<ParamCard> with Throttle {
     setState(() {
       localValue = value;
     });
-    if (widget.onChanging != null) {
-      throttle(() {
-        widget.onChanging!(localValue, activeColor);
-      }, durationTime: widget.throttle);
-    }
+    // if (widget.onChanging != null) {
+    //   throttle(() {
+    //     widget.onChanging!(localValue, activeColor);
+    //   }, durationTime: widget.throttle);
+    // }
   }
 }

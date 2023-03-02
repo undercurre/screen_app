@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/sniffer/device_item.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
@@ -26,7 +27,7 @@ class AirConditionControl extends StatefulWidget {
   AirConditionControlState createState() => AirConditionControlState();
 }
 
-class AirConditionControlState extends State<AirConditionControl> {
+class AirConditionControlState extends State<AirConditionControl> with Throttle {
   bool disabled = false;
   num temperature = 26;
   num gear = 1;
@@ -122,9 +123,13 @@ class AirConditionControlState extends State<AirConditionControl> {
       });
       var res = await CenterControlService.ACTemperatureControl(context, value);
       if (res) {
-        TipsUtils.toast(content: '执行成功');
+        throttle(() {
+          TipsUtils.toast(content: '执行成功');
+        }, durationTime: const Duration(milliseconds: 2000));
       } else {
-        TipsUtils.toast(content: '执行失败');
+        throttle(() {
+          TipsUtils.toast(content: '执行失败');
+        }, durationTime: const Duration(milliseconds: 2000));
         setState(() {
           temperature = exValue;
         });
@@ -136,9 +141,13 @@ class AirConditionControlState extends State<AirConditionControl> {
       });
       var res = await CenterControlService.ACFengsuControl(context, value);
       if (res) {
-        TipsUtils.toast(content: '执行成功');
+        throttle(() {
+          TipsUtils.toast(content: '执行成功');
+        }, durationTime: const Duration(milliseconds: 2000));
       } else {
-        TipsUtils.toast(content: '执行失败');
+        throttle(() {
+          TipsUtils.toast(content: '执行失败');
+        }, durationTime: const Duration(milliseconds: 2000));
         setState(() {
           gear = exValue;
         });

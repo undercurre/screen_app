@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
@@ -34,6 +35,7 @@ class _DevicePageState extends State<DevicePage> {
   var time = DateTime.now();
   late Timer _timer;
   double roomTitleScale = 1;
+  Function(Map<String,dynamic> arg)? cb;
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
@@ -124,6 +126,14 @@ class _DevicePageState extends State<DevicePage> {
         });
       }
     });
+
+    cb = (arg) {
+      initPage();
+    };
+
+    Push.listen("添加设备", cb!);
+    Push.listen("解绑设备", cb!);
+    Push.listen("删除设备", cb!);
   }
 
   void setTime(Timer timer) {
@@ -136,6 +146,9 @@ class _DevicePageState extends State<DevicePage> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+    Push.dislisten("添加设备", cb!);
+    Push.dislisten("解绑设备", cb!);
+    Push.dislisten("删除设备", cb!);
   }
 
   void toConfigPage(String route) {

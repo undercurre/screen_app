@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/mixins/throttle.dart';
 
 import '../mz_slider.dart';
 
@@ -32,7 +33,7 @@ class SliderButtonContent extends StatefulWidget {
   State<StatefulWidget> createState() => _SliderButtonContentState();
 }
 
-class _SliderButtonContentState extends State<SliderButtonContent> {
+class _SliderButtonContentState extends State<SliderButtonContent> with Throttle {
   // value 组件内部值
   late num value;
 
@@ -207,7 +208,9 @@ class _SliderButtonContentState extends State<SliderButtonContent> {
             duration: widget.duration ?? const Duration(milliseconds: 0),
             onChanging: (e, _) => setState(() {
               value = e;
-              widget.onChanged?.call(value);
+              throttle(() {
+                widget.onChanged?.call(value);
+              }, durationTime: const Duration(milliseconds: 1500));
             }),
             onChanged: (e, _) => setState(() {
               value = e;
