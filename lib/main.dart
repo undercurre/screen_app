@@ -7,6 +7,7 @@ import 'package:screen_app/states/global_route_observer_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import './channel/index.dart';
 import 'common/crash/android_crash_handler.dart';
+import 'common/crash/mz_dialog_report_mode.dart';
 import 'common/index.dart';
 import 'common/setting.dart';
 import 'routes/index.dart';
@@ -23,7 +24,7 @@ void main() async {
   await initializeDateFormatting('zh_CN');
   Global.init().then((e) async {
     /// 增加全局异常捕获机制
-    CatcherOptions debugOptions = CatcherOptions(DialogReportMode(), [ AndroidCrashReportHandler() ]);
+    CatcherOptions debugOptions = CatcherOptions(MzDialogReportMode(), [ AndroidCrashReportHandler() ]);
     CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
     Catcher(
         rootWidget: const App(),

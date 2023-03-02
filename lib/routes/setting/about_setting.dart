@@ -13,6 +13,8 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
+import '../../models/delete_device_result_entity.dart';
+import '../../models/midea_response_entity.dart';
 
 // 关于页的数据提供者
 class AboutSettingProvider with ChangeNotifier {
