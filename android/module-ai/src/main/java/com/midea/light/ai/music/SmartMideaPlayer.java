@@ -48,6 +48,7 @@ public class SmartMideaPlayer {
             ijkMediaPlayer = new IjkMediaPlayer();
             ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", 0);
             ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 50L);
+            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
             ijkMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         }
     }
