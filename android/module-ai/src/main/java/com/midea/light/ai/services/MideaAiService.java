@@ -1154,7 +1154,7 @@ public class MideaAiService extends Service {
             if (nlu.has("skillType")) {
                 if (nlu.getString("skillType").equals("DeviceControl")) {
                     JSONArray ttsArray = object.getJSONObject("nlu").getJSONObject("tts").optJSONArray("data");
-                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")){
+                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")||ttsArray.getJSONObject(0).getString("text").contains("绑定设备")){
                         isDeviceControl = true;
                     }else{
                         isDeviceControl = false;
