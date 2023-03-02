@@ -721,24 +721,19 @@ public class SystemUtil {
     }
 
     public static void getGatewaySn(Function<String, String> callback) {
-        String sn = GateWayRepository.getInstance().getGatewaySn();
-        if (StringUtils.isEmpty(sn)) {
-            GateWayUtils.bindGateWay(new GatewayCallback.SN(System.currentTimeMillis() + 4000, TimeUnit.MILLISECONDS) {
-                @Override
-                protected void callback(SNCodeBean msg) {
-                    if (null == msg) {
-                        // 获取失败
-                        callback.apply("");
-                    } else {
-                        // 获取成功
-                        callback.apply(msg.getCode().getSN());
-                        GateWayRepository.getInstance().saveGatewaySn(msg.getCode().getSN());
-                    }
+        GateWayUtils.bindGateWay(new GatewayCallback.SN(System.currentTimeMillis() + 4000, TimeUnit.MILLISECONDS) {
+            @Override
+            protected void callback(SNCodeBean msg) {
+                if (null == msg) {
+                    // 获取失败
+                    callback.apply("");
+                } else {
+                    // 获取成功
+                    callback.apply(msg.getCode().getSN());
+                    GateWayRepository.getInstance().saveGatewaySn(msg.getCode().getSN());
                 }
-            });
-        } else {
-            callback.apply(sn);
-        }
+            }
+        });
     }
 
     public static String getAppVersion(Context context) {
