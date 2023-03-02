@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../common/global.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import '../../../states/device_change_notifier.dart';
 
-class WifiLightPageState extends State<WifiLightPage> {
+class WifiLightPageState extends State<WifiLightPage> with Throttle {
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": '吸顶灯',
@@ -82,10 +84,19 @@ class WifiLightPageState extends State<WifiLightPage> {
   Future<void> brightnessHandle(num value, Color activeColor) async {
     var res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
     if (res.isSuccess) {
-      setState(() {
-        localBrightness = unFormatValue(value);
+      throttle(() {
+        setState(() {
+          localBrightness = unFormatValue(value);
+        });
+      }, durationTime: const Duration(seconds: 1000));
+    } else {
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(seconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () {
+        updateDetail();
       });
-      updateDetail();
     }
   }
 
@@ -93,10 +104,19 @@ class WifiLightPageState extends State<WifiLightPage> {
     var res =
         await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
     if (res.isSuccess) {
-      setState(() {
-        localColorTemp = unFormatValue(value);
+      throttle(() {
+        setState(() {
+          localColorTemp = unFormatValue(value);
+        });
+      }, durationTime: const Duration(seconds: 1000));
+    } else {
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(seconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () {
+        updateDetail();
       });
-      updateDetail();
     }
   }
 
