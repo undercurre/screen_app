@@ -12,7 +12,7 @@ class MzResponseEntity<T> {
   late T result;
   late bool success;
   // 源数据存储
-  Map<String, dynamic>? rawData;
+  Map<String, dynamic>? httpJson;
 
   get isSuccess => success;
 
@@ -31,7 +31,7 @@ class MzResponseEntity<T> {
 
 MzResponseEntity<T> $MzResponseEntityFromJson<T>(Map<String, dynamic> json) {
   final MzResponseEntity<T> mzResponseEntity = MzResponseEntity();
-  mzResponseEntity.rawData = json;
+  mzResponseEntity.httpJson = json;
   final int? code = jsonConvert.convert<int>(json['code']);
   if (code != null) {
     mzResponseEntity.code = code;
