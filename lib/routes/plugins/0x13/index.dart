@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/mixins/throttle.dart';
+import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/global.dart';
+import '../../../models/mz_response_entity.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import '../../../states/device_change_notifier.dart';
@@ -30,6 +32,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       "timeOff": "0"
     }
   };
+
+  String sn8 = '';
 
   var localBrightness = 1;
   var localColorTemp = 0;
@@ -57,8 +61,14 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> delayHandle() async {
+    if (!localPower) return;
     if (localTimeOff == 0) {
-      var res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], true);
+      late MzResponseEntity<dynamic> res;
+      if (sn8 == '79009833') {
+        res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], true);
+      } else {
+        res = await WIFILightApi.delayLua(deviceWatch["deviceId"], true);
+      }
       if (res.isSuccess) {
         setState(() {
           localTimeOff = 3;
@@ -66,7 +76,12 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         updateDetail();
       }
     } else {
-      var res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], false);
+      late MzResponseEntity<dynamic> res;
+      if (sn8 == '79009833') {
+        res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], false);
+      } else {
+        res = await WIFILightApi.delayLua(deviceWatch["deviceId"], false);
+      }
       if (res.isSuccess) {
         setState(() {
           localTimeOff = 0;
@@ -77,7 +92,12 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> modeHandle(Mode mode) async {
-    var res = await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
+    late MzResponseEntity<dynamic> res;
+    if (sn8 == '79009833') {
+      res = await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
+    } else {
+      res = await WIFILightApi.modeLua(deviceWatch["deviceId"], mode.key);
+    }
     if (res.isSuccess) {
       setState(() {
         localScreenModel = mode.key;
@@ -87,7 +107,12 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
-    var res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
+    late MzResponseEntity<dynamic> res;
+    if (sn8 == '79009833') {
+      res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
+    } else {
+      res = await WIFILightApi.brightnessLua(deviceWatch["deviceId"], value);
+    }
     if (res.isSuccess) {
       throttle(() {
         setState(() {
@@ -106,8 +131,14 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    var res =
-        await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
+    late MzResponseEntity<dynamic> res;
+    if (sn8 == '79009833') {
+      res =
+      await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
+    } else {
+      res =
+      await WIFILightApi.colorTemperatureLua(deviceWatch["deviceId"], value);
+    }
     if (res.isSuccess) {
       throttle(() {
         setState(() {
@@ -136,14 +167,26 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         .read<DeviceListModel>()
         .getDeviceInfoById(deviceWatch["deviceId"]);
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
-    setState(() {
-      deviceWatch["detail"] = detail;
-      localBrightness = detail["brightValue"];
-      localColorTemp = detail["colorTemperatureValue"];
-      localPower = detail["power"];
-      localScreenModel = detail["screenModel"];
-      localTimeOff = detail["timeOff"];
-    });
+    if (deviceInfo.sn8 == '79009833') {
+      setState(() {
+        deviceWatch["detail"] = detail;
+        localBrightness = detail["brightValue"];
+        localColorTemp = detail["colorTemperatureValue"];
+        localPower = detail["power"];
+        localScreenModel = detail["screenModel"];
+        localTimeOff = detail["timeOff"];
+      });
+    } else {
+      setState(() {
+        sn8 = deviceInfo.sn8 ?? '';
+        deviceWatch["detail"] = detail;
+        localBrightness = int.parse(detail["brightness"]);
+        localColorTemp = int.parse(detail["color_temperature"]);
+        localPower = detail["power"] == 'on';
+        localScreenModel = detail["scene_light"] ?? 'manual';
+        localTimeOff = int.parse(detail["delay_light_off"]);
+      });
+    }
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
@@ -159,14 +202,27 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       var deviceDetail = context
           .read<DeviceListModel>()
           .getDeviceDetailById(deviceWatch["deviceId"]);
-      setState(() {
-        deviceWatch = deviceDetail;
-        localBrightness = deviceDetail["detail"]["brightValue"];
-        localColorTemp = deviceDetail["detail"]["colorTemperatureValue"];
-        localPower = deviceDetail["detail"]["power"];
-        localScreenModel = deviceDetail["detail"]["screenModel"];
-        localTimeOff = deviceDetail["detail"]["timeOff"];
-      });
+      var deviceInfo = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
+      if (deviceInfo.sn8 == '79009833') {
+        setState(() {
+          sn8 = deviceInfo.sn8 ?? '';
+          deviceWatch = deviceDetail;
+          localBrightness = deviceDetail["detail"]["brightValue"];
+          localColorTemp = deviceDetail["detail"]["colorTemperatureValue"];
+          localPower = deviceDetail["detail"]["power"];
+          localScreenModel = deviceDetail["detail"]["screenModel"];
+          localTimeOff = deviceDetail["detail"]["timeOff"];
+        });
+      } else {
+        setState(() {
+          deviceWatch = deviceDetail;
+          localBrightness = int.parse(deviceDetail["detail"]["brightness"]);
+          localColorTemp = int.parse(deviceDetail["detail"]["color_temperature"]);
+          localPower = deviceDetail["detail"]["power"] == 'on';
+          localScreenModel = deviceDetail["detail"]["scene_light"] ?? 'manual';
+          localTimeOff = int.parse(deviceDetail["detail"]["delay_light_off"]);
+        });
+      }
       debugPrint('插件中获取到的详情：$deviceWatch');
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 2000);
@@ -320,16 +376,17 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onChanging: colorTemperatureHandle,
                                         ),
                                       ),
-                                      Container(
+                                      if (sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
+                                          disabled: !localPower,
                                           modeList: lightModes,
                                           selectedKeys: getSelectedKeys(),
                                           onTap: modeHandle,
                                         ),
                                       ),
-                                      Container(
+                                      if (sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(

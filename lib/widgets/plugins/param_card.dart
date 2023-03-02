@@ -114,7 +114,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                   activeColors: widget.activeColors,
                   disabled: widget.disabled,
                   duration: widget.duration,
-                  onChanged: widget.onChanged,
+                  onChanged: onChanged,
                   onChanging: onChanging,
                 ),
               ],
@@ -151,6 +151,12 @@ class _ParamCardState extends State<ParamCard> with Throttle {
         ],
       ),
     );
+  }
+  void onChanged(num value, Color activeColor) {
+    setState(() {
+      localValue = value;
+    });
+    widget.onChanged!(localValue, activeColor);
   }
 
   // 使用节流

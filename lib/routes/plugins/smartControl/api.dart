@@ -10,7 +10,7 @@ class WrapSmartControl implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await SmartControlApi.getGatewayDetail(deviceInfo.applianceCode);
-    if (res.code == 0 && res.rawData?["result"] != null) {
+    if (res.code == 0 && res.httpJson?["result"] != null) {
       return res.result;
     } else {
       return {};
