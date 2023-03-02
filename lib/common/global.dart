@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
@@ -132,42 +134,22 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   @override
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
-    debugPrint(
-        'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
-    if (previousRoute?.settings.name == 'Home') {
-      DeviceListModel().updateAllDetail();
-    }
-    const blacklist = [null, 'SnifferPage'];
-    if (previousRoute?.settings.name == 'Home' &&
-        !blacklist.contains(route.settings.name)) {
-      bus.emit("backHome");
-    }
+    runZonedGuarded(() {
+      debugPrint(
+          'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+      if (previousRoute?.settings.name == 'Home') {
+        DeviceListModel().updateAllDetail();
+      }
+      const blacklist = [null, 'SnifferPage'];
+      if (previousRoute?.settings.name == 'Home' &&
+          !blacklist.contains(route.settings.name)) {
+        bus.emit("backHome");
+      }
+    }, (error, stack) {
+
+    });
   }
 
-  // 未被使用的路由跟踪，暂时注释
-  // @override
-  // void didReplace({Route? newRoute, Route? oldRoute}) {
-  //   super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-  //   debugPrint('didReplace newRoute: $newRoute,oldRoute:$oldRoute');
-  // }
-  //
-  // @override
-  // void didRemove(Route route, Route? previousRoute) {
-  //   super.didRemove(route, previousRoute);
-  //   debugPrint('didRemove route: $route,previousRoute:$previousRoute');
-  // }
-  //
-//   @override
-//   void didStartUserGesture(Route route, Route? previousRoute) {
-//     super.didStartUserGesture(route, previousRoute);
-//     debugPrint('didStartUserGesture: ${route.settings.name},from:$previousRoute');
-//   }
-//
-//   @override
-//   void didStopUserGesture() {
-//     super.didStopUserGesture();
-//     debugPrint('didStopUserGesture');
-//   }
 }
 
 final GlobalRouteObserver<PageRoute> globalRouteObserver =

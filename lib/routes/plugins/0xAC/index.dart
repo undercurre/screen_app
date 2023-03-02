@@ -7,6 +7,7 @@ import 'package:screen_app/widgets/index.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import '../../home/device/service.dart';
+import '../../../widgets/business/dropdown_menu.dart' as ui;
 
 class AirConditionPageState extends State<AirConditionPage> {
   Map<String, dynamic> deviceWatch = {
@@ -241,7 +242,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: FunctionCard(
                                       title: '模式',
-                                      child: DropdownMenu(
+                                      child: ui.DropdownMenu(
                                         disabled: localPower == 'off',
                                         menu: btnList.map(
                                           (item) {

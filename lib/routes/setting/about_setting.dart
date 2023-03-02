@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:catcher/core/catcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -187,7 +188,8 @@ class AboutSettingPage extends StatelessWidget {
                             )),
                         IconButton(
                           onPressed: () {
-                            Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                            //Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                            Catcher.sendTestException();
                           },
                           iconSize: 60.0,
                           icon: Image.asset(

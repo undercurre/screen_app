@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
@@ -23,8 +24,8 @@ class DeviceCard extends StatefulWidget {
 
 class _DeviceCardState extends State<DeviceCard> {
   bool power = false;
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
 
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
@@ -87,37 +88,42 @@ class _DeviceCardState extends State<DeviceCard> {
     bus.on('updateDeviceCardState', (arg) async {
       setDate();
     });
-    Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-      String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-      Map<String,dynamic> eventMap = json.decode(event);
-      String nodeId = eventMap['nodeId'] ?? "";
+    Push.listen(
+        "gemini/appliance/event",
+        _eventCallback = ((arg) async {
+          String event =
+              (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+          Map<String, dynamic> eventMap = json.decode(event);
+          String nodeId = eventMap['nodeId'] ?? "";
 
-      if (nodeId.isEmpty) {
-        if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
-          setDate();
-        }
-      } else {
-        if (widget.deviceInfo?.type == '0x21' && widget.deviceInfo?.detail?['nodeId'] == nodeId) {
-          setDate();
-        }
-      }
-    }));
-
-    Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        if (arg.containsKey('applianceId')) {
-          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
-            setDate();
+          if (nodeId.isEmpty) {
+            if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
+              setDate();
+            }
+          } else {
+            if (widget.deviceInfo?.type == '0x21' &&
+                widget.deviceInfo?.detail?['nodeId'] == nodeId) {
+              setDate();
+            }
           }
-        }
-    }));
-  }
+        }));
 
+    Push.listen(
+        "appliance/status/report",
+        _reportCallback = ((arg) {
+          if (arg.containsKey('applianceId')) {
+            if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+              setDate();
+            }
+          }
+        }));
+  }
 
   @override
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/status/report", _reportCallback);
   }
 
   setDate() async {
@@ -170,15 +176,20 @@ class _DeviceCardState extends State<DeviceCard> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 112,
+                width: 110,
                 child: Center(
                   child: Text(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
+                    widget.deviceInfo != null ? widget.deviceInfo!.name.replaceAll('', '\u200B') : '加载中',
                     style: const TextStyle(
                       fontSize: 20.0,
+                      fontFamily: 'MideaType',
                       color: Color(0XFFFFFFFF),
+                    ),
+                    strutStyle: const StrutStyle(
+                      forceStrutHeight: true,
+                      leading: 1.0,
                     ),
                   ),
                 ),

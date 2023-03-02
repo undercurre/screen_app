@@ -40,7 +40,7 @@ class WrapLiangyi implements DeviceInterface {
   bool isPower(DeviceEntity deviceInfo) {
     return deviceInfo.detail != null && deviceInfo.detail != {}
         ? (deviceInfo.detail!["light"] != 'off' &&
-            deviceInfo.detail!["updown"] == 'pause')
+            deviceInfo.detail!["updown"] != 'pause')
         : false;
   }
 
@@ -56,12 +56,12 @@ class WrapLiangyi implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/clothes_hanger_on.png';
+    return 'assets/imgs/device/clothes_hanger_off.png';
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    return 'assets/imgs/device/clothes_hanger_off.png';
+    return 'assets/imgs/device/clothes_hanger_on.png';
   }
 }
 

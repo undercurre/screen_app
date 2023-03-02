@@ -2,6 +2,8 @@ package com.midea.light;
 
 
 import android.content.Context;
+import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.midea.light.basic.BuildConfig;
@@ -16,9 +18,15 @@ import com.midea.light.repositories.config.MSmartKVRepository;
 import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
+import com.midea.light.utils.AndroidManifestUtil;
 import com.midea.light.utils.CommandExecution;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import androidx.multidex.MultiDex;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
@@ -63,9 +71,12 @@ public class MainApplication extends BaseApplication {
         GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
         GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
 
-
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
+        // 初始化Bugly
+        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
+        // 设置是否位开发设备
+        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
 
         //wifi 10秒刷新一次
 //        CommandExecution.execCommand("wpa_cli bss_expire_age 10", true);
@@ -74,6 +85,29 @@ public class MainApplication extends BaseApplication {
         //bss flush
 //        CommandExecution.execCommand("wpa_cli bss_flush", true);
 
+    }
+
+    private static String getProcessName(int pid) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("/proc/" + pid + "/cmdline"));
+            String processName = reader.readLine();
+            if (!TextUtils.isEmpty(processName)) {
+                processName = processName.trim();
+            }
+            return processName;
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        return null;
     }
 
 

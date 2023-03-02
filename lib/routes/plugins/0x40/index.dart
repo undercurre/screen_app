@@ -32,23 +32,31 @@ class _CoolMasterState extends State<CoolMaster> {
   bool smelly = false;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      deviceList = context.read<DeviceListModel>();
+      // 第一次加载，先从路由取deviceId
+      if (deviceId == '0') {
+        final args = ModalRoute.of(context)?.settings.arguments as Map;
+        deviceId = args['deviceId'];
+      }
+      // 先判断有没有这个id，没有说明设备已被删除
+      final index = deviceList.deviceList
+          .indexWhere((element) => element.applianceCode == deviceId);
+      if (index >= 0) {
+        device = deviceList.deviceList[index];
+        deviceName = deviceList.deviceList[index].name;
+        luaDataConvToState();
+      } else {
+        // todo: 设备已被删除，应该弹窗并让用户退出
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    deviceList = context.watch<DeviceListModel>();
-    // 第一次加载，先从路由取deviceId
-    if (deviceId == '0') {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceId = args['deviceId'];
-    }
-    // 先判断有没有这个id，没有说明设备已被删除
-    final index = deviceList.deviceList
-        .indexWhere((element) => element.applianceCode == deviceId);
-    if (index >= 0) {
-      device = deviceList.deviceList[index];
-      deviceName = deviceList.deviceList[index].name;
-      luaDataConvToState();
-    } else {
-      // todo: 设备已被删除，应该弹窗并让用户退出
-    }
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -329,6 +337,9 @@ class _CoolMasterState extends State<CoolMaster> {
         mode = mode;
       });
     }
+    setState(() {
+      mode = mode;
+    });
     Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 

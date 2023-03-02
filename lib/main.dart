@@ -6,11 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import './channel/index.dart';
+import 'common/crash/android_crash_handler.dart';
 import 'common/index.dart';
 import 'common/setting.dart';
 import 'routes/index.dart';
 import 'states/index.dart';
 import 'widgets/pointer_listener.dart';
+import 'package:catcher/catcher.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,9 +22,16 @@ void main() async {
   /// 初始化intl库的日期
   await initializeDateFormatting('zh_CN');
   Global.init().then((e) async {
-    runApp(const App());
+    /// 增加全局异常捕获机制
+    CatcherOptions debugOptions = CatcherOptions(DialogReportMode(), [ AndroidCrashReportHandler() ]);
+    CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
+    Catcher(
+        rootWidget: const App(),
+        debugConfig: debugOptions,
+        releaseConfig: releaseOptions,
+        navigatorKey: navigatorKey
+    );
     /// 初始化Native配置
-    WidgetsFlutterBinding.ensureInitialized();
     buildChannel();
     configChannel.initNativeConfig(const String.fromEnvironment('env'));
     /// 初始化设置配置
@@ -69,7 +78,14 @@ class _App extends State<App> {
             routes: routes,
             navigatorObservers: [globalRouteObserver],
             navigatorKey: navigatorKey,
-            builder: EasyLoading.init(),
+            builder: EasyLoading.init(builder: (context, widget) {
+              Catcher.addDefaultErrorWidget(
+                  showStacktrace: true,
+                  title: "崩溃",
+                  description: "页面开小差了~",
+                  maxWidthForSmallMode: 150);
+              return widget!;
+            }),
           ),
           // 全局点击操作监听
           onPointerDown: (e) {
