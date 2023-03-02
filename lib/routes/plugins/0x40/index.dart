@@ -36,23 +36,27 @@ class _CoolMasterState extends State<CoolMaster> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      deviceList = context.read<DeviceListModel>();
-      // 第一次加载，先从路由取deviceId
-      if (deviceId == '0') {
-        final args = ModalRoute.of(context)?.settings.arguments as Map;
-        deviceId = args['deviceId'];
-      }
-      // 先判断有没有这个id，没有说明设备已被删除
-      final index = deviceList.deviceList
-          .indexWhere((element) => element.applianceCode == deviceId);
-      if (index >= 0) {
-        device = deviceList.deviceList[index];
-        deviceName = deviceList.deviceList[index].name;
-        luaDataConvToState();
-      } else {
-        // todo: 设备已被删除，应该弹窗并让用户退出
-      }
+      initView();
     });
+  }
+
+  initView() {
+    deviceList = context.read<DeviceListModel>();
+    // 第一次加载，先从路由取deviceId
+    if (deviceId == '0') {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      deviceId = args['deviceId'];
+    }
+    // 先判断有没有这个id，没有说明设备已被删除
+    final index = deviceList.deviceList
+        .indexWhere((element) => element.applianceCode == deviceId);
+    if (index >= 0) {
+      device = deviceList.deviceList[index];
+      deviceName = deviceList.deviceList[index].name;
+      luaDataConvToState();
+    } else {
+      // todo: 设备已被删除，应该弹窗并让用户退出
+    }
   }
 
   @override
@@ -350,6 +354,7 @@ class _CoolMasterState extends State<CoolMaster> {
       final res = await DeviceListApiImpl().getDeviceDetail(device);
       deviceList.deviceList[index].detail = res;
       deviceList.notifyListeners();
+      initView();
     } catch (e) {
       // 接口请求失败
       print(e);
