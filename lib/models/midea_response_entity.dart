@@ -7,6 +7,8 @@ class MideaResponseEntity<T> {
   late int code;
   late String msg;
   late T data;
+  // 源数据存储
+  Map<String, dynamic>? httpJson;
 
   get isSuccess => code == 0;
 
@@ -26,6 +28,7 @@ class MideaResponseEntity<T> {
 MideaResponseEntity<T> $MideaResponseEntityFromJson<T>(
     Map<String, dynamic> json) {
   final MideaResponseEntity<T> apiResponseEntityEntity = MideaResponseEntity();
+  apiResponseEntityEntity.httpJson = json;
   final int? code = jsonConvert.convert<int>(json['code']);
   if (code != null) {
     apiResponseEntityEntity.code = code;
