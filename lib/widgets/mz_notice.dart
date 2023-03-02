@@ -59,7 +59,7 @@ class MzNotice {
                     side: const BorderSide(
                         width: 1,
                         style: BorderStyle.solid,
-                        color: Color(0XFF1D1D1D), strokeAlign: StrokeAlign.center)),
+                        color: Color(0XFF1D1D1D), strokeAlign: BorderSide.strokeAlignCenter)),
             alignment: Alignment.topCenter,
             child: Padding(
                 padding:

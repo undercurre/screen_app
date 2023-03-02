@@ -9,9 +9,12 @@ import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
+import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
+import '../../models/delete_device_result_entity.dart';
+import '../../models/midea_response_entity.dart';
 
 // 关于页的数据提供者
 class AboutSettingProvider with ChangeNotifier {
@@ -70,32 +73,59 @@ class AboutSettingProvider with ChangeNotifier {
     aboutSystemChannel.reboot();
   }
 
-  void clearUserData() async {
+  /// return
+  ///  false 清除失败
+  ///  true 清除成功
+  Future<bool> clearUserData() async {
     // 删除网关设备，并且尝试五次删除
-    deleteGateway(5);
-    // 重置网关设备
-    gatewayChannel.resetGateway();
-    // 删除所有的wifi记录
-    netMethodChannel.removeAllWiFiRecord();
-    // 定时十秒
-    Timer(const Duration(seconds: 8), () {
-      Push.dispose();
-      System.loginOut();
-      Timer(const Duration(seconds: 2), () {
-        aboutSystemChannel.reboot();
+    bool deleteResult = await deleteGateway(5);
+    if(deleteResult) {
+      // 重置网关设备
+      gatewayChannel.resetGateway();
+      // 删除所有的wifi记录
+      netMethodChannel.removeAllWiFiRecord();
+      // 删除本地所有缓存
+      aboutSystemChannel.clearLocalCache();
+      // 定时十秒
+      Timer(const Duration(seconds: 8), () {
+        System.loginOut();
+        Timer(const Duration(seconds: 2), () {
+          aboutSystemChannel.reboot();
+        });
       });
-    });
+      return true;
+    } else {
+      TipsUtils.toast(content: '删除网关失败，请重试');
+      return false;
+    }
   }
 
-  void deleteGateway(int tryCount) {
-    DeviceApi.deleteDevices([Global.profile.applianceCode ?? ''], Global.profile.homeInfo?.homegroupId ?? '')
-        .then((value) {
-            logger.i(value.data.errorList.toString());
-        }, onError: (e) {
-            if(tryCount > 0) {
-              deleteGateway(--tryCount);
-            }
-        });
+  /// return 
+  ///  false 删除失败
+  ///  true 删除成功
+  Future<bool> deleteGateway(int tryCount) async {
+
+    if(NetUtils.getNetState() == null) {
+      TipsUtils.toast(content: '请先连接网络');
+      return false;
+    }
+
+    MideaResponseEntity<DeleteDeviceResultEntity>? result;
+
+    try {
+      result = await DeviceApi.deleteDevices([Global.profile.applianceCode ?? ''], Global.profile.homeInfo?.homegroupId ?? '');
+      if(result.isSuccess) {
+        return true;
+      }
+    } catch(e) {
+      logger.e(e);
+    }
+
+    if((result?.isSuccess != true) && tryCount > 0) {
+      return deleteGateway(--tryCount);
+    }
+
+    return false;
   }
 
 }
@@ -147,7 +177,13 @@ class AboutSettingPage extends StatelessWidget {
           if(position == 1) {
             TipsUtils.showLoading("正在清除中...");
             // 此处执行清除数据的业务逻辑
-            provider.clearUserData();
+            provider.clearUserData().then((value) {
+              /// 清除失败关闭弹窗
+              /// 清除成功的话，程序会自动重启
+              if(!value) {
+                TipsUtils.hideLoading();
+              }
+            });
           }
         }
       ).show(context);

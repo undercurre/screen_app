@@ -20,6 +20,10 @@ class AboutSystemChannel extends AbstractChannel {
     return await methodChannel.invokeMethod("getMacAddress");
   }
 
+  Future<bool> clearLocalCache() async {
+    return await methodChannel.invokeMethod('clearLocalCache') as bool;
+  }
+
   // isEncrypt 是否加密
   Future<String?> getGatewaySn([bool isEncrypt = false, String? secretKey]) async {
     try {
