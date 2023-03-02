@@ -109,6 +109,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
       onHorizontalDragUpdate: (e) => onPanUpdate(e),
+      onHorizontalDragEnd: (e) => onPanUp(),
       onPanEnd: (e) => onPanUp(),
       onPanCancel: () => onPanUp(),
       child: Container(
