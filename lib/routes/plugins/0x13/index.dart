@@ -61,6 +61,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> delayHandle() async {
+    if (!localPower) return;
     if (localTimeOff == 0) {
       late MzResponseEntity<dynamic> res;
       if (sn8 == '79009833') {
@@ -379,6 +380,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
+                                          disabled: !localPower,
                                           modeList: lightModes,
                                           selectedKeys: getSelectedKeys(),
                                           onTap: modeHandle,
