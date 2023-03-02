@@ -198,7 +198,7 @@ class _CoolMasterState extends State<CoolMaster> {
                                         'assets/imgs/plugins/0x40/smell.png'),
                                   ),
                                 ),
-                                title: '异味感知',
+                                title: '异味感应',
                                 child: MzSwitch(
                                   value: smelly,
                                   onTap: (e) => toggleSmelly(),
