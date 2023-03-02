@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
@@ -129,6 +130,11 @@ class _DevicePageState extends State<DevicePage> {
 
     cb = (arg) {
       initPage();
+      DeviceApi.checkBindInfo().then((res) {
+        if (res.data['homegroupId'] != Global.profile.homeInfo?.homegroupId) {
+          bus.emit('logout');
+        }
+      });
     };
 
     Push.listen("添加设备", cb!);

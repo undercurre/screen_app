@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 
@@ -200,4 +201,17 @@ class DeviceApi {
   }
 
 
+  static Future<MideaResponseEntity<Map<String, dynamic>>> checkBindInfo() async {
+    var res = await Api.requestMideaIot<Map<String, dynamic>>(
+        "/mas/v5/app/proxy?alias=/v1/appliance/bindinfo",
+        data: {
+          "sn": await aboutSystemChannel.getGatewaySn(),
+          "reqId": uuid.v4(),
+          "stamp": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+          "uid": Global.profile.user?.uid
+        },
+        options: Options(method: 'POST'));
+
+    return res;
+  }
 }

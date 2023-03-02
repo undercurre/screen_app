@@ -187,7 +187,7 @@ class Push {
 
   static _subscriptionSet() {
     Api.requestMideaIot(
-        "/mas/v5/app/proxy?alias=/v1/user/push/subscription/set",
+        "/mas/v5/app/proxy?alias=/v1/push/subscription/set",
         data: {
           'reqId': const Uuid().v4(),
           'stamp': DateFormat('yyyyMMddHHmmss').format(DateTime.now()),

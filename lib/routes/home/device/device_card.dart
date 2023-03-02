@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
 import 'package:screen_app/routes/home/device/service.dart';
@@ -107,7 +108,8 @@ class _DeviceCardState extends State<DeviceCard> {
               setDate();
             }
           } else {
-            if (widget.deviceInfo?.type == '0x21' &&
+            if ((widget.deviceInfo?.type == '0x21' ||
+                (widget.deviceInfo?.type??"").contains("singlePanel")) &&
                 widget.deviceInfo?.detail?['nodeId'] == nodeId) {
               setDate();
             }

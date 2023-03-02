@@ -3,12 +3,16 @@ package com.midea.light;
 import android.Manifest;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -100,6 +104,31 @@ public class MainActivity extends FlutterActivity {
         registerReceiver(receiver, filter);
     }
 
+    private void initNotifyChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager = (NotificationManager) BaseApplication.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            // 通知渠道的id。
+            String id = "1";
+            // 用户可以看到的通知渠道的名字。
+            CharSequence name = "notification channel";
+            // 用户可以看到的通知渠道的描述。
+            String description = "notification description";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+            // 配置通知渠道的属性。
+            mChannel.setDescription(description);
+            // 设置通知出现时的闪灯（如果Android设备支持的话）。
+            mChannel.enableLights(false);
+            mChannel.setLightColor(Color.RED);
+            // 设置通知出现时的震动（如果Android设备支持的话）。
+            mChannel.enableVibration(false);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            // 最后在notificationmanager中创建该通知渠道。
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
+    }
+
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         // 动态添加插件
@@ -107,6 +136,7 @@ public class MainActivity extends FlutterActivity {
         // 初始化自定义的Channel
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
         registerAliPushReceiver();
+        initNotifyChannel();
     }
 
     public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {
