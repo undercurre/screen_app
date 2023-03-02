@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x17/api.dart';
 import 'package:screen_app/routes/plugins/0x17/entity.dart';
@@ -12,6 +14,9 @@ import '../../../widgets/event_bus.dart';
 import 'mode_list.dart';
 
 class WifiLiangyiPageState extends State<WifiLiangyiPage> {
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
+
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": '晾衣架',
@@ -21,8 +26,6 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   var localUpdown = "pause";
   var localStatus = "normal";
   var localLight = "off";
-
-  late Timer _timer;
 
   String fakerModel = '';
 
@@ -110,9 +113,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      updateDetail();
-    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
@@ -126,6 +127,32 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
         localUpdown = deviceDetail["detail"]["updown"];
       });
       debugPrint('插件中获取到的详情：$deviceWatch');
+
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            updateDetail();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            updateDetail();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            updateDetail();
+          }
+        }
+      }));
     });
   }
 
@@ -133,7 +160,8 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _timer.cancel();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   @override

@@ -1,12 +1,19 @@
 package com.midea.light;
 
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushInitConfig;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.midea.light.basic.BuildConfig;
+import com.midea.light.channel.method.AliPushChannel;
+import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.config.GatewayConfig;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.issued.IssuedManager;
@@ -20,6 +27,8 @@ import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
 import com.midea.light.utils.CommandExecution;
+import com.midea.light.utils.ProcessUtil;
+import com.midea.light.channel.method.*;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import androidx.multidex.MultiDex;
@@ -45,6 +54,13 @@ public class MainApplication extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化日志库
+
+        if(!ProcessUtil.isInMainProcess(this)){
+            AliPushChannel.aliPushInit(this);
+            return;
+        }
+        AliPushChannel.aliPushInit(this);
+
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
                 .withEnable(true)
                 .withStackFrom(0)
