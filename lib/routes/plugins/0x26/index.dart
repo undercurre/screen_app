@@ -27,7 +27,14 @@ class BathroomMasterState extends State<BathroomMaster> {
     controlFinishRefresh: true,
   );
 
-  Map<String, bool> runMode = <String, bool>{};
+  Map<String, bool> runMode = <String, bool>{
+    "light": false,
+    "blowing": false,
+    "heating": false,
+    "bath": false,
+    "ventilation": false,
+    "drying": false
+  };
   bool mainLight = false;
   bool nightLight = false;
   bool delayClose = false;
@@ -177,8 +184,8 @@ class BathroomMasterState extends State<BathroomMaster> {
                                 ),
                                 title: '延时关机',
                                 child: MzSwitch(
-                                  disabled: runMode.values.toList().where((element) => element).toList().isEmpty,
-                                  value: delayClose,
+                                  disabled: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty,
+                                  value: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty ? false : delayClose,
                                   onTap: (e) => toggleDelayClose(),
                                 ),
                               ),
@@ -244,7 +251,7 @@ class BathroomMasterState extends State<BathroomMaster> {
   }
 
   void toggleDelayClose() {
-    if (runMode.values.toList().where((element) => element).toList().isEmpty) {
+    if (runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty) {
       delayClose = false;
     } else {
       delayClose = !delayClose;
