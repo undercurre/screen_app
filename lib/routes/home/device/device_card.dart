@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
@@ -25,6 +26,8 @@ class _DeviceCardState extends State<DeviceCard> {
   bool power = false;
   Function(Map<String,dynamic> arg)? _eventCallback;
   Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String,dynamic> arg)? _onlineCallback;
+  Function(Map<String,dynamic> arg)? _offlineCallback;
 
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
@@ -49,6 +52,10 @@ class _DeviceCardState extends State<DeviceCard> {
   }
 
   Future<void> clickMethod(TapUpDetails e) async {
+    if (!DeviceService.isOnline(widget.deviceInfo!)) {
+      TipsUtils.toast(content: '设备离线');
+      return;
+    }
     if (widget.deviceInfo != null) {
       if (e.localPosition.dx > 40 &&
           e.localPosition.dx < 90 &&
@@ -87,21 +94,25 @@ class _DeviceCardState extends State<DeviceCard> {
     bus.on('updateDeviceCardState', (arg) async {
       setDate();
     });
-    Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-      String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-      Map<String,dynamic> eventMap = json.decode(event);
-      String nodeId = eventMap['nodeId'] ?? "";
+    Push.listen(
+        "gemini/appliance/event",
+        _eventCallback = ((arg) async {
+          String event =
+              (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+          Map<String, dynamic> eventMap = json.decode(event);
+          String nodeId = eventMap['nodeId'] ?? "";
 
-      if (nodeId.isEmpty) {
-        if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
-          setDate();
-        }
-      } else {
-        if (widget.deviceInfo?.type == '0x21' && widget.deviceInfo?.detail?['nodeId'] == nodeId) {
-          setDate();
-        }
-      }
-    }));
+          if (nodeId.isEmpty) {
+            if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
+              setDate();
+            }
+          } else {
+            if (widget.deviceInfo?.type == '0x21' &&
+                widget.deviceInfo?.detail?['nodeId'] == nodeId) {
+              setDate();
+            }
+          }
+        }));
 
     Push.listen("appliance/status/report", _reportCallback = ((arg) {
         if (arg.containsKey('applianceId')) {
@@ -109,6 +120,22 @@ class _DeviceCardState extends State<DeviceCard> {
             setDate();
           }
         }
+    }));
+
+    Push.listen('appliance/online/status/on', _onlineCallback = ((arg) {
+      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+        setState(() {
+          widget.deviceInfo?.onlineStatus = "1";
+        });
+      }
+    }));
+
+    Push.listen('appliance/online/status/off', _offlineCallback = ((arg) {
+      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+        setState(() {
+          widget.deviceInfo?.onlineStatus = "0";
+        });
+      }
     }));
   }
 
@@ -118,6 +145,8 @@ class _DeviceCardState extends State<DeviceCard> {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
     Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/online/status/on",_onlineCallback);
+    Push.dislisten("appliance/online/status/off",_offlineCallback);
   }
 
   setDate() async {
@@ -170,15 +199,20 @@ class _DeviceCardState extends State<DeviceCard> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 112,
+                width: 110,
                 child: Center(
                   child: Text(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    widget.deviceInfo != null ? widget.deviceInfo!.name : '加载中',
+                    widget.deviceInfo != null ? widget.deviceInfo!.name.replaceAll('', '\u200B') : '加载中',
                     style: const TextStyle(
                       fontSize: 20.0,
+                      fontFamily: 'MideaType',
                       color: Color(0XFFFFFFFF),
+                    ),
+                    strutStyle: const StrutStyle(
+                      forceStrutHeight: true,
+                      leading: 1.0,
                     ),
                   ),
                 ),

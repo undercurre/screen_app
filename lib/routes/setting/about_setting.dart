@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
-import 'package:screen_app/models/midea_response_entity.dart';
-import 'package:screen_app/models/delete_device_result_entity.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
@@ -331,6 +330,7 @@ class AboutSettingPage extends StatelessWidget {
                                               contentPadding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
                                               onPressed:(_, index, context) {
                                                 if(index == 1) {
+                                                  Push.dispose();
                                                   System.loginOut();
                                                   Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
                                                 } else {

@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/0x14/api.dart';
+import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../widgets/event_bus.dart';
@@ -16,6 +20,8 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   int curtainPosition = 0;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -57,6 +63,19 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
     return selectKeys;
   }
 
+  Future<void> updateDetail() async {
+    var deviceInfo = DeviceEntity.fromJson(
+        {'applianceCode': deviceId, 'type': deviceType});
+    var res = await DeviceService.getDeviceDetail(deviceInfo);
+    debugPrint('res: $res');
+
+    setState(() {
+      curtainPosition = int.parse(res['curtain_position']);
+      curtainStatus = res['curtain_status'];
+      curtainDirection = res['curtain_direction'];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,22 +83,41 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
 
-      var deviceInfo = DeviceEntity.fromJson(
-          {'applianceCode': deviceId, 'type': deviceType});
-      var res = await DeviceService.getDeviceDetail(deviceInfo);
-      debugPrint('res: $res');
+      updateDetail();
 
-      setState(() {
-        curtainPosition = int.parse(res['curtain_position']);
-        curtainStatus = res['curtain_status'];
-        curtainDirection = res['curtain_direction'];
-      });
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            updateDetail();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail?['detail']?['nodeId'] == nodeId) {
+            updateDetail();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            updateDetail();
+          }
+        }
+      }));
     });
   }
 
   @override
   void dispose() {
     super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   @override

@@ -1,8 +1,10 @@
 package com.midea.light;
 
 import android.Manifest;
+import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,13 +15,19 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushInitConfig;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.midea.light.ai.AiManager;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
+import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.log.LogUtil;
+import com.midea.light.push.AliPushReceiver;
 import com.midea.light.setting.SystemUtil;
 
 import java.util.ArrayList;
@@ -80,7 +88,16 @@ public class MainActivity extends FlutterActivity {
             Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
             mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
         }
+    }
 
+    private void registerAliPushReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
+        filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
+        filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -89,6 +106,7 @@ public class MainActivity extends FlutterActivity {
         GeneratedPluginRegister.registerGeneratedPlugins(flutterEngine);
         // 初始化自定义的Channel
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
+        registerAliPushReceiver();
     }
 
     public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {

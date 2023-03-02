@@ -1,4 +1,5 @@
 import 'package:screen_app/channel/about_system_channel.dart';
+import 'package:screen_app/channel/ali_push_channel.dart';
 import 'package:screen_app/channel/bugly_report_channel.dart';
 import 'package:screen_app/channel/config_channel.dart';
 import 'package:screen_app/channel/device_manager_channel.dart';
@@ -17,6 +18,7 @@ const String channelSetting = "com.midea.light/set";
 const String channelDeviceManager = "com.midea.light/deviceManager";
 const String channelAi = "com.midea.light/ai";
 const String channelGateway = "com.midea.light/gateway";
+const String channelAliPush = "com.midea.light/push";
 const String channelBugly = "com.midea.light/bugly";
 
 late NetMethodChannel netMethodChannel;
@@ -34,6 +36,8 @@ late DeviceManagerChannel deviceManagerChannel;
 late AiMethodChannel aiMethodChannel;
 // 网关channel
 late GatewayChannel gatewayChannel;
+// 阿里推送channel
+late AliPushMethodChannel aliPushChannel;
 // Bugly Channel
 late BuglyReportChannel buglyReportChannel;
 
@@ -47,5 +51,6 @@ void buildChannel() {
   deviceManagerChannel = DeviceManagerChannel.fromName(channelDeviceManager);
   aiMethodChannel = AiMethodChannel.fromName(channelAi);
   gatewayChannel = GatewayChannel.fromName(channelGateway);
+  aliPushChannel = AliPushMethodChannel.fromName(channelAliPush);
   buglyReportChannel = BuglyReportChannel.fromName(channelBugly);
 }

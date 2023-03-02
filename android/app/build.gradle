@@ -157,6 +157,7 @@ dependencies {
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
     implementation rootProject.ext.nexus.gateway
+    implementation rootProject.ext.alipushLibs
     implementation rootProject.ext.nexus.ota_upgrade
     implementation project(":aar-midea-sdk")
     implementation rootProject.ext.nexus.rxbus

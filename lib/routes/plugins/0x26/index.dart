@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/global.dart';
@@ -17,6 +20,8 @@ class BathroomMaster extends StatefulWidget {
 }
 
 class BathroomMasterState extends State<BathroomMaster> {
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
   String deviceId = '0';
   String deviceName = '浴霸';
   String controlType = 'lua'; // todo: 后面需要加上判断使用物模型还是lua控制
@@ -27,7 +32,14 @@ class BathroomMasterState extends State<BathroomMaster> {
     controlFinishRefresh: true,
   );
 
-  Map<String, bool> runMode = <String, bool>{};
+  Map<String, bool> runMode = <String, bool>{
+    "light": false,
+    "blowing": false,
+    "heating": false,
+    "bath": false,
+    "ventilation": false,
+    "drying": false
+  };
   bool mainLight = false;
   bool nightLight = false;
   bool delayClose = false;
@@ -48,6 +60,49 @@ class BathroomMasterState extends State<BathroomMaster> {
       this.runMode = runMode ?? this.runMode;
       this.delayTime = delayTime ?? this.delayTime;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            handleRefresh();
+            luaDeviceDetailToState();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            handleRefresh();
+            luaDeviceDetailToState();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            handleRefresh();
+            luaDeviceDetailToState();
+          }
+        }
+      }));
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   @override
@@ -177,8 +232,8 @@ class BathroomMasterState extends State<BathroomMaster> {
                                 ),
                                 title: '延时关机',
                                 child: MzSwitch(
-                                  disabled: runMode.values.toList().where((element) => element).toList().isEmpty,
-                                  value: delayClose,
+                                  disabled: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty,
+                                  value: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty ? false : delayClose,
                                   onTap: (e) => toggleDelayClose(),
                                 ),
                               ),
@@ -244,7 +299,7 @@ class BathroomMasterState extends State<BathroomMaster> {
   }
 
   void toggleDelayClose() {
-    if (runMode.values.toList().where((element) => element).toList().isEmpty) {
+    if (runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty) {
       delayClose = false;
     } else {
       delayClose = !delayClose;

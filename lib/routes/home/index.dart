@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/top_to_bottom_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
@@ -98,6 +99,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     GatewayApi.check((bind) {
       if(!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
+        Push.dispose();
         System.loginOut();
         Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
       }

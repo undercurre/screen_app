@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import './api.dart';
@@ -18,6 +20,8 @@ class CoolMaster extends StatefulWidget {
 }
 
 class _CoolMasterState extends State<CoolMaster> {
+  Function(Map<String,dynamic> arg)? _eventCallback;
+  Function(Map<String,dynamic> arg)? _reportCallback;
   String deviceId = '0';
   String deviceName = '凉霸';
   late DeviceListModel deviceList;
@@ -32,8 +36,45 @@ class _CoolMasterState extends State<CoolMaster> {
   bool smelly = false;
 
   @override
-  Widget build(BuildContext context) {
-    deviceList = context.watch<DeviceListModel>();
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      initView();
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+        Map<String,dynamic> eventMap = json.decode(event);
+        String nodeId = eventMap['nodeId'] ?? "";
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+
+        if (nodeId.isEmpty) {
+          if (detail['deviceId'] == arg['applianceCode']) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        } else {
+          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        }
+      }));
+
+      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        if (arg.containsKey('applianceId')) {
+          if (detail['deviceId'] == arg['applianceId']) {
+            handleRefresh();
+            luaDataConvToState();
+          }
+        }
+      }));
+    });
+  }
+
+  initView() {
+    deviceList = context.read<DeviceListModel>();
     // 第一次加载，先从路由取deviceId
     if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
@@ -49,6 +90,10 @@ class _CoolMasterState extends State<CoolMaster> {
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -153,7 +198,7 @@ class _CoolMasterState extends State<CoolMaster> {
                                         'assets/imgs/plugins/0x40/smell.png'),
                                   ),
                                 ),
-                                title: '异味感知',
+                                title: '异味感应',
                                 child: MzSwitch(
                                   value: smelly,
                                   onTap: (e) => toggleSmelly(),
@@ -329,6 +374,9 @@ class _CoolMasterState extends State<CoolMaster> {
         mode = mode;
       });
     }
+    setState(() {
+      mode = mode;
+    });
     Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
@@ -339,12 +387,20 @@ class _CoolMasterState extends State<CoolMaster> {
       final res = await DeviceListApiImpl().getDeviceDetail(device);
       deviceList.deviceList[index].detail = res;
       deviceList.notifyListeners();
+      initView();
     } catch (e) {
       // 接口请求失败
       print(e);
     } finally {
       refreshController.finishRefresh();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Push.dislisten("gemini/appliance/event", _eventCallback);
+    Push.dislisten("appliance/status/report",_reportCallback);
   }
 
   /// 开关摆风

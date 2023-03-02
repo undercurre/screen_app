@@ -503,16 +503,25 @@ public class MideaAiService extends Service {
         //如果是音乐就交给音乐播放器播放,此处不做音乐播放处理
         player = Player.getInstance();
         if (isMusic(data)) {
-            ttsList.clear();
-            dismissAiDialog();
-        } else {
             if (ttsList != null && ttsList.size() > 0) {
-                player.playList(ttsList);
+                if (isManLoadMusic) {
+                    //如果是手动拉取则提示音乐都不要
+                    return;
+                } else {
+                    //只提示播放音乐开始
+                    TTSItem x = ttsList.get(0);
+                    ttsList.clear();
+                    ttsList.add(x);
+                    player.playList(ttsList);
+                }
+
             }
-        }
-        if (isWeather(data)) {
+        } else if (isWeather(data)) {
             //如果是天气就只播音频不显示文字
             ttsList.get(0).setLabel("");
+            player.playList(ttsList);
+        } else if (ttsList != null && ttsList.size() > 0) {
+            player.playList(ttsList);
         }
 
         if (ttsList != null && ttsList.size() > 0) {
@@ -1145,7 +1154,7 @@ public class MideaAiService extends Service {
             if (nlu.has("skillType")) {
                 if (nlu.getString("skillType").equals("DeviceControl")) {
                     JSONArray ttsArray = object.getJSONObject("nlu").getJSONObject("tts").optJSONArray("data");
-                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")){
+                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")||ttsArray.getJSONObject(0).getString("text").contains("绑定设备")){
                         isDeviceControl = true;
                     }else{
                         isDeviceControl = false;
@@ -1255,8 +1264,7 @@ public class MideaAiService extends Service {
             if (tar_item.getUrlType().isEmpty()) {
                 isgreeting = true;
             }
-
-//            mMediaMwEngine.reportPlayerStatus(root.toString(), isgreeting);
+            mMediaMwEngine.reportPlayerStatus(root.toString(), isgreeting);
         } catch (Exception e) {
             e.printStackTrace();
         }

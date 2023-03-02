@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 
@@ -15,13 +16,18 @@ class LightControl extends StatefulWidget {
   final num computedBightness;
   final num computedColorTemp;
 
-  const LightControl({super.key, this.disabled, required this.computedPower, required this.computedBightness, required this.computedColorTemp});
+  const LightControl(
+      {super.key,
+      this.disabled,
+      required this.computedPower,
+      required this.computedBightness,
+      required this.computedColorTemp});
 
   @override
   LightControlState createState() => LightControlState();
 }
 
-class LightControlState extends State<LightControl> {
+class LightControlState extends State<LightControl> with Throttle {
   bool disabled = false;
   num lightnessValue = 0;
   num colorTempValue = 0;
@@ -34,9 +40,13 @@ class LightControlState extends State<LightControl> {
     });
     var res = await CenterControlService.lightPowerControl(context, onOff);
     if (res) {
-      TipsUtils.toast(content: '执行成功');
+      throttle(() {
+        TipsUtils.toast(content: '执行成功');
+      }, durationTime: const Duration(milliseconds: 2000));
     } else {
-      TipsUtils.toast(content: '执行失败');
+      throttle(() {
+        TipsUtils.toast(content: '执行失败');
+      }, durationTime: const Duration(milliseconds: 2000));
       setState(() {
         powerValue = !powerValue;
       });
@@ -49,15 +59,24 @@ class LightControlState extends State<LightControl> {
     setState(() {
       lightnessValue = value;
     });
-    var res = await CenterControlService.lightBrightnessControl(context, value);
-    if (res) {
-      TipsUtils.toast(content: '执行成功');
-    } else {
-      TipsUtils.toast(content: '执行失败');
-      setState(() {
-        lightnessValue = exValue;
-      });
-    }
+    throttle(() async {
+      var res =
+          await CenterControlService.lightBrightnessControl(context, value);
+      if (res) {
+        TipsUtils.toast(content: '执行成功');
+      } else {
+        TipsUtils.toast(content: '执行失败');
+        setState(() {
+          lightnessValue = exValue;
+        });
+      }
+    }, durationTime: const Duration(milliseconds: 2000));
+  }
+
+  lightBrightChanging(num value, Color color) {
+    throttle(() {
+      lightBrightHandle(value, color);
+    }, durationTime: const Duration(milliseconds: 2000));
   }
 
   Future<void> lightColorHandle(num value, Color color) async {
@@ -66,15 +85,26 @@ class LightControlState extends State<LightControl> {
     setState(() {
       colorTempValue = value;
     });
-    var res = await CenterControlService.lightColorTemperatureControl(context, value);
+    var res =
+        await CenterControlService.lightColorTemperatureControl(context, value);
     if (res) {
-      TipsUtils.toast(content: '执行成功');
+      throttle(() {
+        TipsUtils.toast(content: '执行成功');
+      }, durationTime: const Duration(milliseconds: 2000));
     } else {
-      TipsUtils.toast(content: '执行失败');
+      throttle(() {
+        TipsUtils.toast(content: '执行失败');
+      }, durationTime: const Duration(milliseconds: 2000));
       setState(() {
         colorTempValue = exValue;
       });
     }
+  }
+
+  lightColorChanging(num value, Color color) {
+    throttle(() {
+      lightColorHandle(value, color);
+    }, durationTime: const Duration(milliseconds: 2000));
   }
 
   void disableHandle() {
@@ -194,7 +224,7 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFFFFD185)
                               ],
                               onChanged: lightBrightHandle,
-                              onChanging: lightBrightHandle,
+                              onChanging: lightBrightChanging,
                             ),
                             const Padding(padding: EdgeInsets.only(bottom: 14)),
                             Padding(
@@ -216,7 +246,7 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFF55A2FA)
                               ],
                               onChanged: lightColorHandle,
-                              onChanging: lightColorHandle,
+                              onChanging: lightColorChanging,
                             )
                           ],
                         ),
@@ -306,7 +336,7 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFFFFD185)
                               ],
                               onChanged: lightBrightHandle,
-                              onChanging: lightBrightHandle,
+                              onChanging: lightBrightChanging,
                             ),
                             const Padding(padding: EdgeInsets.only(bottom: 14)),
                             Padding(
@@ -328,7 +358,7 @@ class LightControlState extends State<LightControl> {
                                 Color(0xFF55A2FA)
                               ],
                               onChanged: lightColorHandle,
-                              onChanging: lightColorHandle,
+                              onChanging: lightColorChanging,
                             )
                           ],
                         ),

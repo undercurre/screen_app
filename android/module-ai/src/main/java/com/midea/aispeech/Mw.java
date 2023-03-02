@@ -95,6 +95,7 @@ public class Mw
     public static native int unInitDo();
     public static native int deviceStatusToCloudResp(String jsonDevResp);
     public static native int playStatusToSpeech(String jsonDevResp);
+    public static native int reportPlayerStatus(String jsonDevResp,boolean isGreeting);
 
     public static native int audioDataToSpeech(byte[] buffer, int size);
     public static native int beginningTTS(String ttsStr);

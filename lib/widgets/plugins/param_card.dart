@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/mz_metal_card.dart';
 import 'package:screen_app/widgets/mz_slider.dart';
@@ -28,7 +29,7 @@ class ParamCard extends StatefulWidget {
     this.disabled = false,
     this.maxValue = 100,
     this.minValue = 0,
-    this.throttle = const Duration(seconds: 1),
+    this.throttle = const Duration(milliseconds: 800),
     this.duration,
   });
 
@@ -39,12 +40,32 @@ class ParamCard extends StatefulWidget {
 class _ParamCardState extends State<ParamCard> with Throttle {
   late String title;
   late String unit;
+  late num localValue;
 
   @override
   void initState() {
     super.initState();
     title = widget.title;
     unit = widget.unit;
+    localValue = widget.value;
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    setState(() {
+      localValue = widget.value;
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ParamCard oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      localValue = widget.value;
+    });
   }
 
   @override
@@ -72,7 +93,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                         ),
                       ),
                       Text(
-                        '${widget.value.toInt()}$unit',
+                        '$localValue$unit',
                         style: const TextStyle(
                           fontFamily: "MideaType",
                           fontSize: 18,
@@ -89,12 +110,12 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                   min: widget.minValue,
                   max: widget.maxValue,
                   width: 270,
-                  value: widget.value,
+                  value: localValue,
                   activeColors: widget.activeColors,
                   disabled: widget.disabled,
                   duration: widget.duration,
                   onChanged: widget.onChanged,
-                  onChanging: widget.onChanging,
+                  onChanging: onChanging,
                 ),
               ],
             ),
@@ -134,10 +155,13 @@ class _ParamCardState extends State<ParamCard> with Throttle {
 
   // 使用节流
   void onChanging(num value, Color activeColor) {
-    if (widget.onChanging != null) {
-      throttle(() {
-        widget.onChanging!(value, activeColor);
-      }, durationTime: widget.throttle);
-    }
+    setState(() {
+      localValue = value;
+    });
+    // if (widget.onChanging != null) {
+    //   throttle(() {
+    //     widget.onChanging!(localValue, activeColor);
+    //   }, durationTime: widget.throttle);
+    // }
   }
 }
