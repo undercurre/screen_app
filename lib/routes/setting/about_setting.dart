@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -78,6 +79,7 @@ class AboutSettingProvider with ChangeNotifier {
     netMethodChannel.removeAllWiFiRecord();
     // 定时十秒
     Timer(const Duration(seconds: 8), () {
+      Push.dispose();
       System.loginOut();
       Timer(const Duration(seconds: 2), () {
         aboutSystemChannel.reboot();
@@ -294,6 +296,7 @@ class AboutSettingPage extends StatelessWidget {
                                               contentPadding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
                                               onPressed:(_, index, context) {
                                                 if(index == 1) {
+                                                  Push.dispose();
                                                   System.loginOut();
                                                   Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
                                                 } else {

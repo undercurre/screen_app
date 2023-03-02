@@ -5,6 +5,7 @@ import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/push.dart';
 import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -77,6 +78,7 @@ class SnifferViewModel {
     GatewayApi.check((bind) {
       if(!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
+        Push.dispose();
         System.loginOut();
         Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
       }

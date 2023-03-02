@@ -175,6 +175,8 @@ public class AppCommonConfig {
     public static final String USER_SETTING_DIR = APP_CACHE + "/setting/user";
     // 存放全局系统配置或其他全局配置的数据路径
     public static final String SYSTEM_SETTING_DIR = STORAGE_CACHE + "/setting/system";
+    // 推送数据保存路径
+    public static final String ALI_PUSH_DIR = STORAGE_CACHE + "/setting/push";
     // 本地数据库保存的路径
     public static final String STORAGE_DATABASE = STORAGE_FILE + "/db";
     // 保存设备配网的状态信息
