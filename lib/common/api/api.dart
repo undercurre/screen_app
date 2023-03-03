@@ -283,6 +283,7 @@ class Api {
       } else if(isWillLoginExpire) {
         await iotAutoLogin();
         await mzAutoLogin();
+        Global.saveProfile();
       }
     }
   }
