@@ -57,7 +57,42 @@ class DeviceListModel extends ProfileChangeNotifier {
   List<DeviceEntity> get deviceList => _deviceListResource;
 
   List<DeviceEntity> get showList {
-    return deviceList.where(showFilter).toList() + vistualProducts;
+    var entityList = deviceList.where(showFilter).toList() + vistualProducts;
+    List<DeviceEntity> sortList = [];
+    List<DeviceEntity> supportList = entityList
+        .where((element) => DeviceService.isSupport(element))
+        .toList();
+    List<DeviceEntity> nosupportList = entityList
+        .where((element) => !DeviceService.isSupport(element))
+        .toList();
+    List<DeviceEntity> onlineList = supportList
+        .where((element) => DeviceService.isOnline(element))
+        .toList();
+    List<DeviceEntity> outlineList = supportList
+        .where((element) => !DeviceService.isOnline(element))
+        .toList();
+    onlineList.sort((a, b) {
+      if (a.activeTime == '' ||
+          b.activeTime == '' ||
+          a.activeTime == null ||
+          b.activeTime == null) {
+        return 1;
+      }
+      if (DateTime.parse(a.activeTime)
+          .compareTo(DateTime.parse(b.activeTime)) ==
+          0) {
+        return 1;
+      }
+      return DateTime.parse(a.activeTime)
+          .compareTo(DateTime.parse(b.activeTime)) >
+          0
+          ? -1
+          : 1;
+    });
+    sortList.addAll(onlineList);
+    sortList.addAll(outlineList);
+    sortList.addAll(nosupportList);
+    return sortList;
   }
 
   List<DeviceEntity> get vistualList =>
@@ -229,26 +264,30 @@ class DeviceListModel extends ProfileChangeNotifier {
   }
 
   Future<void> updateAllDetail() async {
+    final stopwatch = Stopwatch()..start();
     // 更新房间的信息
     await updateHomeData();
+    logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
     // 查灯组
-    await selectLightGroupList();
+    selectLightGroupList();
+    logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
     // 更新设备detail
-    List<Future<void>> futures = [];
-    for (int xx = 1; xx <= deviceList.length; xx++) {
-      var deviceInfo = deviceList[xx - 1];
+    for (int xx = 1; xx <= showList.length; xx++) {
+      var deviceInfo = showList[xx - 1];
       // 查看品类控制器看是否支持该品类
       var hasController = getController(deviceInfo) != null;
       if (hasController &&
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        futures.add(updateDeviceDetail(deviceInfo));
+        updateDeviceDetail(deviceInfo);
       }
     }
-    await Future.wait(futures);
+    logger.i('更新房间内所有设备状态优化后：请求状态', stopwatch.elapsedMilliseconds / 1000);
+
     // 放置虚拟设备
     setVistualDevice();
+    logger.i('更新房间内所有设备状态优化后：放置虚拟设备', stopwatch.elapsedMilliseconds / 1000);
   }
 
   Future<void> updateHomeData() async {
