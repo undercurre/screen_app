@@ -95,9 +95,9 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       groupValue: groupValue,
                       value: 0,
                       onChanged: (value){
-                        // setState((){
-                        //   groupValue=value!;
-                        // });
+                        setState((){
+                          groupValue=value!;
+                        });
                       },
                     ),
                   ),
@@ -141,7 +141,9 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       groupValue: groupValue,
                       value: 1,
                       onChanged: (value){
-
+                        setState((){
+                          groupValue=value!;
+                        });
                       },
                     ),
                   ),
@@ -184,7 +186,9 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       groupValue: groupValue,
                       value: 2,
                       onChanged: (value){
-
+                        setState((){
+                          groupValue=value!;
+                        });
                       },
                     ),
                   ),
@@ -229,7 +233,9 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       groupValue: groupValue,
                       value: 3,
                       onChanged: (value){
-
+                        setState((){
+                          groupValue=value!;
+                        });
                       },
                     ),
                   ),
@@ -273,7 +279,9 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                       groupValue: groupValue,
                       value: 4,
                       onChanged: (value){
-
+                        setState((){
+                          groupValue=value!;
+                        });
                       },
                     ),
                   ),
