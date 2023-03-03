@@ -158,6 +158,7 @@ class DeviceConnectViewModel {
   /// 退出
   void goBack(BuildContext context) {
     stopBind();
+    bus.emit('updateDeviceListState');
     bus.emit('updateDeviceCardState');
     Navigator.popUntil(context, (route) {
       return route.settings.name != "SnifferPage"
