@@ -209,7 +209,6 @@ class DeviceListModel extends ProfileChangeNotifier {
     logger.i("生产虚拟设备: $objCopy");
     vistualProducts.add(objCopy);
     notifyListeners();
-    logger.i("生产虚拟设备结果: $showList");
   }
 
   // 灯组查询
@@ -318,18 +317,16 @@ class DeviceListModel extends ProfileChangeNotifier {
       logger.i('遍历虚拟设备', deviceInfo);
       // 智慧屏线控器
       if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
-        productVistualDevice(deviceInfo, '${deviceInfo.name}线控器1', "smartControl-1");
-        productVistualDevice(deviceInfo, '${deviceInfo.name}线控器2', "smartControl-2");
+        productVistualDevice(deviceInfo, '${deviceInfo.name}灯1', "smartControl-1");
+        productVistualDevice(deviceInfo, '${deviceInfo.name}灯2', "smartControl-2");
       }
       // 面板
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {
-        if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
-          for (int lu = 1; lu <= deviceInfo.detail!["deviceControlList"].length; lu ++) {
-            productVistualDevice(deviceInfo, deviceInfo.detail!["gatewayInfo"]["endlist"][lu - 1]["name"] ?? '按键$lu', "singlePanel-$lu");
+          MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
+          Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+          for (int lu = 1; lu <= infoMap["endlist"].length; lu ++) {
+            productVistualDevice(deviceInfo, infoMap["endlist"][lu - 1]["name"] ?? '按键$lu', "singlePanel-$lu");
           }
-        } else {
-          logger.i('生产虚拟设备出错' ,deviceInfo);
-        }
       }
     }
   }
