@@ -70,11 +70,12 @@ class DeviceItem extends StatelessWidget {
                           spreadRadius: 2,
                         )
                       ]),
-                  child: Image.network(
-                      device.data.icon,
-                      height: 50,
-                      width: 50
-                  ),
+                  child: device.data is FindWiFiResult ?
+                            Image.network(
+                            device.data.icon,
+                            height: 50,
+                            width: 50) :
+                            Image.asset(device.data.icon),
                 ),
                 if (device.selected)
                   const Positioned(
