@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -39,6 +40,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   var localBrightness = '1';
   var localColorTemp = '0';
   var localPower = false;
+  var isColorful = true;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -115,6 +117,7 @@ class LightGroupPageState extends State<LightGroupPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
+      setIsColorFul(args['deviceId']);
       setState(() {
         deviceWatch = context
             .read<DeviceListModel>()
@@ -134,6 +137,14 @@ class LightGroupPageState extends State<LightGroupPage> {
 
     // 延时调用一次 1秒后执行
     Timer(timeout, () => {updateDetail()});
+  }
+
+  setIsColorFul(String deviceId) async {
+    var isColorfulRes = await LightGroupApi.isColorful(context.read<DeviceListModel>().getDeviceInfoById(deviceId));
+    logger.i('isColorfulRes', isColorfulRes);
+    setState(() {
+      isColorful = isColorfulRes;
+    });
   }
 
   @override
@@ -226,7 +237,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         onChanging: brightnessHandle,
                                       ),
                                     ),
-                                    Container(
+                                    if (isColorful) Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
                                         title: '色温',

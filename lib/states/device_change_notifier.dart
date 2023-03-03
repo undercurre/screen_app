@@ -257,6 +257,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         "applianceList": group["applianceList"],
         "detail": detail,
       };
+      logger.i('生成灯组', vistualDeviceForGroup);
       deviceList.add(vistualDeviceForGroup);
       notifyListeners();
     }
