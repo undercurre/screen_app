@@ -18,8 +18,8 @@ import '../../../home/device/register_controller.dart';
 import '../../../home/device/service.dart';
 
 class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
     "deviceName": 'Zigbee智能窗帘',
@@ -248,7 +248,42 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
-        initView();
+        if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+            '0x21_curtain') {
+          position1 = args['power'] ? 100 : 0;
+          if (args['power']) {
+            screenModel1 = 'close';
+          } else {
+            screenModel1 = 'open';
+          }
+        } else if (zigbeeControllerList[deviceWatch["modelNumber"]] ==
+            '0x21_curtain_panel_two') {
+          position1 =
+              deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+                  ? 100
+                  : 0;
+          position2 =
+              deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1
+                  ? 100
+                  : 0;
+          screenModel1 =
+              deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+                  ? 'open'
+                  : 'close';
+          screenModel2 =
+              deviceWatch["detail"]["deviceControlList"][1]["attribute"] == 1
+                  ? 'open'
+                  : 'close';
+        } else {
+          position1 =
+              deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+                  ? 100
+                  : 0;
+          screenModel1 =
+              deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
+                  ? 'open'
+                  : 'close';
+        }
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 2000);
@@ -257,31 +292,41 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
       Timer(timeout, () => {updateDetail()});
       getGatewayInfo();
 
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+      Push.listen(
+          "gemini/appliance/event",
+          _eventCallback = ((arg) async {
+            String event =
+                (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+            Map<String, dynamic> eventMap = json.decode(event);
+            String nodeId = eventMap['nodeId'] ?? "";
+            var detail = context
+                .read<DeviceListModel>()
+                .getDeviceDetailById(args['deviceId']);
 
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            updateDetail();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-            updateDetail();
-          }
-        }
-      }));
+            if (nodeId.isEmpty) {
+              if (detail['deviceId'] == arg['applianceCode']) {
+                updateDetail();
+              }
+            } else {
+              if ((detail['masterId'] as String).isNotEmpty &&
+                  detail['detail']?['nodeId'] == nodeId) {
+                updateDetail();
+              }
+            }
+          }));
 
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-            updateDetail();
-          }
-        }
-      }));
+      Push.listen(
+          "appliance/status/report",
+          _reportCallback = ((arg) {
+            var detail = context
+                .read<DeviceListModel>()
+                .getDeviceDetailById(args['deviceId']);
+            if (arg.containsKey('applianceId')) {
+              if (detail['deviceId'] == arg['applianceId']) {
+                updateDetail();
+              }
+            }
+          }));
     });
   }
 
@@ -289,7 +334,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/status/report", _reportCallback);
   }
 
   @override
@@ -315,7 +360,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
 
     var curtainPanelOne = [
       ModeCard(
-        title: localGatewayInfo.isNotEmpty ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1" : "窗帘1",
+        title: localGatewayInfo.isNotEmpty
+            ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1"
+            : "窗帘1",
         spacing: 80,
         modeList: curtainPanelModes1,
         selectedKeys: getSelectedKeys1(),
@@ -333,7 +380,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
-            title: localGatewayInfo.isNotEmpty ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1" : "窗帘1",
+            title: localGatewayInfo.isNotEmpty
+                ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1"
+                : "窗帘1",
             spacing: 80,
             modeList: curtainPanelModes1,
             selectedKeys: getSelectedKeys1(),
@@ -348,7 +397,11 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           });
         },
         child: ModeCard(
-          title: localGatewayInfo.isNotEmpty ? (localGatewayInfo["endlist"].length > 1 ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2" : "窗帘2") : "窗帘2",
+          title: localGatewayInfo.isNotEmpty
+              ? (localGatewayInfo["endlist"].length > 1
+                  ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2"
+                  : "窗帘2")
+              : "窗帘2",
           spacing: 80,
           modeList: curtainPanelModes2,
           selectedKeys: getSelectedKeys2(),

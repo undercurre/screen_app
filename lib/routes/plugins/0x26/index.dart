@@ -112,6 +112,9 @@ class BathroomMasterState extends State<BathroomMaster> {
     if (deviceId == '0') {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
+      setState(() {
+        runMode["ventilation"] = true;
+      });
     }
     // 先判断有没有这个id，没有说明设备已被删除
     final index = deviceList.deviceList

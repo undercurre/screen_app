@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/home/device/register_controller.dart';
@@ -29,7 +30,6 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
-  int count = 5;
   late EasyRefreshController _controller;
   List<DraggableGridItem> itemBins = [];
   var time = DateTime.now();
@@ -53,44 +53,11 @@ class _DevicePageState extends State<DevicePage> {
     if (mounted) {
       var deviceModel = context.read<DeviceListModel>();
       // 更新设备detail
-      await deviceModel.updateAllDetail();
       var entityList = deviceModel.showList;
-      List<DeviceEntity> sortList = [];
-      List<DeviceEntity> supportList = entityList
-          .where((element) => DeviceService.isSupport(element))
-          .toList();
-      List<DeviceEntity> nosupportList = entityList
-          .where((element) => !DeviceService.isSupport(element))
-          .toList();
-      List<DeviceEntity> onlineList = supportList
-          .where((element) => DeviceService.isOnline(element))
-          .toList();
-      List<DeviceEntity> outlineList = supportList
-          .where((element) => !DeviceService.isOnline(element))
-          .toList();
-      onlineList.sort((a, b) {
-        if (a.activeTime == '' ||
-            b.activeTime == '' ||
-            a.activeTime == null ||
-            b.activeTime == null) {
-          return 1;
-        }
-        if (DateTime.parse(a.activeTime)
-                .compareTo(DateTime.parse(b.activeTime)) ==
-            0) {
-          return 1;
-        }
-        return DateTime.parse(a.activeTime)
-                    .compareTo(DateTime.parse(b.activeTime)) >
-                0
-            ? -1
-            : 1;
-      });
-      sortList.addAll(onlineList);
-      sortList.addAll(outlineList);
-      sortList.addAll(nosupportList);
+      await deviceModel.updateAllDetail();
+      entityList = deviceModel.showList;
       setState(() {
-        deviceEntityList = sortList;
+        deviceEntityList = entityList;
 
         deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
@@ -129,6 +96,11 @@ class _DevicePageState extends State<DevicePage> {
 
     cb = (arg) {
       initPage();
+      DeviceApi.checkBindInfo().then((res) {
+        if (res.code == 1900) {
+          bus.emit('logout');
+        }
+      });
     };
 
     Push.listen("添加设备", cb!);
@@ -157,6 +129,15 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    var deviceModel = context.watch<DeviceListModel>();
+    // 更新设备detail
+    var entityList = deviceModel.showList;
+    setState(() {
+      deviceEntityList = entityList;
+      deviceWidgetList = deviceEntityList
+          .map((device) => DeviceCard(deviceInfo: device))
+          .toList();
+    });
     return Container(
       decoration: const BoxDecoration(
         color: Colors.black,
@@ -259,9 +240,7 @@ class _DevicePageState extends State<DevicePage> {
                   return;
                 }
                 await initPage();
-                setState(() {
-                  count = 5;
-                });
+                // initPage();
                 _controller.finishRefresh();
                 _controller.resetFooter();
               },

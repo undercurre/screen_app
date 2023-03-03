@@ -93,6 +93,32 @@ class LightGroupApi {
     return res;
   }
 
+  /// 判断是调光灯组还是调色灯组
+  static Future<bool> isColorful(DeviceEntity deviceInfo) async {
+    if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
+      var deviceList = deviceInfo.detail!["applianceList"];
+      var total = false;
+      for (var i = 0; i < deviceList.length; i ++) {
+        MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+            deviceList[i].applianceCode, deviceList[i].parentApplianceCode);
+        Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+        if (
+              infoMap["modelid"] != 'midea.light.003.001' &&
+              infoMap["modelid"] != 'midea.light.003' &&
+              infoMap["modelid"] != 'tuya.light.003.001'
+        ) {
+          logger.i('这盏灯是调色灯');
+          total = true;
+        } else {
+          logger.i('这盏灯是调光灯');
+        }
+      }
+      return total;
+    } else {
+      return true;
+    }
+  }
+
   /// 亮度控制（物模型）
   static Future<MzResponseEntity> brightnessPDM(
       DeviceEntity deviceInfo, num value) async {

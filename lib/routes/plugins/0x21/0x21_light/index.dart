@@ -73,6 +73,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     setState(() {
       deviceWatch["detail"] = detail;
     });
+    logger.i('设备详情', detail);
     deviceInfo.detail = detail;
     setViewData(detail);
     if (mounted) {
@@ -110,6 +111,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   }
 
   Future<void> delayHandle() async {
+    if (!localPower) return;
     setState(() {
       if (localDelayClose == 0) {
         localDelayClose = 3;
@@ -134,6 +136,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     var curMode = lightModes
         .where((element) => element.key == fakeModel)
         .toList()[0] as ZigbeeLightMode;
+    logger.i('deviceId', deviceWatch);
     var res = await ZigbeeLightApi.adjustPDM(
         deviceWatch["detail"]["deviceId"],
         curMode.brightness,
@@ -150,6 +153,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   Future<void> brightnessHandle(num value, Color activeColor) async {
     setState(() {
       localBrightness = value;
+      fakeModel = '';
     });
     var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
         value, localColorTemperature, deviceWatch["detail"]["nodeId"]);
@@ -164,6 +168,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
     setState(() {
       localColorTemperature = value;
+      fakeModel = '';
     });
     var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
         localBrightness, value, deviceWatch["detail"]["nodeId"]);
@@ -192,6 +197,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
+        deviceWatch['detail']["lightPanelDeviceList"][0]["attribute"] = args['power'] ? 1 : 0;
       });
       setViewData(deviceWatch['detail']);
 
@@ -261,7 +267,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
-            hasHeightlight: false,
+            hasHeightlight: true,
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: modeHandle,

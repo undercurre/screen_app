@@ -85,7 +85,7 @@ class _ScanCode extends State<ScanCode> {
 
   /// 大屏端轮询授权状态接口
   void updateLoginStatus() async {
-    var delaySec = 2; // 2s轮询间隔
+    var delaySec = 1; // 1s轮询间隔
     if (StrUtils.isNullOrEmpty(sessionId)) {
       updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
         updateLoginStatus();

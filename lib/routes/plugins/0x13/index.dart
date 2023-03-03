@@ -209,7 +209,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
           deviceWatch = deviceDetail;
           localBrightness = deviceDetail["detail"]["brightValue"];
           localColorTemp = deviceDetail["detail"]["colorTemperatureValue"];
-          localPower = deviceDetail["detail"]["power"];
+          localPower = args['power'];
           localScreenModel = deviceDetail["detail"]["screenModel"];
           localTimeOff = deviceDetail["detail"]["timeOff"];
         });
@@ -218,7 +218,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
           deviceWatch = deviceDetail;
           localBrightness = int.parse(deviceDetail["detail"]["brightness"]);
           localColorTemp = int.parse(deviceDetail["detail"]["color_temperature"]);
-          localPower = deviceDetail["detail"]["power"] == 'on';
+          localPower = args['power'];
           localScreenModel = deviceDetail["detail"]["scene_light"] ?? 'manual';
           localTimeOff = int.parse(deviceDetail["detail"]["delay_light_off"]);
         });
