@@ -226,6 +226,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                     Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
+                                        disabled: !localPower,
                                         title: '亮度',
                                         value: int.parse(deviceWatch["detail"]
                                             ["detail"]["brightness"]),
@@ -240,6 +241,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                     if (isColorful) Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
+                                        disabled: !localPower,
                                         title: '色温',
                                         value: int.parse(deviceWatch["detail"]
                                             ["detail"]["colorTemperature"]),
