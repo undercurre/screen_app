@@ -51,22 +51,30 @@ class WrapSinglePanel implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
-    var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
-    if (panelCount == 1) return 'assets/imgs/device/yilu_off.png';
-    var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
-    var panelTypeList = ['yilu', 'erlu', 'sanlu', 'silu'];
-    var panelType = panelTypeList[panelCount - 1];
-    return 'assets/imgs/device/$panelType-0$panelIndex-off.png';
+    if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
+      var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
+      if (panelCount == 1) return 'assets/imgs/device/yilu_off.png';
+      var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
+      var panelTypeList = ['yilu', 'erlu', 'sanlu', 'silu'];
+      var panelType = panelTypeList[panelCount - 1];
+      return 'assets/imgs/device/$panelType-0$panelIndex-off.png';
+    } else {
+      return 'assets/imgs/device/yilu-01-off.png';
+    }
   }
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
-    var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
-    if (panelCount == 1) return 'assets/imgs/device/yilu_on.png';
-    var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
-    var panelTypeList = ['yilu', 'erlu', 'sanlu', 'silu'];
-    var panelType = panelTypeList[panelCount - 1];
-    return 'assets/imgs/device/$panelType-0$panelIndex-on.png';
+    if (deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty) {
+      var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
+      if (panelCount == 1) return 'assets/imgs/device/yilu_on.png';
+      var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
+      var panelTypeList = ['yilu', 'erlu', 'sanlu', 'silu'];
+      var panelType = panelTypeList[panelCount - 1];
+      return 'assets/imgs/device/$panelType-0$panelIndex-on.png';
+    } else {
+      return 'assets/imgs/device/yilu-01-on.png';
+    }
   }
 }
 
