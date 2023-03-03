@@ -121,7 +121,7 @@ class AirConditionPageState extends State<AirConditionPage> {
           .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
         deviceWatch = deviceDetail;
-        localPower = deviceDetail["detail"]["power"];
+        localPower = args["power"];
         localMode = deviceDetail["detail"]["mode"];
         localTemp = deviceDetail["detail"]["temperature"];
         localSmallTemp = deviceDetail["detail"]["small_temperature"];

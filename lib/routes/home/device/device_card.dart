@@ -39,7 +39,7 @@ class _DeviceCardState extends State<DeviceCard> {
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);
         Navigator.pushNamed(context, type,
-            arguments: {"deviceId": widget.deviceInfo!.applianceCode});
+            arguments: {"deviceId": widget.deviceInfo!.applianceCode, "power": power});
       }
     }
   }

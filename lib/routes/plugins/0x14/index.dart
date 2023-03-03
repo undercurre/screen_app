@@ -82,7 +82,9 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
-
+      setState(() {
+        curtainPosition = args['power'] ? 100 : 0;
+      });
       updateDetail();
 
       Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {

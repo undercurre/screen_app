@@ -197,6 +197,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
+        deviceWatch['detail']["lightPanelDeviceList"][0]["attribute"] = args['power'] ? 1 : 0;
       });
       setViewData(deviceWatch['detail']);
 

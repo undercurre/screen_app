@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,18 +23,22 @@ class LightGroupPageState extends State<LightGroupPage> {
         {"parentApplianceCode": "", "applianceCode": ""}
       ],
       "detail": {
-          "groupId": "1",
-          "groupName": "灯光分组",
-          "brightness": "0",
-          "colorTemperature": "0",
-          "switchStatus": "0",
-          "maxColorTemp": "6500",
-          "minColorTemp": "2700"
+        "groupId": "1",
+        "groupName": "灯光分组",
+        "brightness": "0",
+        "colorTemperature": "0",
+        "switchStatus": "0",
+        "maxColorTemp": "6500",
+        "minColorTemp": "2700"
       }
     }
   };
 
   late DeviceEntity deviceInfoById;
+
+  var localBrightness = '1';
+  var localColorTemp = '0';
+  var localPower = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -40,38 +46,46 @@ class LightGroupPageState extends State<LightGroupPage> {
   }
 
   Future<void> powerHandle() async {
-    var res = await LightGroupApi.powerPDM(deviceInfoById,
-        !(deviceWatch["detail"]["detail"]["switchStatus"] == "1"));
+    setState(() {
+      localPower = !localPower;
+    });
+    var res = await LightGroupApi.powerPDM(deviceInfoById, localPower);
     if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["detail"]["switchStatus"] =
-            deviceWatch["detail"]["detail"]["switchStatus"] == "1"
-                ? "0"
-                : "1";
-      });
       updateDetail();
+    } else {
+      setState(() {
+        localPower = !localPower;
+      });
     }
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
+    var exValue = localBrightness;
+    setState(() {
+      localBrightness = value.toString();
+    });
     var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
     if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["detail"]["brightness"] =
-            value.toString();
-      });
       updateDetail();
+    } else {
+      setState(() {
+        localBrightness = exValue;
+      });
     }
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
+    var exValue = localColorTemp;
+    setState(() {
+      localColorTemp = value.toString();
+    });
     var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
     if (res.isSuccess) {
-      setState(() {
-        deviceWatch["detail"]["detail"]["colorTemperature"] =
-            value.toString();
-      });
       updateDetail();
+    } else {
+      setState(() {
+        localColorTemp = exValue;
+      });
     }
   }
 
@@ -80,13 +94,19 @@ class LightGroupPageState extends State<LightGroupPage> {
         .read<DeviceListModel>()
         .getDeviceInfoById(deviceWatch["deviceId"]);
     var result = await LightGroupApi.getLightDetail(deviceInfo);
-    setState(() {
-      deviceWatch["detail"]["detail"] = result.result["result"]["group"];
-    });
+    initView(result.result["result"]["group"]);
     deviceInfo.detail!["detail"] = result.result["result"]["group"];
     if (mounted) {
       context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
     }
+  }
+
+  initView(detail) {
+    setState(() {
+      localBrightness = detail["brightness"];
+      localColorTemp = detail["colorTemperature"];
+      localPower = detail["switchStatus"] == "1";
+    });
   }
 
   @override
@@ -99,6 +119,9 @@ class LightGroupPageState extends State<LightGroupPage> {
         deviceWatch = context
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
+        localBrightness = deviceWatch["detail"]["detail"]["brightness"];
+        localColorTemp = deviceWatch["detail"]["detail"]["colorTemperature"];
+        localPower = args["power"];
       });
       deviceInfoById = context
           .read<DeviceListModel>()
@@ -106,6 +129,11 @@ class LightGroupPageState extends State<LightGroupPage> {
       debugPrint('插件中获取到的deviceInfo：$deviceInfoById');
       debugPrint('插件中获取到的详情：$deviceWatch');
     });
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(milliseconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () => {updateDetail()});
   }
 
   @override
@@ -125,11 +153,8 @@ class LightGroupPageState extends State<LightGroupPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: int.parse(
-                    deviceWatch["detail"]["detail"]["brightness"]),
-                colorTemperature: 100 -
-                    int.parse(deviceWatch["detail"]["detail"]
-                        ["colorTemperature"]),
+                brightness: int.parse(localBrightness),
+                colorTemperature: 100 - int.parse(localColorTemp),
               )),
           Flex(
             direction: Axis.vertical,
@@ -146,9 +171,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
                     title: deviceWatch["deviceName"],
-                    power: deviceWatch["detail"]["detail"]
-                            ["switchStatus"] ==
-                        "1",
+                    power: localPower,
                     hasPower: true,
                   ),
                 ),
@@ -208,8 +231,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                       child: ParamCard(
                                         title: '色温',
                                         value: int.parse(deviceWatch["detail"]
-                                                ["detail"]
-                                            ["colorTemperature"]),
+                                            ["detail"]["colorTemperature"]),
                                         activeColors: const [
                                           Color(0xFFFFD39F),
                                           Color(0xFF55A2FA)
