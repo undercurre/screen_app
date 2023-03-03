@@ -80,6 +80,11 @@ class NetMethodChannel extends AbstractChannel {
     }
   }
 
+  // 查询当前的网络状态。结果以上面回调的形式返回
+  void checkNetState() async {
+    methodChannel.invokeMethod('checkNetState');
+  }
+
   // 注销回调
   void unregisterScanWiFiCallBack(
       void Function(List<WiFiScanResult> list) action) {
