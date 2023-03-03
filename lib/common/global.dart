@@ -135,11 +135,11 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
     runZonedGuarded(() {
-      debugPrint(
-          'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
-      if (previousRoute?.settings.name == 'Home') {
-        DeviceListModel().updateAllDetail();
-      }
+      // debugPrint(
+      //     'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+      // if (previousRoute?.settings.name == 'Home') {
+      //   DeviceListModel().updateAllDetail();
+      // }
       const blacklist = [null, 'SnifferPage'];
       if (previousRoute?.settings.name == 'Home' &&
           !blacklist.contains(route.settings.name)) {
