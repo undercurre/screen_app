@@ -24,7 +24,7 @@ void main() async {
   await initializeDateFormatting('zh_CN');
   Global.init().then((e) async {
     /// 增加全局异常捕获机制
-    CatcherOptions debugOptions = CatcherOptions(MzDialogReportMode(), [ AndroidCrashReportHandler() ]);
+    CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
     CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
     Catcher(
         rootWidget: const App(),

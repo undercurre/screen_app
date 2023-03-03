@@ -269,7 +269,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     await updateHomeData();
     logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
     // 查灯组
-    await selectLightGroupList();
+    selectLightGroupList();
     logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
     // 更新设备detail
     for (int xx = 1; xx <= showList.length; xx++) {
@@ -280,12 +280,12 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        await updateDeviceDetail(deviceInfo);
+        updateDeviceDetail(deviceInfo);
       }
     }
     logger.i('更新房间内所有设备状态优化后：请求状态', stopwatch.elapsedMilliseconds / 1000);
     // 放置虚拟设备
-    await setVistualDevice();
+    setVistualDevice();
     logger.i('更新房间内所有设备状态优化后：放置虚拟设备', stopwatch.elapsedMilliseconds / 1000);
   }
 
