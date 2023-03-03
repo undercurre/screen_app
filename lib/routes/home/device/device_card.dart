@@ -291,7 +291,15 @@ class _DeviceCardState extends State<DeviceCard> {
               '0x21_curtain_panel_two' ||
           (widget.deviceInfo!.type == '0x17' &&
               widget.deviceInfo!.sn8 != '127PD03G')) {
-        return Container();
+        if (DeviceService.isOnline(widget.deviceInfo!)) {
+          return Container();
+        } else {
+          Image.asset(
+            "assets/imgs/device/offline.png",
+            width: 150,
+            height: 60,
+          );
+        }
       }
       if (!DeviceService.isSupport(widget.deviceInfo!) ||
           DeviceService.isVistual(widget.deviceInfo!)) {
