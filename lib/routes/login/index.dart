@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/index.dart';
+import 'package:screen_app/states/index.dart';
 
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
@@ -113,6 +115,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               onChange: (HomeEntity home) {
                 debugPrint('Select: ${home.toJson()}');
                 Global.profile.homeInfo = home;
+
               })),
       Step(
           '选择房间',
@@ -121,6 +124,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               onChange: (RoomEntity room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 Global.profile.roomInfo = room;
+                context.watch<RoomModel>().roomInfo = room;
               })),
     ];
 
