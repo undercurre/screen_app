@@ -228,6 +228,8 @@ class LightGroupPageState extends State<LightGroupPage> {
                                       child: ParamCard(
                                         disabled: !localPower,
                                         title: '亮度',
+                                        minValue: 1,
+                                        maxValue: 100,
                                         value: int.parse(deviceWatch["detail"]
                                             ["detail"]["brightness"]),
                                         activeColors: const [
