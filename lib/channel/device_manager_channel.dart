@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
+import 'package:screen_app/routes/sniffer/zigbee_icon_parse.dart';
 
 import 'models/manager_devic.dart';
 
@@ -92,6 +93,10 @@ class DeviceManagerChannel extends AbstractChannel {
 
     if(zigbeeDevices == null || zigbeeDevices.isEmpty) {
       throw Exception("解析数据出错, 解析的数据为: $arguments");
+    }
+
+    for (var element in zigbeeDevices) {
+      element.icon = ZigbeeIcon.parse(element.device.modelNum);
     }
 
     findZigbeeCallback?.call(zigbeeDevices);

@@ -499,7 +499,9 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         },
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1))),
+                                const Color.fromRGBO(40, 40, 40, 1)),
+                            shape: MaterialStateProperty.all(
+                                const RoundedRectangleBorder())),
                         child: const Text(
                           '取消',
                           style: TextStyle(color: Colors.white, fontSize: 18),
@@ -510,7 +512,9 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                           child: TextButton(
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1))),
+                            const Color(0xff267AFF)),
+                            shape: MaterialStateProperty.all(
+                                const RoundedRectangleBorder())),
                         onPressed: () {
                           if (StrUtils.isNullOrEmpty(_nameController.text) ||
                               _nameController.text.length < 8) {

@@ -23,6 +23,11 @@ void main() async {
   /// 初始化intl库的日期
   await initializeDateFormatting('zh_CN');
   Global.init().then((e) async {
+    /// 初始化Native配置
+    buildChannel();
+    configChannel.initNativeConfig(const String.fromEnvironment('env'));
+    /// 初始化设置配置
+    Setting.instant().init();
     /// 增加全局异常捕获机制
     CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
     CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
@@ -32,11 +37,6 @@ void main() async {
         releaseConfig: releaseOptions,
         navigatorKey: navigatorKey
     );
-    /// 初始化Native配置
-    buildChannel();
-    configChannel.initNativeConfig(const String.fromEnvironment('env'));
-    /// 初始化设置配置
-    Setting.instant().init();
   });
 }
 
