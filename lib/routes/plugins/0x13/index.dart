@@ -47,16 +47,20 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> powerHandle() async {
-    var res = await WIFILightApi.powerLua(deviceWatch["deviceId"], !localPower);
+    setState(() {
+      localPower = !localPower;
+    });
+    var res = await WIFILightApi.powerLua(deviceWatch["deviceId"], localPower);
     if (res.isSuccess) {
-      setState(() {
-        localPower = !localPower;
-      });
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(milliseconds: 1000);
 
       // 延时调用一次 1秒后执行
       Timer(timeout, () => {updateDetail()});
+    } else {
+      setState(() {
+        localPower = !localPower;
+      });
     }
   }
 

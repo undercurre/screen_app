@@ -39,8 +39,8 @@ class WrapLiangyi implements DeviceInterface {
   @override
   bool isPower(DeviceEntity deviceInfo) {
     return deviceInfo.detail != null && deviceInfo.detail != {}
-        ? (deviceInfo.detail!["light"] != 'off' &&
-            deviceInfo.detail!["updown"] != 'pause')
+        ? !(deviceInfo.detail!["light"] == 'off' &&
+            deviceInfo.detail!["updown"] == 'pause')
         : false;
   }
 

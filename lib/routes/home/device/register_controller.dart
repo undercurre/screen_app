@@ -42,7 +42,7 @@ Map<String, DeviceInterface> controllerList = {
   "singlePanel-1": WrapSinglePanel(),
   "singlePanel-2": WrapSinglePanel(),
   "singlePanel-3": WrapSinglePanel(),
-  "singlePanel-4": WrapSinglePanel()
+  "singlePanel-4": WrapSinglePanel(),
 };
 
 Map<String, String> zigbeeControllerList = {

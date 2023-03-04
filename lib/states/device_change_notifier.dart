@@ -325,7 +325,20 @@ class DeviceListModel extends ProfileChangeNotifier {
           MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(deviceInfo.applianceCode, deviceInfo.masterId);
           Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
           for (int lu = 1; lu <= infoMap["endlist"].length; lu ++) {
-            productVistualDevice(deviceInfo, infoMap["endlist"][lu - 1]["name"] ?? '按键$lu', "singlePanel-$lu");
+            // 水电面板识别
+            var wtgList = ["81", "83", "1111", "1113", "1112", "1114"];
+            var wtgNameList = {
+              1: '水阀',
+              2: '电阀',
+              3: '气阀'
+            };
+            if (wtgList.contains(deviceInfo.modelNumber)) {
+              productVistualDevice(deviceInfo, wtgNameList[lu] ?? '按键$lu', "singlePanel-$lu");
+            } else {
+              productVistualDevice(
+                  deviceInfo, infoMap["endlist"][lu - 1]["name"] ?? '按键$lu',
+                  "singlePanel-$lu");
+            }
           }
       }
     }
