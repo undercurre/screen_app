@@ -51,6 +51,7 @@ class WrapSinglePanel implements DeviceInterface {
 
   @override
   String getOffIcon(DeviceEntity deviceInfo) {
+    if (deviceInfo.detail == null || deviceInfo.detail!.isEmpty) return 'assets/imgs/device/yilu_off.png';
     var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
     if (panelCount == 1) return 'assets/imgs/device/yilu_off.png';
     var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
@@ -61,6 +62,7 @@ class WrapSinglePanel implements DeviceInterface {
 
   @override
   String getOnIcon(DeviceEntity deviceInfo) {
+    if (deviceInfo.detail == null || deviceInfo.detail!.isEmpty) return 'assets/imgs/device/yilu_on.png';
     var panelCount = deviceInfo.detail!["deviceControlList"].length ?? 1;
     if (panelCount == 1) return 'assets/imgs/device/yilu_on.png';
     var panelIndex = int.parse(deviceInfo.type[deviceInfo.type.length - 1]);
