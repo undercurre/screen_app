@@ -289,6 +289,34 @@ class DeviceListModel extends ProfileChangeNotifier {
     logger.i('更新房间内所有设备状态优化后：放置虚拟设备', stopwatch.elapsedMilliseconds / 1000);
   }
 
+  Future<void> updateAllDetailWaited() async {
+    final stopwatch = Stopwatch()..start();
+    // 更新房间的信息
+    await updateHomeData();
+    logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
+    // 查灯组
+    await selectLightGroupList();
+    logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
+    // 更新设备detail
+    List<Future<void>> futures = [];
+    for (int xx = 1; xx <= showList.length; xx++) {
+      var deviceInfo = showList[xx - 1];
+      // 查看品类控制器看是否支持该品类
+      var hasController = getController(deviceInfo) != null;
+      if (hasController &&
+          DeviceService.isOnline(deviceInfo) &&
+          DeviceService.isSupport(deviceInfo)) {
+        // 调用provider拿detail存入状态管理里
+        futures.add(updateDeviceDetail(deviceInfo));
+      }
+    }
+    await Future.wait(futures);
+    logger.i('更新房间内所有设备状态优化后：请求状态', stopwatch.elapsedMilliseconds / 1000);
+    // 放置虚拟设备
+    await setVistualDevice();
+    logger.i('更新房间内所有设备状态优化后：放置虚拟设备', stopwatch.elapsedMilliseconds / 1000);
+  }
+
   Future<void> updateHomeData() async {
     var res = await UserApi.getHomeListWithDeviceList(
         homegroupId: Global.profile.homeInfo?.homegroupId);

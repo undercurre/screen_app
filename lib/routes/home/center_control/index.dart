@@ -126,6 +126,27 @@ class _CenterControlPageState extends State<CenterControlPage> {
       airConditionGear = CenterControlService.airConditionGear(context);
       airConditionMode = CenterControlService.airConditionMode(context);
     });
+    initPageState();
+  }
+
+  initPageState() async {
+    await context.read<DeviceListModel>().updateAllDetailWaited();
+    setState(() {
+      curtainSupport = CenterControlService.isCurtainSupport(context);
+      lightSupport = CenterControlService.isLightSupport(context);
+      airConditionSupport = CenterControlService.isAirConditionSupport(context);
+
+      curtainPower = CenterControlService.isCurtainPower(context);
+      lightPower = CenterControlService.isLightPower(context);
+      airConditionPower = CenterControlService.isAirConditionPower(context);
+
+      lightBrightness = CenterControlService.lightTotalBrightness(context);
+      lightColorTemp = CenterControlService.lightTotalColorTemperature(context);
+
+      airConditionTemp = CenterControlService.airConditionTemperature(context);
+      airConditionGear = CenterControlService.airConditionGear(context);
+      airConditionMode = CenterControlService.airConditionMode(context);
+    });
   }
 
   @override

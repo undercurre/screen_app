@@ -28,18 +28,20 @@ class CenterControlService {
     var log = '';
     var openCount = 0;
     var closeCount = 0;
-    for (var i = 1; i <= curtainList.length; i++) {
-      var deviceInfo = curtainList[i - 1];
-      log = log +
-          deviceInfo.name +
-          (DeviceService.isPower(deviceInfo) &&
-                  DeviceService.isOnline(deviceInfo))
-              .toString();
-      if (DeviceService.isPower(deviceInfo) &&
-          DeviceService.isOnline(deviceInfo)) {
-        openCount += 1;
-      } else {
-        closeCount += 1;
+    if (curtainList.isNotEmpty) {
+      for (var i = 1; i <= curtainList.length; i++) {
+        var deviceInfo = curtainList[i - 1];
+        log = log +
+            deviceInfo.name +
+            (DeviceService.isPower(deviceInfo) &&
+                DeviceService.isOnline(deviceInfo))
+                .toString();
+        if (DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)) {
+          openCount += 1;
+        } else {
+          closeCount += 1;
+        }
       }
     }
     if (openCount >= closeCount) {
@@ -54,11 +56,14 @@ class CenterControlService {
   static bool isCurtainSupport(BuildContext context) {
     var totalSupport = false;
     var curtainList = context.read<DeviceListModel>().curtainList;
-    for (var i = 1; i <= curtainList.length; i++) {
-      var deviceInfo = curtainList[i - 1];
-      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isOnline(deviceInfo)) {
-        totalSupport = true;
+    logger.i('窗帘们', curtainList);
+    if (curtainList.isNotEmpty) {
+      for (var i = 1; i <= curtainList.length; i++) {
+        var deviceInfo = curtainList[i - 1];
+        logger.i('中控窗帘在线状态${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isOnline(deviceInfo)) {
+          totalSupport = true;
+        }
       }
     }
     // logger.i('中控窗帘support：$totalSupport');
@@ -67,26 +72,32 @@ class CenterControlService {
 
   static bool isLightSupport(BuildContext context) {
     var totalSupport = false;
-    var curtainList = context.read<DeviceListModel>().lightList;
-    for (var i = 1; i <= curtainList.length; i++) {
-      var deviceInfo = curtainList[i - 1];
-      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isOnline(deviceInfo)) {
-        totalSupport = true;
+    var lightList = context.read<DeviceListModel>().lightList;
+    logger.i('灯光们', lightList);
+    if (lightList.isNotEmpty) {
+      for (var i = 1; i <= lightList.length; i++) {
+        var deviceInfo = lightList[i - 1];
+        logger.i('中控灯光在线状态${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isOnline(deviceInfo)) {
+          totalSupport = true;
+        }
       }
     }
-    logger.i('灯光support：$totalSupport');
+    // logger.i('灯光support：$totalSupport');
     return totalSupport;
   }
 
   static bool isAirConditionSupport(BuildContext context) {
     var totalSupport = false;
     var airConditionList = context.read<DeviceListModel>().airConditionList;
-    for (var i = 1; i <= airConditionList.length; i++) {
-      var deviceInfo = airConditionList[i - 1];
-      // logger.i('中控${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isOnline(deviceInfo)) {
-        totalSupport = true;
+    logger.i('空调们', airConditionList);
+    if (airConditionList.isNotEmpty) {
+      for (var i = 1; i <= airConditionList.length; i++) {
+        var deviceInfo = airConditionList[i - 1];
+        logger.i('中控空调在线状态${deviceInfo.name}${DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isOnline(deviceInfo)) {
+          totalSupport = true;
+        }
       }
     }
     // logger.i('空调support：$totalSupport');
@@ -110,15 +121,19 @@ class CenterControlService {
     var lightList = context.read<DeviceListModel>().lightList;
     var totalPower = false;
     var log = '';
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
-      log =
-          '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
-      logger.i(
-          '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) &&
-          DeviceService.isOnline(deviceInfo)) {
-        totalPower = true;
+    if (lightList.isNotEmpty) {
+      for (var i = 1; i <= lightList.length; i++) {
+        var deviceInfo = lightList[i - 1];
+        log =
+        '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)}';
+        logger.i(
+            '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) &&
+                DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)) {
+          totalPower = true;
+        }
       }
     }
     logger.i('灯光中控结果$totalPower$log');
@@ -130,32 +145,36 @@ class CenterControlService {
     List<num> totalBrightnessList = [];
     var lightList = context.read<DeviceListModel>().lightList;
     var log = '';
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
-      // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) &&
-          DeviceService.isOnline(deviceInfo)) {
-        var res = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceInfo.applianceCode);
-        // logger.i('该设备detial${res["detail"]}');
-        late num value;
-        if (deviceInfo.type == '0x21') {
-          if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_colorful') {
-            value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
-          } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_noColor') {
-            value = res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
+    if (lightList.isNotEmpty) {
+      for (var i = 1; i <= lightList.length; i++) {
+        var deviceInfo = lightList[i - 1];
+        // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)) {
+          var res = context
+              .read<DeviceListModel>()
+              .getDeviceDetailById(deviceInfo.applianceCode);
+          // logger.i('该设备detial${res["detail"]}');
+          late num value;
+          if (deviceInfo.type == '0x21') {
+            if (zigbeeControllerList[deviceInfo.modelNumber] ==
+                '0x21_light_colorful') {
+              value =
+                  res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
+            } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
+                '0x21_light_noColor') {
+              value =
+                  res["detail"]["lightPanelDeviceList"][0]["brightness"] ?? 0;
+            }
+          } else if (deviceInfo.type == 'lightGroup') {
+            value = num.parse(res["detail"]["detail"]["brightness"]);
+          } else {
+            value = (res["detail"]["brightValue"] / 255) * 100 ?? 0;
           }
-        } else if (deviceInfo.type == 'lightGroup') {
-          value = num.parse(res["detail"]["detail"]["brightness"]);
-        } else {
-          value = (res["detail"]["brightValue"] / 255) * 100 ?? 0;
+          // logger.i('中控${deviceInfo.name}亮度$value');
+          totalBrightnessList.add(value);
+          log = '$log${deviceInfo.name}:$value';
         }
-        // logger.i('中控${deviceInfo.name}亮度$value');
-        totalBrightnessList.add(value);
-        log = '$log${deviceInfo.name}:$value';
       }
     }
     if (totalBrightnessList.isNotEmpty) {
@@ -172,35 +191,37 @@ class CenterControlService {
     late num totalColorTemperatureValue;
     List<num> totalColorTemperatureList = [];
     var lightList = context.read<DeviceListModel>().lightList;
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
-      // logger.i(
-      //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
-      if (DeviceService.isPower(deviceInfo) &&
-          DeviceService.isOnline(deviceInfo)) {
-        var res = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceInfo.applianceCode);
-        late num value;
-        if (deviceInfo.type == '0x21') {
-          if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_colorful') {
-            value = res["detail"]["lightPanelDeviceList"][0]
-                    ["colorTemperature"] ??
-                0;
-          } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
-              '0x21_light_noColor') {
-            value = res["detail"]["lightPanelDeviceList"][0]
-                    ["colorTemperature"] ??
-                100;
+    if (lightList.isNotEmpty) {
+      for (var i = 1; i <= lightList.length; i++) {
+        var deviceInfo = lightList[i - 1];
+        // logger.i(
+        //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
+        if (DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)) {
+          var res = context
+              .read<DeviceListModel>()
+              .getDeviceDetailById(deviceInfo.applianceCode);
+          late num value;
+          if (deviceInfo.type == '0x21') {
+            if (zigbeeControllerList[deviceInfo.modelNumber] ==
+                '0x21_light_colorful') {
+              value = res["detail"]["lightPanelDeviceList"][0]
+              ["colorTemperature"] ??
+                  0;
+            } else if (zigbeeControllerList[deviceInfo.modelNumber] ==
+                '0x21_light_noColor') {
+              value = res["detail"]["lightPanelDeviceList"][0]
+              ["colorTemperature"] ??
+                  100;
+            }
+          } else if (deviceInfo.type == '0x13') {
+            value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
+          } else {
+            value = num.parse(res["detail"]["detail"]["colorTemperature"]);
           }
-        } else if (deviceInfo.type == '0x13') {
-          value = (res["detail"]["colorTemperatureValue"] / 255) * 100 ?? 0;
-        } else {
-          value = num.parse(res["detail"]["detail"]["colorTemperature"]);
+          // logger.i('中控${deviceInfo.name}色温$value');
+          totalColorTemperatureList.add(value);
         }
-        // logger.i('中控${deviceInfo.name}色温$value');
-        totalColorTemperatureList.add(value);
       }
     }
     if (totalColorTemperatureList.isNotEmpty) {
@@ -335,14 +356,17 @@ class CenterControlService {
     var airConditionList = context.read<DeviceListModel>().airConditionList;
     var totalPower = false;
     var log = '';
-    for (var i = 1; i <= airConditionList.length; i++) {
-      var deviceInfo = airConditionList[i - 1];
-      log = log +
-          '中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}';
-      // logger.i('$log');
-      if (DeviceService.isPower(deviceInfo) &&
-          DeviceService.isOnline(deviceInfo)) {
-        totalPower = true;
+    if (airConditionList.isNotEmpty) {
+      for (var i = 1; i <= airConditionList.length; i++) {
+        var deviceInfo = airConditionList[i - 1];
+        log = log +
+            '中控空调开关${deviceInfo.name}${DeviceService.isPower(deviceInfo) &&
+                DeviceService.isOnline(deviceInfo)}';
+        logger.i('$log');
+        if (DeviceService.isPower(deviceInfo) &&
+            DeviceService.isOnline(deviceInfo)) {
+          totalPower = true;
+        }
       }
     }
     logger.i('空调中控开关结果$totalPower');
