@@ -53,9 +53,8 @@ class _DevicePageState extends State<DevicePage> {
     if (mounted) {
       var deviceModel = context.read<DeviceListModel>();
       // 更新设备detail
-      var entityList = deviceModel.showList;
       await deviceModel.updateAllDetail();
-      entityList = deviceModel.showList;
+      var entityList = deviceModel.showList;
       setState(() {
         deviceEntityList = entityList;
 
@@ -63,8 +62,20 @@ class _DevicePageState extends State<DevicePage> {
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
-      bus.emit('updateDeviceCardState');
+      initDeviceState();
     }
+  }
+
+  initDeviceState() async {
+    var deviceModel = context.read<DeviceListModel>();
+    await deviceModel.updateAllDetailWaited();
+    var entityList = deviceModel.showList;
+    setState(() {
+      deviceEntityList = entityList;
+      deviceWidgetList = deviceEntityList
+          .map((device) => DeviceCard(deviceInfo: device))
+          .toList();
+    });
   }
 
   @override

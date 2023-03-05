@@ -93,6 +93,7 @@ class _DeviceCardState extends State<DeviceCard> {
     super.initState();
     setDate();
     bus.on('updateDeviceCardState', (arg) async {
+      logger.i('卡片重新加载');
       setDate();
     });
     Push.listen(

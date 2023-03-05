@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -121,7 +122,7 @@ class AirConditionPageState extends State<AirConditionPage> {
           .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
         deviceWatch = deviceDetail;
-        localPower = args["power"];
+        localPower = args["power"] ? 'on' : 'off';
         localMode = deviceDetail["detail"]["mode"];
         localTemp = deviceDetail["detail"]["temperature"];
         localSmallTemp = deviceDetail["detail"]["small_temperature"];
