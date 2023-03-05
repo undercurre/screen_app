@@ -296,7 +296,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                     margin: const EdgeInsets
                                                         .symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: false // TODO: 完善
+                                                      color: localMode == item['key'] // TODO: 完善
                                                           ? const Color(
                                                               0xff575757)
                                                           : Colors.transparent,

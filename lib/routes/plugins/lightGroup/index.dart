@@ -83,7 +83,13 @@ class LightGroupPageState extends State<LightGroupPage> {
     });
     var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
     if (res.isSuccess) {
-      updateDetail();
+      // 实例化Duration类 设置定时器持续时间 毫秒
+      var timeout = const Duration(seconds: 1000);
+
+      // 延时调用一次 1秒后执行
+      Timer(timeout, () {
+        updateDetail();
+      });
     } else {
       setState(() {
         localColorTemp = exValue;

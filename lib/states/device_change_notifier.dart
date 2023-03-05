@@ -327,13 +327,9 @@ class DeviceListModel extends ProfileChangeNotifier {
           for (int lu = 1; lu <= infoMap["endlist"].length; lu ++) {
             // 水电面板识别
             var wtgList = ["81", "83", "1111", "1113", "1112", "1114"];
-            var wtgNameList = {
-              1: '水阀',
-              2: '电阀',
-              3: '气阀'
-            };
+            var wtgNameList = ['水阀', '电阀', '气阀'];
             if (wtgList.contains(deviceInfo.modelNumber)) {
-              productVistualDevice(deviceInfo, wtgNameList[lu] ?? '按键$lu', "singlePanel-$lu");
+              productVistualDevice(deviceInfo, wtgNameList[lu - 1], "singlePanel-$lu");
             } else {
               productVistualDevice(
                   deviceInfo, infoMap["endlist"][lu - 1]["name"] ?? '按键$lu',
