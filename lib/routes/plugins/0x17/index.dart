@@ -102,6 +102,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
         localUpdown = detail["updown"];
         localStatus = detail["location_status"];
         localLight = detail["light"];
+        fakerModel = detail["updown"];
       });
     }
     if (mounted) {
@@ -125,6 +126,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
         localLight = deviceDetail["detail"]["light"];
         localStatus = deviceDetail["detail"]["location_status"];
         localUpdown = deviceDetail["detail"]["updown"];
+        fakerModel = deviceDetail["detail"]["updown"];
       });
       debugPrint('插件中获取到的详情：$deviceWatch');
 
