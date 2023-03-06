@@ -2,7 +2,12 @@ package com.midea.light;
 
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,6 +25,7 @@ import com.midea.light.issued.IssuedManager;
 import com.midea.light.issued.relay.RelayIssuedMatch;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
+import com.midea.light.push.AliPushReceiver;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
 import com.midea.light.setting.relay.RelayControl;
@@ -30,6 +36,7 @@ import com.midea.light.utils.CommandExecution;
 import com.midea.light.utils.ProcessUtil;
 import com.midea.light.channel.method.*;
 import com.tencent.bugly.crashreport.CrashReport;
+import com.midea.light.channel.Channels;
 
 import androidx.multidex.MultiDex;
 
@@ -102,6 +109,7 @@ public class MainApplication extends BaseApplication {
 //        CommandExecution.execCommand("wpa_cli bss_flush", true);
 
     }
+
 
     private static String getProcessName(int pid) {
         BufferedReader reader = null;

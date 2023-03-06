@@ -74,19 +74,6 @@
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <!-- 消息接收监听器-->
-        <receiver
-            android:name=".push.AliPushReceiver"
-            android:exported="false"> <!-- 为保证receiver安全， 建议设置不可导出，如需对其他应用开放可通过 android:permission进行限制 -->
-            <intent-filter>
-                <action android:name="com.alibaba.push2.action.NOTIFICATION_OPENED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.alibaba.push2.action.NOTIFICATION_REMOED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
-            </intent-filter>
-        </receiver>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
