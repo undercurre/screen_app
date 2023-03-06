@@ -65,8 +65,10 @@ class _CoolMasterState extends State<CoolMaster> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            handleRefresh();
-            luaDataConvToState();
+            Timer(const Duration(milliseconds: 1000), () {
+                handleRefresh();
+                luaDataConvToState();
+            });
           }
         }
       }));
@@ -295,6 +297,7 @@ class _CoolMasterState extends State<CoolMaster> {
   }
 
   void handleModeTap(Mode m) {
+
     if (m.key == strong.key) {
       if (mode[m.key]!) {
         mode[m.key] = false;
@@ -380,7 +383,7 @@ class _CoolMasterState extends State<CoolMaster> {
     setState(() {
       mode = mode;
     });
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   handleRefresh() async {
@@ -412,7 +415,7 @@ class _CoolMasterState extends State<CoolMaster> {
       swing = !swing;
     });
     BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   void toggleSmelly() {
@@ -420,7 +423,7 @@ class _CoolMasterState extends State<CoolMaster> {
       smelly = !smelly;
     });
     BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 }
 

@@ -69,6 +69,8 @@ Map<String, String> zigbeeControllerList = {
   "1254": "0x21_light_noColor",
   "51": "0x21_curtain",
   "47": "0x21_curtain",
+  "68": "0x21_panel",
+  "1267": "0x21_panel",
   "1363": "0x21_panel",
   "1362": "0x21_panel",
   "1361": "0x21_panel",
@@ -87,6 +89,8 @@ Map<String, String> zigbeeControllerList = {
   "1103": "0x21_panel",
   "1099": "0x21_panel",
   "71": "0x21_panel",
+  "74": "0x21_panel",
+  "76": "0x21_panel",
   "77": "0x21_panel",
   "78": "0x21_panel",
   "80": "0x21_panel",
@@ -98,7 +102,12 @@ Map<String, String> zigbeeControllerList = {
   "20": "0x21_panel",
   "23": "0x21_panel",
   "22": "0x21_panel",
-  "1102": "0x21_panel"
+  "1102": "0x21_panel",
+  "1104": "0x21_panel",
+  "1106": "0x21_panel",
+  "1083": "0x21_panel",
+  "1085": "0x21_panel",
+  "1087": "0x21_panel",
 };
 
 DeviceInterface? getController(DeviceEntity deviceInfo) {

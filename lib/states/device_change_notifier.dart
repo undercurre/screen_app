@@ -295,8 +295,8 @@ class DeviceListModel extends ProfileChangeNotifier {
     await updateHomeData();
     logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
     // 查灯组
-    await selectLightGroupList();
-    logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
+    // await selectLightGroupList();
+    // logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);x
     // 更新设备detail
     List<Future<void>> futures = [];
     for (int xx = 1; xx <= showList.length; xx++) {
