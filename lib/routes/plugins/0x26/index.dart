@@ -8,6 +8,7 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/global.dart';
+import '../../../widgets/util/debouncer.dart';
 import './api.dart';
 import './mode_list.dart';
 import '../../../models/device_entity.dart';
@@ -32,6 +33,8 @@ class BathroomMasterState extends State<BathroomMaster> {
   late EasyRefreshController refreshController = EasyRefreshController(
     controlFinishRefresh: true,
   );
+
+  final debouncer = Debouncer(milliseconds: 3000);
 
   Map<String, bool> runMode = <String, bool>{
     "light": false,
@@ -131,7 +134,6 @@ class BathroomMasterState extends State<BathroomMaster> {
         device = deviceList.deviceList[index];
         deviceName = deviceList.deviceList[index].name;
       });
-      luaDeviceDetailToState(begin: args["power"]);
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
     }
@@ -335,6 +337,12 @@ class BathroomMasterState extends State<BathroomMaster> {
   }
 
   void handleModeCardClick(Mode mode) async {
+    if (runMode[mode.key] != null) {
+      setState(() {
+        runMode[mode.key] = runMode[mode.key]! ? false : true;
+      });
+    }
+    debouncer.run(() async {
       // 防抖
       if (mode.key == light.key) {
         // 如果主灯和夜灯都是关则打开主灯
@@ -373,7 +381,9 @@ class BathroomMasterState extends State<BathroomMaster> {
           {'mode': runMode[mode.key]! ? mode.key : ''},
         );
       }
+      logger.i('浴霸模式', runMode);
       device.detail = res.result['status'];
       deviceList.setProviderDeviceInfo(device);
+    });
   }
 }
