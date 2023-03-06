@@ -137,7 +137,7 @@ public class MainActivity extends FlutterActivity {
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
 
         initReceive();
-//        initNotifyChannel();
+        initNotifyChannel();
     }
 
     public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {

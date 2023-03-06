@@ -290,17 +290,25 @@ class Api {
   }
 
   static var forceRefresh = true;
+  static final _lock = Lock();
 
   static tryToRefresh() async {
-    if(Global.isLogin) {
-      if(forceRefresh) {
-        forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
-      } else if(isWillLoginExpire) {
-        await iotAutoLogin();
-        await mzAutoLogin();
-        Global.saveProfile();
+    try {
+      _lock.lock();
+      if(Global.isLogin) {
+        if(forceRefresh) {
+          forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
+        } else if(isWillLoginExpire) {
+          await iotAutoLogin();
+          await mzAutoLogin();
+          Global.saveProfile();
+        }
       }
+    } finally{
+      _lock.unlock();
     }
+
+
   }
 
   /// IOT接口发起公共接口
