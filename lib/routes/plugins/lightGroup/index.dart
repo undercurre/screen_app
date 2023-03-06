@@ -26,7 +26,7 @@ class LightGroupPageState extends State<LightGroupPage> {
       "detail": {
         "groupId": "1",
         "groupName": "灯光分组",
-        "brightness": "0",
+        "brightness": "1",
         "colorTemperature": "0",
         "switchStatus": "0",
         "maxColorTemp": "6500",
@@ -40,7 +40,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   var localBrightness = '1';
   var localColorTemp = '0';
   var localPower = false;
-  var isColorful = true;
+  var isColorful = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');

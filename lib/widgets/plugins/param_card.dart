@@ -121,7 +121,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
             left: 21,
             bottom: 11,
             child: Text(
-              '${widget.minValue}',
+              '${widget.minValue}%',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
