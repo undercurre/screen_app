@@ -108,7 +108,7 @@ class _ScanCode extends State<ScanCode> {
 
       Global.profile.deviceSn = sn;
 
-      await System.refreshToken();
+      // await System.refreshToken();
 
       debugPrint('getAccessToken: ${res.toJson()}');
       TipsUtils.toast(content: '授权成功');
