@@ -2,6 +2,7 @@ package com.midea.light.channel.method
 
 import android.content.Context
 import com.midea.iot.sdk.common.security.SecurityUtils
+import com.midea.light.BuildConfig
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.utils.DataClearManager
 import com.midea.light.setting.SystemUtil
@@ -35,6 +36,14 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
         val methodName = call.method
         val arguments = call.arguments
         when(methodName) {
+            "getAppVersion" -> {
+                val appVersion = SystemUtil.getAppVersion(context)
+                result.safeSuccess(appVersion)
+            }
+            "getGatewayVersion" -> {
+                val gatewayVersion = SystemUtil.getGatewayVersion()
+                result.safeSuccess(gatewayVersion)
+            }
             "getMacAddress" -> {
                 onHandlerMacAddress(result)
             }
@@ -52,6 +61,9 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
             }
             "clearLocalCache" -> {
                 onHandlerClearLocalCache(result)
+            }
+            "queryFlavor" -> {
+                result.safeSuccess(BuildConfig.FLAVOR)
             }
             else -> {
                 onCallNotImplement(result)

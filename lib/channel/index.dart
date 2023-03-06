@@ -3,6 +3,7 @@ import 'package:screen_app/channel/ali_push_channel.dart';
 import 'package:screen_app/channel/bugly_report_channel.dart';
 import 'package:screen_app/channel/config_channel.dart';
 import 'package:screen_app/channel/device_manager_channel.dart';
+import 'package:screen_app/channel/migrate_channel.dart';
 import 'package:screen_app/channel/net_method_channel.dart';
 import 'package:screen_app/channel/ota_channel.dart';
 import 'package:screen_app/channel/setting_method_channel.dart';
@@ -20,6 +21,7 @@ const String channelAi = "com.midea.light/ai";
 const String channelGateway = "com.midea.light/gateway";
 const String channelAliPush = "com.midea.light/push";
 const String channelBugly = "com.midea.light/bugly";
+const String channelMigrate = "com.midea.light/migrate";
 
 late NetMethodChannel netMethodChannel;
 // 配置channel
@@ -40,6 +42,8 @@ late GatewayChannel gatewayChannel;
 late AliPushMethodChannel aliPushChannel;
 // Bugly Channel
 late BuglyReportChannel buglyReportChannel;
+// 数据迁移 Channel
+late MigrateChannel migrateChannel;
 
 // 构建所有的Channel
 void buildChannel() {
@@ -53,4 +57,5 @@ void buildChannel() {
   gatewayChannel = GatewayChannel.fromName(channelGateway);
   aliPushChannel = AliPushMethodChannel.fromName(channelAliPush);
   buglyReportChannel = BuglyReportChannel.fromName(channelBugly);
+  migrateChannel = MigrateChannel.fromName(channelMigrate);
 }

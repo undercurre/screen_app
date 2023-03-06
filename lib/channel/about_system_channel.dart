@@ -7,6 +7,14 @@ import 'package:screen_app/common/index.dart';
 class AboutSystemChannel extends AbstractChannel {
   
   AboutSystemChannel.fromName(super.channelName) : super.fromName();
+
+  Future<String> getAppVersion() async {
+    return await methodChannel.invokeMethod('getAppVersion');
+  }
+
+  Future<String> getGatewayVersion() async {
+    return await methodChannel.invokeMethod('getGatewayVersion');
+  }
   
   Future<String> getSystemVersion() async {
     return await methodChannel.invokeMethod("getSystemVersion");
@@ -22,6 +30,13 @@ class AboutSystemChannel extends AbstractChannel {
 
   Future<bool> clearLocalCache() async {
     return await methodChannel.invokeMethod('clearLocalCache') as bool;
+  }
+
+  /// return
+  /// LD 
+  /// JH
+  Future<String> queryFlavor() async {
+    return await methodChannel.invokeMethod('queryFlavor') as String;
   }
 
   // isEncrypt 是否加密

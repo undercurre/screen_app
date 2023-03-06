@@ -25,11 +25,16 @@ public class GatewayVersionUtil {
     }
     public static String getAppVersion(Context context) {
         String version =  com.midea.light.gateway.GatewayVersionUtil.getAppVersion(context);
-        String[] s = version.split("\\.");
         StringBuilder builder = new StringBuilder();
-        builder.append(0);
+        String[] s = version.split("\\.");
         for (String s1 : s) {
             builder.append(s1);
+        }
+        // 小于四位前面补零
+        if(builder.length() < 4) {
+            for (int i = builder.length(); i < 4; i++) {
+                builder.insert(0,"0");
+            }
         }
         return builder.toString();
     }

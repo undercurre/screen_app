@@ -1,23 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 import 'package:platform_device_id/platform_device_id.dart';
-import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/index.dart';
-import '../states/device_change_notifier.dart';
 import 'api/index.dart';
 import 'utils.dart';
 
 /// 日志打印工具
 var logger = Logger(
+  filter: ProductionFilter(),
   printer: PrettyPrinter(printTime: true),
   level: Level.info
 );
@@ -135,11 +133,11 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
     runZonedGuarded(() {
-      debugPrint(
-          'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
-      if (previousRoute?.settings.name == 'Home') {
-        DeviceListModel().updateAllDetail();
-      }
+      // debugPrint(
+      //     'didPop: ${route.settings.name}, from:${previousRoute?.settings.name}');
+      // if (previousRoute?.settings.name == 'Home') {
+      //   DeviceListModel().updateAllDetail();
+      // }
       const blacklist = [null, 'SnifferPage'];
       if (previousRoute?.settings.name == 'Home' &&
           !blacklist.contains(route.settings.name)) {

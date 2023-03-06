@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/plugins/0x17/index.dart';
+import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
 import 'package:screen_app/routes/setting/standby_style_select.dart';
@@ -46,6 +47,7 @@ var routes = <String, WidgetBuilder>{
   "DropDownPage": (context) => const DropDownPage(),
   "SelectTimeDurationPage": (context) => const SelectTimeDurationPage(),
   "SelectStandbyStylePage": (contest) => const SelectStandbyStylePage(),
+  "MigrationOldVersionDataPage": (contest) => const MigrationOldVersionDataPage(),
 
 
   "0x13": (context) => const WifiLightPage(),

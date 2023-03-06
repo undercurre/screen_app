@@ -157,6 +157,14 @@ class Api {
       onReceiveProgress: null,
     );
 
+
+    if (res.statusCode == TOO_LONG_UNLOGIN ||
+        res.statusCode == TOKEN_INVALID ||
+        res.statusCode == TOKEN_EXPIRED ||
+        res.statusCode == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+    }
+
     if(res.statusCode != 200) {
       throw DioError(
         requestOptions: res.requestOptions,
@@ -191,7 +199,7 @@ class Api {
       'tokenPwd': Global.user?.tokenPwd,
       'rule': rule,
       'deviceId': Global.user?.deviceId,
-      'platform': 100,
+      'platform': 1,
       }
     };
 
@@ -237,6 +245,13 @@ class Api {
       onSendProgress: null,
       onReceiveProgress: null,
     );
+
+    if (res.statusCode == TOO_LONG_UNLOGIN ||
+        res.statusCode == TOKEN_INVALID ||
+        res.statusCode == TOKEN_EXPIRED ||
+        res.statusCode == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+    }
 
     if(res.statusCode != 200) {
       throw DioError(
@@ -372,16 +387,7 @@ class Api {
       );
     }
 
-    var entity = MideaResponseEntity<T>.fromJson(res.data);
-
-    if (entity.code == TOO_LONG_UNLOGIN ||
-        entity.code == TOKEN_INVALID ||
-        entity.code == TOKEN_EXPIRED ||
-        entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
-    }
-
-    return entity;
+    return MideaResponseEntity<T>.fromJson(res.data);
   }
 
   /// 美智光电IOT中台接口发起公共接口
@@ -468,14 +474,6 @@ class Api {
       );
     }
 
-    var entity = MzResponseEntity<T>.fromJson(res.data);
-    if (entity.code == TOO_LONG_UNLOGIN ||
-        entity.code == TOKEN_INVALID ||
-        entity.code == TOKEN_EXPIRED ||
-        entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
-    }
-
-    return entity;
+    return MzResponseEntity<T>.fromJson(res.data);
   }
 }

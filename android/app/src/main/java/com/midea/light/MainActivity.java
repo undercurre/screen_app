@@ -94,15 +94,6 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    private void registerAliPushReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
-        filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
-        registerReceiver(receiver, filter);
-    }
 
     private void initNotifyChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -135,7 +126,6 @@ public class MainActivity extends FlutterActivity {
         GeneratedPluginRegister.registerGeneratedPlugins(flutterEngine);
         // 初始化自定义的Channel
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
-        registerAliPushReceiver();
         initNotifyChannel();
     }
 

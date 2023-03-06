@@ -25,6 +25,10 @@ mixin WidgetNetState<T extends StatefulWidget> on State<T> {
   void initState() {
     super.initState();
     netMethodChannel.registerNetChangeCallBack(_netChange);
+    // 主动查询一次网络
+    if(NetUtils.getNetState() == null) {
+      netMethodChannel.checkNetState();
+    }
   }
 
   @override
