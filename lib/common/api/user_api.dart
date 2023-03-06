@@ -116,12 +116,16 @@ class UserApi {
 
   /// 美智中台——美居体系鉴权请求
   static Future<MzResponseEntity> authToken() async {
+    return authTokenWithParams(Global.user?.deviceId, Global.user?.accessToken);
+  }
+
+  static Future<MzResponseEntity> authTokenWithParams(String? deviceId, String? itAccessToken) async {
     var res = await Api.requestMzIot("/v1/openApi/auth/midea/token",
         data: {
-          'deviceId': Global.user?.deviceId,
+          'deviceId': deviceId,
           'appId': dotenv.get('APP_ID'),
           'appSecret': dotenv.get('APP_SECRET'),
-          'itAccessToken': Global.user?.accessToken,
+          'itAccessToken': itAccessToken,
           'tokenExpires': (24 * 60 * 60).toString(),
         },
         isShowLoading: false,

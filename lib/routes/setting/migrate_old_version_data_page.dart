@@ -160,7 +160,8 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       logger.e(e);
       Setting.instant().saveVersionCompatibility(
           await aboutSystemChannel.getAppVersion());
-      TipsUtils.toast(content: '同步数据失败，请重新登录');
+      // TipsUtils.toast(content: '同步数据失败，请重新登录');
+      TipsUtils.toast(content : e.toString());
       System.loginOut();
       Future.delayed(Duration.zero)
           .then((value) => Navigator.popAndPushNamed(context, 'Login'));
@@ -330,14 +331,11 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     userEntity.openId = '';
     userEntity.sessionId = '';
 
-    Global.user = userEntity;
-    Global.profile.deviceId = deviceId;
-
     int count = 5;
 
     while (count > 0) {
       try {
-        MzResponseEntity mzEntity = await UserApi.authToken();
+        MzResponseEntity mzEntity = await UserApi.authTokenWithParams(deviceId, token);
         if (mzEntity.isSuccess) {
           userEntity.mzAccessToken = mzEntity.result['accessToken'];
           break;
@@ -351,6 +349,9 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     if (userEntity.mzAccessToken == null) {
       throw SyncError('迁移Token失败');
     }
+
+    Global.user = userEntity;
+    Global.profile.deviceId = deviceId;
 
     return true;
   }
