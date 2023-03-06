@@ -93,6 +93,7 @@ class _DeviceCardState extends State<DeviceCard> {
     super.initState();
     setDate();
     bus.on('updateDeviceCardState', (arg) async {
+      logger.i('卡片重新加载');
       setDate();
     });
     Push.listen(
@@ -319,13 +320,24 @@ class _DeviceCardState extends State<DeviceCard> {
             height: 60,
           );
         } else {
-          return Image.asset(
-            power
-                ? "assets/imgs/device/device_power_on.png"
-                : "assets/imgs/device/device_power_off.png",
-            width: 150,
-            height: 60,
-          );
+          if (widget.deviceInfo?.detail != null && widget.deviceInfo!.detail!.isNotEmpty) {
+            return Image.asset(
+              power
+                  ? "assets/imgs/device/device_power_on.png"
+                  : "assets/imgs/device/device_power_off.png",
+              width: 150,
+              height: 60,
+            );
+          } else {
+            return const Text(
+              "加载中",
+              style: TextStyle(
+                  fontSize: 14.0,
+                  color: Color(0X80FFFFFF),
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'MideaType-Regular'),
+            );
+          }
         }
       }
     }

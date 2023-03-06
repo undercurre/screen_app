@@ -106,7 +106,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           } else if (mode.key == 'close') {
             position1 = 0;
           } else {
-            Future.delayed(const Duration(seconds: 3)).then((_) async {
+            Future.delayed(const Duration(seconds: 1)).then((_) async {
               updateDetail();
             });
           }
@@ -144,9 +144,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     });
     ZigbeeCurtainApi.curtainPercentPDM(
         deviceWatch["masterId"], value, deviceWatch["detail"]["nodeId"]);
-    Future.delayed(const Duration(seconds: 3)).then((_) async {
-      updateDetail();
-    });
+    // Future.delayed(const Duration(seconds: 1)).then((_) async {
+    //   updateDetail();
+    // });
   }
 
   Map<String, bool?> getSelectedKeys1() {
@@ -323,7 +323,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
                 .getDeviceDetailById(args['deviceId']);
             if (arg.containsKey('applianceId')) {
               if (detail['deviceId'] == arg['applianceId']) {
-                updateDetail();
+                Timer(const Duration(milliseconds: 1000), () {
+                  updateDetail();
+                });
               }
             }
           }));

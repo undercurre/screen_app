@@ -99,8 +99,9 @@ class LightGroupApi {
       var deviceList = deviceInfo.detail!["applianceList"];
       var total = false;
       for (var i = 0; i < deviceList.length; i ++) {
+        logger.i('遍历isColor', deviceList[i]["applianceCode"]);
         MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
-            deviceList[i].applianceCode, deviceList[i].parentApplianceCode);
+            deviceList[i]["applianceCode"].toString(), deviceList[i]["parentApplianceCode"].toString());
         Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
         if (
               infoMap["modelid"] != 'midea.light.003.001' &&

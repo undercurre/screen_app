@@ -42,7 +42,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
   bool lightPower = false;
   bool airConditionPower = false;
 
-  num lightBrightness = 0;
+  num lightBrightness = 1;
   num lightColorTemp = 0;
 
   num airConditionTemp = 26;
@@ -110,6 +110,27 @@ class _CenterControlPageState extends State<CenterControlPage> {
     });
     if (!mounted) return;
     await context.read<DeviceListModel>().updateAllDetail();
+    setState(() {
+      curtainSupport = CenterControlService.isCurtainSupport(context);
+      lightSupport = CenterControlService.isLightSupport(context);
+      airConditionSupport = CenterControlService.isAirConditionSupport(context);
+
+      curtainPower = CenterControlService.isCurtainPower(context);
+      lightPower = CenterControlService.isLightPower(context);
+      airConditionPower = CenterControlService.isAirConditionPower(context);
+
+      lightBrightness = CenterControlService.lightTotalBrightness(context);
+      lightColorTemp = CenterControlService.lightTotalColorTemperature(context);
+
+      airConditionTemp = CenterControlService.airConditionTemperature(context);
+      airConditionGear = CenterControlService.airConditionGear(context);
+      airConditionMode = CenterControlService.airConditionMode(context);
+    });
+    initPageState();
+  }
+
+  initPageState() async {
+    await context.read<DeviceListModel>().updateAllDetailWaited();
     setState(() {
       curtainSupport = CenterControlService.isCurtainSupport(context);
       lightSupport = CenterControlService.isLightSupport(context);

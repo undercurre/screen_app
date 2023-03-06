@@ -48,7 +48,7 @@ class MzRadio<T> extends StatelessWidget {
               color: const Color.fromRGBO(255, 255, 255, 1),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: const Color.fromRGBO(92, 92, 92, 1),
+                  color: const Color.fromRGBO(165, 165, 165, 1),
                   width: 1,
                   style: BorderStyle.solid),
             ),

@@ -2,6 +2,7 @@ import 'package:screen_app/common/api/device_api.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
+import '../../../common/global.dart';
 import '../../../models/mz_response_entity.dart';
 
 class WrapAirCondition implements DeviceInterface {

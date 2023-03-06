@@ -65,8 +65,10 @@ class _CoolMasterState extends State<CoolMaster> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            handleRefresh();
-            luaDataConvToState();
+            Timer(const Duration(milliseconds: 1000), () {
+                handleRefresh();
+                luaDataConvToState();
+            });
           }
         }
       }));
@@ -76,8 +78,8 @@ class _CoolMasterState extends State<CoolMaster> {
   initView() {
     deviceList = context.read<DeviceListModel>();
     // 第一次加载，先从路由取deviceId
+    final args = ModalRoute.of(context)?.settings.arguments as Map;
     if (deviceId == '0') {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
       setState(() {
         mode["ventilation"] = true;
@@ -89,7 +91,7 @@ class _CoolMasterState extends State<CoolMaster> {
     if (index >= 0) {
       device = deviceList.deviceList[index];
       deviceName = deviceList.deviceList[index].name;
-      luaDataConvToState();
+      luaDataConvToState(begin: args["power"]);
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
     }
@@ -236,7 +238,7 @@ class _CoolMasterState extends State<CoolMaster> {
   }
 
   /// lua上报状态转widget状态
-  void luaDataConvToState() {
+  void luaDataConvToState({ bool? begin }) {
     if (device.detail == null) {
       return;
     }
@@ -257,6 +259,9 @@ class _CoolMasterState extends State<CoolMaster> {
       mode[strong.key] = int.parse(data['blowing_speed']) >= 67 ? true : false;
       mode[weak.key] = int.parse(data['blowing_speed']) < 67 ? true : false;
       mode[ventilation.key] = true;
+    }
+    if (begin != null){
+      mode["ventilation"] = begin;
     }
     if (data['light_mode'] == 'close_all') {
       mode[light.key] = false;
@@ -295,6 +300,7 @@ class _CoolMasterState extends State<CoolMaster> {
   }
 
   void handleModeTap(Mode m) {
+
     if (m.key == strong.key) {
       if (mode[m.key]!) {
         mode[m.key] = false;
@@ -380,7 +386,7 @@ class _CoolMasterState extends State<CoolMaster> {
     setState(() {
       mode = mode;
     });
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   handleRefresh() async {
@@ -412,7 +418,7 @@ class _CoolMasterState extends State<CoolMaster> {
       swing = !swing;
     });
     BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   void toggleSmelly() {
@@ -420,7 +426,7 @@ class _CoolMasterState extends State<CoolMaster> {
       smelly = !smelly;
     });
     BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
-    Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
+    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 }
 

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -52,12 +54,18 @@ class AirConditionPageState extends State<AirConditionPage> {
   }
 
   Future<void> gearHandle(value) async {
+    var exValue = localWind;
+    setState(() {
+      localWind = value > 0 ? (value - 1) * 20 : 1;
+    });
     var res = await AirConditionApi.gearLua(
         deviceWatch["deviceId"], value > 0 ? (value - 1) * 20 : 1);
 
     if (res.isSuccess) {
+
+    } else {
       setState(() {
-        localWind = value;
+        localWind = exValue;
       });
     }
   }
@@ -96,6 +104,7 @@ class AirConditionPageState extends State<AirConditionPage> {
         .read<DeviceListModel>()
         .getDeviceInfoById(deviceWatch["deviceId"]);
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
+    logger.i('空调详情', detail);
     setState(() {
       deviceWatch["detail"] = detail;
       localPower = detail["power"];
@@ -121,7 +130,7 @@ class AirConditionPageState extends State<AirConditionPage> {
           .getDeviceDetailById(deviceWatch["deviceId"]);
       setState(() {
         deviceWatch = deviceDetail;
-        localPower = args["power"];
+        localPower = args["power"] ? 'on' : 'off';
         localMode = deviceDetail["detail"]["mode"];
         localTemp = deviceDetail["detail"]["temperature"];
         localSmallTemp = deviceDetail["detail"]["small_temperature"];
@@ -153,7 +162,9 @@ class AirConditionPageState extends State<AirConditionPage> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            updateDetail();
+            Timer(const Duration(milliseconds: 1000), () {
+              updateDetail();
+            });
           }
         }
       }));
@@ -296,7 +307,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                     margin: const EdgeInsets
                                                         .symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: false // TODO: 完善
+                                                      color: localMode == item['key'] // TODO: 完善
                                                           ? const Color(
                                                               0xff575757)
                                                           : Colors.transparent,

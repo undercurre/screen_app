@@ -94,9 +94,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
     });
     var res = await CenterControlService.ACPowerControl(context, power);
     if (res) {
-      TipsUtils.toast(content: '执行成功');
     } else {
-      TipsUtils.toast(content: '执行失败');
       setState(() {
         power = !power;
       });
@@ -123,13 +121,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
       });
       var res = await CenterControlService.ACTemperatureControl(context, value);
       if (res) {
-        throttle(() {
-          TipsUtils.toast(content: '执行成功');
-        }, durationTime: const Duration(milliseconds: 2000));
       } else {
-        throttle(() {
-          TipsUtils.toast(content: '执行失败');
-        }, durationTime: const Duration(milliseconds: 2000));
         setState(() {
           temperature = exValue;
         });
@@ -141,13 +133,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
       });
       var res = await CenterControlService.ACFengsuControl(context, value);
       if (res) {
-        throttle(() {
-          TipsUtils.toast(content: '执行成功');
-        }, durationTime: const Duration(milliseconds: 2000));
       } else {
-        throttle(() {
-          TipsUtils.toast(content: '执行失败');
-        }, durationTime: const Duration(milliseconds: 2000));
         setState(() {
           gear = exValue;
         });
@@ -163,9 +149,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
     });
     var res = await CenterControlService.ACModeControl(context, mode);
     if (res) {
-      TipsUtils.toast(content: '执行成功');
     } else {
-      TipsUtils.toast(content: '执行失败');
       setState(() {
         modeValue = exValue;
       });
@@ -332,11 +316,13 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: ui.DropdownMenu(
+                                  disabled: !power,
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
                                     (item) {
                                       return PopupMenuItem<String>(
+                                        enabled: power,
                                         padding: EdgeInsets.zero,
                                         value: item['key'],
                                         child: Center(
@@ -571,11 +557,13 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: ui.DropdownMenu(
+                                  disabled: !power,
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
                                     (item) {
                                       return PopupMenuItem<String>(
+                                        enabled: power,
                                         padding: EdgeInsets.zero,
                                         value: item['key'],
                                         child: Center(

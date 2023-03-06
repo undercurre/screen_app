@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
@@ -67,6 +68,9 @@ class BathroomMasterState extends State<BathroomMaster> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final args = ModalRoute.of(context)?.settings.arguments as Map;
+      setState(() {
+        runMode["ventilation"] = args["power"] ? true : false;
+      });
       Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
         String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
         Map<String,dynamic> eventMap = json.decode(event);
@@ -90,8 +94,11 @@ class BathroomMasterState extends State<BathroomMaster> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            handleRefresh();
-            luaDeviceDetailToState();
+            Timer(const Duration(milliseconds: 1000), ()
+            {
+              handleRefresh();
+              luaDeviceDetailToState();
+            });
           }
         }
       }));
@@ -108,12 +115,12 @@ class BathroomMasterState extends State<BathroomMaster> {
   @override
   Widget build(BuildContext context) {
     deviceList = context.watch<DeviceListModel>();
+    final args = ModalRoute.of(context)?.settings.arguments as Map;
     // 第一次加载，先从路由取deviceId
     if (deviceId == '0') {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
       deviceId = args['deviceId'];
       setState(() {
-        runMode["ventilation"] = true;
+        runMode["ventilation"] = args["power"] ? true : false;
       });
     }
     // 先判断有没有这个id，没有说明设备已被删除
@@ -124,7 +131,7 @@ class BathroomMasterState extends State<BathroomMaster> {
         device = deviceList.deviceList[index];
         deviceName = deviceList.deviceList[index].name;
       });
-      luaDeviceDetailToState();
+      luaDeviceDetailToState(begin: args["power"]);
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
     }
@@ -273,11 +280,14 @@ class BathroomMasterState extends State<BathroomMaster> {
     }
   }
 
-  void luaDeviceDetailToState() {
+  void luaDeviceDetailToState({bool? begin}) {
     final detail = device.detail!;
     final activeModeList = (detail['mode'] as String).split(',');
     for (var mode in bathroomMasterMode) {
       runMode[mode.key] = activeModeList.contains(mode.key);
+      if (begin != null){
+        runMode["ventilation"] = begin;
+      }
     }
     runMode['light'] = detail['light_mode'] == 'main_light';
     setState(() {

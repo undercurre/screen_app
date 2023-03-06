@@ -51,6 +51,9 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   }
 
   Future<void> modeHandle(Mode mode) async {
+    setState(() {
+      fakerModel = mode.key;
+    });
     if ((localStatus == "upper_limit" && mode.key == "up") ||
         (localStatus == "lower_limit" && mode.key == "down")) {
       MzNotice mzNotice = MzNotice(
@@ -64,10 +67,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     }
     var res = await WIFILiangyiApi.updwonLua(deviceWatch["deviceId"], mode.key);
     if (res.isSuccess) {
-      setState(() {
-        fakerModel = mode.key;
-      });
-      updateDetail();
+      // updateDetail();
     }
   }
 
@@ -77,7 +77,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     });
     var res = await WIFILiangyiApi.lightLua(deviceWatch["deviceId"], e);
     if (res.isSuccess) {
-      updateDetail();
+      // updateDetail();
     } else {
       setState(() {
         localLight = localLight == 'on' ? 'off' : 'on';
@@ -87,7 +87,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[localUpdown] = true;
+    selectKeys[fakerModel] = true;
     return selectKeys;
   }
 
@@ -149,7 +149,9 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            updateDetail();
+            Timer(const Duration(milliseconds: 1000), () {
+              updateDetail();
+            });
           }
         }
       }));

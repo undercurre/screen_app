@@ -63,9 +63,11 @@ class _ParamCardState extends State<ParamCard> with Throttle {
   void didUpdateWidget(covariant ParamCard oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    setState(() {
-      localValue = widget.value;
-    });
+    if (oldWidget.value == widget.value) {
+      setState(() {
+        localValue = widget.value;
+      });
+    }
   }
 
   @override
@@ -124,7 +126,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
             left: 21,
             bottom: 11,
             child: Text(
-              '${widget.minValue}',
+              '${widget.minValue}%',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
