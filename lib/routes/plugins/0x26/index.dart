@@ -335,44 +335,45 @@ class BathroomMasterState extends State<BathroomMaster> {
   }
 
   void handleModeCardClick(Mode mode) async {
-    if (mode.key == light.key) {
-      // 如果主灯和夜灯都是关则打开主灯
-      if (!mainLight && !nightLight) {
-        device.detail!['light_mode'] = 'main_light';
-        BaseApi.luaControl(
-          deviceId,
-          {'light_mode': 'main_light'},
-        );
+      // 防抖
+      if (mode.key == light.key) {
+        // 如果主灯和夜灯都是关则打开主灯
+        if (!mainLight && !nightLight) {
+          device.detail!['light_mode'] = 'main_light';
+          BaseApi.luaControl(
+            deviceId,
+            {'light_mode': 'main_light'},
+          );
+        } else {
+          // 如果主灯或者夜灯打开则全部关闭
+          device.detail!['light_mode'] = 'close_all';
+          BaseApi.luaControl(
+            deviceId,
+            {'light_mode': 'close_all'},
+          );
+        }
+        deviceList.setProviderDeviceInfo(device);
+        return;
       } else {
-        // 如果主灯或者夜灯打开则全部关闭
-        device.detail!['light_mode'] = 'close_all';
-        BaseApi.luaControl(
-          deviceId,
-          {'light_mode': 'close_all'},
-        );
+        // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
+        runMode[mode.key] =
+        runMode[mode.key] != null && runMode[mode.key]! ? false : true;
+        device.detail!['mode'] = runMode[mode.key]! ? mode.key : '';
       }
       deviceList.setProviderDeviceInfo(device);
-      return;
-    } else {
-      // 如果当前是处于某个mode，则关闭那个mode，否则打开某个mode
-      runMode[mode.key] =
-          runMode[mode.key] != null && runMode[mode.key]! ? false : true;
-      device.detail!['mode'] = runMode[mode.key]! ? mode.key : '';
-    }
-    deviceList.setProviderDeviceInfo(device);
-    late dynamic res;
-    if (mode.key == 'heating') {
-      res = await BaseApi.luaControl(
-        deviceId,
-        {'mode': runMode[mode.key]! ? mode.key : '', 'heating_temperature': '30'},
-      );
-    } else {
-      res = await BaseApi.luaControl(
-        deviceId,
-        {'mode': runMode[mode.key]! ? mode.key : ''},
-      );
-    }
-    device.detail = res.result['status'];
-    deviceList.setProviderDeviceInfo(device);
+      late dynamic res;
+      if (mode.key == 'heating') {
+        res = await BaseApi.luaControl(
+          deviceId,
+          {'mode': runMode[mode.key]! ? mode.key : '', 'heating_temperature': '30'},
+        );
+      } else {
+        res = await BaseApi.luaControl(
+          deviceId,
+          {'mode': runMode[mode.key]! ? mode.key : ''},
+        );
+      }
+      device.detail = res.result['status'];
+      deviceList.setProviderDeviceInfo(device);
   }
 }

@@ -194,7 +194,7 @@ class LightControlState extends State<LightControl> with Throttle {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
                                 '亮度 | $lightnessValue%',
                                 style: const TextStyle(fontSize: 14),
@@ -206,7 +206,7 @@ class LightControlState extends State<LightControl> with Throttle {
                               value: lightnessValue,
                               disabled: !powerValue,
                               width: 290,
-                              padding: const EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(8),
                               activeColors: const [
                                 Color(0xFFFFD185),
                                 Color(0xFFFFD185)
@@ -214,9 +214,9 @@ class LightControlState extends State<LightControl> with Throttle {
                               onChanged: lightBrightHandle,
                               onChanging: lightBrightChanging,
                             ),
-                            const Padding(padding: EdgeInsets.only(bottom: 14)),
+                            const Padding(padding: EdgeInsets.only(bottom: 6)),
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
                                 '色温 | ${(3000 + (5700 - 3000) * colorTempValue / 100).toInt()}K',
                                 style: const TextStyle(
@@ -228,7 +228,7 @@ class LightControlState extends State<LightControl> with Throttle {
                               value: colorTempValue,
                               disabled: !powerValue,
                               width: 290,
-                              padding: const EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(8),
                               activeColors: const [
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)
@@ -308,7 +308,7 @@ class LightControlState extends State<LightControl> with Throttle {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
                                 '亮度 | $lightnessValue%',
                                 style: const TextStyle(fontSize: 14),
@@ -318,7 +318,7 @@ class LightControlState extends State<LightControl> with Throttle {
                               value: lightnessValue,
                               disabled: !powerValue,
                               width: 290,
-                              padding: const EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(8),
                               activeColors: const [
                                 Color(0xFFFFD185),
                                 Color(0xFFFFD185)
@@ -326,9 +326,9 @@ class LightControlState extends State<LightControl> with Throttle {
                               onChanged: lightBrightHandle,
                               onChanging: lightBrightChanging,
                             ),
-                            const Padding(padding: EdgeInsets.only(bottom: 14)),
+                            const Padding(padding: EdgeInsets.only(bottom: 6)),
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
                                 '色温 | ${(3000 + (5700 - 3000) * colorTempValue / 100).toInt()}K',
                                 style: const TextStyle(
@@ -340,7 +340,7 @@ class LightControlState extends State<LightControl> with Throttle {
                               value: colorTempValue,
                               disabled: !powerValue,
                               width: 290,
-                              padding: const EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(8),
                               activeColors: const [
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)

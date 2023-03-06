@@ -279,10 +279,11 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
               deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
                   ? 100
                   : 0;
-          screenModel1 =
-              deviceWatch["detail"]["deviceControlList"][0]["attribute"] == 1
-                  ? 'open'
-                  : 'close';
+          if (args['power']) {
+            screenModel1 = 'open';
+          } else {
+            screenModel1 = 'close';
+          }
         }
       });
       // 实例化Duration类 设置定时器持续时间 毫秒
