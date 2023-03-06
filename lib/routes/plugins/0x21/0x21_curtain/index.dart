@@ -323,7 +323,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
                 .getDeviceDetailById(args['deviceId']);
             if (arg.containsKey('applianceId')) {
               if (detail['deviceId'] == arg['applianceId']) {
-                updateDetail();
+                Timer(const Duration(milliseconds: 1000), () {
+                  updateDetail();
+                });
               }
             }
           }));

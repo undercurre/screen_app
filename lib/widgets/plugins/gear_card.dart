@@ -36,6 +36,24 @@ class _GearCardState extends State<GearCard> {
   }
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    setState(() {
+      value = widget.value;
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant GearCard oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      value = widget.value;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final markList = <Widget>[];
     for (int i = 0; i < widget.maxGear - widget.minGear + 1; i++) {
