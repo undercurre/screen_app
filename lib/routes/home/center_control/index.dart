@@ -42,7 +42,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
   bool lightPower = false;
   bool airConditionPower = false;
 
-  num lightBrightness = 0;
+  num lightBrightness = 1;
   num lightColorTemp = 0;
 
   num airConditionTemp = 26;

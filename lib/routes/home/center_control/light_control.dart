@@ -29,7 +29,7 @@ class LightControl extends StatefulWidget {
 
 class LightControlState extends State<LightControl> with Throttle {
   bool disabled = false;
-  num lightnessValue = 0;
+  num lightnessValue = 1;
   num colorTempValue = 0;
   bool powerValue = false;
 
@@ -201,6 +201,8 @@ class LightControlState extends State<LightControl> with Throttle {
                               ),
                             ),
                             MzSlider(
+                              min: 1,
+                              max: 100,
                               value: lightnessValue,
                               disabled: !powerValue,
                               width: 290,

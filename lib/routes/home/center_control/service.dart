@@ -181,7 +181,7 @@ class CenterControlService {
       var sum = totalBrightnessList.reduce((a, b) => a + b);
       totalBrightnessValue = sum / totalBrightnessList.length;
     } else {
-      totalBrightnessValue = 0;
+      totalBrightnessValue = 1;
     }
     logger.i('灯光中控亮度结果$totalBrightnessValue', log);
     return totalBrightnessValue.round();
