@@ -27,6 +27,7 @@ const val CHANNEL_MANAGER_DEVICES = "com.midea.light/deviceManager"
 const val CHANNEL_GATEWAY = "com.midea.light/gateway";
 const val CHANNEL_BUGLY = "com.midea.light/bugly"
 const val CHANNEL_ALI_PUSH = "com.midea.light/push"
+const val CHANNEL_MIGRATE = "com.midea.light/migrate"
 
 class Channels {
     // Channel信使
@@ -44,6 +45,7 @@ class Channels {
     lateinit var gatewayChannel: GatewayChannel
     lateinit var aliPushChannel: AliPushChannel
     lateinit var buglyReportChannel: BuglyReportChannel
+    lateinit var migrateChannel: MigrationDataChannel
 
     private var isInit = false
 
@@ -61,6 +63,7 @@ class Channels {
             gatewayChannel = GatewayChannel.create(CHANNEL_GATEWAY, binaryMessenger, context)
             aliPushChannel = AliPushChannel.create(CHANNEL_ALI_PUSH,binaryMessenger,context)
             buglyReportChannel = BuglyReportChannel.create(CHANNEL_BUGLY, binaryMessenger, context)
+            migrateChannel = MigrationDataChannel.create(CHANNEL_MIGRATE, binaryMessenger, context)
             isInit = true
         }
     }

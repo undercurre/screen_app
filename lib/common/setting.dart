@@ -38,6 +38,16 @@ class Setting {
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
   }
 
+  /// 标识当前版本已经处理版本升级兼容
+  bool checkVersionCompatibility(String version) {
+     return _prefs.getBool(version) ?? false;
+  }
+  
+  /// 设置当前版本已经兼容
+  void saveVersionCompatibility(String version, [value = true]) {
+    _prefs.setBool(version, value);
+  }
+
   /// 保存屏保的序号id
   void saveScreenSaverId(int id) {
     if(id < 0 || id > 8) throw Exception("请设置正确范围的屏保Id值");

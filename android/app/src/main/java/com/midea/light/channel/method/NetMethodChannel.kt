@@ -174,6 +174,10 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             "removeAllWiFiRecord" -> {
                 WifiUtil.removeAllConfiguration(context)
             }
+            "checkNetState" -> {
+                ConnectStateHandler.queryConnectState()
+                result.safeSuccess(true);
+            }
             else -> {
                 onCallNotImplement(result)
             }

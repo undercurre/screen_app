@@ -191,7 +191,7 @@ class Api {
       'tokenPwd': Global.user?.tokenPwd,
       'rule': rule,
       'deviceId': Global.user?.deviceId,
-      'platform': 100,
+      'platform': 1,
       }
     };
 

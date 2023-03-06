@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/push.dart';
+import 'package:screen_app/common/setting.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../common/index.dart';
 
@@ -9,7 +11,40 @@ class _Boot extends State<Boot> {
   @override
   void initState() {
     super.initState();
-    checkLogin();
+
+    bus.on("logout",(arg) {
+      Push.dispose();
+      System.loginOut();
+      Navigator.pushNamedAndRemoveUntil(context, 'Login', (route) => route.settings.name == "/");
+    });
+    
+    () async {
+      /// 数据迁移逻辑
+      String flavor = await aboutSystemChannel.queryFlavor();
+      String version = await aboutSystemChannel.getAppVersion();
+      if(flavor == 'LD') {
+        if(version == '0117' && !Setting.instant().checkVersionCompatibility(version)) {
+          if(!Global.isLogin) {
+            Future.delayed(Duration.zero).then((_) {
+              Navigator.pushNamed(context, 'MigrationOldVersionDataPage');
+            });
+            return;
+          }
+        }
+      } else if(flavor == 'JH') {
+        if(version == '0120' && !Setting.instant().checkVersionCompatibility(version)) {
+          if(!Global.isLogin) {
+            Future.delayed(Duration.zero).then((_) {
+              Navigator.pushNamed(context, 'MigrationOldVersionDataPage');
+            });
+            return;
+          }
+        }
+      }
+      /// 正常的跳转逻辑
+      checkLogin();
+    }.call();
+
   }
 
   @override
@@ -28,10 +63,6 @@ class _Boot extends State<Boot> {
 
   /// 检查是否已经登录
   Future checkLogin() async {
-    // if (Global.isLogin) {
-    //   await System.refreshToken();
-    // }
-
      Timer(const Duration(seconds: 2), () {
        bootFinish();
      });
@@ -48,12 +79,6 @@ class _Boot extends State<Boot> {
       context,
       isFinishLogin ? 'Home' : 'Login',
     );
-
-    bus.on("logout",(arg) {
-      Push.dispose();
-      System.loginOut();
-      Navigator.pushNamedAndRemoveUntil(context, 'Login', (route) => route.settings.name == "/");
-    });
 
     if (isFinishLogin) {
       Push.sseInit();

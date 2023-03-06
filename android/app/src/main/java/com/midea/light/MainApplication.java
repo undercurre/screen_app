@@ -73,7 +73,7 @@ public class MainApplication extends BaseApplication {
                 .withInitSharedPreferenceRepository(false)
                 .withLogEnable(DEBUG)
                 .withLogTag("MSmartKVRepository")
-                .withMMKVCryptKey(MMKV_CRYPT_KEY)
+                .withMMKVCryptKey(AppCommonConfig.MMKV_CRYPT_KEY)
                 .build());
         // 初始化网关
         GateWayUtils.init();

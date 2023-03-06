@@ -31,22 +31,27 @@ object ConnectStateHandler {
     val mScanWiFiReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if(intent?.action?.equals(CONNECTIVITY_ACTION) == true) {
-                val ethernetState = EthernetUtil.connectedState(BaseApplication.getContext())
-                val wifiState = WifiUtil.connectedState(BaseApplication.getContext())
-                val wifiInfo =  WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
-                callbacks.value.forEach { action -> action.connectedState(
-                    ethernetState,
-                    wifiState,
-                    wifiInfo
-                )}
-                LogUtil.tag("net-state").msg(
-                    """
+                queryConnectState()
+            }
+        }
+    }
+
+    // 查询的结果，通过回调的方式返回
+    fun queryConnectState() {
+        val ethernetState = EthernetUtil.connectedState(BaseApplication.getContext())
+        val wifiState = WifiUtil.connectedState(BaseApplication.getContext())
+        val wifiInfo =  WifiUtil.getWiFiConnectedInfo(BaseApplication.getContext())
+        callbacks.value.forEach { action -> action.connectedState(
+            ethernetState,
+            wifiState,
+            wifiInfo
+        )}
+        LogUtil.tag("net-state").msg(
+            """
                         以太网状态：${ if(ethernetState == 2) "连接成功" else "连接失败" }
                         WiFi状态: ${ if(wifiState == 2) "连接成功" else "连接失败" }  ${if(wifiInfo != null) wifiInfo.ssid else ""}
                     """.trimIndent()
-                )
-            }
-        }
+        )
     }
 
     fun register(callback: ICallBack) {
