@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/index.dart';
 
+import '../../widgets/mz_radio.dart';
+
 class StandbyTimeChoicePage extends StatefulWidget {
   const StandbyTimeChoicePage({Key? key});
 
@@ -66,42 +68,44 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 ],
               ),
             ),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: (){
-                setState(() {
-                  groupValue = 0;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                    child: const Text("30秒后",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
-                    child:  Radio<int>(
-                      activeColor: const Color(0XFF267AFF),
-                      groupValue: groupValue,
-                      value: 0,
-                      onChanged: (value){
-                        setState((){
-                          groupValue=value!;
-                        });
-                      },
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: (){
+                  setState(() {
+                    groupValue = 0;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
+                      child: const Text("30秒后",
+                          style: TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none,
+                          )),
                     ),
-                  ),
-                ],
+
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
+                      child:  MzRadio<int>(
+                        activeColor: const Color(0XFF267AFF),
+                        groupValue: groupValue,
+                        value: 0,
+                        onTap: (value) {
+                          setState((){
+                            groupValue=value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Container(
@@ -113,41 +117,43 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
               ),
             ),
 
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: (){
-                setState(() {
-                  groupValue = 1;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                    child: const Text("1分钟后",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                    child:  Radio<int>(
-                      activeColor: const Color(0XFF267AFF),
-                      groupValue: groupValue,
-                      value: 1,
-                      onChanged: (value){
-                        setState((){
-                          groupValue=value!;
-                        });
-                      },
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: (){
+                  setState(() {
+                    groupValue = 1;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
+                      child: const Text("1分钟后",
+                          style: TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none,
+                          )),
                     ),
-                  ),
-                ],
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
+                      child:  MzRadio<int>(
+                        activeColor: const Color(0XFF267AFF),
+                        groupValue: groupValue,
+                        value: 1,
+                        onTap: (value) {
+                          setState((){
+                            groupValue=value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Container(
@@ -158,41 +164,43 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 color: Color(0xff232323),
               ),
             ),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: (){
-                setState(() {
-                  groupValue = 2;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                    child: const Text("3分钟后",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                    child:  Radio<int>(
-                      activeColor: const Color(0XFF267AFF),
-                      groupValue: groupValue,
-                      value: 2,
-                      onChanged: (value){
-                        setState((){
-                          groupValue=value!;
-                        });
-                      },
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: (){
+                  setState(() {
+                    groupValue = 2;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
+                      child: const Text("3分钟后",
+                          style: TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none,
+                          )),
                     ),
-                  ),
-                ],
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
+                      child:  MzRadio<int>(
+                        activeColor: const Color(0XFF267AFF),
+                        groupValue: groupValue,
+                        value: 2,
+                        onTap: (value){
+                          setState((){
+                            groupValue=value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -205,41 +213,43 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
               ),
             ),
 
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: (){
-                setState(() {
-                  groupValue = 3;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                    child: const Text("5分钟后",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                    child:  Radio<int>(
-                      activeColor: const Color(0XFF267AFF),
-                      groupValue: groupValue,
-                      value: 3,
-                      onChanged: (value){
-                        setState((){
-                          groupValue=value!;
-                        });
-                      },
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: (){
+                  setState(() {
+                    groupValue = 3;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
+                      child: const Text("5分钟后",
+                          style: TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none,
+                          )),
                     ),
-                  ),
-                ],
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
+                      child:  MzRadio<int>(
+                        activeColor: const Color(0XFF267AFF),
+                        groupValue: groupValue,
+                        value: 3,
+                        onTap: (value){
+                          setState((){
+                            groupValue=value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -251,41 +261,43 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                 color: Color(0xff232323),
               ),
             ),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: (){
-                setState(() {
-                  groupValue = 4;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                    child: const Text("永不",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                    child:  Radio<int>(
-                      activeColor: const Color(0XFF267AFF),
-                      groupValue: groupValue,
-                      value: 4,
-                      onChanged: (value){
-                        setState((){
-                          groupValue=value!;
-                        });
-                      },
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: (){
+                  setState(() {
+                    groupValue = 4;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
+                      child: const Text("永不",
+                          style: TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none,
+                          )),
                     ),
-                  ),
-                ],
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
+                      child:  MzRadio<int>(
+                        activeColor: const Color(0XFF267AFF),
+                        groupValue: groupValue,
+                        value: 4,
+                        onTap: (value) {
+                          setState((){
+                            groupValue=value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 

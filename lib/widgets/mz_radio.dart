@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class MzRadio<T> extends StatelessWidget {
@@ -61,7 +62,7 @@ class MzRadio<T> extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-            color: const Color.fromRGBO(255, 255, 255, 0.18),
+            color: const Color.fromRGBO(255, 255, 255, 0.58),
             width: 1,
             style: BorderStyle.solid),
       ),
