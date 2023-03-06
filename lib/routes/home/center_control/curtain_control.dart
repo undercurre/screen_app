@@ -31,9 +31,7 @@ class CurtainControlState extends State<CurtainControl> {
     });
     var res = await CenterControlService.curtainControl(context, onOff);
     if (res) {
-      TipsUtils.toast(content: '执行成功');
     } else {
-      TipsUtils.toast(content: '执行失败');
       setState(() {
         powerValue = !powerValue;
       });

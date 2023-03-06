@@ -40,13 +40,7 @@ class LightControlState extends State<LightControl> with Throttle {
     });
     var res = await CenterControlService.lightPowerControl(context, onOff);
     if (res) {
-      throttle(() {
-        TipsUtils.toast(content: '执行成功');
-      }, durationTime: const Duration(milliseconds: 2000));
     } else {
-      throttle(() {
-        TipsUtils.toast(content: '执行失败');
-      }, durationTime: const Duration(milliseconds: 2000));
       setState(() {
         powerValue = !powerValue;
       });
@@ -63,9 +57,7 @@ class LightControlState extends State<LightControl> with Throttle {
       var res =
           await CenterControlService.lightBrightnessControl(context, value);
       if (res) {
-        TipsUtils.toast(content: '执行成功');
       } else {
-        TipsUtils.toast(content: '执行失败');
         setState(() {
           lightnessValue = exValue;
         });
@@ -88,13 +80,7 @@ class LightControlState extends State<LightControl> with Throttle {
     var res =
         await CenterControlService.lightColorTemperatureControl(context, value);
     if (res) {
-      throttle(() {
-        TipsUtils.toast(content: '执行成功');
-      }, durationTime: const Duration(milliseconds: 2000));
     } else {
-      throttle(() {
-        TipsUtils.toast(content: '执行失败');
-      }, durationTime: const Duration(milliseconds: 2000));
       setState(() {
         colorTempValue = exValue;
       });
