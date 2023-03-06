@@ -62,7 +62,7 @@ class _DevicePageState extends State<DevicePage> {
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
-      initDeviceState();
+      // initDeviceState();
     }
   }
 
