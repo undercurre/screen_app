@@ -256,7 +256,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
             // 实例化Duration类 设置定时器持续时间 毫秒
-            var timeout = const Duration(milliseconds: 2000);
+            var timeout = const Duration(milliseconds: 1000);
 
             // 延时调用一次 1秒后执行
             Timer(timeout, () => {updateDetail()});
