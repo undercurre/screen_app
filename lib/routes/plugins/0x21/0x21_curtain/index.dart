@@ -41,6 +41,8 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
   };
 
+  bool istouching = false;
+
   Map<String, dynamic> localGatewayInfo = {};
 
   var screenModel1 = '';
@@ -141,12 +143,21 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
     setState(() {
       position1 = value;
+      istouching = true;
     });
-    ZigbeeCurtainApi.curtainPercentPDM(
+    await ZigbeeCurtainApi.curtainPercentPDM(
         deviceWatch["masterId"], value, deviceWatch["detail"]["nodeId"]);
     // Future.delayed(const Duration(seconds: 1)).then((_) async {
     //   updateDetail();
     // });
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
   }
 
   Map<String, bool?> getSelectedKeys1() {
@@ -311,6 +322,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
             } else {
               if ((detail['masterId'] as String).isNotEmpty &&
                   detail['detail']?['nodeId'] == nodeId) {
+                if (istouching) return;
                 updateDetail();
               }
             }
@@ -364,8 +376,8 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     var curtainPanelOne = [
       ModeCard(
         title: localGatewayInfo.isNotEmpty
-            ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1"
-            : "窗帘1",
+            ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘面板一路"
+            : "窗帘面板一路",
         spacing: 80,
         modeList: curtainPanelModes1,
         selectedKeys: getSelectedKeys1(),
@@ -384,8 +396,8 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
           margin: const EdgeInsets.only(bottom: 16),
           child: ModeCard(
             title: localGatewayInfo.isNotEmpty
-                ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘1"
-                : "窗帘1",
+                ? localGatewayInfo["endlist"][0]["name"] ?? "窗帘面板一路"
+                : "窗帘面板一路",
             spacing: 80,
             modeList: curtainPanelModes1,
             selectedKeys: getSelectedKeys1(),
@@ -402,9 +414,9 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
         child: ModeCard(
           title: localGatewayInfo.isNotEmpty
               ? (localGatewayInfo["endlist"].length > 1
-                  ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘2"
-                  : "窗帘2")
-              : "窗帘2",
+                  ? localGatewayInfo["endlist"][1]["name"] ?? "窗帘面板二路"
+                  : "窗帘面板二路")
+              : "窗帘面板二路",
           spacing: 80,
           modeList: curtainPanelModes2,
           selectedKeys: getSelectedKeys2(),

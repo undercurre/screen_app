@@ -36,6 +36,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   };
 
   late DeviceEntity deviceInfoById;
+  bool istouching = false;
 
   var localBrightness = '1';
   var localColorTemp = '0';
@@ -65,8 +66,19 @@ class LightGroupPageState extends State<LightGroupPage> {
     var exValue = localBrightness;
     setState(() {
       localBrightness = value.toString();
+      istouching = true;
     });
     var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
+
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
+
     if (res.isSuccess) {
       updateDetail();
     } else {
@@ -80,8 +92,19 @@ class LightGroupPageState extends State<LightGroupPage> {
     var exValue = localColorTemp;
     setState(() {
       localColorTemp = value.toString();
+      istouching = true;
     });
     var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
+
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
+
     if (res.isSuccess) {
       // 实例化Duration类 设置定时器持续时间 毫秒
       var timeout = const Duration(seconds: 1000);
