@@ -385,7 +385,7 @@ class IgnorePasswordDialog extends StatelessWidget {
                         shape: MaterialStateProperty.all(
                             const RoundedRectangleBorder())),
                     onPressed: () {
-                      netMethodChannel.forgetWiFi(result);
+                      netMethodChannel.forgetWiFi(result.ssid, result.bssid);
                       Navigator.pop(context);
                     },
                     child: const Text(

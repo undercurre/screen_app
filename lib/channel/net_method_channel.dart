@@ -135,8 +135,8 @@ class NetMethodChannel extends AbstractChannel {
   }
 
   // 忘记掉已经连接的WiFi
-  Future<bool> forgetWiFi(WiFiScanResult wifi) async {
-    bool result = await methodChannel.invokeMethod('forgetWiFi', {'ssid': wifi.ssid, 'bssid': wifi.bssid});
+  Future<bool> forgetWiFi(String ssid, String bssid) async {
+    bool result = await methodChannel.invokeMethod('forgetWiFi', {'ssid': ssid, 'bssid': bssid});
     debugPrint("忘记wifi密码是否成功 = $result");
     return result;
   }

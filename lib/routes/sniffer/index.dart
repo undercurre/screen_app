@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
+import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/push.dart';
@@ -102,7 +103,7 @@ class SnifferViewModel {
 
     NetUtils.checkConnectedWiFiRecord().then((value) {
       if(value == null) {
-        _state.showIgnoreWiFiDialog();
+        _state.showIgnoreWiFiDialog(value);
       } else {
         getHomeData().then((value) {
           if(value != null) {
@@ -241,17 +242,33 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
     mzDialog.show(context);
   }
 
-  void showIgnoreWiFiDialog() {
+
+  void showIgnoreWiFiDialog(ConnectedWiFiRecord? value) {
     MzDialog mzDialog = MzDialog(
-        title: '抱歉',
-        desc: '请忘记当前网络，然后进行重新连接',
+        title: '提示',
         btns: ['取消', '确认'],
-        contentSlot: selectWifi(),
+        contentSlot: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text('请重新连接WiFi',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontFamily: 'MideaType'
+                ))
+          ],
+        ),
         maxWidth: 425,
         contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
         onPressed: (String item, int index, dialogContext) {
-          Navigator.pushNamed(context, 'NetSettingPage');
-          Navigator.pop(dialogContext);
+          if(index == 0) {
+            Navigator.pop(dialogContext);
+          } else {
+            if(value != null) {
+              netMethodChannel.forgetWiFi(value.ssid, value.bssid);
+            }
+            Navigator.popAndPushNamed(dialogContext, 'NetSettingPage');
+          }
         });
 
     mzDialog.show(context);
