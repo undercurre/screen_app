@@ -281,6 +281,7 @@ class Api {
     if (rule == 1) {
       Global.user?.accessToken = entity.data['accessToken'];
       Global.user?.expired = entity.data['expired'];
+      Global.user?.tokenPwd = entity.data['tokenPwd'] ?? Global.user?.tokenPwd ?? "";
       var time = DateTime.fromMillisecondsSinceEpoch(
           Global.user?.expired?.toInt() ?? 0);
       logger.d('美的Iot的token过期时间: $time');
@@ -308,6 +309,7 @@ class Api {
           forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
         } else if(isWillLoginExpire) {
           await iotAutoLogin();
+          Global.saveProfile();
           await mzAutoLogin();
           Global.saveProfile();
         }
