@@ -41,6 +41,8 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
   };
 
+  bool istouching = false;
+
   Map<String, dynamic> localGatewayInfo = {};
 
   var screenModel1 = '';
@@ -141,12 +143,21 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
     setState(() {
       position1 = value;
+      istouching = true;
     });
-    ZigbeeCurtainApi.curtainPercentPDM(
+    await ZigbeeCurtainApi.curtainPercentPDM(
         deviceWatch["masterId"], value, deviceWatch["detail"]["nodeId"]);
     // Future.delayed(const Duration(seconds: 1)).then((_) async {
     //   updateDetail();
     // });
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
   }
 
   Map<String, bool?> getSelectedKeys1() {
@@ -311,6 +322,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
             } else {
               if ((detail['masterId'] as String).isNotEmpty &&
                   detail['detail']?['nodeId'] == nodeId) {
+                if (istouching) return;
                 updateDetail();
               }
             }

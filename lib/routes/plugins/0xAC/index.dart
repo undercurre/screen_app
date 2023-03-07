@@ -36,6 +36,7 @@ class AirConditionPageState extends State<AirConditionPage> {
   var localWind = 102;
 
   bool menuVisible = false;
+  bool istouching = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -57,9 +58,19 @@ class AirConditionPageState extends State<AirConditionPage> {
     var exValue = localWind;
     setState(() {
       localWind = value > 0 ? (value - 1) * 20 : 1;
+      istouching = true;
     });
     var res = await AirConditionApi.gearLua(
         deviceWatch["deviceId"], value > 0 ? (value - 1) * 20 : 1);
+
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
 
     if (res.isSuccess) {
 
@@ -71,8 +82,22 @@ class AirConditionPageState extends State<AirConditionPage> {
   }
 
   Future<void> temperatureHandle(value) async {
+    setState(() {
+      localTemp = value;
+      istouching = true;
+    });
+
     var res =
         await AirConditionApi.temperatureLua(deviceWatch["deviceId"], value);
+
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
 
     if (res.isSuccess) {
       setState(() {
@@ -162,6 +187,7 @@ class AirConditionPageState extends State<AirConditionPage> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
+            if (istouching) return;
             Timer(const Duration(milliseconds: 1000), () {
               updateDetail();
             });
