@@ -268,8 +268,13 @@ class CenterControlService {
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.detail != null && deviceInfo.detail != {}) {
         if (deviceInfo.type == '0x13') {
-          res =
-              await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
+          if (deviceInfo.sn8 == '79009833') {
+            res =
+            await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
+          } else {
+            res =
+            await WIFILightApi.brightnessLua(deviceInfo.applianceCode, value);
+          }
         } else if (deviceInfo.type == '0x21') {
           MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
               deviceInfo.applianceCode, deviceInfo.masterId);

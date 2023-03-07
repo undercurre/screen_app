@@ -205,8 +205,8 @@ class LightControlState extends State<LightControl> with Throttle {
                               max: 100,
                               value: lightnessValue,
                               disabled: !powerValue,
-                              width: 290,
-                              padding: const EdgeInsets.all(8),
+                              width: 274,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
                                 Color(0xFFFFD185),
                                 Color(0xFFFFD185)
@@ -227,8 +227,8 @@ class LightControlState extends State<LightControl> with Throttle {
                             MzSlider(
                               value: colorTempValue,
                               disabled: !powerValue,
-                              width: 290,
-                              padding: const EdgeInsets.all(8),
+                              width: 274,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)
@@ -315,10 +315,12 @@ class LightControlState extends State<LightControl> with Throttle {
                               ),
                             ),
                             MzSlider(
+                              min: 1,
+                              max: 100,
                               value: lightnessValue,
                               disabled: !powerValue,
-                              width: 290,
-                              padding: const EdgeInsets.all(8),
+                              width: 274,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
                                 Color(0xFFFFD185),
                                 Color(0xFFFFD185)
@@ -339,8 +341,8 @@ class LightControlState extends State<LightControl> with Throttle {
                             MzSlider(
                               value: colorTempValue,
                               disabled: !powerValue,
-                              width: 290,
-                              padding: const EdgeInsets.all(8),
+                              width: 274,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
                                 Color(0xFFFFD39F),
                                 Color(0xFF55A2FA)

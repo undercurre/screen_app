@@ -53,6 +53,9 @@ class _DeviceCardState extends State<DeviceCard> {
   }
 
   Future<void> clickMethod(TapUpDetails e) async {
+    if (!DeviceService.isSupport(widget.deviceInfo!)) {
+      return;
+    }
     if (!DeviceService.isOnline(widget.deviceInfo!)) {
       TipsUtils.toast(content: '设备离线');
       return;
