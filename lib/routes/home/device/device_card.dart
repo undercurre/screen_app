@@ -291,9 +291,7 @@ class _DeviceCardState extends State<DeviceCard> {
         height: 60,
       );
     } else {
-      if (zigbeeControllerList[widget.deviceInfo!.modelNumber] ==
-              '0x21_curtain_panel_two' ||
-          (widget.deviceInfo!.type == '0x17' &&
+      if ((widget.deviceInfo!.type == '0x17' &&
               widget.deviceInfo!.sn8 != '127PD03G')) {
         if (DeviceService.isOnline(widget.deviceInfo!)) {
           return Container();
