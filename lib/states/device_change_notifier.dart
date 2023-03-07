@@ -361,8 +361,8 @@ class DeviceListModel extends ProfileChangeNotifier {
       logger.i('遍历虚拟设备', deviceInfo);
       // 智慧屏线控器
       if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
-        productVistualDevice(deviceInfo, '灯1', "smartControl-1");
         productVistualDevice(deviceInfo, '灯2', "smartControl-2");
+        productVistualDevice(deviceInfo, '灯1', "smartControl-1");
       }
       // 面板
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {

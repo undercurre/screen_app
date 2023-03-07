@@ -8,6 +8,7 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../common/global.dart';
 import './api.dart';
 import './mode_list.dart';
 import '../../../models/device_entity.dart';
@@ -63,7 +64,7 @@ class _CoolMasterState extends State<CoolMaster> with Throttle {
         }
       }));
 
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
+      Push.listen("appliance/status/report", _reportCallback = ((arg) async {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
@@ -99,7 +100,7 @@ class _CoolMasterState extends State<CoolMaster> with Throttle {
     if (index >= 0) {
       device = deviceList.deviceList[index];
       deviceName = deviceList.deviceList[index].name;
-      luaDataConvToState(begin: args["power"]);
+      luaDataConvToState();
     } else {
       // todo: 设备已被删除，应该弹窗并让用户退出
     }
@@ -246,7 +247,7 @@ class _CoolMasterState extends State<CoolMaster> with Throttle {
   }
 
   /// lua上报状态转widget状态
-  void luaDataConvToState({ bool? begin }) {
+  void luaDataConvToState() {
     if (device.detail == null) {
       return;
     }
@@ -268,9 +269,6 @@ class _CoolMasterState extends State<CoolMaster> with Throttle {
       mode[weak.key] = int.parse(data['blowing_speed']) < 67 ? true : false;
       mode[ventilation.key] = true;
     }
-    if (begin != null){
-      mode["ventilation"] = begin;
-    }
     if (data['light_mode'] == 'close_all') {
       mode[light.key] = false;
     } else if (data['light_mode'] == 'main_light') {
@@ -284,6 +282,8 @@ class _CoolMasterState extends State<CoolMaster> with Throttle {
     if (data['blowing_direction'] == '253') {
       swing = true;
     } else if (data['blowing_direction'] == '254') {
+      swing = false;
+    } else {
       swing = false;
     }
     setState(() {
