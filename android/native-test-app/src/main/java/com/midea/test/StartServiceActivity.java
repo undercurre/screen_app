@@ -32,6 +32,13 @@ public class StartServiceActivity extends Activity {
             intent.setAction(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(intent);
         }
+
+        button.setOnClickListener(v->{
+
+        });
+
+
+
     }
 
 
