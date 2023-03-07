@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+import '../common/global.dart';
 import '../states/global_route_observer_notifier.dart';
 
 
@@ -10,6 +11,8 @@ import '../states/global_route_observer_notifier.dart';
 ///
 ///
 mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware {
+
+  late RouteObserver _routeObserver;
 
   @override
   @mustCallSuper
@@ -64,17 +67,21 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   void onDestroy() {}
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final observer = Provider.of<GlobalRouteObserverNotifier>(context).routeObserver;
-    observer.subscribe(this, ModalRoute.of(context)!);
+    _routeObserver = Provider.of<GlobalRouteObserverNotifier>(context).routeObserver;
+    _routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 
   @override
   void dispose() {
     super.dispose();
-    final observer = Provider.of<GlobalRouteObserverNotifier>(context).routeObserver;
-    observer.unSubscribe(this);
+    _routeObserver.unsubscribe(this);
   }
 
 }
