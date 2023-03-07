@@ -88,14 +88,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    if (zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_one' ||
-        zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_two') {
-      return '';
-    } else {
-      return '%';
-    }
+    return '';
   }
 
   @override

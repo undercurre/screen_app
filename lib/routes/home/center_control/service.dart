@@ -501,7 +501,7 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
-        var res = await AirConditionApi.temperatureLua(
+        var res = await AirConditionApi.temperatureLuaZheng(
             deviceInfo.applianceCode, value);
         logger.i('空调温控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
         if (res.isSuccess) {
