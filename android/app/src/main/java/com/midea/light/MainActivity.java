@@ -1,7 +1,6 @@
 package com.midea.light;
 
 import android.Manifest;
-import android.app.Application;
 import android.app.Instrumentation;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,17 +16,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.KeyEvent;
 
-import com.alibaba.sdk.android.push.CloudPushService;
-import com.alibaba.sdk.android.push.CommonCallback;
-import com.alibaba.sdk.android.push.noonesdk.PushInitConfig;
-import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.midea.light.ai.AiManager;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
-import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.log.LogUtil;
@@ -389,7 +384,7 @@ public class MainActivity extends FlutterActivity {
                 if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
                     float value = event.values[0];
                     if (value != -1) {
-//                        Log.e("sky", "距离传感器值:" + (value));
+                        Log.e("sky", "距离传感器值:" + (value));
                         if (value == 0 && MainApplication.standbyState) {
                             if (!isScreenOn()) {
                                 sendKeyEvent(KeyEvent.KEYCODE_BACK);

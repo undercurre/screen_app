@@ -32,10 +32,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
         zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_curtain_panel_two') {
       var res = await ZigbeeCurtainApi.powerPDMTwin(
-          deviceInfo.masterId,
-          onOff,
-          onOff,
-          infoMap["nodeid"]);
+          deviceInfo.masterId, onOff, onOff, infoMap["nodeid"]);
       return res;
     } else {
       num percent = onOff ? 100 : 0;
@@ -79,8 +76,12 @@ class WrapZigbeeCurtain implements DeviceInterface {
     } else {
       return (deviceInfo.detail != null &&
               deviceInfo.detail!.keys.toList().isNotEmpty)
-          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"]
-              .toString()
+          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"] ==
+                  240
+              ? ''
+              : deviceInfo.detail!["curtainDeviceList"][0]
+                      ["deviceFunctionLevel"]
+                  .toString()
           : '0';
     }
   }
@@ -107,8 +108,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
         '0x21_curtain_panel_two') {
       return 'assets/imgs/device/erlu-01-off.png';
     }
-    if (zigbeeControllerList[deviceInfo.modelNumber] ==
-        '0x21_curtain') {
+    if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_curtain') {
       return 'assets/imgs/device/chuanglian_icon_off.png';
     }
     return 'assets/imgs/device/chuanglian_icon_off.png';
@@ -124,8 +124,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
         '0x21_curtain_panel_two') {
       return 'assets/imgs/device/erlu-01-on.png';
     }
-    if (zigbeeControllerList[deviceInfo.modelNumber] ==
-        '0x21_curtain') {
+    if (zigbeeControllerList[deviceInfo.modelNumber] == '0x21_curtain') {
       return 'assets/imgs/device/chuanglian_icon_on.png';
     }
     return 'assets/imgs/device/chuanglian_icon_on.png';
@@ -294,7 +293,6 @@ class ZigbeeCurtainApi {
   /// 窗帘电机——百分比
   static Future<MzResponseEntity> curtainPercentPDM(
       String deviceId, num percent, String nodeId) async {
-
     var res = await DeviceApi.sendPDMOrder(
         '0x16',
         'curtainOpenPerControl',

@@ -7,6 +7,7 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
+import '../../common/api/ai_author_api.dart';
 import '../../common/api/gateway_api.dart';
 import '../../common/system.dart';
 import '../../common/utils.dart';
@@ -78,7 +79,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
       Global.lightValue = lightValue;
       Global.autoLight = autoLight;
       Global.nearWakeup = nearWakeup;
-
+      await AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
       String? deviceSn = await aboutSystemChannel.getGatewaySn();
       String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
