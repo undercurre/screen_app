@@ -136,7 +136,7 @@ public class WeatherDialog extends Dialog {
         } else if (weather.contains("雷")) {
             llParent.setBackground(getContext().getResources().getDrawable(R.drawable.thunderstorm_bk));
             imgWeatherIcon.setImageResource(R.drawable.thunderstorm_icon);
-        } else if (weather.contains("阴")) {
+        } else if (weather.contains("阴")||weather.contains("霾")) {
             llParent.setBackground(getContext().getResources().getDrawable(R.drawable.overcast_bk));
             imgWeatherIcon.setImageResource(R.drawable.overcast_icon);
         } else if (weather.contains("云")) {
@@ -150,6 +150,9 @@ public class WeatherDialog extends Dialog {
                 llParent.setBackground(getContext().getResources().getDrawable(R.drawable.rain_night_bk));
                 imgWeatherIcon.setImageResource(R.drawable.rain_night_icon);
             }
+        }else{
+            llParent.setBackground(getContext().getResources().getDrawable(R.drawable.overcast_bk));
+            imgWeatherIcon.setImageResource(R.drawable.overcast_icon);
         }
     }
 
