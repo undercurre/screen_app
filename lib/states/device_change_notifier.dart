@@ -173,10 +173,12 @@ class DeviceListModel extends ProfileChangeNotifier {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
       if (deviceInfo.type.contains('smartControl') || deviceInfo.type.contains('singlePanel')) {
-        var curVistual = vistualProducts
+        var filterList = vistualProducts
             .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
-            .toList()[0];
-        curVistual.detail = newDetail;
+            .toList();
+        if (filterList.isNotEmpty) {
+          filterList[0].detail = newDetail;
+        }
       }
       else {
         if (deviceInfo.type == 'lightGroup') {
