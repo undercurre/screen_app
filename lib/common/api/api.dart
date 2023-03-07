@@ -309,6 +309,7 @@ class Api {
           forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
         } else if(isWillLoginExpire) {
           await iotAutoLogin();
+          Global.saveProfile();
           await mzAutoLogin();
           Global.saveProfile();
         }
