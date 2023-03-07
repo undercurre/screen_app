@@ -150,7 +150,6 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
 
       /// 保存当前的数据
       Global.saveProfile();
-      TipsUtils.toast(content: "同步数据成功");
       Setting.instant().saveVersionCompatibility(
           await aboutSystemChannel.getAppVersion());
       Future.delayed(Duration.zero).then((value) {
@@ -160,8 +159,6 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       logger.e(e);
       Setting.instant().saveVersionCompatibility(
           await aboutSystemChannel.getAppVersion());
-      // TipsUtils.toast(content: '同步数据失败，请重新登录');
-      TipsUtils.toast(content : e.toString());
       System.loginOut();
       Future.delayed(Duration.zero)
           .then((value) => Navigator.popAndPushNamed(context, 'Login'));
