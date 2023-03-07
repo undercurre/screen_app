@@ -16,8 +16,9 @@ import '../../../home/device/service.dart';
 import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
+
   // 本地原始数据
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
@@ -43,14 +44,15 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   // 本地视图getters
   num localColorTemperature = 0;
-  num localBrightness = 0;
+  num localBrightness = 1;
   num localDelayClose = 0;
   bool localPower = false;
+  bool istouching = false;
 
   // 填装视图数据
   setViewData(Map<String, dynamic> detail) {
     setState(() {
-      localBrightness = detail["lightPanelDeviceList"][0]["brightness"];
+      localBrightness = detail["lightPanelDeviceList"][0]["brightness"] ?? 1;
       localColorTemperature =
           detail["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
       localPower = detail["lightPanelDeviceList"][0]["attribute"] == 1;
@@ -154,6 +156,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     setState(() {
       localBrightness = value;
       fakeModel = '';
+      istouching = true;
     });
     var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
         value, localColorTemperature, deviceWatch["detail"]["nodeId"]);
@@ -162,13 +165,18 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     var timeout = const Duration(milliseconds: 1000);
 
     // 延时调用一次 1秒后执行
-    Timer(timeout, () => {updateDetail()});
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
     setState(() {
       localColorTemperature = value;
       fakeModel = '';
+      istouching = true;
     });
     var res = await ZigbeeLightApi.adjustPDM(deviceWatch["detail"]["deviceId"],
         localBrightness, value, deviceWatch["detail"]["nodeId"]);
@@ -177,7 +185,11 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     var timeout = const Duration(milliseconds: 1000);
 
     // 延时调用一次 1秒后执行
-    Timer(timeout, () => {updateDetail()});
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -190,38 +202,46 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      final args = ModalRoute
+          .of(context)
+          ?.settings
+          .arguments as Map;
       deviceWatch["deviceId"] = args['deviceId'];
       setState(() {
         deviceWatch = context
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
         debugPrint('插件中获取到的详情：$deviceWatch');
-        deviceWatch['detail']["lightPanelDeviceList"][0]["attribute"] = args['power'] ? 1 : 0;
+        deviceWatch['detail']["lightPanelDeviceList"][0]["attribute"] =
+        args['power'] ? 1 : 0;
       });
       setViewData(deviceWatch['detail']);
 
       Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
         String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
+        Map<String, dynamic> eventMap = json.decode(event);
         String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(
+            args['deviceId']);
 
         if (nodeId.isEmpty) {
           if (detail['deviceId'] == arg['applianceCode']) {
             updateDetail();
           }
         } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
+          if ((detail['masterId'] as String).isNotEmpty &&
+              detail['detail']?['nodeId'] == nodeId) {
             updateDetail();
           }
         }
       }));
 
       Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+        var detail = context.read<DeviceListModel>().getDeviceDetailById(
+            args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
+            if (istouching) return;
             updateDetail();
           }
         }
@@ -233,7 +253,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/status/report", _reportCallback);
   }
 
   @override
@@ -346,8 +366,14 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     );
 
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      height: MediaQuery
+          .of(context)
+          .size
+          .height,
       decoration: const BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -385,7 +411,10 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
               Expanded(
                 flex: 1,
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
                   child: Center(
                     child: EasyRefresh(
                       header: const ClassicHeader(
@@ -419,13 +448,13 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                               Expanded(
                                 child: Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  const EdgeInsets.fromLTRB(0, 0, 16, 0),
                                   child: ScrollConfiguration(
                                       behavior: ScrollConfiguration.of(context)
                                           .copyWith(scrollbars: false),
                                       child: zigbeeControllerList[
-                                                  deviceWatch["modelNumber"]] ==
-                                              '0x21_light_colorful'
+                                      deviceWatch["modelNumber"]] ==
+                                          '0x21_light_colorful'
                                           ? colorful
                                           : noColor),
                                 ),

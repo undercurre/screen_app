@@ -40,6 +40,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   var localPower = false;
   var localScreenModel = 'manual';
   var localTimeOff = 0;
+  var istouching = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -111,12 +112,26 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> brightnessHandle(num value, Color activeColor) async {
+    setState(() {
+      localBrightness = value.toInt();
+      istouching = true;
+    });
     late MzResponseEntity<dynamic> res;
     if (sn8 == '79009833') {
       res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
     } else {
       res = await WIFILightApi.brightnessLua(deviceWatch["deviceId"], value);
     }
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
+
     if (res.isSuccess) {
       throttle(() {
         setState(() {
@@ -124,9 +139,6 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         });
       }, durationTime: const Duration(seconds: 1000));
     } else {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(seconds: 1000);
-
       // 延时调用一次 1秒后执行
       Timer(timeout, () {
         updateDetail();
@@ -135,6 +147,10 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   }
 
   Future<void> colorTemperatureHandle(num value, Color activeColor) async {
+    setState(() {
+      localColorTemp = value.toInt();
+      istouching = true;
+    });
     late MzResponseEntity<dynamic> res;
     if (sn8 == '79009833') {
       res =
@@ -143,6 +159,17 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       res =
       await WIFILightApi.colorTemperatureLua(deviceWatch["deviceId"], value);
     }
+
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
+
     if (res.isSuccess) {
       throttle(() {
         setState(() {
@@ -150,9 +177,6 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         });
       }, durationTime: const Duration(seconds: 1000));
     } else {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(seconds: 1000);
-
       // 延时调用一次 1秒后执行
       Timer(timeout, () {
         updateDetail();
@@ -255,11 +279,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            // 实例化Duration类 设置定时器持续时间 毫秒
-            var timeout = const Duration(milliseconds: 1000);
-
-            // 延时调用一次 1秒后执行
-            Timer(timeout, () => {updateDetail()});
+            if (istouching) return;
+            updateDetail();
           }
         }
       }));

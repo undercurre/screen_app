@@ -721,15 +721,26 @@ public class SystemUtil {
     }
 
     public static void getGatewaySn(Function<String, String> callback) {
+        String rawSn = GateWayRepository.getInstance().getGatewaySn();
+        boolean resultCallback = false;
+        if(!StringUtils.isEmpty(rawSn)) {
+            resultCallback = true;
+            callback.apply(rawSn);
+        }
+        boolean finalResultCallback = resultCallback;
         GateWayUtils.bindGateWay(new GatewayCallback.SN(System.currentTimeMillis() + 4000, TimeUnit.MILLISECONDS) {
             @Override
             protected void callback(SNCodeBean msg) {
                 if (null == msg) {
                     // 获取失败
-                    callback.apply("");
+                    if(!finalResultCallback) {
+                        callback.apply("");
+                    }
                 } else {
                     // 获取成功
-                    callback.apply(msg.getCode().getSN());
+                    if(!finalResultCallback) {
+                        callback.apply(msg.getCode().getSN());
+                    }
                     GateWayRepository.getInstance().saveGatewaySn(msg.getCode().getSN());
                 }
             }

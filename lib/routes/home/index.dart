@@ -69,6 +69,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
       Future.delayed(const Duration(milliseconds: 4000), () {
         aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
         aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
+        AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
       });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
@@ -79,8 +80,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
       Global.lightValue = lightValue;
       Global.autoLight = autoLight;
       Global.nearWakeup = nearWakeup;
-      await AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
-      String? deviceSn = await aboutSystemChannel.getGatewaySn();
+      String? deviceSn = await aboutSystemChannel.getGatewaySn(false);
       String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
       var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';

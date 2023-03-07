@@ -22,6 +22,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   String curtainDirection = 'positive';
   Function(Map<String,dynamic> arg)? _eventCallback;
   Function(Map<String,dynamic> arg)? _reportCallback;
+  bool istouching = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -50,10 +51,19 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
     // 控制值即时响应
     setState(() {
       curtainPosition = value.toInt();
-      debugPrint('curtainPosition: $curtainPosition');
+      istouching = true;
     });
     await CurtainApi.changePosition(deviceId, value, curtainDirection);
     // TODO 控制返回值回显
+    // 实例化Duration类 设置定时器持续时间 毫秒
+    var timeout = const Duration(seconds: 1000);
+
+    // 延时调用一次 1秒后执行
+    Timer(timeout, () {
+      setState(() {
+        istouching = false;
+      });
+    });
   }
 
   Map<String, bool?> getSelectedKeys() {
@@ -108,6 +118,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
+            if (istouching) return;
             updateDetail();
           }
         }

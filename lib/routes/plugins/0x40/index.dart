@@ -5,6 +5,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import './api.dart';
@@ -19,7 +20,7 @@ class CoolMaster extends StatefulWidget {
   State<StatefulWidget> createState() => _CoolMasterState();
 }
 
-class _CoolMasterState extends State<CoolMaster> {
+class _CoolMasterState extends State<CoolMaster> with Throttle {
   Function(Map<String,dynamic> arg)? _eventCallback;
   Function(Map<String,dynamic> arg)? _reportCallback;
   String deviceId = '0';
@@ -34,6 +35,7 @@ class _CoolMasterState extends State<CoolMaster> {
   int windSpeed = 0;
   bool swing = false;
   bool smelly = false;
+  bool istouching = false;
 
   @override
   void initState() {
@@ -65,10 +67,16 @@ class _CoolMasterState extends State<CoolMaster> {
         var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
         if (arg.containsKey('applianceId')) {
           if (detail['deviceId'] == arg['applianceId']) {
-            Timer(const Duration(milliseconds: 1000), () {
-                handleRefresh();
-                luaDataConvToState();
-            });
+            throttle(() async {
+              setState(() {
+                istouching = true;
+              });
+              await handleRefresh();
+              luaDataConvToState();
+              setState(() {
+                istouching = false;
+              });
+            }, durationTime: const Duration(seconds: 2000));
           }
         }
       }));
@@ -418,7 +426,6 @@ class _CoolMasterState extends State<CoolMaster> {
       swing = !swing;
     });
     BaseApi.luaControl(deviceId, {'blowing_direction': swing ? '253' : '254'});
-    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 
   void toggleSmelly() {
@@ -426,7 +433,6 @@ class _CoolMasterState extends State<CoolMaster> {
       smelly = !smelly;
     });
     BaseApi.luaControl(deviceId, {'smelly_enable': smelly ? 'on' : 'off'});
-    // Timer(const Duration(milliseconds: 1000), () => {handleRefresh()});
   }
 }
 

@@ -63,7 +63,8 @@ class _ParamCardState extends State<ParamCard> with Throttle {
   void didUpdateWidget(covariant ParamCard oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.value == widget.value) {
+    if (oldWidget.value != widget.value) {
+      logger.i('widget更新', widget.value);
       setState(() {
         localValue = widget.value;
       });
