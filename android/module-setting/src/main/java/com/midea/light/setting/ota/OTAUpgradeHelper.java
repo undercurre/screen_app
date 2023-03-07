@@ -94,16 +94,28 @@ public class OTAUpgradeHelper {
     public static boolean supportDirectOTA = false; //是否支持定向ota
     public static boolean supportRomOTA = false; //是否支持Rom升级
 
-    public static void init(Context context, V2IOTCallback callback, String uid,String deviceId, String mzToken, String gatewaySn) {
+    static String uid;
+    static String deviceId;
+    static String mzToken;
+    static String gatewaySn;
+
+    public static void initUserConfig(String uid, String deviceId, String mzToken, String gatewaySn) {
+        OTAUpgradeHelper.uid = uid;
+        OTAUpgradeHelper.deviceId = deviceId;
+        OTAUpgradeHelper.mzToken = mzToken;
+        OTAUpgradeHelper.gatewaySn = gatewaySn;
+    }
+
+    public static void globalInit(Context context, V2IOTCallback callback) {
         String channel = AppCommonConfig.getChannel();
         // 初始化支持的OTA类型
         supportNormalOTA = Objects.equals("JH", channel) || Objects.equals("LD", channel);
         supportDirectOTA = Objects.equals("JH", channel) || Objects.equals("LD", channel);
         supportRomOTA = Objects.equals("JH", channel);
 
-        initRomOTAConfig(channel, uid, deviceId, mzToken);
-        initNormalOTAConfig(channel, uid, deviceId, mzToken);
-        initDirectOTAConfig(channel, uid, deviceId, mzToken, gatewaySn);
+        initRomOTAConfig(channel);
+        initNormalOTAConfig(channel);
+        initDirectOTAConfig(channel);
 
         UpgradeClient.getInstant().init(context);
         defaultCallback = Objects.requireNonNull(callback);
@@ -111,7 +123,7 @@ public class OTAUpgradeHelper {
     }
 
 
-    static void initRomOTAConfig(String channel, String uid, String deviceId, String mzToken) {
+    static void initRomOTAConfig(String channel) {
         if(supportRomOTA) {
             String roomCategoryCode = Objects.equals(channel, "JH") ? "JH-Q" : "LD-Q";
             UpgradeConfig room = new UpgradeConfig()
@@ -134,7 +146,7 @@ public class OTAUpgradeHelper {
         }
     }
 
-    public static void initDirectOTAConfig(String channel, String uid, String deviceId, String mzToken, String gatewaySn) {
+    public static void initDirectOTAConfig(String channel) {
         if(supportDirectOTA) {
             String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
 
@@ -155,7 +167,7 @@ public class OTAUpgradeHelper {
         }
     }
 
-    public static void initNormalOTAConfig(String channel, String uid, String deviceId, String mzToken) {
+    public static void initNormalOTAConfig(String channel) {
         if(supportNormalOTA) {
             String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
 

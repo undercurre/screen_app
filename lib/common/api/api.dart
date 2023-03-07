@@ -251,6 +251,7 @@ class Api {
         res.statusCode == TOKEN_EXPIRED ||
         res.statusCode == ACCOUNT_LOGOUT) {
       bus.emit('logout');
+
     }
 
     if(res.statusCode != 200) {

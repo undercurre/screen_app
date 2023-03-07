@@ -36,7 +36,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, OtaSdkInitialize, Ota {
+class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, Ota {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -112,6 +112,8 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   void onResume() {
     super.onResume();
     onSniffer();
+
+    checkOtaUpgrade();
   }
 
   @override

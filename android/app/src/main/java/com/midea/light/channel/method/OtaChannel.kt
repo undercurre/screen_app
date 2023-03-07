@@ -10,7 +10,6 @@ import com.midea.light.upgrade.control.UpgradeInstallControl
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONObject
 
 /**
  * @ClassName OtaChannel
@@ -35,6 +34,8 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
 
     var downloadControl: UpgradeDownloadControl? = null
     var installControl: UpgradeInstallControl? = null
+
+
 
     val callback = object: V2IOTCallback {
 
@@ -86,20 +87,12 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
 
     }
 
+    init {
+        OTAUpgradeHelper.globalInit(context, callback)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when(call.method) {
-            "init"-> {
-                assert(call.hasArgument("uid"))
-                assert(call.hasArgument("deviceId"))
-                assert(call.hasArgument("mzToken"))
-                assert(call.hasArgument("sn"))
-                val uid = call.argument<String>("uid")
-                val deviceId = call.argument<String>("deviceId")
-                val mzToken = call.argument<String>("mzToken")
-                val sn = call.argument<String>("sn")
-                OTAUpgradeHelper.init(context, callback, uid, deviceId, mzToken, sn)
-                onCallSuccess(result, true)
-            }
             "supportNormalOTA" -> {
                 result.safeSuccess(OTAUpgradeHelper.supportNormalOTA)
             }
@@ -119,7 +112,19 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
                 } else if(OTAUpgradeHelper.isDownload()) {
                     onCallError(result, errorCode = "-2", errorMessage = "已经在下载或者安装中")
                 } else {
-                    val type = call.arguments as Int
+                    assert(call.hasArgument("uid"))
+                    assert(call.hasArgument("deviceId"))
+                    assert(call.hasArgument("mzToken"))
+                    assert(call.hasArgument("sn"))
+
+                    val uid = call.argument<String>("uid")
+                    val deviceId = call.argument<String>("deviceId")
+                    val mzToken = call.argument<String>("mzToken")
+                    val sn = call.argument<String>("sn")
+                    val type = call.argument<Int>("numType")
+
+                    OTAUpgradeHelper.initUserConfig(uid, deviceId, mzToken, sn)
+
                     OTAUpgradeHelper.queryUpgrade(when(type) {
                         3 -> UpgradeType.ROOM
                         2 -> UpgradeType.DIRECT
