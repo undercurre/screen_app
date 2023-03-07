@@ -275,6 +275,21 @@ class DeviceListModel extends ProfileChangeNotifier {
     // 放置虚拟设备
     await setVistualDevice();
     logger.i('更新房间内所有设备状态优化后：放置虚拟设备', stopwatch.elapsedMilliseconds / 1000);
+    // for (int xx = 1; xx <= showList.length; xx++) {
+    //   var deviceInfo = showList[xx - 1];
+    //   // 查看品类控制器看是否支持该品类
+    //   var hasController = getController(deviceInfo) != null;
+    //   if (hasController &&
+    //       DeviceService.isOnline(deviceInfo) &&
+    //       DeviceService.isSupport(deviceInfo)) {
+    //     // 调用provider拿detail存入状态管理里
+    //     updateDeviceDetail(deviceInfo);
+    //   }
+    // }
+    logger.i('更新房间内所有设备状态优化后：请求状态', stopwatch.elapsedMilliseconds / 1000);
+  }
+
+  Future<void> onlyFetchDetailForAll() async {
     for (int xx = 1; xx <= showList.length; xx++) {
       var deviceInfo = showList[xx - 1];
       // 查看品类控制器看是否支持该品类
@@ -283,10 +298,9 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isOnline(deviceInfo) &&
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
-        updateDeviceDetail(deviceInfo);
+        await updateDeviceDetail(deviceInfo);
       }
     }
-    logger.i('更新房间内所有设备状态优化后：请求状态', stopwatch.elapsedMilliseconds / 1000);
   }
 
   Future<void> updateAllDetailWaited() async {
@@ -345,8 +359,8 @@ class DeviceListModel extends ProfileChangeNotifier {
       logger.i('遍历虚拟设备', deviceInfo);
       // 智慧屏线控器
       if (deviceInfo.type == '0x16' && (deviceInfo.sn8 == "MSGWZ010" || deviceInfo.sn8 == "MSGWZ013")) {
-        productVistualDevice(deviceInfo, '${deviceInfo.name}灯1', "smartControl-1");
-        productVistualDevice(deviceInfo, '${deviceInfo.name}灯2', "smartControl-2");
+        productVistualDevice(deviceInfo, '灯1', "smartControl-1");
+        productVistualDevice(deviceInfo, '灯2', "smartControl-2");
       }
       // 面板
       if (deviceInfo.type == '0x21' && zigbeeControllerList[deviceInfo.modelNumber] == '0x21_panel') {

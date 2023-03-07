@@ -62,16 +62,17 @@ class _DevicePageState extends State<DevicePage> {
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
       });
-      // initDeviceState();
+      initDeviceState();
     }
   }
 
   initDeviceState() async {
     var deviceModel = context.read<DeviceListModel>();
-    await deviceModel.updateAllDetailWaited();
+    await deviceModel.onlyFetchDetailForAll();
     var entityList = deviceModel.showList;
     setState(() {
       deviceEntityList = entityList;
+
       deviceWidgetList = deviceEntityList
           .map((device) => DeviceCard(deviceInfo: device))
           .toList();
