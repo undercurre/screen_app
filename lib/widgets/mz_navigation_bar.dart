@@ -60,7 +60,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
       height: 65,
       decoration: BoxDecoration(
           border: Border(
-              bottom: widget.hasBottomBorder ? const BorderSide(width: 1, style: BorderStyle.solid, color: Color(0xff979797), strokeAlign: BorderSide.strokeAlignCenter) :
+              bottom: widget.hasBottomBorder ? const BorderSide(width: 1, style: BorderStyle.solid, color: Color(0xff979797), strokeAlign: BorderSide.strokeAlignInside) :
               BorderSide.none)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
