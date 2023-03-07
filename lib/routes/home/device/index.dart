@@ -140,15 +140,6 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    var deviceModel = context.watch<DeviceListModel>();
-    // 更新设备detail
-    var entityList = deviceModel.showList;
-    setState(() {
-      deviceEntityList = entityList;
-      deviceWidgetList = deviceEntityList
-          .map((device) => DeviceCard(deviceInfo: device))
-          .toList();
-    });
     return Container(
       decoration: const BoxDecoration(
         color: Colors.black,

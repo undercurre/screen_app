@@ -145,7 +145,7 @@ class Push {
       delayMap.remove(deviceId);
     }
 
-    Timer timer = Timer(const Duration(seconds: 2),(){
+    Timer timer = Timer(const Duration(seconds: 4),(){
       _emap[pushType]?.forEach((element) {
         element(msg ?? {});
       });
