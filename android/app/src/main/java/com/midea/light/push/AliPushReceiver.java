@@ -10,6 +10,7 @@ import com.midea.light.channel.method.AliPushChannel;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -25,16 +26,23 @@ public class AliPushReceiver extends MessageReceiver {
     public static final String REC_TAG = "receiver";
 
     @Override
+    public boolean showNotificationNow(Context context, Map<String, String> map) {
+        Log.i("hjl11111",map.toString());
+        if (map.containsKey("title")) {
+            mChannel.notifyPushMessage(Objects.requireNonNull(map.get("title")));
+        }
+        return false;
+    }
+
+    @Override
     protected void onNotification(Context context, String title, String summary, Map<String, String> extraMap) {
         // TODO 处理推送通知
         Log.i("aliPushLog", "Receive notification, title: " + title + ", summary: " + summary + ", extraMap: " + extraMap);
-        mChannel.notifyPushMessage(title);
     }
 
     @Override
     protected void onMessage(Context context, CPushMessage cPushMessage) {
         Log.i("aliPushLog", "onMessage, messageId: " + cPushMessage.getMessageId() + ", title: " + cPushMessage.getTitle() + ", content:" + cPushMessage.getContent());
-        mChannel.notifyPushMessage(cPushMessage.getTitle());
     }
 
     @Override
