@@ -45,27 +45,19 @@ class AboutSettingProvider with ChangeNotifier {
 
   void checkDirectUpgrade() {
     TipsUtils.toast(content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
-    if(otaChannel.isInit) {
-      if(otaChannel.isDownloading) {
-        TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
-      } else {
-        otaChannel.checkDirect();
-      }
+    if(otaChannel.isDownloading) {
+      TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
     } else {
-      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
+      otaChannel.checkDirect();
     }
   }
 
   void checkUpgrade() {
     TipsUtils.toast(content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
-    if(otaChannel.isInit) {
-      if(otaChannel.isDownloading) {
-        TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
-      } else {
-        otaChannel.checkNormalAndRom(false);
-      }
+    if(otaChannel.isDownloading) {
+      TipsUtils.toast(content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);
     } else {
-      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
+      otaChannel.checkNormalAndRom(false);
     }
   }
 
@@ -544,14 +536,27 @@ class AboutSettingPage extends StatelessWidget {
                                 children: [
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                                    child: const Text("应用升级",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
+                                    child: Row(
+                                      children: [
+                                        const Text("应用升级",
+                                            style: TextStyle(
+                                              color: Color(0XFFFFFFFF),
+                                              fontSize: 24.0,
+                                              fontFamily: "MideaType",
+                                              fontWeight: FontWeight.normal,
+                                              decoration: TextDecoration.none,
+                                            )),
+                                        if(otaChannel.hasNewVersion)
+                                          const Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 10),
+                                              child: Text('New',
+                                                style: TextStyle(
+                                                  color: Colors.blueAccent
+                                                ),
+                                              ),
+                                            )
+                                      ],
+                                    ),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
@@ -566,8 +571,8 @@ class AboutSettingPage extends StatelessWidget {
                                         bottom: BorderSide(width: 1.0, color: Color(0xff0091FF)),
                                       ),
                                     ),
-                                    child: const Text("检查更新",
-                                        style: TextStyle(
+                                    child: Text(otaChannel.hasNewVersion ? "立即更新":"检查更新",
+                                        style: const TextStyle(
                                           color: Color(0XFFFFFFFF),
                                           fontSize: 22.0,
                                           fontFamily: "MideaType",

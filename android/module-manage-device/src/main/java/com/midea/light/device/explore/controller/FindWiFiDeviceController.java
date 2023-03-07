@@ -93,7 +93,7 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
 
     }
     // 启动扫描wifi
-    public void startLoopScanWifi() {
+    public synchronized void startLoopScanWifi() {
         if(!startScan) {
             // 初始化接收器
             mWifiScanReceiver = new WifiScanReceiver();
@@ -129,7 +129,7 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
     }
 
     // 停止扫描wifi
-    public void stopLoopScanWifi() {
+    public synchronized void stopLoopScanWifi() {
         if(mDisposable != null && !mDisposable.isDisposed()) {
             mDisposable.dispose();
         }

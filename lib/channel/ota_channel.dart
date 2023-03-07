@@ -9,42 +9,6 @@ import 'package:screen_app/channel/index.dart';
 import '../common/index.dart';
 import '../widgets/event_bus.dart';
 
-/// ota升级辅助器
-mixin OtaSdkInitialize<T extends StatefulWidget> on State<T> {
-
-  @override
-  @mustCallSuper
-  void initState() {
-    super.initState();
-    initOtaSDK();
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    super.dispose();
-    resetOtaSDK();
-  }
-
-  void initOtaSDK() async {
-    String? sn = await aboutSystemChannel.getGatewaySn();
-    if(sn == null) {
-      logger.e('初始化ota失败，获取网关SN失败导致');
-    } else {
-      otaChannel.init(
-          Global.user?.uid ?? "",
-          Global.user?.deviceId ?? "",
-          Global.user?.mzAccessToken ?? "",
-          sn);
-    }
-  }
-
-  void resetOtaSDK() {
-    otaChannel.reset();
-  }
-
-}
-
 enum OtaUpgradeType {
   normal, direct, rom
 }
@@ -53,15 +17,16 @@ class OtaChannel extends AbstractChannel {
 
   OtaChannel.fromName(super.channelName) : super.fromName();
 
-  bool? _isInit;
   bool? _hasNewVersion;
   bool? _isDownloading;
 
-  bool get isInit => _isInit ?? false;
   bool get hasNewVersion => _hasNewVersion ?? false;
   bool get isDownloading => _isDownloading ?? false;
 
   void Function()? _onUpgrade;
+
+  /// 网关SN
+  String? gatewaySn;
 
   /// 是否支持app与网关更新
   Future<bool> get supportNormalOta async => await methodChannel.invokeMethod('supportNormalOTA')  as bool;
@@ -96,24 +61,6 @@ class OtaChannel extends AbstractChannel {
     }
   }
 
-  // 初始化ota
-  void init(String uid, String deviceId, String mzToken, String sn) async {
-    if(_isInit != true) {
-      bool suc = await methodChannel.invokeMethod('init', {
-        'uid': uid,
-        'deviceId': deviceId,
-        'mzToken': mzToken,
-        'sn': sn
-      });
-      _isInit = suc;
-    }
-  }
-  // 重置ota
-  void reset() async {
-    await methodChannel.invokeMethod('reset');
-    _isInit = false;
-  }
-
   /// 普通检查更新
   void checkNormalAndRom(bool isBackground) {
     checkUpgrade(OtaUpgradeType.normal, () {
@@ -126,19 +73,18 @@ class OtaChannel extends AbstractChannel {
   }
 
   /// 定向检查更新
-  void checkDirect() {
+  void checkDirect([bool isBackground = false]) async {
     checkUpgrade(OtaUpgradeType.direct, () {
-      TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
+      if(isBackground) {
+        TipsUtils.toast(
+            content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
+      }
     });
   }
 
   // 检查更新
   void checkUpgrade(OtaUpgradeType type, void Function() onUpgrade) async {
 
-    if(_isInit != true) {
-      logger.e('ota sdk 还未初始化');
-      return;
-    }
     if(OtaUpgradeType.normal == type && !await supportNormalOta) {
       logger.e('暂时不支持normal类型ota');
       onUpgrade.call();
@@ -155,6 +101,11 @@ class OtaChannel extends AbstractChannel {
       return;
     }
 
+    String uid = Global.user?.uid ?? "";
+    String deviceId = Global.user?.deviceId ?? "";
+    String token = Global.user?.mzAccessToken ?? "";
+    String sn = gatewaySn ?? (gatewaySn = await aboutSystemChannel.getGatewaySn()) ?? "";
+
     int numType;
     if(OtaUpgradeType.normal == type) {
       numType = 1;
@@ -167,10 +118,15 @@ class OtaChannel extends AbstractChannel {
     _onUpgrade = onUpgrade;
 
     try {
-      methodChannel.invokeMethod('checkUpgrade', numType);
+      methodChannel.invokeMethod('checkUpgrade', {
+        'numType': numType,
+        'uid': uid,
+        'deviceId': deviceId,
+        'mzToken': token,
+        'sn': sn
+      });
     } on PlatformException catch (e) {
       if(e.code == '-1') {
-        _isInit = false;
       } else if(e.code == '-2') {
         _isDownloading = true;
       }
@@ -202,6 +158,7 @@ class OtaChannel extends AbstractChannel {
 
   // 提示有新版本更新
   void onHandlerNewVersion(dynamic arguments) async {
+    _hasNewVersion = true;
     String content = arguments;
     bus.emit('ota-new-version', content);
     logger.i('ota-new-version');
@@ -209,6 +166,7 @@ class OtaChannel extends AbstractChannel {
   }
   // 提示没有新版本更新
   void onHandlerNoNewVersion(dynamic arguments) async {
+    _hasNewVersion = false;
     _onUpgrade?.call();
     _onUpgrade = null;
     logger.i('ota-no-version');

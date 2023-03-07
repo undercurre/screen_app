@@ -79,7 +79,7 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
   late num toValue;
   bool isPanUpdate = false;
   bool isPanning = false;
-  late Offset latestPosition;
+  late Offset latestPosition = Offset.zero;
 
   @override
   void initState() {

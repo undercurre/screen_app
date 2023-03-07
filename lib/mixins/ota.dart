@@ -5,18 +5,35 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
+import 'package:screen_app/common/global.dart';
 
 import '../widgets/event_bus.dart';
 
 mixin Ota<T extends StatefulWidget> on State<T> {
+  int? _otaUpgradeLastTime;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     bus.on("ota-new-version", (arg) {
       // 显示OTA弹窗
       showOtaDialog(context, arg);
     });
+  }
+
+  void checkOtaUpgrade() {
+    /// 每隔半天请求一次
+    if(DateTime.now().millisecond - (_otaUpgradeLastTime ?? 0) > 12 * 60 * 60 * 1000) {
+      _otaUpgradeLastTime = DateTime.now().millisecond;
+      if(!otaChannel.isDownloading) {
+        otaChannel.checkNormalAndRom(true);
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -41,8 +58,9 @@ class OtaDialog {
   static bool isShow = false;
 
   static void show(BuildContext context, String detail) {
-    if(isShow) return;
+    logger.i('ota-OtaDialog.show()');
 
+    if(isShow) return;
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -118,6 +136,7 @@ class _OtaState extends State<_OtaDialog> {
       step = _stepInstall;
       progress = 1;
     });
+    widget.lifeCallback.call(true);
 
   }
 
@@ -148,6 +167,7 @@ class _OtaState extends State<_OtaDialog> {
   void dispose() {
     super.dispose();
     _timer?.cancel();
+    widget.lifeCallback.call(false);
     bus.off('ota-download-loading');
     bus.off('ota-download-fail');
     bus.off('ota-download-suc');

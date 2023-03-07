@@ -169,7 +169,6 @@ class DeviceConnectViewModel {
 }
 
 class DeviceConnectState extends SafeState<DeviceConnectPage> {
-  late Timer _timer; // to be deleted
   late DeviceConnectViewModel viewModel;
 
   // 生成设备列表
@@ -254,7 +253,6 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
 
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 
