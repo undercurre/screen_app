@@ -43,14 +43,14 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   // 本地视图getters
   num localColorTemperature = 0;
-  num localBrightness = 0;
+  num localBrightness = 1;
   num localDelayClose = 0;
   bool localPower = false;
 
   // 填装视图数据
   setViewData(Map<String, dynamic> detail) {
     setState(() {
-      localBrightness = detail["lightPanelDeviceList"][0]["brightness"];
+      localBrightness = detail["lightPanelDeviceList"][0]["brightness"] ?? 1;
       localColorTemperature =
           detail["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
       localPower = detail["lightPanelDeviceList"][0]["attribute"] == 1;
