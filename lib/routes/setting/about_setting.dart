@@ -70,8 +70,11 @@ class AboutSettingProvider with ChangeNotifier {
   ///  true 清除成功
   Future<bool> clearUserData() async {
     // 删除网关设备，并且尝试五次删除
-    bool deleteResult = await deleteGateway(5);
-    if(deleteResult) {
+    // bool deleteResult = await deleteGateway(5);
+    // if(deleteResult) {
+
+      // 删除网关设备，并且尝试五次删除
+      await deleteGateway(5);
       // 重置网关设备
       gatewayChannel.resetGateway();
       // 删除所有的wifi记录
@@ -86,10 +89,11 @@ class AboutSettingProvider with ChangeNotifier {
         });
       });
       return true;
-    } else {
-      TipsUtils.toast(content: '删除网关失败，请重试');
-      return false;
-    }
+
+    // } else {
+    //   TipsUtils.toast(content: '删除网关失败，请重试');
+    //   return false;
+    // }
   }
 
   /// return 
