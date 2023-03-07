@@ -89,6 +89,17 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
+
+    @Override
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        // 动态添加插件
+        GeneratedPluginRegister.registerGeneratedPlugins(flutterEngine);
+        // 初始化自定义的Channel
+        mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
+        initReceive();
+        initNotifyChannel();
+    }
+
     private void initReceive() {
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
@@ -122,17 +133,6 @@ public class MainActivity extends FlutterActivity {
             // 最后在notificationmanager中创建该通知渠道。
             mNotificationManager.createNotificationChannel(mChannel);
         }
-    }
-
-    @Override
-    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        // 动态添加插件
-        GeneratedPluginRegister.registerGeneratedPlugins(flutterEngine);
-        // 初始化自定义的Channel
-        mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
-
-        initReceive();
-        initNotifyChannel();
     }
 
     public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {
