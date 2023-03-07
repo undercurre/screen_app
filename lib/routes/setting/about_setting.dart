@@ -70,8 +70,13 @@ class AboutSettingProvider with ChangeNotifier {
   ///  true 清除成功
   Future<bool> clearUserData() async {
     // 删除网关设备，并且尝试五次删除
-    bool deleteResult = await deleteGateway(5);
-    if(deleteResult) {
+    // bool deleteResult = await deleteGateway(5);
+    // if(deleteResult) {
+
+      // 删除网关设备，并且尝试五次删除
+      try {
+        await deleteGateway(5);
+      } finally {}
       // 重置网关设备
       gatewayChannel.resetGateway();
       // 删除所有的wifi记录
@@ -86,10 +91,11 @@ class AboutSettingProvider with ChangeNotifier {
         });
       });
       return true;
-    } else {
-      TipsUtils.toast(content: '删除网关失败，请重试');
-      return false;
-    }
+
+    // } else {
+    //   TipsUtils.toast(content: '删除网关失败，请重试');
+    //   return false;
+    // }
   }
 
   /// return 
@@ -218,8 +224,7 @@ class AboutSettingPage extends StatelessWidget {
                             )),
                         IconButton(
                           onPressed: () {
-                            //Navigator.popUntil(context, (route) => route.settings.name == 'Home');
-                            Catcher.sendTestException();
+                            Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                           },
                           iconSize: 60.0,
                           icon: Image.asset(

@@ -81,7 +81,7 @@ class _App extends State<App> {
             navigatorKey: navigatorKey,
             builder: EasyLoading.init(builder: (context, widget) {
               Catcher.addDefaultErrorWidget(
-                  showStacktrace: true,
+                  showStacktrace: false,
                   title: "崩溃",
                   description: "页面开小差了~",
                   maxWidthForSmallMode: 150);

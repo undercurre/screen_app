@@ -1,5 +1,7 @@
 
 
+import 'dart:async';
+
 import 'package:catcher/model/platform_type.dart';
 import 'package:catcher/model/report.dart';
 import 'package:catcher/model/report_handler.dart';
@@ -19,6 +21,8 @@ class AndroidCrashReportHandler extends ReportHandler {
   Future<bool> handle(Report error, BuildContext? context) {
     if(error.error is DioError) {
         global.logger.e(error.error);
+    } else if(error.error is TimeoutException) {
+
     } else {
         buglyReportChannel.report(
         error.error.runtimeType.toString(),
