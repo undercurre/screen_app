@@ -157,14 +157,6 @@ class Api {
       onReceiveProgress: null,
     );
 
-
-    if (res.statusCode == TOO_LONG_UNLOGIN ||
-        res.statusCode == TOKEN_INVALID ||
-        res.statusCode == TOKEN_EXPIRED ||
-        res.statusCode == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
-    }
-
     if(res.statusCode != 200) {
       throw DioError(
         requestOptions: res.requestOptions,
@@ -173,6 +165,19 @@ class Api {
     }
 
     var entity = MzResponseEntity.fromJson(res.data);
+
+    if (entity.code == TOO_LONG_UNLOGIN ||
+        entity.code == TOKEN_INVALID ||
+        entity.code == TOKEN_EXPIRED ||
+        entity.code == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+      throw DioError(
+          requestOptions: res.requestOptions,
+          response: res
+      );
+    }
+
+
     if (!entity.isSuccess) {
       throw DioError(
         requestOptions: res.requestOptions,
@@ -246,13 +251,6 @@ class Api {
       onReceiveProgress: null,
     );
 
-    if (res.statusCode == TOO_LONG_UNLOGIN ||
-        res.statusCode == TOKEN_INVALID ||
-        res.statusCode == TOKEN_EXPIRED ||
-        res.statusCode == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
-    }
-
     if(res.statusCode != 200) {
       throw DioError(
         requestOptions: res.requestOptions,
@@ -260,7 +258,17 @@ class Api {
       );
     }
 
-    var entity = MideaResponseEntity.fromJson(res.data);
+    MideaResponseEntity entity = MideaResponseEntity.fromJson(res.data);
+    if (entity.code == TOO_LONG_UNLOGIN ||
+        entity.code == TOKEN_INVALID ||
+        entity.code == TOKEN_EXPIRED ||
+        entity.code == ACCOUNT_LOGOUT) {
+      bus.emit('logout');
+      throw DioError(
+          requestOptions: res.requestOptions,
+          response: res
+      );
+    }
 
     if (!entity.isSuccess) {
       throw DioError(
