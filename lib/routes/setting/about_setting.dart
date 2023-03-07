@@ -74,7 +74,9 @@ class AboutSettingProvider with ChangeNotifier {
     // if(deleteResult) {
 
       // 删除网关设备，并且尝试五次删除
-      await deleteGateway(5);
+      try {
+        await deleteGateway(5);
+      } finally {}
       // 重置网关设备
       gatewayChannel.resetGateway();
       // 删除所有的wifi记录
@@ -222,8 +224,7 @@ class AboutSettingPage extends StatelessWidget {
                             )),
                         IconButton(
                           onPressed: () {
-                            //Navigator.popUntil(context, (route) => route.settings.name == 'Home');
-                            Catcher.sendTestException();
+                            Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                           },
                           iconSize: 60.0,
                           icon: Image.asset(

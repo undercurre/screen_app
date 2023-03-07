@@ -26,6 +26,8 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.JSONUtil
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -172,7 +174,9 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 onCallSuccess(result, EthernetUtil.connectedState(context) != 0)
             }
             "removeAllWiFiRecord" -> {
-                WifiUtil.removeAllConfiguration(context)
+                Schedulers.io().scheduleDirect {
+                    WifiUtil.removeAllConfiguration(context)
+                }
             }
             "checkNetState" -> {
                 ConnectStateHandler.queryConnectState()

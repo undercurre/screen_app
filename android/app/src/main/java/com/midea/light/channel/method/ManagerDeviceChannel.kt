@@ -105,10 +105,10 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
 
                 val devices = JSONArrayUtils.toJsonArray(requireNotNull(call.argument<JSONArray?>("devices")))
                 val scanResults = mutableListOf<WiFiScanResult>()
-                devices.forEach {
-                    val ssid = it.get("ssid")
-                    val bssid = it.get("bssid")
-                    val scanResult = requireNotNull(wifiDevices.find { it.SSID() == ssid && it.BSSID() == bssid })
+                devices.forEach { wifi ->
+                    val ssid = wifi.get("ssid")
+                    val bssid = wifi.get("bssid")
+                    val scanResult = requireNotNull(wifiDevices.find { it.scanResult.SSID == ssid && it.scanResult.BSSID == bssid })
                     scanResults.add(scanResult)
                 }
 
