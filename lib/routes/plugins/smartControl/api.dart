@@ -13,25 +13,31 @@ class WrapSmartControl implements DeviceInterface {
 
   WrapSmartControl() {
     gatewayChannel.relay2IsOpen()
-        .then((value) => localRelay1 = value);
-    gatewayChannel.relay1IsOpen()
         .then((value) => localRelay2 = value);
+    gatewayChannel.relay1IsOpen()
+        .then((value) => localRelay1 = value);
   }
 
 
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
-    var res = await SmartControlApi.getGatewayDetail(deviceInfo.applianceCode);
-    if (res.code == 0 && res.httpJson?["result"] != null) {
-      return res.result;
+    if(deviceInfo.applianceCode == Global.profile.applianceCode) {
+      return {
+        'code': 123
+      };
     } else {
-      return {};
+      var res = await SmartControlApi.getGatewayDetail(deviceInfo.applianceCode);
+      if (res.code == 0 && res.httpJson?["result"] != null) {
+        return res.result;
+      } else {
+        return {};
+      }
     }
   }
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    if(deviceInfo.applianceCode == Global.profile.deviceId) {
+    if(deviceInfo.applianceCode == Global.profile.applianceCode) {
       if(deviceInfo.type == 'smartControl-1') {
         gatewayChannel.controlRelay1Open(!localRelay1);
         return MzResponseEntity()
@@ -60,7 +66,9 @@ class WrapSmartControl implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    if(deviceInfo.applianceCode == Global.profile.deviceId) {
+    logger.i('刷新加载1', localRelay1);
+    logger.i('刷新加载2', localRelay2);
+    if(deviceInfo.applianceCode == Global.profile.applianceCode) {
       if(deviceInfo.type == 'smartControl-1') {
         return localRelay1;
       } else {

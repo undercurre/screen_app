@@ -102,8 +102,8 @@ class _DeviceCardState extends State<DeviceCard> {
       logger.i('卡片重新加载');
       setDate();
     });
-    bus.on("relay1StateChange", relaySmartStateChange);
-    bus.on("relay2StateChange", relaySmartStateChange);
+    bus.on("relay1StateChange", relay1SmartStateChange);
+    bus.on("relay2StateChange", relay2SmartStateChange);
     Push.listen(
         "gemini/appliance/event",
         _eventCallback = ((arg) async {
@@ -156,15 +156,22 @@ class _DeviceCardState extends State<DeviceCard> {
         }));
   }
 
-  void relaySmartStateChange(dynamic status) {
+  void relay1SmartStateChange(dynamic status) {
     logger.i('智慧屏推送回调');
-    if (widget.deviceInfo!.applianceCode == Global.profile.deviceId) {
+    if (widget.deviceInfo!.applianceCode == Global.profile.applianceCode) {
       if (widget.deviceInfo!.type == 'smartControl-1') {
         setState(() {
           WrapSmartControl.localRelay1 = status;
           power = status as bool;
         });
-      } else {
+      }
+    }
+  }
+
+  void relay2SmartStateChange(dynamic status) {
+    logger.i('智慧屏推送回调');
+    if (widget.deviceInfo!.applianceCode == Global.profile.applianceCode) {
+      if (widget.deviceInfo!.type == 'smartControl-2') {
         setState(() {
           WrapSmartControl.localRelay2 = status;
           power = status as bool;
@@ -176,6 +183,8 @@ class _DeviceCardState extends State<DeviceCard> {
   @override
   void dispose() {
     super.dispose();
+    bus.off('relay1StateChange', relay1SmartStateChange);
+    bus.off('relay2StateChange', relay2SmartStateChange);
     Push.dislisten("gemini/appliance/event", _eventCallback);
     Push.dislisten("appliance/status/report", _reportCallback);
     Push.dislisten("appliance/online/status/on", _onlineCallback);
