@@ -77,7 +77,14 @@ class AirConditionApi {
   }
 
   /// 调节温度（lua）
-  static Future<MzResponseEntity> temperatureLua(String deviceId, num temperature) async {
+  static Future<MzResponseEntity> temperatureLua(String deviceId, num temperature, num smallTemp) async {
+    var res = await DeviceApi.sendLuaOrder(
+        '0xAC', deviceId, {"temperature": temperature, "small_temperature": smallTemp});
+
+    return res;
+  }
+
+  static Future<MzResponseEntity> temperatureLuaZheng(String deviceId, num temperature) async {
     var res = await DeviceApi.sendLuaOrder(
         '0xAC', deviceId, {"temperature": temperature});
 

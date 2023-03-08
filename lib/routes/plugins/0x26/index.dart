@@ -24,8 +24,8 @@ class BathroomMaster extends StatefulWidget {
 }
 
 class BathroomMasterState extends State<BathroomMaster> with Throttle {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
   String deviceId = '0';
   String deviceName = '浴霸';
   String controlType = 'lua'; // todo: 后面需要加上判断使用物模型还是lua控制
@@ -93,48 +93,58 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
       } else {
         // todo: 设备已被删除，应该弹窗并让用户退出
       }
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
+      Push.listen(
+          "gemini/appliance/event",
+          _eventCallback = ((arg) async {
+            String event =
+                (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+            Map<String, dynamic> eventMap = json.decode(event);
+            String nodeId = eventMap['nodeId'] ?? "";
+            var detail = context
+                .read<DeviceListModel>()
+                .getDeviceDetailById(args['deviceId']);
 
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            handleRefresh();
-            luaDeviceDetailToState();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-            handleRefresh();
-            luaDeviceDetailToState();
-          }
-        }
-      }));
-
-      Push.listen("appliance/status/report", _reportCallback = ((arg) async {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-              throttle(() async {
-                setState(() {
-                  istouching = true;
-                });
-                await handleRefresh();
+            if (nodeId.isEmpty) {
+              if (detail['deviceId'] == arg['applianceCode']) {
+                handleRefresh();
                 luaDeviceDetailToState();
-                setState(() {
-                  istouching = false;
-                });
-              }, durationTime: const Duration(seconds: 2000));
+              }
+            } else {
+              if ((detail['masterId'] as String).isNotEmpty &&
+                  detail['detail']?['nodeId'] == nodeId) {
+                handleRefresh();
+                luaDeviceDetailToState();
+              }
+            }
+          }));
 
-            // Timer(const Duration(milliseconds: 800), ()
-            // {
-            //   handleRefresh();
-            //   luaDeviceDetailToState();
-            // });
-          }
-        }
-      }));
+      Push.listen(
+          "appliance/status/report",
+          _reportCallback = ((arg) async {
+            var detail = context
+                .read<DeviceListModel>()
+                .getDeviceDetailById(args['deviceId']);
+            if (arg.containsKey('applianceId')) {
+              if (detail['deviceId'] == arg['applianceId']) {
+                throttle(() async {
+                  setState(() {
+                    istouching = true;
+                  });
+                  await handleRefresh();
+                  luaDeviceDetailToState();
+                  setState(() {
+                    istouching = false;
+                  });
+                }, durationTime: const Duration(seconds: 2000));
+
+                // Timer(const Duration(milliseconds: 800), ()
+                // {
+                //   handleRefresh();
+                //   luaDeviceDetailToState();
+                // });
+              }
+            }
+          }));
     });
   }
 
@@ -142,7 +152,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    Push.dislisten("appliance/status/report", _reportCallback);
   }
 
   @override
@@ -254,8 +264,20 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                                 ),
                                 title: '延时关机',
                                 child: MzSwitch(
-                                  disabled: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty,
-                                  value: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty ? false : delayClose,
+                                  disabled: runMode.values
+                                      .toList()
+                                      .sublist(1)
+                                      .where((element) => element)
+                                      .toList()
+                                      .isEmpty,
+                                  value: runMode.values
+                                          .toList()
+                                          .sublist(1)
+                                          .where((element) => element)
+                                          .toList()
+                                          .isEmpty
+                                      ? false
+                                      : delayClose,
                                   onTap: (e) => toggleDelayClose(),
                                 ),
                               ),
@@ -301,7 +323,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
     final activeModeList = (detail['mode'] as String).split(',');
     for (var mode in bathroomMasterMode) {
       runMode[mode.key] = activeModeList.contains(mode.key);
-      if (begin != null){
+      if (begin != null) {
         runMode["ventilation"] = begin;
       }
     }
@@ -328,6 +350,10 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
     }
     setState(() {
       nightLight = !nightLight;
+      if (nightLight) {
+        mainLight = false;
+        runMode["light"] = false;
+      }
       istouching = true;
     });
     final newValue = nightLight;
@@ -355,7 +381,12 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
 
       mzNotice.show(context);
     }
-    if (runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty) {
+    if (runMode.values
+        .toList()
+        .sublist(1)
+        .where((element) => element)
+        .toList()
+        .isEmpty) {
       delayClose = false;
     } else {
       setState(() {
@@ -444,7 +475,6 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
         setState(() {
           istouching = false;
         });
-
       });
     }
   }

@@ -68,34 +68,28 @@ class WrapZigbeeCurtain implements DeviceInterface {
 
   @override
   String getAttr(DeviceEntity deviceInfo) {
-    if (zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_one' ||
-        zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_two') {
-      return '';
-    } else {
-      return (deviceInfo.detail != null &&
-              deviceInfo.detail!.keys.toList().isNotEmpty)
-          ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"] ==
-                  240
-              ? ''
-              : deviceInfo.detail!["curtainDeviceList"][0]
-                      ["deviceFunctionLevel"]
-                  .toString()
-          : '0';
-    }
+    // if (zigbeeControllerList[deviceInfo.modelNumber] ==
+    //         '0x21_curtain_panel_one' ||
+    //     zigbeeControllerList[deviceInfo.modelNumber] ==
+    //         '0x21_curtain_panel_two') {
+    //   return '';
+    // } else {
+    //   return (deviceInfo.detail != null &&
+    //           deviceInfo.detail!.keys.toList().isNotEmpty)
+    //       ? deviceInfo.detail!["curtainDeviceList"][0]["deviceFunctionLevel"] ==
+    //               240
+    //           ? ''
+    //           : deviceInfo.detail!["curtainDeviceList"][0]
+    //                   ["deviceFunctionLevel"]
+    //               .toString()
+    //       : '0';
+    // }
+    return '';
   }
 
   @override
   String getAttrUnit(DeviceEntity deviceInfo) {
-    if (zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_one' ||
-        zigbeeControllerList[deviceInfo.modelNumber] ==
-            '0x21_curtain_panel_two') {
-      return '';
-    } else {
-      return '%';
-    }
+    return '';
   }
 
   @override

@@ -133,11 +133,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
     });
 
     if (res.isSuccess) {
-      throttle(() {
-        setState(() {
-          localBrightness = unFormatValue(value);
-        });
-      }, durationTime: const Duration(seconds: 1000));
+
     } else {
       // 延时调用一次 1秒后执行
       Timer(timeout, () {
@@ -171,11 +167,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
     });
 
     if (res.isSuccess) {
-      throttle(() {
-        setState(() {
-          localColorTemp = unFormatValue(value);
-        });
-      }, durationTime: const Duration(seconds: 1000));
+
     } else {
       // 延时调用一次 1秒后执行
       Timer(timeout, () {
@@ -198,8 +190,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
     if (deviceInfo.sn8 == '79009833') {
       setState(() {
         deviceWatch["detail"] = detail;
-        localBrightness = detail["brightValue"];
-        localColorTemp = detail["colorTemperatureValue"];
+        localBrightness = formatValue(detail["brightValue"] < 1 ? 1 : detail["brightValue"]);
+        localColorTemp = formatValue(detail["colorTemperatureValue"]);
         localPower = detail["power"];
         localScreenModel = detail["screenModel"];
         localTimeOff = detail["timeOff"];
@@ -208,8 +200,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       setState(() {
         sn8 = deviceInfo.sn8 ?? '';
         deviceWatch["detail"] = detail;
-        localBrightness = int.parse(detail["brightness"]);
-        localColorTemp = int.parse(detail["color_temperature"]);
+        localBrightness = formatValue(int.parse(detail["brightness"]) < 1 ? 1 : int.parse(detail["brightness"]));
+        localColorTemp = formatValue(int.parse(detail["color_temperature"]));
         localPower = detail["power"] == 'on';
         localScreenModel = detail["scene_light"] ?? 'manual';
         localTimeOff = int.parse(detail["delay_light_off"]);
@@ -235,8 +227,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
         setState(() {
           sn8 = deviceInfo.sn8 ?? '';
           deviceWatch = deviceDetail;
-          localBrightness = deviceDetail["detail"]["brightValue"];
-          localColorTemp = deviceDetail["detail"]["colorTemperatureValue"];
+          localBrightness = formatValue(deviceDetail["detail"]["brightValue"]) < 1 ? 1 : formatValue(deviceDetail["detail"]["brightValue"]);
+          localColorTemp = formatValue(deviceDetail["detail"]["colorTemperatureValue"]);
           localPower = args['power'];
           localScreenModel = deviceDetail["detail"]["screenModel"];
           localTimeOff = deviceDetail["detail"]["timeOff"];
@@ -244,8 +236,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       } else {
         setState(() {
           deviceWatch = deviceDetail;
-          localBrightness = int.parse(deviceDetail["detail"]["brightness"]);
-          localColorTemp = int.parse(deviceDetail["detail"]["color_temperature"]);
+          localBrightness = formatValue(int.parse(deviceDetail["detail"]["brightness"]) < 1 ? 1 : int.parse(deviceDetail["detail"]["brightness"]));
+          localColorTemp = formatValue(int.parse(deviceDetail["detail"]["color_temperature"]));
           localPower = args['power'];
           localScreenModel = deviceDetail["detail"]["scene_light"] ?? 'manual';
           localTimeOff = int.parse(deviceDetail["detail"]["delay_light_off"]);
@@ -281,6 +273,15 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
           if (detail['deviceId'] == arg['applianceId']) {
             if (istouching) return;
             updateDetail();
+            // throttle(() async {
+            //   setState(() {
+            //     istouching = true;
+            //   });
+            //   updateDetail();
+            //   setState(() {
+            //     istouching = false;
+            //   });
+            // }, durationTime: const Duration(seconds: 2000));
           }
         }
       }));
@@ -379,9 +380,11 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
+                                          minValue: 1,
+                                          maxValue: 100,
                                           title: '亮度',
                                           disabled: !localPower,
-                                          value: formatValue(localBrightness),
+                                          value: localBrightness < 1 ? 1 : localBrightness,
                                           activeColors: const [
                                             Color(0xFFFFD185),
                                             Color(0xFFFFD185)
@@ -396,7 +399,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                         child: ParamCard(
                                           title: '色温',
                                           disabled: !localPower,
-                                          value: formatValue(localColorTemp),
+                                          value: localColorTemp,
                                           activeColors: const [
                                             Color(0xFFFFD39F),
                                             Color(0xFF55A2FA)

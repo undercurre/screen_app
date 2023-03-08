@@ -319,8 +319,13 @@ class CenterControlService {
       var deviceInfo = lightList[i - 1];
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.type == '0x13') {
-        res = await WIFILightApi.colorTemperaturePDM(
-            deviceInfo.applianceCode, value);
+        if (deviceInfo.sn8 == '79009833') {
+          res = await WIFILightApi.colorTemperaturePDM(
+              deviceInfo.applianceCode, value);
+        } else {
+          res = await WIFILightApi.colorTemperatureLua(
+              deviceInfo.applianceCode, value);
+        }
       } else if (deviceInfo.type == '0x21') {
         MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
             deviceInfo.applianceCode, deviceInfo.masterId);
@@ -501,7 +506,7 @@ class CenterControlService {
     for (var i = 1; i <= airConditionList.length; i++) {
       var deviceInfo = airConditionList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
-        var res = await AirConditionApi.temperatureLua(
+        var res = await AirConditionApi.temperatureLuaZheng(
             deviceInfo.applianceCode, value);
         logger.i('空调温控${deviceInfo.name}${res.isSuccess ? '成功' : '失败'}$value');
         if (res.isSuccess) {

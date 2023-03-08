@@ -167,7 +167,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled: !power && modeValue == 'fan',
+            disabled: !power || modeValue == 'fan',
           )
         : SliderButtonContent(
             unit: '档',
@@ -178,7 +178,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled: !power && (modeValue == 'auto' || modeValue == 'dry'),
+            disabled: !power || (modeValue == 'auto' || modeValue == 'dry'),
           );
   }
 
@@ -667,7 +667,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled: !power,
+                              disabled: !power || modeValue == 'fan',
                             )
                           : SliderButtonContent(
                               unit: '',
@@ -678,7 +678,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled: !power,
+                              disabled: !power || modeValue == 'dry' || modeValue == 'auto',
                             )
                     ],
                   ),

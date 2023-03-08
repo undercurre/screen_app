@@ -54,10 +54,10 @@ class AirConditionPageState extends State<AirConditionPage> {
     }
   }
 
-  Future<void> gearHandle(value) async {
+  Future<void> gearHandle(num value) async {
     var exValue = localWind;
     setState(() {
-      localWind = value > 0 ? (value - 1) * 20 : 1;
+      localWind = value.toInt() > 0 ? (value.toInt() - 1) * 20 : 1;
       istouching = true;
     });
     var res = await AirConditionApi.gearLua(
@@ -81,14 +81,18 @@ class AirConditionPageState extends State<AirConditionPage> {
     }
   }
 
-  Future<void> temperatureHandle(value) async {
+  Future<void> temperatureHandle(num value) async {
+    int integerPart = value.toInt(); // 将浮点数转换为整数
+    num decimalPart = value - integerPart; // 通过减去整数部分来获得小数部分
+
     setState(() {
-      localTemp = value;
+      localTemp = integerPart;
+      localSmallTemp = decimalPart;
       istouching = true;
     });
 
     var res =
-        await AirConditionApi.temperatureLua(deviceWatch["deviceId"], value);
+        await AirConditionApi.temperatureLua(deviceWatch["deviceId"], localTemp, localSmallTemp);
 
     var timeout = const Duration(seconds: 1000);
 
@@ -100,9 +104,6 @@ class AirConditionPageState extends State<AirConditionPage> {
     });
 
     if (res.isSuccess) {
-      setState(() {
-        localTemp = value;
-      });
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/api/index.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/device_entity.dart';
@@ -35,7 +36,7 @@ class _DevicePageState extends State<DevicePage> {
   var time = DateTime.now();
   late Timer _timer;
   double roomTitleScale = 1;
-  Function(Map<String,dynamic> arg)? cb;
+  Function(Map<String, dynamic> arg)? cb;
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
@@ -73,9 +74,10 @@ class _DevicePageState extends State<DevicePage> {
     setState(() {
       deviceEntityList = entityList;
 
-      deviceWidgetList = deviceEntityList
-          .map((device) => DeviceCard(deviceInfo: device))
-          .toList();
+      deviceWidgetList = deviceEntityList.map((device) {
+        logger.i('装载卡片数据', device);
+        return DeviceCard(deviceInfo: device);
+      }).toList();
     });
   }
 
@@ -108,10 +110,12 @@ class _DevicePageState extends State<DevicePage> {
 
     cb = (arg) {
       initPage();
-      DeviceApi.checkBindInfo().then((res) {
-        if (res.code == 1900) {
+      GatewayApi.check((bind) {
+        if (!bind) {
           bus.emit('logout');
         }
+      },() {
+          //接口请求报错
       });
     };
 

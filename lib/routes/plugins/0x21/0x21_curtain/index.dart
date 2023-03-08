@@ -143,6 +143,7 @@ class ZigbeeCurtainPageState extends State<ZigbeeCurtainPage> {
     }
     setState(() {
       position1 = value;
+      screenModel1 = value > 0 ? 'open' : 'close';
       istouching = true;
     });
     await ZigbeeCurtainApi.curtainPercentPDM(
