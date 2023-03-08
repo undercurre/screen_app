@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:screen_app/states/index.dart';
@@ -68,22 +69,35 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        var bindRes = await UserApi.bindHome(
-            sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
-            applianceType: '0x16');
-
-        if (!bindRes.isSuccess) {
-          TipsUtils.toast(content: '绑定家庭失败');
-          return;
-        }
+        GatewayApi.check((bind) {
+          if(!bind) {
+            UserApi.bindHome(
+                sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
+                applianceType: '0x16').then((bindRes) {
+                if (!bindRes.isSuccess) {
+                  TipsUtils.toast(content: '绑定家庭失败');
+                } else {
+                  Global.saveProfile();
+                  //导航到新路由
+                  if (mounted) {
+                    Navigator.popAndPushNamed(context, 'Home');
+                    Push.sseInit();
+                  }
+                }
+            });
+          } else {
+            Global.saveProfile();
+            //导航到新路由
+            if (mounted) {
+              Navigator.popAndPushNamed(context, 'Home');
+              Push.sseInit();
+            }
+          }
+        }, () {
+          //接口请求报错
+        });
       }
 
-      Global.saveProfile();
-      //导航到新路由
-      if (mounted) {
-        Navigator.popAndPushNamed(context, 'Home');
-        Push.sseInit();
-      }
       return;
     }
     setState(() {
