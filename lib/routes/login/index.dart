@@ -69,7 +69,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        GatewayApi.check((bind) {
+        GatewayApi.check((bind,code) {
           if(!bind) {
             UserApi.bindHome(
                 sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
@@ -86,6 +86,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
             });
           } else {
+            Global.profile.applianceCode = code;
             Global.saveProfile();
             //导航到新路由
             if (mounted) {

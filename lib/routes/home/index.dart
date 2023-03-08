@@ -97,7 +97,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
 
   void _aiControlDeviceError(){
     /// 判定当前网关是否已经绑定
-    GatewayApi.check((bind) {
+    GatewayApi.check((bind,code) {
       if(!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();

@@ -110,7 +110,7 @@ class _DevicePageState extends State<DevicePage> {
 
     cb = (arg) {
       initPage();
-      GatewayApi.check((bind) {
+      GatewayApi.check((bind,code) {
         if (!bind) {
           bus.emit('logout');
         }

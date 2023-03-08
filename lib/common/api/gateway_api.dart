@@ -11,9 +11,11 @@ import '../global.dart';
 class GatewayApi {
 
   /// 判定当前网关是否绑定
-  static void check(void Function(bool) result, void Function() error) async {
-    _check().then((value){
-      result.call(value == true);
+  static void check(void Function(bool,String?) result, void Function() error) async {
+    _check().then((bind){
+      _code().then((code) {
+        result.call(bind == true,code);
+      });
     }, onError: (_) {
       error.call();
     });
@@ -31,6 +33,24 @@ class GatewayApi {
          .roomList?.any((element) =>
               element.applianceList?.any((element) =>
                       element.sn == sn) ?? false);
+  }
+
+  static Future<String?> _code() async {
+    var sn = await aboutSystemChannel.getGatewaySn();
+
+    var res = await queryHomeList();
+    String? ret;
+
+    /// 查找当前家庭下所有的设备，判断是否存在设备与网关sn相同
+    res.result.homeList?[0]
+        .roomList?.forEach((rooms) {
+        rooms.applianceList?.forEach((appliance) {
+          if (appliance.sn == sn) {
+            ret = appliance.applianceCode;
+          }
+      });
+    });
+    return ret;
   }
 
   static Future<MzResponseEntity<DeviceHomeListEntity>> queryHomeList() async {
