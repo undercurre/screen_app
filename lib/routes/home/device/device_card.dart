@@ -13,6 +13,7 @@ import 'package:screen_app/states/device_change_notifier.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../widgets/event_bus.dart';
+import '../../plugins/smartControl/api.dart';
 
 class DeviceCard extends StatefulWidget {
   late DeviceEntity? deviceInfo;
@@ -25,10 +26,10 @@ class DeviceCard extends StatefulWidget {
 
 class _DeviceCardState extends State<DeviceCard> {
   bool power = false;
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
-  Function(Map<String,dynamic> arg)? _onlineCallback;
-  Function(Map<String,dynamic> arg)? _offlineCallback;
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
+  Function(Map<String, dynamic> arg)? _onlineCallback;
+  Function(Map<String, dynamic> arg)? _offlineCallback;
 
   void toSelectDevice() {
     debugPrint('选择了设备卡片${widget.deviceInfo}');
@@ -38,8 +39,10 @@ class _DeviceCardState extends State<DeviceCard> {
       if (widget.deviceInfo!.detail!.keys.toList().isNotEmpty &&
           DeviceService.isSupport(widget.deviceInfo!)) {
         var type = getControllerRoute(widget.deviceInfo!);
-        Navigator.pushNamed(context, type,
-            arguments: {"deviceId": widget.deviceInfo!.applianceCode, "power": power});
+        Navigator.pushNamed(context, type, arguments: {
+          "deviceId": widget.deviceInfo!.applianceCode,
+          "power": power
+        });
       }
     }
   }
@@ -99,6 +102,8 @@ class _DeviceCardState extends State<DeviceCard> {
       logger.i('卡片重新加载');
       setDate();
     });
+    bus.on("relay1StateChange", relaySmartStateChange);
+    bus.on("relay2StateChange", relaySmartStateChange);
     Push.listen(
         "gemini/appliance/event",
         _eventCallback = ((arg) async {
@@ -113,57 +118,77 @@ class _DeviceCardState extends State<DeviceCard> {
             }
           } else {
             if ((widget.deviceInfo?.type == '0x21' ||
-                (widget.deviceInfo?.type??"").contains("singlePanel")) &&
+                    (widget.deviceInfo?.type ?? "").contains("singlePanel")) &&
                 widget.deviceInfo?.detail?['nodeId'] == nodeId) {
               setDate();
             }
           }
         }));
 
-    Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        if (arg.containsKey('applianceId')) {
-          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
-            setDate();
+    Push.listen(
+        "appliance/status/report",
+        _reportCallback = ((arg) {
+          if (arg.containsKey('applianceId')) {
+            if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+              setDate();
+            }
           }
-        }
-    }));
+        }));
 
-    Push.listen('appliance/online/status/on', _onlineCallback = ((arg) {
-      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
-        setState(() {
-          widget.deviceInfo?.onlineStatus = "1";
-        });
-      }
-    }));
+    Push.listen(
+        'appliance/online/status/on',
+        _onlineCallback = ((arg) {
+          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+            setState(() {
+              widget.deviceInfo?.onlineStatus = "1";
+            });
+          }
+        }));
 
-    Push.listen('appliance/online/status/off', _offlineCallback = ((arg) {
-      if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
-        setState(() {
-          widget.deviceInfo?.onlineStatus = "0";
-        });
-      }
-    }));
+    Push.listen(
+        'appliance/online/status/off',
+        _offlineCallback = ((arg) {
+          if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+            setState(() {
+              widget.deviceInfo?.onlineStatus = "0";
+            });
+          }
+        }));
   }
 
+  void relaySmartStateChange(dynamic status) {
+    logger.i('智慧屏推送回调');
+    if (widget.deviceInfo!.applianceCode == Global.profile.deviceId) {
+      if (widget.deviceInfo!.type == 'smartControl-1') {
+        setState(() {
+          WrapSmartControl.localRelay1 = status;
+          power = status as bool;
+        });
+      } else {
+        setState(() {
+          WrapSmartControl.localRelay2 = status;
+          power = status as bool;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
     super.dispose();
     Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
-    Push.dislisten("appliance/online/status/on",_onlineCallback);
-    Push.dislisten("appliance/online/status/off",_offlineCallback);
+    Push.dislisten("appliance/status/report", _reportCallback);
+    Push.dislisten("appliance/online/status/on", _onlineCallback);
+    Push.dislisten("appliance/online/status/off", _offlineCallback);
   }
 
   setDate() async {
-    if (widget.deviceInfo != null && mounted) {
-      await context
-          .read<DeviceListModel>()
-          .updateDeviceDetail(widget.deviceInfo!);
-      setState(() {
-        power = DeviceService.isPower(widget.deviceInfo!);
-      });
-    }
+        await context
+            .read<DeviceListModel>()
+            .updateDeviceDetail(widget.deviceInfo!);
+        setState(() {
+          power = DeviceService.isPower(widget.deviceInfo!);
+        });
   }
 
   // @override
@@ -210,7 +235,9 @@ class _DeviceCardState extends State<DeviceCard> {
                   child: Text(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    widget.deviceInfo != null ? widget.deviceInfo!.name.replaceAll('', '\u200B') : '加载中',
+                    widget.deviceInfo != null
+                        ? widget.deviceInfo!.name.replaceAll('', '\u200B')
+                        : '加载中',
                     style: const TextStyle(
                       fontSize: 20.0,
                       fontFamily: 'MideaType',
@@ -292,7 +319,7 @@ class _DeviceCardState extends State<DeviceCard> {
       );
     } else {
       if ((widget.deviceInfo!.type == '0x17' &&
-              widget.deviceInfo!.sn8 != '127PD03G')) {
+          widget.deviceInfo!.sn8 != '127PD03G')) {
         if (DeviceService.isOnline(widget.deviceInfo!)) {
           return Container();
         } else {
@@ -321,7 +348,8 @@ class _DeviceCardState extends State<DeviceCard> {
             height: 60,
           );
         } else {
-          if (widget.deviceInfo?.detail != null && widget.deviceInfo!.detail!.isNotEmpty) {
+          if (widget.deviceInfo?.detail != null &&
+              widget.deviceInfo!.detail!.isNotEmpty) {
             return Image.asset(
               power
                   ? "assets/imgs/device/device_power_on.png"
