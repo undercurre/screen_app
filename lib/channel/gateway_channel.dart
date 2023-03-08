@@ -2,6 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 
+import '../common/global.dart';
 import '../widgets/event_bus.dart';
 
 class GatewayChannel extends AbstractChannel {
@@ -10,10 +11,12 @@ class GatewayChannel extends AbstractChannel {
 
   /// 控制继电器开关一 开启
   Future<bool> controlRelay1Open(bool open) async {
+    logger.i('继电器1操作', open);
     return await methodChannel.invokeMethod("controlRelay1Open", open) as bool;
   }
   /// 控制继电器开关二 开启
   Future<bool> controlRelay2Open(bool open) async {
+    logger.i('继电器2操作');
     return await methodChannel.invokeMethod("controlRelay2Open", open) as bool;
   }
   /// 判断寄电器1是否打开

@@ -151,8 +151,11 @@ class LightGroupPageState extends State<LightGroupPage> {
         deviceWatch = context
             .read<DeviceListModel>()
             .getDeviceDetailById(deviceWatch["deviceId"]);
-        localBrightness = deviceWatch["detail"]["detail"]["brightness"];
-        localColorTemp = deviceWatch["detail"]["detail"]["colorTemperature"];
+        logger.i('获取灯组详情信息', deviceWatch);
+        if (deviceWatch["detail"]["detail"] != null) {
+          localBrightness = deviceWatch["detail"]["detail"]["brightness"];
+          localColorTemp = deviceWatch["detail"]["detail"]["colorTemperature"];
+        }
         localPower = args["power"];
       });
       deviceInfoById = context

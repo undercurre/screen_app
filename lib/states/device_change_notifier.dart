@@ -223,6 +223,7 @@ class DeviceListModel extends ProfileChangeNotifier {
         .where((element) =>
             element["roomId"].toString() == Global.profile.roomInfo?.roomId)
         .toList();
+    logger.i('此时房间的信息', Global.profile.roomInfo);
     // 遍历
     for (int i = 1; i <= groupListInRoom.length; i++) {
       var group = groupListInRoom[i - 1];
@@ -236,6 +237,7 @@ class DeviceListModel extends ProfileChangeNotifier {
             "uid": Global.profile.user?.uid,
           }));
       var detail = result.result["result"]["group"];
+      if (detail == null) return;
       var vistualDeviceForGroup = DeviceEntity();
       vistualDeviceForGroup.applianceCode = group["groupId"].toString();
       vistualDeviceForGroup.modelNumber = '';
