@@ -58,7 +58,7 @@ class _DevicePageState extends State<DevicePage> {
       var entityList = deviceModel.showList;
       setState(() {
         deviceEntityList = entityList;
-
+        deviceWidgetList  = [];
         deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
@@ -79,6 +79,7 @@ class _DevicePageState extends State<DevicePage> {
         return DeviceCard(deviceInfo: device);
       }).toList();
     });
+    bus.emit('updateDeviceCardState');
   }
 
   @override
