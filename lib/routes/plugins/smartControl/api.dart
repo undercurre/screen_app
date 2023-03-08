@@ -37,14 +37,22 @@ class WrapSmartControl implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
+    logger.i('刷新加载是否本地智慧屏', deviceInfo.applianceCode == Global.profile.applianceCode);
+    if (deviceInfo.applianceCode != Global.profile.applianceCode) {
+      logger.i('当前设备code', deviceInfo.applianceCode);
+      logger.i('全局设备code', Global.profile.applianceCode);
+    }
     if(deviceInfo.applianceCode == Global.profile.applianceCode) {
       if(deviceInfo.type == 'smartControl-1') {
+
         gatewayChannel.controlRelay1Open(!localRelay1);
+        localRelay1 = !localRelay1;
         return MzResponseEntity()
             ..code = 0
             ..msg = '';
       } else {
         gatewayChannel.controlRelay2Open(!localRelay2);
+        localRelay2 = !localRelay2;
         return MzResponseEntity()
           ..code = 0
           ..msg = '';
@@ -68,6 +76,11 @@ class WrapSmartControl implements DeviceInterface {
   bool isPower(DeviceEntity deviceInfo) {
     logger.i('刷新加载1', localRelay1);
     logger.i('刷新加载2', localRelay2);
+    logger.i('刷新加载是否本地智慧屏', deviceInfo.applianceCode == Global.profile.applianceCode);
+    if (deviceInfo.applianceCode != Global.profile.applianceCode) {
+      logger.i('当前设备code', deviceInfo.applianceCode);
+      logger.i('全局设备code', Global.profile.applianceCode);
+    }
     if(deviceInfo.applianceCode == Global.profile.applianceCode) {
       if(deviceInfo.type == 'smartControl-1') {
         return localRelay1;
