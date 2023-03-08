@@ -3,10 +3,22 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/routes/plugins/device_interface.dart';
 
+import '../../../channel/index.dart';
 import '../../../common/api/api.dart';
 import '../../../models/mz_response_entity.dart';
 
 class WrapSmartControl implements DeviceInterface {
+  static bool localRelay1 = false;
+  static bool localRelay2 = false;
+
+  WrapSmartControl() {
+    gatewayChannel.relay2IsOpen()
+        .then((value) => localRelay1 = value);
+    gatewayChannel.relay1IsOpen()
+        .then((value) => localRelay2 = value);
+  }
+
+
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     var res = await SmartControlApi.getGatewayDetail(deviceInfo.applianceCode);
@@ -19,7 +31,21 @@ class WrapSmartControl implements DeviceInterface {
 
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
-    return await SmartControlApi.controlGatewaySwitchPDM(deviceInfo, onOff);
+    if(deviceInfo.applianceCode == Global.profile.deviceId) {
+      if(deviceInfo.type == 'smartControl-1') {
+        gatewayChannel.controlRelay1Open(!localRelay1);
+        return MzResponseEntity()
+            ..code = 0
+            ..msg = '';
+      } else {
+        gatewayChannel.controlRelay2Open(!localRelay2);
+        return MzResponseEntity()
+          ..code = 0
+          ..msg = '';
+      }
+    } else {
+      return await SmartControlApi.controlGatewaySwitchPDM(deviceInfo, onOff);
+    }
   }
 
   @override
@@ -34,7 +60,15 @@ class WrapSmartControl implements DeviceInterface {
 
   @override
   bool isPower(DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty ? (deviceInfo.type == 'smartControl-1' ? deviceInfo.detail!["panelOne"] : deviceInfo.detail!["panelTwo"]) : false;
+    if(deviceInfo.applianceCode == Global.profile.deviceId) {
+      if(deviceInfo.type == 'smartControl-1') {
+        return localRelay1;
+      } else {
+        return localRelay2;
+      }
+    } else {
+      return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty ? (deviceInfo.type == 'smartControl-1' ? deviceInfo.detail!["panelOne"] : deviceInfo.detail!["panelTwo"]) : false;
+    }
   }
 
   @override
