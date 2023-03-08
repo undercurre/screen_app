@@ -160,6 +160,7 @@ class _DeviceCardState extends State<DeviceCard> {
     logger.i('智慧屏推送回调');
     if (widget.deviceInfo!.applianceCode == Global.profile.applianceCode) {
       if (widget.deviceInfo!.type == 'smartControl-1') {
+        WrapSmartControl.localRelay1 = status;
         setState(() {
           WrapSmartControl.localRelay1 = status;
           power = status as bool;
@@ -172,6 +173,7 @@ class _DeviceCardState extends State<DeviceCard> {
     logger.i('智慧屏推送回调');
     if (widget.deviceInfo!.applianceCode == Global.profile.applianceCode) {
       if (widget.deviceInfo!.type == 'smartControl-2') {
+        WrapSmartControl.localRelay2 = status;
         setState(() {
           WrapSmartControl.localRelay2 = status;
           power = status as bool;
