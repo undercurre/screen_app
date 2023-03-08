@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,10 +14,54 @@ import '../models/index.dart';
 import 'api/index.dart';
 import 'utils.dart';
 
+
+class FileOutput extends LogOutput {
+  final File file;
+  final bool overrideExisting;
+  final Encoding encoding;
+  IOSink? _sink;
+
+  FileOutput({
+    required this.file,
+    this.overrideExisting = false,
+    this.encoding = utf8,
+  }) {
+   file.createSync(recursive: true, exclusive: false);
+  }
+
+  @override
+  void init() {
+    _sink = file.openWrite(
+      mode: overrideExisting ? FileMode.writeOnly : FileMode.writeOnlyAppend,
+      encoding: encoding,
+    );
+  }
+
+  @override
+  void output(OutputEvent event) {
+    _sink?.writeAll(event.lines, '\n');
+    _sink?.writeln();
+  }
+
+  @override
+  void destroy() async {
+    await _sink?.flush();
+    await _sink?.close();
+  }
+}
+
 /// 日志打印工具
 var logger = Logger(
   filter: ProductionFilter(),
   printer: PrettyPrinter(printTime: true),
+  output: MultiOutput([
+    ConsoleOutput(),
+    if(Platform.isAndroid)
+      FileOutput(
+          overrideExisting: true,
+          file: File.fromUri(Uri.file('/storage/emulated/0/Android/data/com.midea.light/cache/log.cat'))
+      )
+  ]),
   level: Level.info
 );
 

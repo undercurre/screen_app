@@ -30,7 +30,7 @@
 		"aliasKey": "test"
 	},
 	"aicloud": {
-		"url": "pro",
+		"url": "sit",
 		"auth": "/sdcard/mcrc_license"
 	},
 	"product": {

@@ -1,3 +1,4 @@
+import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -5,15 +6,14 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
+
 import './channel/index.dart';
 import 'common/crash/android_crash_handler.dart';
-import 'common/crash/mz_dialog_report_mode.dart';
 import 'common/index.dart';
 import 'common/setting.dart';
 import 'routes/index.dart';
 import 'states/index.dart';
 import 'widgets/pointer_listener.dart';
-import 'package:catcher/catcher.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

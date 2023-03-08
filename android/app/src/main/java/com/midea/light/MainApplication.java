@@ -69,7 +69,7 @@ public class MainApplication extends BaseApplication {
         AliPushChannel.aliPushInit(this);
 
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
-                .withEnable(true)
+                .withEnable(DEBUG)
                 .withStackFrom(0)
                 .withStackTo(4)
                 .withTag("M-Smart")

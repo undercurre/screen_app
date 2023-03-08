@@ -85,7 +85,7 @@ class AboutSettingProvider with ChangeNotifier {
       aboutSystemChannel.clearLocalCache();
       // 定时十秒
       Timer(const Duration(seconds: 8), () {
-        System.loginOut();
+        //System.loginOut();
         Timer(const Duration(seconds: 2), () {
           aboutSystemChannel.reboot();
         });

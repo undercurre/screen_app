@@ -31,8 +31,8 @@ class Api {
   static Dio dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: 5000,
-    receiveTimeout: 10000,
+    connectTimeout: 20000,
+    receiveTimeout: 20000,
   ));
 
   /// 私有的命名构造函数
@@ -102,6 +102,7 @@ class Api {
     options.extra ??= {};
     options.headers ??= {};
     var data = {
+      'userId': Global.user?.uid,
       'deviceId': Global.user?.deviceId,
       'appId': dotenv.get('APP_ID'),
       'appSecret': dotenv.get('APP_SECRET'),

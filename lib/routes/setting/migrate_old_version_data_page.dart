@@ -38,7 +38,6 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     super.initState();
     _timer = Timer(const Duration(minutes: 2), () {
       if (!startMigrate) {
-        TipsUtils.toast(content: '同步数据失败，请重新登录');
         System.loginOut();
         Navigator.popAndPushNamed(context, 'Login');
         aboutSystemChannel
@@ -84,7 +83,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     if (state != null && !startMigrate) {
       startMigrate = true;
       Future
-          .delayed(const Duration(seconds: 5))
+          .delayed(const Duration(seconds: 15))
           .then((value) => migrationData());
     }
   }
@@ -103,6 +102,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       if (token == null || userData == null) {
         throw SyncError('token或者user为空');
       }
+
 
       /// 迁移token
       await migrateToken(
@@ -179,6 +179,9 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
               break;
             }
           }
+        }
+        if(refreshHomeInfo) {
+          break;
         }
       } catch (e) {
         logger.e(e);
@@ -315,6 +318,8 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       String tokenPwd,
       int expired,
       String deviceId) async {
+
+    Global.user = null;
     UserEntity userEntity = UserEntity();
     userEntity.accessToken = token;
     userEntity.tokenPwd = tokenPwd;
@@ -328,11 +333,14 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     userEntity.openId = '';
     userEntity.sessionId = '';
 
+    /// 防止重新刷新干扰[expired快要接近失效时间]
+    Api.forceRefresh = expired - DateTime.now().millisecond <= 30 * 60 * 1000;
+
     int count = 5;
 
     while (count > 0) {
       try {
-        MzResponseEntity mzEntity = await UserApi.authTokenWithParams(deviceId, token);
+        MzResponseEntity mzEntity = await UserApi.authTokenWithParams(deviceId, token, userId);
         if (mzEntity.isSuccess) {
           userEntity.mzAccessToken = mzEntity.result['accessToken'];
           break;
