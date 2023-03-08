@@ -58,7 +58,6 @@ class _DevicePageState extends State<DevicePage> {
       var entityList = deviceModel.showList;
       setState(() {
         deviceEntityList = entityList;
-        deviceWidgetList  = [];
         deviceWidgetList = deviceEntityList
             .map((device) => DeviceCard(deviceInfo: device))
             .toList();
