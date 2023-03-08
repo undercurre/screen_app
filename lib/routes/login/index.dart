@@ -138,7 +138,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               onChange: (RoomEntity room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 Global.profile.roomInfo = room;
-                context.watch<RoomModel>().roomInfo = room;
+                context.read<RoomModel>().roomInfo = room;
               })),
     ];
 
