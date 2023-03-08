@@ -56,11 +56,11 @@ var logger = Logger(
   printer: PrettyPrinter(printTime: true),
   output: MultiOutput([
     ConsoleOutput(),
-    if(Platform.isAndroid)
-      FileOutput(
-          overrideExisting: true,
-          file: File.fromUri(Uri.file('/storage/emulated/0/Android/data/com.midea.light/cache/log.cat'))
-      )
+    // if(Platform.isAndroid)
+    //   FileOutput(
+    //       overrideExisting: true,
+    //       file: File.fromUri(Uri.file('/storage/emulated/0/Android/data/com.midea.light/cache/log.cat'))
+    //   )
   ]),
   level: Level.info
 );

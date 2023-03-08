@@ -22,16 +22,7 @@ class _Boot extends State<Boot> {
       /// 数据迁移逻辑
       String flavor = await aboutSystemChannel.queryFlavor();
       String version = await aboutSystemChannel.getAppVersion();
-      if(flavor == 'LD') {
-        if(version == '0117' && !Setting.instant().checkVersionCompatibility(version)) {
-          if(!Global.isLogin) {
-            Future.delayed(Duration.zero).then((_) {
-              Navigator.pushNamed(context, 'MigrationOldVersionDataPage');
-            });
-            return;
-          }
-        }
-      } else if(flavor == 'JH') {
+      if(flavor == 'LD' || flavor == 'JH') {
         if(version == '0120' && !Setting.instant().checkVersionCompatibility(version)) {
           if(!Global.isLogin) {
             Future.delayed(Duration.zero).then((_) {
