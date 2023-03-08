@@ -64,15 +64,18 @@ class _DeviceCardState extends State<DeviceCard> {
       return;
     }
     if (widget.deviceInfo != null) {
-      if (e.localPosition.dx > 40 &&
-          e.localPosition.dx < 90 &&
-          e.localPosition.dy > 140 &&
-          e.localPosition.dy < 175) {
+      if (e.localPosition.dx > 20 &&
+          e.localPosition.dx < 210 &&
+          e.localPosition.dy > 100 &&
+          e.localPosition.dy < 180) {
+        if (widget.deviceInfo!.type == '0x17') {
+            return;
+        }
         if (!DeviceService.isSupport(widget.deviceInfo!)) return;
         setState(() {
           power = !power;
         });
-        var res = await DeviceService.setPower(widget.deviceInfo!, power);
+          var res = await DeviceService.setPower(widget.deviceInfo!, power);
         if (res) {
           Future.delayed(const Duration(seconds: 3)).then((_) async {
             await context
