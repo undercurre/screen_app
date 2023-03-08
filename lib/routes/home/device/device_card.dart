@@ -63,11 +63,13 @@ class _DeviceCardState extends State<DeviceCard> {
       TipsUtils.toast(content: '设备离线');
       return;
     }
+    logger.i('触控事件x', e.localPosition.dx);
+    logger.i('触控事件y', e.localPosition.dy);
     if (widget.deviceInfo != null) {
-      if (e.localPosition.dx > 20 &&
-          e.localPosition.dx < 210 &&
+      if (e.localPosition.dx > 0 &&
+          e.localPosition.dx < 136 &&
           e.localPosition.dy > 100 &&
-          e.localPosition.dy < 180) {
+          e.localPosition.dy < 190) {
         if (widget.deviceInfo!.type == '0x17') {
             return;
         }
