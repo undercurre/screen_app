@@ -65,6 +65,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    // TODO: implement dispose
+    timeTimer.cancel();
+  }
+
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
