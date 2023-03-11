@@ -35,4 +35,11 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation rootProject.ext.nexus.basic
+    api rootProject.ext.retrofit.okhttp
+    api rootProject.ext.retrofit.okhttp3LoggerInterceptor
+    api rootProject.ext.other.gson
+    api rootProject.ext.other.xlog
+    api rootProject.ext.rxJavaLibs
+    api rootProject.ext.other.mmkv
+    api rootProject.ext.other.aria
 }

@@ -113,6 +113,8 @@ ext {
             "LiteAV"            : "9.6.0.11309",
             "ijkplayer_java"    : "0.8.8",
             "ijkplayer_exo"     : "0.8.8",
+            "aria"              : "3.8.16",
+            "ariacompiler"      : "3.8.16",
     ]
 
     other = [
@@ -134,6 +136,8 @@ ext {
             LiteAV          : "com.tencent.liteav:LiteAVSDK_TRTC:${version["LiteAV"]}",
             ijkplayer_java   : "tv.danmaku.ijk.media:ijkplayer-java:${version["ijkplayer_java"]}",
             ijkplayer_exo    : "tv.danmaku.ijk.media:ijkplayer-exo:${version["ijkplayer_exo"]}",
+            aria             : "me.laoyuyu.aria:core:${version["aria"]}",
+            ariacompiler     : "me.laoyuyu.aria:compiler:${version["ariacompiler"]}",
 
     ]
 

@@ -1,4 +1,7 @@
 apply from: './config.gradle'
+// 指定本地maven仓库地址
+def localMavenAddress= System.getenv("MAVEN_LOCAL_ADDRESS")
+
 buildscript {
     ext {
         compose_version = '1.1.1'
@@ -22,6 +25,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url localMavenAddress }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
         maven {

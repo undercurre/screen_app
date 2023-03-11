@@ -52,7 +52,7 @@ class FileOutput extends LogOutput {
 
 /// 日志打印工具
 var logger = Logger(
-  filter: DevelopmentFilter(),
+  filter: ProductionFilter(),
   printer: PrettyPrinter(printTime: true),
   output: MultiOutput([
     ConsoleOutput(),
