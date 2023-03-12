@@ -1,7 +1,11 @@
 package com.midea.light.channel.method
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.PowerManager
+import android.util.Log
 import com.midea.light.MainApplication
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
@@ -23,7 +27,23 @@ private const val TAG = "Setting"
  */
 class SettingMethodChannel constructor(override val context: Context) : AbsMZMethodChannel(context) {
 
+    // 屏幕亮灭 -- 广播接收器
+    private val mScreenReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (Intent.ACTION_SCREEN_ON == intent.action) {
+                LogUtil.i("屏幕点亮")
+                mMethodChannel.invokeMethod("broadcastScreenState", true)
+            } else if(Intent.ACTION_SCREEN_OFF == intent.action) {
+                LogUtil.i("屏幕关闭")
+                mMethodChannel.invokeMethod("broadcastScreenState", false)
+            }
+        }
+    }
+
     companion object {
+        // 屏幕亮灭 -- 广播接收器 是否被注册
+        var  screenReceiverRegister: Boolean = false
+
         fun create(
             channel: String,
             binaryMessenger: BinaryMessenger,
@@ -45,6 +65,21 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         LogUtil.tag(TAG).msg("flutter -> method: ${call.method}")
         when (call.method) {
+            "registerScreenBroadcast" -> {
+                if (!screenReceiverRegister) {
+                    screenReceiverRegister = true
+                    context.registerReceiver(mScreenReceiver, IntentFilter().apply {
+                        this.addAction(Intent.ACTION_SCREEN_ON)
+                        this.addAction(Intent.ACTION_SCREEN_OFF)
+                    })
+                }
+            }
+            "unRegisterScreenBroadcast" -> {
+                if(screenReceiverRegister) {
+                    screenReceiverRegister = false
+                    context.unregisterReceiver(mScreenReceiver)
+                }
+            }
             "SettingMediaVoiceValue" -> {
                 SystemUtil.setSystemAudio(call.arguments as Int)
                 result.success(SystemUtil.getSystemAudio())

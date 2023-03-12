@@ -16,6 +16,22 @@ class ScreenOnOffPage extends StatefulWidget {
 class ScreenOnOffState extends State<ScreenOnOffPage> {
 
   @override
+  void initState() {
+    super.initState();
+    settingMethodChannel.registerScreenBroadcast();
+    settingMethodChannel.screenStateCallback = (screenOn) {
+      debugPrint("屏幕点亮情况: $screenOn");
+    };
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    settingMethodChannel.unRegisterScreenBroadcast();
+    settingMethodChannel.screenStateCallback = null;
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: IconButton(

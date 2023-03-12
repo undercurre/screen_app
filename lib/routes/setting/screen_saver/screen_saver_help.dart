@@ -23,12 +23,26 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
 
   final List<bool?> array = List.generate(10, (index) => null);
   bool? inClose;
+  bool registerScreenBroadcast = false;
 
   @override
   void onTick() {
     super.onTick();
 
     () async {
+
+      if(!registerScreenBroadcast) {
+        registerScreenBroadcast = true;
+        settingMethodChannel.registerScreenBroadcast();
+        settingMethodChannel.screenStateCallback = (screenOn) {
+          debugPrint("屏幕点亮情况: $screenOn");
+          if(screenOn) {
+            array.fillRange(0, array.length, false);
+            inClose = false;
+          }
+        };
+      }
+
       bool toBeClose = Setting.instant().isStandByDuration();
 
       List.copyRange(array, 0, array, 1, array.length);
@@ -49,6 +63,11 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
   @override
   void exit() {
     settingMethodChannel.setScreenClose(false);
+    if(registerScreenBroadcast) {
+      // registerScreenBroadcast = false;
+      settingMethodChannel.unRegisterScreenBroadcast();
+      settingMethodChannel.screenStateCallback = null;
+    }
   }
 
 }
