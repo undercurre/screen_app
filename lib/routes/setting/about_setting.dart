@@ -13,6 +13,7 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
 import '../../common/global.dart';
+import '../../common/setting.dart';
 import '../../models/delete_device_result_entity.dart';
 import '../../models/midea_response_entity.dart';
 
@@ -85,8 +86,11 @@ class AboutSettingProvider with ChangeNotifier {
       aboutSystemChannel.clearLocalCache();
       // 定时十秒
       Timer(const Duration(seconds: 8), () {
-        //System.loginOut();
-        Timer(const Duration(seconds: 2), () {
+        System.loginOut();
+        aboutSystemChannel
+            .getAppVersion()
+            .then((value) => Setting.instant().saveVersionCompatibility(value));
+        Timer(const Duration(seconds: 4), () {
           aboutSystemChannel.reboot();
         });
       });

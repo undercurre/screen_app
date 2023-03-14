@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
@@ -7,11 +8,13 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/routes/home/center_control/air_condition_control.dart';
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
 import 'package:screen_app/routes/home/center_control/quick_scene.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
+import 'package:screen_app/routes/home/center_control/view_part.dart';
 
 import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
@@ -34,6 +37,8 @@ class CenterControlPage extends StatefulWidget {
 
 class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
+
+  List<ViewPart> cardWidgetList = [];
 
   bool curtainSupport = true;
   bool lightSupport = true;
@@ -104,7 +109,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
       var roomList = homeInfo.roomList ?? [];
       Global.profile.roomInfo = roomList
           .where((element) =>
-              element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
+      element.roomId == (Global.profile.roomInfo?.roomId ?? ''))
           .toList()[0];
     }
   }
@@ -154,42 +159,58 @@ class _CenterControlPageState extends State<CenterControlPage> {
       airConditionGear = CenterControlService.airConditionGear(context);
       airConditionMode = CenterControlService.airConditionMode(context);
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    List<Widget> cardWidgetList = [
-      SizedBox(
-        width: 440,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CurtainControl(
-              disabled: !curtainSupport,
-              computedPower: curtainPower,
-            ),
-            Expanded(
-                flex: 1,
-                child: LightControl(
-                  disabled: !lightSupport,
-                  computedPower: lightPower,
-                  computedBightness: lightBrightness,
-                  computedColorTemp: lightColorTemp,
-                ))
-          ],
+    cardWidgetList = [];
+    var centerIndexString = await LocalStorage.getItem('centerIndex');
+    var defaultCenterList = [
+      ViewPart(
+        mark: 'curtain_light',
+        child: SizedBox(
+          width: 440,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CurtainControl(
+                disabled: !curtainSupport,
+                computedPower: curtainPower,
+              ),
+              Expanded(
+                  flex: 1,
+                  child: LightControl(
+                    disabled: !lightSupport,
+                    computedPower: lightPower,
+                    computedBightness: lightBrightness,
+                    computedColorTemp: lightColorTemp,
+                  ))
+            ],
+          ),
         ),
       ),
-      AirConditionControl(
+      ViewPart(mark: 'airCondition', child: AirConditionControl(
         disabled: !airConditionSupport,
         computedPower: airConditionPower,
         computedGear: airConditionGear,
         computedMode: airConditionMode,
         computedTemp: airConditionTemp,
-      ),
-      const QuickScene()
+      ),),
+      const ViewPart(mark: 'quickScene', child: QuickScene()),
     ];
+    if (centerIndexString != null) {
+      var centerIndex = List<String>.from(json.decode(centerIndexString!));
+      setState(() {
+        for (var i = 0; i < centerIndex.length; i ++) {
+          ViewPart centerPart = defaultCenterList.where((element) => element.mark == centerIndex[i]).toList()[0];
+          cardWidgetList.insert(i, centerPart);
+        }});
+    } else {
+      setState(() {
+        cardWidgetList = defaultCenterList;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Container(
       decoration: const BoxDecoration(
@@ -225,7 +246,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                       offset: const Offset(0, 36.0),
                       itemBuilder: (context) {
                         return dropMenuBtnList.map(
-                          (item) {
+                              (item) {
                             return PopupMenuItem<String>(
                               value: item['route'],
                               child: Container(
@@ -255,7 +276,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                margin: const EdgeInsets.fromLTRB(20, 0, 0,22),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -299,6 +320,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     await initPage();
                   },
                   child: ReorderableWrap(
+                      direction: Axis.vertical,
                       spacing: 8.0,
                       runSpacing: 8.0,
                       padding: const EdgeInsets.all(8),
@@ -323,11 +345,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         );
                       },
                       onReorder: (int oldIndex, int newIndex) {
-                        Widget row = cardWidgetList.removeAt(oldIndex);
+                        ViewPart row = cardWidgetList.removeAt(oldIndex);
                         cardWidgetList.insert(newIndex, row);
                         setState(() {
                           cardWidgetList = cardWidgetList;
                         });
+                        LocalStorage.setItem('centerIndex', json.encode(cardWidgetList.map((e) => e.mark).toList()));
+                        initPage();
                       },
                       onNoReorder: (int index) {
                         //this callback is optional
