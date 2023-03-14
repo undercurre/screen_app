@@ -84,22 +84,17 @@ class AboutSettingProvider with ChangeNotifier {
       netMethodChannel.removeAllWiFiRecord();
       // 删除本地所有缓存
       aboutSystemChannel.clearLocalCache();
-      // 定时十秒
-      Timer(const Duration(seconds: 8), () {
-        System.loginOut();
+      Timer(const Duration(seconds: 7), () {
         aboutSystemChannel
             .getAppVersion()
             .then((value) => Setting.instant().saveVersionCompatibility(value));
-        Timer(const Duration(seconds: 4), () {
+        System.loginOut();
+      });
+      // 定时十秒
+      Timer(const Duration(seconds: 10), () {
           aboutSystemChannel.reboot();
-        });
       });
       return true;
-
-    // } else {
-    //   TipsUtils.toast(content: '删除网关失败，请重试');
-    //   return false;
-    // }
   }
 
   /// return 
