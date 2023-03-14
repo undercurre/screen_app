@@ -99,7 +99,7 @@ class AirConditionControlState extends State<AirConditionControl>
   }
 
   Map<String, String> getCurACMode() {
-    return btnList.where((element) => element["key"] == modeValue).toList()[0];
+    return btnList.where((element) => element["key"] == widget.computedMode).toList()[0];
   }
 
   Future<void> airConditionPowerHandle(bool onOff) async {
@@ -185,23 +185,23 @@ class AirConditionControlState extends State<AirConditionControl>
             unit: '℃',
             min: 17,
             max: 30,
-            value: temperature,
+            value: widget.computedTemp,
             sliderWidth: 400,
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled: !power || modeValue == 'fan',
+            disabled: !widget.computedPower || widget.computedMode == 'fan',
           )
         : SliderButtonContent(
             unit: '档',
             min: 1,
             max: 6,
-            value: gear,
+            value: widget.computedGear,
             sliderWidth: 400,
             onChanged: (value) {
               airConditionValueHandle(value);
             },
-            disabled: !power || (modeValue == 'auto' || modeValue == 'dry'),
+            disabled: !widget.computedPower || (widget.computedMode == 'auto' || widget.computedMode == 'dry'),
           );
   }
 
@@ -252,7 +252,7 @@ class AirConditionControlState extends State<AirConditionControl>
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
-        children: disabled
+        children: widget.disabled ?? true
             ? [
                 MzMetalCard(
                   width: 440,
@@ -339,13 +339,13 @@ class AirConditionControlState extends State<AirConditionControl>
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: ui.DropdownMenu(
-                                  disabled: !power,
+                                  disabled: !widget.computedPower,
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
                                     (item) {
                                       return PopupMenuItem<String>(
-                                        enabled: power,
+                                        enabled: widget.computedPower,
                                         padding: EdgeInsets.zero,
                                         value: item['key'],
                                         child: Center(
@@ -423,11 +423,11 @@ class AirConditionControlState extends State<AirConditionControl>
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => airConditionPowerHandle(!power),
+                              onTap: () => airConditionPowerHandle(!widget.computedPower),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
-                                  power
+                                  widget.computedPower
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -580,13 +580,13 @@ class AirConditionControlState extends State<AirConditionControl>
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: ui.DropdownMenu(
-                                  disabled: !power,
+                                  disabled: !widget.computedPower,
                                   menuWidth: 84,
                                   arrowSize: 20,
                                   menu: btnList.map(
                                     (item) {
                                       return PopupMenuItem<String>(
-                                        enabled: power,
+                                        enabled: widget.computedPower,
                                         padding: EdgeInsets.zero,
                                         value: item['key'],
                                         child: Center(
@@ -668,7 +668,7 @@ class AirConditionControlState extends State<AirConditionControl>
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Image.asset(
-                                  power
+                                  widget.computedPower
                                       ? 'assets/imgs/device/on.png'
                                       : 'assets/imgs/device/off.png',
                                   alignment: Alignment.centerRight,
@@ -685,25 +685,25 @@ class AirConditionControlState extends State<AirConditionControl>
                               unit: '℃',
                               min: 17,
                               max: 30,
-                              value: temperature,
+                              value: widget.computedTemp,
                               sliderWidth: 380,
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled: !power || modeValue == 'fan',
+                              disabled: !widget.computedPower || widget.computedMode == 'fan',
                             )
                           : SliderButtonContent(
                               unit: '',
                               min: 1,
                               max: 6,
-                              value: gear,
+                              value: widget.computedGear,
                               sliderWidth: 380,
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled: !power ||
-                                  modeValue == 'dry' ||
-                                  modeValue == 'auto',
+                              disabled: !widget.computedPower ||
+                                  widget.computedMode == 'dry' ||
+                                  widget.computedMode == 'auto',
                             )
                     ],
                   ),

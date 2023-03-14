@@ -191,9 +191,9 @@ class LightControlState extends State<LightControl> with Throttle {
                                   letterSpacing: 1.0),
                             ),
                             GestureDetector(
-                              onTap: () => lightPowerHandle(!powerValue),
+                              onTap: () => lightPowerHandle(!widget.computedPower),
                               child: Image.asset(
-                                powerValue
+                                widget.computedPower
                                     ? 'assets/imgs/device/on.png'
                                     : 'assets/imgs/device/off.png',
                                 alignment: Alignment.centerRight,
@@ -209,15 +209,15 @@ class LightControlState extends State<LightControl> with Throttle {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
-                                '亮度 | $lightnessValue%',
+                                '亮度 | ${widget.computedBightness}%',
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
                             MzSlider(
                               min: 1,
                               max: 100,
-                              value: lightnessValue,
-                              disabled: !powerValue,
+                              value: widget.computedBightness,
+                              disabled: !widget.computedPower,
                               width: 274,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
@@ -231,15 +231,15 @@ class LightControlState extends State<LightControl> with Throttle {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
-                                '色温 | ${(3000 + (5700 - 3000) * colorTempValue / 100).toInt()}K',
+                                '色温 | ${(3000 + (5700 - 3000) * widget.computedColorTemp / 100).toInt()}K',
                                 style: const TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'MideaType-Regular'),
                               ),
                             ),
                             MzSlider(
-                              value: colorTempValue,
-                              disabled: !powerValue,
+                              value: widget.computedColorTemp,
+                              disabled: !widget.computedPower,
                               width: 274,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
@@ -305,9 +305,9 @@ class LightControlState extends State<LightControl> with Throttle {
                                   letterSpacing: 1.0),
                             ),
                             GestureDetector(
-                              onTap: () => lightPowerHandle(!powerValue),
+                              onTap: () => lightPowerHandle(!widget.computedPower),
                               child: Image.asset(
-                                powerValue
+                                widget.computedPower
                                     ? 'assets/imgs/device/on.png'
                                     : 'assets/imgs/device/off.png',
                                 alignment: Alignment.centerRight,
@@ -323,15 +323,15 @@ class LightControlState extends State<LightControl> with Throttle {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
-                                '亮度 | $lightnessValue%',
+                                '亮度 | ${widget.computedBightness}%',
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
                             MzSlider(
                               min: 1,
                               max: 100,
-                              value: lightnessValue,
-                              disabled: !powerValue,
+                              value: widget.computedBightness,
+                              disabled: !widget.computedPower,
                               width: 274,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [
@@ -345,15 +345,15 @@ class LightControlState extends State<LightControl> with Throttle {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
-                                '色温 | ${(3000 + (5700 - 3000) * colorTempValue / 100).toInt()}K',
+                                '色温 | ${(3000 + (5700 - 3000) * widget.computedColorTemp / 100).toInt()}K',
                                 style: const TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'MideaType-Regular'),
                               ),
                             ),
                             MzSlider(
-                              value: colorTempValue,
-                              disabled: !powerValue,
+                              value: widget.computedColorTemp,
+                              disabled: !widget.computedPower,
                               width: 274,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               activeColors: const [

@@ -412,7 +412,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
                           centerIndexString = json.encode(cardWidgetList.map((e) => e.mark).toList());
                         });
                         LocalStorage.setItem('centerIndex', json.encode(cardWidgetList.map((e) => e.mark).toList()));
-                        initPage();
                       },
                       onNoReorder: (int index) {},
                       onReorderStarted: (int index) {},
