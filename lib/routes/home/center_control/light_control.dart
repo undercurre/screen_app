@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,20 +17,26 @@ class LightControl extends StatefulWidget {
   final bool computedPower;
   final num computedBightness;
   final num computedColorTemp;
+  final void Function(bool value) onPowerChanged;
+  final void Function(num value) onBrightChanged;
+  final void Function(num value) onColorChanged;
 
   const LightControl(
       {super.key,
       this.disabled,
       required this.computedPower,
       required this.computedBightness,
-      required this.computedColorTemp});
+      required this.computedColorTemp,
+      required this.onPowerChanged,
+      required this.onBrightChanged,
+      required this.onColorChanged});
 
   @override
   LightControlState createState() => LightControlState();
 }
 
 class LightControlState extends State<LightControl> with Throttle {
-  bool disabled = false;
+  bool disabled = true;
   num lightnessValue = 1;
   num colorTempValue = 0;
   bool powerValue = false;
@@ -38,12 +46,14 @@ class LightControlState extends State<LightControl> with Throttle {
     setState(() {
       powerValue = !powerValue;
     });
+    widget.onPowerChanged.call(powerValue);
     var res = await CenterControlService.lightPowerControl(context, onOff);
     if (res) {
     } else {
       setState(() {
         powerValue = !powerValue;
       });
+      widget.onPowerChanged.call(powerValue);
     }
   }
 
@@ -53,6 +63,7 @@ class LightControlState extends State<LightControl> with Throttle {
     setState(() {
       lightnessValue = value;
     });
+    widget.onBrightChanged.call(value);
     throttle(() async {
       var res =
           await CenterControlService.lightBrightnessControl(context, value);
@@ -61,6 +72,7 @@ class LightControlState extends State<LightControl> with Throttle {
         setState(() {
           lightnessValue = exValue;
         });
+        widget.onBrightChanged.call(exValue);
       }
     }, durationTime: const Duration(milliseconds: 2000));
   }
@@ -77,6 +89,7 @@ class LightControlState extends State<LightControl> with Throttle {
     setState(() {
       colorTempValue = value;
     });
+    widget.onColorChanged.call(value);
     var res =
         await CenterControlService.lightColorTemperatureControl(context, value);
     if (res) {
@@ -84,6 +97,7 @@ class LightControlState extends State<LightControl> with Throttle {
       setState(() {
         colorTempValue = exValue;
       });
+      widget.onColorChanged.call(exValue);
     }
   }
 
@@ -110,11 +124,10 @@ class LightControlState extends State<LightControl> with Throttle {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() {
-        disabled = widget.disabled ?? false;
+        disabled = widget.disabled ?? true;
         lightnessValue = widget.computedBightness;
         colorTempValue = widget.computedColorTemp;
         powerValue = widget.computedPower;
-        debugPrint('灯光数据装载');
       });
     });
   }
@@ -130,7 +143,7 @@ class LightControlState extends State<LightControl> with Throttle {
     }
     if (widget.disabled != oldWidget.disabled) {
       setState(() {
-        disabled = widget.disabled ?? false;
+        disabled = widget.disabled ?? true;
       });
     }
     if (widget.computedBightness != oldWidget.computedBightness) {
@@ -170,7 +183,7 @@ class LightControlState extends State<LightControl> with Throttle {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const Text(
-                              '',
+                              '灯光',
                               style: TextStyle(
                                   color: Color(0xFFFFFFFF),
                                   fontSize: 18,

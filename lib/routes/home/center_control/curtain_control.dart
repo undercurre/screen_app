@@ -10,8 +10,9 @@ import '../../../widgets/mz_notice.dart';
 class CurtainControl extends StatefulWidget {
   final bool? disabled;
   final bool computedPower;
+  final void Function(bool value)? onPowerChanged;
 
-  const CurtainControl({super.key, this.disabled, required this.computedPower});
+  const CurtainControl({super.key, this.disabled, required this.computedPower, this.onPowerChanged});
 
   @override
   CurtainControlState createState() => CurtainControlState();
@@ -29,12 +30,14 @@ class CurtainControlState extends State<CurtainControl> {
     setState(() {
       powerValue = !powerValue;
     });
+    widget.onPowerChanged?.call(powerValue);
     var res = await CenterControlService.curtainControl(context, onOff);
     if (res) {
     } else {
       setState(() {
         powerValue = !powerValue;
       });
+      widget.onPowerChanged?.call(powerValue);
     }
   }
 
@@ -53,8 +56,9 @@ class CurtainControlState extends State<CurtainControl> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    disabled = widget.disabled ?? false;
+    disabled = widget.disabled ?? true;
     powerValue = widget.computedPower;
+    logger.i('窗帘数据装载', widget.computedPower);
   }
 
   @override
@@ -68,7 +72,7 @@ class CurtainControlState extends State<CurtainControl> {
     }
     if (widget.disabled != oldWidget.disabled) {
       setState(() {
-        disabled = widget.disabled ?? false;
+        disabled = widget.disabled ?? true;
       });
     }
   }
@@ -78,7 +82,7 @@ class CurtainControlState extends State<CurtainControl> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
-        children: disabled
+        children: widget.disabled ?? true
             ? [
                 MzMetalCard(
                   width: 103,
@@ -167,7 +171,7 @@ class CurtainControlState extends State<CurtainControl> {
                             onTap: () => curtainHandle(true),
                             child: Opacity(
                               opacity:
-                                  powerValue
+                                  widget.computedPower
                                       ? 1
                                       : 0.48,
                               child: Column(
@@ -191,7 +195,7 @@ class CurtainControlState extends State<CurtainControl> {
                             onTap: () => curtainHandle(false),
                             child: Opacity(
                               opacity:
-                                  !powerValue
+                                  !widget.computedPower
                                       ? 1
                                       : 0.48,
                               child: Column(

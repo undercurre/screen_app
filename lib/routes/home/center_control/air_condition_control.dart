@@ -20,15 +20,30 @@ class AirConditionControl extends StatefulWidget {
   final num computedTemp;
   final num computedGear;
   final String computedMode;
+  final void Function(num value) onTempChanged;
+  final void Function(num value) onGearChanged;
+  final void Function(String value) onModeChanged;
+  final void Function(bool value) onPowerChanged;
 
-  const AirConditionControl({super.key, this.disabled, required this.computedPower, required this.computedTemp, required this.computedGear, required this.computedMode});
+  const AirConditionControl(
+      {super.key,
+      this.disabled,
+      required this.computedPower,
+      required this.computedTemp,
+      required this.computedGear,
+      required this.computedMode,
+      required this.onPowerChanged,
+      required this.onTempChanged,
+      required this.onGearChanged,
+      required this.onModeChanged});
 
   @override
   AirConditionControlState createState() => AirConditionControlState();
 }
 
-class AirConditionControlState extends State<AirConditionControl> with Throttle {
-  bool disabled = false;
+class AirConditionControlState extends State<AirConditionControl>
+    with Throttle {
+  bool disabled = true;
   num temperature = 26;
   num gear = 1;
   String modeValue = 'auto';
@@ -92,12 +107,14 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
     setState(() {
       power = !power;
     });
+    widget.onPowerChanged.call(power);
     var res = await CenterControlService.ACPowerControl(context, power);
     if (res) {
     } else {
       setState(() {
         power = !power;
       });
+      widget.onPowerChanged.call(power);
     }
   }
 
@@ -119,24 +136,28 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
       setState(() {
         temperature = value;
       });
+      widget.onTempChanged.call(value);
       var res = await CenterControlService.ACTemperatureControl(context, value);
       if (res) {
       } else {
         setState(() {
           temperature = exValue;
         });
+        widget.onTempChanged.call(exValue);
       }
     } else {
       var exValue = gear;
       setState(() {
         gear = value;
       });
+      widget.onGearChanged.call(value);
       var res = await CenterControlService.ACFengsuControl(context, value);
       if (res) {
       } else {
         setState(() {
           gear = exValue;
         });
+        widget.onGearChanged.call(exValue);
       }
     }
   }
@@ -147,12 +168,14 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
     setState(() {
       modeValue = mode;
     });
+    widget.onModeChanged.call(mode);
     var res = await CenterControlService.ACModeControl(context, mode);
     if (res) {
     } else {
       setState(() {
         modeValue = exValue;
       });
+      widget.onModeChanged.call(exValue);
     }
   }
 
@@ -184,7 +207,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
 
   setData() {
     setState(() {
-      disabled = widget.disabled ?? false;
+      disabled = widget.disabled ?? true;
       temperature = widget.computedTemp;
       gear = widget.computedGear;
       modeValue = widget.computedMode;
@@ -204,7 +227,7 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
     }
     if (widget.disabled != oldWidget.disabled) {
       setState(() {
-        disabled = widget.disabled ?? false;
+        disabled = widget.disabled ?? true;
       });
     }
     if (widget.computedMode != oldWidget.computedMode) {
@@ -678,7 +701,9 @@ class AirConditionControlState extends State<AirConditionControl> with Throttle 
                               onChanged: (value) {
                                 airConditionValueHandle(value);
                               },
-                              disabled: !power || modeValue == 'dry' || modeValue == 'auto',
+                              disabled: !power ||
+                                  modeValue == 'dry' ||
+                                  modeValue == 'auto',
                             )
                     ],
                   ),

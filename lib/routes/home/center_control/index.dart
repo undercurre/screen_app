@@ -39,6 +39,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
   double roomTitleScale = 1;
 
   List<ViewPart> cardWidgetList = [];
+  String centerIndexString = '["curtain_light","airCondition","quickScene"]';
 
   bool curtainSupport = true;
   bool lightSupport = true;
@@ -67,6 +68,54 @@ class _CenterControlPageState extends State<CenterControlPage> {
       setState(() {
         time = DateFormat('MM月d日 E  kk:mm', 'zh_CN').format(DateTime.now());
       });
+    });
+  }
+
+  void curtainPowerHandler(bool value) {
+    setState(() {
+      curtainPower = value;
+    });
+  }
+
+  void lightPowerHandler(bool value) {
+    setState(() {
+      lightPower = value;
+    });
+  }
+
+  void lightBrightHandler(num value) {
+    setState(() {
+      lightBrightness = value;
+    });
+  }
+
+  void lightColorHandler(num value) {
+    setState(() {
+      lightColorTemp = value;
+    });
+  }
+
+  void airConditionModeHandler(String value) {
+    setState(() {
+      airConditionMode = value;
+    });
+  }
+
+  void airConditionGearHandler(num value) {
+    setState(() {
+      airConditionGear = value;
+    });
+  }
+
+  void airConditionPowerHandler(bool value) {
+    setState(() {
+      airConditionPower = value;
+    });
+  }
+
+  void airConditionTempHandler(num value) {
+    setState(() {
+      airConditionTemp = value;
     });
   }
 
@@ -139,6 +188,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
       airConditionMode = CenterControlService.airConditionMode(context);
     });
     initPageState();
+    centerIndexString = await LocalStorage.getItem('centerIndex') ?? '["curtain_light","airCondition","quickScene"]';
   }
 
   initPageState() async {
@@ -159,8 +209,11 @@ class _CenterControlPageState extends State<CenterControlPage> {
       airConditionGear = CenterControlService.airConditionGear(context);
       airConditionMode = CenterControlService.airConditionMode(context);
     });
-    cardWidgetList = [];
-    var centerIndexString = await LocalStorage.getItem('centerIndex');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
     var defaultCenterList = [
       ViewPart(
         mark: 'curtain_light',
@@ -173,6 +226,7 @@ class _CenterControlPageState extends State<CenterControlPage> {
               CurtainControl(
                 disabled: !curtainSupport,
                 computedPower: curtainPower,
+                onPowerChanged: curtainPowerHandler,
               ),
               Expanded(
                   flex: 1,
@@ -181,6 +235,9 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     computedPower: lightPower,
                     computedBightness: lightBrightness,
                     computedColorTemp: lightColorTemp,
+                    onBrightChanged: lightBrightHandler,
+                    onColorChanged: lightColorHandler,
+                    onPowerChanged: lightPowerHandler,
                   ))
             ],
           ),
@@ -192,25 +249,28 @@ class _CenterControlPageState extends State<CenterControlPage> {
         computedGear: airConditionGear,
         computedMode: airConditionMode,
         computedTemp: airConditionTemp,
+        onTempChanged: airConditionTempHandler,
+        onPowerChanged: airConditionPowerHandler,
+        onGearChanged: airConditionGearHandler,
+        onModeChanged: airConditionModeHandler,
       ),),
       const ViewPart(mark: 'quickScene', child: QuickScene()),
     ];
     if (centerIndexString != null) {
-      var centerIndex = List<String>.from(json.decode(centerIndexString!));
+      var centerIndex = List<String>.from(json.decode(centerIndexString));
+      List<ViewPart> tempList = [];
+      for (var i = 0; i < centerIndex.length; i ++) {
+        ViewPart centerPart = defaultCenterList.where((element) => element.mark == centerIndex[i]).toList()[0];
+        tempList.insert(i, centerPart);
+      }
       setState(() {
-        for (var i = 0; i < centerIndex.length; i ++) {
-          ViewPart centerPart = defaultCenterList.where((element) => element.mark == centerIndex[i]).toList()[0];
-          cardWidgetList.insert(i, centerPart);
-        }});
+        cardWidgetList = tempList;
+      });
     } else {
       setState(() {
         cardWidgetList = defaultCenterList;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
 
     return Container(
       decoration: const BoxDecoration(
@@ -349,20 +409,13 @@ class _CenterControlPageState extends State<CenterControlPage> {
                         cardWidgetList.insert(newIndex, row);
                         setState(() {
                           cardWidgetList = cardWidgetList;
+                          centerIndexString = json.encode(cardWidgetList.map((e) => e.mark).toList());
                         });
                         LocalStorage.setItem('centerIndex', json.encode(cardWidgetList.map((e) => e.mark).toList()));
                         initPage();
                       },
-                      onNoReorder: (int index) {
-                        //this callback is optional
-                        debugPrint(
-                            '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
-                      },
-                      onReorderStarted: (int index) {
-                        //this callback is optional
-                        debugPrint(
-                            '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
-                      },
+                      onNoReorder: (int index) {},
+                      onReorderStarted: (int index) {},
                       children: cardWidgetList),
                 ),
               ),
