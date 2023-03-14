@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:screen_app/routes/home/center_control/air_condition_control.dart';
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
@@ -48,7 +49,6 @@ class _CenterControlPageState extends State<CenterControlPage> {
   num airConditionTemp = 26;
   num airConditionGear = 6;
   String airConditionMode = 'auto';
-
   // 获取现在日期
   String time = '';
 
@@ -158,12 +158,44 @@ class _CenterControlPageState extends State<CenterControlPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    List<Widget> cardWidgetList = [
+      SizedBox(
+        width: 440,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CurtainControl(
+              disabled: !curtainSupport,
+              computedPower: curtainPower,
+            ),
+            Expanded(
+                flex: 1,
+                child: LightControl(
+                  disabled: !lightSupport,
+                  computedPower: lightPower,
+                  computedBightness: lightBrightness,
+                  computedColorTemp: lightColorTemp,
+                ))
+          ],
+        ),
+      ),
+      AirConditionControl(
+        disabled: !airConditionSupport,
+        computedPower: airConditionPower,
+        computedGear: airConditionGear,
+        computedMode: airConditionMode,
+        computedTemp: airConditionTemp,
+      ),
+      const QuickScene()
+    ];
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.black,
       ),
-      child:
-      Flex(
+      child: Flex(
         direction: Axis.vertical,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -266,47 +298,48 @@ class _CenterControlPageState extends State<CenterControlPage> {
                     }
                     await initPage();
                   },
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 440,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                CurtainControl(
-                                  disabled: !curtainSupport,
-                                  computedPower: curtainPower,
-                                ),
-                                Expanded(
-                                    flex: 1,
-                                    child: LightControl(
-                                      disabled: !lightSupport,
-                                      computedPower: lightPower,
-                                      computedBightness: lightBrightness,
-                                      computedColorTemp: lightColorTemp,
-                                    ))
-                              ],
+                  child: ReorderableWrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      padding: const EdgeInsets.all(8),
+                      controller: _scrollController,
+                      buildDraggableFeedback: (context, constraints, child) {
+                        return Transform(
+                          transform: Matrix4.rotationZ(0),
+                          alignment: FractionalOffset.topLeft,
+                          child: Material(
+                            elevation: 6.0,
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.zero,
+                            child: Card(
+                              // 将默认白色设置成透明
+                              color: Colors.transparent,
+                              child: ConstrainedBox(
+                                constraints: constraints,
+                                child: child,
+                              ),
                             ),
                           ),
-                          AirConditionControl(
-                              disabled: !airConditionSupport,
-                              computedPower: airConditionPower,
-                              computedGear: airConditionGear,
-                              computedMode: airConditionMode,
-                              computedTemp: airConditionTemp,
-                          ),
-                          const QuickScene()
-                        ],
-                      ),
-                    ),
-                  ),
+                        );
+                      },
+                      onReorder: (int oldIndex, int newIndex) {
+                        Widget row = cardWidgetList.removeAt(oldIndex);
+                        cardWidgetList.insert(newIndex, row);
+                        setState(() {
+                          cardWidgetList = cardWidgetList;
+                        });
+                      },
+                      onNoReorder: (int index) {
+                        //this callback is optional
+                        debugPrint(
+                            '${DateTime.now().toString().substring(5, 22)} reorder cancelled. index:$index');
+                      },
+                      onReorderStarted: (int index) {
+                        //this callback is optional
+                        debugPrint(
+                            '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');
+                      },
+                      children: cardWidgetList),
                 ),
               ),
             ),
