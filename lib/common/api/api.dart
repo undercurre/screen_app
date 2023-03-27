@@ -187,6 +187,7 @@ class Api {
     }
 
     Global.user?.mzAccessToken = entity.result['accessToken'];
+    Global.saveProfile();
     return entity.isSuccess;
   }
 
@@ -206,6 +207,7 @@ class Api {
       'rule': rule,
       'deviceId': Global.user?.deviceId,
       'platform': 1,
+      'iotAppId':12002,
       }
     };
 
@@ -291,6 +293,8 @@ class Api {
       Global.user?.tokenPwd = entity.data['tokenPwd'];
       Global.user?.expired = entity.data['expiredDate'];
     }
+
+    Global.saveProfile();
     return true;
   }
 
@@ -310,9 +314,7 @@ class Api {
           forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
         } else if(isWillLoginExpire) {
           await iotAutoLogin();
-          Global.saveProfile();
           await mzAutoLogin();
-          Global.saveProfile();
         }
       }
     } finally{
