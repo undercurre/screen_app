@@ -68,7 +68,7 @@ class _DevicePageState extends State<DevicePage> {
 
   initDeviceState() async {
     var deviceModel = context.read<DeviceListModel>();
-    // await deviceModel.onlyFetchDetailForAll();
+    await deviceModel.onlyFetchDetailForAll();
     var entityList = deviceModel.showList;
     setState(() {
       deviceEntityList = entityList;
