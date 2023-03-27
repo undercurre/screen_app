@@ -147,26 +147,26 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
     });
     initPage();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String, dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        logger.i('收到上报');
-        // if (nodeId.isNotEmpty) {
-        //   throttle(() {
-        //     initPage();
-        //   }, durationTime: const Duration(milliseconds: 8000));
-        // }
-      }));
-
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String, dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        logger.i('收到上报');
-      }));
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+    //     String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+    //     Map<String, dynamic> eventMap = json.decode(event);
+    //     String nodeId = eventMap['nodeId'] ?? "";
+    //     logger.i('收到上报1');
+    //     if (nodeId.isNotEmpty) {
+    //       throttle(() {
+    //         initPage();
+    //       }, durationTime: const Duration(milliseconds: 8000));
+    //     }
+    //   }));
+    //
+    //   Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+    //     String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+    //     Map<String, dynamic> eventMap = json.decode(event);
+    //     String nodeId = eventMap['nodeId'] ?? "";
+    //     logger.i('收到上报2');
+    //   }));
+    // });
   }
 
   void toConfigPage(String route) {

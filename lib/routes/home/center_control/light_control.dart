@@ -66,7 +66,7 @@ class LightControlState extends State<LightControl> with Throttle {
     widget.onBrightChanged.call(value);
     throttle(() async {
       var res =
-          await CenterControlService.lightBrightnessControl(context, value);
+          await CenterControlService.lightBrightnessControl(context, value, colorTempValue);
       if (res) {
       } else {
         setState(() {
@@ -91,7 +91,7 @@ class LightControlState extends State<LightControl> with Throttle {
     });
     widget.onColorChanged.call(value);
     var res =
-        await CenterControlService.lightColorTemperatureControl(context, value);
+        await CenterControlService.lightColorTemperatureControl(context, value, lightnessValue);
     if (res) {
     } else {
       setState(() {

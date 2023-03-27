@@ -276,7 +276,7 @@ class CenterControlService {
   }
 
   static Future<bool> lightBrightnessControl(
-      BuildContext context, num value) async {
+      BuildContext context, num value, num colorTempValue) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
     List<Future<MzResponseEntity<dynamic>>> features = [];
@@ -306,8 +306,9 @@ class CenterControlService {
             features.add(ZigbeeLightApi.adjustPDM(
                 deviceInfo.masterId,
                 value,
-                deviceInfo.detail!["lightPanelDeviceList"][0]
-                ["colorTemperature"],
+                // deviceInfo.detail!["lightPanelDeviceList"][0]
+                // ["colorTemperature"],
+                colorTempValue,
                 nodeId));
             // res = await ZigbeeLightApi.adjustPDM(
             //     deviceInfo.masterId,
@@ -319,7 +320,7 @@ class CenterControlService {
           if (zigbeeControllerList[deviceInfo.modelNumber] ==
               '0x21_light_noColor') {
             features.add(ZigbeeLightApi.adjustPDM(
-                deviceInfo.masterId, value, 0, nodeId));
+                deviceInfo.masterId, value, colorTempValue, nodeId));
             // res = await ZigbeeLightApi.adjustPDM(
             //     deviceInfo.masterId, value, 0, nodeId);
           }
@@ -350,7 +351,7 @@ class CenterControlService {
   }
 
   static Future<bool> lightColorTemperatureControl(
-      BuildContext context, num value) async {
+      BuildContext context, num value, num lightnessValue) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
     List<Future<MzResponseEntity<dynamic>>> features = [];
@@ -380,31 +381,33 @@ class CenterControlService {
             '0x21_light_colorful') {
           features.add(ZigbeeLightApi.adjustPDM(
               deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              lightnessValue,
               value,
               nodeId));
-          // res = await ZigbeeLightApi.adjustPDM(
-          //     deviceInfo.masterId,
-          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-          //     value,
-          //     nodeId);
+          res = await ZigbeeLightApi.adjustPDM(
+              deviceInfo.masterId,
+              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              value,
+              nodeId);
         }
         if (zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_light_noColor') {
           features.add(ZigbeeLightApi.adjustPDM(
               deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              lightnessValue,
               value,
               nodeId));
-          // res = await ZigbeeLightApi.adjustPDM(
-          //     deviceInfo.masterId,
-          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-          //     value,
-          //     nodeId);
+          res = await ZigbeeLightApi.adjustPDM(
+              deviceInfo.masterId,
+              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              value,
+              nodeId);
         }
       } else {
         // 灯组
-        features.add(LightGroupApi.colorTemperaturePDM(deviceInfo, value));
+        // features.add(LightGroupApi.colorTemperaturePDM(deviceInfo, value));
         // res = await LightGroupApi.colorTemperaturePDM(deviceInfo, value);
       }
       // if (res.isSuccess) {
@@ -414,7 +417,6 @@ class CenterControlService {
       //   failList.add(deviceInfo.name);
       // }
     }
-
     final results = await Future.wait(features);
     for(var i = 1; i <= lightList.length; i++) {
       if(results[i - 1].isSuccess) {
