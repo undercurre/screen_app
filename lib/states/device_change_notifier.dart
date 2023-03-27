@@ -172,6 +172,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
+      logger.i('请求来源：state详情');
       if (deviceInfo.type.contains('smartControl') || deviceInfo.type.contains('singlePanel')) {
         var filterList = vistualProducts
             .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
@@ -303,6 +304,7 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
         await updateDeviceDetail(deviceInfo);
+        logger.i('请求来源： onlyDetail详情');
       }
     }
   }
@@ -326,6 +328,7 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
         futures.add(updateDeviceDetail(deviceInfo));
+        logger.i('请求来源：updateAllDetailWaited');
       }
     }
     await Future.wait(futures);

@@ -78,9 +78,9 @@ class LightControlState extends State<LightControl> with Throttle {
   }
 
   lightBrightChanging(num value, Color color) {
-    throttle(() {
-      lightBrightHandle(value, color);
-    }, durationTime: const Duration(milliseconds: 2000));
+    // throttle(() {
+    //   lightBrightHandle(value, color);
+    // }, durationTime: const Duration(milliseconds: 2000));
   }
 
   Future<void> lightColorHandle(num value, Color color) async {
@@ -102,9 +102,9 @@ class LightControlState extends State<LightControl> with Throttle {
   }
 
   lightColorChanging(num value, Color color) {
-    throttle(() {
-      lightColorHandle(value, color);
-    }, durationTime: const Duration(milliseconds: 2000));
+    // throttle(() {
+    //   lightColorHandle(value, color);
+    // }, durationTime: const Duration(milliseconds: 2000));
   }
 
   void disableHandle() {

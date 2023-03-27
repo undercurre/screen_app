@@ -102,10 +102,15 @@ class _DeviceCardState extends State<DeviceCard> {
   @override
   void initState() {
     super.initState();
-    setDate();
+    logger.i('请求来源：卡片初始化');
+    // setDate();
     bus.on('updateDeviceCardState', (arg) async {
       logger.i('卡片重新加载');
-      setDate();
+      if (widget.deviceInfo != null) {
+        if (DeviceService.isSupport(widget.deviceInfo!)) {
+          setDate();
+        }
+      }
     });
     bus.on("relay1StateChange", relay1SmartStateChange);
     bus.on("relay2StateChange", relay2SmartStateChange);
@@ -119,12 +124,14 @@ class _DeviceCardState extends State<DeviceCard> {
 
           if (nodeId.isEmpty) {
             if (widget.deviceInfo?.applianceCode == arg['applianceCode']) {
+              logger.i('请求来源：wifi设备push');
               setDate();
             }
           } else {
             if ((widget.deviceInfo?.type == '0x21' ||
                     (widget.deviceInfo?.type ?? "").contains("singlePanel")) &&
                 widget.deviceInfo?.detail?['nodeId'] == nodeId) {
+              logger.i('请求来源：zigbee设备push');
               setDate();
             }
           }
@@ -135,6 +142,7 @@ class _DeviceCardState extends State<DeviceCard> {
         _reportCallback = ((arg) {
           if (arg.containsKey('applianceId')) {
             if (widget.deviceInfo?.applianceCode == arg['applianceId']) {
+              logger.i('请求来源：设备状态push');
               setDate();
             }
           }
@@ -202,6 +210,7 @@ class _DeviceCardState extends State<DeviceCard> {
         await context
             .read<DeviceListModel>()
             .updateDeviceDetail(widget.deviceInfo!);
+        logger.i('请求来源：卡片详情');
         setState(() {
           power = DeviceService.isPower(widget.deviceInfo!);
         });
