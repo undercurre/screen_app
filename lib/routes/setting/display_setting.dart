@@ -282,10 +282,11 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                     final startTime = result.value1;
                     final endTime = result.value2;
                     debugPrint("开始时间：$startTime 结束时间: $endTime");
-                    setState(() async {
+                    () async {
                       await Setting.instant().setScreedDuration(result);
+                    }().then((value) => setState((){
                       duration = Setting.instant().getScreedDurationDetail();
-                    });
+                    }));
                   });
                 })
               ],

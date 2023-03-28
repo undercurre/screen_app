@@ -5,14 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.PowerManager
-import android.util.Log
 import com.midea.light.MainApplication
+import com.midea.light.common.config.AppCommonConfig
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 
 private const val TAG = "Setting"
@@ -104,7 +105,11 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
                 MainApplication.standbyState=(call.arguments as Boolean)
             }
             "openOrCloseScreen" -> {
-                SystemUtil.openOrCloseScreen(call.arguments as Boolean)
+                if(Objects.equals(AppCommonConfig.getChannel(), "JH")) {
+                    SystemUtil.openOrCloseScreen(call.arguments as Boolean)
+                } else {
+                    SystemUtil.openOrCloseScreen(call.arguments as Boolean)
+                }
                 result.success(true)
             }
             "screenOpenCloseState" -> {
