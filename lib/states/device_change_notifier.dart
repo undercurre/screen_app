@@ -264,6 +264,7 @@ class DeviceListModel extends ProfileChangeNotifier {
       };
       logger.i('生成灯组', vistualDeviceForGroup);
       deviceList.add(vistualDeviceForGroup);
+      logger.i('生成灯组后', deviceList.where((element) => element.type == 'lightGroup'));
       notifyListeners();
     }
   }
@@ -315,8 +316,8 @@ class DeviceListModel extends ProfileChangeNotifier {
     await updateHomeData();
     logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
     // 查灯组
-    // await selectLightGroupList();
-    // logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);x
+    await selectLightGroupList();
+    logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
     // 更新设备detail
     List<Future<void>> futures = [];
     for (int xx = 1; xx <= showList.length; xx++) {

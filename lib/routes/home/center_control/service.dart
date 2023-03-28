@@ -238,13 +238,14 @@ class CenterControlService {
       BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
-    List<Future<bool>> features = [];
+    List<Future<MzResponseEntity<dynamic>>> features = [];
     var failList = [];
     var successList = [];
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
-        features.add(DeviceService.setPower(deviceInfo, onOff));
+        // features.add(DeviceService.setPower(deviceInfo, onOff));
+        features.add(LightGroupApi.powerPDM(deviceInfo, onOff));
         // var res = await DeviceService.setPower(deviceInfo, onOff);
         // if (res) {
         //   Timer(const Duration(seconds: 1), () {
@@ -260,9 +261,9 @@ class CenterControlService {
     for (var i = 1; i <= lightList.length; i++) {
       var deviceInfo = lightList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
-        features.add(DeviceService.setPower(deviceInfo, onOff));
+        // features.add(DeviceService.setPower(deviceInfo, onOff));
         // var res = await DeviceService.setPower(deviceInfo, onOff);
-        if (results[i - 1]) {
+        if (results[i - 1].isSuccess) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);
           });
@@ -297,19 +298,19 @@ class CenterControlService {
             // await WIFILightApi.brightnessLua(deviceInfo.applianceCode, value);
           }
         } else if (deviceInfo.type == '0x21') {
-          MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
-              deviceInfo.applianceCode, deviceInfo.masterId);
-          Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
-          var nodeId = infoMap["nodeid"];
+          // MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+          //     deviceInfo.applianceCode, deviceInfo.masterId);
+          // Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+          // var nodeId = infoMap["nodeid"];
           if (zigbeeControllerList[deviceInfo.modelNumber] ==
               '0x21_light_colorful') {
-            features.add(ZigbeeLightApi.adjustPDM(
-                deviceInfo.masterId,
-                value,
-                // deviceInfo.detail!["lightPanelDeviceList"][0]
-                // ["colorTemperature"],
-                colorTempValue,
-                nodeId));
+            // features.add(ZigbeeLightApi.adjustPDM(
+            //     deviceInfo.masterId,
+            //     value,
+            //     // deviceInfo.detail!["lightPanelDeviceList"][0]
+            //     // ["colorTemperature"],
+            //     colorTempValue,
+            //     nodeId));
             // res = await ZigbeeLightApi.adjustPDM(
             //     deviceInfo.masterId,
             //     value,
@@ -319,8 +320,8 @@ class CenterControlService {
           }
           if (zigbeeControllerList[deviceInfo.modelNumber] ==
               '0x21_light_noColor') {
-            features.add(ZigbeeLightApi.adjustPDM(
-                deviceInfo.masterId, value, colorTempValue, nodeId));
+            // features.add(ZigbeeLightApi.adjustPDM(
+            //     deviceInfo.masterId, value, colorTempValue, nodeId));
             // res = await ZigbeeLightApi.adjustPDM(
             //     deviceInfo.masterId, value, 0, nodeId);
           }
@@ -354,6 +355,7 @@ class CenterControlService {
       BuildContext context, num value, num lightnessValue) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    logger.i('灯具$lightList', deviceModel.deviceList);
     List<Future<MzResponseEntity<dynamic>>> features = [];
     var successList = [];
     var failList = [];
@@ -373,41 +375,42 @@ class CenterControlService {
           //     deviceInfo.applianceCode, value);
         }
       } else if (deviceInfo.type == '0x21') {
-        MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
-            deviceInfo.applianceCode, deviceInfo.masterId);
-        Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
-        var nodeId = infoMap["nodeid"];
+        // MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
+        //     deviceInfo.applianceCode, deviceInfo.masterId);
+        // Map<String, dynamic> infoMap = json.decode(gatewayInfo.result);
+        // var nodeId = infoMap["nodeid"];
         if (zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_light_colorful') {
-          features.add(ZigbeeLightApi.adjustPDM(
-              deviceInfo.masterId,
-              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-              lightnessValue,
-              value,
-              nodeId));
-          res = await ZigbeeLightApi.adjustPDM(
-              deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-              value,
-              nodeId);
+          // features.add(ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     lightnessValue,
+          //     value,
+          //     nodeId));
+          // res = await ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     value,
+          //     nodeId);
         }
         if (zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_light_noColor') {
-          features.add(ZigbeeLightApi.adjustPDM(
-              deviceInfo.masterId,
-              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-              lightnessValue,
-              value,
-              nodeId));
-          res = await ZigbeeLightApi.adjustPDM(
-              deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
-              value,
-              nodeId);
+          // features.add(ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     lightnessValue,
+          //     value,
+          //     nodeId));
+          // res = await ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     value,
+          //     nodeId);
         }
       } else {
         // 灯组
-        // features.add(LightGroupApi.colorTemperaturePDM(deviceInfo, value));
+        logger.i('插入灯组指令');
+        features.add(LightGroupApi.colorTemperaturePDM(deviceInfo, value));
         // res = await LightGroupApi.colorTemperaturePDM(deviceInfo, value);
       }
       // if (res.isSuccess) {
@@ -428,7 +431,7 @@ class CenterControlService {
       }
     }
 
-    return successList.isNotEmpty;
+    return true;
   }
 
   /// 空调

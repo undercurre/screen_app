@@ -22,8 +22,10 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      temperature = context.read<StandbyChangeNotifier>().temperature;
+    });
     initQuery();
-
   }
 
   @override
@@ -64,7 +66,7 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
   Future<void> updateWeather(String cityId) async {
     /// 2023-2-16 增加时间间隔过滤
     /// 严格控制接口的刷新次数，此接口按次收费
-    if(DateTime.now().millisecondsSinceEpoch - lastUpdateWeatherTime < 2 * 60 * 60 * 1000) {
+    if(DateTime.now().millisecondsSinceEpoch - lastUpdateWeatherTime < 2 * 60 * 60 * 1000 && lastUpdateWeatherTime != 0) {
       return;
     }
     lastUpdateWeatherTime = DateTime.now().millisecondsSinceEpoch;
@@ -75,6 +77,7 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
 
       setState(() {
         temperature = d.weather.grade;
+        context.read<StandbyChangeNotifier>().temperature = d.weather.grade;
         weatherString =
             '${d.weather.weatherStatus}    ${d.location.chName}    室外空气 ${d.weather.pmindex}';
 
