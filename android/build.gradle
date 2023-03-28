@@ -36,22 +36,22 @@ allprojects {
 
 
         //配置nexus私服
-        maven {
-            credentials {
-                username 'yangyunlong'
-                password 'yangyunlong123'
-            }
-            allowInsecureProtocol true
-            url "http://47.106.94.129:8081/repository/mzgd-releases"
-        }
-        maven {
-            credentials {
-                username 'yangyunlong'
-                password 'yangyunlong123'
-            }
-            allowInsecureProtocol true
-            url "http://47.106.94.129:8081/repository/mzgd-snapshots"
-        }
+//        maven {
+//            credentials {
+//                username 'yangyunlong'
+//                password 'yangyunlong123'
+//            }
+//            allowInsecureProtocol true
+//            url "http://47.106.94.129:8081/repository/mzgd-releases"
+//        }
+//        maven {
+//            credentials {
+//                username 'yangyunlong'
+//                password 'yangyunlong123'
+//            }
+//            allowInsecureProtocol true
+//            url "http://47.106.94.129:8081/repository/mzgd-snapshots"
+//        }
         //配置 iot MideaSDK
         maven {
             allowInsecureProtocol true

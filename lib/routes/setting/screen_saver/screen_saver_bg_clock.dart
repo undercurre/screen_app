@@ -38,7 +38,7 @@ class ScreenSaverBgClockState extends State<ScreenSaverBgClock> with AiWakeUPScr
   void initState() {
     super.initState();
     updateTime();
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       updateTime();
       widget.onTick();
       setState(() {});

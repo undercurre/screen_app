@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/index.dart';
 
 import '../../../channel/index.dart';
 import '../../../common/setting.dart';
@@ -35,7 +36,7 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
         registerScreenBroadcast = true;
         settingMethodChannel.registerScreenBroadcast();
         settingMethodChannel.screenStateCallback = (screenOn) {
-          debugPrint("屏幕点亮情况: $screenOn");
+          logger.i("屏幕点亮情况: $screenOn");
           if(screenOn) {
             array.fillRange(0, array.length, false);
             inClose = false;
@@ -48,8 +49,8 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
       List.copyRange(array, 0, array, 1, array.length);
       array[array.length - 1] = toBeClose;
 
-      debugPrint('toBeClose = $toBeClose');
-      debugPrint('inClose = $inClose');
+      logger.i('toBeClose = $toBeClose');
+      logger.i('inClose = $inClose');
 
       if(array.every((element) => element == false) && inClose != false
           || array.every((element) => element == true) && inClose != true) {
