@@ -55,6 +55,18 @@ class DeviceListModel extends ProfileChangeNotifier {
   List<DeviceEntity> vistualProducts = [];
 
   List<DeviceEntity> get deviceList => _deviceListResource;
+  
+  List<String> get lightInGroupsList {
+    List<String> lights = [];
+    var lightGroupList = deviceList.where((element) => element.type == 'lightGroup').toList();
+    for (var i = 0; i < lightGroupList.length; i ++) {
+      var lightList = lightGroupList[i].detail!["applianceList"];
+      for (var j = 0; j < lightList.length; j ++) {
+        lights.add(lightList[j]["applianceCode"].toString());
+      }
+    }
+    return lights;
+  }
 
   List<DeviceEntity> get showList {
     var entityList = deviceList.where(showFilter).toList() + vistualProducts;
