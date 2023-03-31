@@ -10,13 +10,15 @@ import 'code_to_image.dart';
 import 'show_datetime.dart';
 
 // 页面定义
-class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState {
+class WeatherPageState extends State<WeatherPage>
+    with AiWakeUPScreenSaverState {
   String temperature = '--';
   String weatherString = '--';
   String weatherBg = '';
   String weatherIcon = '';
   late String weatherCode;
   late Timer _timer;
+  bool _gredientFlag = true;
   int lastUpdateWeatherTime = 0; // 最后刷新天气的时间
 
   @override
@@ -38,6 +40,7 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
   // 获取家庭组
   Future<void> initQuery() async {
     // 预加载背景图
+
     weatherCode =
         Provider.of<StandbyChangeNotifier>(context, listen: false).weatherCode;
 
@@ -61,12 +64,20 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
       debugPrint('update weather');
       widget.onTick();
     });
+
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      setState(() {
+        _gredientFlag = false;
+      });
+    });
   }
 
   Future<void> updateWeather(String cityId) async {
     /// 2023-2-16 增加时间间隔过滤
     /// 严格控制接口的刷新次数，此接口按次收费
-    if(DateTime.now().millisecondsSinceEpoch - lastUpdateWeatherTime < 2 * 60 * 60 * 1000 && lastUpdateWeatherTime != 0) {
+    if (DateTime.now().millisecondsSinceEpoch - lastUpdateWeatherTime <
+            2 * 60 * 60 * 1000 &&
+        lastUpdateWeatherTime != 0) {
       return;
     }
     lastUpdateWeatherTime = DateTime.now().millisecondsSinceEpoch;
@@ -122,16 +133,33 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
 
   @override
   Widget build(BuildContext context) {
-    Widget showBgImage = DecoratedBox(
-      decoration: BoxDecoration(
-          image: weatherBg != ''
-              ? DecorationImage(
-                  image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
-                  fit: BoxFit.cover,
-                )
-              : null,
-          color: const Color.fromRGBO(0, 0, 0, 0)),
-    );
+    // Widget showBgImage = DecoratedBox(
+    //   decoration: BoxDecoration(
+    //       image: weatherBg != ''
+    //           ? DecorationImage(
+    //               image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
+    //               fit: BoxFit.cover,
+    //             )
+    //           : null,
+    //       color: const Color.fromRGBO(0, 0, 0, 0)),
+    // );
+
+    Widget showBgImage = Stack(alignment: Alignment.center, children: [
+      AnimatedOpacity(
+        duration: const Duration(milliseconds: 2000),
+        opacity: _gredientFlag ? 1.0 : 0.0,
+        child: Image(
+          image: AssetImage("assets/imgs/weather/bg-sunny.png"),
+        ),
+      ),
+      AnimatedOpacity(
+        duration: const Duration(milliseconds: 2000),
+        opacity: _gredientFlag ? 0.0 : 1.0,
+        child: Image(
+          image: AssetImage("assets/imgs/weather/bg-$weatherBg.png"),
+        ),
+      )
+    ]);
 
     Widget showTemperature = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +238,6 @@ class WeatherPageState extends State<WeatherPage> with AiWakeUPScreenSaverState 
 }
 
 class WeatherPage extends AbstractSaverScreen with StandbyOnSaverScreen {
-
   WeatherPage({super.key});
 
   @override
