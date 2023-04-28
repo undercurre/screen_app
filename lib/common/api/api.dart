@@ -319,9 +319,7 @@ class Api {
           forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
           Global.saveProfile();
         } else if(isWillLoginExpire) {
-          await iotAutoLogin(0);
-          await iotAutoLogin(1);
-          await mzAutoLogin();
+          !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
         }
       }
     } finally{
