@@ -191,9 +191,8 @@ class Api {
     return entity.isSuccess;
   }
 
-  static Future<bool> iotAutoLogin() async {
+  static Future<bool> iotAutoLogin(int rule) async {
     Map<String, dynamic>? queryParameters = {};
-    const int rule = 1;
     Options options = Options();
     options.extra ??= {};
     options.headers ??= {};
@@ -291,7 +290,7 @@ class Api {
     } else if (rule == 0) {
       // 刷新的令牌密码tokenPwd
       Global.user?.tokenPwd = entity.data['tokenPwd'];
-      Global.user?.expired = entity.data['expiredDate'];
+      Global.user?.pwdExpired = entity.data['expiredDate'];
     }
 
     Global.saveProfile();
@@ -299,8 +298,14 @@ class Api {
   }
 
   static bool get isWillLoginExpire {
+    bool  tokenExpired;
+    bool pwdExpired;
     var time = DateTime.fromMillisecondsSinceEpoch(Global.user?.expired?.toInt() ?? 0);
-    return time.isBefore(DateTime.now().add(const Duration(minutes: 30)));
+    tokenExpired = time.isBefore(DateTime.now().add(const Duration(minutes: 30)));
+    var time1 = DateTime.fromMillisecondsSinceEpoch(Global.user?.pwdExpired?.toInt() ?? 0);
+    pwdExpired = time1.isBefore(DateTime.now().add(const Duration(minutes: 30)));
+
+    return tokenExpired && pwdExpired;
   }
 
   static var forceRefresh = true;
@@ -311,10 +316,11 @@ class Api {
       _lock.lock();
       if(Global.isLogin) {
         if(forceRefresh) {
-          forceRefresh = !await iotAutoLogin() || !await mzAutoLogin();
+          forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
           Global.saveProfile();
         } else if(isWillLoginExpire) {
-          await iotAutoLogin();
+          await iotAutoLogin(0);
+          await iotAutoLogin(1);
           await mzAutoLogin();
         }
       }
