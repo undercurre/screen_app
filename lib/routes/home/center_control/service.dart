@@ -118,12 +118,15 @@ class CenterControlService {
 
   /// 灯光
   static bool isLightPower(BuildContext context) {
-    var lightList = context.read<DeviceListModel>().lightList;
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
     var totalPower = false;
     var log = '';
-    if (lightList.isNotEmpty) {
-      for (var i = 1; i <= lightList.length; i++) {
-        var deviceInfo = lightList[i - 1];
+    if (filteredList.isNotEmpty) {
+      for (var i = 1; i <= filteredList.length; i++) {
+        var deviceInfo = filteredList[i - 1];
         log =
         '$log中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) &&
             DeviceService.isOnline(deviceInfo)}';
@@ -143,11 +146,14 @@ class CenterControlService {
   static num lightTotalBrightness(BuildContext context) {
     late num totalBrightnessValue;
     List<num> totalBrightnessList = [];
-    var lightList = context.read<DeviceListModel>().lightList;
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
     var log = '';
-    if (lightList.isNotEmpty) {
-      for (var i = 1; i <= lightList.length; i++) {
-        var deviceInfo = lightList[i - 1];
+    if (filteredList.isNotEmpty) {
+      for (var i = 1; i <= filteredList.length; i++) {
+        var deviceInfo = filteredList[i - 1];
         // logger.i('中控${deviceInfo.name}${DeviceService.isPower(deviceInfo) && DeviceService.isOnline(deviceInfo)}');
         if (DeviceService.isPower(deviceInfo) &&
             DeviceService.isOnline(deviceInfo)) {
@@ -190,10 +196,13 @@ class CenterControlService {
   static num lightTotalColorTemperature(BuildContext context) {
     late num totalColorTemperatureValue;
     List<num> totalColorTemperatureList = [];
-    var lightList = context.read<DeviceListModel>().lightList;
-    if (lightList.isNotEmpty) {
-      for (var i = 1; i <= lightList.length; i++) {
-        var deviceInfo = lightList[i - 1];
+    var deviceModel = context.read<DeviceListModel>();
+    var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
+    if (filteredList.isNotEmpty) {
+      for (var i = 1; i <= filteredList.length; i++) {
+        var deviceInfo = filteredList[i - 1];
         // logger.i(
         //     '中控${deviceInfo.name}开关:${DeviceService.isPower(deviceInfo)}在线情况:${DeviceService.isOnline(deviceInfo)}');
         if (DeviceService.isPower(deviceInfo) &&
@@ -238,13 +247,34 @@ class CenterControlService {
       BuildContext context, bool onOff) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
+    List<Future<bool>> features = [];
     var failList = [];
     var successList = [];
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
+    for (var i = 1; i <= filteredList.length; i++) {
+      var deviceInfo = filteredList[i - 1];
       if (DeviceService.isOnline(deviceInfo)) {
-        var res = await DeviceService.setPower(deviceInfo, onOff);
-        if (res) {
+        features.add(DeviceService.setPower(deviceInfo, onOff));
+        // features.add(LightGroupApi.powerPDM(deviceInfo, onOff));
+        // var res = await DeviceService.setPower(deviceInfo, onOff);
+        // if (res) {
+        //   Timer(const Duration(seconds: 1), () {
+        //     deviceModel.updateDeviceDetail(deviceInfo);
+        //   });
+        //   successList.add(deviceInfo.name);
+        // } else {
+        //   failList.add(deviceInfo.name);
+        // }
+      }
+    }
+    final results = await Future.wait(features);
+    for (var i = 1; i <= filteredList.length; i++) {
+      var deviceInfo = filteredList[i - 1];
+      if (DeviceService.isOnline(deviceInfo)) {
+        // features.add(DeviceService.setPower(deviceInfo, onOff));
+        // var res = await DeviceService.setPower(deviceInfo, onOff);
+        if (results[i - 1]) {
           Timer(const Duration(seconds: 1), () {
             deviceModel.updateDeviceDetail(deviceInfo);
           });
@@ -258,22 +288,27 @@ class CenterControlService {
   }
 
   static Future<bool> lightBrightnessControl(
-      BuildContext context, num value) async {
+      BuildContext context, num value, num colorTempValue) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
+    List<Future<MzResponseEntity<dynamic>>> features = [];
     var successList = [];
     var failList = [];
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
+    for (var i = 1; i <= filteredList.length; i++) {
+      var deviceInfo = filteredList[i - 1];
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.detail != null && deviceInfo.detail != {}) {
         if (deviceInfo.type == '0x13') {
           if (deviceInfo.sn8 == '79009833') {
-            res =
-            await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
+            features.add(WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value));
+            // res =
+            // await WIFILightApi.brightnessPDM(deviceInfo.applianceCode, value);
           } else {
-            res =
-            await WIFILightApi.brightnessLua(deviceInfo.applianceCode, value);
+            features.add(WIFILightApi.brightnessLua(deviceInfo.applianceCode, value));
+            // res =
+            // await WIFILightApi.brightnessLua(deviceInfo.applianceCode, value);
           }
         } else if (deviceInfo.type == '0x21') {
           MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
@@ -282,49 +317,77 @@ class CenterControlService {
           var nodeId = infoMap["nodeid"];
           if (zigbeeControllerList[deviceInfo.modelNumber] ==
               '0x21_light_colorful') {
-            res = await ZigbeeLightApi.adjustPDM(
+            features.add(ZigbeeLightApi.adjustPDM(
                 deviceInfo.masterId,
                 value,
-                deviceInfo.detail!["lightPanelDeviceList"][0]
-                    ["colorTemperature"],
-                nodeId);
+                // deviceInfo.detail!["lightPanelDeviceList"][0]
+                // ["colorTemperature"],
+                colorTempValue,
+                nodeId));
+            // res = await ZigbeeLightApi.adjustPDM(
+            //     deviceInfo.masterId,
+            //     value,
+            //     deviceInfo.detail!["lightPanelDeviceList"][0]
+            //         ["colorTemperature"],
+            //     nodeId);
           }
           if (zigbeeControllerList[deviceInfo.modelNumber] ==
               '0x21_light_noColor') {
-            res = await ZigbeeLightApi.adjustPDM(
-                deviceInfo.masterId, value, 0, nodeId);
+            features.add(ZigbeeLightApi.adjustPDM(
+                deviceInfo.masterId, value, colorTempValue, nodeId));
+            // res = await ZigbeeLightApi.adjustPDM(
+            //     deviceInfo.masterId, value, 0, nodeId);
           }
         } else {
           // 灯组
-          res = await LightGroupApi.brightnessPDM(deviceInfo, value);
+          features.add(LightGroupApi.brightnessPDM(deviceInfo, value));
+          // res = await LightGroupApi.brightnessPDM(deviceInfo, value);
         }
-        if (res.isSuccess) {
-          deviceModel.updateDeviceDetail(deviceInfo);
-          successList.add(deviceInfo.name);
-        } else {
-          failList.add(deviceInfo.name);
-        }
+        // if (res.isSuccess) {
+        //   deviceModel.updateDeviceDetail(deviceInfo);
+        //   successList.add(deviceInfo.name);
+        // } else {
+        //   failList.add(deviceInfo.name);
+        // }
+      }
+    }
+    final results = await Future.wait(features);
+    for(var i = 1; i <= filteredList.length; i++) {
+      if(results[i - 1].isSuccess) {
+        var deviceInfo = filteredList[i - 1];
+        deviceModel.updateDeviceDetail(deviceInfo);
+        successList.add(1);
+      } else {
+        failList.add(0);
       }
     }
     return successList.isNotEmpty;
   }
 
   static Future<bool> lightColorTemperatureControl(
-      BuildContext context, num value) async {
+      BuildContext context, num value, num lightnessValue) async {
     var deviceModel = context.read<DeviceListModel>();
     var lightList = deviceModel.lightList;
+    var lightInGroupsList = deviceModel.lightInGroupsList;
+    List<DeviceEntity> filteredList = lightList.where((light) => !lightInGroupsList.contains(light.applianceCode)).toList();
+    logger.i('灯具$lightList', deviceModel.deviceList);
+    List<Future<MzResponseEntity<dynamic>>> features = [];
     var successList = [];
     var failList = [];
-    for (var i = 1; i <= lightList.length; i++) {
-      var deviceInfo = lightList[i - 1];
+    for (var i = 1; i <= filteredList.length; i++) {
+      var deviceInfo = filteredList[i - 1];
       late MzResponseEntity<dynamic> res;
       if (deviceInfo.type == '0x13') {
         if (deviceInfo.sn8 == '79009833') {
-          res = await WIFILightApi.colorTemperaturePDM(
-              deviceInfo.applianceCode, value);
+          features.add(WIFILightApi.colorTemperaturePDM(
+              deviceInfo.applianceCode, value));
+          // res = await WIFILightApi.colorTemperaturePDM(
+          //     deviceInfo.applianceCode, value);
         } else {
-          res = await WIFILightApi.colorTemperatureLua(
-              deviceInfo.applianceCode, value);
+          features.add(WIFILightApi.colorTemperatureLua(
+              deviceInfo.applianceCode, value));
+          // res = await WIFILightApi.colorTemperatureLua(
+          //     deviceInfo.applianceCode, value);
         }
       } else if (deviceInfo.type == '0x21') {
         MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(
@@ -333,32 +396,57 @@ class CenterControlService {
         var nodeId = infoMap["nodeid"];
         if (zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_light_colorful') {
-          res = await ZigbeeLightApi.adjustPDM(
+          features.add(ZigbeeLightApi.adjustPDM(
               deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              lightnessValue,
               value,
-              nodeId);
+              nodeId));
+          // res = await ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     value,
+          //     nodeId);
         }
         if (zigbeeControllerList[deviceInfo.modelNumber] ==
             '0x21_light_noColor') {
-          res = await ZigbeeLightApi.adjustPDM(
+          features.add(ZigbeeLightApi.adjustPDM(
               deviceInfo.masterId,
-              deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              // deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+              lightnessValue,
               value,
-              nodeId);
+              nodeId));
+          // res = await ZigbeeLightApi.adjustPDM(
+          //     deviceInfo.masterId,
+          //     deviceInfo.detail!["lightPanelDeviceList"][0]["brightness"],
+          //     value,
+          //     nodeId);
         }
       } else {
         // 灯组
-        res = await LightGroupApi.colorTemperaturePDM(deviceInfo, value);
+        logger.i('插入灯组指令');
+        features.add(LightGroupApi.colorTemperaturePDM(deviceInfo, value));
+        // res = await LightGroupApi.colorTemperaturePDM(deviceInfo, value);
       }
-      if (res.isSuccess) {
+      // if (res.isSuccess) {
+      //   deviceModel.updateDeviceDetail(deviceInfo);
+      //   successList.add(deviceInfo.name);
+      // } else {
+      //   failList.add(deviceInfo.name);
+      // }
+    }
+    final results = await Future.wait(features);
+    for(var i = 1; i <= filteredList.length; i++) {
+      if(results[i - 1].isSuccess) {
+        var deviceInfo = filteredList[i - 1];
         deviceModel.updateDeviceDetail(deviceInfo);
-        successList.add(deviceInfo.name);
+        successList.add(1);
       } else {
-        failList.add(deviceInfo.name);
+        failList.add(0);
       }
     }
-    return successList.isNotEmpty;
+
+    return true;
   }
 
   /// 空调

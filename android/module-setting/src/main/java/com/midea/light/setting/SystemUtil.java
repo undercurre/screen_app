@@ -605,6 +605,11 @@ public class SystemUtil {
 
     }
 
+    public static boolean isScreenOn() {
+        PowerManager powerManager = (PowerManager) BaseApplication.getContext().getSystemService(Context.POWER_SERVICE);
+        return powerManager.isScreenOn();
+    }
+
     /**
      * 开关背光
      *

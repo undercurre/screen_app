@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/top_to_bottom_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
+import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../channel/ota_channel.dart';
@@ -59,6 +61,7 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
 
     ShowStandby.startTimer();
     ShowStandby.aiRestartTimer();
+    context.read<StandbyChangeNotifier>().startWeatherTimer();
     bus.on('onPointerDown', (arg) {
       ShowStandby.startTimer();
     });

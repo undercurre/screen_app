@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/generated/json/user_entity.g.dart';
@@ -19,6 +20,7 @@ class UserEntity {
   late String uid;
   String? mzAccessToken; // 美智登录token
   int? expired;
+  int? pwdExpired;
 
   UserEntity();
 

@@ -22,7 +22,6 @@ abstract class AbstractSaverScreen extends StatefulWidget {
 mixin StandbyOnSaverScreen on AbstractSaverScreen {
 
   final List<bool?> array = List.generate(10, (index) => null);
-  bool? inClose;
   bool registerScreenBroadcast = false;
 
   @override
@@ -31,30 +30,17 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
 
     () async {
 
-      if(!registerScreenBroadcast) {
-        registerScreenBroadcast = true;
-        settingMethodChannel.registerScreenBroadcast();
-        settingMethodChannel.screenStateCallback = (screenOn) {
-          debugPrint("屏幕点亮情况: $screenOn");
-          if(screenOn) {
-            array.fillRange(0, array.length, false);
-            inClose = false;
-          }
-        };
-      }
-
       bool toBeClose = Setting.instant().isStandByDuration();
 
       List.copyRange(array, 0, array, 1, array.length);
       array[array.length - 1] = toBeClose;
 
       debugPrint('toBeClose = $toBeClose');
-      debugPrint('inClose = $inClose');
 
-      if(array.every((element) => element == false) && inClose != false
-          || array.every((element) => element == true) && inClose != true) {
+      if(array.every((element) => element == false) || array.every((element) => element == true)) {
         settingMethodChannel.setScreenClose(toBeClose);
-        inClose = toBeClose;
+        // 重新复位数组，纠正上面方法设置的频率
+        array.fillRange(0, array.length, !toBeClose);
       }
     }();
 
@@ -63,11 +49,6 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
   @override
   void exit() {
     settingMethodChannel.setScreenClose(false);
-    if(registerScreenBroadcast) {
-      // registerScreenBroadcast = false;
-      settingMethodChannel.unRegisterScreenBroadcast();
-      settingMethodChannel.screenStateCallback = null;
-    }
   }
 
 }

@@ -55,6 +55,18 @@ class DeviceListModel extends ProfileChangeNotifier {
   List<DeviceEntity> vistualProducts = [];
 
   List<DeviceEntity> get deviceList => _deviceListResource;
+  
+  List<String> get lightInGroupsList {
+    List<String> lights = [];
+    var lightGroupList = deviceList.where((element) => element.type == 'lightGroup').toList();
+    for (var i = 0; i < lightGroupList.length; i ++) {
+      var lightList = lightGroupList[i].detail!["applianceList"];
+      for (var j = 0; j < lightList.length; j ++) {
+        lights.add(lightList[j]["applianceCode"].toString());
+      }
+    }
+    return lights;
+  }
 
   List<DeviceEntity> get showList {
     var entityList = deviceList.where(showFilter).toList() + vistualProducts;
@@ -172,6 +184,7 @@ class DeviceListModel extends ProfileChangeNotifier {
     if (curDeviceList.isNotEmpty) {
       var curDevice = curDeviceList[0];
       var newDetail = await DeviceService.getDeviceDetail(deviceInfo);
+      logger.i('请求来源：state详情');
       if (deviceInfo.type.contains('smartControl') || deviceInfo.type.contains('singlePanel')) {
         var filterList = vistualProducts
             .where((element) => element.applianceCode == deviceInfo.applianceCode && element.type == deviceInfo.type)
@@ -263,6 +276,7 @@ class DeviceListModel extends ProfileChangeNotifier {
       };
       logger.i('生成灯组', vistualDeviceForGroup);
       deviceList.add(vistualDeviceForGroup);
+      logger.i('生成灯组后', deviceList.where((element) => element.type == 'lightGroup'));
       notifyListeners();
     }
   }
@@ -303,6 +317,7 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
         await updateDeviceDetail(deviceInfo);
+        logger.i('请求来源： onlyDetail详情');
       }
     }
   }
@@ -313,8 +328,8 @@ class DeviceListModel extends ProfileChangeNotifier {
     await updateHomeData();
     logger.i('更新房间内所有设备状态优化后：更新房间信息', stopwatch.elapsedMilliseconds / 1000);
     // 查灯组
-    // await selectLightGroupList();
-    // logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);x
+    await selectLightGroupList();
+    logger.i('更新房间内所有设备状态优化后：查灯组', stopwatch.elapsedMilliseconds / 1000);
     // 更新设备detail
     List<Future<void>> futures = [];
     for (int xx = 1; xx <= showList.length; xx++) {
@@ -326,6 +341,7 @@ class DeviceListModel extends ProfileChangeNotifier {
           DeviceService.isSupport(deviceInfo)) {
         // 调用provider拿detail存入状态管理里
         futures.add(updateDeviceDetail(deviceInfo));
+        logger.i('请求来源：updateAllDetailWaited');
       }
     }
     await Future.wait(futures);

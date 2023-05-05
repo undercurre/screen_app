@@ -18,6 +18,8 @@ import 'package:screen_app/routes/home/center_control/view_part.dart';
 
 import '../../../common/api/user_api.dart';
 import '../../../common/global.dart';
+import '../../../common/push.dart';
+import '../../../mixins/throttle.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../states/room_change_notifier.dart';
 
@@ -35,7 +37,8 @@ class CenterControlPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CenterControlPageState();
 }
 
-class _CenterControlPageState extends State<CenterControlPage> {
+class _CenterControlPageState extends State<CenterControlPage> with Throttle {
+  Function(Map<String, dynamic> arg)? _eventCallback;
   double roomTitleScale = 1;
 
   List<ViewPart> cardWidgetList = [];
@@ -143,6 +146,27 @@ class _CenterControlPageState extends State<CenterControlPage> {
       }
     });
     initPage();
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+    //     String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+    //     Map<String, dynamic> eventMap = json.decode(event);
+    //     String nodeId = eventMap['nodeId'] ?? "";
+    //     logger.i('收到上报1');
+    //     if (nodeId.isNotEmpty) {
+    //       throttle(() {
+    //         initPage();
+    //       }, durationTime: const Duration(milliseconds: 8000));
+    //     }
+    //   }));
+    //
+    //   Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
+    //     String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+    //     Map<String, dynamic> eventMap = json.decode(event);
+    //     String nodeId = eventMap['nodeId'] ?? "";
+    //     logger.i('收到上报2');
+    //   }));
+    // });
   }
 
   void toConfigPage(String route) {

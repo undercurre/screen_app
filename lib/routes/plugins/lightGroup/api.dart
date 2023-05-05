@@ -110,6 +110,7 @@ class LightGroupApi {
         ) {
           logger.i('这盏灯是调色灯');
           total = true;
+          break;
         } else {
           logger.i('这盏灯是调光灯');
         }
