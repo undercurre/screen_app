@@ -359,56 +359,7 @@ public final class FileUtils {
         return true;
     }
 
-    /**
-     * 删除目录下所有文件，不包括自身文件夹
-     *
-     * @param Path 路径
-     */
-    public static boolean deleteFolderFile(String Path) {
-        boolean flag = false;
-        File file = new File(Path);
-        if (!file.exists()) {
-            return flag;
-        }
-        if (!file.isDirectory()) {
-            return flag;
-        }
-        String[] tempList = file.list();
-        File temp = null;
-        for (int i = 0; i < tempList.length; i++) {
-            if (Path.endsWith(File.separator)) {
-                temp = new File(Path + tempList[i]);
-            } else {
-                temp = new File(Path + File.separator + tempList[i]);
-            }
-            if (temp.isFile()) {
-                temp.delete();
-            }
-            if (temp.isDirectory()) {
-                deleteFolderFile(Path + "/" + tempList[i]);//先删除文件夹里面的文件
-                deleteAllFile(Path + "/" + tempList[i]);//再删除空文件夹
-                flag = true;
-            }
-        }
-        return flag;
 
-    }
-
-    /**
-     * 删除目录下所有文件，包括自身文件夹
-     *
-     * @param folderPath 路径
-     */
-    public static void deleteAllFile(String folderPath) {
-        try {
-            deleteFolderFile(folderPath); //删除完里面所有内容
-            String filePath = folderPath;
-            File myFilePath = new File(filePath);
-            myFilePath.delete(); //删除空文件夹
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * 保存文件
@@ -656,6 +607,57 @@ public final class FileUtils {
         }
 
         return tempList;
+    }
+
+    /**
+     * 删除目录下所有文件，不包括自身文件夹
+     *
+     * @param Path 路径
+     */
+    public static boolean deleteFolderFile(String Path) {
+        boolean flag = false;
+        File file = new File(Path);
+        if (!file.exists()) {
+            return flag;
+        }
+        if (!file.isDirectory()) {
+            return flag;
+        }
+        String[] tempList = file.list();
+        File temp = null;
+        for (int i = 0; i < tempList.length; i++) {
+            if (Path.endsWith(File.separator)) {
+                temp = new File(Path + tempList[i]);
+            } else {
+                temp = new File(Path + File.separator + tempList[i]);
+            }
+            if (temp.isFile()) {
+                temp.delete();
+            }
+            if (temp.isDirectory()) {
+                deleteFolderFile(Path + "/" + tempList[i]);//先删除文件夹里面的文件
+                deleteAllFile(Path + "/" + tempList[i]);//再删除空文件夹
+                flag = true;
+            }
+        }
+        return flag;
+
+    }
+
+    /**
+     * 删除目录下所有文件，包括自身文件夹
+     *
+     * @param folderPath 路径
+     */
+    public static void deleteAllFile(String folderPath) {
+        try {
+            deleteFolderFile(folderPath); //删除完里面所有内容
+            String filePath = folderPath;
+            File myFilePath = new File(filePath);
+            myFilePath.delete(); //删除空文件夹
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

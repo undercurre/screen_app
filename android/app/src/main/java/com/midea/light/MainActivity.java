@@ -4,13 +4,16 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -87,6 +90,10 @@ public class MainActivity extends FlutterActivity {
             Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
             mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
         }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_TIME_TICK);
+        registerReceiver(receiver, filter);
+        SLKClear();
     }
 
 
@@ -98,6 +105,12 @@ public class MainActivity extends FlutterActivity {
         mChannels.init(this, flutterEngine.getDartExecutor().getBinaryMessenger());
         initReceive();
         initNotifyChannel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 
     private void initReceive() {
@@ -452,6 +465,34 @@ public class MainActivity extends FlutterActivity {
 
         } else {
             SensorArry.clear();
+        }
+
+    }
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_TIME_TICK)) {
+                Calendar cal = Calendar.getInstance();
+                int min = cal.get(Calendar.MINUTE);
+                if (min == 0 || min == 30) {
+                    SLKClear();
+                }
+            }
+        }
+    };
+
+    private void SLKClear() {
+        try {
+            Thread thread = new Thread() {
+                public void run() {
+                    FileUtils.deleteAllFile(Environment.getExternalStorageDirectory().getPath() + "/SLK");
+                }
+            };
+            thread.start();
+        }catch (Exception e){
+
         }
 
     }
