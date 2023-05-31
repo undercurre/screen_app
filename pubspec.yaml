@@ -104,6 +104,7 @@ flutter:
     - assets/imgs/center/
     - assets/imgs/zigbee/
     - assets/imgs/
+    - assets/newUI/
     - assets/
     - .sit.env
     - .prod.env

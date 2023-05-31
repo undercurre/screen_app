@@ -77,7 +77,9 @@ class _CellState extends State<MzCell> {
   Widget build(BuildContext context) {
     // 属性校验
     if (widget.titleSlot != null &&
-        (widget.title != '' || StrUtils.isNotNullAndEmpty(widget.desc) || StrUtils.isNotNullAndEmpty(widget.tag))) {
+        (widget.title != '' ||
+            StrUtils.isNotNullAndEmpty(widget.desc) ||
+            StrUtils.isNotNullAndEmpty(widget.tag))) {
       throw Error.safeToString('titleSlot与其他title属性不应同时赋值');
     }
     if (widget.titleSlot == null && widget.title == '') {
@@ -112,7 +114,8 @@ class _CellState extends State<MzCell> {
             margin: const EdgeInsets.only(left: 10),
             padding: const EdgeInsets.symmetric(horizontal: 6),
             decoration: const BoxDecoration(
-                color: Color.fromRGBO(216, 216, 216, 0.3), borderRadius: BorderRadius.all(Radius.circular(11.0))),
+                color: Color.fromRGBO(216, 216, 216, 0.3),
+                borderRadius: BorderRadius.all(Radius.circular(11.0))),
             child: Text(
               widget.tag!,
               maxLines: 1,
@@ -135,6 +138,7 @@ class _CellState extends State<MzCell> {
       // 标题行
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: compositeTitle,
       ),
 
@@ -157,13 +161,17 @@ class _CellState extends State<MzCell> {
 
     List<Widget> cellChildren = <Widget>[
       // 判断是否插入左边图标
-      if (widget.avatarIcon != null) Padding(padding: const EdgeInsets.only(right: 10), child: widget.avatarIcon!),
+      if (widget.avatarIcon != null)
+        Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: widget.avatarIcon!),
 
       // 插入中间列，middleCell || titleSlot
       Expanded(
           flex: 3,
           child: widget.titleSlot == null
               ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: middleCell,
                 )
@@ -191,7 +199,9 @@ class _CellState extends State<MzCell> {
         ),
 
       // 判断是否插入右边图标
-      if (widget.rightIcon != null) Padding(padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
+      if (widget.rightIcon != null)
+        Padding(
+            padding: const EdgeInsets.only(left: 10), child: widget.rightIcon!),
 
       // 判断是否插入右边箭头
       if (widget.hasSwitch)
@@ -215,25 +225,34 @@ class _CellState extends State<MzCell> {
       if (widget.hasArrow)
         Padding(
             padding: const EdgeInsets.only(left: 10),
-            child: Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)),
+            child:
+                Image.asset("assets/imgs/icon/arrow-right.png", width: 15.0)),
     ];
 
     // 背景、边框设置
     BoxDecoration cellDecoration = BoxDecoration(
         color: widget.bgColor,
         border: Border(
-            top: widget.hasTopBorder ? BorderSide(color: widget.borderColor) : BorderSide.none,
-            bottom: widget.hasBottomBorder ? BorderSide(color: widget.borderColor) : BorderSide.none));
+            top: widget.hasTopBorder
+                ? BorderSide(color: widget.borderColor)
+                : BorderSide.none,
+            bottom: widget.hasBottomBorder
+                ? BorderSide(color: widget.borderColor)
+                : BorderSide.none));
 
     return GestureDetector(
         child: DecoratedBox(
           position: DecorationPosition.background,
           decoration: cellDecoration,
-          child: Padding(
-            padding: widget.padding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: cellChildren,
+          child: SizedBox(
+            width: 432,
+            height: 72,
+            child: Padding(
+              padding: widget.padding,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: cellChildren,
+              ),
             ),
           ),
         ),

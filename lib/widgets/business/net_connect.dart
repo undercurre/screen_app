@@ -42,7 +42,6 @@ class _LinkNetworkModel with ChangeNotifier {
   }
 
   void init() async {
-
     bool supportWifi = await netMethodChannel.supportWiFiControl();
     bool supportEthernet = await netMethodChannel.supportEthernetControl();
     bool wifiOpen = await netMethodChannel.wifiIsOpen();
@@ -54,7 +53,7 @@ class _LinkNetworkModel with ChangeNotifier {
     _data.isEthernetOn = ethernetOpen;
 
     /// 假如WiFi与EthernetOpen同时连接，则断开全部
-    if(wifiOpen && ethernetOpen) {
+    if (wifiOpen && ethernetOpen) {
       await netMethodChannel.enableWiFi(false);
       await netMethodChannel.enableEthernet(false);
       _data.isWiFiOn = false;
@@ -68,12 +67,11 @@ class _LinkNetworkModel with ChangeNotifier {
     netMethodChannel.startObserverNetState();
     netMethodChannel.registerNetChangeCallBack(_connectStateCallback);
 
-    if(_data.supportWiFi && _data.isWiFiOn) {
+    if (_data.supportWiFi && _data.isWiFiOn) {
       netMethodChannel.scanNearbyWiFi();
     }
 
     notifyListeners();
-
   }
 
   @override
@@ -99,8 +97,9 @@ class _LinkNetworkModel with ChangeNotifier {
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
     _data.wifiList = list.toSet();
-    if(_data.currentConnect?.type == UpdateType.SUCCESS) {
-      _data.wifiList?.removeWhere((element) => element == _data.currentConnect?.data);
+    if (_data.currentConnect?.type == UpdateType.SUCCESS) {
+      _data.wifiList
+          ?.removeWhere((element) => element == _data.currentConnect?.data);
     }
     notifyListeners();
   }
@@ -111,7 +110,7 @@ class _LinkNetworkModel with ChangeNotifier {
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
-      if(wifiOpen) {
+      if (wifiOpen) {
         netMethodChannel.scanNearbyWiFi();
       } else {
         netMethodChannel.stopScanNearbyWiFi();
@@ -162,7 +161,6 @@ class LinkNetwork extends StatefulWidget {
 }
 
 class _LinkNetwork extends State<LinkNetwork> {
-
   late _LinkNetworkModel _model;
 
   @override
@@ -182,47 +180,80 @@ class _LinkNetwork extends State<LinkNetwork> {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
         value: _model,
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
-          return ListView.builder(
-              itemCount: model.pageData.length,
-              itemBuilder: (BuildContext context, int index) {
-                // 有线网络
-                if (model.pageData[index] == 'headerTag') {
-                  return header(model);
-                }
-                WiFiScanResult item =
-                    model.pageData[index] as WiFiScanResult;
-                // wifi的子Item
-                return MzCell(
-                  avatarIcon: MzWiFiImage(level: item.level.toInt(), size: const Size.square(28)),
-                  rightIcon: item.auth == 'encryption' ? const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)) : null,
-                  title: item.ssid,
-                  titleSize: 18.0,
-                  hasTopBorder: true,
-                  bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-                  onTap: () {
-                    if (item.auth == 'open') {
-                      // 尝试连接开放型WiFi
-                      model.connectWiFi(
-                          result: item,
-                          password: null,
-                          callback: (result) {});
-                    } else if (item.alreadyConnected) {
-                      // 尝试连接曾经的WiFi
-                      model.connectWiFi(
-                          result: item,
-                          password: null,
-                          callback: (result) {
-                            if (!result) {
-                              showInputPasswordDialog(item, model);
-                            }
-                          });
-                    } else {
-                      // 连接新WiFi
-                      showInputPasswordDialog(item, model);
-                    }
-                  },
-                );
-              });
+          return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(11.0))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  header(model),
+                  Expanded(
+                      child: ClipRRect(
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
+                          child: ListView.builder(
+                              itemCount: model.pageData.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                // 有线网络
+                                if (model.pageData[index] == 'headerTag') {
+                                  return Container();
+                                }
+                                WiFiScanResult item =
+                                    model.pageData[index] as WiFiScanResult;
+                                // wifi的子Item
+                                return MzCell(
+                                  avatarIcon: null,
+                                  rightIcon: item.auth == 'encryption'
+                                      ? Row(
+                                          children: [
+                                            const Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 12.0),
+                                              child: Icon(
+                                                Icons.lock_outline_sharp,
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.85),
+                                              ),
+                                            ),
+                                            MzWiFiImage(
+                                                level: item.level.toInt(),
+                                                size: const Size.square(28)),
+                                          ],
+                                        )
+                                      : null,
+                                  title: item.ssid,
+                                  titleSize: 18.0,
+                                  hasTopBorder: false,
+                                  hasBottomBorder: false,
+                                  bgColor:
+                                      const Color.fromRGBO(255, 255, 255, 0.05),
+                                  onTap: () {
+                                    if (item.auth == 'open') {
+                                      // 尝试连接开放型WiFi
+                                      model.connectWiFi(
+                                          result: item,
+                                          password: null,
+                                          callback: (result) {});
+                                    } else if (item.alreadyConnected) {
+                                      // 尝试连接曾经的WiFi
+                                      model.connectWiFi(
+                                          result: item,
+                                          password: null,
+                                          callback: (result) {
+                                            if (!result) {
+                                              showInputPasswordDialog(
+                                                  item, model);
+                                            }
+                                          });
+                                    } else {
+                                      // 连接新WiFi
+                                      showInputPasswordDialog(item, model);
+                                    }
+                                  },
+                                );
+                              })))
+                ],
+              ));
         }));
   }
 
@@ -230,74 +261,58 @@ class _LinkNetwork extends State<LinkNetwork> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Visibility(
-            visible: model._data.supportEthernet,
-            child: MzCell(
-                key: UniqueKey(),
-                title: '有线网络',
-                titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-                titleSize: 24.0,
-                hasTopBorder: true,
-                hasSwitch: true,
-                initSwitchValue: model._data.isEthernetOn,
-                onSwitch: (open) => model.changeSwitch(!open, open))),
-        Visibility(
-            visible: model._data.supportWiFi,
-            child: MzCell(
-                key: UniqueKey(),
-                title: '无线局域网',
-                titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-                titleSize: 24.0,
-                hasTopBorder: true,
-                hasSwitch: true,
-                initSwitchValue: model._data.isWiFiOn,
-                onSwitch: (open) => model.changeSwitch(open, !open))),
-        Visibility(
-            visible: model._data.currentConnect != null &&
-                model._data.currentConnect!.type != UpdateType.ERROR,
-            child: MzCell(
-              avatarIcon: MzWiFiImage(level: model._data.currentConnect?.data.level.toInt() ?? 0, size: const Size.square(24)),
-              rightIcon: model._data.currentConnect?.data.auth == 'encryption'
-                  ? const Icon(Icons.lock_outline_sharp,
-                      color: Color.fromRGBO(255, 255, 255, 0.85))
-                  : null,
-              rightText: model.connectedState(model._data.currentConnect),
-              title: model._data.currentConnect?.data.ssid,
-              titleSize: 18.0,
-              hasTopBorder: true,
-              onLongPress: () {
-                if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
-                  showIgnoreDialog(model._data.currentConnect!.data);
-                }
-              },
-              bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-            )),
-        DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(
-                top: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.3))),
+        Container(
+          margin: EdgeInsets.only(left: 16.0, bottom: 13.0),
+          child: const Text(
+            '请选择链接网络',
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w400,
+              color: Color.fromRGBO(255, 255, 255, 0.85),
+              letterSpacing: 0,
+              decoration: TextDecoration.none,
+            ),
           ),
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(36, 4, 36, 4),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: const [
-                    Text('其他网络',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 0.68),
-                          fontSize: 13.0,
-                          fontFamily: "PingFangSC-Regular",
-                          decoration: TextDecoration.none,
-                        )),
-                  ])),
-        )
+        ),
+        // Visibility(
+        //     visible: model._data.currentConnect != null &&
+        //         model._data.currentConnect!.type != UpdateType.ERROR,
+        //     child: MzCell(
+        //       avatarIcon: MzWiFiImage(
+        //           level: model._data.currentConnect?.data.level.toInt() ?? 0,
+        //           size: const Size.square(24)),
+        //       rightIcon: model._data.currentConnect?.data.auth == 'encryption'
+        //           ? const Icon(Icons.lock_outline_sharp,
+        //               color: Color.fromRGBO(255, 255, 255, 0.85))
+        //           : null,
+        //       rightText: model.connectedState(model._data.currentConnect),
+        //       title: model._data.currentConnect?.data.ssid,
+        //       titleSize: 18.0,
+        //       hasTopBorder: true,
+        //       onLongPress: () {
+        //         if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
+        //           showIgnoreDialog(model._data.currentConnect!.data);
+        //         }
+        //       },
+        //       bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
+        //     )),
+        // DecoratedBox(
+        //   decoration: const BoxDecoration(
+        //     border: Border(
+        //         top: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.3))),
+        //   ),
+        //   child: Padding(
+        //       padding: const EdgeInsets.fromLTRB(36, 4, 36, 4),
+        //       child: Row(
+        //           mainAxisAlignment: MainAxisAlignment.start,
+        //           children: const [])),
+        // )
       ],
     );
   }
 
-  void showInputPasswordDialog(
-      WiFiScanResult result, _LinkNetworkModel model, [bool connectedError = false]) async {
+  void showInputPasswordDialog(WiFiScanResult result, _LinkNetworkModel model,
+      [bool connectedError = false]) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -333,6 +348,7 @@ class _LinkNetwork extends State<LinkNetwork> {
 
 class IgnorePasswordDialog extends StatelessWidget {
   final WiFiScanResult result;
+
   const IgnorePasswordDialog({super.key, required this.result});
 
   @override
@@ -364,8 +380,8 @@ class IgnorePasswordDialog extends StatelessWidget {
                   child: TextButton(
                     style: ButtonStyle(
                         elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff282828)),
+                        backgroundColor:
+                            MaterialStateProperty.all(const Color(0xff282828)),
                         shape: MaterialStateProperty.all(
                             const RoundedRectangleBorder())),
                     onPressed: () => Navigator.pop(context),
@@ -380,8 +396,8 @@ class IgnorePasswordDialog extends StatelessWidget {
                   child: TextButton(
                     style: ButtonStyle(
                         elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff267AFF)),
+                        backgroundColor:
+                            MaterialStateProperty.all(const Color(0xff267AFF)),
                         shape: MaterialStateProperty.all(
                             const RoundedRectangleBorder())),
                     onPressed: () {
@@ -409,7 +425,10 @@ class InputPasswordDialog extends StatefulWidget {
   final bool connectedError;
 
   const InputPasswordDialog(
-      {super.key, required this.result, required this.confirmAction, required this.connectedError});
+      {super.key,
+      required this.result,
+      required this.confirmAction,
+      required this.connectedError});
 
   @override
   State<StatefulWidget> createState() {
@@ -420,6 +439,7 @@ class InputPasswordDialog extends StatefulWidget {
 class _InputPasswordDialogState extends State<InputPasswordDialog> {
   var closeEye = true;
   final TextEditingController _nameController = TextEditingController();
+
   _InputPasswordDialogState();
 
   @override
@@ -438,15 +458,16 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text(
-                            '输入“${widget.result.ssid}”的密码',
-                            style: const TextStyle(color: Colors.white, fontSize: 24)),
-                        if(widget.connectedError)
+                        Text('输入“${widget.result.ssid}”的密码',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 24)),
+                        if (widget.connectedError)
                           const Text(
                             '密码错误',
                             style: TextStyle(color: Colors.red, fontSize: 16),
                           ),
-                    ],))),
+                      ],
+                    ))),
             Expanded(
                 flex: 1,
                 child: Container(
@@ -512,7 +533,7 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                           child: TextButton(
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff267AFF)),
+                                const Color(0xff267AFF)),
                             shape: MaterialStateProperty.all(
                                 const RoundedRectangleBorder())),
                         onPressed: () {

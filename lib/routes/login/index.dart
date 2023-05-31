@@ -14,7 +14,6 @@ import '../../widgets/business/select_room.dart';
 import '../../widgets/util/net_utils.dart';
 import 'scan_code.dart';
 
-
 class Step {
   String title;
   Widget view;
@@ -50,7 +49,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
 
     if (stepNum == 3) {
-      if(Global.profile.homeInfo == null) {
+      if (Global.profile.homeInfo == null) {
         // 必须选择家庭信息才能进行下一步
         TipsUtils.toast(content: '请选择家庭');
         return;
@@ -69,21 +68,24 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        GatewayApi.check((bind,code) {
-          if(!bind) {
+        GatewayApi.check((bind, code) {
+          if (!bind) {
             UserApi.bindHome(
-                sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
-                applianceType: '0x16').then((bindRes) {
-                if (!bindRes.isSuccess) {
-                  TipsUtils.toast(content: '绑定家庭失败');
-                } else {
-                  Global.saveProfile();
-                  //导航到新路由
-                  if (mounted) {
-                    Navigator.popAndPushNamed(context, 'Home');
-                    Push.sseInit();
-                  }
+                    sn: Global.profile.deviceSn ??
+                        Global.profile.deviceId ??
+                        '',
+                    applianceType: '0x16')
+                .then((bindRes) {
+              if (!bindRes.isSuccess) {
+                TipsUtils.toast(content: '绑定家庭失败');
+              } else {
+                Global.saveProfile();
+                //导航到新路由
+                if (mounted) {
+                  Navigator.popAndPushNamed(context, 'Home');
+                  Push.sseInit();
                 }
+              }
             });
           } else {
             Global.profile.applianceCode = code;
@@ -130,7 +132,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               onChange: (HomeEntity home) {
                 debugPrint('Select: ${home.toJson()}');
                 Global.profile.homeInfo = home;
-
               })),
       Step(
           '选择房间',
@@ -154,7 +155,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     );
 
     return DecoratedBox(
-        decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 1)),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/newUI/bg.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Center(
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,7 +169,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 stepSum: stepList.length,
                 stepNum: stepNum,
                 title: stepItem.title),
-                Expanded(flex: 1, child: stepItem.view),
+            Expanded(flex: 1, child: stepItem.view),
             Row(children: [
               if (stepNum > 1)
                 Expanded(
@@ -255,8 +261,8 @@ class LoginHeader extends StatelessWidget {
       child: Text(title,
           textAlign: TextAlign.left,
           style: const TextStyle(
-            color: Colors.white24,
-            fontSize: 26.0,
+            color: Colors.white,
+            fontSize: 28.0,
             height: 1,
             fontFamily: "MideaType",
             decoration: TextDecoration.none,
@@ -281,9 +287,7 @@ class LoginHeader extends StatelessWidget {
         stepList.add(lineActiveImg);
       } else if (stepNum < i && i > 1) {
         stepList.add(linePassiveImg);
-      } else {
-
-      }
+      } else {}
 
       if (stepNum > i) {
         stepList.add(stepFinishedImg);
@@ -293,23 +297,16 @@ class LoginHeader extends StatelessWidget {
         stepList.add(stepPassiveImg);
       }
     }
-    var stepBarView = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: stepList,
+    var stepBarView = Container(
+        margin: const EdgeInsets.all(9.0),
+        child: Image(image: AssetImage('assets/newUI/step_$stepNum.png')));
+
+    var headerView = Column(
+      children: [titleView, stepBarView],
     );
 
-    var headerView = DecoratedBox(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/imgs/login/header-bg.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          children: [titleView, stepBarView],
-        ));
-
-    return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [headerView, stepNumView]);
+    return Stack(
+        alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
+        children: [headerView]);
   }
 }
