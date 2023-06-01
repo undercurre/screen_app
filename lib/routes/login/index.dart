@@ -227,7 +227,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                   text: '下一步',
 
                   onPressed: () {
-                    prevStep();
+                    nextStep();
                   },
                 ))))
       ],

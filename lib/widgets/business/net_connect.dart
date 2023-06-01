@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
 
 import '../../channel/index.dart';
@@ -455,10 +456,15 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.transparent,
       child: Container(
-        width: 423,
-        height: 204,
-        color: const Color(0xff1b1b1b),
+        width: 435,
+        height: 292,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(37, 48, 71, 0.90),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
+        ),
         child: Column(
           children: [
             Expanded(
@@ -483,24 +489,37 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                 child: Container(
                     alignment: Alignment.center,
                     child: SizedBox(
-                      width: 357,
-                      height: 50,
+                      width: 348,
+                      height: 56,
                       child: Container(
-                        decoration:
-                            BoxDecoration(color: Color.fromRGBO(40, 40, 40, 1)),
-                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        width: 348,
+                        height: 56,
+                        decoration: const BoxDecoration(
+                          color: Color.fromRGBO(216, 216, 216, 0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        ),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('密码 '),
+                            Row(
+                              children: [
+                                const Text('密码',
+                                    style: TextStyle(fontSize: 18.0)),
+                                Container(
+                                    margin: const EdgeInsets.only(left: 10.0),
+                                    child: const Text('|',
+                                        style: TextStyle(fontSize: 18.0))),
+                              ],
+                            ),
                             Expanded(
                                 child: TextField(
                               controller: _nameController,
                               obscureText: closeEye,
                               maxLines: 1,
-                              decoration:
-                                  InputDecoration(border: InputBorder.none),
+                              decoration: const InputDecoration(
+                                  border: InputBorder.none),
                             )),
                             IconButton(
                                 onPressed: () {
@@ -519,50 +538,79 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                     ))),
             Expanded(
                 flex: 1,
-                child: Container(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                          child: TextButton(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MzButton(
+                        width: 152,
+                        height: 56,
+                        borderRadius: 29.0,
+                        backgroundColor: Color.fromRGBO(255, 255, 255, 0.10),
+                        borderColor: Color.fromRGBO(255, 255, 255, 0.10),
+                        borderWidth: 1,
+                        text: '取消',
                         onPressed: () {
                           Navigator.pop(context);
-                        },
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        child: const Text(
-                          '取消',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      )),
-                      Container(width: 1),
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color(0xff267AFF)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () {
-                          if (StrUtils.isNullOrEmpty(_nameController.text) ||
-                              _nameController.text.length < 8) {
-                            TipsUtils.toast(content: "请输入8位密码");
-                          } else {
-                            widget.confirmAction
-                                .call(widget.result, _nameController.text);
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: const Text(
-                          '加入',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      )),
-                    ],
-                  ),
+                        }),
+                    MzButton(
+                      width: 152,
+                      height: 56,
+                      borderRadius: 29.0,
+                      backgroundColor: const Color(0xFF0092DC),
+                      borderColor: const Color(0xFF0092DC),
+                      borderWidth: 1,
+                      text: '加入',
+                      onPressed: () {
+                        if (StrUtils.isNullOrEmpty(_nameController.text) ||
+                            _nameController.text.length < 8) {
+                          TipsUtils.toast(content: "请输入8位密码");
+                        } else {
+                          widget.confirmAction
+                              .call(widget.result, _nameController.text);
+                          Navigator.pop(context);
+                        }
+                      },
+                    )
+                    // Expanded(
+                    //     child: TextButton(
+                    //   onPressed: () {
+                    //     Navigator.pop(context);
+                    //   },
+                    //   style: ButtonStyle(
+                    //       backgroundColor: MaterialStateProperty.all(
+                    //           const Color.fromRGBO(40, 40, 40, 1)),
+                    //       shape: MaterialStateProperty.all(
+                    //           const RoundedRectangleBorder())),
+                    //   child: const Text(
+                    //     '取消',
+                    //     style: TextStyle(color: Colors.white, fontSize: 18),
+                    //   ),
+                    // )),
+                    // Container(width: 1),
+                    // Expanded(
+                    //     child: TextButton(
+                    //   style: ButtonStyle(
+                    //       backgroundColor: MaterialStateProperty.all(
+                    //           const Color(0xff267AFF)),
+                    //       shape: MaterialStateProperty.all(
+                    //           const RoundedRectangleBorder())),
+                    //   onPressed: () {
+                    //     if (StrUtils.isNullOrEmpty(_nameController.text) ||
+                    //         _nameController.text.length < 8) {
+                    //       TipsUtils.toast(content: "请输入8位密码");
+                    //     } else {
+                    //       widget.confirmAction
+                    //           .call(widget.result, _nameController.text);
+                    //       Navigator.pop(context);
+                    //     }
+                    //   },
+                    //   child: const Text(
+                    //     '加入',
+                    //     style: TextStyle(color: Colors.white, fontSize: 18),
+                    //   ),
+                    // )),
+                  ],
                 )),
           ],
         ),
