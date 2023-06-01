@@ -6,6 +6,7 @@ import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:screen_app/states/index.dart';
+import 'package:screen_app/widgets/mz_buttion.dart';
 
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
@@ -154,59 +155,83 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
     );
 
-    return DecoratedBox(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/newUI/bg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LoginHeader(
-                stepSum: stepList.length,
-                stepNum: stepNum,
-                title: stepItem.title),
-            Expanded(flex: 1, child: stepItem.view),
-            Row(children: [
-              if (stepNum > 1)
-                Expanded(
-                    child: TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
+    return Stack(
+      children: [
+        DecoratedBox(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/newUI/bg.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Center(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LoginHeader(
+                    stepSum: stepList.length,
+                    stepNum: stepNum,
+                    title: stepItem.title),
+                Expanded(flex: 1, child: stepItem.view),
+                // Row(children: [
+                //   if (stepNum > 1)
+                //     Expanded(
+                //         child: TextButton(
+                //       style: buttonStyle,
+                //       onPressed: () async {
+                //         prevStep();
+                //       },
+                //       child: const Text('上一步',
+                //           style: TextStyle(
+                //             color: Color.fromRGBO(255, 255, 255, 0.85),
+                //           )),
+                //     )),
+                //   if (stepNum > 2)
+                //     const SizedBox(
+                //       width: 4,
+                //     ),
+                //   if (stepNum != 2)
+                //     Expanded(
+                //         child: TextButton(
+                //       style: buttonStyle,
+                //       onPressed: () async {
+                //         nextStep();
+                //       },
+                //       child: stepNum == 4
+                //           ? const Text('完成',
+                //               style: TextStyle(
+                //                 color: Color.fromRGBO(0, 145, 255, 1),
+                //               ))
+                //           : const Text('下一步',
+                //               style: TextStyle(
+                //                 color: Color.fromRGBO(255, 255, 255, 0.85),
+                //               )),
+                //     )),
+                // ])
+              ],
+            ))),
+        Positioned(
+            bottom: 0,
+            child: Container(
+                color:  const Color(0xFF33477A),
+                width: MediaQuery.of(context).size.width,
+                height: 72,
+                child: Center(
+                    child: MzButton(
+                  width: 240,
+                  height: 56,
+                  borderRadius: 29,
+                  backgroundColor: const Color(0xFF0092DC),
+                  borderColor: const Color(0xFF0092DC),
+                  borderWidth: 1,
+                  text: '下一步',
+
+                  onPressed: () {
                     prevStep();
                   },
-                  child: const Text('上一步',
-                      style: TextStyle(
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                      )),
-                )),
-              if (stepNum > 2)
-                const SizedBox(
-                  width: 4,
-                ),
-              if (stepNum != 2)
-                Expanded(
-                    child: TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    nextStep();
-                  },
-                  child: stepNum == 4
-                      ? const Text('完成',
-                          style: TextStyle(
-                            color: Color.fromRGBO(0, 145, 255, 1),
-                          ))
-                      : const Text('下一步',
-                          style: TextStyle(
-                            color: Color.fromRGBO(255, 255, 255, 0.85),
-                          )),
-                )),
-            ])
-          ],
-        )));
+                ))))
+      ],
+    );
   }
 
   @override

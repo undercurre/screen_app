@@ -10,7 +10,8 @@ class MzButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const MzButton({super.key,
+  const MzButton({
+    super.key,
     required this.width,
     required this.height,
     required this.borderRadius,
@@ -40,7 +41,12 @@ class MzButton extends StatelessWidget {
             ),
           ),
         ),
-        child: Text(text),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 24.0,
+          ),
+        ),
       ),
     );
   }

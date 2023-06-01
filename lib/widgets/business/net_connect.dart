@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
 
 import '../../channel/index.dart';
@@ -182,15 +183,17 @@ class _LinkNetwork extends State<LinkNetwork> {
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
           return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(11.0))),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   header(model),
                   Expanded(
                       child: ClipRRect(
-                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
+                          borderRadius: model.pageData.length > 3
+                              ? const BorderRadius.only(
+                                  topRight: Radius.circular(16.0),
+                                  topLeft: Radius.circular(16.0))
+                              : const BorderRadius.all(Radius.circular(16.0)),
                           child: ListView.builder(
                               itemCount: model.pageData.length,
                               itemBuilder: (BuildContext context, int index) {
@@ -224,7 +227,8 @@ class _LinkNetwork extends State<LinkNetwork> {
                                   title: item.ssid,
                                   titleSize: 18.0,
                                   hasTopBorder: false,
-                                  hasBottomBorder: false,
+                                  hasBottomBorder:
+                                      index + 1 != model.pageData.length,
                                   bgColor:
                                       const Color.fromRGBO(255, 255, 255, 0.05),
                                   onTap: () {
@@ -251,7 +255,13 @@ class _LinkNetwork extends State<LinkNetwork> {
                                     }
                                   },
                                 );
-                              })))
+                              }))),
+                  Visibility(
+                      visible: model.pageData.length > 3,
+                      child: const SizedBox(
+                        width: 432,
+                        height: 72,
+                      ))
                 ],
               ));
         }));

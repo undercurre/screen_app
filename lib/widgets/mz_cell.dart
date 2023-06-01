@@ -236,26 +236,31 @@ class _CellState extends State<MzCell> {
             top: widget.hasTopBorder
                 ? BorderSide(color: widget.borderColor)
                 : BorderSide.none,
-            bottom: widget.hasBottomBorder
-                ? BorderSide(color: widget.borderColor)
-                : BorderSide.none));
+        ));
 
     return GestureDetector(
-        child: DecoratedBox(
-          position: DecorationPosition.background,
-          decoration: cellDecoration,
-          child: SizedBox(
+        child: Stack(children: [
+          Container(
+            decoration: cellDecoration,
             width: 432,
             height: 72,
-            child: Padding(
-              padding: widget.padding,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: cellChildren,
-              ),
+            padding: widget.padding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: cellChildren,
             ),
           ),
-        ),
+          Visibility(
+              visible: widget.hasBottomBorder,
+              child: Positioned(
+                  left: widget.padding.horizontal / 2,
+                  bottom: 0,
+                  child: Container(
+                    width: 432 - widget.padding.horizontal,
+                    height: 1.0,
+                    color: const Color.fromRGBO(255, 255, 255, 0.15),
+                  )))
+        ]),
         onTap: () => widget.onTap?.call(),
         onLongPress: () => widget.onLongPress?.call());
   }
