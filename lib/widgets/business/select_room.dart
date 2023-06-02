@@ -16,11 +16,16 @@ class _SelectRoom extends State<SelectRoom> {
       var item = roomList[i];
 
       listView.add(MzCell(
+        height: 99,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         title: item.name,
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
+        titleSize: 24,
+        descSize: 18,
+        bgColor: Colors.transparent,
         desc: '设备${item.applianceList.length}',
-        titleSize: 20.0,
-        hasTopBorder: true,
+        hasTopBorder: false,
+        hasBottomBorder: i + 1 != roomList.length,
         rightSlot: MzRadio<String>(
           activeColor: const Color.fromRGBO(0, 145, 255, 1),
           value: item.roomId!,
@@ -38,7 +43,21 @@ class _SelectRoom extends State<SelectRoom> {
 
     var homeListView = ListView(children: listView);
 
-    return homeListView;
+    return Container(
+        margin: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(255, 255, 255, 0.05),
+          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        ),
+        child: Column(children: [
+          Expanded(child: homeListView),
+          Visibility(
+              visible: roomList.length > 3,
+              child: const SizedBox(
+                width: 432,
+                height: 50,
+              ))
+        ]));;
   }
 
   @override

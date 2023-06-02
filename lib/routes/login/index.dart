@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -25,6 +26,17 @@ class Step {
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
+
+  void showBindingDialog(bool show) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext dialogContext) {
+        return const BindingDialog();
+      },
+    );
+  }
 
   /// 上一步
   void prevStep() {
@@ -69,6 +81,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
+        showBindingDialog(true);
         GatewayApi.check((bind, code) {
           if (!bind) {
             UserApi.bindHome(
@@ -77,31 +90,51 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                         '',
                     applianceType: '0x16')
                 .then((bindRes) {
+              logger.i('绑定成功', bindRes);
               if (!bindRes.isSuccess) {
                 TipsUtils.toast(content: '绑定家庭失败');
               } else {
-                Global.saveProfile();
-                //导航到新路由
-                if (mounted) {
-                  Navigator.popAndPushNamed(context, 'Home');
-                  Push.sseInit();
-                }
+                Timer(const Duration(seconds: 3), () {
+                  Navigator.pop(context);
+                  if (mounted) {
+                    setState(() {
+                      ++stepNum;
+                    });
+                  }
+                });
+                Timer(const Duration(seconds: 6), () {
+                  Global.saveProfile();
+                  //导航到新路由
+                  if (mounted) {
+                    Navigator.popAndPushNamed(context, 'Home');
+                    Push.sseInit();
+                  }
+                });
               }
             });
           } else {
-            Global.profile.applianceCode = code;
-            Global.saveProfile();
-            //导航到新路由
-            if (mounted) {
-              Navigator.popAndPushNamed(context, 'Home');
-              Push.sseInit();
-            }
+            Timer(const Duration(seconds: 3), () {
+              Navigator.pop(context);
+              if (mounted) {
+                setState(() {
+                  ++stepNum;
+                });
+              }
+            });
+            Timer(const Duration(seconds: 6), () {
+              Global.profile.applianceCode = code;
+              Global.saveProfile();
+              //导航到新路由
+              if (mounted) {
+                Navigator.popAndPushNamed(context, 'Home');
+                Push.sseInit();
+              }
+            });
           }
         }, () {
           //接口请求报错
         });
       }
-
       return;
     }
     setState(() {
@@ -145,7 +178,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               })),
     ];
 
-    var stepItem = stepList[stepNum - 1];
+    var stepItem = stepNum == 5 ? null : stepList[stepNum - 1];
 
     var buttonStyle = TextButton.styleFrom(
       backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
@@ -165,51 +198,68 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               ),
             ),
             child: Center(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LoginHeader(
-                    stepSum: stepList.length,
-                    stepNum: stepNum,
-                    title: stepItem.title),
-                Expanded(flex: 1, child: stepItem.view),
-                // Row(children: [
-                //   if (stepNum > 1)
-                //     Expanded(
-                //         child: TextButton(
-                //       style: buttonStyle,
-                //       onPressed: () async {
-                //         prevStep();
-                //       },
-                //       child: const Text('上一步',
-                //           style: TextStyle(
-                //             color: Color.fromRGBO(255, 255, 255, 0.85),
-                //           )),
-                //     )),
-                //   if (stepNum > 2)
-                //     const SizedBox(
-                //       width: 4,
-                //     ),
-                //   if (stepNum != 2)
-                //     Expanded(
-                //         child: TextButton(
-                //       style: buttonStyle,
-                //       onPressed: () async {
-                //         nextStep();
-                //       },
-                //       child: stepNum == 4
-                //           ? const Text('完成',
-                //               style: TextStyle(
-                //                 color: Color.fromRGBO(0, 145, 255, 1),
-                //               ))
-                //           : const Text('下一步',
-                //               style: TextStyle(
-                //                 color: Color.fromRGBO(255, 255, 255, 0.85),
-                //               )),
-                //     )),
-                // ])
-              ],
-            ))),
+                child: stepNum == 5
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.check,
+                            size: 96,
+                            color: Colors.white,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 50),
+                            child: const Text('已成功绑定帐号', style: TextStyle(
+                              fontSize: 24
+                            ),),
+                          )
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          LoginHeader(
+                              stepSum: stepList.length,
+                              stepNum: stepNum,
+                              title: stepItem!.title),
+                          Expanded(flex: 1, child: stepItem!.view),
+                          // Row(children: [
+                          //   if (stepNum > 1)
+                          //     Expanded(
+                          //         child: TextButton(
+                          //       style: buttonStyle,
+                          //       onPressed: () async {
+                          //         prevStep();
+                          //       },
+                          //       child: const Text('上一步',
+                          //           style: TextStyle(
+                          //             color: Color.fromRGBO(255, 255, 255, 0.85),
+                          //           )),
+                          //     )),
+                          //   if (stepNum > 2)
+                          //     const SizedBox(
+                          //       width: 4,
+                          //     ),
+                          //   if (stepNum != 2)
+                          //     Expanded(
+                          //         child: TextButton(
+                          //       style: buttonStyle,
+                          //       onPressed: () async {
+                          //         nextStep();
+                          //       },
+                          //       child: stepNum == 4
+                          //           ? const Text('完成',
+                          //               style: TextStyle(
+                          //                 color: Color.fromRGBO(0, 145, 255, 1),
+                          //               ))
+                          //           : const Text('下一步',
+                          //               style: TextStyle(
+                          //                 color: Color.fromRGBO(255, 255, 255, 0.85),
+                          //               )),
+                          //     )),
+                          // ])
+                        ],
+                      ))),
         if (stepNum == 1)
           Positioned(
               bottom: 0,
@@ -230,7 +280,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                       nextStep();
                     },
                   ))))
-        else
+        else if (stepNum != 5)
           Positioned(
               bottom: 0,
               child: Container(
@@ -372,5 +422,46 @@ class LoginHeader extends StatelessWidget {
     return Stack(
         alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
         children: [headerView]);
+  }
+}
+
+class BindingDialog extends StatelessWidget {
+  const BindingDialog({super.key});
+
+  @override
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: 412,
+        height: 270,
+        padding: const EdgeInsets.symmetric(vertical: 45, horizontal: 30),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(37, 48, 71, 0.90),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Container(
+                    alignment: Alignment.center,
+                    child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image(image: AssetImage('assets/newUI/loading.png')),
+                          Text(
+                            '正在绑定中，请稍后',
+                            style: TextStyle(
+                              color: Color.fromRGBO(255, 255, 255, 0.72),
+                              fontSize: 24,
+                            ),
+                          ),
+                        ]))),
+          ],
+        ),
+      ),
+    );
   }
 }
