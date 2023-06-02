@@ -210,26 +210,65 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 // ])
               ],
             ))),
-        Positioned(
-            bottom: 0,
-            child: Container(
-                color:  const Color(0xFF33477A),
-                width: MediaQuery.of(context).size.width,
-                height: 72,
-                child: Center(
-                    child: MzButton(
-                  width: 240,
-                  height: 56,
-                  borderRadius: 29,
-                  backgroundColor: const Color(0xFF0092DC),
-                  borderColor: const Color(0xFF0092DC),
-                  borderWidth: 1,
-                  text: '下一步',
-
-                  onPressed: () {
-                    nextStep();
-                  },
-                ))))
+        if (stepNum == 1)
+          Positioned(
+              bottom: 0,
+              child: Container(
+                  color: const Color.fromRGBO(255, 255, 255, 0.10),
+                  width: MediaQuery.of(context).size.width,
+                  height: 72,
+                  child: Center(
+                      child: MzButton(
+                    width: 240,
+                    height: 56,
+                    borderRadius: 29,
+                    backgroundColor: const Color(0xFF0092DC),
+                    borderColor: const Color(0xFF0092DC),
+                    borderWidth: 1,
+                    text: '下一步',
+                    onPressed: () {
+                      nextStep();
+                    },
+                  ))))
+        else
+          Positioned(
+              bottom: 0,
+              child: Container(
+                  color: const Color(0xFF33477A),
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  width: MediaQuery.of(context).size.width,
+                  height: 72,
+                  child: Center(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      MzButton(
+                        width: 168,
+                        height: 56,
+                        borderRadius: 29,
+                        backgroundColor:
+                            const Color.fromRGBO(255, 255, 255, 0.10),
+                        borderColor: const Color.fromRGBO(255, 255, 255, 0.10),
+                        borderWidth: 1,
+                        text: '上一步',
+                        onPressed: () {
+                          prevStep();
+                        },
+                      ),
+                      MzButton(
+                        width: 168,
+                        height: 56,
+                        borderRadius: 29,
+                        backgroundColor: const Color(0xFF0092DC),
+                        borderColor: const Color(0xFF0092DC),
+                        borderWidth: 1,
+                        text: stepNum == 4 ? '完成' : '下一步',
+                        onPressed: () {
+                          nextStep();
+                        },
+                      )
+                    ],
+                  ))))
       ],
     );
   }

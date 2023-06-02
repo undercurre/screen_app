@@ -29,7 +29,8 @@ class _ScanCode extends State<ScanCode> {
 
     return Stack(
       children: [
-        Center(
+        Align(
+          alignment: Alignment.topCenter,
           child: StrUtils.isNotNullAndEmpty(qrLink)
               ? GestureDetector(
                   onTap: () {
@@ -51,7 +52,7 @@ class _ScanCode extends State<ScanCode> {
               : const CircularProgressIndicator(),
         ),
         Positioned(
-            bottom: 24, right: 16, width: 103, height: 141, child: hiView),
+            bottom: 100, right: 20, width: 103, height: 141, child: hiView),
       ],
     );
   }
