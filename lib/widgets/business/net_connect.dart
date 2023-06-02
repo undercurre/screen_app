@@ -187,6 +187,31 @@ class _LinkNetwork extends State<LinkNetwork> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: 432,
+                    height: 71,
+                    margin: const EdgeInsets.fromLTRB(0, 12, 0, 10),
+                    decoration: const BoxDecoration(
+                        color: Color(0x0DFFFFFF),
+                        borderRadius: BorderRadius.all(Radius.circular(16))
+                    ),
+                    child: const Stack(
+                      children: [
+                        Positioned(
+                          left: 20,
+                          top: 12,
+                          child: Text("无线局域网",
+                              style: TextStyle(
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 24,
+                                  fontFamily: "MideaType",
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none)
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   header(model),
                   Expanded(
                       child: ClipRRect(
@@ -281,7 +306,7 @@ class _LinkNetwork extends State<LinkNetwork> {
         Container(
           margin: EdgeInsets.only(left: 16.0, bottom: 13.0),
           child: const Text(
-            '请选择链接网络',
+            '其他网络',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.w400,

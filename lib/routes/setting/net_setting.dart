@@ -14,13 +14,16 @@ class NetSettingPage extends StatelessWidget {
             width: 480,
             height: 480,
             decoration: const BoxDecoration(
-              color: Colors.black,
+              image: DecorationImage(
+                  image: ExactAssetImage('assets/newUI/bg.png'),
+                  fit: BoxFit.cover
+              ),
             ),
             child: Column(
               children: [
                 SizedBox(
                   width: 480,
-                  height: 60,
+                  height: 70,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -28,38 +31,32 @@ class NetSettingPage extends StatelessWidget {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        iconSize: 60.0,
+                        iconSize: 64,
                         icon: Image.asset(
-                          "assets/imgs/setting/fanhui.png",
+                          "assets/newUI/back.png",
                         ),
                       ),
                       const Text("网络设置",
                           style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 30.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
+                              color: Color(0XD8FFFFFF),
+                              fontSize: 28,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)
+                      ),
                       IconButton(
                         onPressed: () {
                           Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                         },
-                        iconSize: 60.0,
+                        iconSize: 64,
                         icon: Image.asset(
-                          "assets/imgs/setting/zhuye.png",
+                          "assets/newUI/back_home.png",
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  height: 1,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                  ),
-                ),
+
                 const Expanded(
                   child: LinkNetwork(),
                 ),
