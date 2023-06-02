@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
 
 class MzCell extends StatefulWidget {
+  final double? height;
   final String? title; // 标题
   final Widget? titleSlot; // 标题插槽
   final Widget? rightSlot; // 右侧插槽
@@ -11,6 +12,7 @@ class MzCell extends StatefulWidget {
   final String? tag; // 标签、标注
   final Color? titleColor; // 标题颜色
   final double titleSize; // 标题大小
+  final double descSize; // 描述字体大小
   final FontWeight fontWeight; // 标题粗细
   final int titleMaxLines; // 标题最大行数
   final Color bgColor; // 背景颜色
@@ -30,6 +32,7 @@ class MzCell extends StatefulWidget {
 
   const MzCell({
     super.key,
+    this.height = 72,
     this.title = '',
     this.titleSlot,
     this.rightSlot,
@@ -37,6 +40,7 @@ class MzCell extends StatefulWidget {
     this.tag,
     this.titleColor = Colors.white,
     this.titleSize = 20.0,
+    this.descSize = 13.0,
     this.fontWeight = FontWeight.normal,
     this.titleMaxLines = 2,
     this.bgColor = Colors.black,
@@ -90,44 +94,38 @@ class _CellState extends State<MzCell> {
     List<Widget> compositeTitle = <Widget>[
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
-        Expanded(
-          flex: 2,
-          child: Text(
-            widget.title!,
-            maxLines: widget.titleMaxLines,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: widget.titleSize,
-              fontFamily: "MideaType",
-              fontWeight: widget.fontWeight,
-              decoration: TextDecoration.none,
-              color: widget.titleColor,
-            ),
+        Text(
+          widget.title!,
+          maxLines: widget.titleMaxLines,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: widget.titleSize,
+            fontFamily: "MideaType",
+            fontWeight: widget.fontWeight,
+            decoration: TextDecoration.none,
+            color: widget.titleColor,
           ),
         ),
 
       // 插入tag
       if (StrUtils.isNotNullAndEmpty(widget.tag))
-        Expanded(
-          flex: 1,
-          child: Container(
-            margin: const EdgeInsets.only(left: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            decoration: const BoxDecoration(
-                color: Color.fromRGBO(216, 216, 216, 0.3),
-                borderRadius: BorderRadius.all(Radius.circular(11.0))),
-            child: Text(
-              widget.tag!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                fontFamily: "MideaType",
-                fontWeight: FontWeight.w100,
-                decoration: TextDecoration.none,
-                color: Color.fromRGBO(255, 255, 255, 0.85),
-                height: 1.5,
-              ),
+        Container(
+          margin: const EdgeInsets.only(left: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: const BoxDecoration(
+              color: Color.fromRGBO(216, 216, 216, 0.3),
+              borderRadius: BorderRadius.all(Radius.circular(11.0))),
+          child: Text(
+            widget.tag!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              fontFamily: "MideaType",
+              fontWeight: FontWeight.w100,
+              decoration: TextDecoration.none,
+              color: Color.fromRGBO(255, 255, 255, 0.85),
+              height: 1.5,
             ),
           ),
         ),
@@ -148,12 +146,12 @@ class _CellState extends State<MzCell> {
           widget.desc!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 13,
+          style: TextStyle(
+            fontSize: widget.descSize ?? 13,
             fontFamily: "MideaType",
             fontWeight: FontWeight.w100,
             decoration: TextDecoration.none,
-            color: Color.fromRGBO(255, 255, 255, 0.85),
+            color: const Color.fromRGBO(255, 255, 255, 0.85),
             height: 1,
           ),
         )
@@ -233,9 +231,9 @@ class _CellState extends State<MzCell> {
     BoxDecoration cellDecoration = BoxDecoration(
         color: widget.bgColor,
         border: Border(
-            top: widget.hasTopBorder
-                ? BorderSide(color: widget.borderColor)
-                : BorderSide.none,
+          top: widget.hasTopBorder
+              ? BorderSide(color: widget.borderColor)
+              : BorderSide.none,
         ));
 
     return GestureDetector(
@@ -243,7 +241,7 @@ class _CellState extends State<MzCell> {
           Container(
             decoration: cellDecoration,
             width: 432,
-            height: 72,
+            height: widget.height ?? 72,
             padding: widget.padding,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

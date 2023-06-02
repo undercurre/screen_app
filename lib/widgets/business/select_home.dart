@@ -18,13 +18,18 @@ class _SelectHome extends State<SelectHome> {
 
       listView.add(
         MzCell(
+            height: 99,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             title: item.name,
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-            // tag: '我创建的',
+            titleSize: 24,
+            descSize: 18,
+            tag: '创建',
+            bgColor: Colors.transparent,
+            hasTopBorder: false,
+            hasBottomBorder: i + 1 != homeList.length,
             desc:
-                '房间${item.roomCount} | 设备${item.applianceCount} | 成员${item.memberCount} | ${addressList.last}',
-            titleSize: 20.0,
-            hasTopBorder: true,
+                '房间${item.roomCount}  |  设备${item.applianceCount}  |  成员${item.memberCount}  |  ${addressList.last}',
             onTap: () {
               setState(() {
                 _homeId = item.homegroupId;
@@ -42,7 +47,21 @@ class _SelectHome extends State<SelectHome> {
 
     var homeListView = ListView(children: listView);
 
-    return homeListView;
+    return Container(
+        margin: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(255, 255, 255, 0.05),
+          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        ),
+        child: Column(children: [
+          Expanded(child: homeListView),
+          Visibility(
+              visible: homeList.length > 3,
+              child: const SizedBox(
+                width: 432,
+                height: 50,
+              ))
+        ]));
   }
 
   @override
