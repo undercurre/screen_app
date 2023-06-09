@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
@@ -13,7 +15,8 @@ class DropDownPage extends StatefulWidget {
   _DropDownPageState createState() => _DropDownPageState();
 }
 
-class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderStateMixin {
+class _DropDownPageState extends State<DropDownPage>
+    with SingleTickerProviderStateMixin {
   late double po;
 
   late final AnimationController controller;
@@ -88,108 +91,124 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                     width: 480,
                     height: 480,
                     decoration: const BoxDecoration(
-                      color: Colors.black,
+                      image: DecorationImage(
+                        image: AssetImage('assets/newUI/bg.png'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     child: Column(children: <Widget>[
                       Container(
-                        margin: const EdgeInsets.fromLTRB(25, 24, 25, 0),
+                        margin: const EdgeInsets.fromLTRB(24, 31, 24, 0),
+                        padding: const EdgeInsets.fromLTRB(39, 0, 47, 0),
                         width: 432,
-                        height: 160,
+                        height: 140,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: const Color(0xFF1a1a1a),
+                          borderRadius: BorderRadius.circular(24),
+                          color: const Color(0x19FFFFFF),
                         ),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(
-                                margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
-                                child: RotationTransition(
-                                    turns: animation,
-                                    child: ClipOval(
-                                        //圆形头像
-                                        child: SizedBox(
-                                            width: 120.0,
-                                            height: 120.0,
-                                            child: CachedNetworkImage(
-                                              imageUrl: musicIconUrl,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) => Image.asset(
-                                                "assets/imgs/dropDown/music-default.png",
-                                              ),
-                                              errorWidget: (context, url, error) => Image.asset(
-                                                "assets/imgs/dropDown/music-default.png",
-                                              ),
-                                            ))))),
-                            Container(
-                              alignment: Alignment.center,
-                              width: 290,
-                              height: 150,
-                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(soundName,
-                                      maxLines: 1,
-                                      style: const TextStyle(
-                                        color: Color(0XFFFFFFFF),
-                                        fontSize: 24.0,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      )),
-                                  Text(singer,
-                                      maxLines: 1,
-                                      style: const TextStyle(
-                                        color: Color(0XFF8e8e8e),
-                                        fontSize: 16.0,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      )),
-                                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        controller.repeat();
-                                        aiMethodChannel.musicPrev();
-                                      },
-                                      iconSize: 50.0,
-                                      icon: Image.asset(
-                                        "assets/imgs/dropDown/left-icon.png",
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        if (await aiMethodChannel.musicIsPaying()) {
-                                          musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
-                                          aiMethodChannel.musicPause();
-                                          controller.stop();
-                                          setState(() {});
-                                        } else {
-                                          musicStartIcon = "assets/imgs/dropDown/start-icon.png";
-                                          aiMethodChannel.musicStart();
-                                          controller.repeat();
-                                          setState(() {});
-                                        }
-                                      },
-                                      iconSize: 50.0,
-                                      icon: Image.asset(
-                                        musicStartIcon,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        controller.repeat();
-                                        aiMethodChannel.musicNext();
-                                      },
-                                      iconSize: 50.0,
-                                      icon: Image.asset(
-                                        "assets/imgs/dropDown/right-icon.png",
-                                      ),
-                                    ),
-                                  ]),
-                                ],
+                            const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('语音电话',
+                                    style: TextStyle(
+                                      color:
+                                          Color.fromRGBO(255, 255, 255, 0.85),
+                                      fontSize: 28.0,
+                                      fontFamily: "MideaType",
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.none,
+                                    )),
+                                Text('拨通互通屏',
+                                    style: TextStyle(
+                                      color:
+                                          Color.fromRGBO(255, 255, 255, 0.31),
+                                      fontSize: 24.0,
+                                      fontFamily: "MideaType",
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.none,
+                                    )),
+                              ],
+                            ),
+                            GestureDetector(
+                              child: Image.asset(
+                                "assets/newUI/phone.png",
                               ),
+                              onTapDown: (e) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return GestureDetector(
+                                        onTapDown: (e) {
+                                          logger.i('sjsjad');
+                                          Navigator.pop(context);
+                                        },
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 5, sigmaY: 5), // 设置高斯模糊程度
+                                          child: Stack(children: [
+                                            Center(
+                                                child: Container(
+                                              width: 250,
+                                              height: 178,
+                                              decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    60, 79, 117, 0.46),
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 24),
+                                                    child: Text('卧室屏',
+                                                        style: TextStyle(
+                                                            fontSize: 24,
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                    0.85))),
+                                                  ),
+                                                  Container(
+                                                    width: 198,
+                                                    height: 1,
+                                                    color: const Color.fromRGBO(
+                                                        255, 255, 255, 0.16),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 24),
+                                                    child: Text('二楼屏',
+                                                        style: TextStyle(
+                                                            fontSize: 24,
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                    0.85))),
+                                                  )
+                                                ],
+                                              ),
+                                            )),
+                                            Positioned(
+                                              left: 0,
+                                              top: 0,
+                                              child: Container(
+                                                color: Colors.black.withOpacity(
+                                                    0.2), // 设置背景颜色和透明度
+                                              ),
+                                            ),
+                                          ]),
+                                        ));
+                                  },
+                                );
+                              },
                             )
                           ],
                         ),
@@ -212,26 +231,29 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                     }
                                 },
                                 child: Container(
-                                    margin: const EdgeInsets.fromLTRB(25, 16, 0, 0),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(25, 16, 0, 0),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 16, 0, 10),
                                     width: 130,
-                                    height: 104,
+                                    height: 110,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: const Color(0xFF1a1a1a),
+                                      borderRadius: BorderRadius.circular(24),
+                                      color: const Color(0x19FFFFFF),
                                     ),
-                                    child: Wrap(
-                                      direction: Axis.horizontal,
-                                      spacing: 5,
-                                      alignment: WrapAlignment.center,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Image.asset(
-                                          "assets/imgs/dropDown/ai-icon.png",
-                                          width: 60,
-                                          height: 60,
+                                          "assets/newUI/yuyin.png",
+                                          width: 48,
+                                          height: 48,
                                         ),
-                                        const Text("智能语音",
+                                        const Text("小美语音",
                                             style: TextStyle(
-                                              color: Color(0XFF8e8e8e),
+                                              color: Color.fromRGBO(
+                                                  255, 255, 255, 0.5),
                                               fontSize: 18.0,
                                               fontFamily: "MideaType",
                                               fontWeight: FontWeight.normal,
@@ -249,26 +271,28 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                   )
                                 },
                                 child: Container(
-                                  margin: const EdgeInsets.fromLTRB(25, 16, 0, 0),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(25, 16, 0, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 16, 0, 10),
                                   width: 130,
-                                  height: 104,
+                                  height: 110,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: const Color(0xFF1a1a1a),
+                                    borderRadius: BorderRadius.circular(24),
+                                    color: const Color(0x19FFFFFF),
                                   ),
-                                  child: Wrap(
-                                    direction: Axis.horizontal,
-                                    spacing: 5,
-                                    alignment: WrapAlignment.center,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Image.asset(
-                                        "assets/imgs/dropDown/setting-icon.png",
-                                        width: 60,
-                                        height: 60,
+                                        "assets/newUI/shezhi.png",
+                                        width: 48,
+                                        height: 48,
                                       ),
                                       const Text("系统设置",
                                           style: TextStyle(
-                                            color: Color(0XFF8e8e8e),
+                                            color: Color.fromRGBO(
+                                                255, 255, 255, 0.5),
                                             fontSize: 18.0,
                                             fontFamily: "MideaType",
                                             fontWeight: FontWeight.normal,
@@ -287,24 +311,48 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
                                 child: MzVSlider(
-                                  height: 224.0,
+                                  height: 240.0,
                                   width: 130.0,
                                   max: 15,
                                   value: soundValue.toDouble(),
                                   padding: const EdgeInsets.all(0),
-                                  activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
+                                  activeColors: const [
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFFFFFFFF)
+                                  ],
+                                  radius: 24,
                                   onChanging: (newValue, actieColor) async => {
-                                    await settingMethodChannel.setSystemVoice(newValue.toInt()),
+                                    await settingMethodChannel
+                                        .setSystemVoice(newValue.toInt()),
                                     soundValue = newValue,
                                     Global.soundValue = newValue,
-                                    if (newValue > 7) {soundLogo = "assets/imgs/dropDown/sound-black.png"} else {soundLogo = "assets/imgs/dropDown/sound-white.png"},
+                                    if (newValue > 7)
+                                      {
+                                        soundLogo =
+                                            "assets/imgs/dropDown/sound-black.png"
+                                      }
+                                    else
+                                      {
+                                        soundLogo =
+                                            "assets/imgs/dropDown/sound-white.png"
+                                      },
                                     setState(() {})
                                   },
                                   onChanged: (newValue, actieColor) async => {
-                                    await settingMethodChannel.setSystemVoice(newValue.toInt()),
+                                    await settingMethodChannel
+                                        .setSystemVoice(newValue.toInt()),
                                     soundValue = newValue,
                                     Global.soundValue = newValue,
-                                    if (newValue > 7) {soundLogo = "assets/imgs/dropDown/sound-black.png"} else {soundLogo = "assets/imgs/dropDown/sound-white.png"},
+                                    if (newValue > 7)
+                                      {
+                                        soundLogo =
+                                            "assets/imgs/dropDown/sound-black.png"
+                                      }
+                                    else
+                                      {
+                                        soundLogo =
+                                            "assets/imgs/dropDown/sound-white.png"
+                                      },
                                     setState(() {})
                                   },
                                 ),
@@ -312,7 +360,8 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                               IgnorePointer(
                                   ignoring: true,
                                   child: Container(
-                                    margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                     alignment: Alignment.center,
                                     child: Image.asset(
                                       soundLogo,
@@ -329,30 +378,48 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                                 margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                 alignment: Alignment.center,
                                 child: MzVSlider(
-                                  height: 224.0,
+                                  height: 240.0,
                                   width: 130.0,
                                   max: 255,
                                   value: lightValue.toDouble(),
                                   padding: const EdgeInsets.all(0),
-                                  activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
+                                  radius: 24,
+                                  activeColors: const [
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFFFFFFFF)
+                                  ],
                                   onChanged: (newValue, actieColor) async => {
-                                    await settingMethodChannel.setSystemLight(newValue.toInt()),
+                                    await settingMethodChannel
+                                        .setSystemLight(newValue.toInt()),
                                     lightValue = newValue,
                                     Global.lightValue = lightValue,
                                     if (newValue > 128)
-                                      {lightLogo = "assets/imgs/dropDown/light-black.png"}
+                                      {
+                                        lightLogo =
+                                            "assets/imgs/dropDown/light-black.png"
+                                      }
                                     else
-                                      {lightLogo = "assets/imgs/dropDown/light-white.png"},
+                                      {
+                                        lightLogo =
+                                            "assets/imgs/dropDown/light-white.png"
+                                      },
                                     setState(() {})
                                   },
                                   onChanging: (newValue, actieColor) async => {
-                                    await settingMethodChannel.setSystemLight(newValue.toInt()),
+                                    await settingMethodChannel
+                                        .setSystemLight(newValue.toInt()),
                                     lightValue = newValue,
                                     Global.lightValue = lightValue,
                                     if (newValue > 128)
-                                      {lightLogo = "assets/imgs/dropDown/light-black.png"}
+                                      {
+                                        lightLogo =
+                                            "assets/imgs/dropDown/light-black.png"
+                                      }
                                     else
-                                      {lightLogo = "assets/imgs/dropDown/light-white.png"},
+                                      {
+                                        lightLogo =
+                                            "assets/imgs/dropDown/light-white.png"
+                                      },
                                     setState(() {})
                                   },
                                 ),
@@ -360,7 +427,8 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                               IgnorePointer(
                                   ignoring: true,
                                   child: Container(
-                                    margin: const EdgeInsets.fromLTRB(21, 16, 0, 0),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(21, 16, 0, 0),
                                     alignment: Alignment.center,
                                     child: Image.asset(
                                       lightLogo,
@@ -387,7 +455,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                             width: 480,
                             height: 40,
                             decoration: const BoxDecoration(
-                              color: Colors.black,
+                              color: Colors.transparent,
                             ),
                             child: Center(
                               child: Container(

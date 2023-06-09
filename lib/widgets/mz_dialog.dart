@@ -23,12 +23,12 @@ class MzDialog {
       this.desc,
       this.descSize = 14,
       this.descMaxLines = 1,
-      this.backgroundColor = const Color(0xff1b1b1b),
+      this.backgroundColor = const Color(0xff494E59),
       this.titlePadding = const EdgeInsets.only(top: 30),
-      this.contentPadding = const EdgeInsets.all(20),
+      this.contentPadding = const EdgeInsets.all(33),
       this.maxWidth = 480,
-      this.shape =
-          const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      this.shape = const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(40))),
       this.btns,
       this.lastBtnOn = true,
       this.contentSlot,
@@ -37,20 +37,23 @@ class MzDialog {
   Future<bool?> show(BuildContext context) {
     // 普通按钮样式
     ButtonStyle buttonStyle = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        backgroundColor: const Color.fromRGBO(255,255,255,0.10),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(29))),
         padding: const EdgeInsets.symmetric(vertical: 10));
 
     // 激活按钮样式
     ButtonStyle buttonStyleOn = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        backgroundColor: const Color(0xFF818C98),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(29))),
         padding: const EdgeInsets.symmetric(vertical: 10));
 
     // 按钮文字样式
     TextStyle textStyle = const TextStyle(
-        color: Colors.white,
-        fontSize: 18,
+        color: Color.fromRGBO(255, 255, 255, 0.80),
+        fontSize: 24,
+        height: 1.65,
         fontFamily: 'MideaType',
         fontWeight: FontWeight.w400);
 
@@ -96,15 +99,16 @@ class MzDialog {
     if (btns != null) {
       for (int i = 0; i < btns!.length; i++) {
         bool isLast = btns!.length - 1 == i;
-        btnList.add(Expanded(
+        btnList.add(SizedBox(
+            width: 168,
+            height: 56,
             child: TextButton(
-          style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
-          child: Text(btns![i], style: textStyle),
-          onPressed: () {
-            onPressed?.call(btns![i], i, context);
-
-          }, //关闭对话框
-        )));
+              style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
+              child: Text(btns![i], style: textStyle),
+              onPressed: () {
+                onPressed?.call(btns![i], i, context);
+              }, //关闭对话框
+            )));
         if (!isLast) {
           btnList.add(
               const VerticalDivider(width: 0.5, color: Colors.transparent));
@@ -124,7 +128,13 @@ class MzDialog {
             actionsPadding: EdgeInsets.zero,
             insetPadding: const EdgeInsets.symmetric(vertical: 20),
             shape: shape,
-            actions: <Widget>[Row(children: btnList)],
+            actions: <Widget>[
+              Container(
+                  padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: btnList))
+            ],
           );
         });
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/widgets/index.dart';
 
 import '../../channel/index.dart';
 import '../../common/api/ai_author_api.dart';
@@ -28,200 +29,304 @@ class _AiSettingPageState extends State<AiSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Container(
-        width: 480,
-        height: 480,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
-        child: Column(
-          children: [
-            SizedBox(
-              width: 480,
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    iconSize: 60.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/fanhui.png",
-                    ),
-                  ),
-                  const Text("小美语音",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 30.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.settings.name == 'Home');
-                    },
-                    iconSize: 60.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/zhuye.png",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 480,
-              height: 1,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                  child: const Text("语音控制",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 24.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                  child: CupertinoSwitch(
-                    value: AiEnable,
-                    activeColor: Colors.blue,
-                    onChanged: (bool value) {
-                      aiMethodChannel.enableAi(value);
-                      Global.profile.aiEnable=value;
-                      Global.saveProfile();
-                      setState(() {
-                        AiEnable = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                  child: const Text("唤醒词",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 24.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                  child: const Text("小美小美",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 24.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-              ],
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                  child: const Text("小美语音授权",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 24.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                GestureDetector(
-                  onTap: () async => {
-                    AiAuthor()
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-                    margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(80),
-                      color: const Color(0x2f0091FF),
-                      border: const Border(
-                        top: BorderSide(width: 1.0, color: Color(0xff0091FF)),
-                        left: BorderSide(width: 1.0, color: Color(0xff0091FF)),
-                        right: BorderSide(width: 1.0, color: Color(0xff0091FF)),
-                        bottom: BorderSide(width: 1.0, color: Color(0xff0091FF)),
+        child: Container(
+          width: 480,
+          height: 480,
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: ExactAssetImage('assets/newUI/bg.png'),
+                fit: BoxFit.cover),
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 480,
+                height: 84,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTapDown: (e) {
+                        Navigator.pop(context);
+                      },
+                      child: Image.asset(
+                        "assets/newUI/back.png",
                       ),
                     ),
-                    child: const Text("授权",
+                    const Text("小美语音",
                         style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 22.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
+                            color: Color.fromRGBO(255, 255, 255, 0.85),
+                            fontSize: 28,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                    GestureDetector(
+                      onTapDown: (e) {
+                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                      },
+                      child: Image.asset(
+                        "assets/newUI/back_home.png",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 432,
+                        height: 72,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        decoration: const BoxDecoration(
+                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text("语音控制",
+                                style: TextStyle(
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 24.0,
+                                  fontFamily: "MideaType",
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none,
+                                )),
+                            MzSwitch(
+                              value: AiEnable,
+                              onTap: (bool value) {
+                                aiMethodChannel.enableAi(value);
+                                Global.profile.aiEnable = value;
+                                Global.saveProfile();
+                                setState(() {
+                                  AiEnable = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                          width: 432,
+                          height: 145,
+                          margin: const EdgeInsets.symmetric(vertical: 24),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                          decoration: const BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.05),
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                width: 432,
+                                height: 72,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text("唤醒词",
+                                        style: TextStyle(
+                                          color: Color(0XFFFFFFFF),
+                                          fontSize: 24.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                    Text("小美小美",
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.60),
+                                          fontSize: 20.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 392,
+                                height: 1,
+                                color:
+                                    const Color.fromRGBO(255, 255, 255, 0.05),
+                              ),
+                              SizedBox(
+                                width: 432,
+                                height: 72,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text("小美语音授权",
+                                        style: TextStyle(
+                                          color: Color(0XFFFFFFFF),
+                                          fontSize: 24.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                    GestureDetector(
+                                      onTap: () async => {AiAuthor()},
+                                      child: Container(
+                                        width: 88,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: const Color(0x330092DC),
+                                          border: Border.all(
+                                              color: const Color(0xFF0092DC)),
+                                        ),
+                                        child: const Center(
+                                          child: Text("授权",
+                                              style: TextStyle(
+                                                color: Color(0xFF0092DC),
+                                                fontSize: 20.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              )),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )),
+                      Container(
+                          width: 432,
+                          height: 265,
+                          margin: const EdgeInsets.only(bottom: 24),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                          decoration: const BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.05),
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                width: 432,
+                                height: 132,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("自定义设备名",
+                                            style: TextStyle(
+                                              color: Color(0XFFFFFFFF),
+                                              fontSize: 24.0,
+                                              fontFamily: "MideaType",
+                                              fontWeight: FontWeight.normal,
+                                              decoration: TextDecoration.none,
+                                            )),
+                                        SizedBox(
+                                          width: 307,
+                                          child: Text(
+                                              "唤醒小美后说：“打开自定义设备名”，即可按照设备自定义的名称进行语音控制",
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.60),
+                                                fontSize: 16.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              )),
+                                        )
+                                      ],
+                                    ),
+                                    Image(
+                                        image: AssetImage(
+                                            'assets/newUI/arrow_right.png'))
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 392,
+                                height: 1,
+                                color:
+                                    const Color.fromRGBO(255, 255, 255, 0.05),
+                              ),
+                              SizedBox(
+                                width: 432,
+                                height: 132,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("唯一唤醒",
+                                            style: TextStyle(
+                                              color: Color(0XFFFFFFFF),
+                                              fontSize: 24.0,
+                                              fontFamily: "MideaType",
+                                              fontWeight: FontWeight.normal,
+                                              decoration: TextDecoration.none,
+                                            )),
+                                        SizedBox(
+                                          width: 307,
+                                          child: Text(
+                                              "唤醒小美后说：“打开唯一唤醒”。即可体验1V1对话，拒绝一呼百应",
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.60),
+                                                fontSize: 16.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              )),
+                                        )
+                                      ],
+                                    ),
+                                    MzSwitch(
+                                      value: AiEnable,
+                                      onTap: (bool value) {
+                                        aiMethodChannel.enableAi(value);
+                                        Global.profile.aiEnable = value;
+                                        Global.saveProfile();
+                                        setState(() {
+                                          AiEnable = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
               ),
-            ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(28, 18, 25, 0),
-              child: const Text("注:开启语音控制后，可语音唤醒小美AI；关闭时不能通过语音唤醒，仅支持首页语音图标手动唤醒。开启静音模式后，所有有关声音全部关闭。",
-                  style: TextStyle(
-                    color: Color(0XFF8e8e8e),
-                    fontSize: 14.0,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none,
-                  )),
-            ),
-          ],
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 
   Future<void> AiAuthor() async {
-    var Res = await AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
+    var Res =
+        await AiAuthorApi.AiAuthor(deviceId: Global.profile.applianceCode);
     if (Res.isSuccess) {
       TipsUtils.toast(content: "授权成功");
     }

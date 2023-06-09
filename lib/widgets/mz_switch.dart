@@ -14,10 +14,10 @@ class MzSwitch extends StatefulWidget {
     super.key,
     this.value = false,
     this.disabled = false,
-    this.activeColor = const Color(0xff0091ff),
-    this.inactiveColor = const Color(0xff3e3e3e),
-    this.pointActiveColor = const Color(0xffffffff),
-    this.pointInactiveColor = const Color(0xff949494),
+    this.activeColor = const Color(0x330092DC),
+    this.inactiveColor = const Color(0x0cffffff),
+    this.pointActiveColor = const Color(0xff0092DC),
+    this.pointInactiveColor = const Color(0xff868A93),
     this.duration = const Duration(milliseconds: 100),
     this.onTap,
   });
@@ -58,6 +58,7 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
             width: 54,
             height: 28,
             decoration: BoxDecoration(
+              border: Border.all(color: pointBgc, width: 1),
               borderRadius: const BorderRadius.all(Radius.circular(999)),
               color: railBgc,
             ),
