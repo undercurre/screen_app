@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -157,8 +158,31 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   @override
   Widget build(BuildContext context) {
     var stepList = [
-      Step('连接网络', const LinkNetwork()),
-      Step('扫码登录', ScanCode(onSuccess: nextStep)),
+      Step(
+          '连接网络',
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(40, 16, 0, 13),
+              child: const Text(
+                '请选择链接网络',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromRGBO(255, 255, 255, 0.85),
+                  letterSpacing: 0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            const Expanded(child: LinkNetwork())
+          ])),
+      Step(
+          '扫码登录',
+          Column(children: [
+            Container(
+                margin: const EdgeInsets.only(top: 5),
+                child: ScanCode(onSuccess: nextStep)),
+          ])),
       Step(
           '选择家庭',
           SelectHome(
@@ -192,9 +216,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       children: [
         DecoratedBox(
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/newUI/bg.png'),
-                fit: BoxFit.cover,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF272F41), Color(0xFF080C14)],
               ),
             ),
             child: Center(
@@ -209,9 +234,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           ),
                           Container(
                             margin: EdgeInsets.only(top: 50),
-                            child: const Text('已成功绑定帐号', style: TextStyle(
-                              fontSize: 24
-                            ),),
+                            child: const Text(
+                              '已成功绑定帐号',
+                              style: TextStyle(fontSize: 24),
+                            ),
                           )
                         ],
                       )
@@ -263,62 +289,93 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         if (stepNum == 1)
           Positioned(
               bottom: 0,
-              child: Container(
-                  color: const Color.fromRGBO(255, 255, 255, 0.10),
-                  width: MediaQuery.of(context).size.width,
-                  height: 72,
-                  child: Center(
-                      child: MzButton(
-                    width: 240,
-                    height: 56,
-                    borderRadius: 29,
-                    backgroundColor: const Color(0xFF0092DC),
-                    borderColor: const Color(0xFF0092DC),
-                    borderWidth: 1,
-                    text: '下一步',
-                    onPressed: () {
-                      nextStep();
-                    },
-                  ))))
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.05),
+                        width: MediaQuery.of(context).size.width,
+                        height: 72,
+                        child: Center(
+                            child: MzButton(
+                          width: 240,
+                          height: 56,
+                          borderRadius: 29,
+                          backgroundColor: const Color(0xFF818C98),
+                          borderColor: Colors.transparent,
+                          borderWidth: 1,
+                          text: '下一步',
+                          onPressed: () {
+                            nextStep();
+                          },
+                        )),
+                      ))))
+        else if (stepNum == 2)
+          Positioned(
+              bottom: 0,
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.05),
+                        width: MediaQuery.of(context).size.width,
+                        height: 72,
+                        child: Center(
+                            child: MzButton(
+                          width: 240,
+                          height: 56,
+                          borderRadius: 29,
+                          backgroundColor: const Color(0x19FFFFFF),
+                          borderColor: Colors.transparent,
+                          borderWidth: 1,
+                          text: '上一步',
+                          onPressed: () {
+                            prevStep();
+                          },
+                        )),
+                      ))))
         else if (stepNum != 5)
           Positioned(
               bottom: 0,
-              child: Container(
-                  color: const Color(0xFF33477A),
-                  padding: const EdgeInsets.symmetric(horizontal: 48),
-                  width: MediaQuery.of(context).size.width,
-                  height: 72,
-                  child: Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      MzButton(
-                        width: 168,
-                        height: 56,
-                        borderRadius: 29,
-                        backgroundColor:
-                            const Color.fromRGBO(255, 255, 255, 0.10),
-                        borderColor: const Color.fromRGBO(255, 255, 255, 0.10),
-                        borderWidth: 1,
-                        text: '上一步',
-                        onPressed: () {
-                          prevStep();
-                        },
-                      ),
-                      MzButton(
-                        width: 168,
-                        height: 56,
-                        borderRadius: 29,
-                        backgroundColor: const Color(0xFF0092DC),
-                        borderColor: const Color(0xFF0092DC),
-                        borderWidth: 1,
-                        text: stepNum == 4 ? '完成' : '下一步',
-                        onPressed: () {
-                          nextStep();
-                        },
-                      )
-                    ],
-                  ))))
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                          color: Colors.white.withOpacity(0.05),
+                          padding: const EdgeInsets.symmetric(horizontal: 48),
+                          width: MediaQuery.of(context).size.width,
+                          height: 72,
+                          child: Center(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor:
+                                    const Color.fromRGBO(255, 255, 255, 0.10),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: '上一步',
+                                onPressed: () {
+                                  prevStep();
+                                },
+                              ),
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF818C98),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: stepNum == 4 ? '完成' : '下一步',
+                                onPressed: () {
+                                  nextStep();
+                                },
+                              )
+                            ],
+                          ))))))
       ],
     );
   }
@@ -371,7 +428,7 @@ class LoginHeader extends StatelessWidget {
     );
 
     var titleView = Padding(
-      padding: const EdgeInsets.fromLTRB(0, 18, 0, 6),
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
       child: Text(title,
           textAlign: TextAlign.left,
           style: const TextStyle(
@@ -438,7 +495,7 @@ class BindingDialog extends StatelessWidget {
         height: 270,
         padding: const EdgeInsets.symmetric(vertical: 45, horizontal: 30),
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(37, 48, 71, 0.90),
+          color: Color(0xFF494E59),
           borderRadius: BorderRadius.all(Radius.circular(40.0)),
         ),
         child: Column(

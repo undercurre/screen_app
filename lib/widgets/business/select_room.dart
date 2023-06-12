@@ -25,7 +25,7 @@ class _SelectRoom extends State<SelectRoom> {
         bgColor: Colors.transparent,
         desc: '设备${item.applianceList.length}',
         hasTopBorder: false,
-        hasBottomBorder: i + 1 != roomList.length,
+        hasBottomBorder: i + 1 != roomList.length + 1,
         rightSlot: MzRadio<String>(
           activeColor: const Color.fromRGBO(0, 145, 255, 1),
           value: item.roomId!,
@@ -41,6 +41,21 @@ class _SelectRoom extends State<SelectRoom> {
       ));
     }
 
+    listView.add(Container(
+      width: 432,
+      height: 44,
+      color: Colors.white.withOpacity(0.05),
+      child: const Center(
+          child: Text(
+            '已经到底了！',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: Color.fromRGBO(
+                    255, 255, 255, 0.85)),
+          )),
+    ));
+
     var homeListView = ListView(children: listView);
 
     return Container(
@@ -51,12 +66,6 @@ class _SelectRoom extends State<SelectRoom> {
         ),
         child: Column(children: [
           Expanded(child: homeListView),
-          Visibility(
-              visible: roomList.length > 3,
-              child: const SizedBox(
-                width: 432,
-                height: 50,
-              ))
         ]));;
   }
 

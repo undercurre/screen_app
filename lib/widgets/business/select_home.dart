@@ -27,7 +27,7 @@ class _SelectHome extends State<SelectHome> {
             tag: '创建',
             bgColor: Colors.transparent,
             hasTopBorder: false,
-            hasBottomBorder: i + 1 != homeList.length,
+            hasBottomBorder: i + 1 != homeList.length + 1,
             desc:
                 '房间${item.roomCount}  |  设备${item.applianceCount}  |  成员${item.memberCount}  |  ${addressList.last}',
             onTap: () {
@@ -45,6 +45,21 @@ class _SelectHome extends State<SelectHome> {
       );
     }
 
+    listView.add(Container(
+      width: 432,
+      height: 44,
+      color: Colors.white.withOpacity(0.05),
+      child: const Center(
+          child: Text(
+            '已经到底了！',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: Color.fromRGBO(
+                    255, 255, 255, 0.85)),
+          )),
+    ));
+
     var homeListView = ListView(children: listView);
 
     return Container(
@@ -55,12 +70,6 @@ class _SelectHome extends State<SelectHome> {
         ),
         child: Column(children: [
           Expanded(child: homeListView),
-          Visibility(
-              visible: homeList.length > 3,
-              child: const SizedBox(
-                width: 432,
-                height: 50,
-              ))
         ]));
   }
 
