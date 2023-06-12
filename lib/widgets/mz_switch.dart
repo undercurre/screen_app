@@ -7,6 +7,8 @@ class MzSwitch extends StatefulWidget {
   final Color inactiveColor; // 滑轨未激活底色
   final Color pointActiveColor; // 圆球激活底色
   final Color pointInactiveColor; // 圆圈未激活底色
+  final Color borderActiveColor; // 边框激活底色
+  final Color borderInactiveColor; // 边框未激活底色
   final Duration duration; // 状态切换动画时间
   final void Function(bool value)? onTap; // 点击开关回调
 
@@ -14,10 +16,12 @@ class MzSwitch extends StatefulWidget {
     super.key,
     this.value = false,
     this.disabled = false,
-    this.activeColor = const Color(0x330092DC),
-    this.inactiveColor = const Color(0x0cffffff),
-    this.pointActiveColor = const Color(0xff0092DC),
-    this.pointInactiveColor = const Color(0xff868A93),
+    this.activeColor = const Color(0x333C92D6),
+    this.inactiveColor = const Color(0x003e3e3e),
+    this.pointActiveColor = const Color(0xff3C92D6),
+    this.pointInactiveColor = const Color(0xff868990),
+    this.borderActiveColor = const Color(0xff3C92D6),
+    this.borderInactiveColor = const Color(0xff868990),
     this.duration = const Duration(milliseconds: 100),
     this.onTap,
   });
@@ -30,6 +34,7 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
   late bool value;
   late Color railBgc; // 轨道颜色
   late Color pointBgc; // 圆点颜色
+  late Color borderBgc; // 边框颜色
   late double pointLeft; // 圆点left偏移值
   AnimationController? railController; // 轨道动画控制器
   AnimationController? pointColorController; // 圆点颜色动画控制器
@@ -43,6 +48,7 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
     pointBgc =
     widget.value ? widget.pointActiveColor : widget.pointInactiveColor;
     pointLeft = widget.value ? 29 : 3;
+    borderBgc = widget.value ? widget.borderActiveColor : widget.borderInactiveColor;
   }
 
   @override
@@ -58,9 +64,9 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
             width: 54,
             height: 28,
             decoration: BoxDecoration(
-              border: Border.all(color: pointBgc, width: 1),
               borderRadius: const BorderRadius.all(Radius.circular(999)),
               color: railBgc,
+              border: Border.all(color: borderBgc, width: 1),
             ),
           ),
           Positioned(
@@ -97,6 +103,7 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
     }
     // 设置widget值
     value = widget.value;
+    borderBgc = widget.value ? widget.borderActiveColor : widget.borderInactiveColor;
     // 轨道变色动画
     final railEndColor = value ? widget.activeColor : widget.inactiveColor;
     railController = AnimationController(

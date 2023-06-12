@@ -15,6 +15,7 @@ import '../../channel/models/wifi_scan_result.dart';
 import '../../common/helper.dart';
 import '../../common/utils.dart';
 import '../mz_cell.dart';
+import '../mz_switch.dart';
 
 // _LinkNetwork页面的 dataclass
 class _LinkNetworkData {
@@ -189,15 +190,15 @@ class _LinkNetwork extends State<LinkNetwork> {
                 children: [
                   Container(
                     width: 432,
-                    height: 71,
+                    height: model._data.currentConnect?.type == UpdateType.LONGING ? 144 : 71,
                     margin: const EdgeInsets.fromLTRB(0, 12, 0, 10),
                     decoration: const BoxDecoration(
                         color: Color(0x0DFFFFFF),
                         borderRadius: BorderRadius.all(Radius.circular(16))
                     ),
-                    child: const Stack(
+                    child: Stack(
                       children: [
-                        Positioned(
+                        const Positioned(
                           left: 20,
                           top: 12,
                           child: Text("无线局域网",
@@ -207,6 +208,71 @@ class _LinkNetwork extends State<LinkNetwork> {
                                   fontFamily: "MideaType",
                                   fontWeight: FontWeight.normal,
                                   decoration: TextDecoration.none)
+                          ),
+                        ),
+                        Positioned(
+                          right: 20,
+                          top: 20,
+                          child: MzSwitch(
+                            value: model._data.isWiFiOn,
+                            onTap: (e) => model.changeSwitch(!model._data.isWiFiOn, true),
+                          ),
+                        ),
+
+                        if (model._data.currentConnect?.type == UpdateType.LONGING) Positioned(
+                          bottom: 0,
+                          left: 0,
+                          child: Container(
+                            width: 432,
+                            height: 72,
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  top: 0,
+                                  left: 20,
+                                  child: Container(
+                                    width: 392,
+                                    height: 1,
+                                    decoration: const BoxDecoration(
+                                        color: Color(0x19FFFFFF)
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 20,
+                                  top: 14,
+                                  child: Text(model._data.currentConnect?.data.ssid ?? '--',
+                                      style: const TextStyle(
+                                          color: Color(0XFFFFFFFF),
+                                          fontSize: 20,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none)
+                                  ),
+                                ),
+                                const Positioned(
+                                  right: 64,
+                                  top: 16,
+                                  child: Text("连接中…",
+                                      style: TextStyle(
+                                          color: Color(0XFF1EA8EE),
+                                          fontSize: 18,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none)
+                                  ),
+                                ),
+                                const Positioned(
+                                  top: 20,
+                                  right: 20,
+                                  child: Image(
+                                    width: 32,
+                                    height: 32,
+                                    image: AssetImage('assets/newUI/加载@1x.png'),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -238,10 +304,10 @@ class _LinkNetwork extends State<LinkNetwork> {
                                               const Padding(
                                                 padding: EdgeInsets.only(
                                                     right: 12.0),
-                                                child: Icon(
-                                                  Icons.lock_outline_sharp,
-                                                  color: Color.fromRGBO(
-                                                      255, 255, 255, 0.85),
+                                                child: Image(
+                                                  height: 32,
+                                                  width: 32,
+                                                  image: AssetImage('assets/newUI/锁@1x.png'),
                                                 ),
                                               ),
                                               MzWiFiImage(
@@ -287,13 +353,16 @@ class _LinkNetwork extends State<LinkNetwork> {
                                             model._data.currentConnect!.data);
                                       }
                                     });
-                              }))),
+                              })
+                      )
+                  ),
                   Visibility(
-                      visible: model.pageData.length > 3,
+                      visible: model.pageData.length <= 3,
                       child: const SizedBox(
                         width: 432,
-                        height: 72,
-                      ))
+                        height: 24,
+                      )
+                  )
                 ],
               ));
         }));
@@ -304,7 +373,7 @@ class _LinkNetwork extends State<LinkNetwork> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: EdgeInsets.only(left: 16.0, bottom: 13.0),
+          margin: const EdgeInsets.only(left: 16.0, bottom: 13.0),
           child: const Text(
             '其他网络',
             style: TextStyle(
