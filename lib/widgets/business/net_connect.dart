@@ -15,6 +15,7 @@ import '../../channel/models/wifi_scan_result.dart';
 import '../../common/helper.dart';
 import '../../common/utils.dart';
 import '../mz_cell.dart';
+import '../mz_switch.dart';
 
 // _LinkNetwork页面的 dataclass
 class _LinkNetworkData {
@@ -227,10 +228,10 @@ class _LinkNetwork extends State<LinkNetwork> {
                                                 const Padding(
                                                   padding: EdgeInsets.only(
                                                       right: 12.0),
-                                                  child: Icon(
-                                                    Icons.lock_outline_sharp,
-                                                    color: Color.fromRGBO(
-                                                        255, 255, 255, 0.85),
+                                                  child: Image(
+                                                    height: 32,
+                                                    width: 32,
+                                                    image: AssetImage('assets/newUI/lock.png'),
                                                   ),
                                                 ),
                                                 MzWiFiImage(
