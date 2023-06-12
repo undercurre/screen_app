@@ -156,15 +156,24 @@ class AboutSettingPage extends StatelessWidget {
         title: '正在安装更新',
         titleSize: 28,
         maxWidth: 432,
-        contentSlot: const Text('此操作将使网关子设备暂时离线，是否确认重启？',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 24,
-                color: Color.fromRGBO(255, 255, 255, 0.60),
-                fontFamily: 'MideaType',
-                fontWeight: FontWeight.w400,
-                height: 1.2)),
-        btns: ['取消', '更新'],
+        contentSlot: const Column(children: [
+          Text('更新中其他功能不可使用，期间会重启，请勿断电',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 24,
+                  color: Color.fromRGBO(255, 255, 255, 0.60),
+                  fontFamily: 'MideaType',
+                  fontWeight: FontWeight.w400,
+                  height: 1.2)),
+          MzSlider(
+              width: 300,
+              height: 4,
+              value: 60),
+          Text('60%', style: TextStyle(
+            fontSize: 60,
+            color: Colors.white
+          ),)
+        ],),
         onPressed: (_, position, context) {
           Navigator.pop(context);
           if (position == 1) {
@@ -626,7 +635,7 @@ class AboutSettingPage extends StatelessWidget {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () => {
-                            showInstallFail(
+                            showUpdateGoing(
                                 context, context.read<AboutSettingProvider>()),
                             context.read<AboutSettingProvider>().checkUpgrade()
                           },
@@ -706,8 +715,7 @@ class AboutSettingPage extends StatelessWidget {
                               children: [
                                 const Text("重启系统",
                                     style: TextStyle(
-                                      color:
-                                          Color.fromRGBO(255, 255, 255, 0.60),
+                                      color: Colors.white,
                                       fontSize: 24.0,
                                       fontFamily: "MideaType",
                                       fontWeight: FontWeight.normal,
@@ -758,8 +766,7 @@ class AboutSettingPage extends StatelessWidget {
                                 Container(
                                   child: const Text("清除用户数据",
                                       style: TextStyle(
-                                        color:
-                                            Color.fromRGBO(255, 255, 255, 0.60),
+                                        color: Colors.white,
                                         fontSize: 24.0,
                                         fontFamily: "MideaType",
                                         fontWeight: FontWeight.normal,

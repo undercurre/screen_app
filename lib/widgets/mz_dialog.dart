@@ -96,7 +96,7 @@ class MzDialog {
 
     // 按钮列表
     List<Widget> btnList = [];
-    if (btns != null) {
+    if (btns != null && btns!.isNotEmpty) {
       for (int i = 0; i < btns!.length; i++) {
         bool isLast = btns!.length - 1 == i;
         btnList.add(SizedBox(
@@ -129,7 +129,7 @@ class MzDialog {
             insetPadding: const EdgeInsets.symmetric(vertical: 20),
             shape: shape,
             actions: <Widget>[
-              Container(
+              if(btnList.isNotEmpty) Container(
                   padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
