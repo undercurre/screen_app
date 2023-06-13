@@ -30,41 +30,48 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Container(
-        width: 480,
-        height: 480,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
+        child: Container(
+          width: 480,
+          height: 480,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF272F41),
+                Color(0xFF080C14),
+              ],
+            ),
+          ),
         child: Column(
           children: [
             SizedBox(
               width: 480,
-              height: 60,
+              height: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(24, 0, 0, 0),
-                    child: const Text("待机设置",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 30.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-
                   IconButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    iconSize: 60.0,
+                    iconSize: 64,
                     icon: Image.asset(
-                      "assets/imgs/icon/tuichu.png",
+                      "assets/newUI/back.png",
                     ),
                   ),
+                  const Text("待机设置",
+                      style: TextStyle(
+                          color: Color(0XD8FFFFFF),
+                          fontSize: 28,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none)
+                  ),
+                  const SizedBox(
+                    height: 64,
+                    width: 64,
+                  )
                 ],
               ),
             ),
