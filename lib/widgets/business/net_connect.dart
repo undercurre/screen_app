@@ -480,7 +480,7 @@ class IgnorePasswordDialog extends StatelessWidget {
         height: 232,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(37, 48, 71, 0.90),
+          color: Color(0xFF494E59),
           borderRadius: BorderRadius.all(Radius.circular(40.0)),
         ),
         child: Column(
@@ -505,8 +505,8 @@ class IgnorePasswordDialog extends StatelessWidget {
                     width: 152,
                     height: 56,
                     borderRadius: 29.0,
-                    backgroundColor: Color.fromRGBO(255, 255, 255, 0.10),
-                    borderColor: Color.fromRGBO(255, 255, 255, 0.10),
+                    backgroundColor: const Color.fromRGBO(255, 255, 255, 0.10),
+                    borderColor: Colors.transparent,
                     borderWidth: 1,
                     text: '取消',
                     onPressed: () {
@@ -516,8 +516,8 @@ class IgnorePasswordDialog extends StatelessWidget {
                   width: 152,
                   height: 56,
                   borderRadius: 29.0,
-                  backgroundColor: const Color(0xFF0092DC),
-                  borderColor: const Color(0xFF0092DC),
+                  backgroundColor: const Color(0xFF818C98),
+                  borderColor: Colors.transparent,
                   borderWidth: 1,
                   text: '确认',
                   onPressed: () {
@@ -601,7 +601,7 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
         height: 292,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(37, 48, 71, 0.90),
+          color: Color(0xFF494E59),
           borderRadius: BorderRadius.all(Radius.circular(40.0)),
         ),
         child: Column(
@@ -689,8 +689,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         width: 152,
                         height: 56,
                         borderRadius: 29.0,
-                        backgroundColor: Color.fromRGBO(255, 255, 255, 0.10),
-                        borderColor: Color.fromRGBO(255, 255, 255, 0.10),
+                        backgroundColor: const Color.fromRGBO(255, 255, 255, 0.10),
+                        borderColor: Colors.transparent,
                         borderWidth: 1,
                         text: '取消',
                         onPressed: () {
@@ -700,8 +700,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                       width: 152,
                       height: 56,
                       borderRadius: 29.0,
-                      backgroundColor: const Color(0xFF0092DC),
-                      borderColor: const Color(0xFF0092DC),
+                      backgroundColor: const Color(0xFF818C98),
+                      borderColor: Colors.transparent,
                       borderWidth: 1,
                       text: '加入',
                       onPressed: () {
