@@ -84,10 +84,10 @@ class _SettingPageState extends State<SettingPage> {
                       /// 用户信息栏
                       GestureDetector(
                         onTap: () => {
-                          // Navigator.pushNamed(
-                          //   context,
-                          //   'DisplaySettingPage',
-                          // )
+                          Navigator.pushNamed(
+                            context,
+                            'AccountSettingPage',
+                          )
                         },
                         child: Container(
                           width: 432,

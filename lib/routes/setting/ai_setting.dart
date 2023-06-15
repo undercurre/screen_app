@@ -34,9 +34,14 @@ class _AiSettingPageState extends State<AiSettingPage> {
           height: 480,
           padding: const EdgeInsets.symmetric(horizontal: 32),
           decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: ExactAssetImage('assets/newUI/bg.png'),
-                fit: BoxFit.cover),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF272F41),
+                Color(0xFF080C14),
+              ],
+            ),
           ),
           child: Column(
             children: [
