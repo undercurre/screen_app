@@ -91,125 +91,174 @@ class _DropDownPageState extends State<DropDownPage>
                     width: 480,
                     height: 480,
                     decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/newUI/bg.png'),
-                        fit: BoxFit.cover,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF272F41),
+                          Color(0xFF080C14),
+                        ],
                       ),
                     ),
                     child: Column(children: <Widget>[
                       Container(
                         margin: const EdgeInsets.fromLTRB(24, 31, 24, 0),
-                        padding: const EdgeInsets.fromLTRB(39, 0, 47, 0),
                         width: 432,
                         height: 140,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          color: const Color(0x19FFFFFF),
-                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('语音电话',
-                                    style: TextStyle(
-                                      color:
-                                          Color.fromRGBO(255, 255, 255, 0.85),
-                                      fontSize: 28.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                                Text('拨通互通屏',
-                                    style: TextStyle(
-                                      color:
-                                          Color.fromRGBO(255, 255, 255, 0.31),
-                                      fontSize: 24.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                              ],
-                            ),
                             GestureDetector(
-                              child: Image.asset(
-                                "assets/newUI/phone.png",
-                              ),
-                              onTapDown: (e) {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return GestureDetector(
-                                        onTapDown: (e) {
-                                          logger.i('sjsjad');
-                                          Navigator.pop(context);
-                                        },
-                                        child: BackdropFilter(
-                                          filter: ImageFilter.blur(
-                                              sigmaX: 5, sigmaY: 5), // 设置高斯模糊程度
-                                          child: Stack(children: [
-                                            Center(
-                                                child: Container(
-                                              width: 250,
-                                              height: 178,
-                                              decoration: BoxDecoration(
-                                                color: const Color.fromRGBO(
-                                                    60, 79, 117, 0.46),
-                                                borderRadius:
-                                                    BorderRadius.circular(24),
-                                              ),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        vertical: 24),
-                                                    child: Text('卧室屏',
-                                                        style: TextStyle(
-                                                            fontSize: 24,
-                                                            color: Colors.white
-                                                                .withOpacity(
-                                                                    0.85))),
-                                                  ),
-                                                  Container(
-                                                    width: 198,
-                                                    height: 1,
-                                                    color: const Color.fromRGBO(
-                                                        255, 255, 255, 0.16),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        vertical: 24),
-                                                    child: Text('二楼屏',
-                                                        style: TextStyle(
-                                                            fontSize: 24,
-                                                            color: Colors.white
-                                                                .withOpacity(
-                                                                    0.85))),
-                                                  )
-                                                ],
-                                              ),
-                                            )),
-                                            Positioned(
-                                              left: 0,
-                                              top: 0,
-                                              child: Container(
-                                                color: Colors.black.withOpacity(
-                                                    0.2), // 设置背景颜色和透明度
-                                              ),
-                                            ),
-                                          ]),
-                                        ));
-                                  },
-                                );
+                              onTap: () => {
+                                Navigator.pop(context),
+                                Navigator.pushNamed(
+                                  context,
+                                  'SnifferPage',
+                                )
                               },
-                            )
+                              child: Container(
+                                width: 130,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  color: const Color(0x19FFFFFF),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "assets/newUI/add_device.png",
+                                      width: 48,
+                                      height: 48,
+                                    ),
+                                    const Text("添加设备",
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.5),
+                                          fontSize: 18.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 280,
+                              height: 140,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(24),
+                                color: const Color(0x19FFFFFF),
+                              ),
+                              margin: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('语音电话',
+                                          style: TextStyle(
+                                            color:
+                                                Color.fromRGBO(255, 255, 255, 0.85),
+                                            fontSize: 28.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                      Text('拨通互通屏',
+                                          style: TextStyle(
+                                            color:
+                                                Color.fromRGBO(255, 255, 255, 0.31),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                    ],
+                                  ),
+
+                                  GestureDetector(
+                                    child: Image.asset(
+                                      "assets/newUI/phone.png",
+                                    ),
+                                    onTapDown: (e) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return GestureDetector(
+                                              onTapDown: (e) {
+                                                logger.i('sjsjad');
+                                                Navigator.pop(context);
+                                              },
+                                              child: BackdropFilter(
+                                                filter: ImageFilter.blur(
+                                                    sigmaX: 5, sigmaY: 5), // 设置高斯模糊程度
+                                                child: Stack(children: [
+                                                  Center(
+                                                      child: Container(
+                                                    width: 250,
+                                                    height: 178,
+                                                    decoration: BoxDecoration(
+                                                      color: const Color.fromRGBO(151,156,166,0.46),
+                                                      borderRadius: BorderRadius.circular(24),
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets
+                                                                  .symmetric(
+                                                              vertical: 24),
+                                                          child: Text('卧室屏',
+                                                              style: TextStyle(
+                                                                  fontSize: 24,
+                                                                  color: Colors.white
+                                                                      .withOpacity(
+                                                                          0.85))),
+                                                        ),
+                                                        Container(
+                                                          width: 198,
+                                                          height: 1,
+                                                          color: const Color.fromRGBO(
+                                                              255, 255, 255, 0.16),
+                                                        ),
+                                                        Padding(
+                                                          padding: const EdgeInsets
+                                                                  .symmetric(
+                                                              vertical: 24),
+                                                          child: Text('二楼屏',
+                                                              style: TextStyle(
+                                                                  fontSize: 24,
+                                                                  color: Colors.white
+                                                                      .withOpacity(
+                                                                          0.85))),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )),
+                                                  Positioned(
+                                                    left: 0,
+                                                    top: 0,
+                                                    child: Container(
+                                                      color: Colors.black.withOpacity(
+                                                          0.2), // 设置背景颜色和透明度
+                                                    ),
+                                                  ),
+                                                ]),
+                                              ));
+                                        },
+                                      );
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
