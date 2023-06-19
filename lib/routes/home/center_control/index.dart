@@ -15,6 +15,8 @@ import 'package:screen_app/routes/home/center_control/light_control.dart';
 import 'package:screen_app/routes/home/center_control/quick_scene.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/home/center_control/view_part.dart';
+import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/card/main/small_scene.dart';
 import 'package:screen_app/widgets/card/other/clock.dart';
 
 import '../../../common/api/user_api.dart';
@@ -241,11 +243,40 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 210,
-        height: 196,
-        child: DigitalWeatherWidget(),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF272F41), Color(0xFF080C14)],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            SmallDeviceCardWidget(
+              name: '灯光',
+              icon: Image(
+                image: AssetImage('assets/newUI/device/light.png'),
+              ),
+              onOff: true,
+              roomName: '客厅',
+              characteristic: '40%',
+              onTap: () => {logger.i('点击卡片')},
+              online: true,
+              isFault: true,
+              isNative: false,
+            ),
+            SmallSceneCardWidget(
+              name: '默认情景',
+              icon: Image(
+                image: AssetImage('assets/newUI/scene/default.png'),
+              ),
+              onOff: false,
+            )
+          ],
+        ),
       ),
     );
   }
