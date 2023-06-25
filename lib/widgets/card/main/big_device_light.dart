@@ -226,6 +226,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               max: 100,
               disabled: !widget.onOff,
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
+              isBarColorKeepFull: true,
               onChanging: (val, color) => {
                 widget.onChanging?.call(1, val, color)
               },

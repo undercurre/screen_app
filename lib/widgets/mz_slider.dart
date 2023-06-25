@@ -42,6 +42,9 @@ class MzSlider extends StatefulWidget {
   // 组件内边距，用于拓展手势区域，提高用户体验
   final EdgeInsetsGeometry padding;
 
+  // 滑条颜色是否一直填满
+  final bool isBarColorKeepFull;
+
   const MzSlider({
     super.key,
     required this.value,
@@ -59,6 +62,7 @@ class MzSlider extends StatefulWidget {
     this.step = 1,
     this.disabled = false,
     this.padding = const EdgeInsets.all(20),
+    this.isBarColorKeepFull = false,
   });
 
   @override
@@ -126,7 +130,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 key: _railKey,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1F1F1F),
+                  color: const Color(0xFF000000),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -141,7 +145,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                      colors: widget.disabled ? disableColor : activeColor),
+                      colors: widget.disabled ? disableColor : widget.isBarColorKeepFull ? widget.activeColors : activeColor),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -149,7 +153,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: activeRailWidth,
+                    width: widget.isBarColorKeepFull ? widget.width : activeRailWidth,
                   ),
                 ),
               ),
@@ -199,8 +203,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
 
   // 获取当前圆点的滑动条颜色
   List<Color> get disableColor {
-    Color leftColor = const Color(0xFF8F8F8F);
-    Color rightColor = const Color(0xFF8F8F8F);
+    Color leftColor = const Color(0xFF515151);
+    Color rightColor = const Color(0xFF515151);
     int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
             leftColor.red)
         .round();
@@ -217,7 +221,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 leftColor.alpha)
             .round();
     return [
-      const Color(0xFF8F8F8F),
+      const Color(0xFF515151),
       Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
     ];
   }
