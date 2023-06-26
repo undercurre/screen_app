@@ -9,7 +9,6 @@ class BigDeviceLightCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final Function? onPowerTap; // 开关点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
   final int brightness; // 亮度
@@ -20,6 +19,8 @@ class BigDeviceLightCardWidget extends StatefulWidget {
   final void Function(num type, num value, Color activeColor)? onChanging;
   /// type: 0-亮度，1-色温; value: 百分比; activeColor: 当前颜色
   final void Function(num type, num value, Color activeColor)? onChanged;
+
+  final void Function(bool toOn)? onPowerTap; // 开关点击
 
   const BigDeviceLightCardWidget(
       {super.key,
@@ -64,7 +65,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => widget.onPowerTap?.call(),
+              onTap: () => widget.onPowerTap?.call(!widget.onOff),
               child: Image(
                   width: 40,
                   height: 40,
