@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -13,20 +14,21 @@ import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/global.dart';
 import '../../../widgets/event_bus.dart';
+import '../../../widgets/mz_buttion.dart';
 import 'device_card.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
 
-class DevicePage extends StatefulWidget {
-  const DevicePage({Key? key, required this.text}) : super(key: key);
+class AddDevicePage extends StatefulWidget {
+  const AddDevicePage({Key? key, required this.text}) : super(key: key);
 
   final String text;
 
   @override
-  State<StatefulWidget> createState() => _DevicePageState();
+  State<StatefulWidget> createState() => _AddDevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> {
+class _AddDevicePageState extends State<AddDevicePage> {
   final PageController _pageController = PageController();
   List<Widget> _screens = [];
   late EasyRefreshController _controller;
@@ -191,11 +193,54 @@ class _DevicePageState extends State<DevicePage> {
     ];
     _screens = getScreenList(layout);
     logger.i('屏幕页面数量', _screens.length);
-    return PageView(
-      controller: _pageController,
-      scrollDirection: Axis.horizontal,
-      onPageChanged: (index) {},
-      children: _screens,
+    return Stack(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF272F41), Color(0xFF080C14)],
+            ),
+          ),
+          constraints:
+              BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          height: MediaQuery.of(context).size.height,
+          child: PageView(
+            controller: _pageController,
+            scrollDirection: Axis.horizontal,
+            onPageChanged: (index) {},
+            children: _screens,
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Colors.white.withOpacity(0.05),
+                width: MediaQuery.of(context).size.width,
+                height: 72,
+                child: Center(
+                  child: MzButton(
+                    width: 240,
+                    height: 56,
+                    borderRadius: 29,
+                    backgroundColor: const Color(0xFF818C98),
+                    borderColor: Colors.transparent,
+                    borderWidth: 1,
+                    text: '返回',
+                    onPressed: () {
+                      Navigator.pushNamed(context, 'Custom');
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -294,8 +339,26 @@ class _DevicePageState extends State<DevicePage> {
             top: hadNotElement.top,
             child: cardWidget,
           );
+          Widget iconWithPosition = Positioned(
+              left: hadNotElement.left +
+                  sizeMap[hadNotElement.cardType]!['width']! -
+                  20,
+              top: hadNotElement.top - 10,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF6B6D73),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              ));
           // 扔进页面里
           curScreenWidgetList.add(cardWithPosition);
+          curScreenWidgetList.add(iconWithPosition);
           logger.i('curScreenWidgetList.length', curScreenWidgetList.length);
         } else {
           // 占位失败
@@ -311,37 +374,6 @@ class _DevicePageState extends State<DevicePage> {
       }
       hadNotInList.removeWhere((element) => completeList.contains(element));
       if (completeList.isNotEmpty) {
-        // 变量——editCard是否能成功加入当前屏幕
-        bool isCanAdd = true;
-        if (hadNotInList.isEmpty) {
-          // 元素被排布完毕，检验当前屏幕是否能够插入editCard
-          List<int> editCardFillCells = screenLayer.checkAvailability(
-              CardType.Edit);
-
-          // 当占位成功
-          if (editCardFillCells.isNotEmpty) {
-            // 通过最初的一个占位来判断left定位数据
-            double editCardLeft = ((editCardFillCells[0] - 1) % 4 * 105 +
-                (((editCardFillCells[0] - 1) % 4 == 0 ? 1 : (editCardFillCells[0] - 1) % 4) *
-                    paddingNum))
-                .toDouble();
-            // 通过最后一个占位来判断top定位数据
-            double editCardTop = ((editCardFillCells[0] ~/ 4) * 88 +
-                (editCardFillCells[0] ~/ 4 + 1) * paddingNum +
-                12)
-                .toDouble();
-            // 映射定位
-            Widget editCardWithPosition = Positioned(
-              left: editCardLeft,
-              top: editCardTop,
-              child: const EditCardWidget(),
-            );
-            // 扔进页面里
-            curScreenWidgetList.add(editCardWithPosition);
-          } else {
-            isCanAdd = false;
-          }
-        }
         // 生成页面Widget插入渲染流程
         screenList.add(
           Stack(
@@ -353,18 +385,6 @@ class _DevicePageState extends State<DevicePage> {
             ],
           ),
         );
-        if (!isCanAdd) {
-          screenList.add(
-            Stack(
-              children: [
-                SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height),
-                const Center(child: EditCardWidget())
-              ],
-            ),
-          );
-        }
         // 清空当前屏幕数据容器
         curScreenWidgetList = [];
         // 重置布局器

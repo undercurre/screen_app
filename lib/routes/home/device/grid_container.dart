@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../common/global.dart';
+import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_device_light.dart';
 import '../../../widgets/card/main/middle_device.dart';
 import '../../../widgets/card/main/small_device.dart';
@@ -190,6 +191,45 @@ class Screen {
         return [9, 10, 11, 12, 13, 14, 15, 16];
       }
     }
+    // editCard的摆放方式
+    if (type == CardType.Edit) {
+      if (
+      isCellOccupied(0, 0) ||
+          isCellOccupied(0, 1) ||
+          isCellOccupied(0, 2) ||
+          isCellOccupied(0, 3)
+      ) {
+      } else {
+        return [1, 2, 3, 4];
+      }
+      if (
+      isCellOccupied(1, 0) ||
+          isCellOccupied(1, 1) ||
+          isCellOccupied(1, 2) ||
+          isCellOccupied(1, 3)
+      ) {
+      } else {
+        return [5, 6, 7, 8];
+      }
+      if (
+      isCellOccupied(2, 0) ||
+          isCellOccupied(2, 1) ||
+          isCellOccupied(2, 2) ||
+          isCellOccupied(2, 3)
+      ) {
+      } else {
+        return [9, 10, 11, 12];
+      }
+      if (
+      isCellOccupied(3, 0) ||
+          isCellOccupied(3, 1) ||
+          isCellOccupied(3, 2) ||
+          isCellOccupied(3, 3)
+      ) {
+      } else {
+        return [13, 14, 15, 16];
+      }
+    }
     return [];
   }
 }
@@ -250,7 +290,10 @@ Map<CardType, Map<String, Widget Function(dynamic params)>> buildMap = {
   CardType.Other: {
     'clock': (params) => DigitalClockWidget(),
     'weather': (params) => DigitalWeatherWidget()
+  },
+  CardType.Edit: {
+    'edit': (params) => const EditCardWidget()
   }
 };
 
-enum CardType { Small, Middle, Big, Other }
+enum CardType { Small, Middle, Big, Other, Edit }

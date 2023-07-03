@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/home/device/custom.dart';
 import 'package:screen_app/routes/plugins/0x17/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
@@ -9,6 +10,7 @@ import 'package:screen_app/routes/setting/standby_style_select.dart';
 import 'boot/index.dart';
 import 'develop/develop_helper.dart';
 import 'dropdown/drop_down_page.dart';
+import 'home/device/add_device.dart';
 import 'home/index.dart';
 import 'login/index.dart';
 import 'plugins/0x13/index.dart';
@@ -29,6 +31,8 @@ var routes = <String, WidgetBuilder>{
   '/': (context) => const Boot(),
   "Login": (context) => const LoginPage(),
   "Home": (context) => const Home(),
+  "Custom": (context) => const CustomPage(text: '编辑页'),
+  "AddDevice": (context) => const AddDevicePage(text: '设备添加页'),
   "SelectRoomPage": (context) => const SelectRoomPage(),
   "SelectScenePage": (context) => const SelectScenePage(),
   "ScreenSaver": (context) => const ScreenSaver(),
