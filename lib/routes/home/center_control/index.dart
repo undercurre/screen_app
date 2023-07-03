@@ -274,7 +274,7 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
                 image: AssetImage('assets/newUI/scene/default.png'),
               ),
               onOff: false,
-            )
+            ),
           ],
         ),
       ),

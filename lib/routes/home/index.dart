@@ -39,7 +39,8 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, Ota {
+class HomeState extends State<Home>
+    with AutoSniffer, DeviceManagerSDKInitialize, LifeCycleState, Ota {
   late double po;
   var children = <Widget>[];
   late PageController _pageController;
@@ -53,10 +54,10 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 1);
-    children.add(const KeepAliveWrapper(child: ScenePage(text: "场景页")));
-    children.add(const KeepAliveWrapper(child: CenterControlPage(text: '中控页')));
-    children.add(const KeepAliveWrapper(child: DevicePage(text: "设备页")));
+    _pageController = PageController(initialPage: 0);
+    // children.add(const KeepAliveWrapper(child: ScenePage(text: "场景页")));
+    // children.add(const KeepAliveWrapper(child: CenterControlPage(text: '中控页')));
+    // children.add(const KeepAliveWrapper(child: DevicePage(text: "设备页")));
     initial();
 
     ShowStandby.startTimer();
@@ -71,8 +72,9 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
     try {
       Future.delayed(const Duration(milliseconds: 4000), () {
         aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
-        aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
-        AiAuthorApi.AiAuthor(deviceId:Global.profile.applianceCode);
+        aiMethodChannel
+            .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
+        AiAuthorApi.AiAuthor(deviceId: Global.profile.applianceCode);
       });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
@@ -86,7 +88,8 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
       String? deviceSn = await aboutSystemChannel.getGatewaySn(false);
       String? deviceId = Global.profile.applianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
-      var jsonData = '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
+      var jsonData =
+          '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
       var parsedJson = json.decode(jsonData);
       await aiMethodChannel.initialAi(parsedJson);
     } catch (e) {
@@ -95,17 +98,18 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   }
 
   void _aiSetVoiceCallback(int voice) {
-    Global.soundValue=voice;
+    Global.soundValue = voice;
   }
 
-  void _aiControlDeviceError(){
+  void _aiControlDeviceError() {
     /// 判定当前网关是否已经绑定
-    GatewayApi.check((bind,code) {
-      if(!bind) {
+    GatewayApi.check((bind, code) {
+      if (!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();
         System.loginOut();
-        Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
+        Navigator.pushNamedAndRemoveUntil(
+            context, "Login", (route) => route.settings.name == "/");
       }
     }, () {
       //接口请求报错
@@ -137,60 +141,40 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
                   po = details.globalPosition.dy;
                 },
                 onVerticalDragUpdate: (details) {
-                  debugPrint("onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
+                  debugPrint(
+                      "onVerticalDragUpdate---${details.globalPosition}---${details.localPosition}---${details.delta}");
                   if (po <= 40) {
-                    Navigator.of(context).push(PageAnimationTransition(page: const DropDownPage(), pageAnimationType: TopToBottomTransition()));
+                    Navigator.of(context).push(PageAnimationTransition(
+                        page: const DropDownPage(),
+                        pageAnimationType: TopToBottomTransition()));
                   }
                 },
                 child: Stack(
                   children: [
-                    PageView(
-                      // physics: const NeverScrollableScrollPhysics(),
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          if (index == 0) {
-                            selectDevice = unPressPath;
-                            selectCenter = unPressPath;
-                            selectScene = pressPath;
-                          } else if (index == 1) {
-                            selectDevice = unPressPath;
-                            selectCenter = pressPath;
-                            selectScene = unPressPath;
-                          } else {
-                            selectDevice = pressPath;
-                            selectCenter = unPressPath;
-                            selectScene = unPressPath;
-                          }
-                        });
-                      },
-                      children: children,
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFF272F41), Color(0xFF080C14)],
+                        ),
+                      ),
+                      constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                      height: MediaQuery.of(context).size.height,
+                      child: const DevicePage(text: '设备页'),
                     ),
                     Positioned(
-                        width: 480,
-                        bottom: 14,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              selectScene,
-                              width: 30,
-                              height: 2,
-                            ),
-                            Image.asset(
-                              selectCenter,
-                              width: 30,
-                              height: 2,
-                            ),
-                            Image.asset(
-                              selectDevice,
-                              width: 30,
-                              height: 2,
-                            ),
-                          ],
-                        )),
+                      top: 10,
+                      left: MediaQuery.of(context).size.width / 2 - 46,
+                      child: Container(
+                        width: 92,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF818895).withOpacity(0.85),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
                   ],
                 )),
           ],
@@ -215,7 +199,8 @@ class HomeState extends State<Home> with AutoSniffer, DeviceManagerSDKInitialize
   void dispose() {
     super.dispose();
     aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
-    aiMethodChannel.unregisterAiControlDeviceErrorCallBack(_aiControlDeviceError);
+    aiMethodChannel
+        .unregisterAiControlDeviceErrorCallBack(_aiControlDeviceError);
     debugPrint("dispose");
   }
 
