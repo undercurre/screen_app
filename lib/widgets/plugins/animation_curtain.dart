@@ -24,7 +24,7 @@ class _AnimationCurtainState extends State<AnimationCurtain> {
     return Stack(
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width,
+          width: 174,
           height: MediaQuery.of(context).size.height,
         ),
 

@@ -17,7 +17,7 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final void Function(num value)? onChanged; // 滑条滑动结束
 
   final int? index; // 三个操作选项index=0|1|2，都不选传null
-  final void Function(num value)? onTap; // 三个操作选项点击
+  final void Function(int value)? onTap; // 三个操作选项点击
 
   const BigDeviceCurtainCardWidget(
       {super.key,
@@ -226,7 +226,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
               },
               groupValue: _getGroupIndex(),
               onValueChanged: (int? value) {
-                widget.onTap?.call(value as num);
+                widget.onTap?.call(value!);
               },
             ),
           ),
