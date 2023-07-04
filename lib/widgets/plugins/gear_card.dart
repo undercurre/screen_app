@@ -61,7 +61,7 @@ class _GearCardState extends State<GearCard> {
         Container(
           width: 2,
           height: 2,
-          color: const Color(0x77d8d8d8),
+          color: const Color(0xFFFFFFFF),
         ),
       );
     }
@@ -90,7 +90,7 @@ class _GearCardState extends State<GearCard> {
                     color: Color(0x77ffffff),
                     fontSize: 18,
                     fontFamily: 'MideaType-Light',
-                    fontWeight: FontWeight.w200,
+                    fontWeight: FontWeight.w400,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -107,6 +107,7 @@ class _GearCardState extends State<GearCard> {
                 disabled: widget.disabled,
                 step: 1,
                 duration: widget.duration ?? const Duration(milliseconds: 100),
+                activeColors: const [Color(0xFFCE8F31), Color(0xFFFFDE7C)],
                 onChanging: (e, _) => setState(() {
                   value = e;
                   // widget.onChanged?.call(value);

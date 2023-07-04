@@ -245,9 +245,13 @@ class AirConditionPageState extends State<AirConditionPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
         ),
       ),
       child: Stack(
@@ -259,7 +263,8 @@ class AirConditionPageState extends State<AirConditionPage> {
                 temperature: localTemp,
                 windSpeed: localWind,
                 mode: localMode,
-              )),
+              )
+          ),
           Flex(
             direction: Axis.vertical,
             children: <Widget>[
@@ -331,48 +336,30 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                   child: Container(
                                                     width: 130,
                                                     height: 50,
-                                                    margin: const EdgeInsets
-                                                        .symmetric(vertical: 4),
+                                                    margin: const EdgeInsets.symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: localMode == item['key'] // TODO: 完善
+                                                      color: localMode == item['key']
                                                           ? const Color(
-                                                              0xff575757)
+                                                              0x26101010)
                                                           : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
+                                                      borderRadius: BorderRadius.circular(12),
                                                     ),
-                                                    child: Opacity(
-                                                      opacity: true // TODO: 完善
-                                                          ? 1
-                                                          : 0.7,
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Image.asset(
-                                                              item['icon']!),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    7, 0, 7, 0),
-                                                            child: Text(
-                                                              item['text']!,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 18,
-                                                                fontFamily:
-                                                                    "MideaType",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w200,
-                                                              ),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Image.asset(item['icon']!),
+                                                        Padding(
+                                                          padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                                          child: Text(
+                                                            item['text']!,
+                                                            style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontFamily: "MideaType",
+                                                              fontWeight: FontWeight.w200,
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
@@ -380,32 +367,28 @@ class AirConditionPageState extends State<AirConditionPage> {
                                             );
                                           },
                                         ).toList(),
-                                        trigger: Opacity(
-                                          opacity: menuVisible ? 0.5 : 1,
-                                          child: Row(
-                                            children: [
-                                              Image.asset(getCurModeConfig()[
-                                                      "icon"] ??
-                                                  "assets/imgs/plugins/0xAC/zidong_icon.png"),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        7, 0, 7, 0),
-                                                child: Text(
-                                                  getCurModeConfig()["text"] ??
-                                                      '自动',
-                                                  style: const TextStyle(
-                                                    color: Color(0X7FFFFFFF),
-                                                    fontSize: 18.0,
-                                                    fontFamily: "MideaType",
-                                                    fontWeight: FontWeight.w200,
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  ),
+                                        trigger: Row(
+                                          children: [
+                                            Image.asset(getCurModeConfig()[
+                                            "icon"] ??
+                                                "assets/imgs/plugins/0xAC/zidong_icon.png"),
+                                            Padding(
+                                              padding:
+                                              const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                              child: Text(
+                                                getCurModeConfig()["text"] ??
+                                                    '自动',
+                                                style: const TextStyle(
+                                                  color: Color(0XFFFFFFFF),
+                                                  fontSize: 18.0,
+                                                  fontFamily: "MideaType",
+                                                  fontWeight: FontWeight.w200,
+                                                  decoration:
+                                                  TextDecoration.none,
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                         onVisibleChange: (visible) {
                                           setState(() {

@@ -19,8 +19,8 @@ class _AirCondition extends State<AirCondition> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-        children: const [
+    return const Stack(
+        children: [
           SizedBox(
             width: 150,
             height: 600,
