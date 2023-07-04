@@ -248,7 +248,7 @@ class _CustomPageState extends State<CustomPage> {
                         borderWidth: 1,
                         text: '完成',
                         onPressed: () {
-                          Navigator.pushNamed(context, 'Home');
+                          Navigator.pop(context);
                         },
                       )
                     ],
