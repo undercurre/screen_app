@@ -12,6 +12,7 @@ import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/global.dart';
+import '../../../states/device_position_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import 'device_card.dart';
 import 'grid_container.dart';
@@ -146,48 +147,48 @@ class _DevicePageState extends State<DevicePage> {
     // 处理布局信息
     // 假设现在有布局
     List<Layout> layout = [
-      Layout('183472490233', 'clock', CardType.Other, -1, -1, -1, null),
-      Layout('183472490231', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490250', 'clock', CardType.Other, -1, -1, -1, null),
+      Layout('183472490249', 'scene', CardType.Small, -1, -1, -1, {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490232', '0x13', CardType.Small, -1, -1, -1, null),
-      Layout('183472490235', '0x13', CardType.Big, -1, -1, -1, null),
-      Layout('183472490234', '0x13', CardType.Middle, -1, -1, -1, null),
-      Layout('183472490231', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490248', '0x13', CardType.Small, -1, -1, -1, null),
+      Layout('183472490247', '0x13', CardType.Big, -1, -1, -1, null),
+      Layout('183472490257', '0x13', CardType.Middle, -1, -1, -1, null),
+      Layout('183472490246', 'scene', CardType.Small, -1, -1, -1, {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490231', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490245', 'scene', CardType.Small, -1, -1, -1, {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490234', '0x13', CardType.Middle, -1, -1, -1, null),
-      Layout('183472490231', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490244', '0x13', CardType.Middle, -1, -1, -1, null),
+      Layout('183472490243', 'scene', CardType.Small, -1, -1, -1, {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490231', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490242', 'scene', CardType.Small, -1, -1, -1, {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490235', '0x13', CardType.Big, -1, -1, -1, null),
-      Layout('183472490235', '0x13', CardType.Big, -1, -1, -1, null),
+      Layout('183472490241', '0x13', CardType.Big, -1, -1, -1, null),
+      Layout('183472490240', '0x13', CardType.Big, -1, -1, -1, null),
     ];
     _screens = getScreenList(layout);
     logger.i('屏幕页面数量', _screens.length);
@@ -224,6 +225,8 @@ class _DevicePageState extends State<DevicePage> {
   var weekday = [" ", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
   List<Widget> getScreenList(List<Layout> layout) {
+    // 使用provider
+    final layoutModel = Provider.of<LayoutModel>(context);
     const paddingNum = 20;
     // 屏幕页面列表
     List<Widget> screenList = [];
@@ -283,6 +286,8 @@ class _DevicePageState extends State<DevicePage> {
               '定位数据', 'left: ${hadNotElement.left} top: ${hadNotElement.top}');
           // 把当前页码放进去
           hadNotElement.pageIndex = pageCount;
+          // 把更新好的布局加入provider
+          layoutModel.addLayout(hadNotElement);
           // 映射出对应的Card
           Widget cardWidget =
               buildMap[hadNotElement.cardType]![hadNotElement.type]!(
