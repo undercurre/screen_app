@@ -138,16 +138,26 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(color: Colors.black),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
+        ),
+      ),
       child: Stack(
         children: [
           // 窗帘动画
           Positioned(
-              left: -16, // 向左偏移
+              left: -32, // 向左偏移
               top: 0,
               child: AnimationCurtain(
                 position: curtainPosition,
-              )),
+              )
+          ),
           Column(
             children: <Widget>[
               // 顶部导航

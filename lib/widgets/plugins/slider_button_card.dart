@@ -200,6 +200,7 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
             width: 270,
             max: widget.max,
             min: widget.min,
+            activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
             step: widget.step,
             disabled: widget.disabled,
             duration: widget.duration ?? const Duration(milliseconds: 100),
