@@ -302,9 +302,13 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
         ),
       ),
       child: Stack(
@@ -429,20 +433,20 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           child: Listener(
                                             onPointerDown: (e) => delayHandle(),
                                             child: Container(
-                                              width: 32,
-                                              height: 32,
+                                              width: 40,
+                                              height: 40,
                                               decoration: BoxDecoration(
-                                                color: localTimeOff == 0
-                                                    ? const Color(0xFF000000)
-                                                    : const Color(0xFFFFFFFF),
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topRight,
+                                                  end: Alignment.bottomLeft,
+                                                  colors: localTimeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                                                    [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
+                                                ),
                                                 borderRadius:
-                                                    BorderRadius.circular(16.0),
+                                                    BorderRadius.circular(20),
                                               ),
-                                              child: Image(
-                                                image: AssetImage(localTimeOff ==
-                                                        0
-                                                    ? 'assets/imgs/plugins/0x13/delay_off.png'
-                                                    : 'assets/imgs/plugins/0x13/delay_on.png'),
+                                              child: const Image(
+                                                image: AssetImage('assets/imgs/plugins/0x13/delay_off.png'),
                                               ),
                                             ),
                                           ),
