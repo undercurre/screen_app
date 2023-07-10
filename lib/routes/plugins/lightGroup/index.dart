@@ -185,9 +185,13 @@ class LightGroupPageState extends State<LightGroupPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
         ),
       ),
       child: Stack(

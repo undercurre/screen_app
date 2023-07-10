@@ -102,7 +102,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                           fontSize: 18,
                           height: 1.2,
                           color: Color(0x80FFFFFF),
-                          fontWeight: FontWeight.w100,
+                          fontWeight: FontWeight.w400,
                           decoration: TextDecoration.none,
                         ),
                       ),

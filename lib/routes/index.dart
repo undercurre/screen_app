@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/home/device/custom.dart';
 import 'package:screen_app/routes/plugins/0x17/index.dart';
+import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
+import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
@@ -67,5 +69,7 @@ var routes = <String, WidgetBuilder>{
   "0x21_curtain_panel_one": (context) => const ZigbeeCurtainPage(),
   "0x21_curtain_panel_two": (context) => const ZigbeeCurtainPage(),
   "lightGroup": (context) => const LightGroupPage(),
-  "0xAC": (context) => const AirConditionPage()
+  "0xAC": (context) => const AirConditionPage(),
+  "0xAC_newWind": (context) => const NewWindPage(),
+  "0xAC_floorHeating": (context) => const FloorHeatingPage()
 };
