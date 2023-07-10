@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:screen_app/common/global.dart';
+
 import 'grid_container.dart';
 
 class Layout {
@@ -74,7 +76,7 @@ class Layout {
       // }
 
       //
-      for (int i = 0; i < a.grids.length; i++) {
+      for (int i = 0; i < a.grids.length  && i < b.grids.length; i++) {
         final gridComparison = a.grids[i].compareTo(b.grids[i]);
 
         if (gridComparison != 0) {

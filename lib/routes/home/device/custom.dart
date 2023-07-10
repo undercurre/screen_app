@@ -184,28 +184,15 @@ class _CustomPageState extends State<CustomPage> {
               dragSumY = curLayout.grids[0] / 4 * gridHeight;
             });
           },
-          onDragEnd: (details) {},
+          onDragEnd: (details) {
+            int columnIndex = dragSumX ~/ gridWidth + 1;
+            int rowIndex = dragSumY ~/ gridHeight;
+            layoutModel.swapPosition(curLayout, rowIndex, columnIndex);
+          },
           onDragUpdate: (details) {
             // 计算出拖拽中卡片的位置
             dragSumX += details.delta.dx;
             dragSumY += details.delta.dy;
-            int columnIndex = dragSumX ~/ gridWidth;
-            int rowIndex = dragSumY ~/ gridHeight;
-            logger.i('拖拽到$rowIndex行$columnIndex列');
-            double offsetX = columnIndex * gridWidth;
-            double offsetY = rowIndex * gridHeight;
-            double draggableWidth =
-                sizeMap[curLayout.cardType]!['cross']! / 2 * 210 / 440 * width;
-            double draggableHeight =
-                sizeMap[curLayout.cardType]!['main']! * 88 / 392 * height;
-            // 边界检查
-            double maxOffsetX = width - draggableWidth;
-            double maxOffsetY = height - draggableHeight;
-            double validOffsetX = min(max(offsetX, 0), maxOffsetX);
-            double validOffsetY = min(max(offsetY, 0), maxOffsetY);
-            // 加入padding
-            validOffsetX += 20;
-            validOffsetY += (rowIndex == 0 ? 32 : 10);
           },
           onDragCompleted: () {},
           onDraggableCanceled: (_, __) {},
