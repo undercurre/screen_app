@@ -163,15 +163,21 @@ class LayoutModel extends ChangeNotifier {
 
     // 对占位进行替换
     if (targetIndexes.isNotEmpty) {
+      bool isValid = true;
       for (int i = 0; i < targetIndexes.length; i++) {
         // 再逐个替换掉被置换的占位
         Layout targetLayout = layouts.firstWhere((layout) =>
             layout.deviceId == curPageLayoutList[targetIndexes[i]].deviceId);
+        if (targetLayout.grids.length > source.grids.length) {
+          isValid = false;
+          break;
+        }
         targetLayout.grids = targetLayout.grids
             .map((item) => item + source.grids[0] - target[0])
             .cast<int>()
             .toList();
       }
+      if (!isValid) return;
     }
 
     source.grids = target;
