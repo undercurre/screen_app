@@ -317,9 +317,8 @@ class _DevicePageState extends State<DevicePage> {
         //   child: cardWidget,
         // );
         // 映射布局占格
-        Widget cardWithPosition = StaggeredGridTile.count(
+        Widget cardWithPosition = StaggeredGridTile.fit(
             crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
-            mainAxisCellCount: sizeMap[layoutAfterSort.cardType]!['main']!,
             child: UnconstrainedBox(child: cardWidget));
         // 扔进页面里
         curScreenWidgetList.add(cardWithPosition);
@@ -350,11 +349,11 @@ class _DevicePageState extends State<DevicePage> {
             child: Container(
               width: 480,
               height: 480,
-              padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+              padding: const EdgeInsets.fromLTRB(20, 32, 20, 34),
               child: StaggeredGrid.count(
                 crossAxisCount: 4,
-                mainAxisSpacing: 0,
-                crossAxisSpacing: 0,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
                 axisDirection: AxisDirection.down,
                 children: [...curScreenWidgetList],
               ),
