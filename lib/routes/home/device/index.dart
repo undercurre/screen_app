@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/push.dart';
@@ -147,48 +148,48 @@ class _DevicePageState extends State<DevicePage> {
     // 处理布局信息
     // 假设现在有布局
     List<Layout> layout = [
-      Layout('183472490250', 'clock', CardType.Other, -1, -1, -1, null),
-      Layout('183472490249', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490250', 'clock', CardType.Other, -1, [], null),
+      Layout('183472490247', '0x13', CardType.Big, -1, [], null),
+      Layout('183472490249', 'scene', CardType.Small, -1, [], {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490248', '0x13', CardType.Small, -1, -1, -1, null),
-      Layout('183472490247', '0x13', CardType.Big, -1, -1, -1, null),
-      Layout('183472490257', '0x13', CardType.Middle, -1, -1, -1, null),
-      Layout('183472490246', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490248', '0x13', CardType.Small, -1, [], null),
+      Layout('183472490257', '0x13', CardType.Middle, -1, [], null),
+      Layout('183472490246', 'scene', CardType.Small, -1, [], {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490245', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490245', 'scene', CardType.Small, -1, [], {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490244', '0x13', CardType.Middle, -1, -1, -1, null),
-      Layout('183472490243', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490244', '0x13', CardType.Middle, -1, [], null),
+      Layout('183472490243', 'scene', CardType.Small, -1, [], {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490242', 'scene', CardType.Small, -1, -1, -1, {
+      Layout('183472490242', 'scene', CardType.Small, -1, [], {
         'name': '默认情景',
         'icon': const Image(
           image: AssetImage('assets/newUI/scene/default.png'),
         ),
         'onOff': true,
       }),
-      Layout('183472490241', '0x13', CardType.Big, -1, -1, -1, null),
-      Layout('183472490240', '0x13', CardType.Big, -1, -1, -1, null),
+      Layout('183472490241', '0x13', CardType.Big, -1, [], null),
+      Layout('183472490240', '0x13', CardType.Big, -1, [], null),
     ];
     _screens = getScreenList(layout);
     logger.i('屏幕页面数量', _screens.length);
@@ -243,7 +244,7 @@ class _DevicePageState extends State<DevicePage> {
     // 准备元素队列
     for (var element in layout) {
       // 先把拿到的布局数据分成已布局好的和没布局好的，没布局好的pageIndex,left和top都是-1
-      if (element.pageIndex == -1 && element.left == -1 && element.top == -1) {
+      if (element.pageIndex == -1) {
         hadNotInList.add(element);
       } else {
         if (hadPageCount < element.pageIndex) hadPageCount = element.pageIndex;
@@ -273,34 +274,23 @@ class _DevicePageState extends State<DevicePage> {
           }
           // 虚拟占位成功就可以把布局写入未排数据里
           // 通过最初的一个占位来判断left定位数据
-          hadNotElement.left = ((fillCells[0] - 1) % 4 * 105 +
-                  (((fillCells[0] - 1) % 4 == 0 ? 1 : (fillCells[0] - 1) % 4) *
-                      paddingNum))
-              .toDouble();
-          // 通过最后一个占位来判断top定位数据
-          hadNotElement.top = ((fillCells[0] ~/ 4) * 88 +
-                  (fillCells[0] ~/ 4 + 1) * paddingNum +
-                  12)
-              .toDouble();
-          logger.i(
-              '定位数据', 'left: ${hadNotElement.left} top: ${hadNotElement.top}');
+          // hadNotElement.left = ((fillCells[0] - 1) % 4 * 105 +
+          //         (((fillCells[0] - 1) % 4 == 0 ? 1 : (fillCells[0] - 1) % 4) *
+          //             paddingNum))
+          //     .toDouble();
+          // // 通过最后一个占位来判断top定位数据
+          // hadNotElement.top = ((fillCells[0] ~/ 4) * 88 +
+          //         (fillCells[0] ~/ 4 + 1) * paddingNum +
+          //         12)
+          //     .toDouble();
+          // logger.i(
+          //     '定位数据', 'left: ${hadNotElement.left} top: ${hadNotElement.top}');
           // 把当前页码放进去
           hadNotElement.pageIndex = pageCount;
+          // 把网格布局放进去
+          hadNotElement.grids = fillCells;
           // 把更新好的布局加入provider
           layoutModel.addLayout(hadNotElement);
-          // 映射出对应的Card
-          Widget cardWidget =
-              buildMap[hadNotElement.cardType]![hadNotElement.type]!(
-                  hadNotElement.data);
-          logger.i('映射出的widget', cardWidget);
-          // 映射定位
-          Widget cardWithPosition = Positioned(
-            left: hadNotElement.left,
-            top: hadNotElement.top,
-            child: cardWidget,
-          );
-          // 扔进页面里
-          curScreenWidgetList.add(cardWithPosition);
           logger.i('curScreenWidgetList.length', curScreenWidgetList.length);
         } else {
           // 占位失败
@@ -314,34 +304,41 @@ class _DevicePageState extends State<DevicePage> {
           }
         }
       }
+      List<Layout> sortedLayoutList =
+          Layout.sortLayoutList(layoutModel.getLayoutsByPageIndex(pageCount));
+      for (Layout layoutAfterSort in sortedLayoutList) {
+        // 映射出对应的Card
+        Widget cardWidget =
+            buildMap[layoutAfterSort.cardType]![layoutAfterSort.type]!(
+                layoutAfterSort.data);
+        logger.i('映射出的widget', cardWidget);
+        // 映射定位
+        // Widget cardWithPosition = Positioned(
+        //   child: cardWidget,
+        // );
+        // 映射布局占格
+        Widget cardWithPosition = StaggeredGridTile.count(
+            crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
+            mainAxisCellCount: sizeMap[layoutAfterSort.cardType]!['main']!,
+            child: UnconstrainedBox(child: cardWidget));
+        // 扔进页面里
+        curScreenWidgetList.add(cardWithPosition);
+      }
       hadNotInList.removeWhere((element) => completeList.contains(element));
       if (completeList.isNotEmpty) {
         // 变量——editCard是否能成功加入当前屏幕
         bool isCanAdd = true;
         if (hadNotInList.isEmpty) {
           // 元素被排布完毕，检验当前屏幕是否能够插入editCard
-          List<int> editCardFillCells = screenLayer.checkAvailability(
-              CardType.Edit);
+          List<int> editCardFillCells =
+              screenLayer.checkAvailability(CardType.Edit);
 
           // 当占位成功
           if (editCardFillCells.isNotEmpty) {
-            // 通过最初的一个占位来判断left定位数据
-            double editCardLeft = ((editCardFillCells[0] - 1) % 4 * 105 +
-                (((editCardFillCells[0] - 1) % 4 == 0 ? 1 : (editCardFillCells[0] - 1) % 4) *
-                    paddingNum))
-                .toDouble();
-            // 通过最后一个占位来判断top定位数据
-            double editCardTop = ((editCardFillCells[0] ~/ 4) * 88 +
-                (editCardFillCells[0] ~/ 4 + 1) * paddingNum +
-                12)
-                .toDouble();
-            // 映射定位
-            Widget editCardWithPosition = Positioned(
-              left: editCardLeft,
-              top: editCardTop,
-              child: const EditCardWidget(),
-            );
-            // 扔进页面里
+            Widget editCardWithPosition = const StaggeredGridTile.count(
+                crossAxisCellCount: 2,
+                mainAxisCellCount: 2,
+                child: EditCardWidget());
             curScreenWidgetList.add(editCardWithPosition);
           } else {
             isCanAdd = false;
@@ -349,26 +346,23 @@ class _DevicePageState extends State<DevicePage> {
         }
         // 生成页面Widget插入渲染流程
         screenList.add(
-          Stack(
-            children: [
-              SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height),
-              ...curScreenWidgetList
-            ],
+          UnconstrainedBox(
+            child: Container(
+              width: 480,
+              height: 480,
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+              child: StaggeredGrid.count(
+                crossAxisCount: 4,
+                mainAxisSpacing: 0,
+                crossAxisSpacing: 0,
+                axisDirection: AxisDirection.down,
+                children: [...curScreenWidgetList],
+              ),
+            ),
           ),
         );
         if (!isCanAdd) {
-          screenList.add(
-            Stack(
-              children: [
-                SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height),
-                const Center(child: EditCardWidget())
-              ],
-            ),
-          );
+          screenList.add(const Center(child: EditCardWidget()));
         }
         // 清空当前屏幕数据容器
         curScreenWidgetList = [];

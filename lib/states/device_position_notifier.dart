@@ -30,7 +30,8 @@ class LayoutModel extends ChangeNotifier {
 
   Future<void> _saveLayouts() async {
     final prefs = await SharedPreferences.getInstance();
-    final layoutList = layouts.map((layout) => jsonEncode(layout.toJson())).toList();
+    final layoutList =
+        layouts.map((layout) => jsonEncode(layout.toJson())).toList();
     await prefs.setStringList('layouts', layoutList);
   }
 
@@ -47,7 +48,8 @@ class LayoutModel extends ChangeNotifier {
 
   // 方法用于更新现有的布局对象, 根据 deviceId 和 pageIndex 查找到对应的布局，并进行更新。
   void updateLayout(Layout layout) {
-    final index = layouts.indexWhere((item) => item.deviceId == layout.deviceId && item.pageIndex == layout.pageIndex);
+    final index = layouts.indexWhere((item) =>
+        item.deviceId == layout.deviceId && item.pageIndex == layout.pageIndex);
     if (index != -1) {
       layouts[index] = layout;
       _saveLayouts();
@@ -57,14 +59,15 @@ class LayoutModel extends ChangeNotifier {
 
   // 用于删除指定 deviceId 和 pageIndex 的布局对象。
   void deleteLayout(String deviceId, int pageIndex) {
-    layouts.removeWhere((item) => item.deviceId == deviceId && item.pageIndex == pageIndex);
+    layouts.removeWhere(
+        (item) => item.deviceId == deviceId && item.pageIndex == pageIndex);
     _saveLayouts();
     notifyListeners();
   }
 
   // 用于根据设备ID获取相关的布局对象列表。
-  List<Layout> getLayoutsByDevice(String deviceId) {
-    return layouts.where((item) => item.deviceId == deviceId).toList();
+  Layout getLayoutsByDevice(String deviceId) {
+    return layouts.firstWhere((item) => item.deviceId == deviceId);
   }
 
   // 用于根据页面索引获取相关的布局对象列表
@@ -86,5 +89,16 @@ class LayoutModel extends ChangeNotifier {
   // 检查布局是否已经存在
   bool hasLayoutWithDeviceId(String deviceId) {
     return layouts.any((layout) => layout.deviceId == deviceId);
+  }
+
+  // 根据 deviceId 获取当前 pageIndex 中剩余的布局对象列表
+  List<Layout> getRemainingLayoutsByDeviceAndPageIndex(
+      String deviceId, int pageIndex) {
+    return layouts
+        .where((item) =>
+            item.deviceId == deviceId &&
+            item.pageIndex == pageIndex &&
+            item != getLayoutsByDevice(deviceId))
+        .toList();
   }
 }

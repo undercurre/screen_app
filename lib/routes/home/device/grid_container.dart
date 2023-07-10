@@ -94,138 +94,112 @@ class Screen {
     }
     // 中卡片的摆放方式
     if (type == CardType.Middle || type == CardType.Other) {
-      if (
-      isCellOccupied(0, 0) ||
+      if (isCellOccupied(0, 0) ||
           isCellOccupied(0, 1) ||
           isCellOccupied(1, 0) ||
-          isCellOccupied(1, 1)
-      ) {
+          isCellOccupied(1, 1)) {
       } else {
         return [1, 2, 5, 6];
       }
-      if (
-      isCellOccupied(0, 2) ||
+      if (isCellOccupied(0, 2) ||
           isCellOccupied(0, 3) ||
           isCellOccupied(1, 2) ||
-          isCellOccupied(1, 3)
-      ) {
+          isCellOccupied(1, 3)) {
       } else {
         return [3, 4, 7, 8];
       }
-      if (
-      isCellOccupied(1, 0) ||
+      if (isCellOccupied(1, 0) ||
           isCellOccupied(1, 1) ||
           isCellOccupied(2, 0) ||
-          isCellOccupied(2, 1)
-      ) {
+          isCellOccupied(2, 1)) {
       } else {
         return [5, 6, 9, 10];
       }
-      if (
-      isCellOccupied(1, 2) ||
+      if (isCellOccupied(1, 2) ||
           isCellOccupied(1, 3) ||
           isCellOccupied(2, 2) ||
-          isCellOccupied(2, 3)
-      ) {
+          isCellOccupied(2, 3)) {
       } else {
         return [7, 8, 11, 12];
       }
-      if (
-      isCellOccupied(2, 0) ||
+      if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
           isCellOccupied(3, 0) ||
-          isCellOccupied(3, 1)
-      ) {
+          isCellOccupied(3, 1)) {
       } else {
         return [9, 10, 13, 14];
       }
-      if (
-      isCellOccupied(2, 2) ||
+      if (isCellOccupied(2, 2) ||
           isCellOccupied(2, 3) ||
           isCellOccupied(3, 2) ||
-          isCellOccupied(3, 3)
-      ) {
+          isCellOccupied(3, 3)) {
       } else {
         return [11, 12, 15, 16];
       }
     }
     // 大卡片的摆放方式
     if (type == CardType.Big) {
-      if (
-      isCellOccupied(0, 0) ||
+      if (isCellOccupied(0, 0) ||
           isCellOccupied(0, 1) ||
           isCellOccupied(1, 0) ||
           isCellOccupied(1, 1) ||
           isCellOccupied(0, 2) ||
           isCellOccupied(0, 3) ||
           isCellOccupied(1, 2) ||
-          isCellOccupied(1, 3)
-      ) {
+          isCellOccupied(1, 3)) {
       } else {
         return [1, 2, 3, 4, 5, 6, 7, 8];
       }
-      if (
-      isCellOccupied(1, 0) ||
+      if (isCellOccupied(1, 0) ||
           isCellOccupied(1, 1) ||
           isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
           isCellOccupied(1, 2) ||
           isCellOccupied(1, 3) ||
           isCellOccupied(2, 2) ||
-          isCellOccupied(2, 3)
-      ) {
+          isCellOccupied(2, 3)) {
       } else {
         return [5, 6, 7, 8, 9, 10, 11, 12];
       }
-      if (
-      isCellOccupied(2, 0) ||
+      if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
           isCellOccupied(3, 0) ||
           isCellOccupied(3, 1) ||
           isCellOccupied(2, 2) ||
           isCellOccupied(2, 3) ||
           isCellOccupied(3, 2) ||
-          isCellOccupied(3, 3)
-      ) {
+          isCellOccupied(3, 3)) {
       } else {
         return [9, 10, 11, 12, 13, 14, 15, 16];
       }
     }
     // editCard的摆放方式
     if (type == CardType.Edit) {
-      if (
-      isCellOccupied(0, 0) ||
+      if (isCellOccupied(0, 0) ||
           isCellOccupied(0, 1) ||
           isCellOccupied(0, 2) ||
-          isCellOccupied(0, 3)
-      ) {
+          isCellOccupied(0, 3)) {
       } else {
         return [1, 2, 3, 4];
       }
-      if (
-      isCellOccupied(1, 0) ||
+      if (isCellOccupied(1, 0) ||
           isCellOccupied(1, 1) ||
           isCellOccupied(1, 2) ||
-          isCellOccupied(1, 3)
-      ) {
+          isCellOccupied(1, 3)) {
       } else {
         return [5, 6, 7, 8];
       }
-      if (
-      isCellOccupied(2, 0) ||
+      if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
           isCellOccupied(2, 2) ||
-          isCellOccupied(2, 3)
-      ) {
+          isCellOccupied(2, 3)) {
       } else {
         return [9, 10, 11, 12];
       }
-      if (
-      isCellOccupied(3, 0) ||
+      if (isCellOccupied(3, 0) ||
           isCellOccupied(3, 1) ||
           isCellOccupied(3, 2) ||
-          isCellOccupied(3, 3)
-      ) {
+          isCellOccupied(3, 3)) {
       } else {
         return [13, 14, 15, 16];
       }
@@ -234,21 +208,18 @@ class Screen {
   }
 }
 
-Map<CardType, Map<String, double>> sizeMap = {
-  CardType.Small: {'width': 210, 'height': 88},
-  CardType.Middle: {'width': 210, 'height': 196},
-  CardType.Other: {'width': 210, 'height': 196},
-  CardType.Big: {'width': 440, 'height': 196},
+Map<CardType, Map<String, int>> sizeMap = {
+  CardType.Small: {'cross': 2, 'main': 1},
+  CardType.Middle: {'cross': 2, 'main': 2},
+  CardType.Other: {'cross': 2, 'main': 2},
+  CardType.Big: {'cross': 4, 'main': 2},
 };
 
 Map<CardType, Map<String, Widget Function(dynamic params)>> buildMap = {
   CardType.Small: {
     'scene': (params) {
       return SmallSceneCardWidget(
-          name: params['name'],
-          icon: params['icon'],
-          onOff: params['onOff']
-      );
+          name: params['name'], icon: params['icon'], onOff: params['onOff']);
     },
     '0x13': (params) => SmallDeviceCardWidget(
           name: '灯光1',
@@ -278,22 +249,21 @@ Map<CardType, Map<String, Widget Function(dynamic params)>> buildMap = {
   },
   CardType.Middle: {
     '0x13': (params) => const MiddleDeviceCardWidget(
-        name: '灯2',
-        icon: Image(image: AssetImage('assets/newUI/device/light.png')),
-        onOff: true,
-        roomName: '卧室',
-        characteristic: '99',
-        online: true,
-        isFault: false,
-        isNative: false)
+          name: '灯2',
+          icon: Image(image: AssetImage('assets/newUI/device/light.png')),
+          onOff: true,
+          roomName: '卧室',
+          characteristic: '99',
+          online: true,
+          isFault: false,
+          isNative: false,
+        )
   },
   CardType.Other: {
     'clock': (params) => DigitalClockWidget(),
     'weather': (params) => DigitalWeatherWidget()
   },
-  CardType.Edit: {
-    'edit': (params) => const EditCardWidget()
-  }
+  CardType.Edit: {'edit': (params) => const EditCardWidget()}
 };
 
 enum CardType { Small, Middle, Big, Other, Edit }

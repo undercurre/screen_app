@@ -7,11 +7,10 @@ class Layout {
   String type;
   CardType cardType;
   int pageIndex;
-  double left;
-  double top;
+  List<int> grids;
   dynamic data;
 
-  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.left, this.top, this.data);
+  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids, this.data);
 
   Layout clone() {
     return Layout(
@@ -19,8 +18,7 @@ class Layout {
       type,
       cardType,
       pageIndex,
-      left,
-      top,
+      grids,
       data,
     );
   }
@@ -32,8 +30,7 @@ class Layout {
       map['type'] as String,
       _parseCardType(map['cardType'] as String),
       map['pageIndex'] as int,
-      map['left'] as double,
-      map['top'] as double,
+      map['grids'] as List<int>,
       map['data'],
     );
   }
@@ -44,8 +41,7 @@ class Layout {
       'type': type,
       'cardType': _cardTypeToString(cardType),
       'pageIndex': pageIndex,
-      'left': left,
-      'top': top,
+      'grids': grids,
       'data': data,
     };
   }
@@ -59,5 +55,36 @@ class Layout {
 
   static String _cardTypeToString(CardType cardType) {
     return cardType.toString().split('.').last.toLowerCase();
+  }
+
+  static List<Layout> sortLayoutList(List<Layout> layoutList) {
+    layoutList.sort((a, b) {
+      // 按页面先后
+      final pageIndexComparison = a.pageIndex.compareTo(b.pageIndex);
+
+      if (pageIndexComparison != 0) {
+        return pageIndexComparison;
+      }
+
+      // 按卡片大小
+      // final gridsComparison = a.grids.length.compareTo(b.grids.length);
+      //
+      // if (gridsComparison != 0) {
+      //   return gridsComparison;
+      // }
+
+      //
+      for (int i = 0; i < a.grids.length; i++) {
+        final gridComparison = a.grids[i].compareTo(b.grids[i]);
+
+        if (gridComparison != 0) {
+          return gridComparison;
+        }
+      }
+
+      return 0;
+    });
+
+    return layoutList;
   }
 }
