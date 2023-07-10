@@ -143,10 +143,10 @@ class _CustomPageState extends State<CustomPage> {
         logger.i('映射出的widget', cardWidget);
         // 映射图标
         Widget cardWithIcon = Stack(children: [
-          cardWidget,
+          Padding(padding: const EdgeInsets.only(right: 20, top: 20), child: cardWidget),
           Positioned(
-            right: 0,
-            top: 0,
+            right: 8,
+            top: 8,
             child: Container(
               width: 32,
               height: 32,
@@ -168,14 +168,7 @@ class _CustomPageState extends State<CustomPage> {
           childWhenDragging: Opacity(
             opacity: 0.5,
             child: Container(
-              margin: const EdgeInsets.only(top: 20, right: 20),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2.0,
-                ),
-                borderRadius: BorderRadius.circular(24.0),
-              ),
+              child: cardWithIcon,
             ),
           ),
           child: cardWithIcon,
@@ -185,12 +178,13 @@ class _CustomPageState extends State<CustomPage> {
               curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);
               curscreenLayout =
                   layoutModel.getLayoutsByPageIndex(layout.pageIndex);
-              dragSumX = curLayout.grids[0] % 4 - 1 == -1 ? (3 * gridWidth) : ((curLayout.grids[0] % 4 - 1) * gridWidth);
+              dragSumX = curLayout.grids[0] % 4 - 1 == -1
+                  ? (3 * gridWidth)
+                  : ((curLayout.grids[0] % 4 - 1) * gridWidth);
               dragSumY = curLayout.grids[0] / 4 * gridHeight;
             });
           },
-          onDragEnd: (details) {
-          },
+          onDragEnd: (details) {},
           onDragUpdate: (details) {
             // 计算出拖拽中卡片的位置
             dragSumX += details.delta.dx;
@@ -217,20 +211,19 @@ class _CustomPageState extends State<CustomPage> {
           onDraggableCanceled: (_, __) {},
         );
         // 映射占位
-        Widget cardWithPosition = StaggeredGridTile.count(
+        Widget cardWithPosition = StaggeredGridTile.fit(
             crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
-            mainAxisCellCount: sizeMap[layout.cardType]!['main']!,
             child: cardWithDrag);
         curScreenWidgets.add(cardWithPosition);
       }
       // 每一页插入屏幕表
       screenList.add(
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 32, 20, 34),
+          padding: const EdgeInsets.fromLTRB(20, 12, 0, 34),
           child: StaggeredGrid.count(
             crossAxisCount: 4,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 20,
+            mainAxisSpacing: 0,
+            crossAxisSpacing: 0,
             axisDirection: AxisDirection.down,
             children: [...curScreenWidgets],
           ),
