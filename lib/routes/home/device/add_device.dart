@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
 import '../../../common/global.dart';
+import '../../../models/device_entity.dart';
+import '../../../models/scene_info_entity.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
 
@@ -17,10 +19,67 @@ class AddDevicePage extends StatefulWidget {
 class _AddDevicePageState extends State<AddDevicePage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  List<DeviceEntity> devices = [];
+  List<SceneInfoEntity> scenes = [];
+  List<OtherEntity> others = [OtherEntity('时间组件', 'time'), OtherEntity('天气组件', 'weather')];
 
   @override
   void initState() {
     super.initState();
+    // 请求接口获取到设备、场景
+    // 然后过滤并准备卡片
+    // 虚拟一台空调
+    DeviceEntity kongtiao = DeviceEntity();
+    kongtiao.name = '空调';
+    kongtiao.type = '0xAC';
+    kongtiao.modelNumber = '';
+    kongtiao.applianceCode = '1703838321';
+    kongtiao.roomName = '卧室';
+    devices.add(kongtiao);
+    // 虚拟一台窗帘
+    DeviceEntity chuanglian = DeviceEntity();
+    chuanglian.name = '窗帘';
+    chuanglian.type = '0x14';
+    chuanglian.modelNumber = '';
+    chuanglian.applianceCode = '1703838322';
+    chuanglian.roomName = '卧室';
+    devices.add(chuanglian);
+    // 虚拟一台新风
+    DeviceEntity xinfeng = DeviceEntity();
+    xinfeng.name = '新风';
+    xinfeng.type = '0xCE';
+    xinfeng.modelNumber = '';
+    xinfeng.applianceCode = '1703838323';
+    xinfeng.roomName = '客厅';
+    devices.add(xinfeng);
+    // 虚拟一台一路面板
+    DeviceEntity yilumianban = DeviceEntity();
+    yilumianban.name = '一路面板';
+    yilumianban.type = '0x21';
+    yilumianban.modelNumber = '1339';
+    yilumianban.applianceCode = '1703838324';
+    yilumianban.roomName = '客厅';
+    devices.add(yilumianban);
+    // 虚拟一台调光灯
+    DeviceEntity tiaoguangdeng = DeviceEntity();
+    tiaoguangdeng.name = '调光灯';
+    tiaoguangdeng.type = '0x21';
+    tiaoguangdeng.modelNumber = '55';
+    tiaoguangdeng.applianceCode = '1703838325';
+    tiaoguangdeng.roomName = '客厅';
+    devices.add(tiaoguangdeng);
+    // 虚拟场景——回家模式
+    SceneInfoEntity backhome = SceneInfoEntity();
+    backhome.name = '回家模式';
+    backhome.sceneId = '251';
+    backhome.image = '1';
+    scenes.add(backhome);
+    // 虚拟场景——睡眠模式
+    SceneInfoEntity sleep = SceneInfoEntity();
+    sleep.name = '睡眠模式';
+    sleep.sceneId = '252';
+    sleep.image = '2';
+    scenes.add(sleep);
   }
 
   @override
@@ -29,9 +88,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
     super.dispose();
   }
 
-  void _handlePageChange() {
+  void _handlePageChange(int index) {
     setState(() {
-      _currentIndex = _pageController.page!.round();
+      _currentIndex = index;
     });
   }
 
@@ -51,11 +110,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
               BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           height: MediaQuery.of(context).size.height,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(10, 13, 10, 25),
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 20),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -65,6 +124,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         children: [
                           GestureDetector(
                             onTap: () {
+                              logger.i('设备页');
                               _pageController.animateToPage(
                                 0,
                                 duration: const Duration(milliseconds: 500),
@@ -75,7 +135,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.only(right: 25),
+                              padding:
+                                  const EdgeInsets.all(12),
                               child: Text(
                                 '设备',
                                 style: TextStyle(
@@ -96,6 +157,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           ),
                           GestureDetector(
                             onTap: () {
+                              logger.i('场景页');
                               _pageController.animateToPage(
                                 1,
                                 duration: const Duration(milliseconds: 500),
@@ -106,7 +168,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.only(right: 25),
+                              padding:
+                                  const EdgeInsets.all(12),
                               child: Text(
                                 '场景',
                                 style: TextStyle(
@@ -127,6 +190,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           ),
                           GestureDetector(
                             onTap: () {
+                              logger.i('其他页');
                               _pageController.animateToPage(
                                 2,
                                 duration: Duration(milliseconds: 500),
@@ -136,20 +200,24 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 _currentIndex = 2;
                               });
                             },
-                            child: Text(
-                              '其他',
-                              style: TextStyle(
-                                fontFamily: 'PingFangSC-Regular',
-                                // 设置字体
-                                fontSize: _currentIndex == 2 ? 24 : 20,
-                                // 设置字体大小
-                                color: _currentIndex == 2
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.37),
-                                // 设置字体颜色
-                                letterSpacing: 0,
-                                // 设置字间距
-                                fontWeight: FontWeight.w400, // 设置字重
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.all(12),
+                              child: Text(
+                                '其他',
+                                style: TextStyle(
+                                  fontFamily: 'PingFangSC-Regular',
+                                  // 设置字体
+                                  fontSize: _currentIndex == 2 ? 24 : 20,
+                                  // 设置字体大小
+                                  color: _currentIndex == 2
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.37),
+                                  // 设置字体颜色
+                                  letterSpacing: 0,
+                                  // 设置字间距
+                                  fontWeight: FontWeight.w400, // 设置字重
+                                ),
                               ),
                             ),
                           ),
@@ -162,7 +230,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                   child: PageView(
                     controller: _pageController,
                     scrollDirection: Axis.horizontal,
-                    onPageChanged: (index) {},
+                    onPageChanged: (index) {
+                      _handlePageChange(index);
+                    },
                     children: [
                       GridView.builder(
                         gridDelegate:
@@ -170,24 +240,25 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
-                        itemCount: 8, // 网格项的总数
+                        itemCount: devices.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
                           return Stack(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 child: SmallDeviceCardWidget(
-                                  name: '灯光1',
-                                  icon: const Image(
-                                    image: AssetImage(
-                                        'assets/newUI/device/light.png'),
+                                  name: devices[index].name,
+                                  icon: Image(
+                                    image: AssetImage(_getIconUrl(
+                                        devices[index].type,
+                                        devices[index].modelNumber)),
                                   ),
-                                  onOff: true,
-                                  roomName: '客厅',
-                                  characteristic: '40%',
+                                  onOff: false,
+                                  roomName: devices[index].roomName!,
+                                  characteristic: '',
                                   onTap: () => {logger.i('点击卡片')},
                                   online: true,
-                                  isFault: true,
+                                  isFault: false,
                                   isNative: false,
                                 ),
                               ),
@@ -217,19 +288,19 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
-                        itemCount: 8, // 网格项的总数
+                        itemCount: scenes.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
                           return Stack(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(10),
-                                child: const SmallSceneCardWidget(
-                                    name: '默认情景',
+                                child: SmallSceneCardWidget(
+                                    name: scenes[index].name,
                                     icon: Image(
                                       image: AssetImage(
-                                          'assets/newUI/scene/default.png'),
+                                          'assets/newUI/scene/${scenes[index].image}.png'),
                                     ),
-                                    onOff: true),
+                                    onOff: false),
                               ),
                               Positioned(
                                 right: 0,
@@ -257,7 +328,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
-                        itemCount: 8, // 网格项的总数
+                        itemCount: others.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
                           return Stack(
                             children: [
@@ -293,10 +364,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     borderRadius:
                                         BorderRadius.circular(24), // 设置边框圆角
                                   ),
-                                  child: const Center(
+                                  child: Center(
                                     child: Text(
-                                      '时间组件',
-                                      style: TextStyle(
+                                      others[index].name,
+                                      style: const TextStyle(
                                         fontFamily: 'PingFangSC-Regular',
                                         // 设置字体
                                         fontSize: 20,
@@ -371,4 +442,22 @@ class _AddDevicePageState extends State<AddDevicePage> {
       ],
     );
   }
+
+  _getIconUrl(String type, String modelNum) {
+    if (type == '0x21') {
+      return 'assets/newUI/device/${type}_${modelNum}.png';
+    } else {
+      return 'assets/newUI/device/${type}.png';
+    }
+  }
+}
+
+class OtherEntity {
+  OtherEntity(String s, String t) {
+    name = s;
+    type = t;
+  }
+
+  late String name;
+  late String type;
 }

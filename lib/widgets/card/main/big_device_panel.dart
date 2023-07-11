@@ -209,10 +209,10 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   }
 
   String _getIconSrc() {
-    if(widget.buttonsName.length == 1) return "assets/newUI/device/一路面板@1x.png";
-    if(widget.buttonsName.length == 2) return "assets/newUI/device/二路面板@1x.png";
-    if(widget.buttonsName.length == 3) return "assets/newUI/device/三路面板@1x.png";
-    return "assets/newUI/device/四路面板@1x.png";
+    if(widget.buttonsName.length == 1) return "assets/newUI/device/0x21_1339.png";
+    if(widget.buttonsName.length == 2) return "assets/newUI/device/0x21_1340.png";
+    if(widget.buttonsName.length == 3) return "assets/newUI/device/0x21_1341.png";
+    return "assets/newUI/device/0x21_1342.png";
   }
 
   bool _isPanelItemOn(int index) {
