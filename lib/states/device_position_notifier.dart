@@ -106,6 +106,7 @@ class LayoutModel extends ChangeNotifier {
 
   // 拖拽换位算法
   void swapPosition(Layout source, rowIndex, columnIndex) {
+    List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     // 小卡片
     if (source.cardType == CardType.Small) {
       if (columnIndex <= 1) {
@@ -143,6 +144,11 @@ class LayoutModel extends ChangeNotifier {
       if (rowIndex <= 0) {
         rowIndex = 0;
       }
+
+      if (curPageLayoutList.any((element) => element.cardType == CardType.Middle || element.cardType == CardType.Other && rowIndex <= 1)) {
+        rowIndex = 0;
+      }
+
       if (rowIndex >= 2) {
         rowIndex = 2;
       }
@@ -150,7 +156,6 @@ class LayoutModel extends ChangeNotifier {
 
     int zengliang = rowIndex * 4 + columnIndex + 1 - source.grids[0];
     List<int> target = source.grids.map((e) => e + zengliang).toList();
-    List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     List<int> targetIndexes = [];
 
     // 找到目标
