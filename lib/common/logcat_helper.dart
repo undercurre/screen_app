@@ -1,5 +1,49 @@
+import 'dart:convert';
+
 import 'package:logger/logger.dart';
 import 'dart:io';
+
+// 定义日志文件最大保存的大小
+const _maxFileOutputLength = 10 * 1024 * 1024;
+
+class FileOutput extends LogOutput {
+  final File file;
+  final bool overrideExisting;
+  final Encoding encoding;
+  RandomAccessFile? randomAccessFile;
+
+  FileOutput({
+    required this.file,
+    this.overrideExisting = false,
+    this.encoding = utf8,
+  }) {
+    file.createSync(recursive: true, exclusive: false);
+  }
+
+  @override
+  void init() {
+    randomAccessFile = file.openSync(mode: FileMode.writeOnly);
+  }
+
+  @override
+  void output(OutputEvent event) {
+    if(randomAccessFile == null) return;
+    if(randomAccessFile!.lengthSync() > _maxFileOutputLength) {
+      randomAccessFile!.setPositionSync(0);
+    }
+    for (var element in event.lines) {
+      randomAccessFile!.writeStringSync('$element\n');
+      randomAccessFile!.setPositionSync(randomAccessFile!.positionSync() + element.length);
+    }
+    randomAccessFile!.flushSync();
+  }
+
+  @override
+  void destroy() async {
+    randomAccessFile?.closeSync();
+  }
+
+}
 
 class Log {
 
