@@ -15,6 +15,7 @@ import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/util/net_utils.dart';
+import 'chose_platform.dart';
 import 'scan_code.dart';
 
 class Step {
@@ -27,6 +28,7 @@ class Step {
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
+  bool isChosePlatform = true;
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -77,12 +79,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         return;
       }
       // todo: linux运行屏蔽，push前解放
-
       if (Platform.isLinux) {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
+        Navigator.popAndPushNamed(context, 'Home');
         GatewayApi.check((bind, code) {
           if (!bind) {
             UserApi.bindHome(
@@ -214,7 +216,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
     return Stack(
       children: [
-        DecoratedBox(
+        if (isChosePlatform) ChosePlatform(
+          onChose: (index) => {
+            setState(() {
+              isChosePlatform = false;
+            })
+          },
+        ),
+
+        if (!isChosePlatform) DecoratedBox(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -286,7 +296,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           // ])
                         ],
                       ))),
-        if (stepNum == 1)
+        if (stepNum == 1 && !isChosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -310,7 +320,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           },
                         )),
                       ))))
-        else if (stepNum == 2)
+        else if (stepNum == 2 && !isChosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -334,7 +344,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           },
                         )),
                       ))))
-        else if (stepNum != 5)
+        else if (stepNum != 5 && !isChosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(

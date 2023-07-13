@@ -111,6 +111,7 @@ flutter:
     - assets/newUI/weather/
     - assets/newUI/device/
     - assets/newUI/scene/
+    - assets/newUI/login/
     - assets/
     - .sit.env
     - .prod.env

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/home/device/card_dialog.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
 import '../../../common/global.dart';
@@ -21,7 +22,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
   int _currentIndex = 0;
   List<DeviceEntity> devices = [];
   List<SceneInfoEntity> scenes = [];
-  List<OtherEntity> others = [OtherEntity('时间组件', 'time'), OtherEntity('天气组件', 'weather')];
+  List<OtherEntity> others = [
+    OtherEntity('时间组件', 'time'),
+    OtherEntity('天气组件', 'weather')
+  ];
 
   @override
   void initState() {
@@ -135,8 +139,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               });
                             },
                             child: Container(
-                              padding:
-                                  const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               child: Text(
                                 '设备',
                                 style: TextStyle(
@@ -168,8 +171,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               });
                             },
                             child: Container(
-                              padding:
-                                  const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               child: Text(
                                 '场景',
                                 style: TextStyle(
@@ -201,8 +203,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               });
                             },
                             child: Container(
-                              padding:
-                                  const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               child: Text(
                                 '其他',
                                 style: TextStyle(
@@ -256,7 +257,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   onOff: false,
                                   roomName: devices[index].roomName!,
                                   characteristic: '',
-                                  onTap: () => {logger.i('点击卡片')},
+                                  onTap: () => {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CardDialog(type: devices[index].type,);
+                                      },
+                                    )
+                                  },
                                   online: true,
                                   isFault: false,
                                   isNative: false,

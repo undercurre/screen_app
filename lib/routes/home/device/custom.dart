@@ -11,6 +11,7 @@ import '../../../widgets/card/main/big_device_light.dart';
 import '../../../widgets/card/main/middle_device.dart';
 import '../../../widgets/card/main/small_device.dart';
 import '../../../widgets/mz_buttion.dart';
+import 'card_type_config.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
 
@@ -139,7 +140,7 @@ class _CustomPageState extends State<CustomPage> {
       for (Layout layout in sortedLayoutList) {
         // 映射出对应的Card
         Widget cardWidget =
-            buildMap[layout.cardType]![layout.type]!(layout.data);
+            buildMap[layout.type]![layout.cardType]!(layout.data);
         logger.i('映射出的widget', cardWidget);
         // 映射图标
         Widget cardWithIcon = Stack(children: [

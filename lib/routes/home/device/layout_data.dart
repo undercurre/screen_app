@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/routes/home/device/card_type_config.dart';
 
 import 'grid_container.dart';
 
 class Layout {
   String deviceId;
-  String type;
+  DeviceEntityTypeInP4 type;
   CardType cardType;
   int pageIndex;
   List<int> grids;
@@ -27,12 +28,13 @@ class Layout {
 
   factory Layout.fromJson(String json) {
     final map = jsonDecode(json) as Map<String, dynamic>;
+    final grids = (map['grids'] as List<dynamic>).cast<int>();
     return Layout(
       map['deviceId'] as String,
-      map['type'] as String,
+      _parseDeviceEntityTypeInP4(map['type'] as String),
       _parseCardType(map['cardType'] as String),
       map['pageIndex'] as int,
-      map['grids'] as List<int>,
+      grids,
       map['data'],
     );
   }
@@ -40,7 +42,7 @@ class Layout {
   Map<String, dynamic> toJson() {
     return {
       'deviceId': deviceId,
-      'type': type,
+      'type': _deviceEntityTypeInP4ToString(type),
       'cardType': _cardTypeToString(cardType),
       'pageIndex': pageIndex,
       'grids': grids,
@@ -57,6 +59,17 @@ class Layout {
 
   static String _cardTypeToString(CardType cardType) {
     return cardType.toString().split('.').last.toLowerCase();
+  }
+
+  static DeviceEntityTypeInP4 _parseDeviceEntityTypeInP4(String value) {
+    return DeviceEntityTypeInP4.values.firstWhere(
+          (type) => type.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+      orElse: () => DeviceEntityTypeInP4.Default,
+    );
+  }
+
+  static String _deviceEntityTypeInP4ToString(DeviceEntityTypeInP4 type) {
+    return type.toString().split('.').last.toLowerCase();
   }
 
   static List<Layout> sortLayoutList(List<Layout> layoutList) {

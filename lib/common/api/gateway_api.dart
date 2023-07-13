@@ -13,6 +13,7 @@ class GatewayApi {
   /// 判定当前网关是否绑定
   static void check(void Function(bool,String?) result, void Function() error) async {
     _check().then((bind){
+      logger.i('检查绑定', bind);
       _code().then((code) {
         result.call(bind == true,code);
       });

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +15,7 @@ class LayoutModel extends ChangeNotifier {
 
   void setLayouts(List<Layout> newLayouts) {
     layouts = newLayouts;
+    _saveLayouts();
     notifyListeners();
   }
 
@@ -24,8 +27,24 @@ class LayoutModel extends ChangeNotifier {
   Future<void> _loadLayouts() async {
     final prefs = await SharedPreferences.getInstance();
     final layoutList = prefs.getStringList('layouts');
+    logger.i('加载model', layoutList);
     if (layoutList != null) {
       layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+    } else {
+      // 初次使用,展示默认布局
+      setLayouts([
+        Layout(uuid.v4(), DeviceEntityTypeInP4.Clock, CardType.Other, 0, [1, 2, 5, 6], null),
+        Layout(uuid.v4(), DeviceEntityTypeInP4.Weather, CardType.Other, 0, [3, 4, 7, 8], null),
+        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanelOne, CardType.Small, 0, [9, 10], {
+          'name': '开关1',
+          'onOff': false
+        }),
+        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanelTwo, CardType.Small, 0, [11, 12], {
+          'name': '开关2',
+          'onOff': false
+        }),
+      ]);
+      _saveLayouts();
     }
     notifyListeners();
   }
@@ -35,6 +54,13 @@ class LayoutModel extends ChangeNotifier {
     final layoutList =
         layouts.map((layout) => jsonEncode(layout.toJson())).toList();
     await prefs.setStringList('layouts', layoutList);
+  }
+
+  Future<void> _removeLayouts() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('layouts');
+    layouts.clear(); // 清除内存
+    notifyListeners();
   }
 
   // 用于将新的布局对象添加到 layouts 列表中，并通知监听者数据发生了变化。
@@ -145,7 +171,9 @@ class LayoutModel extends ChangeNotifier {
         rowIndex = 0;
       }
 
-      if (curPageLayoutList.any((element) => element.cardType == CardType.Middle || element.cardType == CardType.Other && rowIndex <= 1)) {
+      if (curPageLayoutList.any((element) =>
+          element.cardType == CardType.Middle ||
+          element.cardType == CardType.Other && rowIndex <= 1)) {
         rowIndex = 0;
       }
 
