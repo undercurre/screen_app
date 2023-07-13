@@ -77,12 +77,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         return;
       }
       // todo: linux运行屏蔽，push前解放
-
       if (Platform.isLinux) {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
+        Navigator.popAndPushNamed(context, 'Home');
         GatewayApi.check((bind, code) {
           if (!bind) {
             UserApi.bindHome(
