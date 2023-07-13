@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
     testImplementation 'junit:junit:4.13.2'
@@ -55,6 +55,8 @@ dependencies {
     implementation rootProject.other.ijkplayer_exo
     implementation rootProject.ext.other.apng
     implementation(project(":module-common"))
+    implementation(project(":module-setting"))
+
 
 
 }
