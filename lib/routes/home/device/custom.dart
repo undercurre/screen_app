@@ -143,23 +143,30 @@ class _CustomPageState extends State<CustomPage> {
         logger.i('映射出的widget', cardWidget);
         // 映射图标
         Widget cardWithIcon = Stack(children: [
-          Padding(padding: const EdgeInsets.only(right: 20, top: 20), child: cardWidget),
+          Padding(
+              padding: const EdgeInsets.only(right: 20, top: 20),
+              child: cardWidget),
           Positioned(
             right: 8,
             top: 8,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFF6B6D73),
-              ),
-              child: const Icon(
-                Icons.remove,
-                color: Colors.white,
+            child: GestureDetector(
+              onTap: () {
+               layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
+              },
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF6B6D73),
+                ),
+                child: const Icon(
+                  Icons.remove,
+                  color: Colors.white,
+                ),
               ),
             ),
-          )
+          ),
         ]);
         // 映射拖拽
         Widget cardWithDrag = LongPressDraggable(

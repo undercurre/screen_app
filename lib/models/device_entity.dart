@@ -25,6 +25,8 @@ class DeviceEntity {
   String? btMac;
   late String btToken;
   String? sn8;
+  String? roomName;
+  String? roomId;
   late String isOtherEquipment;
   late Map<String, dynamic> ability;
   String? moduleType;

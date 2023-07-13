@@ -64,7 +64,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
             child: Image(
                 width: 40,
                 height: 40,
-                image: AssetImage('assets/newUI/device/窗帘@1x.png')
+                image: AssetImage('assets/newUI/device/0x14.png')
             ),
           ),
 

@@ -100,7 +100,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                     Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
-                          '${widget.roomName} | ${_getRightText()}',
+                          '${widget.roomName} ${_getRightText() != '' ? '|' : '' } ${_getRightText()}',
                           style: TextStyle(
                               color: Colors.white.withOpacity(0.64),
                               fontSize: 16,
@@ -109,7 +109,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                   ],
                 ),
               ),
-              GestureDetector(
+              if (widget.onMoreTap != null) GestureDetector(
                   onTap: () => widget.onMoreTap?.call(),
                   child: const Image(
                       width: 24,

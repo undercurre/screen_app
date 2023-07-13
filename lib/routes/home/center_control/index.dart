@@ -258,7 +258,7 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
             SmallDeviceCardWidget(
               name: '灯光',
               icon: Image(
-                image: AssetImage('assets/newUI/device/light.png'),
+                image: AssetImage('assets/newUI/device/0x21_55.png'),
               ),
               onOff: true,
               roomName: '客厅',

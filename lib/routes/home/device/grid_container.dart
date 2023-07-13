@@ -224,7 +224,7 @@ Map<CardType, Map<String, Widget Function(dynamic params)>> buildMap = {
     '0x13': (params) => SmallDeviceCardWidget(
           name: '灯光1',
           icon: const Image(
-            image: AssetImage('assets/newUI/device/light.png'),
+            image: AssetImage('assets/newUI/device/0x21_55.png'),
           ),
           onOff: true,
           roomName: '客厅',
@@ -250,7 +250,7 @@ Map<CardType, Map<String, Widget Function(dynamic params)>> buildMap = {
   CardType.Middle: {
     '0x13': (params) => const MiddleDeviceCardWidget(
           name: '灯2',
-          icon: Image(image: AssetImage('assets/newUI/device/light.png')),
+          icon: Image(image: AssetImage('assets/newUI/device/0x21_55.png')),
           onOff: true,
           roomName: '卧室',
           characteristic: '99',
