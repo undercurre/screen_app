@@ -28,7 +28,7 @@ class Step {
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
-  bool isChosePlatform = true;
+  bool isNeedChoosePlatform = false;
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -155,6 +155,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     } else if (Platform.isAndroid && isConnected()) {
       stepNum = 2;
     }
+
+    isNeedChoosePlatform = Global.iotPlatform == null;
   }
 
   @override
@@ -216,15 +218,16 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
     return Stack(
       children: [
-        if (isChosePlatform) ChosePlatform(
-          onChose: (index) => {
+        if (isNeedChoosePlatform) ChosePlatform(
+          onChose: (index) {
+            Global.iotPlatform = index;
             setState(() {
-              isChosePlatform = false;
-            })
+              isNeedChoosePlatform = false;
+            });
           },
         ),
 
-        if (!isChosePlatform) DecoratedBox(
+        if (!isNeedChoosePlatform) DecoratedBox(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -296,7 +299,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           // ])
                         ],
                       ))),
-        if (stepNum == 1 && !isChosePlatform)
+        if (stepNum == 1 && !isNeedChoosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -320,7 +323,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           },
                         )),
                       ))))
-        else if (stepNum == 2 && !isChosePlatform)
+        else if (stepNum == 2 && !isNeedChoosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -344,7 +347,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           },
                         )),
                       ))))
-        else if (stepNum != 5 && !isChosePlatform)
+        else if (stepNum != 5 && !isNeedChoosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
