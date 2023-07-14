@@ -80,6 +80,24 @@ public class AppCommonConfig {
     public static String MZ_APP_ID;
     public static String MZ_APP_SECRET;
 
+
+
+    //思必驰语音参数配置
+    public static String CLIENT_ID;
+    public static String MANUFACTURE;
+    public static String MZ_DUILIENT_ID;
+    public static String PRODUCT_ID;
+    public static String SKILL_ID;
+    public static String PRODUCT_KEY;
+    public static String PRODUCT_SECRET;
+    public static String API_KEY;
+    public static String SKILL_VERSION;
+    public static String DCA_API_KEY;
+    public static String DCA_API_SECRET;
+    public static String DCA_PUB_KEY;
+    public static boolean isDevelop=true;
+
+
     public static int ASD_ID;
     private static String CHANNEL; // LD -》灵动 JH -》 晶华
 
@@ -136,6 +154,25 @@ public class AppCommonConfig {
             ROM_UP_GRADE_HOST= "http://8.135.27.6:8007/v1/base2pro/uploadFile";
             SSE_HOST = "sse-sit.smartmidea.net";
             ASD_ID = 0x010102;
+
+            CLIENT_ID="da4d6b7b65ae49fb94755700294e66ce";
+            MANUFACTURE="mFwjoGVl5GDi5lAF103er4DBs/cwV8LrIxYYSlqzO4wKYnnBV0SeeMMZQP84bHsO4r+5c54x3pvqAueKh8QWMAHYyelvEtAkmkMUI5LQYZ1A4AXb6C+q7ekZRSDoN/NP" +
+                    "/OrQ69cg2wHI0dMFm6xpHiWuFkslLOTi68qx+0GwqVc=";
+            MZ_DUILIENT_ID="52424e0bf0ee2058903547bc5e71b128";
+            PRODUCT_ID="279617218";
+            SKILL_ID="2023042100000091";
+            PRODUCT_KEY="ab7dbc18356d6d92c11fe736f8a41970";
+            PRODUCT_SECRET="df683844f07984dd67b787697682acac";
+            API_KEY="dd4b6641e1d0dd4b6641e1d06487cdc9";
+            SKILL_VERSION="3";
+            DCA_API_KEY="2a8c45e74f35468b86d218e781725953";
+            DCA_API_SECRET="85edcf2ebbd744e0817cad85f4c04bc9";
+            DCA_PUB_KEY="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCN4resv1TBLzqo47TklFbrLHoPmjhClTs1I02ius+1Ve6ijWAS3LipshnhWPC" +
+                    "+lL1bayP32Tz79Wam5prGGYfwzKURgWix1/pu4807AVv" +
+                    "/mGysHW3XL4fi5svO6CjyE3NFOx767w+sRRvVNsNQU8/E0mOtLNqncE7lZP+QpJlCmQIDAQAB";
+            isDevelop=true;
+
+
         }
     }
 
@@ -155,6 +192,20 @@ public class AppCommonConfig {
             ROM_UP_GRADE_HOST= "https://mzcategory.meizgd.com/v1/base2pro/uploadFile";
             SSE_HOST = "sse.smartmidea.net";
             ASD_ID = 0x010101;
+
+            CLIENT_ID="68d039a1f847493992fff3d0221fe965";
+            MANUFACTURE="NBDgdrH/hzmrWNUERU3GEB/697l53Q/cNtvUWbxIq2cXOx1iv4Cq5Q0vlj+sHVe2XNnjlFlonuOLGwUpybMavU3Tc8V4WHQZ91VGWm320Mjs7mVipqt/wOdYvPBBKn7Tf0YIK3zeWtH2jmYXMXoKNHhgrun81yiPYwJ7N+K/Hpg=";
+            MZ_DUILIENT_ID="52424e0bf0ee2058903547bc5e71b128";
+            PRODUCT_ID="279617218";
+            SKILL_ID="2023062600000020";
+            PRODUCT_KEY="ab7dbc18356d6d92c11fe736f8a41970";
+            PRODUCT_SECRET="df683844f07984dd67b787697682acac";
+            API_KEY="dd4b6641e1d0dd4b6641e1d06487cdc9";
+            SKILL_VERSION="3";
+            DCA_API_KEY="ef0ea7fd54db4af48f36af430b067f8d";
+            DCA_API_SECRET="2c29d1e9180b46819da28cfe089f561f";
+            DCA_PUB_KEY="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAmqNTv22gQFryha5EofKWkUMVtKQYArzlMGSZ6/A95ObalXr/iJkb12WpJIGxfsizpNMhf6NgsrOFJ+uQJJMpFOR0P7LIKUubM0+HRUCcu91+iG2HpmphwmuhRJa3EXhhGqE94+xN9v+9L2+aPCjtOmAtMSr4d3Ww4EIHyqNhtQIDAQAB";
+            isDevelop=false;
         }
     }
 

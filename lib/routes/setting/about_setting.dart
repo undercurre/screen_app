@@ -804,6 +804,87 @@ class AboutSettingPage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        Container(
+                          width: 464,
+                          height: 1,
+                          decoration: const BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.05),
+                          ),
+                        ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            MzDialog(
+                                contentSlot: const Text(
+                                    '此操作将退出到选择平台界面，是否继续?',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontFamily: 'MideaType',
+                                        fontWeight: FontWeight.w100,
+                                        height: 1.2)),
+                                title: "切换平台",
+                                maxWidth: 400,
+                                btns: ['取消', '确定'],
+                                contentPadding:
+                                const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+                                onPressed: (_, index, context) {
+                                  if (index == 1) {
+                                    Global.iotPlatform = null;
+                                    Push.dispose();
+                                    System.loginOut();
+                                    Navigator
+                                        .pushNamedAndRemoveUntil(
+                                        context,
+                                        "Login",
+                                            (route) =>
+                                        route.settings
+                                            .name ==
+                                            "/");
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
+                                }).show(context);
+                          },
+                          child: SizedBox(
+                            width: 432,
+                            height: 72,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text("切换平台",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24.0,
+                                      fontFamily: "MideaType",
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.none,
+                                    )),
+                                Container(
+                                  width: 97,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(28),
+                                    color: const Color.fromRGBO(
+                                        255, 255, 255, 0.10),
+                                  ),
+                                  child: const Center(
+                                    child: Text("切换",
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.60),
+                                          fontSize: 18.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

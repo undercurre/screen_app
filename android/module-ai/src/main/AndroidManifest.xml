@@ -5,6 +5,8 @@
     <application android:allowBackup="true">
         <service android:name="com.midea.light.ai.services.MideaAiService"></service>
         <service android:name="com.midea.light.ai.music.MusicPlayerService"></service>
-
+        <service android:name="com.midea.homlux.ai.services.MideaAiService"></service>
+        <service android:name="com.midea.homlux.ai.music.MusicPlayerService"></service>
+        <service android:name="com.midea.homlux.ai.services.DDSService" />
     </application>
 </manifest>

@@ -1,21 +1,11 @@
 package com.midea.light;
 
 
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.IntentFilter;
-import android.graphics.Color;
-import android.os.Build;
-import android.os.Process;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.alibaba.sdk.android.push.CloudPushService;
-import com.alibaba.sdk.android.push.CommonCallback;
-import com.alibaba.sdk.android.push.noonesdk.PushInitConfig;
-import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.aispeech.dca.DcaConfig;
+import com.aispeech.dca.DcaSdk;
 import com.midea.light.basic.BuildConfig;
 import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
@@ -25,24 +15,20 @@ import com.midea.light.issued.IssuedManager;
 import com.midea.light.issued.relay.RelayIssuedMatch;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
-import com.midea.light.push.AliPushReceiver;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
 import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
-import com.midea.light.utils.CommandExecution;
 import com.midea.light.utils.ProcessUtil;
-import com.midea.light.channel.method.*;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.midea.light.channel.Channels;
-
-import androidx.multidex.MultiDex;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
+import androidx.multidex.MultiDex;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
@@ -100,6 +86,15 @@ public class MainApplication extends BaseApplication {
         CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
         // 设置是否位开发设备
         CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
+
+        //思必驰语音sdk初始化
+        DcaConfig dcaConfig = new DcaConfig.Builder()
+                .apiKey(AppCommonConfig.DCA_API_KEY)
+                .apiSecret(AppCommonConfig.DCA_API_SECRET)
+                .openDebugLog(true)
+                .publicKey(AppCommonConfig.DCA_PUB_KEY)
+                .build();
+        DcaSdk.initialize(MainApplication.this, dcaConfig);  //初始化dca sdk
 
         //wifi 10秒刷新一次
 //        CommandExecution.execCommand("wpa_cli bss_expire_age 10", true);
