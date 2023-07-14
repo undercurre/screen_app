@@ -1,12 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/routes/home/device/card_dialog.dart';
+import 'package:screen_app/routes/home/device/card_type_config.dart';
+import 'package:screen_app/routes/home/device/grid_container.dart';
+import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
 import '../../../common/global.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
+import '../../../states/device_position_notifier.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
 
@@ -23,8 +28,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
   List<DeviceEntity> devices = [];
   List<SceneInfoEntity> scenes = [];
   List<OtherEntity> others = [
-    OtherEntity('时间组件', 'time'),
-    OtherEntity('天气组件', 'weather')
+    OtherEntity('时间组件', DeviceEntityTypeInP4.Clock),
+    OtherEntity('天气组件', DeviceEntityTypeInP4.Weather)
   ];
 
   @override
@@ -100,6 +105,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    Layout resultData = Layout(
+        uuid.v4(), DeviceEntityTypeInP4.Clock, CardType.Other, -1, [], null);
     return Stack(
       children: [
         Container(
@@ -111,8 +118,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
             ),
           ),
           constraints:
-              BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          height: MediaQuery.of(context).size.height,
+          BoxConstraints(minWidth: MediaQuery
+              .of(context)
+              .size
+              .width),
+          height: MediaQuery
+              .of(context)
+              .size
+              .height,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 13, 10, 25),
             child: Column(
@@ -195,7 +208,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               logger.i('其他页');
                               _pageController.animateToPage(
                                 2,
-                                duration: Duration(milliseconds: 500),
+                                duration: const Duration(milliseconds: 500),
                                 curve: Curves.ease,
                               );
                               setState(() {
@@ -237,179 +250,218 @@ class _AddDevicePageState extends State<AddDevicePage> {
                     children: [
                       GridView.builder(
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
                         itemCount: devices.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
-                          return Stack(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: SmallDeviceCardWidget(
-                                  name: devices[index].name,
-                                  icon: Image(
-                                    image: AssetImage(_getIconUrl(
-                                        devices[index].type,
-                                        devices[index].modelNumber)),
+                          return GestureDetector(
+                            onTap: () {
+                              resultData = Layout(devices[index].applianceCode,
+                                  getDeviceEntityType(devices[index].type,
+                                      devices[index].modelNumber),
+                                  CardType.Small, -1, [], null);
+                              Navigator.pop(context, resultData);
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: SmallDeviceCardWidget(
+                                    name: devices[index].name,
+                                    icon: Image(
+                                      image: AssetImage(_getIconUrl(
+                                          devices[index].type,
+                                          devices[index].modelNumber)),
+                                    ),
+                                    onOff: false,
+                                    roomName: devices[index].roomName!,
+                                    characteristic: '',
+                                    onTap: () =>
+                                    {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return CardDialog(
+                                            name: devices[index].name,
+                                            type: devices[index].type,
+                                            modelNumber: devices[index].modelNumber,
+                                            roomName: devices[index].roomName!,
+                                          );
+                                        },
+                                      )
+                                    },
+                                    online: true,
+                                    isFault: false,
+                                    isNative: false,
                                   ),
-                                  onOff: false,
-                                  roomName: devices[index].roomName!,
-                                  characteristic: '',
-                                  onTap: () => {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CardDialog(type: devices[index].type,);
-                                      },
-                                    )
-                                  },
-                                  online: true,
-                                  isFault: false,
-                                  isNative: false,
                                 ),
-                              ),
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xFF6B6D73),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.white,
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF6B6D73),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
+                              ],
+                            ),);
                         },
                       ),
                       GridView.builder(
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
                         itemCount: scenes.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
-                          return Stack(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: SmallSceneCardWidget(
-                                    name: scenes[index].name,
-                                    icon: Image(
+                          return GestureDetector(
+                            onTap: () {
+                              resultData = Layout(scenes[index].sceneId,
+                                  DeviceEntityTypeInP4.Scene, CardType.Small,
+                                  -1, [], {
+                                    'name': scenes[index].name,
+                                    'icon': Image(
                                       image: AssetImage(
-                                          'assets/newUI/scene/${scenes[index].image}.png'),
+                                          'assets/newUI/scene/${scenes[index]
+                                              .image}.png'),
                                     ),
-                                    onOff: false),
-                              ),
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xFF6B6D73),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.white,
+                                    'onOff': false,
+                                  });
+                              Navigator.pop(context, resultData);
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: SmallSceneCardWidget(
+                                      name: scenes[index].name,
+                                      icon: Image(
+                                        image: AssetImage(
+                                            'assets/newUI/scene/${scenes[index]
+                                                .image}.png'),
+                                      ),
+                                      onOff: false),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF6B6D73),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           );
                         },
                       ),
                       GridView.builder(
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           childAspectRatio: 2,
                           crossAxisCount: 2, // 设置列数为4
                         ),
                         itemCount: others.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
-                          return Stack(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Container(
-                                  width: 210,
-                                  height: 88,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        const Color(0xFF616A76)
-                                            .withOpacity(0.22),
-                                        // 设置渐变色起始颜色
-                                        const Color(0xFF434852)
-                                            .withOpacity(0.22),
-                                        // 设置渐变色结束颜色
-                                      ],
-                                      begin: const Alignment(0.6, 0),
-                                      // 设置渐变色的起始位置
-                                      end: const Alignment(1, 1),
-                                      // 设置渐变色的结束位置
-                                      stops: [0.06, 1.0],
-                                      // 设置渐变色的起始和结束位置的停止点
-                                      transform: const GradientRotation(
-                                          213 * 3.1415927 / 180), // 设置渐变色的旋转角度
-                                    ),
-                                    border: Border.all(
-                                      color: const Color.fromRGBO(
-                                          255, 255, 255, 0.32), // 设置边框颜色和透明度
-                                      width: 0.6, // 设置边框宽度
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.circular(24), // 设置边框圆角
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      others[index].name,
-                                      style: const TextStyle(
-                                        fontFamily: 'PingFangSC-Regular',
-                                        // 设置字体
-                                        fontSize: 20,
-                                        // 设置字体大小
-                                        color: Colors.white,
-                                        // 设置字体颜色
-                                        letterSpacing: 0,
-                                        // 设置字间距
-                                        fontWeight: FontWeight.w400,
-                                        // 设置字重
-                                        height: 1.2, // 设置行高
+                          return GestureDetector(
+                            onTap: () {
+                              resultData = Layout(uuid.v4(), others[index].type,
+                                  CardType.Other, -1, [], null);
+                              Navigator.pop(context, resultData);
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Container(
+                                    width: 210,
+                                    height: 88,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          const Color(0xFF616A76)
+                                              .withOpacity(0.22),
+                                          // 设置渐变色起始颜色
+                                          const Color(0xFF434852)
+                                              .withOpacity(0.22),
+                                          // 设置渐变色结束颜色
+                                        ],
+                                        begin: const Alignment(0.6, 0),
+                                        // 设置渐变色的起始位置
+                                        end: const Alignment(1, 1),
+                                        // 设置渐变色的结束位置
+                                        stops: [0.06, 1.0],
+                                        // 设置渐变色的起始和结束位置的停止点
+                                        transform: const GradientRotation(213 *
+                                            3.1415927 /
+                                            180), // 设置渐变色的旋转角度
                                       ),
-                                      textAlign: TextAlign.center,
+                                      border: Border.all(
+                                        color: const Color.fromRGBO(
+                                            255, 255, 255, 0.32), // 设置边框颜色和透明度
+                                        width: 0.6, // 设置边框宽度
+                                      ),
+                                      borderRadius:
+                                      BorderRadius.circular(24), // 设置边框圆角
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        others[index].name,
+                                        style: const TextStyle(
+                                          fontFamily: 'PingFangSC-Regular',
+                                          // 设置字体
+                                          fontSize: 20,
+                                          // 设置字体大小
+                                          color: Colors.white,
+                                          // 设置字体颜色
+                                          letterSpacing: 0,
+                                          // 设置字间距
+                                          fontWeight: FontWeight.w400,
+                                          // 设置字重
+                                          height: 1.2, // 设置行高
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xFF6B6D73),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.white,
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF6B6D73),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -427,7 +479,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
                 color: Colors.white.withOpacity(0.05),
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
                 height: 72,
                 child: Center(
                   child: MzButton(
@@ -458,14 +513,29 @@ class _AddDevicePageState extends State<AddDevicePage> {
       return 'assets/newUI/device/${type}.png';
     }
   }
+
+  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
+    for (var deviceType in DeviceEntityTypeInP4.values) {
+      if (value == '0x21') {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee$modelNum') {
+          return deviceType;
+        }
+      } else {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
+          return deviceType;
+        }
+      }
+    }
+    return DeviceEntityTypeInP4.Default;
+  }
 }
 
 class OtherEntity {
-  OtherEntity(String s, String t) {
+  OtherEntity(String s, DeviceEntityTypeInP4 t) {
     name = s;
     type = t;
   }
 
   late String name;
-  late String type;
+  late DeviceEntityTypeInP4 type;
 }

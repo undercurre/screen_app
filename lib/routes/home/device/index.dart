@@ -1,22 +1,11 @@
-import 'dart:async';
-import 'dart:math';
-
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/api/gateway_api.dart';
-import 'package:screen_app/common/push.dart';
-import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/global.dart';
 import '../../../states/device_position_notifier.dart';
-import '../../../widgets/event_bus.dart';
 import 'card_type_config.dart';
-import 'device_card.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
 
@@ -75,6 +64,12 @@ class _DevicePageState extends State<DevicePage> {
     List<Layout> completeList = [];
     // 初始化布局占位器
     Screen screenLayer = Screen();
+
+    if (layoutModel.layouts.isEmpty) {
+      screenList.add(const Center(child: EditCardWidget()));
+      return screenList;
+    }
+
     // 准备元素队列
     for (var element in layout) {
       // 先把拿到的布局数据分成已布局好的和没布局好的，没布局好的pageIndex是-1
@@ -85,8 +80,10 @@ class _DevicePageState extends State<DevicePage> {
         hadInList.add(element);
       }
     }
+    logger.i('有多少未布局数据', hadNotInList.length);
     // 虚拟布局计算: 占位——>映射单页——>插入pageview
     // 先处理到现有最大页码
+    logger.i('要处理$hadPageCount页');
     for (; pageCount <= hadPageCount; pageCount++) {
       logger.i('当前处理页码', pageCount);
       // 先排除掉已经被排布的格子
@@ -105,7 +102,8 @@ class _DevicePageState extends State<DevicePage> {
           // 把已经布局的数据在布局器中占位
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
           int row = grid ~/ 4;
-          int col = grid % 4 - 1;
+          int col = grid % 4 - 1 != -1 ? grid % 4 - 1 : 3;
+          logger.i(row, col);
           screenLayer.setCellOccupied(row, col, true);
         }
         // 查询是否已经用持久化的数据就填满了这一页
@@ -174,7 +172,6 @@ class _DevicePageState extends State<DevicePage> {
       if (pageCount == hadPageCount && hadNotInList.isEmpty) {
         List<int> editCardFillCells =
             screenLayer.checkAvailability(CardType.Edit);
-        logger.i('加载edit', editCardFillCells);
         // 当占位成功
         if (editCardFillCells.isNotEmpty) {
           Widget editCardWithPosition = const StaggeredGridTile.count(

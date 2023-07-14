@@ -12,6 +12,8 @@ enum DeviceEntityTypeInP4 {
   Scene,
   // wifi灯
   Device0x13,
+  // wifi窗帘
+  Device0x14,
   // 本地线控器-1路
   LocalPanelOne,
   // 本地线控器-2路

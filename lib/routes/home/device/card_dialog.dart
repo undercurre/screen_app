@@ -1,11 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/routes/home/device/grid_container.dart';
+import 'package:screen_app/widgets/card/main/small_device.dart';
 
 class CardDialog extends StatefulWidget {
   final String type;
+  final String name;
+  final String roomName;
+  final String modelNumber;
 
-  const CardDialog({super.key, required this.type});
+  const CardDialog(
+      {super.key,
+      required this.type,
+      required this.name,
+      required this.roomName,
+      required this.modelNumber});
 
   @override
   _CardDialogState createState() => _CardDialogState();
@@ -48,15 +56,35 @@ class _CardDialogState extends State<CardDialog> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.close_rounded, size: 32),
-                Text(_getTitle(), style: TextStyle(
-                  fontSize: 20,
-                ),),
+                Text(
+                  _getTitle(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
                 const Icon(Icons.check_rounded, size: 32)
               ],
             ),
-            PageView(
-              controller: _pageController,
-              scrollDirection: Axis.horizontal,
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                scrollDirection: Axis.horizontal,
+                children: [
+                  UnconstrainedBox(
+                    child: SmallDeviceCardWidget(
+                        name: widget.name,
+                        icon: Image(
+                            image: AssetImage(
+                                '${_getIconUrl(widget.type, widget.modelNumber)}')),
+                        onOff: true,
+                        roomName: widget.roomName,
+                        characteristic: '',
+                        online: true,
+                        isFault: false,
+                        isNative: false),
+                  )
+                ],
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +95,9 @@ class _CardDialogState extends State<CardDialog> {
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    color: _currentIndex == 0 ? Colors.white : Colors.white.withOpacity(0.6),
+                    color: _currentIndex == 0
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.6),
                   ),
                 ),
                 Container(
@@ -76,7 +106,9 @@ class _CardDialogState extends State<CardDialog> {
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    color: _currentIndex == 1 ? Colors.white : Colors.white.withOpacity(0.6),
+                    color: _currentIndex == 1
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.6),
                   ),
                 ),
                 Container(
@@ -85,7 +117,9 @@ class _CardDialogState extends State<CardDialog> {
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    color: _currentIndex == 2 ? Colors.white : Colors.white.withOpacity(0.6),
+                    color: _currentIndex == 2
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -99,5 +133,13 @@ class _CardDialogState extends State<CardDialog> {
   String _getTitle() {
     Map<int, String> titleMap = {0: '小卡片', 1: '中卡片', 2: '大卡片'};
     return titleMap[_currentIndex] ?? '卡片';
+  }
+
+  _getIconUrl(String type, String modelNum) {
+    if (type == '0x21') {
+      return 'assets/newUI/device/${type}_${modelNum}.png';
+    } else {
+      return 'assets/newUI/device/${type}.png';
+    }
   }
 }
