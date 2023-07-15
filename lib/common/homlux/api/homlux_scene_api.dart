@@ -8,7 +8,7 @@ import '../models/homlux_response_entity.dart';
 import '../../../routes/home/scene/scene.dart';
 import 'homlux_api.dart';
 
-class SceneApi {
+class HomluxSceneApi {
   /// 查询家庭下的场景
   static Future<List<Scene>> getSceneList() async {
     var res = await HomluxApi.request<List<HomluxSceneEntity>>('/v1/mzgd/scene/querySceneListByHouseId', data: {
