@@ -20,8 +20,8 @@ import 'package:screen_app/models/weather7d_entity.dart';
 import 'package:screen_app/models/weather_entity.dart';
 import 'package:screen_app/models/weather_of_city_entity.dart';
 
-import '../../../models/meiju_home_entity.dart';
-import '../../../models/meiju_home_list_entity.dart';
+import '../../../models/meiju_home_info_entity.dart';
+import '../../../models/meiju_home_list_info_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
 import '../../../models/meiju_user_entity.dart';
@@ -56,8 +56,8 @@ class MeiJuJsonConvert {
 
 		(MeiJuQrCodeEntity).toString(): MeiJuQrCodeEntity.fromJson,
 		(MeiJuTokenEntity).toString(): MeiJuTokenEntity.fromJson,
-		(MeiJuHomeEntity).toString(): MeiJuHomeEntity.fromJson,
-		(MeiJuHomeListEntity).toString(): MeiJuHomeListEntity.fromJson,
+		(MeiJuHomeInfoEntity).toString(): MeiJuHomeInfoEntity.fromJson,
+		(MeiJuHomeInfoListEntity).toString(): MeiJuHomeInfoListEntity.fromJson,
 		(MeiJuRoomEntity).toString(): MeiJuRoomEntity.fromJson,
 
 
@@ -176,11 +176,11 @@ class MeiJuJsonConvert {
 		if(<DevicePDMEntity>[] is M){
 			return data.map<DevicePDMEntity>((Map<String, dynamic> e) => DevicePDMEntity.fromJson(e)).toList() as M;
 		}
-		if(<MeiJuHomeEntity>[] is M){
-			return data.map<MeiJuHomeEntity>((Map<String, dynamic> e) => MeiJuHomeEntity.fromJson(e)).toList() as M;
+		if(<MeiJuHomeInfoEntity>[] is M){
+			return data.map<MeiJuHomeInfoEntity>((Map<String, dynamic> e) => MeiJuHomeInfoEntity.fromJson(e)).toList() as M;
 		}
-		if(<MeiJuHomeListEntity>[] is M){
-			return data.map<MeiJuHomeListEntity>((Map<String, dynamic> e) => MeiJuHomeListEntity.fromJson(e)).toList() as M;
+		if(<MeiJuHomeInfoListEntity>[] is M){
+			return data.map<MeiJuHomeInfoListEntity>((Map<String, dynamic> e) => MeiJuHomeInfoListEntity.fromJson(e)).toList() as M;
 		}
 		if(<LocationEntity>[] is M){
 			return data.map<LocationEntity>((Map<String, dynamic> e) => LocationEntity.fromJson(e)).toList() as M;

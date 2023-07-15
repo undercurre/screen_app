@@ -5,7 +5,7 @@ import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
 import '../../../models/home_list_entity.dart';
-import '../models/meiju_home_list_entity.dart';
+import '../models/meiju_home_list_info_entity.dart';
 import '../models/meiju_qr_code_entity.dart';
 import '../models/meiju_user_entity.dart';
 import 'meiju_api.dart';
@@ -38,13 +38,13 @@ class MeiJuUserApi {
     return res;
   }
 
-  /// 获取用户所有家庭的家电列表
-  static Future<MeiJuResponseEntity<MeiJuHomeListEntity>>
-      getHomeListWithDeviceList({
+  /// 获取家庭信息 homegroupId 为空时，返回所有的家庭信息
+  static Future<MeiJuResponseEntity<MeiJuHomeInfoListEntity>>
+      getHomeDetail({
     String? homegroupId,
     String? roomId,
   }) async {
-    var res = await MeiJuApi.requestMideaIot<MeiJuHomeListEntity>(
+    var res = await MeiJuApi.requestMideaIot<MeiJuHomeInfoListEntity>(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/list/get",
         data: {
           'homegroupId': homegroupId,

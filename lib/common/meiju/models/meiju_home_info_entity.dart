@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:screen_app/generated/json/base/json_field.dart';
 
-import 'meiju_home_entity.g.dart';
+import 'meiju_home_info_entity.g.dart';
 import 'meiju_room_entity.dart';
 
 @JsonSerializable()
-class MeiJuHomeEntity {
+class MeiJuHomeInfoEntity {
   String? homegroupId;
   String? number;
   String? roleId;
@@ -29,12 +29,12 @@ class MeiJuHomeEntity {
   int? unread;
   List<MeiJuRoomEntity>? roomList;
 
-  MeiJuHomeEntity();
+  MeiJuHomeInfoEntity();
 
-  factory MeiJuHomeEntity.fromJson(Map<String, dynamic> json) =>
-      $MeiJuHomeEntityFromJson(json);
+  factory MeiJuHomeInfoEntity.fromJson(Map<String, dynamic> json) =>
+      $MeiJuHomeInfoEntityFromJson(json);
 
-  Map<String, dynamic> toJson() => $MeiJuHomeEntityToJson(this);
+  Map<String, dynamic> toJson() => $MeiJuHomeInfoEntityToJson(this);
 
   @override
   String toString() {

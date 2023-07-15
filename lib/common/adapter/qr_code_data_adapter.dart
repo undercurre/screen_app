@@ -86,7 +86,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
     authQrCodeSucCallback = callback;
   }
 
-  Future<void> requireQrCode() async {
+  void requireQrCode() async {
     if (platform.inHomlux()) {
       qrCodeState = DataState.LONGING;
       HomluxResponseEntity<HomluxQrCodeEntity> code = await HomluxUserApi.queryQrCode();
@@ -151,6 +151,13 @@ class QRCodeDataAdapter extends MideaDataAdapter {
     } else {
       throw Exception("No No No 异常调用");
     }
+  }
+
+  @override
+  void destroy() {
+    super.destroy();
+    updateLoginStatusTime?.cancel();
+    updateQrCodeTime?.cancel();
   }
 
 }

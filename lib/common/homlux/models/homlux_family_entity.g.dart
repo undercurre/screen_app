@@ -12,6 +12,9 @@ HomluxFamilyEntity _$HomluxFamilyEntityFromJson(Map<String, dynamic> json) =>
       houseName: json['houseName'] as String,
       houseCreatorFlag: json['houseCreatorFlag'] as bool,
       defaultHouseFlag: json['defaultHouseFlag'] as bool,
+      roomNum: json['roomNum'] as int,
+      deviceNum: json['deviceNum'] as int,
+      userNum: json['userNum'] as int,
     );
 
 Map<String, dynamic> _$HomluxFamilyEntityToJson(HomluxFamilyEntity instance) =>
@@ -20,4 +23,7 @@ Map<String, dynamic> _$HomluxFamilyEntityToJson(HomluxFamilyEntity instance) =>
       'houseName': instance.houseName,
       'houseCreatorFlag': instance.houseCreatorFlag,
       'defaultHouseFlag': instance.defaultHouseFlag,
+      'roomNum': instance.roomNum,
+      'deviceNum': instance.deviceNum,
+      'userNum': instance.userNum,
     };

@@ -7,7 +7,7 @@ import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_c
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils.dart';
-import 'models/meiju_home_entity.dart';
+import 'models/meiju_home_info_entity.dart';
 import 'models/meiju_room_entity.dart';
 import 'models/meiju_user_entity.dart';
 
@@ -39,7 +39,7 @@ class MeiJuGlobal {
 
   static MeiJuTokenEntity? _token;
   /// 登录的家庭
-  static MeiJuHomeEntity? _homeEntity;
+  static MeiJuHomeInfoEntity? _homeEntity;
   /// 登录的房间
   static MeiJuRoomEntity? _roomEntity;
   /// 屏下网关的deviceId -- 登录之后才会返回
@@ -82,9 +82,9 @@ class MeiJuGlobal {
 
   }
 
-  static MeiJuHomeEntity? get homeInfo => _homeEntity;
+  static MeiJuHomeInfoEntity? get homeInfo => _homeEntity;
 
-  static set homeInfo(MeiJuHomeEntity? homeInfo) {
+  static set homeInfo(MeiJuHomeInfoEntity? homeInfo) {
     _homeEntity = homeInfo;
     _prefs.setString(HOMLUX_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
   }

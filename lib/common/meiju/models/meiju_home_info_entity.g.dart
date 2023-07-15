@@ -1,11 +1,11 @@
 import '../generated/json/base/meiju_json_convert_content.dart';
-import 'meiju_home_entity.dart';
+import 'meiju_home_info_entity.dart';
 import 'meiju_room_entity.dart';
 
 
 
-MeiJuHomeEntity $MeiJuHomeEntityFromJson(Map<String, dynamic> json) {
-	final MeiJuHomeEntity homeEntity = MeiJuHomeEntity();
+MeiJuHomeInfoEntity $MeiJuHomeInfoEntityFromJson(Map<String, dynamic> json) {
+	final MeiJuHomeInfoEntity homeEntity = MeiJuHomeInfoEntity();
 	final String? homegroupId = meijuJsonConvert.convert<String>(json['homegroupId']);
 	if (homegroupId != null) {
 		homeEntity.homegroupId = homegroupId;
@@ -85,7 +85,7 @@ MeiJuHomeEntity $MeiJuHomeEntityFromJson(Map<String, dynamic> json) {
 	return homeEntity;
 }
 
-Map<String, dynamic> $MeiJuHomeEntityToJson(MeiJuHomeEntity entity) {
+Map<String, dynamic> $MeiJuHomeInfoEntityToJson(MeiJuHomeInfoEntity entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
 	data['homegroupId'] = entity.homegroupId;
 	data['number'] = entity.number;
