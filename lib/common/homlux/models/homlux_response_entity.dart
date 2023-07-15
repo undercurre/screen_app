@@ -7,6 +7,11 @@ class HomluxResponseEntity<T> {
   late int timestamp;
   T? result;
 
+  /// 增加别名
+  T? get data {
+    return result;
+  }
+
   get isSuccess => code == 0;
 
   HomluxResponseEntity();

@@ -1,3 +1,4 @@
+import '../gateway_platform.dart';
 import '../logcat_helper.dart';
 
 /// 声明数据更新的回调函数
@@ -15,6 +16,11 @@ abstract class MideaDataAdapter {
   int _refreshCount = 0;
   /// 增加刷新标识
   String? key;
+  /// 网关运行的环境
+  GatewayPlatform platform;
+
+  MideaDataAdapter(this.platform);
+
 
   /// 关联数据更新的回调函数
   void bindDataUpdateFunction(DataUpdateFunction function) {
@@ -34,11 +40,26 @@ abstract class MideaDataAdapter {
   }
 
   /// 数据驱动UI更新
-  void update() {
+  void updateUI() {
     _dataUpdateFunctionSet?.forEach((element) {
       element.call();
     });
     Log.i("调用 $runtimeType${key == null ? '' : ".$key"} 刷新次数: ${++_refreshCount}");
   }
 
+  // 初始化Adapter
+  void init() {
+
+  }
+
+  /// 销毁Adapter
+  void destroy() {
+
+  }
+
 }
+
+/// 数据状态
+/// NONE(还未初始化)，Loading(加载中), Error(加载失败), Success(加载成功)
+enum DataState { NONE, LONGING, ERROR, SUCCESS }
+

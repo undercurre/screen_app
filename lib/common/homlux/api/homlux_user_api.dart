@@ -67,8 +67,8 @@ class HomluxUserApi {
         options: Options(method: 'POST', extra: {"carryToken": false}),
         data: {"qrcode": qrCode});
 
-    if(res.isSuccess && res.result?.authorizeStatus == 1) {
-      HomluxGlobal.homluxQrCodeAuthEntity = res.result;
+    if(res.isSuccess && res.data?.authorizeStatus == 1) {
+      HomluxGlobal.homluxQrCodeAuthEntity = res.data;
     }
 
     return res;

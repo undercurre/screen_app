@@ -26,11 +26,11 @@ import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
 import '../../../models/meiju_user_entity.dart';
 
-JsonConvert meijuJsonConvert = JsonConvert();
+MeiJuJsonConvert meijuJsonConvert = MeiJuJsonConvert();
 typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
 typedef EnumConvertFunction<T> = T Function(String value);
 
-class JsonConvert {
+class MeiJuJsonConvert {
 	static final Map<String, JsonConvertFunction> convertFuncMap = {
 		(AiMusicState).toString(): AiMusicState.fromJson,
 		(NetState).toString(): NetState.fromJson,

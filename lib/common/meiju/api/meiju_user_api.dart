@@ -12,7 +12,7 @@ import 'meiju_api.dart';
 
 class MeiJuUserApi {
   /// 获取授权登录二维码
-  static Future<MeiJuResponseEntity<MeiJuQrCodeEntity>> getQrCode() async {
+  static Future<MeiJuResponseEntity<MeiJuQrCodeEntity>> queryQrCode() async {
     MeiJuResponseEntity<MeiJuQrCodeEntity> res =
         await MeiJuApi.requestMideaIot<MeiJuQrCodeEntity>(
             "/muc/v5/app/mj/screen/auth/getQrCode",
