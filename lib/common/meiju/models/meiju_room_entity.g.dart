@@ -1,6 +1,7 @@
 import 'package:screen_app/models/device_entity.dart';
 
 import '../generated/json/base/meiju_json_convert_content.dart';
+import 'meiju_device_entity.dart';
 import 'meiju_room_entity.dart';
 
 
@@ -30,7 +31,7 @@ MeiJuRoomEntity $MeiJuRoomEntityFromJson(Map<String, dynamic> json) {
 	if (isDefault != null) {
 		roomEntity.isDefault = isDefault;
 	}
-	final List<DeviceEntity>? applianceList = meijuJsonConvert.convertListNotNull<DeviceEntity>(json['applianceList']);
+	final List<MeiJuDeviceEntity>? applianceList = meijuJsonConvert.convertListNotNull<MeiJuDeviceEntity>(json['applianceList']);
 	if (applianceList != null) {
 		roomEntity.applianceList = applianceList;
 	}

@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 
+import '../../../models/homlux_bind_device_entity.dart';
 import '../../../models/homlux_device_entity.dart';
 import '../../../models/homlux_dui_token_entity.dart';
 import '../../../models/homlux_qr_code_auth_entity.dart';
@@ -34,7 +35,8 @@ class HomluxJsonConvert {
     (HomluxDeviceMzgdPropertyDTOList2).toString(): HomluxDeviceMzgdPropertyDTOList2.fromJson,
     (HomluxDeviceMzgdPropertyDTOList3).toString(): HomluxDeviceMzgdPropertyDTOList3.fromJson,
     (HomluxDeviceMzgdPropertyDTOList4).toString(): HomluxDeviceMzgdPropertyDTOList4.fromJson,
-    (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson
+    (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
+    (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
 
 
   };
@@ -90,6 +92,9 @@ class HomluxJsonConvert {
     }
     if(<HomluxDuiTokenEntity>[] is M) {
       return data.map<HomluxDuiTokenEntity>((e) => HomluxDuiTokenEntity.fromJson(e)).toList() as M;
+    }
+    if(<HomluxBindDeviceEntity>[] is M) {
+      return data.map<HomluxBindDeviceEntity>((e) => HomluxBindDeviceEntity.fromJson(e)).toList() as M;
     }
     debugPrint("${M.toString()} not found");
     return null;

@@ -76,7 +76,7 @@ class HomluxApi {
         ProgressCallback? onSendProgress,
         ProgressCallback? onReceiveProgress}) {
     return $request(
-        dotenv.get('HOMLUX_URL') + path,
+        '${dotenv.get('HOMLUX_URL')}/mzaio$path',
         data: data,
         queryParameters: queryParameters,
         cancelToken: cancelToken,

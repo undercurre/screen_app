@@ -9,7 +9,7 @@ import 'meiju_room_entity.g.dart';
 class MeiJuRoomEntity {
   MeiJuRoomEntity();
 
-  String? roomId;
+  late String roomId;
   String? id;
   String? name;
   String? des;

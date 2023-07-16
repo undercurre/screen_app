@@ -7,7 +7,7 @@ import 'meiju_room_entity.dart';
 
 @JsonSerializable()
 class MeiJuHomeInfoEntity {
-  String? homegroupId;
+  late String homegroupId;
   String? number;
   String? roleId;
   String? isDefault;

@@ -5,6 +5,7 @@ import 'package:screen_app/common/homlux/models/homlux_member_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 
 import '../HomluxGlobal.dart';
+import '../models/homlux_bind_device_entity.dart';
 import '../models/homlux_qr_code_auth_entity.dart';
 import '../models/homlux_qr_code_entity.dart';
 import '../models/homlux_room_list_entity.dart';
@@ -60,14 +61,13 @@ class HomluxUserApi {
   static Future<HomluxResponseEntity<HomluxQrCodeAuthEntity>> getAccessToken(
       String qrCode,
       {CancelToken? cancelToken}) async {
-
     var res = await HomluxApi.request<HomluxQrCodeAuthEntity>(
         '/v1/mzgdApi/auth/mzgd/qrcodeLogin',
         cancelToken: cancelToken,
         options: Options(method: 'POST', extra: {"carryToken": false}),
         data: {"qrcode": qrCode});
 
-    if(res.isSuccess && res.data?.authorizeStatus == 1) {
+    if (res.isSuccess && res.data?.authorizeStatus == 1) {
       HomluxGlobal.homluxQrCodeAuthEntity = res.data;
     }
 
@@ -82,5 +82,21 @@ class HomluxUserApi {
         cancelToken: cancelToken,
         options: Options(method: 'POST', extra: {"carryToken": false}),
         data: {"refreshToken": refreshToken});
+  }
+
+  // 绑定设备
+  static Future<HomluxResponseEntity<HomluxBindDeviceEntity>> bindDevice(String deviceName,
+      String houseId, String roomId, String sn, String deviceType,
+      {CancelToken? cancelToken}) {
+    return HomluxApi.request<HomluxBindDeviceEntity>('/v1/device/bindDevice',
+        cancelToken: cancelToken,
+        options: Options(method: 'POST'),
+        data: {
+          'deviceName': deviceName,
+          'houseId': houseId,
+          'roomId': roomId,
+          'deviceType': deviceType,
+          'sn': sn
+        });
   }
 }
