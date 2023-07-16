@@ -1,50 +1,39 @@
 import 'dart:convert';
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
+import 'package:screen_app/common/adapter/select_family_data_adapter.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
 import '../homlux/models/homlux_family_entity.dart';
+import '../homlux/models/homlux_room_list_entity.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
 import '../meiju/models/meiju_home_info_entity.dart';
+import '../meiju/models/meiju_room_entity.dart';
 
-class SelectFamilyItem {
-  // 家庭名称
-  String familyName;
+class SelectRoomItem {
+  /// 房间名称
+  String? name;
+  /// 房间设备数量
+  int? deviceNum;
 
-  // 房间数量
-  String roomNum;
-
-  // 设备数量
-  String deviceNum;
-
-  // 家庭成员人数
-  String userNum;
-
-  // 是否为创建者
-  bool houseCreatorFlag;
-
-  MeiJuHomeInfoEntity? _meijuData;
-  HomluxFamilyEntity? _homluxData;
+  HomluxRoomInfo? _homluxData;
+  MeiJuRoomEntity? _meijuData;
 
 
-  SelectFamilyItem.fromMeiJu(MeiJuHomeInfoEntity data)
-      : familyName = data.name ?? '',
-        roomNum = data.roomCount ?? "0",
-        deviceNum = data.applianceCount ?? "0",
-        userNum = data.memberCount ?? '0',
-        houseCreatorFlag = false
+  SelectRoomItem.fromMeiJu(MeiJuRoomEntity data):
+    name = data.name,
+    deviceNum = data.applianceList?.length ?? 0
   {
     _meijuData = data;
   }
 
-  SelectFamilyItem.fromHomlux(HomluxFamilyEntity data)
-      : familyName = data.houseName,
-        roomNum = '${data.roomNum}',
-        deviceNum = '${data.deviceNum}',
-        userNum = '${data.userNum}',
-        houseCreatorFlag = data.houseCreatorFlag
+
+
+  SelectRoomItem.fromHomlux(HomluxRoomInfo data):
+    name = data.roomName,
+    deviceNum = data.deviceNum
   {
     _homluxData = data;
   }
@@ -52,13 +41,13 @@ class SelectFamilyItem {
   /// 下面两方法对UI层的意义
   /// 提供 Json -> Object 之间切换
   /// 意义：方便对UI层的数据快速持久化
-  factory SelectFamilyItem.fromJson(Map<String, dynamic> json) {
+  factory SelectRoomItem.fromJson(Map<String, dynamic> json) {
     if (json['_homluxData'] != null) {
-      return SelectFamilyItem.fromHomlux(homluxJsonConvert
-          .convert<HomluxFamilyEntity>(json['_homluxData'])!);
+      return SelectRoomItem.fromHomlux(
+          homluxJsonConvert.convert<HomluxRoomInfo>(json['_homluxData'])!);
     } else if (json['_meijuData'] != null) {
-      return SelectFamilyItem.fromMeiJu(
-          meijuJsonConvert.convert<MeiJuHomeInfoEntity>(json['_meijuData'])!);
+      return SelectRoomItem.fromMeiJu(
+          meijuJsonConvert.convert<MeiJuRoomEntity>(json['_meijuData'])!);
     } else {
       throw UnimplementedError(
           "失败：fromJson解析QRCodeEntity失败 解析的数据为：${const JsonEncoder().convert(json)}");
@@ -90,32 +79,33 @@ class SelectFamilyItem {
 
 }
 
-class SelectFamilyListEntity {
-  late List<SelectFamilyItem> familyList;
+class SelectRoomListEntity {
 
-  SelectFamilyListEntity.fromHomlux(List<HomluxFamilyEntity> data) {
+  late List<SelectRoomItem> familyList;
+
+  SelectRoomListEntity.fromHomlux(List<HomluxRoomInfo> data) {
     _homluxData = data;
-    familyList = data.map((e) => SelectFamilyItem.fromHomlux(e)).toList();
+    familyList = data.map((e) => SelectRoomItem.fromHomlux(e)).toList();
   }
 
-  SelectFamilyListEntity.fromMeiJu(List<MeiJuHomeInfoEntity> data) {
+  SelectRoomListEntity.fromMeiJu(List<MeiJuRoomEntity> data) {
     _meijuData = data;
-    familyList = data.map((e) => SelectFamilyItem.fromMeiJu(e)).toList();
+    familyList = data.map((e) => SelectRoomItem.fromMeiJu(e)).toList();
   }
 
-  List<MeiJuHomeInfoEntity>? _meijuData;
-  List<HomluxFamilyEntity>? _homluxData;
+  List<MeiJuRoomEntity>? _meijuData;
+  List<HomluxRoomInfo>? _homluxData;
 
   /// 下面两方法对UI层的意义
   /// 提供 Json -> Object 之间切换
   /// 意义：方便对UI层的数据快速持久化
-  factory SelectFamilyListEntity.fromJson(Map<String, dynamic> json) {
+  factory SelectRoomListEntity.fromJson(Map<String, dynamic> json) {
     if (json['_homluxData'] != null) {
-      return SelectFamilyListEntity.fromHomlux(homluxJsonConvert
-              .convertListNotNull<HomluxFamilyEntity>(json['_homluxData']) ?? []);
+      return SelectRoomListEntity.fromHomlux(homluxJsonConvert
+          .convertListNotNull<HomluxRoomInfo>(json['_homluxData']) ?? []);
     } else if (json['_meijuData'] != null) {
-      return SelectFamilyListEntity.fromMeiJu(
-          meijuJsonConvert.convertListNotNull<MeiJuHomeInfoEntity>(json['_meijuData']) ?? []);
+      return SelectRoomListEntity.fromMeiJu(
+          meijuJsonConvert.convertListNotNull<MeiJuRoomEntity>(json['_meijuData']) ?? []);
     } else {
       throw UnimplementedError(
           "失败：fromJson解析QRCodeEntity失败 解析的数据为：${const JsonEncoder().convert(json)}");
@@ -138,36 +128,31 @@ class SelectFamilyListEntity {
     });
   }
 
-  dynamic get meijuData {
-    return _meijuData;
-  }
 
-  dynamic get homluxData {
-    return _homluxData;
-  }
 }
 
-class SelectFamilyDataAdapter extends MideaDataAdapter {
-  SelectFamilyListEntity? familyListEntity;
+class SelectRoomDataAdapter extends MideaDataAdapter {
+  SelectRoomListEntity? familyListEntity;
   DataState dataState = DataState.NONE;
 
-  SelectFamilyDataAdapter(super.platform);
+  SelectRoomDataAdapter(super.platform);
 
-  void queryFamilyList() async {
+  void queryRoomList(SelectFamilyItem item) async {
     dataState = DataState.LONGING;
     if (platform.inHomlux()) {
-      var res = await HomluxUserApi.queryFamilyList();
+      HomluxFamilyEntity familyEntity = item.homluxData as HomluxFamilyEntity;
+      var res = await HomluxUserApi.queryRoomList(familyEntity.houseId);
       if (res.isSuccess && res.data != null) {
-        familyListEntity = SelectFamilyListEntity.fromHomlux(res.data ?? []);
+        familyListEntity = SelectRoomListEntity.fromHomlux(res.data?.roomInfoWrap ?? []);
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;
       }
     } else if (platform.inMeiju()) {
-      var res = await MeiJuUserApi.getHomeDetail();
+      MeiJuHomeInfoEntity familyEntity = item.meijuData as MeiJuHomeInfoEntity;
+      var res = await MeiJuUserApi.getHomeDetail(homegroupId: familyEntity.homegroupId);
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {
-        familyListEntity =
-            SelectFamilyListEntity.fromMeiJu(res.data?.homeList ?? []);
+        familyListEntity = SelectRoomListEntity.fromMeiJu(res.data?.homeList?[0].roomList ?? []);
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;

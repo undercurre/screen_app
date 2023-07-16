@@ -30,6 +30,7 @@ class QRCodeEntity {
   }
 
   MeiJuQrCodeEntity? _meijuData;
+
   HomluxQrCodeEntity? _homluxData;
 
   /// 下面两方法对UI层的意义
@@ -62,6 +63,14 @@ class QRCodeEntity {
       "_meijuData": _meijuData?.toJson(),
       "qrcode": qrcode
     });
+  }
+
+  dynamic get meijuData {
+    return _meijuData;
+  }
+
+  dynamic get homluxData {
+    return _homluxData;
   }
 
 }

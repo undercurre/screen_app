@@ -21,7 +21,7 @@ class HomluxUserApi {
   }
 
   /// 请求房间列表
-  static Future<HomluxResponseEntity<HomluxRoomListEntity>> queryHomeList(
+  static Future<HomluxResponseEntity<HomluxRoomListEntity>> queryRoomList(
       String houseId,
       {CancelToken? cancelToken}) {
     return HomluxApi.request('/v1/mzgd/user/house/queryRoomList',
