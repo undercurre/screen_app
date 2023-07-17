@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
@@ -7,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'adapter/select_family_data_adapter.dart';
 import 'adapter/select_room_data_adapter.dart';
 import 'index.dart';
+import 'logcat_helper.dart';
 
 class System {
   /// 产品编码
@@ -19,7 +24,7 @@ class System {
   System._();
 
   /// 全局初始化
-  static void globalInit([String? deviceId]) async {
+  static Future globalInit([String? deviceId]) async {
     if (StrUtils.isNotNullAndEmpty(deviceId)) {
       System.deviceId = deviceId;
       LocalStorage.setItem(DEVICE_ID, deviceId!);
@@ -35,7 +40,7 @@ class System {
           .replaceAll(' ', '')
           .replaceAll('\n', '')
           .replaceAll('\r', '');
-      logger.i('deviceId: $deviceId');
+      Log.i('deviceId: $deviceId');
 
       if (StrUtils.isNullOrEmpty(deviceId)) {
         const uuid = Uuid();
@@ -44,6 +49,30 @@ class System {
       System.deviceId = deviceId;
       LocalStorage.setItem(DEVICE_ID, deviceId);
     }
+
+    initLoading();
+  }
+
+  /// 初始化全局loading配置
+  static initLoading() {
+    EasyLoading.instance
+      ..displayDuration = const Duration(milliseconds: 2000)
+      ..indicatorType = EasyLoadingIndicatorType.ring
+      ..loadingStyle = EasyLoadingStyle.custom
+      ..indicatorSize = 45.0
+      ..radius = 40.0
+      ..progressColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..backgroundColor = const Color.fromRGBO(87, 87, 87, 1)
+      ..indicatorColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..textColor = const Color.fromRGBO(255, 255, 255, 0.85)
+      ..fontSize = 22
+      ..contentPadding = const EdgeInsets.fromLTRB(32, 20, 32, 20)
+      ..userInteractions = true
+      ..dismissOnTap = false;
+
+    EasyLoading.addStatusCallback((status) {
+      Log.d('EasyLoading Status $status');
+    });
   }
 
   /// 初始化美居平台数据

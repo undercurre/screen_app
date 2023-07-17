@@ -1,21 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../channel/index.dart';
 import '../utils.dart';
+import 'generated/json/base/homlux_json_convert_content.dart' as json;
 import 'models/homlux_dui_token_entity.dart';
 import 'models/homlux_family_entity.dart';
 import 'models/homlux_qr_code_auth_entity.dart';
 import 'models/homlux_room_list_entity.dart';
-import 'generated/json/base/homlux_json_convert_content.dart' as json;
 
 class HomluxGlobal {
   /// 是否为release版本
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
-
-  static late SharedPreferences _prefs;
 
   /// 家庭数据
   static const HOMLUX_FAMILY_INFO = 'homlux_family_info';
@@ -47,14 +44,13 @@ class HomluxGlobal {
 
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    _prefs = await SharedPreferences.getInstance();
 
-    _homluxHomeInfo = _$parseToJsonByCache(_prefs, HOMLUX_FAMILY_INFO);
-    _homluxRoomInfo = _$parseToJsonByCache(_prefs, HOMLUX_ROOM_INFO);
-    _homluxQrCodeAuthEntity = _$parseToJsonByCache(_prefs, HOMLUX_TOKEN);
-    _aiToken = _$parseToJsonByCache(_prefs, HOMLUX_AI_TOKEN);
-    _gatewaySn = _prefs.getString(HOMLUX_GATEWAY_SN);
-    _gatewayApplianceCode = _prefs.getString(HOMLUX_GATEWAY_DEVICE_ID);
+    _homluxHomeInfo = await _$parseToJsonByCache(HOMLUX_FAMILY_INFO);
+    _homluxRoomInfo = await _$parseToJsonByCache(HOMLUX_ROOM_INFO);
+    _homluxQrCodeAuthEntity = await _$parseToJsonByCache(HOMLUX_TOKEN);
+    _aiToken = await _$parseToJsonByCache(HOMLUX_AI_TOKEN);
+    _gatewaySn = await LocalStorage.getItem(HOMLUX_GATEWAY_SN);
+    _gatewayApplianceCode = await LocalStorage.getItem(HOMLUX_GATEWAY_DEVICE_ID);
   }
 
 
@@ -62,7 +58,7 @@ class HomluxGlobal {
 
   static set gatewayApplianceCode(String? applianceCode) {
     _gatewayApplianceCode = applianceCode;
-    _prefs.setString(HOMLUX_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
+    LocalStorage.setItem(HOMLUX_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
   }
 
   static Future<String?> get gatewaySn async {
@@ -71,13 +67,13 @@ class HomluxGlobal {
       aboutSystemChannel.getGatewaySn().then((value) {
         if(value != null) {
           _gatewaySn = value;
-          _prefs.setString(HOMLUX_GATEWAY_SN, value);
+          LocalStorage.setItem(HOMLUX_GATEWAY_SN, value);
         }
       });
       return _gatewaySn;
     } else {
       _gatewaySn = await aboutSystemChannel.getGatewaySn();
-      _prefs.setString(HOMLUX_GATEWAY_SN, _gatewaySn ?? '');
+      LocalStorage.setItem(HOMLUX_GATEWAY_SN, _gatewaySn ?? '');
       return _gatewaySn;
     }
   }
@@ -88,7 +84,7 @@ class HomluxGlobal {
 
   static set homluxHomeInfo(HomluxFamilyEntity? familyInfo) {
     _homluxHomeInfo = familyInfo;
-    _prefs.setString(HOMLUX_FAMILY_INFO, familyInfo != null? jsonEncode(familyInfo.toJson() ) : '' );
+    LocalStorage.setItem(HOMLUX_FAMILY_INFO, familyInfo != null? jsonEncode(familyInfo.toJson() ) : '');
   }
 
   static HomluxRoomInfo? get homluxRoomInfo {
@@ -97,7 +93,7 @@ class HomluxGlobal {
 
   static set homluxRoomInfo(HomluxRoomInfo? roomInfo) {
     _homluxRoomInfo = roomInfo;
-    _prefs.setString(HOMLUX_ROOM_INFO, roomInfo != null ? jsonEncode(roomInfo.toJson()) : '');
+    LocalStorage.setItem(HOMLUX_ROOM_INFO, roomInfo != null ? jsonEncode(roomInfo.toJson()) : '');
   }
 
   static HomluxQrCodeAuthEntity? get homluxQrCodeAuthEntity {
@@ -106,7 +102,7 @@ class HomluxGlobal {
 
   static set homluxQrCodeAuthEntity(HomluxQrCodeAuthEntity? qrCodeAuthEntity) {
     _homluxQrCodeAuthEntity = qrCodeAuthEntity;
-    _prefs.setString(HOMLUX_TOKEN, qrCodeAuthEntity != null ? jsonEncode(qrCodeAuthEntity.toJson()) : '' );
+    LocalStorage.setItem(HOMLUX_TOKEN, qrCodeAuthEntity != null ? jsonEncode(qrCodeAuthEntity.toJson()) : '');
   }
 
   static HomluxDuiTokenEntity? get aiToken {
@@ -115,7 +111,7 @@ class HomluxGlobal {
 
   static set aiToken(HomluxDuiTokenEntity? aiToken) {
     _aiToken = aiToken;
-    _prefs.setString(HOMLUX_AI_TOKEN, aiToken != null ? jsonEncode(aiToken.toJson()) : '' );
+    LocalStorage.setItem(HOMLUX_AI_TOKEN, aiToken != null ? jsonEncode(aiToken.toJson()) : '');
   }
 
 
@@ -133,8 +129,8 @@ class HomluxGlobal {
 }
 
 /// 使用注意 ** 使用此方法解析的对象类型，一定是注册在homluxJsonConvert中，不然报错
-T? _$parseToJsonByCache<T>(SharedPreferences preferences, String key) {
-  String? jsonStr = preferences.getString(key);
+Future<T?> _$parseToJsonByCache<T>(String key) async {
+  String? jsonStr = await LocalStorage.getItem(key);
   if (StrUtils.isNullOrEmpty(jsonStr)) return null;
   return json.homluxJsonConvert.convert(jsonDecode(jsonStr!));
 }

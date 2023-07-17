@@ -24,11 +24,13 @@ class QRCodeEntity {
   QRCodeEntity.fromHomlux(HomluxQrCodeEntity data) {
     _homluxData = data;
     qrcode = "https://web.meizgd.com/homlux/qrCode.html?mode=10&code=${data.qrcode}&modelId=${System.PRODUCT}";
+    Log.i('二维码$qrcode');
   }
 
   QRCodeEntity.fromMeiJu(MeiJuQrCodeEntity data) {
     _meijuData = data;
     qrcode = "${data.shortUrl}?id=${System.PRODUCT}";
+    Log.i('二维码$qrcode');
   }
 
   MeiJuQrCodeEntity? _meijuData;
@@ -129,7 +131,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
 
   /// ### 轮询查询授权状态接口
   void updateLoginStatus() async {
-    var delaySec = 2; // 2s轮询间隔
+    var delaySec = 1; // 2s轮询间隔
     if (qrCodeEntity == null) {
       updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
         updateLoginStatus();

@@ -124,20 +124,6 @@ class HomluxJsonConvert {
     }
   }
 
-  static String? toJson(dynamic data) {
-
-    if(data is List) {
-      List<String> content = [];
-      for (var value in data) {
-        content.add("${value.toJson()}");
-      }
-      return content.toString();
-    } else {
-      return data?.toJson();
-    }
-
-  }
-
 
   /// 禁止修改
   List<T?>? convertList<T>(List<dynamic>? value, {EnumConvertFunction? enumConvert}) {
