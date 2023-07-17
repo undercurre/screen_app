@@ -10,6 +10,7 @@ import 'package:screen_app/models/index.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 
+import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
@@ -156,7 +157,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       stepNum = 2;
     }
 
-    isNeedChoosePlatform = Global.iotPlatform == null;
+    isNeedChoosePlatform = MideaRuntimePlatform.platform == GatewayPlatform.NONE;
   }
 
   @override
@@ -220,7 +221,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       children: [
         if (isNeedChoosePlatform) ChosePlatform(
           onChose: (index) {
-            Global.iotPlatform = index;
+            if(index == 0) {
+              ChangePlatformHelper.changeToMeiju(context);
+            } else if(index == 1) {
+              ChangePlatformHelper.changeToHomlux(context);
+            }
             setState(() {
               isNeedChoosePlatform = false;
             });

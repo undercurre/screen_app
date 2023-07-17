@@ -163,9 +163,6 @@ class Global {
 
   ///全局靠近唤醒
   static bool nearWakeup = true;
-
-  ///使用的iot平台，0=美居，1=homlux
-  static int? iotPlatform;
 }
 
 /// 全局路由监听

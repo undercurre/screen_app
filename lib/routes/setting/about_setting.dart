@@ -12,6 +12,7 @@ import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
+import '../../common/gateway_platform.dart';
 import '../../common/global.dart';
 import '../../common/setting.dart';
 import '../../models/delete_device_result_entity.dart';
@@ -830,7 +831,7 @@ class AboutSettingPage extends StatelessWidget {
                                 const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
                                 onPressed: (_, index, context) {
                                   if (index == 1) {
-                                    Global.iotPlatform = null;
+                                    MideaRuntimePlatform.platform = GatewayPlatform.NONE;
                                     Push.dispose();
                                     System.loginOut();
                                     Navigator
