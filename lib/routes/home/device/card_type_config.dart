@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/widgets/card/main/big_device_air.dart';
+import 'package:screen_app/widgets/card/main/middle_device.dart';
 import '../../../widgets/card/main/small_device.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/card/other/clock.dart';
@@ -21,7 +23,9 @@ enum DeviceEntityTypeInP4 {
   // 时间组件
   Clock,
   // 天气组件
-  Weather
+  Weather,
+  // 空调组件
+  Device0xAC
 }
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(dynamic params)>>
@@ -55,17 +59,56 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(dynamic params)>>
   },
   DeviceEntityTypeInP4.LocalPanelTwo: {
     CardType.Small: (params) => SmallDeviceCardWidget(
-      name: '开关2',
-      icon: const Image(
-        image: AssetImage('assets/newUI/device/localPanel.png'),
-      ),
-      onOff: params['onOff'],
-      roomName: '',
-      characteristic: '',
-      onTap: () => params['onTap'],
-      online: true,
-      isFault: false,
-      isNative: false,
-    ),
+          name: '开关2',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/localPanel.png'),
+          ),
+          onOff: params['onOff'],
+          roomName: '',
+          characteristic: '',
+          onTap: () => params['onTap'],
+          online: true,
+          isFault: false,
+          isNative: false,
+        ),
+  },
+  DeviceEntityTypeInP4.Device0xAC: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+          name: '空调',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xAC.png'),
+          ),
+          onOff: true,
+          roomName: '',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+        ),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+          name: '空调',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xAC.png'),
+          ),
+          onOff: true,
+          roomName: '',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+        ),
+    CardType.Big: (params) => BigDeviceAirCardWidget(
+          name: '空调',
+          onOff: true,
+          roomName: '',
+          online: true,
+          isFault: false,
+          isNative: false,
+          temperature: 26,
+          min: 0,
+          max: 32,
+        ),
   }
 };
