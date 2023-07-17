@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
 
 import '../homlux/api/homlux_user_api.dart';
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
@@ -141,6 +143,8 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
         Log.i('授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
+        // 自动保存登录Token
+        MeiJuGlobal.token = res.data;
       } else {
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();
@@ -152,6 +156,8 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
         Log.i('授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
+        // 自动保存登录Token
+        HomluxGlobal.homluxQrCodeAuthEntity = res.data;
       } else {
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();

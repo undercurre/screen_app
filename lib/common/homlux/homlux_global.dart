@@ -30,10 +30,10 @@ class HomluxGlobal {
   static const HOMLUX_AI_TOKEN = 'homlux_ai_token';
 
   /// 网关设备id
-  static const HOMLUX_GATEWAY_DEVICE_ID = 'meiju_gateway_device_id';
+  static const HOMLUX_GATEWAY_DEVICE_ID = 'homlux_gateway_device_id';
 
   /// 网关SN
-  static const HOMLUX_GATEWAY_SN = 'meiju_gateway_sn';
+  static const HOMLUX_GATEWAY_SN = 'homlux_gateway_sn';
 
   static HomluxFamilyEntity? _homluxHomeInfo;
   static HomluxRoomInfo? _homluxRoomInfo;
