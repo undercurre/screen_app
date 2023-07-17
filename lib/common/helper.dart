@@ -1,26 +1,32 @@
-
 ///
 /// 说明：架构辅助类
 ///
 
 
 /// 为任意对象增加三种状态
-/// Loading(加载中), Error(加载失败), Success(加载成功)
-enum UpdateType { LONGING, ERROR, SUCCESS }
+/// NONE(还未初始化)，Loading(加载中), Error(加载失败), Success(加载成功)
+enum UpdateType { NONE, LONGING, ERROR, SUCCESS }
 
 class UpdateState<T> {
   T _t;
+  int? errorCode;
+  String? errorMessage;
+
   late UpdateType _type;
 
   UpdateType get type => _type;
 
   T get data => _t;
 
+  UpdateState.none(this._t) {
+    _type = UpdateType.NONE;
+  }
+
   UpdateState.loading(this._t) {
     _type = UpdateType.LONGING;
   }
 
-  UpdateState.error(this._t) {
+  UpdateState.error(this._t, [int this.errorCode = -1, String this.errorMessage = '加载错误']) {
     _type = UpdateType.ERROR;
   }
 
