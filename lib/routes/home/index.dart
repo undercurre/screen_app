@@ -161,7 +161,7 @@ class HomeState extends State<Home>
                       ),
                       constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                       height: MediaQuery.of(context).size.height,
-                      child: const DevicePage(text: '设备页'),
+                      child: const DevicePage(),
                     ),
                     Positioned(
                       top: 10,

@@ -63,7 +63,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
               ),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
@@ -97,7 +97,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                           ),
                         )
                     ]),
-                    Padding(
+                    if (widget.roomName != '' || _getRightText() != '')  Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
                           '${widget.roomName} ${_getRightText() != '' ? '|' : '' } ${_getRightText()}',

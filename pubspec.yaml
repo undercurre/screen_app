@@ -43,7 +43,7 @@ dependencies:
   dio: ^4.0.6
   encrypt: ^5.0.1
   archive: ^3.3.2
-  qr_flutter: ^4.0.0
+  qr_flutter: 4.0.0
   crypto: ^3.0.2
   intl: ^0.17.0
   flutter_dotenv: ^5.0.2
@@ -111,6 +111,7 @@ flutter:
     - assets/newUI/weather/
     - assets/newUI/device/
     - assets/newUI/scene/
+    - assets/newUI/login/
     - assets/
     - .sit.env
     - .prod.env
