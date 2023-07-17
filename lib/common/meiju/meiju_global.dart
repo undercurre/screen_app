@@ -19,33 +19,25 @@ class MeiJuGlobal {
   static late SharedPreferences _prefs;
 
   /// 家庭数据
-  static const HOMLUX_FAMILY_INFO = 'meiju_family_info';
-
+  static const MEIJU_FAMILY_INFO = 'meiju_family_info';
   /// 房间数据
-  static const HOMLUX_ROOM_INFO = 'meiju_room_info';
-
+  static const MEIJU_ROOM_INFO = 'meiju_room_info';
   /// 用户数据
-  static const HOMLUX_USER_INFO = 'meiju_user_info';
-
+  static const MEIJU_USER_INFO = 'meiju_user_info';
   /// 登录令牌
-  static const HOMLUX_TOKEN = 'meiju_token';
-
+  static const MEIJU_TOKEN = 'meiju_token';
   /// 思必驰语音Token
-  static const HOMLUX_AI_TOKEN = 'meiju_ai_token';
+  static const MEIJU_AI_TOKEN = 'meiju_ai_token';
   /// 网关设备id
-  static const HOMLUX_GATEWAY_DEVICE_ID = 'meiju_gateway_device_id';
+  static const MEIJU_GATEWAY_DEVICE_ID = 'meiju_gateway_device_id';
   /// 网关SN
-  static const HOMLUX_GATEWAY_SN = 'meiju_gateway_sn';
+  static const MEIJU_GATEWAY_SN = 'meiju_gateway_sn';
 
   static MeiJuTokenEntity? _token;
-  /// 登录的家庭
   static MeiJuHomeInfoEntity? _homeEntity;
-  /// 登录的房间
   static MeiJuRoomEntity? _roomEntity;
-  /// 屏下网关的deviceId -- 登录之后才会返回
-  static String? _gatewayApplianceCode;
-  /// 屏下网关的sn
-  static String? _gatewaySn;
+  static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
+  static String? _gatewaySn;  // 屏下网关的sn
 
   MeiJuGlobal._();
 
@@ -53,54 +45,56 @@ class MeiJuGlobal {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     _prefs = await SharedPreferences.getInstance();
-    _roomEntity = _$parseToJsonByCache(_prefs, HOMLUX_ROOM_INFO);
-    _homeEntity = _$parseToJsonByCache(_prefs, HOMLUX_FAMILY_INFO);
-    _token = _$parseToJsonByCache(_prefs, HOMLUX_USER_INFO);
-    _gatewayApplianceCode = _prefs.getString(HOMLUX_GATEWAY_DEVICE_ID);
-    _gatewaySn = _prefs.getString(HOMLUX_GATEWAY_SN);
+    _roomEntity = _$parseToJsonByCache(_prefs, MEIJU_ROOM_INFO);
+    _homeEntity = _$parseToJsonByCache(_prefs, MEIJU_FAMILY_INFO);
+    _token = _$parseToJsonByCache(_prefs, MEIJU_USER_INFO);
+    _gatewayApplianceCode = _prefs.getString(MEIJU_GATEWAY_DEVICE_ID);
+    _gatewaySn = _prefs.getString(MEIJU_GATEWAY_SN);
   }
 
   static String? get gatewayApplianceCode =>  _gatewayApplianceCode;
 
   static set gatewayApplianceCode(String? applianceCode) {
     _gatewayApplianceCode = applianceCode;
-    _prefs.setString(HOMLUX_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
+    _prefs.setString(MEIJU_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
   }
 
   static Future<String?> get gatewaySn async {
-    if(_gatewaySn != null) {
+    if(StrUtils.isNotNullAndEmpty(_gatewaySn)) {
       // 获取Sn时更新
       aboutSystemChannel.getGatewaySn().then((value) {
         if(value != null) {
           _gatewaySn = value;
+          _prefs.setString(MEIJU_GATEWAY_SN, value);
         }
       });
       return _gatewaySn;
     } else {
-      return _gatewaySn = await aboutSystemChannel.getGatewaySn();
+      _gatewaySn = await aboutSystemChannel.getGatewaySn();
+      _prefs.setString(MEIJU_GATEWAY_SN, _gatewaySn ?? '');
+      return _gatewaySn;
     }
-
   }
 
   static MeiJuHomeInfoEntity? get homeInfo => _homeEntity;
 
   static set homeInfo(MeiJuHomeInfoEntity? homeInfo) {
     _homeEntity = homeInfo;
-    _prefs.setString(HOMLUX_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
+    _prefs.setString(MEIJU_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
   }
 
   static MeiJuRoomEntity? get roomInfo => _roomEntity;
 
   static set roomInfo(MeiJuRoomEntity? roomInfo) {
     _roomEntity = roomInfo;
-    _prefs.setString(HOMLUX_TOKEN, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
+    _prefs.setString(MEIJU_TOKEN, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
   }
 
   static MeiJuTokenEntity? get token => _token;
 
   static set token(MeiJuTokenEntity? tokenEntity) {
     _token = tokenEntity;
-    _prefs.setString(HOMLUX_TOKEN, tokenEntity == null ? '' : jsonEncode(tokenEntity.toJson()));
+    _prefs.setString(MEIJU_TOKEN, tokenEntity == null ? '' : jsonEncode(tokenEntity.toJson()));
   }
 
   /// 是否登录

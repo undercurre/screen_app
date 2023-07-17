@@ -4,7 +4,7 @@ import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_member_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 
-import '../HomluxGlobal.dart';
+import '../homlux_global.dart';
 import '../models/homlux_bind_device_entity.dart';
 import '../models/homlux_qr_code_auth_entity.dart';
 import '../models/homlux_qr_code_entity.dart';

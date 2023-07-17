@@ -2,7 +2,7 @@ import 'dart:core';
 import 'dart:math';
 
 import '../../logcat_helper.dart';
-import '../HomluxGlobal.dart';
+import '../homlux_global.dart';
 import '../models/homlux_scene_entity.dart';
 import '../models/homlux_response_entity.dart';
 import '../../../routes/home/scene/scene.dart';

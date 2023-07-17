@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:screen_app/common/homlux/HomluxGlobal.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/models/homlux_qr_code_auth_entity.dart';
 import 'package:uuid/uuid.dart';
 

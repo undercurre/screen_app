@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../channel/index.dart';
 import '../utils.dart';
 import 'models/homlux_dui_token_entity.dart';
 import 'models/homlux_family_entity.dart';
@@ -28,10 +29,20 @@ class HomluxGlobal {
   /// 思必驰语音Token
   static const HOMLUX_AI_TOKEN = 'homlux_ai_token';
 
+  /// 网关设备id
+  static const HOMLUX_GATEWAY_DEVICE_ID = 'meiju_gateway_device_id';
+
+  /// 网关SN
+  static const HOMLUX_GATEWAY_SN = 'meiju_gateway_sn';
+
   static HomluxFamilyEntity? _homluxHomeInfo;
   static HomluxRoomInfo? _homluxRoomInfo;
   static HomluxQrCodeAuthEntity? _homluxQrCodeAuthEntity;
   static HomluxDuiTokenEntity? _aiToken;
+  static String? _gatewaySn;  // 屏下网关的sn
+  static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
+
+  HomluxGlobal._();
 
 
   static Future<void> init() async {
@@ -42,6 +53,33 @@ class HomluxGlobal {
     _homluxRoomInfo = _$parseToJsonByCache(_prefs, HOMLUX_ROOM_INFO);
     _homluxQrCodeAuthEntity = _$parseToJsonByCache(_prefs, HOMLUX_TOKEN);
     _aiToken = _$parseToJsonByCache(_prefs, HOMLUX_AI_TOKEN);
+    _gatewaySn = _prefs.getString(HOMLUX_GATEWAY_SN);
+    _gatewayApplianceCode = _prefs.getString(HOMLUX_GATEWAY_DEVICE_ID);
+  }
+
+
+  static String? get gatewayApplianceCode =>  _gatewayApplianceCode;
+
+  static set gatewayApplianceCode(String? applianceCode) {
+    _gatewayApplianceCode = applianceCode;
+    _prefs.setString(HOMLUX_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
+  }
+
+  static Future<String?> get gatewaySn async {
+    if(StrUtils.isNotNullAndEmpty(_gatewaySn)) {
+      // 获取Sn时更新
+      aboutSystemChannel.getGatewaySn().then((value) {
+        if(value != null) {
+          _gatewaySn = value;
+          _prefs.setString(HOMLUX_GATEWAY_SN, value);
+        }
+      });
+      return _gatewaySn;
+    } else {
+      _gatewaySn = await aboutSystemChannel.getGatewaySn();
+      _prefs.setString(HOMLUX_GATEWAY_SN, _gatewaySn ?? '');
+      return _gatewaySn;
+    }
   }
 
   static HomluxFamilyEntity? get homluxHomeInfo {
@@ -79,6 +117,7 @@ class HomluxGlobal {
     _aiToken = aiToken;
     _prefs.setString(HOMLUX_AI_TOKEN, aiToken != null ? jsonEncode(aiToken.toJson()) : '' );
   }
+
 
   /// 是否已经登录
   static bool get isLogin => _homluxQrCodeAuthEntity != null;
