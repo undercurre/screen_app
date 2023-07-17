@@ -131,7 +131,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
 
   /// ### 轮询查询授权状态接口
   void updateLoginStatus() async {
-    var delaySec = 1; // 2s轮询间隔
+    var delaySec = 2; // 2s轮询间隔
     if (qrCodeEntity == null) {
       updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
         updateLoginStatus();
