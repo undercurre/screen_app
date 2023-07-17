@@ -258,10 +258,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
-                              resultData = Layout(devices[index].applianceCode,
+                              resultData = Layout(
+                                  devices[index].applianceCode,
                                   getDeviceEntityType(devices[index].type,
                                       devices[index].modelNumber),
-                                  CardType.Small, -1, [], null);
+                                  CardType.Small,
+                                  -1,
+                                  [],
+                                  null);
                               Navigator.pop(context, resultData);
                             },
                             child: Stack(
@@ -286,11 +290,25 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                           return CardDialog(
                                             name: devices[index].name,
                                             type: devices[index].type,
-                                            modelNumber: devices[index].modelNumber,
+                                            modelNumber:
+                                            devices[index].modelNumber,
                                             roomName: devices[index].roomName!,
                                           );
                                         },
-                                      )
+                                      ).then(
+                                            (value) {
+                                          resultData = Layout(
+                                              devices[index].applianceCode,
+                                              getDeviceEntityType(
+                                                  devices[index].type,
+                                                  devices[index].modelNumber),
+                                              value,
+                                              -1,
+                                              [],
+                                              null);
+                                          Navigator.pop(context, resultData);
+                                        },
+                                      ),
                                     },
                                     online: true,
                                     isFault: false,
@@ -314,7 +332,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   ),
                                 ),
                               ],
-                            ),);
+                            ),
+                          );
                         },
                       ),
                       GridView.builder(
@@ -327,17 +346,19 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
-                              resultData = Layout(scenes[index].sceneId,
-                                  DeviceEntityTypeInP4.Scene, CardType.Small,
+                              resultData = Layout(
+                                  scenes[index].sceneId,
+                                  DeviceEntityTypeInP4.Scene,
+                                  CardType.Small,
                                   -1, [], {
-                                    'name': scenes[index].name,
-                                    'icon': Image(
-                                      image: AssetImage(
-                                          'assets/newUI/scene/${scenes[index]
-                                              .image}.png'),
-                                    ),
-                                    'onOff': false,
-                                  });
+                                'name': scenes[index].name,
+                                'icon': Image(
+                                  image: AssetImage(
+                                      'assets/newUI/scene/${scenes[index]
+                                          .image}.png'),
+                                ),
+                                'onOff': false,
+                              });
                               Navigator.pop(context, resultData);
                             },
                             child: Stack(
