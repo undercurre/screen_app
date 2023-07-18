@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
@@ -185,17 +186,21 @@ class SelectFamilyDataAdapter extends MideaDataAdapter {
       HomluxFamilyEntity homluxFamilyEntity =
           entity.homluxData as HomluxFamilyEntity;
       var res = await HomluxUserApi.queryHouseAuth(homluxFamilyEntity.houseId);
-      return res.isSuccess && (res.data?.isTourist() ?? false);
+      if (res.isSuccess && (res.data?.isTourist() == true)) {
+        TipsUtils.toast(content: '抱歉，访客身份不可授权此家庭');
+      }
+      return res.isSuccess && (res.data?.isTourist() == false);
     } else if (platform.inMeiju()) {
-      MeiJuHomeInfoEntity meiJuHomeInfoEntity =
-          entity.meijuData as MeiJuHomeInfoEntity;
+      MeiJuHomeInfoEntity meiJuHomeInfoEntity = entity.meijuData as MeiJuHomeInfoEntity;
       /// 延时一秒再返回
-      return Future.delayed(const Duration(seconds: 1),
-          () => meiJuHomeInfoEntity.roleId == '1003');
+      return Future.delayed(const Duration(seconds: 1), () {
+        if (meiJuHomeInfoEntity.roleId == '1003') {
+          TipsUtils.toast(content: '抱歉，成员身份不可授权此家庭');
+        }
+        return meiJuHomeInfoEntity.roleId != '1003';
+      });
     }
     Log.file("请求异常");
     return null;
   }
-
-
 }
