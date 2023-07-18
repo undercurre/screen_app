@@ -1,46 +1,45 @@
 import 'package:flutter/material.dart';
 
-import '../../common/index.dart';
-import '../../models/index.dart';
+import '../../common/adapter/select_family_data_adapter.dart';
+import '../../common/gateway_platform.dart';
 import '../index.dart';
 
 class _SelectHome extends State<SelectHome> {
-  List<HomeEntity> homeList = [];
-
-  String _homeId = '';
+  SelectFamilyDataAdapter? familyDataAd;
+  int selectVal = -1;
 
   @override
   Widget build(BuildContext context) {
     var listView = <Widget>[];
-    for (var i = 0; i < homeList.length; i++) {
-      var item = homeList[i];
-      var addressList = item.address.split(' ');
+
+    var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
+    for (var i = 0; i < len; i++) {
+      var item = familyDataAd?.familyListEntity?.familyList[i];
 
       listView.add(
         MzCell(
             height: 99,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            title: item.name,
+            title: item?.familyName,
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             titleSize: 24,
             descSize: 18,
             tag: '创建',
             bgColor: Colors.transparent,
             hasTopBorder: false,
-            hasBottomBorder: i + 1 != homeList.length + 1,
+            hasBottomBorder: i + 1 != len + 1,
             desc:
-                '房间${item.roomCount}  |  设备${item.applianceCount}  |  成员${item.memberCount}  |  ${addressList.last}',
+                '房间${item?.roomNum}  |  设备${item?.deviceNum}  |  成员${item?.userNum}',
             onTap: () {
               setState(() {
-                _homeId = item.homegroupId;
+                selectVal = i;
               });
-
-              widget.onChange?.call(item);
+              checkAndSelect(item!);
             },
-            rightSlot: MzRadio<String>(
+            rightSlot: MzRadio<int>(
               activeColor: const Color.fromRGBO(0, 145, 255, 1),
-              value: item.homegroupId,
-              groupValue: _homeId,
+              value: i,
+              groupValue: selectVal,
             )),
       );
     }
@@ -77,30 +76,37 @@ class _SelectHome extends State<SelectHome> {
   void initState() {
     super.initState();
 
-    _homeId = widget.value;
-    getHomeListData();
+    familyDataAd = SelectFamilyDataAdapter(MideaRuntimePlatform.platform);
+    familyDataAd?.bindDataUpdateFunction(() {
+      setState(() {});
+    });
+    familyDataAd?.queryFamilyList();
   }
 
-  /// 获取家庭列表数据
-  void getHomeListData() async {
-    var res = await UserApi.getHomeListFromMidea();
-
-    if (res.isSuccess) {
-      setState(() {
-        homeList = res.data.homeList;
-      });
-    }
+  @override
+  void dispose() {
+    super.dispose();
+    familyDataAd?.destroy();
+    familyDataAd = null;
   }
+
+  void checkAndSelect(SelectFamilyItem item) {
+    familyDataAd?.queryHouseAuth(item).then((isAuth) {
+      if (isAuth == true) {
+        widget.onChange?.call(item);
+      }
+    });
+
+  }
+
 }
 
 class SelectHome extends StatefulWidget {
-  // 默认选择的家庭id
-  final String value;
 
   /// 家庭变更事件
-  final ValueChanged<HomeEntity>? onChange;
+  final ValueChanged<SelectFamilyItem>? onChange;
 
-  const SelectHome({super.key, this.value = '', this.onChange});
+  const SelectHome({super.key, this.onChange});
 
   @override
   State<SelectHome> createState() => _SelectHome();

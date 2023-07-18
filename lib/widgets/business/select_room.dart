@@ -1,42 +1,43 @@
 import 'package:flutter/material.dart';
 
-import '../../common/index.dart';
-import '../../models/index.dart';
+import '../../common/adapter/select_room_data_adapter.dart';
+import '../../common/gateway_platform.dart';
+import '../../common/system.dart';
 import '../index.dart';
 
 class _SelectRoom extends State<SelectRoom> {
-  var roomList = <RoomEntity>[];
-
-  String _roomId = '';
+  SelectRoomDataAdapter? roomDataAd;
+  int selectVal = -1;
 
   @override
   Widget build(BuildContext context) {
     var listView = <Widget>[];
-    for (var i = 0; i < roomList.length; i++) {
-      var item = roomList[i];
 
+    var len = roomDataAd?.familyListEntity?.familyList.length ?? 0;
+    for (var i = 0; i < len; i++) {
+      var item = roomDataAd?.familyListEntity?.familyList[i];
       listView.add(MzCell(
         height: 99,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        title: item.name,
+        title: item?.name,
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
         titleSize: 24,
         descSize: 18,
         bgColor: Colors.transparent,
-        desc: '设备${item.applianceList.length}',
+        desc: '设备${item?.deviceNum}',
         hasTopBorder: false,
-        hasBottomBorder: i + 1 != roomList.length + 1,
-        rightSlot: MzRadio<String>(
+        hasBottomBorder: i + 1 != len + 1,
+        rightSlot: MzRadio<int>(
           activeColor: const Color.fromRGBO(0, 145, 255, 1),
-          value: item.roomId!,
-          groupValue: _roomId,
+          value: i,
+          groupValue: selectVal,
         ),
         onTap: () {
           setState(() {
-            _roomId = item.roomId!;
+            selectVal = i;
           });
 
-          widget.onChange?.call(item);
+          widget.onChange?.call(item!);
         },
       ));
     }
@@ -66,39 +67,26 @@ class _SelectRoom extends State<SelectRoom> {
         ),
         child: Column(children: [
           Expanded(child: homeListView),
-        ]));;
+        ]));
   }
 
   @override
   void initState() {
     super.initState();
 
-    _roomId = widget.value;
-    getHomeData();
-  }
-
-  /// 获取指定家庭信息
-  void getHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
-
-    if (res.isSuccess) {
-      setState(() {
-        var homeInfo = res.data.homeList[0];
-        roomList = homeInfo.roomList ?? [];
-      });
-    }
+    roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    roomDataAd?.bindDataUpdateFunction(() {
+      setState(() {});
+    });
+    roomDataAd?.queryRoomList(System.familyInfo!);
   }
 }
 
 class SelectRoom extends StatefulWidget {
-  // 默认选择的房间id
-  final String value;
-
   /// 房间变更事件
-  final ValueChanged<RoomEntity>? onChange;
+  final ValueChanged<SelectRoomItem>? onChange;
 
-  const SelectRoom({super.key, this.value = '', this.onChange});
+  const SelectRoom({super.key, this.onChange});
 
   @override
   State<SelectRoom> createState() => _SelectRoom();

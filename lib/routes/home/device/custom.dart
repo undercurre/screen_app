@@ -127,9 +127,8 @@ class _CustomPageState extends State<CustomPage> {
                                   int grid =
                                       layoutsInCurPage[layoutInCurPageIndex]
                                           .grids[gridsIndex];
-                                  int row = grid ~/ 4;
-                                  int col =
-                                      grid % 4 - 1 != -1 ? grid % 4 - 1 : 3;
+                                  int row = (grid - 1) ~/ 4;
+                                  int col = (grid - 1) % 4;
                                   screenLayer.setCellOccupied(row, col, true);
                                 }
                               }
@@ -141,8 +140,7 @@ class _CustomPageState extends State<CustomPage> {
                               List<int> fillCells = screenLayer
                                   .checkAvailability(result.cardType);
                               logger.i('新卡片占位尝试结果', fillCells);
-                              if (arrHasPosition.length == 16 &&
-                                  fillCells.isNotEmpty) {
+                              if (fillCells.isEmpty) {
                                 logger.i('屏幕被占满或放不下');
                                 // 屏幕占满或放不下就放到最后一页
                                 int maxPage = layoutModel.getMaxPageIndex();
