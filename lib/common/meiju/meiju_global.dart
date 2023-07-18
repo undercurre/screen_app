@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils.dart';
 import 'models/meiju_home_info_entity.dart';
@@ -15,8 +14,6 @@ class MeiJuGlobal {
 
   /// 是否为release版本
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
-
-  static late SharedPreferences _prefs;
 
   /// 家庭数据
   static const MEIJU_FAMILY_INFO = 'meiju_family_info';
@@ -44,19 +41,18 @@ class MeiJuGlobal {
 
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    _prefs = await SharedPreferences.getInstance();
-    _roomEntity = _$parseToJsonByCache(_prefs, MEIJU_ROOM_INFO);
-    _homeEntity = _$parseToJsonByCache(_prefs, MEIJU_FAMILY_INFO);
-    _token = _$parseToJsonByCache(_prefs, MEIJU_USER_INFO);
-    _gatewayApplianceCode = _prefs.getString(MEIJU_GATEWAY_DEVICE_ID);
-    _gatewaySn = _prefs.getString(MEIJU_GATEWAY_SN);
+    _roomEntity = await _$parseToJsonByCache(MEIJU_ROOM_INFO);
+    _homeEntity = await _$parseToJsonByCache(MEIJU_FAMILY_INFO);
+    _token = await _$parseToJsonByCache(MEIJU_USER_INFO);
+    _gatewayApplianceCode = await LocalStorage.getItem(MEIJU_GATEWAY_DEVICE_ID);
+    _gatewaySn = await LocalStorage.getItem(MEIJU_GATEWAY_SN);
   }
 
   static String? get gatewayApplianceCode =>  _gatewayApplianceCode;
 
   static set gatewayApplianceCode(String? applianceCode) {
     _gatewayApplianceCode = applianceCode;
-    _prefs.setString(MEIJU_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
+    LocalStorage.setItem(MEIJU_GATEWAY_DEVICE_ID, _gatewayApplianceCode ?? '');
   }
 
   static Future<String?> get gatewaySn async {
@@ -65,13 +61,13 @@ class MeiJuGlobal {
       aboutSystemChannel.getGatewaySn().then((value) {
         if(value != null) {
           _gatewaySn = value;
-          _prefs.setString(MEIJU_GATEWAY_SN, value);
+          LocalStorage.setItem(MEIJU_GATEWAY_SN, value);
         }
       });
       return _gatewaySn;
     } else {
       _gatewaySn = await aboutSystemChannel.getGatewaySn();
-      _prefs.setString(MEIJU_GATEWAY_SN, _gatewaySn ?? '');
+      LocalStorage.setItem(MEIJU_GATEWAY_SN, _gatewaySn ?? '');
       return _gatewaySn;
     }
   }
@@ -80,21 +76,21 @@ class MeiJuGlobal {
 
   static set homeInfo(MeiJuHomeInfoEntity? homeInfo) {
     _homeEntity = homeInfo;
-    _prefs.setString(MEIJU_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
+    LocalStorage.setItem(MEIJU_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
   }
 
   static MeiJuRoomEntity? get roomInfo => _roomEntity;
 
   static set roomInfo(MeiJuRoomEntity? roomInfo) {
     _roomEntity = roomInfo;
-    _prefs.setString(MEIJU_TOKEN, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
+    LocalStorage.setItem(MEIJU_TOKEN, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
   }
 
   static MeiJuTokenEntity? get token => _token;
 
   static set token(MeiJuTokenEntity? tokenEntity) {
     _token = tokenEntity;
-    _prefs.setString(MEIJU_TOKEN, tokenEntity == null ? '' : jsonEncode(tokenEntity.toJson()));
+    LocalStorage.setItem(MEIJU_TOKEN, tokenEntity == null ? '' : jsonEncode(tokenEntity.toJson()));
   }
 
   /// 是否登录
@@ -111,8 +107,8 @@ class MeiJuGlobal {
 }
 
 /// 使用注意 ** 使用此方法解析的对象类型，一定是注册在homluxJsonConvert中，不然报错
-T? _$parseToJsonByCache<T>(SharedPreferences preferences, String key) {
-  String? jsonStr = preferences.getString(key);
+Future<T?> _$parseToJsonByCache<T>(String key) async {
+  String? jsonStr = await LocalStorage.getItem(key);
   if (StrUtils.isNullOrEmpty(jsonStr)) return null;
   return meijuJsonConvert.convert(jsonDecode(jsonStr!));
 }

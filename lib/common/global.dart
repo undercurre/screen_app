@@ -14,7 +14,7 @@ import '../models/index.dart';
 import 'api/index.dart';
 import 'utils.dart';
 
-
+@Deprecated('废弃API请误使用到项目重')
 class FileOutput extends LogOutput {
   final File file;
   final bool overrideExisting;
@@ -51,6 +51,7 @@ class FileOutput extends LogOutput {
 }
 
 /// 日志打印工具
+@Deprecated('废弃API请使用Log.xx方法')
 var logger = Logger(
   filter: ProductionFilter(),
   printer: PrettyPrinter(printTime: true),
@@ -65,6 +66,7 @@ var logger = Logger(
   level: Level.info
 );
 
+@Deprecated("废弃API请使用System")
 class Global {
   // 是否为release版
   static bool get isRelease => const bool.fromEnvironment("dart.vm.product");
@@ -163,9 +165,6 @@ class Global {
 
   ///全局靠近唤醒
   static bool nearWakeup = true;
-
-  ///使用的iot平台，0=美居，1=homlux
-  static int? iotPlatform;
 }
 
 /// 全局路由监听

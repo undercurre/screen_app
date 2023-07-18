@@ -11,6 +11,7 @@ import '../helper.dart';
 import '../homlux/models/homlux_family_entity.dart';
 import '../homlux/models/homlux_room_list_entity.dart';
 import '../logcat_helper.dart';
+import '../meiju/meiju_global.dart';
 import '../meiju/models/meiju_home_info_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
 
@@ -49,7 +50,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
       MeiJuHomeInfoEntity familyEntity =
           selectFamily.meijuData as MeiJuHomeInfoEntity;
       MeiJuRoomEntity roomEntity = selectRoom.meijuData as MeiJuRoomEntity;
-      String seed = '';
+      String seed = MeiJuGlobal.token?.seed ?? '';
       var sn = await aboutSystemChannel.getGatewaySn(true, seed);
       var res = await MeiJuUserApi.bindHome(
           sn: sn!,
@@ -69,15 +70,16 @@ class BindGatewayAdapter extends MideaDataAdapter {
       var res = await HomluxUserApi.bindDevice('智慧屏', homeId, roomId, sn!, deviceType);
       return res.isSuccess && res.result?.isBind == true;
     } else {
-      throw Exception('No No No 错误平台');
+      var exception = Exception('No No No 错误平台');
+      Log.file("错误平台", exception, StackTrace.current);
+      throw exception;
     }
   }
 
   /// bool 是否绑定
   /// String? 网关云ID
   Future<Pair<bool, String?>> _meijuCheck(String homeId) async {
-    // Todo 传入当前的Seed密钥
-    String seed = '';
+    String seed = MeiJuGlobal.token?.seed ?? '';
     var sn = await aboutSystemChannel.getGatewaySn(true, seed); //获取加密sn
     var res = await MeiJuUserApi.getHomeDetail(homegroupId: homeId);
 

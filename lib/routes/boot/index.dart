@@ -24,7 +24,7 @@ class _Boot extends State<Boot> {
       String version = await aboutSystemChannel.getAppVersion();
       if(flavor == 'LD' || flavor == 'JH') {
         if(version == '0120' && !Setting.instant().checkVersionCompatibility(version)) {
-          if(!Global.isLogin) {
+          if(!System.isLogin()) {
             Future.delayed(Duration.zero).then((_) {
               Navigator.pushNamed(context, 'MigrationOldVersionDataPage');
             });
@@ -62,9 +62,9 @@ class _Boot extends State<Boot> {
   /// 启动完成
   void bootFinish() {
     debugPrint('bootFinish trigger');
-    var isFinishLogin = Global.isLogin &&
-        Global.profile.homeInfo != null &&
-        Global.profile.roomInfo != null;
+    var isFinishLogin = System.isLogin() &&
+        System.familyInfo != null &&
+        System.roomInfo != null;
 
     Navigator.pushNamed(
       context,

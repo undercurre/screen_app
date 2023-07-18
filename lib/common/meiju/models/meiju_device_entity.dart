@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:screen_app/generated/json/base/json_field.dart';
 
-import 'device_entity.g.dart';
+import 'meiju_device_entity.g.dart';
 
 @JsonSerializable()
 class MeiJuDeviceEntity {

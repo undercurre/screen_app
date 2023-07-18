@@ -16,7 +16,7 @@ class MeiJuUserApi {
     MeiJuResponseEntity<MeiJuQrCodeEntity> res =
         await MeiJuApi.requestMideaIot<MeiJuQrCodeEntity>(
             "/muc/v5/app/mj/screen/auth/getQrCode",
-            data: {'deviceId': Global.profile.deviceId, 'checkType': 1},
+            data: {'deviceId': System.deviceId, 'checkType': 1},
             options: Options(method: 'POST'));
     return res;
   }

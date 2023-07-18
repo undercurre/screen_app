@@ -23,7 +23,7 @@ void main() async {
   await setupConfig();
   /// 初始化intl库的日期
   await initializeDateFormatting('zh_CN');
-  Global.init().then((e) async {
+  System.globalInit().then((e) async {
     /// 初始化Native配置
     buildChannel();
     configChannel.initNativeConfig(const String.fromEnvironment('env'));

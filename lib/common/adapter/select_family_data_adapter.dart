@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
 import '../homlux/models/homlux_family_entity.dart';
+import '../logcat_helper.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
 import '../meiju/models/meiju_home_info_entity.dart';
 
@@ -28,14 +31,12 @@ class SelectFamilyItem {
   MeiJuHomeInfoEntity? _meijuData;
   HomluxFamilyEntity? _homluxData;
 
-
   SelectFamilyItem.fromMeiJu(MeiJuHomeInfoEntity data)
       : familyName = data.name ?? '',
         roomNum = data.roomCount ?? "0",
         deviceNum = data.applianceCount ?? "0",
         userNum = data.memberCount ?? '0',
-        houseCreatorFlag = false
-  {
+        houseCreatorFlag = false {
     _meijuData = data;
   }
 
@@ -44,8 +45,7 @@ class SelectFamilyItem {
         roomNum = '${data.roomNum}',
         deviceNum = '${data.deviceNum}',
         userNum = '${data.userNum}',
-        houseCreatorFlag = data.houseCreatorFlag
-  {
+        houseCreatorFlag = data.houseCreatorFlag {
     _homluxData = data;
   }
 
@@ -54,8 +54,8 @@ class SelectFamilyItem {
   /// 意义：方便对UI层的数据快速持久化
   factory SelectFamilyItem.fromJson(Map<String, dynamic> json) {
     if (json['_homluxData'] != null) {
-      return SelectFamilyItem.fromHomlux(homluxJsonConvert
-          .convert<HomluxFamilyEntity>(json['_homluxData'])!);
+      return SelectFamilyItem.fromHomlux(
+          homluxJsonConvert.convert<HomluxFamilyEntity>(json['_homluxData'])!);
     } else if (json['_meijuData'] != null) {
       return SelectFamilyItem.fromMeiJu(
           meijuJsonConvert.convert<MeiJuHomeInfoEntity>(json['_meijuData'])!);
@@ -87,7 +87,6 @@ class SelectFamilyItem {
   dynamic get homluxData {
     return _homluxData;
   }
-
 }
 
 class SelectFamilyListEntity {
@@ -112,10 +111,12 @@ class SelectFamilyListEntity {
   factory SelectFamilyListEntity.fromJson(Map<String, dynamic> json) {
     if (json['_homluxData'] != null) {
       return SelectFamilyListEntity.fromHomlux(homluxJsonConvert
-              .convertListNotNull<HomluxFamilyEntity>(json['_homluxData']) ?? []);
+              .convertListNotNull<HomluxFamilyEntity>(json['_homluxData']) ??
+          []);
     } else if (json['_meijuData'] != null) {
-      return SelectFamilyListEntity.fromMeiJu(
-          meijuJsonConvert.convertListNotNull<MeiJuHomeInfoEntity>(json['_meijuData']) ?? []);
+      return SelectFamilyListEntity.fromMeiJu(meijuJsonConvert
+              .convertListNotNull<MeiJuHomeInfoEntity>(json['_meijuData']) ??
+          []);
     } else {
       throw UnimplementedError(
           "失败：fromJson解析QRCodeEntity失败 解析的数据为：${const JsonEncoder().convert(json)}");
@@ -176,4 +177,30 @@ class SelectFamilyDataAdapter extends MideaDataAdapter {
     updateUI();
   }
 
+  /// 查询家庭是否有权限登录
+  /// null 查询失败
+  /// false 没有权限登录
+  /// true 有权限登录
+  Future<bool?> queryHouseAuth(SelectFamilyItem entity) async {
+    if (platform.inHomlux()) {
+      HomluxFamilyEntity homluxFamilyEntity =
+          entity.homluxData as HomluxFamilyEntity;
+      var res = await HomluxUserApi.queryHouseAuth(homluxFamilyEntity.houseId);
+      if (res.isSuccess && (res.data?.isTourist() == true)) {
+        TipsUtils.toast(content: '抱歉，访客身份不可授权此家庭');
+      }
+      return res.isSuccess && (res.data?.isTourist() == false);
+    } else if (platform.inMeiju()) {
+      MeiJuHomeInfoEntity meiJuHomeInfoEntity = entity.meijuData as MeiJuHomeInfoEntity;
+      /// 延时一秒再返回
+      return Future.delayed(const Duration(seconds: 1), () {
+        if (meiJuHomeInfoEntity.roleId == '1003') {
+          TipsUtils.toast(content: '抱歉，成员身份不可授权此家庭');
+        }
+        return meiJuHomeInfoEntity.roleId != '1003';
+      });
+    }
+    Log.file("请求异常");
+    return null;
+  }
 }

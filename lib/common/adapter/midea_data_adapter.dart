@@ -54,7 +54,7 @@ abstract class MideaDataAdapter {
 
   /// 销毁Adapter
   void destroy() {
-
+    clearBindDataUpdateFunction();
   }
 
 }

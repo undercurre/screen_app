@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
 
 import '../homlux/api/homlux_user_api.dart';
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
@@ -22,11 +24,13 @@ class QRCodeEntity {
   QRCodeEntity.fromHomlux(HomluxQrCodeEntity data) {
     _homluxData = data;
     qrcode = "https://web.meizgd.com/homlux/qrCode.html?mode=10&code=${data.qrcode}&modelId=${System.PRODUCT}";
+    Log.i('二维码$qrcode');
   }
 
   QRCodeEntity.fromMeiJu(MeiJuQrCodeEntity data) {
     _meijuData = data;
     qrcode = "${data.shortUrl}?id=${System.PRODUCT}";
+    Log.i('二维码$qrcode');
   }
 
   MeiJuQrCodeEntity? _meijuData;
@@ -141,6 +145,8 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
         Log.i('授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
+        // 自动保存登录Token
+        MeiJuGlobal.token = res.data;
       } else {
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();
@@ -152,6 +158,8 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
         Log.i('授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
+        // 自动保存登录Token
+        HomluxGlobal.homluxQrCodeAuthEntity = res.data;
       } else {
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();
