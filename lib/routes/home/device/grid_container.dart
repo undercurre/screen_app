@@ -63,13 +63,13 @@ class Screen {
       } else {
         return [1, 2];
       }
-      if (isCellOccupied(1, 0) || isCellOccupied(1, 1)) {
-      } else {
-        return [5, 6];
-      }
       if (isCellOccupied(0, 2) || isCellOccupied(0, 3)) {
       } else {
         return [3, 4];
+      }
+      if (isCellOccupied(1, 0) || isCellOccupied(1, 1)) {
+      } else {
+        return [5, 6];
       }
       if (isCellOccupied(1, 2) || isCellOccupied(1, 3)) {
       } else {
@@ -79,13 +79,13 @@ class Screen {
       } else {
         return [9, 10];
       }
-      if (isCellOccupied(3, 0) || isCellOccupied(3, 1)) {
-      } else {
-        return [13, 14];
-      }
       if (isCellOccupied(2, 2) || isCellOccupied(2, 3)) {
       } else {
         return [11, 12];
+      }
+      if (isCellOccupied(3, 0) || isCellOccupied(3, 1)) {
+      } else {
+        return [13, 14];
       }
       if (isCellOccupied(3, 2) || isCellOccupied(3, 3)) {
       } else {

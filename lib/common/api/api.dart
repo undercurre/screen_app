@@ -314,14 +314,14 @@ class Api {
   static tryToRefresh() async {
     try {
       _lock.lock();
-      if(Global.isLogin) {
-        if(forceRefresh) {
-          forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
-          Global.saveProfile();
-        } else if(isWillLoginExpire) {
-          !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
-        }
-      }
+      // if(Global.isLogin) {
+      //   if(forceRefresh) {
+      //     forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
+      //     Global.saveProfile();
+      //   } else if(isWillLoginExpire) {
+      //     !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
+      //   }
+      // }
     } finally{
       _lock.unlock();
     }
