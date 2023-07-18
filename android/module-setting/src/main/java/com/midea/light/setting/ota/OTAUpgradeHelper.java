@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.midea.light.BaseApplication;
+import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.ld.setting.BuildConfig;
 import com.midea.light.log.LogUtil;
@@ -152,7 +153,7 @@ public class OTAUpgradeHelper {
 
             UpgradeConfig direct = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext())))
+                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
                     .withSn(_void-> gatewaySn)
@@ -173,7 +174,7 @@ public class OTAUpgradeHelper {
 
             UpgradeConfig normal = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext())))
+                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
                     .withExecutorService(executorService)

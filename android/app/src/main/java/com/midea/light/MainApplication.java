@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.aispeech.dca.DcaConfig;
 import com.aispeech.dca.DcaSdk;
 import com.midea.light.basic.BuildConfig;
+import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.config.GatewayConfig;
@@ -36,6 +37,8 @@ public class MainApplication extends BaseApplication {
     public static MainActivity mMainActivity;
     public static boolean standbyState=false;
 
+    public static GatewayPlatform gatewayPlatform = GatewayPlatform.NONE;
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
@@ -48,7 +51,7 @@ public class MainApplication extends BaseApplication {
         super.onCreate();
         // 初始化日志库
 
-        if(!ProcessUtil.isInMainProcess(this)){
+        if(!ProcessUtil.isInMainProcess(this)) {
             AliPushChannel.aliPushInit(this);
             return;
         }
@@ -103,30 +106,6 @@ public class MainApplication extends BaseApplication {
         //bss flush
 //        CommandExecution.execCommand("wpa_cli bss_flush", true);
 
-    }
-
-
-    private static String getProcessName(int pid) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader("/proc/" + pid + "/cmdline"));
-            String processName = reader.readLine();
-            if (!TextUtils.isEmpty(processName)) {
-                processName = processName.trim();
-            }
-            return processName;
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-        return null;
     }
 
 }

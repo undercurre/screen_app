@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.jhxs.ltmidea.tools.RelayControl;
 import com.midea.light.BaseApplication;
+import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.bean.SNCodeBean;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.gateway.GateWayRepository;
@@ -756,12 +757,12 @@ public class SystemUtil {
         return GatewayVersionUtil.getAppVersion(context);
     }
 
-    public static String getGatewayVersion() {
-        return GatewayVersionUtil.getGatewayVersion();
+    public static String getGatewayVersion(GatewayPlatform gatewayPlatform) {
+        return GatewayVersionUtil.getGatewayVersion(gatewayPlatform);
     }
 
-    public static String getSystemVersion(Context context) {
-        return GatewayVersionUtil.getSystemVersion(context);
+    public static String getSystemVersion(Context context, GatewayPlatform gatewayPlatform) {
+        return GatewayVersionUtil.getSystemVersion(context, gatewayPlatform);
     }
 
 }
