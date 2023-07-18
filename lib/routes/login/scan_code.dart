@@ -1,13 +1,10 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../channel/index.dart';
 import '../../common/adapter/qr_code_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
-import '../../common/logcat_helper.dart';
 
 class _ScanCode extends State<ScanCode> {
   QRCodeDataAdapter? qrDataAd;
@@ -62,9 +59,9 @@ class _ScanCode extends State<ScanCode> {
                   ),
                   Container(
                       margin: const EdgeInsets.only(top: 15),
-                      child: const Text(
-                        '请使用美居APP扫一扫',
-                        style: TextStyle(
+                      child: Text(
+                        MideaRuntimePlatform.platform == GatewayPlatform.MEIJU ? '请使用美居APP扫一扫' : "请使用美的照明小程序扫一扫",
+                        style: const TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w400,
                           color: Color.fromRGBO(255, 255, 255, 0.8),

@@ -3,15 +3,16 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/push.dart';
-import 'package:screen_app/models/index.dart';
-import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 
+import '../../common/adapter/bind_gateway_data_adapter.dart';
+import '../../common/adapter/select_family_data_adapter.dart';
+import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/logcat_helper.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
@@ -30,6 +31,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
   bool isNeedChoosePlatform = false;
+  bool isSelectOnce = false;
+  BindGatewayAdapter? bindGatewayAd;
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -48,10 +51,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       return;
     }
     if (stepNum == 3) {
-      Global.profile.homeInfo = null;
+      System.familyInfo = null;
     }
     if (stepNum == 4) {
-      Global.profile.roomInfo = null;
+      System.roomInfo = null;
     }
     setState(() {
       --stepNum;
@@ -66,16 +69,20 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
 
     if (stepNum == 3) {
-      if (Global.profile.homeInfo == null) {
+      if (System.familyInfo == null) {
         // 必须选择家庭信息才能进行下一步
-        TipsUtils.toast(content: '请选择家庭');
+        if (isSelectOnce) {
+          TipsUtils.toast(content: '该家庭无登陆权限，请重新选择');
+        } else {
+          TipsUtils.toast(content: '请选择家庭');
+        }
         return;
       }
     }
 
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步
-      if (Global.profile.roomInfo == null) {
+      if (System.roomInfo == null) {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
@@ -85,58 +92,21 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
-        Navigator.popAndPushNamed(context, 'Home');
-        GatewayApi.check((bind, code) {
-          if (!bind) {
-            UserApi.bindHome(
-                    sn: Global.profile.deviceSn ??
-                        Global.profile.deviceId ??
-                        '',
-                    applianceType: '0x16')
-                .then((bindRes) {
-              logger.i('绑定成功', bindRes);
-              if (!bindRes.isSuccess) {
-                TipsUtils.toast(content: '绑定家庭失败');
+        // 判断是否绑定网关
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
+          if (!isBind) {
+            // 绑定网关
+            bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
+              if (isSuccess) {
+                prepare2goHome();
               } else {
-                Timer(const Duration(seconds: 3), () {
-                  Navigator.pop(context);
-                  if (mounted) {
-                    setState(() {
-                      ++stepNum;
-                    });
-                  }
-                });
-                Timer(const Duration(seconds: 6), () {
-                  Global.saveProfile();
-                  //导航到新路由
-                  if (mounted) {
-                    Navigator.popAndPushNamed(context, 'Home');
-                    Push.sseInit();
-                  }
-                });
+                TipsUtils.toast(content: '绑定家庭失败');
               }
             });
           } else {
-            Timer(const Duration(seconds: 3), () {
-              Navigator.pop(context);
-              if (mounted) {
-                setState(() {
-                  ++stepNum;
-                });
-              }
-            });
-            Timer(const Duration(seconds: 6), () {
-              Global.profile.applianceCode = code;
-              Global.saveProfile();
-              //导航到新路由
-              if (mounted) {
-                Navigator.popAndPushNamed(context, 'Home');
-                Push.sseInit();
-              }
-            });
+            prepare2goHome();
           }
         }, () {
-          //接口请求报错
         });
       }
       return;
@@ -146,12 +116,31 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     });
   }
 
+  void prepare2goHome() {
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pop(context);
+      if (mounted) {
+        setState(() {
+          ++stepNum;
+        });
+      }
+    });
+    Timer(const Duration(seconds: 6), () {
+      //导航到新路由
+      if (mounted) {
+        Navigator.popAndPushNamed(context, 'Home');
+        Push.sseInit();
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
 
     // 初始化
-    if (Global.isLogin) {
+    if (System.isLogin()) {
       stepNum = 3;
     } else if (Platform.isAndroid && isConnected()) {
       stepNum = 2;
@@ -180,42 +169,36 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               ),
             ),
             const Expanded(child: LinkNetwork())
-          ])),
+          ])
+      ),
       Step(
           '扫码登录',
           Column(children: [
             Container(
                 margin: const EdgeInsets.only(top: 5),
                 child: ScanCode(onSuccess: nextStep)),
-          ])),
+          ])
+      ),
       Step(
           '选择家庭',
           SelectHome(
-              value: Global.profile.homeInfo?.homegroupId ?? '',
-              onChange: (HomeEntity home) {
+              onChange: (SelectFamilyItem home) {
                 debugPrint('Select: ${home.toJson()}');
-                Global.profile.homeInfo = home;
-              })),
+                isSelectOnce = true;
+                System.familyInfo = home;
+              })
+      ),
       Step(
           '选择房间',
           SelectRoom(
-              value: Global.profile.roomInfo?.roomId ?? '',
-              onChange: (RoomEntity room) {
+              onChange: (SelectRoomItem room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
-                Global.profile.roomInfo = room;
-                context.read<RoomModel>().roomInfo = room;
-              })),
+                System.roomInfo = room;
+              })
+      ),
     ];
 
     var stepItem = stepNum == 5 ? null : stepList[stepNum - 1];
-
-    var buttonStyle = TextButton.styleFrom(
-      backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      padding: const EdgeInsets.all(20.0),
-      textStyle: const TextStyle(
-          fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
-    );
 
     return Stack(
       children: [
@@ -251,7 +234,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                             color: Colors.white,
                           ),
                           Container(
-                            margin: EdgeInsets.only(top: 50),
+                            margin: const EdgeInsets.only(top: 50),
                             child: const Text(
                               '已成功绑定帐号',
                               style: TextStyle(fontSize: 24),
@@ -266,42 +249,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                               stepSum: stepList.length,
                               stepNum: stepNum,
                               title: stepItem!.title),
-                          Expanded(flex: 1, child: stepItem!.view),
-                          // Row(children: [
-                          //   if (stepNum > 1)
-                          //     Expanded(
-                          //         child: TextButton(
-                          //       style: buttonStyle,
-                          //       onPressed: () async {
-                          //         prevStep();
-                          //       },
-                          //       child: const Text('上一步',
-                          //           style: TextStyle(
-                          //             color: Color.fromRGBO(255, 255, 255, 0.85),
-                          //           )),
-                          //     )),
-                          //   if (stepNum > 2)
-                          //     const SizedBox(
-                          //       width: 4,
-                          //     ),
-                          //   if (stepNum != 2)
-                          //     Expanded(
-                          //         child: TextButton(
-                          //       style: buttonStyle,
-                          //       onPressed: () async {
-                          //         nextStep();
-                          //       },
-                          //       child: stepNum == 4
-                          //           ? const Text('完成',
-                          //               style: TextStyle(
-                          //                 color: Color.fromRGBO(0, 145, 255, 1),
-                          //               ))
-                          //           : const Text('下一步',
-                          //               style: TextStyle(
-                          //                 color: Color.fromRGBO(255, 255, 255, 0.85),
-                          //               )),
-                          //     )),
-                          // ])
+                          Expanded(flex: 1, child: stepItem.view),
                         ],
                       ))),
         if (stepNum == 1 && !isNeedChoosePlatform)
@@ -365,35 +313,40 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           height: 72,
                           child: Center(
                               child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MzButton(
-                                width: 168,
-                                height: 56,
-                                borderRadius: 29,
-                                backgroundColor:
-                                    const Color.fromRGBO(255, 255, 255, 0.10),
-                                borderColor: Colors.transparent,
-                                borderWidth: 1,
-                                text: '上一步',
-                                onPressed: () {
-                                  prevStep();
-                                },
-                              ),
-                              MzButton(
-                                width: 168,
-                                height: 56,
-                                borderRadius: 29,
-                                backgroundColor: const Color(0xFF818C98),
-                                borderColor: Colors.transparent,
-                                borderWidth: 1,
-                                text: stepNum == 4 ? '完成' : '下一步',
-                                onPressed: () {
-                                  nextStep();
-                                },
-                              )
-                            ],
-                          ))))))
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                MzButton(
+                                  width: 168,
+                                  height: 56,
+                                  borderRadius: 29,
+                                  backgroundColor:
+                                      const Color.fromRGBO(255, 255, 255, 0.10),
+                                  borderColor: Colors.transparent,
+                                  borderWidth: 1,
+                                  text: '上一步',
+                                  onPressed: () {
+                                    prevStep();
+                                  },
+                                ),
+                                MzButton(
+                                  width: 168,
+                                  height: 56,
+                                  borderRadius: 29,
+                                  backgroundColor: const Color(0xFF818C98),
+                                  borderColor: Colors.transparent,
+                                  borderWidth: 1,
+                                  text: stepNum == 4 ? '完成' : '下一步',
+                                  onPressed: () {
+                                    nextStep();
+                                  },
+                                )
+                              ],
+                            )
+                          )
+                      )
+                  )
+              )
+          )
       ],
     );
   }
@@ -401,6 +354,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   @override
   void netChange(MZNetState? state) {
     debugPrint('netChange: $state');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    bindGatewayAd?.destroy();
+    bindGatewayAd = null;
   }
 }
 
@@ -429,21 +389,6 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var stepNumView = Positioned(
-      top: 10,
-      left: -15,
-      child: Text(
-        stepNum.toString().padLeft(2, '0'),
-        textAlign: TextAlign.left,
-        style: const TextStyle(
-          color: Colors.white24,
-          fontSize: 60.0,
-          height: 1,
-          fontFamily: "MideaType",
-          decoration: TextDecoration.none,
-        ),
-      ),
-    );
 
     var titleView = Padding(
       padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
@@ -503,7 +448,6 @@ class LoginHeader extends StatelessWidget {
 class BindingDialog extends StatelessWidget {
   const BindingDialog({super.key});
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Dialog(

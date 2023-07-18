@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/states/room_change_notifier.dart';
 
-import '../../common/global.dart';
-import '../../models/room_entity.dart';
-import '../../states/device_change_notifier.dart';
+import '../../common/adapter/select_room_data_adapter.dart';
+import '../../common/logcat_helper.dart';
+import '../../common/system.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/mz_navigation_bar.dart';
-import '../home/device/register_controller.dart';
-import '../home/device/service.dart';
 
 class SelectRoomPage extends StatefulWidget {
   const SelectRoomPage({super.key});
@@ -57,25 +53,26 @@ class SelectRoomPageState extends State<SelectRoomPage> {
                 minWidth: double.infinity,
                 minHeight: MediaQuery.of(context).size.height - 60),
             child: SelectRoom(
-              value: Global.profile.roomInfo?.roomId ?? '',
-              onChange: (RoomEntity room) {
-                logger.i('SelectRoom: ${room.toJson()}');
-                Global.profile.roomInfo = room;
-                context.read<RoomModel>().roomInfo = room;
-                var deviceModel = context.read<DeviceListModel>();
-                deviceModel.deviceList = room.applianceList;
-                for (var deviceInfo in deviceModel.deviceList) {
-                  // 查看品类控制器看是否支持该品类
-                  var hasController = getController(deviceInfo) != null;
-                  if (hasController &&
-                      DeviceService.isOnline(deviceInfo) &&
-                      DeviceService.isSupport(deviceInfo)) {
-                    // 调用provider拿detail存入状态管理里
-                    context
-                        .read<DeviceListModel>()
-                        .updateDeviceDetail(deviceInfo);
-                  }
-                }
+              //value: Global.profile.roomInfo?.roomId ?? '',
+              onChange: (SelectRoomItem room) {
+                Log.i('SelectRoom: ${room.toJson()}');
+                System.roomInfo = room;
+                // Global.profile.roomInfo = room;
+                // context.read<RoomModel>().roomInfo = room;
+                // var deviceModel = context.read<DeviceListModel>();
+                // deviceModel.deviceList = room.applianceList;
+                // for (var deviceInfo in deviceModel.deviceList) {
+                //   // 查看品类控制器看是否支持该品类
+                //   var hasController = getController(deviceInfo) != null;
+                //   if (hasController &&
+                //       DeviceService.isOnline(deviceInfo) &&
+                //       DeviceService.isSupport(deviceInfo)) {
+                //     // 调用provider拿detail存入状态管理里
+                //     context
+                //         .read<DeviceListModel>()
+                //         .updateDeviceDetail(deviceInfo);
+                //   }
+                // }
               },
             ),
           ),

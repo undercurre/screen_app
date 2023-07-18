@@ -131,7 +131,7 @@ class System {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.homluxRoomInfo = roomItem?.homluxData;
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      MeiJuGlobal.roomInfo != roomItem?.meijuData;
+      MeiJuGlobal.roomInfo = roomItem?.meijuData;
     } else {
       throw Exception("No No No 运行环境为NONE 请勿调用此方法");
     }
@@ -167,7 +167,8 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return MeiJuGlobal.isLogin;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      //throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      return false; // TODO test
     }
   }
 
