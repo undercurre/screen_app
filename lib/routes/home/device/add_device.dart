@@ -106,7 +106,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     silumianban.name = '四路面板';
     silumianban.type = '0x21';
     silumianban.modelNumber = '1342';
-    silumianban.applianceCode = '1703838336';
+    silumianban.applianceCode = '1703838337';
     silumianban.roomName = '客厅';
     devices.add(silumianban);
     // 虚拟一台一路面板
@@ -119,7 +119,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     devices.add(yiluduogongnengmianban);
     // 虚拟一台二路面板
     DeviceEntity erluduogongnengmianban = DeviceEntity();
-    erluduogongnengmianban.name = '二路面板';
+    erluduogongnengmianban.name = '二路多功能面板';
     erluduogongnengmianban.type = '0x21';
     erluduogongnengmianban.modelNumber = '1361';
     erluduogongnengmianban.applianceCode = '1703838352';
@@ -162,7 +162,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     tiaoguangdeng.name = 'zigbee调光灯';
     tiaoguangdeng.type = '0x21';
     tiaoguangdeng.modelNumber = '55';
-    tiaoguangdeng.applianceCode = '1703838337';
+    tiaoguangdeng.applianceCode = '1703838317';
     tiaoguangdeng.roomName = '客厅';
     devices.add(tiaoguangdeng);
     // 虚拟一台zigbee窗帘
@@ -394,14 +394,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             getDeviceEntityType(
                                                 devices[index].type,
                                                 devices[index].modelNumber);
-                                        if (getDeviceEntityType(
-                                                devices[index].type,
-                                                devices[index].modelNumber)
-                                            .toString()
-                                            .contains('Panel')) {
+                                        if (_isPanel(devices[index].modelNumber,
+                                            devices[index].type)) {
                                           CardType curCardType =
                                               _getPanelCardType(
-                                                  devices[index].modelNumber);
+                                                  devices[index].modelNumber,
+                                                  devices[index].type);
                                           resultData = Layout(
                                               devices[index].applianceCode,
                                               curDeviceEntity,
@@ -670,10 +668,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
           return deviceType;
         }
-      } else if (value.contains('local')) {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.$value') {
-          return deviceType;
-        }
+      } else if (value.contains('localPanel1')) {
+        return DeviceEntityTypeInP4.LocalPanel1;
+      } else if (value.contains('localPanel2')) {
+        return DeviceEntityTypeInP4.LocalPanel2;
       } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
           return deviceType;
@@ -683,7 +681,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
     return DeviceEntityTypeInP4.Default;
   }
 
-  CardType _getPanelCardType(String modelNum) {
+  CardType _getPanelCardType(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return CardType.Small;
+    }
     Map<String, CardType> cardTypeMap = {
       '1339': CardType.Small,
       '1340': CardType.Middle,
@@ -697,6 +698,25 @@ class _AddDevicePageState extends State<AddDevicePage> {
       '1363': CardType.Big
     };
     return cardTypeMap[modelNum] ?? CardType.Small;
+  }
+
+  bool _isPanel(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return true;
+    }
+    List<String> panelList = [
+      '1339',
+      '1340',
+      '1341',
+      '1342',
+      '1345',
+      '1346',
+      '1360',
+      '1361',
+      '1362',
+      '1363'
+    ];
+    return panelList.contains(modelNum);
   }
 }
 

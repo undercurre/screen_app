@@ -275,7 +275,7 @@ class _CustomPageState extends State<CustomPage> {
                                     in sortedLayoutList) {
                                   // 映射出对应的Card
                                   logger.i('当前映射card', layoutAfterSort.type);
-                                  logger.i('当前映射card', layoutAfterSort.grids);
+                                  logger.i('当前映射card', layoutAfterSort.cardType);
                                   Widget cardWidget =
                                       buildMap[layoutAfterSort.type]![
                                           layoutAfterSort
@@ -346,6 +346,7 @@ class _CustomPageState extends State<CustomPage> {
                                     ),
                                   ),
                                 );
+                                logger.i('屏幕列表', _screens);
                               } else {
                                 _screens[curPageIndex] = UnconstrainedBox(
                                   child: Container(

@@ -5,6 +5,7 @@ import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
+import '../../../common/global.dart';
 import '../../../widgets/card/main/middle_device.dart';
 
 class CardDialog extends StatefulWidget {
@@ -216,10 +217,10 @@ class _CardDialogState extends State<CardDialog> {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
           return deviceType;
         }
-      } else if (type.contains('local')) {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.$type') {
-          return deviceType;
-        }
+      } else if (type.contains('localPanel1')) {
+        return DeviceEntityTypeInP4.LocalPanel1;
+      } else if (type.contains('localPanel2')) {
+        return DeviceEntityTypeInP4.LocalPanel2;
       } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;
