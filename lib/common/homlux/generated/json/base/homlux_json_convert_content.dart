@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 
+import '../../../models/homlux_auth_entity.dart';
 import '../../../models/homlux_bind_device_entity.dart';
 import '../../../models/homlux_device_entity.dart';
 import '../../../models/homlux_dui_token_entity.dart';
@@ -37,11 +38,15 @@ class HomluxJsonConvert {
     (HomluxDeviceMzgdPropertyDTOList4).toString(): HomluxDeviceMzgdPropertyDTOList4.fromJson,
     (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
+    (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
 
 
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxAuthEntity>[] is M) {
+      return data.map<HomluxAuthEntity>((e) => HomluxAuthEntity.fromJson(e)).toList() as M;
+    }
     if(<HomluxFamilyEntity>[] is M) {
       return data.map<HomluxFamilyEntity>((e) => HomluxFamilyEntity.fromJson(e)).toList() as M;
     }

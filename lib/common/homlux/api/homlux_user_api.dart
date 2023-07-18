@@ -5,6 +5,7 @@ import 'package:screen_app/common/homlux/models/homlux_member_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 
 import '../homlux_global.dart';
+import '../models/homlux_auth_entity.dart';
 import '../models/homlux_bind_device_entity.dart';
 import '../models/homlux_qr_code_auth_entity.dart';
 import '../models/homlux_qr_code_entity.dart';
@@ -85,8 +86,12 @@ class HomluxUserApi {
   }
 
   // 绑定设备
-  static Future<HomluxResponseEntity<HomluxBindDeviceEntity>> bindDevice(String deviceName,
-      String houseId, String roomId, String sn, String deviceType,
+  static Future<HomluxResponseEntity<HomluxBindDeviceEntity>> bindDevice(
+      String deviceName,
+      String houseId,
+      String roomId,
+      String sn,
+      String deviceType,
       {CancelToken? cancelToken}) {
     return HomluxApi.request<HomluxBindDeviceEntity>('/v1/device/bindDevice',
         cancelToken: cancelToken,
@@ -99,4 +104,16 @@ class HomluxUserApi {
           'sn': sn
         });
   }
+
+  // 是否能够授权登录
+  // 绑定设备
+  static Future<HomluxResponseEntity<HomluxAuthEntity>> queryHouseAuth(String houseId,
+      {CancelToken? cancelToken}) {
+    return HomluxApi.request<HomluxAuthEntity>(
+        '/v1/mzgd/user/queryUserHouseInfo',
+        cancelToken: cancelToken,
+        options: Options(method: 'POST'),
+        data: {'houseId': houseId});
+  }
+
 }
