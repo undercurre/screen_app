@@ -106,6 +106,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
       if (code.isSuccess && code.result != null) {
         qrCodeState = DataState.SUCCESS;
         qrCodeEntity = QRCodeEntity.fromHomlux(code.result!);
+        updateQrCodeTime?.cancel();
         updateQrCodeTime = Timer(const Duration(seconds: 3 * 60 - 20), () {
           requireQrCode();
         });
@@ -119,6 +120,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
       if (code.isSuccess && code.data != null) {
         qrCodeState = DataState.SUCCESS;
         qrCodeEntity = QRCodeEntity.fromMeiJu(code.data!);
+        updateQrCodeTime?.cancel();
         updateQrCodeTime = Timer(Duration(seconds: code.data!.effectTimeSecond! - 20), () {
           requireQrCode();
         });
