@@ -26,7 +26,7 @@ public class GatewayVersionUtil {
         return com.midea.light.gateway.GatewayVersionUtil.getGatewayVersion(gatewayPlatform.rawPlatform());
     }
     public static String getAppVersion(Context context) {
-        String version =  com.midea.light.gateway.GatewayVersionUtil.getAppVersion(context);
+        String version =  com.midea.light.gateway.GatewayVersionUtil.getAppVersion();
         StringBuilder builder = new StringBuilder();
         String[] s = version.split("\\.");
         for (String s1 : s) {
