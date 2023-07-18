@@ -86,7 +86,7 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
                 ) {
                     override fun callback(msg: GatewayPlatformBean?) {
                         if (msg == null) {
-                            result.safeError("网关还未启动，请再次尝试")
+                            result.safeSuccess(-1)
                             LogUtil.tag("网关运行环境").msg("网关未运行")
                         } else {
                             MainApplication.gatewayPlatform = msg.platform
