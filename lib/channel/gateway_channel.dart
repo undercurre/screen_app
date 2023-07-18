@@ -40,19 +40,19 @@ class GatewayChannel extends AbstractChannel {
   /// 检查当前运行的环境
   /// 返回值 0NONE 1美居 2美的照明
   Future<int> checkGatewayPlatform() async {
-    return methodChannel.invokeMethod('checkGatewayPlatform') as int;
+    return await methodChannel.invokeMethod('checkGatewayPlatform');
   }
   /// 设置网关运行环境为美居平台, 会导致子设备清空
   Future<bool> setMeijuPlatform() async {
-    return methodChannel.invokeMethod('setMeijuPlatform') as bool;
+    return await methodChannel.invokeMethod('setMeijuPlatform');
   }
   /// 设置网关运行环境为美的照明，会导致子设备清空
   Future<bool> setHomluxPlatForm() async {
-    return methodChannel.invokeMethod('setHomluxPlatForm') as bool;
+    return await methodChannel.invokeMethod('setHomluxPlatForm');
   }
   /// 设置网关运行环境为美的照明，但子设备不会清空。为了兼容ota升级之后，恢复用户身份登录
   Future<bool> setMeijuPlatFormFlag() async {
-    return methodChannel.invokeMethod('setMeijuPlatFormFlag') as bool;
+    return await methodChannel.invokeMethod('setMeijuPlatFormFlag');
   }
 
 

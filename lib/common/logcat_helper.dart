@@ -33,7 +33,7 @@ class FileOutput extends LogOutput {
     }
     for (var element in event.lines) {
       randomAccessFile!.writeStringSync('$element\n');
-      randomAccessFile!.setPositionSync(randomAccessFile!.positionSync() + element.length);
+      randomAccessFile!.setPositionSync(randomAccessFile!.positionSync() + element.length + 1);
     }
     randomAccessFile!.flushSync();
   }
@@ -65,7 +65,7 @@ class Log {
       FileOutput(
           overrideExisting: true,
           file: File.fromUri(Uri.file(
-              '/storage/emulated/-1/Android/data/com.midea.light/cache/log.cat')))
+              '/data/data/com.midea.light/cache/MideaLog.txt')))
     ]),
   );
 
