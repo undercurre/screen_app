@@ -35,11 +35,11 @@ class LayoutModel extends ChangeNotifier {
       setLayouts([
         Layout(uuid.v4(), DeviceEntityTypeInP4.Clock, CardType.Other, 0, [1, 2, 5, 6], null),
         Layout(uuid.v4(), DeviceEntityTypeInP4.Weather, CardType.Other, 0, [3, 4, 7, 8], null),
-        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanelOne, CardType.Small, 0, [9, 10], {
+        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanel1, CardType.Small, 0, [9, 10], {
           'name': '开关1',
           'onOff': false
         }),
-        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanelTwo, CardType.Small, 0, [11, 12], {
+        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanel2, CardType.Small, 0, [11, 12], {
           'name': '开关2',
           'onOff': false
         }),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
@@ -122,31 +123,26 @@ class _CardDialogState extends State<CardDialog> {
                         ),
                       ),
                     ),
-                    Stack(
-                      children: [
-                        Positioned(
-                          left: 0,
-                          top: 0,
-                          child: Transform.translate(
-                            offset: const Offset(-45, 0),
-                            child: Transform.scale(
-                              scale: 0.75,
-                              child: BigDeviceLightCardWidget(
-                                name: widget.name,
-                                onOff: true,
-                                roomName: widget.roomName,
-                                online: true,
-                                isFault: false,
-                                isNative: false,
-                                brightness: 10,
-                                colorTemp: 10,
-                                colorPercent: 10,
-                              ),
+                    if (buildMap[_getDeviceEntityType(
+                            widget.type, widget.modelNumber)]![CardType.Big] !=
+                        null)
+                      Stack(
+                        children: [
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Transform.translate(
+                              offset: const Offset(-45, 0),
+                              child: Transform.scale(
+                                  scale: 0.75,
+                                  child: buildMap[_getDeviceEntityType(
+                                      widget.type,
+                                      widget
+                                          .modelNumber)]![CardType.Big]!(null)),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                   ],
                   onPageChanged: (index) {
                     _handlePageChange(index);
@@ -178,7 +174,9 @@ class _CardDialogState extends State<CardDialog> {
                           : Colors.white.withOpacity(0.6),
                     ),
                   ),
-                  Container(
+                  if (buildMap[_getDeviceEntityType(
+                      widget.type, widget.modelNumber)]![CardType.Big] !=
+                      null) Container(
                     width: _currentIndex == 2 ? 22 : 14,
                     height: 4,
                     margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -204,8 +202,31 @@ class _CardDialogState extends State<CardDialog> {
   }
 
   CardType _getCardType() {
-    Map<int, CardType> cardTypeMap = {0: CardType.Small, 1: CardType.Middle, 2: CardType.Big};
+    Map<int, CardType> cardTypeMap = {
+      0: CardType.Small,
+      1: CardType.Middle,
+      2: CardType.Big
+    };
     return cardTypeMap[_currentIndex] ?? CardType.Small;
+  }
+
+  DeviceEntityTypeInP4 _getDeviceEntityType(String type, String? modelNum) {
+    for (var deviceType in DeviceEntityTypeInP4.values) {
+      if (type == '0x21') {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
+          return deviceType;
+        }
+      } else if (type.contains('local')) {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.$type') {
+          return deviceType;
+        }
+      } else {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
+          return deviceType;
+        }
+      }
+    }
+    return DeviceEntityTypeInP4.Default;
   }
 
   _getIconUrl(String type, String modelNum) {

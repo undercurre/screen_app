@@ -46,78 +46,87 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () => widget.onTap?.call(),
-        child: Container(
-          width: 210,
-          height: 88,
-          padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
-          decoration: _getBoxDecoration(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(right: 16),
-                width: 40,
-                child: widget.icon,
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Text(
+      onTap: () => widget.onTap?.call(),
+      child: Container(
+        width: 210,
+        height: 88,
+        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        decoration: _getBoxDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              width: 40,
+              child: widget.icon,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    SizedBox(
+                      width: 120,
+                      child: Text(
                         widget.name,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w400),
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                      if (widget.isNative)
-                        Container(
-                          margin: const EdgeInsets.only(left: 14),
-                          width: 36,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: const Color.fromRGBO(255, 255, 255, 0.32),
-                              width: 0.6,
+                    ),
+                    if (widget.isNative)
+                      Container(
+                        margin: const EdgeInsets.only(left: 14),
+                        width: 36,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.32),
+                            width: 0.6,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '本地',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.64),
                             ),
                           ),
-                          child: Center(
-                            child: Text(
-                              '本地',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white.withOpacity(0.64),
-                              ),
-                            ),
-                          ),
-                        )
-                    ]),
-                    if (widget.roomName != '' || _getRightText() != '')  Padding(
+                        ),
+                      )
+                  ]),
+                  if (widget.roomName != '' || _getRightText() != '')
+                    Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
-                          '${widget.roomName} ${_getRightText() != '' ? '|' : '' } ${_getRightText()}',
+                          '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                           style: TextStyle(
                               color: Colors.white.withOpacity(0.64),
                               fontSize: 16,
                               fontWeight: FontWeight.w400),
                         ))
-                  ],
-                ),
+                ],
               ),
-              if (widget.onMoreTap != null) GestureDetector(
-                  onTap: () => widget.onMoreTap?.call(),
-                  child: const Image(
-                      width: 24,
-                      image: AssetImage('assets/newUI/to_plugin.png')))
-            ],
-          ),
+            ),
+            if (widget.onMoreTap != null)
+              GestureDetector(
+                onTap: () => widget.onMoreTap?.call(),
+                child: const Image(
+                  width: 24,
+                  image: AssetImage('assets/newUI/to_plugin.png'),
+                ),
+              )
+          ],
         ),
-      );
+      ),
+    );
   }
 
   String _getRightText() {
