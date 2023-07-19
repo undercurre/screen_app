@@ -10,10 +10,10 @@ MeiJuWeatherEntity _$MeiJuWeatherEntityFromJson(Map<String, dynamic> json) =>
     MeiJuWeatherEntity(
       weather: json['weather'] == null
           ? null
-          : Weather.fromJson(json['weather'] as Map<String, dynamic>),
+          : MeiJuWeather.fromJson(json['weather'] as Map<String, dynamic>),
       location: json['location'] == null
           ? null
-          : Location.fromJson(json['location'] as Map<String, dynamic>),
+          : MeiJuLocation.fromJson(json['location'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MeiJuWeatherEntityToJson(MeiJuWeatherEntity instance) =>
@@ -22,7 +22,7 @@ Map<String, dynamic> _$MeiJuWeatherEntityToJson(MeiJuWeatherEntity instance) =>
       'location': instance.location?.toJson(),
     };
 
-Weather _$WeatherFromJson(Map<String, dynamic> json) => Weather(
+MeiJuWeather _$WeatherFromJson(Map<String, dynamic> json) => MeiJuWeather(
       wetness: json['wetness'] as String?,
       grade: json['grade'] as String?,
       windForce: json['windForce'] as String?,
@@ -36,7 +36,7 @@ Weather _$WeatherFromJson(Map<String, dynamic> json) => Weather(
       pmval: json['pmval'] as String?,
     );
 
-Map<String, dynamic> _$WeatherToJson(Weather instance) => <String, dynamic>{
+Map<String, dynamic> _$WeatherToJson(MeiJuWeather instance) => <String, dynamic>{
       'wetness': instance.wetness,
       'grade': instance.grade,
       'windForce': instance.windForce,
@@ -50,7 +50,7 @@ Map<String, dynamic> _$WeatherToJson(Weather instance) => <String, dynamic>{
       'pmval': instance.pmval,
     };
 
-Location _$LocationFromJson(Map<String, dynamic> json) => Location(
+MeiJuLocation _$LocationFromJson(Map<String, dynamic> json) => MeiJuLocation(
       provinceName: json['provinceName'] as String?,
       cityName: json['cityName'] as String?,
       coordinate: json['coordinate'] as String?,
@@ -64,7 +64,7 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       version: json['version'] as String?,
     );
 
-Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
+Map<String, dynamic> _$LocationToJson(MeiJuLocation instance) => <String, dynamic>{
       'provinceName': instance.provinceName,
       'cityName': instance.cityName,
       'coordinate': instance.coordinate,

@@ -1,10 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
-
 part 'meiju_weather_entity.g.dart';
 
 class MeiJuWeatherEntity {
-  final Weather? weather;
-  final Location? location;
+  final MeiJuWeather? weather;
+  final MeiJuLocation? location;
 
   const MeiJuWeatherEntity({
     this.weather,
@@ -17,8 +15,7 @@ class MeiJuWeatherEntity {
   Map<String, dynamic> toJson() => _$MeiJuWeatherEntityToJson(this);
 }
 
-@JsonSerializable(explicitToJson: true)
-class Weather {
+class MeiJuWeather {
   final String? wetness;
   final String? grade;
   final String? windForce;
@@ -31,7 +28,7 @@ class Weather {
   final String? pmindex;
   final String? pmval;
 
-  const Weather({
+  const MeiJuWeather({
     this.wetness,
     this.grade,
     this.windForce,
@@ -45,14 +42,13 @@ class Weather {
     this.pmval,
   });
 
-  factory Weather.fromJson(Map<String, dynamic> json) =>
+  factory MeiJuWeather.fromJson(Map<String, dynamic> json) =>
       _$WeatherFromJson(json);
 
   Map<String, dynamic> toJson() => _$WeatherToJson(this);
 }
 
-@JsonSerializable(explicitToJson: true)
-class Location {
+class MeiJuLocation {
   final String? provinceName;
   final String? cityName;
   final String? coordinate;
@@ -65,7 +61,7 @@ class Location {
   final String? countryName;
   final String? version;
 
-  const Location({
+  const MeiJuLocation({
     this.provinceName,
     this.cityName,
     this.coordinate,
@@ -79,7 +75,7 @@ class Location {
     this.version,
   });
 
-  factory Location.fromJson(Map<String, dynamic> json) =>
+  factory MeiJuLocation.fromJson(Map<String, dynamic> json) =>
       _$LocationFromJson(json);
 
   Map<String, dynamic> toJson() => _$LocationToJson(this);
