@@ -73,11 +73,11 @@ class HomluxJsonConvert {
     if(<HomluxSceneEntity>[] is M) {
       return data.map<HomluxSceneEntity>((e) => HomluxSceneEntity.fromJson(e)).toList() as M;
     }
-    if(<DeviceActions>[] is M) {
-      return data.map<DeviceActions>((e) => DeviceActions.fromJson(e)).toList() as M;
+    if(<HomluxDeviceActions>[] is M) {
+      return data.map<HomluxDeviceActions>((e) => HomluxDeviceActions.fromJson(e)).toList() as M;
     }
-    if(<DeviceConditions>[] is M) {
-      return data.map<DeviceConditions>((e) => DeviceConditions.fromJson(e)).toList() as M;
+    if(<HomluxDeviceConditions>[] is M) {
+      return data.map<HomluxDeviceConditions>((e) => HomluxDeviceConditions.fromJson(e)).toList() as M;
     }
     if(<HomluxDeviceEntity>[] is M) {
       return data.map<HomluxDeviceEntity>((e) => HomluxDeviceEntity.fromJson(e)).toList() as M;
