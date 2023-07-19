@@ -12,6 +12,7 @@ import '../../../models/homlux_qr_code_entity.dart';
 import '../../../models/homlux_refresh_token_entity.dart';
 import '../../../models/homlux_room_list_entity.dart';
 import '../../../models/homlux_scene_entity.dart';
+import '../../../models/homlux_weather_entity.dart';
 
 HomluxJsonConvert homluxJsonConvert = HomluxJsonConvert();
 typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
@@ -39,11 +40,15 @@ class HomluxJsonConvert {
     (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
     (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
+    (HomluxWeatherEntity).toString(): HomluxWeatherEntity.fromJson,
 
 
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxWeatherEntity>[] is M) {
+      return data.map<HomluxWeatherEntity>((e) => HomluxWeatherEntity.fromJson(e)).toList() as M;
+    }
     if(<HomluxAuthEntity>[] is M) {
       return data.map<HomluxAuthEntity>((e) => HomluxAuthEntity.fromJson(e)).toList() as M;
     }
