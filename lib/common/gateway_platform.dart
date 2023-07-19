@@ -52,6 +52,9 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
         MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+        HomluxGlobal.setLogout();
+        MeiJuApi.init();
+        System.initForMeiju();
       }
       return suc;
     } else {
