@@ -8,7 +8,6 @@ import 'package:screen_app/channel/models/music_state.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
 import 'package:screen_app/models/delete_device_result_entity.dart';
-import 'package:screen_app/models/device_entity.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/models/device_lua_entity.dart';
 import 'package:screen_app/models/device_p_d_m_entity.dart';
@@ -17,8 +16,6 @@ import 'package:screen_app/models/profile_entity.dart';
 import 'package:screen_app/models/scene_info_entity.dart';
 import 'package:screen_app/models/scene_list_entity.dart';
 import 'package:screen_app/models/weather7d_entity.dart';
-import 'package:screen_app/models/weather_entity.dart';
-import 'package:screen_app/models/weather_of_city_entity.dart';
 
 import '../../../models/meiju_device_entity.dart';
 import '../../../models/meiju_home_info_entity.dart';
@@ -26,6 +23,8 @@ import '../../../models/meiju_home_list_info_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
 import '../../../models/meiju_user_entity.dart';
+import '../../../models/meiju_weather7d_entity.dart';
+import '../../../models/meiju_weather_entity.dart';
 
 MeiJuJsonConvert meijuJsonConvert = MeiJuJsonConvert();
 typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
@@ -49,9 +48,7 @@ class MeiJuJsonConvert {
 
 		(SceneInfoEntity).toString(): SceneInfoEntity.fromJson,
 		(SceneListEntity).toString(): SceneListEntity.fromJson,
-		(Weather7dEntity).toString(): Weather7dEntity.fromJson,
-		(WeatherEntity).toString(): WeatherEntity.fromJson,
-		(WeatherOfCityEntity).toString(): WeatherOfCityEntity.fromJson,
+
 
 
 		(MeiJuQrCodeEntity).toString(): MeiJuQrCodeEntity.fromJson,
@@ -60,7 +57,8 @@ class MeiJuJsonConvert {
 		(MeiJuHomeInfoListEntity).toString(): MeiJuHomeInfoListEntity.fromJson,
 		(MeiJuRoomEntity).toString(): MeiJuRoomEntity.fromJson,
 		(MeiJuDeviceEntity).toString(): MeiJuDeviceEntity.fromJson,
-
+		(MeiJuWeatherEntity).toString(): MeiJuWeatherEntity.fromJson,
+		(MeiJuWeather7dEntity).toString(): MeiJuWeather7dEntity.fromJson,
 
 
 
@@ -142,6 +140,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuWeather7dEntity>[] is M){
+			return data.map<MeiJuWeather7dEntity>((Map<String, dynamic> e) => MeiJuWeather7dEntity.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuWeatherEntity>[] is M){
+			return data.map<MeiJuWeatherEntity>((Map<String, dynamic> e) => MeiJuWeatherEntity.fromJson(e)).toList() as M;
+		}
 		if(<AiMusicState>[] is M){
 			return data.map<AiMusicState>((Map<String, dynamic> e) => AiMusicState.fromJson(e)).toList() as M;
 		}
@@ -207,12 +211,6 @@ class MeiJuJsonConvert {
 		}
 		if(<Weather7dEntity>[] is M){
 			return data.map<Weather7dEntity>((Map<String, dynamic> e) => Weather7dEntity.fromJson(e)).toList() as M;
-		}
-		if(<WeatherEntity>[] is M){
-			return data.map<WeatherEntity>((Map<String, dynamic> e) => WeatherEntity.fromJson(e)).toList() as M;
-		}
-		if(<WeatherOfCityEntity>[] is M){
-			return data.map<WeatherOfCityEntity>((Map<String, dynamic> e) => WeatherOfCityEntity.fromJson(e)).toList() as M;
 		}
 
 		debugPrint("${M.toString()} not found");
