@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:catcher/core/catcher.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +11,6 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
-import '../../common/global.dart';
 import '../../common/setting.dart';
 import '../../models/delete_device_result_entity.dart';
 import '../../models/midea_response_entity.dart';
@@ -831,9 +828,12 @@ class AboutSettingPage extends StatelessWidget {
                                 const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
                                 onPressed: (_, index, context) {
                                   if (index == 1) {
-                                    MideaRuntimePlatform.platform = GatewayPlatform.NONE;
+                                    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+                                      ChangePlatformHelper.changeToHomlux(context);
+                                    } else {
+                                      ChangePlatformHelper.changeToMeiju(context);
+                                    }
                                     Push.dispose();
-                                    System.loginOut();
                                     Navigator
                                         .pushNamedAndRemoveUntil(
                                         context,
