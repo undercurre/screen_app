@@ -94,6 +94,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在其他平台上
         showBindingDialog(true);
         // 判断是否绑定网关
+        bindGatewayAd ??= BindGatewayAdapter(MideaRuntimePlatform.platform);
         bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
           if (!isBind) {
             // 绑定网关
@@ -131,6 +132,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       if (mounted) {
         Navigator.popAndPushNamed(context, 'Home');
         Push.sseInit();
+        stepNum = 2;
       }
     });
   }
@@ -138,8 +140,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   @override
   void initState() {
     super.initState();
-    bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-
     // 初始化
     if (System.isLogin()) {
       stepNum = 3;
@@ -183,8 +183,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Step(
           '选择家庭',
           SelectHome(
-              onChange: (SelectFamilyItem home) {
-                debugPrint('Select: ${home.toJson()}');
+              onChange: (SelectFamilyItem? home) {
+                debugPrint('Select: ${home?.toJson()}');
                 isSelectOnce = true;
                 System.familyInfo = home;
               })

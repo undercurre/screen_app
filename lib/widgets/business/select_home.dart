@@ -94,9 +94,10 @@ class _SelectHome extends State<SelectHome> {
     familyDataAd?.queryHouseAuth(item).then((isAuth) {
       if (isAuth == true) {
         widget.onChange?.call(item);
+      } else {
+        widget.onChange?.call(null);
       }
     });
-
   }
 
 }
@@ -104,7 +105,7 @@ class _SelectHome extends State<SelectHome> {
 class SelectHome extends StatefulWidget {
 
   /// 家庭变更事件
-  final ValueChanged<SelectFamilyItem>? onChange;
+  final ValueChanged<SelectFamilyItem?>? onChange;
 
   const SelectHome({super.key, this.onChange});
 
