@@ -14,7 +14,6 @@ import 'package:screen_app/models/device_p_d_m_entity.dart';
 import 'package:screen_app/models/location_entity.dart';
 import 'package:screen_app/models/profile_entity.dart';
 import 'package:screen_app/models/scene_info_entity.dart';
-import 'package:screen_app/models/scene_list_entity.dart';
 import 'package:screen_app/models/weather7d_entity.dart';
 
 import '../../../models/meiju_device_entity.dart';
@@ -22,6 +21,7 @@ import '../../../models/meiju_home_info_entity.dart';
 import '../../../models/meiju_home_list_info_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
+import '../../../models/meiju_scene_list_entity.dart';
 import '../../../models/meiju_user_entity.dart';
 import '../../../models/meiju_weather7d_entity.dart';
 import '../../../models/meiju_weather_entity.dart';
@@ -47,7 +47,6 @@ class MeiJuJsonConvert {
 		(ProfileEntity).toString(): ProfileEntity.fromJson,
 
 		(SceneInfoEntity).toString(): SceneInfoEntity.fromJson,
-		(SceneListEntity).toString(): SceneListEntity.fromJson,
 
 
 
@@ -59,6 +58,8 @@ class MeiJuJsonConvert {
 		(MeiJuDeviceEntity).toString(): MeiJuDeviceEntity.fromJson,
 		(MeiJuWeatherEntity).toString(): MeiJuWeatherEntity.fromJson,
 		(MeiJuWeather7dEntity).toString(): MeiJuWeather7dEntity.fromJson,
+		(MeiJuSceneListEntity).toString(): MeiJuSceneListEntity.fromJson,
+
 
 
 
@@ -203,8 +204,8 @@ class MeiJuJsonConvert {
 		if(<SceneInfoEntity>[] is M){
 			return data.map<SceneInfoEntity>((Map<String, dynamic> e) => SceneInfoEntity.fromJson(e)).toList() as M;
 		}
-		if(<SceneListEntity>[] is M){
-			return data.map<SceneListEntity>((Map<String, dynamic> e) => SceneListEntity.fromJson(e)).toList() as M;
+		if(<MeiJuSceneListEntity>[] is M){
+			return data.map<MeiJuSceneListEntity>((Map<String, dynamic> e) => MeiJuSceneListEntity.fromJson(e)).toList() as M;
 		}
 		if(<MeiJuTokenEntity>[] is M){
 			return data.map<MeiJuTokenEntity>((Map<String, dynamic> e) => MeiJuTokenEntity.fromJson(e)).toList() as M;
