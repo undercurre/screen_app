@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -93,6 +94,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在其他平台上
         showBindingDialog(true);
         // 判断是否绑定网关
+        bindGatewayAd ??= BindGatewayAdapter(MideaRuntimePlatform.platform);
         bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
           if (!isBind) {
             // 绑定网关
@@ -130,6 +132,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       if (mounted) {
         Navigator.popAndPushNamed(context, 'Home');
         Push.sseInit();
+        stepNum = 2;
       }
     });
   }
@@ -137,8 +140,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   @override
   void initState() {
     super.initState();
-    bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-
     // 初始化
     if (System.isLogin()) {
       stepNum = 3;
@@ -182,8 +183,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Step(
           '选择家庭',
           SelectHome(
-              onChange: (SelectFamilyItem home) {
-                debugPrint('Select: ${home.toJson()}');
+              onChange: (SelectFamilyItem? home) {
+                debugPrint('Select: ${home?.toJson()}');
                 isSelectOnce = true;
                 System.familyInfo = home;
               })
@@ -198,7 +199,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       ),
     ];
 
-    var stepItem = stepNum == 5 ? null : stepList[stepNum - 1];
+    var stepItem = stepNum > stepList.length ? null : stepList[stepNum - 1];
 
     return Stack(
       children: [
@@ -261,8 +262,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           LoginHeader(
                               stepSum: stepList.length,
                               stepNum: stepNum,
-                              title: stepItem!.title),
-                          Expanded(flex: 1, child: stepItem.view),
+                              title: stepItem?.title ?? ''),
+                          Expanded(flex: 1, child: stepItem?.view ?? const SizedBox()),
                         ],
                       ))),
         if (stepNum == 1 && !isNeedChoosePlatform)
@@ -444,9 +445,10 @@ class LoginHeader extends StatelessWidget {
         stepList.add(stepPassiveImg);
       }
     }
+    num index = min(4, stepNum);
     var stepBarView = Container(
         margin: const EdgeInsets.all(9.0),
-        child: Image(image: AssetImage('assets/newUI/step_$stepNum.png')));
+        child: Image(image: AssetImage('assets/newUI/step_$index.png')));
 
     var headerView = Column(
       children: [titleView, stepBarView],
