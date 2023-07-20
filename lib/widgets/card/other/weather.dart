@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/weather_change_notifier.dart';
+
+import '../../../common/models/district.dart';
 
 class DigitalWeatherWidget extends StatefulWidget {
   @override
@@ -29,139 +33,207 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final weatherModel = Provider.of<WeatherModel>(context);
     return Container(
-        width: 210,
-        height: 196,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: const LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF767B86),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-            stops: [0, 0.24, 1],
-          ),
+      width: 210,
+      height: 196,
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ValueListenableBuilder<DateTime>(
-              valueListenable: _currentTimeNotifier,
-              builder: (BuildContext context, DateTime value, Widget? child) {
-                return Container(child: _getWeatherIcon(1));
-              },
-            ),
-            Expanded(
-                child: Stack(children: [
-              ValueListenableBuilder<DateTime>(
-                valueListenable: _currentTimeNotifier,
-                builder: (BuildContext context, DateTime value, Widget? child) {
-                  String curTemp = _getCurTemperature(value);
-                  String minTemp = _getMinTemperature(value);
-                  String location = _getLocation('1');
-                  String weatherName = _getWeatherName(1);
-                  return Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Stack(
-                            children: [
-                              SizedBox(width: 80, height: 80),
-                              Positioned(
-                                top: -36,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 10, 14, 0),
-                                  child: Text(
-                                    curTemp,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 48,
-                                      fontFamily: 'MideaType',
-                                      color:
-                                          const Color.fromRGBO(255, 255, 255, 1)
-                                              .withOpacity(0.79),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                weatherName,
-                                style: TextStyle(
-                                    letterSpacing: 1.33,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 16,
-                                    color:
-                                        const Color.fromRGBO(255, 255, 255, 1)
-                                            .withOpacity(0.79)),
-                              ),
-                              Text(
-                                location,
-                                style: TextStyle(
-                                    letterSpacing: 1.33,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 13,
-                                    color:
-                                        const Color.fromRGBO(255, 255, 255, 1)
-                                            .withOpacity(0.64)),
-                              ),
-                            ],
-                          )
-                        ],
-                      ));
-                },
-              ),
-              Positioned(
-                left: 98,
-                top: -4,
-                child: Text(
-                  '°',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18,
-                    fontFamily: 'MideaType',
-                    color: const Color.fromRGBO(255, 255, 255, 1)
-                        .withOpacity(0.79),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(child: _getWeatherIcon(weatherModel.getWeatherType())),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Text(
+                        '${weatherModel.getTemperature()}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 48,
+                          color: const Color.fromRGBO(255, 255, 255, 1)
+                              .withOpacity(0.79),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 0,
+                      child: Text(
+                        '°',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                          color: const Color.fromRGBO(255, 255, 255, 1)
+                              .withOpacity(0.79),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, 'SelectAreaPage');
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getWeatherName(weatherModel.getWeatherType()),
+                        style: TextStyle(
+                            letterSpacing: 1.33,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: const Color.fromRGBO(255, 255, 255, 1)
+                                .withOpacity(0.79)),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          weatherModel.selectedDistrict.cityName,
+                          style: TextStyle(
+                              letterSpacing: 1.33,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13,
+                              color: const Color.fromRGBO(255, 255, 255, 1)
+                                  .withOpacity(0.64)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )
-            ])),
-          ],
-        ),
-      );
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  String _getCurTemperature(DateTime dateTime) {
-    return '26';
+  // 天气编码转换为天气图片的名称
+  final Map<String, String> codeToImage = {
+    '00': 'sunny',
+    '01': 'cloudy',
+    '02': 'overcast',
+    '03': 'rainy',
+    '04': 'thunderstorm',
+    '05': 'thunderstorm',
+    '06': 'snowy',
+    '07': 'rainy',
+    '08': 'rainy',
+    '09': 'rainy',
+    '10': 'rainy',
+    '11': 'rainy',
+    '12': 'rainy',
+    '13': 'snowy',
+    '14': 'snowy',
+    '15': 'snowy',
+    '16': 'snowy',
+    '17': 'snowy',
+    '18': 'smog',
+    '19': 'snowy',
+    '20': 'storm',
+    '21': 'rainy',
+    '22': 'rainy',
+    '23': 'rainy',
+    '24': 'rainy',
+    '25': 'rainy',
+    '26': 'snowy',
+    '27': 'snowy',
+    '28': 'snowy',
+    '29': 'storm',
+    '30': 'storm',
+    '31': 'storm',
+    '32': 'smog',
+    '49': 'smog',
+    '53': 'smog',
+    '54': 'smog',
+    '55': 'smog',
+    '56': 'smog',
+    '57': 'smog',
+    '58': 'smog',
+    '301': 'rainy',
+    '302': 'snowy'
+  };
+
+  // 天气编码转换为天气的名称
+  final Map<String, String> codeToName = {
+    '00': '晴天',
+    '01': '阴天',
+    '02': '多云',
+    '03': '大雨',
+    '04': '雷阵雨',
+    '05': '雷阵雨',
+    '06': '雨雪',
+    '07': '大雨',
+    '08': '大雨',
+    '09': '大雨',
+    '10': '大雨',
+    '11': '大雨',
+    '12': '大雨',
+    '13': '下雪',
+    '14': '下雪',
+    '15': '下雪',
+    '16': '下雪',
+    '17': '下雪',
+    '18': '雾霾',
+    '19': '下雪',
+    '20': '暴风',
+    '21': '大雨',
+    '22': '大雨',
+    '23': '大雨',
+    '24': '大雨',
+    '25': '大雨',
+    '26': '下雪',
+    '27': '下雪',
+    '28': '下雪',
+    '29': '暴风',
+    '30': '暴风',
+    '31': '暴风',
+    '32': '雾霾',
+    '49': '雾霾',
+    '53': '雾霾',
+    '54': '雾霾',
+    '55': '雾霾',
+    '56': '雾霾',
+    '57': '雾霾',
+    '58': '雾霾',
+    '301': '大雨',
+    '302': '下雪'
+  };
+
+  SizedBox _getWeatherIcon(String weatherCode) {
+    return SizedBox(
+      width: 110,
+      height: 110,
+      child: Image(
+        image:
+            AssetImage('assets/newUI/weather/${codeToImage[weatherCode]}.png'),
+      ),
+    );
   }
 
-  String _getMinTemperature(DateTime dateTime) {
-    return '/16℃';
-  }
-
-  String _getLocation(String code) {
-    return '顺德区';
-  }
-
-  SizedBox _getWeatherIcon(int weatherCode) {
-    return const SizedBox(
-        width: 110,
-        height: 110,
-        child: Image(image: AssetImage('assets/newUI/weather/sun_cloud.png')));
-  }
-
-  String _getWeatherName(int weekday) {
-    return '雾霾天';
+  String _getWeatherName(String weatherCode) {
+    return codeToName[weatherCode] ?? '未知天气';
   }
 }
