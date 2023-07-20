@@ -206,13 +206,26 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         if (isNeedChoosePlatform) ChosePlatform(
           onChose: (index) {
             if(index == 0) {
-              ChangePlatformHelper.changeToMeiju(context);
+              ChangePlatformHelper.changeToMeiju(context).then((isOK) {
+                if (isOK) {
+                  setState(() {
+                    isNeedChoosePlatform = false;
+                  });
+                } else {
+                  TipsUtils.toast(content: '启动平台失败');
+                }
+              });
             } else if(index == 1) {
-              ChangePlatformHelper.changeToHomlux(context);
+              ChangePlatformHelper.changeToHomlux(context).then((isOK) {
+                if (isOK) {
+                  setState(() {
+                    isNeedChoosePlatform = false;
+                  });
+                } else {
+                  TipsUtils.toast(content: '启动平台失败');
+                }
+              });
             }
-            setState(() {
-              isNeedChoosePlatform = false;
-            });
           },
         ),
 
