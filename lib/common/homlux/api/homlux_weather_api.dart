@@ -9,7 +9,7 @@ import 'homlux_api.dart';
 class HomluxWeatherApi {
 
   /// 查询天气
-  Future<HomluxResponseEntity<HomluxWeatherEntity>> queryWeather(
+  static Future<HomluxResponseEntity<HomluxWeatherEntity>> queryWeather(
       String name, String latitude,
       String longitude, {CancelToken? cancelToken}) {
     return HomluxApi.request('/v1/thirdparty/moji/weather/queryMojiWeatherConditionInfo',

@@ -157,6 +157,7 @@ class _CustomPageState extends State<CustomPage> {
                                 // 映射图标
                                 Widget cardWithIcon = GestureDetector(
                                   onTap: () {
+                                    logger.i('删除卡片');
                                     layoutModel.deleteLayout(
                                         result.deviceId, result.pageIndex);
                                   },

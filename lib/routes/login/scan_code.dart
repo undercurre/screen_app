@@ -50,7 +50,7 @@ class _ScanCode extends State<ScanCode> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: QrImage(
-                        data: qrDataAd?.qrCodeEntity!.qrcode ?? '',
+                        data: qrDataAd?.qrCodeEntity?.qrcode ?? '',
                         version: QrVersions.auto,
                         size: 240.0,
                         padding: const EdgeInsets.all(20),

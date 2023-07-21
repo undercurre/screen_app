@@ -160,5 +160,4 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
     }
     updateUI();
   }
-
 }

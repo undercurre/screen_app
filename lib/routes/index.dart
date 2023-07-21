@@ -8,6 +8,7 @@ import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
 import 'package:screen_app/routes/setting/standby_style_select.dart';
+import 'package:screen_app/widgets/business/area_selector.dart';
 
 import 'boot/index.dart';
 import 'develop/develop_helper.dart';
@@ -37,6 +38,7 @@ var routes = <String, WidgetBuilder>{
   "AddDevice": (context) => const AddDevicePage(),
   "SelectRoomPage": (context) => const SelectRoomPage(),
   "SelectScenePage": (context) => const SelectScenePage(),
+  "SelectAreaPage": (context) => const AreaSelector(),
   "ScreenSaver": (context) => const ScreenSaver(),
   "SpecialBlackBgSaverScreen": (context) => const SpecialBlackBgSaverScreen(),
   "SnifferPage": (context) => const SnifferPage(),
