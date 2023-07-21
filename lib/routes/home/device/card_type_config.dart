@@ -3,6 +3,7 @@ import 'package:screen_app/widgets/card/main/big_device_air.dart';
 import 'package:screen_app/widgets/card/main/big_device_curtain.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/big_device_panel.dart';
+import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import '../../../widgets/card/main/small_device.dart';
@@ -68,34 +69,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(dynamic params)>>
     },
   },
   DeviceEntityTypeInP4.LocalPanel1: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '开关1',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/localPanel1.png'),
-          ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
+    CardType.Small: (params) => LocalRelayWidget(relayIndex: 1)
   },
   DeviceEntityTypeInP4.LocalPanel2: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '开关2',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/localPanel2.png'),
-          ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
+    CardType.Small: (params) => LocalRelayWidget(relayIndex: 2)
   },
   DeviceEntityTypeInP4.Device0xAC: {
     CardType.Small: (params) => SmallDeviceCardWidget(

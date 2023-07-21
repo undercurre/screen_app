@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/device_position_notifier.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
+import 'package:screen_app/states/relay_change_notifier.dart';
 import 'package:screen_app/states/weather_change_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
@@ -72,6 +73,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => GlobalRouteObserverNotifier()),
         ChangeNotifierProvider(create: (_) => LayoutModel()),
         ChangeNotifierProvider(create: (_) => WeatherModel()),
+        ChangeNotifierProvider(create: (_) => RelayModel()),
       ],
       child: PointerDownListener(
           child: MaterialApp(
