@@ -221,8 +221,7 @@ class HomluxDeviceApi {
 
   /// ******************
   /// 控制灯组的亮度
-  /// [deviceId] 设备Id
-  /// [deviceType] 设备类型
+  /// [groupId] 分组id
   /// [brightness] 0 - 100
   /// *******************
   static Future<HomluxResponseEntity> controlGroupLightBrightness(String groupId, int brightness) {
@@ -238,8 +237,7 @@ class HomluxDeviceApi {
 
   /// ******************
   /// 控制灯组的色温
-  /// [deviceId] 设备Id
-  /// [deviceType] 设备类型
+  /// [groupId] 分组id
   /// [colorTemp] 0 - 100
   /// *******************
   static Future<HomluxResponseEntity> controlGroupLightColorTemp(String groupId, int colorTemp) {

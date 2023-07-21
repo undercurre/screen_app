@@ -14,9 +14,9 @@ import 'package:screen_app/models/device_p_d_m_entity.dart';
 import 'package:screen_app/models/location_entity.dart';
 import 'package:screen_app/models/profile_entity.dart';
 import 'package:screen_app/models/scene_info_entity.dart';
-import 'package:screen_app/models/weather7d_entity.dart';
 
 import '../../../models/meiju_device_entity.dart';
+import '../../../models/meiju_device_info_entity.dart';
 import '../../../models/meiju_home_info_entity.dart';
 import '../../../models/meiju_home_list_info_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
@@ -59,6 +59,8 @@ class MeiJuJsonConvert {
 		(MeiJuWeatherEntity).toString(): MeiJuWeatherEntity.fromJson,
 		(MeiJuWeather7dEntity).toString(): MeiJuWeather7dEntity.fromJson,
 		(MeiJuSceneListEntity).toString(): MeiJuSceneListEntity.fromJson,
+		(MeiJuDeviceInfoEntity).toString(): MeiJuDeviceInfoEntity.fromJson,
+		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
 
 
 
@@ -141,6 +143,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuDeviceInfoAbilityEntity>[] is M) {
+			return data.map<MeiJuDeviceInfoAbilityEntity>((Map<String, dynamic> e) => MeiJuDeviceInfoAbilityEntity.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuDeviceInfoEntity>[] is M) {
+			return data.map<MeiJuDeviceInfoEntity>((Map<String, dynamic> e) => MeiJuDeviceInfoEntity.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuWeather7dEntity>[] is M){
 			return data.map<MeiJuWeather7dEntity>((Map<String, dynamic> e) => MeiJuWeather7dEntity.fromJson(e)).toList() as M;
 		}
@@ -210,10 +218,6 @@ class MeiJuJsonConvert {
 		if(<MeiJuTokenEntity>[] is M){
 			return data.map<MeiJuTokenEntity>((Map<String, dynamic> e) => MeiJuTokenEntity.fromJson(e)).toList() as M;
 		}
-		if(<Weather7dEntity>[] is M){
-			return data.map<Weather7dEntity>((Map<String, dynamic> e) => Weather7dEntity.fromJson(e)).toList() as M;
-		}
-
 		debugPrint("${M.toString()} not found");
 	
 		return null;
