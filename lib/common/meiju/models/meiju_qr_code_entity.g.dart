@@ -1,34 +1,34 @@
-import 'package:screen_app/generated/json/base/json_convert_content.dart';
+import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
 import 'meiju_qr_code_entity.dart';
 
 MeiJuQrCodeEntity $MeiJuQrCodeEntityFromJson(Map<String, dynamic> json) {
 	final MeiJuQrCodeEntity qrCodeEntity = MeiJuQrCodeEntity();
-	final int? checkType = jsonConvert.convert<int>(json['checkType']);
+	final int? checkType = meijuJsonConvert.convert<int>(json['checkType']);
 	if (checkType != null) {
 		qrCodeEntity.checkType = checkType;
 	}
-	final String? deviceId = jsonConvert.convert<String>(json['deviceId']);
+	final String? deviceId = meijuJsonConvert.convert<String>(json['deviceId']);
 	if (deviceId != null) {
 		qrCodeEntity.deviceId = deviceId;
 	}
-	final int? effectTimeSecond = jsonConvert.convert<int>(json['effectTimeSecond']);
+	final int? effectTimeSecond = meijuJsonConvert.convert<int>(json['effectTimeSecond']);
 	if (effectTimeSecond != null) {
 		qrCodeEntity.effectTimeSecond = effectTimeSecond;
 	}
-	final int? expireTime = jsonConvert.convert<int>(json['expireTime']);
+	final int? expireTime = meijuJsonConvert.convert<int>(json['expireTime']);
 	if (expireTime != null) {
 		qrCodeEntity.expireTime = expireTime;
 	}
-	final String? openId = jsonConvert.convert<String>(json['openId']);
+	final String? openId = meijuJsonConvert.convert<String>(json['openId']);
 	if (openId != null) {
 		qrCodeEntity.openId = openId;
 	}
-	final String? sessionId = jsonConvert.convert<String>(json['sessionId']);
+	final String? sessionId = meijuJsonConvert.convert<String>(json['sessionId']);
 	if (sessionId != null) {
 		qrCodeEntity.sessionId = sessionId;
 	}
-	final String? shortUrl = jsonConvert.convert<String>(json['shortUrl']);
+	final String? shortUrl = meijuJsonConvert.convert<String>(json['shortUrl']);
 	if (shortUrl != null) {
 		qrCodeEntity.shortUrl = shortUrl;
 	}

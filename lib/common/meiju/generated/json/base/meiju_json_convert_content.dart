@@ -7,14 +7,13 @@ import 'package:flutter/material.dart' show debugPrint;
 import 'package:screen_app/channel/models/music_state.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 import 'package:screen_app/channel/models/wifi_scan_result.dart';
-import 'package:screen_app/models/delete_device_result_entity.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 import 'package:screen_app/models/device_lua_entity.dart';
 import 'package:screen_app/models/device_p_d_m_entity.dart';
 import 'package:screen_app/models/location_entity.dart';
 import 'package:screen_app/models/profile_entity.dart';
-import 'package:screen_app/models/scene_info_entity.dart';
 
+import '../../../models/meiju_delete_device_result_entity.dart';
 import '../../../models/meiju_device_entity.dart';
 import '../../../models/meiju_device_info_entity.dart';
 import '../../../models/meiju_home_info_entity.dart';
@@ -35,7 +34,6 @@ class MeiJuJsonConvert {
 		(AiMusicState).toString(): AiMusicState.fromJson,
 		(NetState).toString(): NetState.fromJson,
 		(WiFiScanResult).toString(): WiFiScanResult.fromJson,
-		(DeleteDeviceResultEntity).toString(): DeleteDeviceResultEntity.fromJson,
 		(DeviceHomeListEntity).toString(): DeviceHomeListEntity.fromJson,
 		(DeviceHomeListHomeList).toString(): DeviceHomeListHomeList.fromJson,
 		(DeviceHomeListHomeListRoomList).toString(): DeviceHomeListHomeListRoomList.fromJson,
@@ -45,10 +43,6 @@ class MeiJuJsonConvert {
 		(DevicePDMEntity).toString(): DevicePDMEntity.fromJson,
 		(LocationEntity).toString(): LocationEntity.fromJson,
 		(ProfileEntity).toString(): ProfileEntity.fromJson,
-
-		(SceneInfoEntity).toString(): SceneInfoEntity.fromJson,
-
-
 
 		(MeiJuQrCodeEntity).toString(): MeiJuQrCodeEntity.fromJson,
 		(MeiJuTokenEntity).toString(): MeiJuTokenEntity.fromJson,
@@ -61,10 +55,7 @@ class MeiJuJsonConvert {
 		(MeiJuSceneListEntity).toString(): MeiJuSceneListEntity.fromJson,
 		(MeiJuDeviceInfoEntity).toString(): MeiJuDeviceInfoEntity.fromJson,
 		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
-
-
-
-
+		(MeiJuDeleteDeviceResultEntity).toString(): MeiJuDeleteDeviceResultEntity.fromJson,
 	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
@@ -164,8 +155,8 @@ class MeiJuJsonConvert {
 		if(<WiFiScanResult>[] is M){
 			return data.map<WiFiScanResult>((Map<String, dynamic> e) => WiFiScanResult.fromJson(e)).toList() as M;
 		}
-		if(<DeleteDeviceResultEntity>[] is M){
-			return data.map<DeleteDeviceResultEntity>((Map<String, dynamic> e) => DeleteDeviceResultEntity.fromJson(e)).toList() as M;
+		if(<MeiJuDeleteDeviceResultEntity>[] is M){
+			return data.map<MeiJuDeleteDeviceResultEntity>((Map<String, dynamic> e) => MeiJuDeleteDeviceResultEntity.fromJson(e)).toList() as M;
 		}
 		if(<MeiJuDeviceEntity>[] is M){
 			return data.map<MeiJuDeviceEntity>((Map<String, dynamic> e) => MeiJuDeviceEntity.fromJson(e)).toList() as M;
@@ -208,9 +199,6 @@ class MeiJuJsonConvert {
 		}
 		if(<MeiJuRoomEntity>[] is M){
 			return data.map<MeiJuRoomEntity>((Map<String, dynamic> e) => MeiJuRoomEntity.fromJson(e)).toList() as M;
-		}
-		if(<SceneInfoEntity>[] is M){
-			return data.map<SceneInfoEntity>((Map<String, dynamic> e) => SceneInfoEntity.fromJson(e)).toList() as M;
 		}
 		if(<MeiJuSceneListEntity>[] is M){
 			return data.map<MeiJuSceneListEntity>((Map<String, dynamic> e) => MeiJuSceneListEntity.fromJson(e)).toList() as M;
