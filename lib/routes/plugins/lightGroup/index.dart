@@ -1,182 +1,37 @@
-import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/plugins/lightGroup/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../states/device_change_notifier.dart';
+import '../../../common/gateway_platform.dart';
 import '../../../widgets/event_bus.dart';
+import 'data_adapter.dart';
 
 class LightGroupPageState extends State<LightGroupPage> {
-  Map<String, dynamic> deviceWatch = {
-    "deviceId": "",
-    "sn8": null,
-    "modelNumber": '',
-    "deviceName": '灯光分组',
-    "detail": {
-      "id": 0,
-      "groupId": 1,
-      "applianceList": [
-        {"parentApplianceCode": "", "applianceCode": ""}
-      ],
-      "detail": {
-        "groupId": "1",
-        "groupName": "灯光分组",
-        "brightness": "1",
-        "colorTemperature": "0",
-        "switchStatus": "0",
-        "maxColorTemp": "6500",
-        "minColorTemp": "2700"
-      }
-    }
-  };
-
-  late DeviceEntity deviceInfoById;
-  bool istouching = false;
-
-  var localBrightness = '1';
-  var localColorTemp = '0';
-  var localPower = false;
-  var isColorful = false;
+  LightGroupDataAdapter? dataAdapter;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 
-  Future<void> powerHandle() async {
-    setState(() {
-      localPower = !localPower;
+  @override
+  void initState() {
+    super.initState();
+    dataAdapter = LightGroupDataAdapter(MideaRuntimePlatform.platform, context);
+    dataAdapter?.bindDataUpdateFunction(() {
+      setState(() {});
     });
-    var res = await LightGroupApi.powerPDM(deviceInfoById, localPower);
-    if (res.isSuccess) {
-      updateDetail();
-    } else {
-      setState(() {
-        localPower = !localPower;
-      });
-    }
-  }
-
-  Future<void> brightnessHandle(num value, Color activeColor) async {
-    var exValue = localBrightness;
-    setState(() {
-      localBrightness = value.toString();
-      istouching = true;
-    });
-    var res = await LightGroupApi.brightnessPDM(deviceInfoById, value);
-
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-      updateDetail();
-    } else {
-      setState(() {
-        localBrightness = exValue;
-      });
-    }
-  }
-
-  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    var exValue = localColorTemp;
-    setState(() {
-      localColorTemp = value.toString();
-      istouching = true;
-    });
-    var res = await LightGroupApi.colorTemperaturePDM(deviceInfoById, value);
-
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(seconds: 1000);
-
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () {
-        updateDetail();
-      });
-    } else {
-      setState(() {
-        localColorTemp = exValue;
-      });
-    }
-  }
-
-  Future<void> updateDetail() async {
-    var deviceInfo = context
-        .read<DeviceListModel>()
-        .getDeviceInfoById(deviceWatch["deviceId"]);
-    var result = await LightGroupApi.getLightDetail(deviceInfo);
-    initView(result.result["result"]["group"]);
-    deviceInfo.detail!["detail"] = result.result["result"]["group"];
-    if (mounted) {
-      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
-    }
-  }
-
-  initView(detail) {
-    setState(() {
-      localBrightness = detail["brightness"];
-      localColorTemp = detail["colorTemperature"];
-      localPower = detail["switchStatus"] == "1";
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      dataAdapter?.initAdapter();
     });
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceWatch["deviceId"] = args['deviceId'];
-      setIsColorFul(args['deviceId']);
-      setState(() {
-        deviceWatch = context
-            .read<DeviceListModel>()
-            .getDeviceDetailById(deviceWatch["deviceId"]);
-        logger.i('获取灯组详情信息', deviceWatch);
-        if (deviceWatch["detail"]["detail"] != null) {
-          localBrightness = deviceWatch["detail"]["detail"]["brightness"];
-          localColorTemp = deviceWatch["detail"]["detail"]["colorTemperature"];
-        }
-        localPower = args["power"];
-      });
-      deviceInfoById = context
-          .read<DeviceListModel>()
-          .getDeviceInfoById(deviceWatch["deviceId"]);
-      debugPrint('插件中获取到的deviceInfo：$deviceInfoById');
-      debugPrint('插件中获取到的详情：$deviceWatch');
-    });
-    // 实例化Duration类 设置定时器持续时间 毫秒
-    var timeout = const Duration(milliseconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () => {updateDetail()});
-  }
-
-  setIsColorFul(String deviceId) async {
-    var isColorfulRes = await LightGroupApi.isColorful(context.read<DeviceListModel>().getDeviceInfoById(deviceId));
-    logger.i('isColorfulRes', isColorfulRes);
-    setState(() {
-      isColorful = isColorfulRes;
-    });
+  void dispose() {
+    super.dispose();
+    dataAdapter?.destroy();
+    dataAdapter = null;
   }
 
   @override
@@ -200,8 +55,8 @@ class LightGroupPageState extends State<LightGroupPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: int.parse(localBrightness),
-                colorTemperature: 100 - int.parse(localColorTemp),
+                brightness: dataAdapter?.device.brightness ?? 0,
+                colorTemperature: 100 - (dataAdapter?.device.colorTemp ?? 0),
               )),
           Flex(
             direction: Axis.vertical,
@@ -216,9 +71,9 @@ class LightGroupPageState extends State<LightGroupPage> {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onRightBtnTap: powerHandle,
-                    title: deviceWatch["deviceName"],
-                    power: localPower,
+                    onRightBtnTap: dataAdapter?.controlPower,
+                    title: dataAdapter?.device.deviceName ?? "",
+                    power: dataAdapter?.device.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -241,7 +96,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () async {
-                        await updateDetail();
+                        await dataAdapter?.updateDetail();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -262,33 +117,31 @@ class LightGroupPageState extends State<LightGroupPage> {
                                     Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
-                                        disabled: !localPower,
+                                        disabled: dataAdapter?.device.power ?? true ? false : true,
                                         title: '亮度',
                                         minValue: 1,
                                         maxValue: 100,
-                                        value: int.parse(deviceWatch["detail"]
-                                            ["detail"]["brightness"]),
+                                        value: dataAdapter?.device.brightness ?? 0,
                                         activeColors: const [
                                           Color(0xFFFFD185),
                                           Color(0xFFFFD185)
                                         ],
-                                        onChanged: brightnessHandle,
-                                        onChanging: brightnessHandle,
+                                        onChanged: dataAdapter?.controlBrightness,
+                                        onChanging: dataAdapter?.controlBrightness,
                                       ),
                                     ),
-                                    if (isColorful) Container(
+                                    if (dataAdapter?.device.isColorful ?? false) Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
-                                        disabled: !localPower,
+                                        disabled: dataAdapter?.device.power ?? true ? false : true,
                                         title: '色温',
-                                        value: int.parse(deviceWatch["detail"]
-                                            ["detail"]["colorTemperature"]),
+                                        value: dataAdapter?.device.colorTemp ?? 0,
                                         activeColors: const [
                                           Color(0xFFFFD39F),
                                           Color(0xFF55A2FA)
                                         ],
-                                        onChanged: colorTemperatureHandle,
-                                        onChanging: colorTemperatureHandle,
+                                        onChanged: dataAdapter?.controlColorTemperature,
+                                        onChanging: dataAdapter?.controlColorTemperature,
                                       ),
                                     ),
                                   ],

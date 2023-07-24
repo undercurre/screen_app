@@ -1,299 +1,48 @@
-import 'dart:async';
-import 'dart:convert';
+
+import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/common/push.dart';
 import 'package:screen_app/mixins/throttle.dart';
-import 'package:screen_app/models/device_entity.dart';
-import 'package:screen_app/routes/home/device/service.dart';
-import 'package:screen_app/routes/plugins/0x13/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../common/global.dart';
-import '../../../models/mz_response_entity.dart';
+import '../../../common/gateway_platform.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
-import '../../../states/device_change_notifier.dart';
+import 'data_adapter.dart';
 
 class WifiLightPageState extends State<WifiLightPage> with Throttle {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
-
-  Map<String, dynamic> deviceWatch = {
-    "deviceId": "",
-    "deviceName": '吸顶灯',
-    "detail": {
-      "brightValue": 1,
-      "colorTemperatureValue": 0,
-      "power": false,
-      "screenModel": "manual",
-      "timeOff": "0"
-    }
-  };
-
-  String sn8 = '';
-
-  var localBrightness = 1;
-  var localColorTemp = 0;
-  var localPower = false;
-  var localScreenModel = 'manual';
-  var localTimeOff = 0;
-  var istouching = false;
+  WIFILightDataAdapter? dataAdapter;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
   }
 
-  Future<void> powerHandle() async {
-    setState(() {
-      localPower = !localPower;
-    });
-    var res = await WIFILightApi.powerLua(deviceWatch["deviceId"], localPower);
-    if (res.isSuccess) {
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 1000);
-
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-    } else {
-      setState(() {
-        localPower = !localPower;
-      });
-    }
-  }
-
-  Future<void> delayHandle() async {
-    if (!localPower) return;
-    if (localTimeOff == 0) {
-      late MzResponseEntity<dynamic> res;
-      if (sn8 == '79009833') {
-        res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], true);
-      } else {
-        res = await WIFILightApi.delayLua(deviceWatch["deviceId"], true);
-      }
-      if (res.isSuccess) {
-        setState(() {
-          localTimeOff = 3;
-        });
-        updateDetail();
-      }
-    } else {
-      late MzResponseEntity<dynamic> res;
-      if (sn8 == '79009833') {
-        res = await WIFILightApi.delayPDM(deviceWatch["deviceId"], false);
-      } else {
-        res = await WIFILightApi.delayLua(deviceWatch["deviceId"], false);
-      }
-      if (res.isSuccess) {
-        setState(() {
-          localTimeOff = 0;
-        });
-        updateDetail();
-      }
-    }
-  }
-
-  Future<void> modeHandle(Mode mode) async {
-    late MzResponseEntity<dynamic> res;
-    if (sn8 == '79009833') {
-      res = await WIFILightApi.modePDM(deviceWatch["deviceId"], mode.key);
-    } else {
-      res = await WIFILightApi.modeLua(deviceWatch["deviceId"], mode.key);
-    }
-    if (res.isSuccess) {
-      setState(() {
-        localScreenModel = mode.key;
-      });
-      updateDetail();
-    }
-  }
-
-  Future<void> brightnessHandle(num value, Color activeColor) async {
-    setState(() {
-      localBrightness = value.toInt();
-      istouching = true;
-    });
-    late MzResponseEntity<dynamic> res;
-    if (sn8 == '79009833') {
-      res = await WIFILightApi.brightnessPDM(deviceWatch["deviceId"], value);
-    } else {
-      res = await WIFILightApi.brightnessLua(deviceWatch["deviceId"], value);
-    }
-    // 实例化Duration类 设置定时器持续时间 毫秒
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-
-    } else {
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () {
-        updateDetail();
-      });
-    }
-  }
-
-  Future<void> colorTemperatureHandle(num value, Color activeColor) async {
-    setState(() {
-      localColorTemp = value.toInt();
-      istouching = true;
-    });
-    late MzResponseEntity<dynamic> res;
-    if (sn8 == '79009833') {
-      res =
-      await WIFILightApi.colorTemperaturePDM(deviceWatch["deviceId"], value);
-    } else {
-      res =
-      await WIFILightApi.colorTemperatureLua(deviceWatch["deviceId"], value);
-    }
-
-    // 实例化Duration类 设置定时器持续时间 毫秒
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-
-    } else {
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () {
-        updateDetail();
-      });
-    }
-  }
-
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[localScreenModel] = true;
+    selectKeys[dataAdapter?.device.screenModel ?? 'manual'] = true;
     return selectKeys;
   }
 
-  Future<void> updateDetail() async {
-    var deviceInfo = context
-        .read<DeviceListModel>()
-        .getDeviceInfoById(deviceWatch["deviceId"]);
-    var detail = await DeviceService.getDeviceDetail(deviceInfo);
-    if (deviceInfo.sn8 == '79009833') {
-      setState(() {
-        deviceWatch["detail"] = detail;
-        localBrightness = formatValue(detail["brightValue"] < 1 ? 1 : detail["brightValue"]);
-        localColorTemp = formatValue(detail["colorTemperatureValue"]);
-        localPower = detail["power"];
-        localScreenModel = detail["screenModel"];
-        localTimeOff = detail["timeOff"];
-      });
-    } else {
-      setState(() {
-        sn8 = deviceInfo.sn8 ?? '';
-        deviceWatch["detail"] = detail;
-        localBrightness = formatValue(int.parse(detail["brightness"]) < 1 ? 1 : int.parse(detail["brightness"]));
-        localColorTemp = formatValue(int.parse(detail["color_temperature"]));
-        localPower = detail["power"] == 'on';
-        localScreenModel = detail["scene_light"] ?? 'manual';
-        localTimeOff = int.parse(detail["delay_light_off"]);
-      });
-    }
-    if (mounted) {
-      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
-    }
-    debugPrint('插件中获取到的详情：$deviceWatch');
-  }
 
   @override
   void initState() {
     super.initState();
+    dataAdapter = WIFILightDataAdapter(MideaRuntimePlatform.platform, context);
+    dataAdapter?.bindDataUpdateFunction(() {
+      setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceWatch["deviceId"] = args['deviceId'];
-      var deviceDetail = context
-          .read<DeviceListModel>()
-          .getDeviceDetailById(deviceWatch["deviceId"]);
-      var deviceInfo = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
-      if (deviceInfo.sn8 == '79009833') {
-        setState(() {
-          sn8 = deviceInfo.sn8 ?? '';
-          deviceWatch = deviceDetail;
-          localBrightness = formatValue(deviceDetail["detail"]["brightValue"]) < 1 ? 1 : formatValue(deviceDetail["detail"]["brightValue"]);
-          localColorTemp = formatValue(deviceDetail["detail"]["colorTemperatureValue"]);
-          localPower = args['power'];
-          localScreenModel = deviceDetail["detail"]["screenModel"];
-          localTimeOff = deviceDetail["detail"]["timeOff"];
-        });
-      } else {
-        setState(() {
-          deviceWatch = deviceDetail;
-          localBrightness = formatValue(int.parse(deviceDetail["detail"]["brightness"]) < 1 ? 1 : int.parse(deviceDetail["detail"]["brightness"]));
-          localColorTemp = formatValue(int.parse(deviceDetail["detail"]["color_temperature"]));
-          localPower = args['power'];
-          localScreenModel = deviceDetail["detail"]["scene_light"] ?? 'manual';
-          localTimeOff = int.parse(deviceDetail["detail"]["delay_light_off"]);
-        });
-      }
-      debugPrint('插件中获取到的详情：$deviceWatch');
-      // 实例化Duration类 设置定时器持续时间 毫秒
-      var timeout = const Duration(milliseconds: 2000);
-
-      // 延时调用一次 1秒后执行
-      Timer(timeout, () => {updateDetail()});
-
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            updateDetail();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail?['detail']?['nodeId'] == nodeId) {
-            updateDetail();
-          }
-        }
-      }));
-
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-            if (istouching) return;
-            updateDetail();
-            // throttle(() async {
-            //   setState(() {
-            //     istouching = true;
-            //   });
-            //   updateDetail();
-            //   setState(() {
-            //     istouching = false;
-            //   });
-            // }, durationTime: const Duration(seconds: 2000));
-          }
-        }
-      }));
-
+      dataAdapter?.initAdapter();
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    dataAdapter?.destroy();
+    dataAdapter = null;
   }
 
   @override
@@ -317,8 +66,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: formatValue(localBrightness),
-                colorTemperature: 100 - formatValue(localColorTemp),
+                brightness: formatValue(dataAdapter?.device.brightness ?? 1),
+                colorTemperature: 100 - formatValue(dataAdapter?.device.colorTemp ?? 0),
               )),
           Flex(
             direction: Axis.vertical,
@@ -333,9 +82,11 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onRightBtnTap: powerHandle,
-                    title: deviceWatch["deviceName"],
-                    power: localPower,
+                    onRightBtnTap: () {
+                      dataAdapter?.controlPower();
+                    },
+                    title: dataAdapter?.device.deviceName ?? '',
+                    power: dataAdapter?.device.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -357,8 +108,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                         messageText: '上次更新 %T',
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
-                      onRefresh: () async {
-                        await updateDetail();
+                      onRefresh: () {
+                        dataAdapter?.updateDetail();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -387,14 +138,14 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           minValue: 1,
                                           maxValue: 100,
                                           title: '亮度',
-                                          disabled: !localPower,
-                                          value: localBrightness < 1 ? 1 : localBrightness,
+                                          disabled: dataAdapter?.device.power ?? true ? false : true,
+                                          value: max(1, dataAdapter?.device.brightness ?? 1),
                                           activeColors: const [
                                             Color(0xFFFFD185),
                                             Color(0xFFFFD185)
                                           ],
-                                          onChanged: brightnessHandle,
-                                          onChanging: brightnessHandle,
+                                          onChanged: dataAdapter?.controlBrightness,
+                                          onChanging: dataAdapter?.controlBrightness,
                                         ),
                                       ),
                                       Container(
@@ -402,36 +153,38 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
                                           title: '色温',
-                                          disabled: !localPower,
-                                          value: localColorTemp,
+                                          disabled: dataAdapter?.device.power ?? true ? false : true,
+                                          value: dataAdapter?.device.colorTemp ?? 0,
                                           activeColors: const [
                                             Color(0xFFFFD39F),
                                             Color(0xFF55A2FA)
                                           ],
-                                          onChanged: colorTemperatureHandle,
-                                          onChanging: colorTemperatureHandle,
+                                          onChanged: dataAdapter?.controlColorTemperature,
+                                          onChanging: dataAdapter?.controlColorTemperature,
                                         ),
                                       ),
-                                      if (sn8 == '79009833') Container(
+                                      if (dataAdapter?.device.deviceEnt?.sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
-                                          disabled: !localPower,
+                                          disabled: dataAdapter?.device.power ?? true ? false : true,
                                           modeList: lightModes,
                                           selectedKeys: getSelectedKeys(),
-                                          onTap: modeHandle,
+                                          onTap: dataAdapter?.controlMode,
                                         ),
                                       ),
-                                      if (sn8 == '79009833') Container(
+                                      if (dataAdapter?.device.deviceEnt?.sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
                                           title: '延时关灯',
-                                          subTitle: localTimeOff == 0
+                                          subTitle: dataAdapter?.device.timeOff == 0
                                               ? '未设置'
-                                              : '$localTimeOff分钟后关灯',
+                                              : '${dataAdapter?.device.timeOff}分钟后关灯',
                                           child: Listener(
-                                            onPointerDown: (e) => delayHandle(),
+                                            onPointerDown: (e) {
+                                              dataAdapter?.controlDelay();
+                                            },
                                             child: Container(
                                               width: 40,
                                               height: 40,
@@ -439,7 +192,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                                 gradient: LinearGradient(
                                                   begin: Alignment.topRight,
                                                   end: Alignment.bottomLeft,
-                                                  colors: localTimeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                                                  colors: dataAdapter?.device.timeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
                                                     [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
                                                 ),
                                                 borderRadius:
@@ -481,8 +234,4 @@ class WifiLightPage extends StatefulWidget {
 
 int formatValue(num value) {
   return int.parse((value / 255 * 100).toStringAsFixed(0));
-}
-
-int unFormatValue(num value) {
-  return int.parse((value / 100 * 255).toStringAsFixed(0));
 }
