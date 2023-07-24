@@ -9,7 +9,7 @@ class MeiJuSceneApi {
 
   /// 场景列表查询
   static Future<MeiJuResponseEntity<MeiJuSceneListEntity>> getSceneList(String homegroupId, String uid) async {
-    var res = await MeiJuApi.requestMideaIot<MeiJuSceneListEntity>("mas/v5/app/proxy?alias=/v2/scene/brief/list",
+    var res = await MeiJuApi.requestMideaIot<MeiJuSceneListEntity>("/mas/v5/app/proxy?alias=/v2/scene/brief/list",
         options: Options(method: 'POST', headers: {
           'uid':uid,
           'version': '8.0'
@@ -23,7 +23,7 @@ class MeiJuSceneApi {
 
   /// 场景列表执行
   static Future<MeiJuResponseEntity> execScene(String homegroupId, String uid, String sceneId) async {
-    var res = await MeiJuApi.requestMideaIot("mas/v5/app/proxy?alias=/v2/scene/execute",
+    var res = await MeiJuApi.requestMideaIot("/mas/v5/app/proxy?alias=/v2/scene/execute",
         data: {
           "sceneId": sceneId,
           "homegroupId": homegroupId,

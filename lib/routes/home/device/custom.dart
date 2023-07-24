@@ -5,7 +5,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/global.dart';
-import '../../../states/device_position_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';

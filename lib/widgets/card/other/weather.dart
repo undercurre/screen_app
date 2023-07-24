@@ -37,7 +37,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
     return Container(
       width: 210,
       height: 196,
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: const LinearGradient(
@@ -68,6 +68,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                       child: Text(
                         '${weatherModel.getTemperature()}',
                         style: TextStyle(
+                          height: 1.25,
                           fontWeight: FontWeight.w500,
                           fontSize: 48,
                           color: const Color.fromRGBO(255, 255, 255, 1)
@@ -107,17 +108,14 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                             color: const Color.fromRGBO(255, 255, 255, 1)
                                 .withOpacity(0.79)),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          weatherModel.selectedDistrict.cityName,
-                          style: TextStyle(
-                              letterSpacing: 1.33,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 13,
-                              color: const Color.fromRGBO(255, 255, 255, 1)
-                                  .withOpacity(0.64)),
-                        ),
+                      Text(
+                        weatherModel.selectedDistrict.cityName,
+                        style: TextStyle(
+                            letterSpacing: 1.33,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 13,
+                            color: const Color.fromRGBO(255, 255, 255, 1)
+                                .withOpacity(0.64)),
                       ),
                     ],
                   ),

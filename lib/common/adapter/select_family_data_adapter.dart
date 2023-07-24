@@ -16,6 +16,9 @@ class SelectFamilyItem {
   // 家庭名称
   String familyName;
 
+  // 家庭id
+  String familyId;
+
   // 房间数量
   String roomNum;
 
@@ -33,6 +36,7 @@ class SelectFamilyItem {
 
   SelectFamilyItem.fromMeiJu(MeiJuHomeInfoEntity data)
       : familyName = data.name ?? '',
+        familyId = data.homegroupId ?? '',
         roomNum = data.roomCount ?? "0",
         deviceNum = data.applianceCount ?? "0",
         userNum = data.memberCount ?? '0',
@@ -42,6 +46,7 @@ class SelectFamilyItem {
 
   SelectFamilyItem.fromHomlux(HomluxFamilyEntity data)
       : familyName = data.houseName,
+        familyId = data.houseId,
         roomNum = '${data.roomNum}',
         deviceNum = '${data.deviceNum}',
         userNum = '${data.userNum}',

@@ -15,7 +15,7 @@ class MzWiFiImage extends StatelessWidget {
     if(level > 1) {
       return 'assets/imgs/icon/wifi-3.png';
     } else {
-      return 'assets/imgs/icon/wifi-2.png';
+      return 'assets/imgs/icon/wifi-4.png';
     }
   }
 

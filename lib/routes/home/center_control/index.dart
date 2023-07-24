@@ -12,7 +12,6 @@ import 'package:screen_app/common/index.dart';
 import 'package:screen_app/routes/home/center_control/air_condition_control.dart';
 import 'package:screen_app/routes/home/center_control/curtain_control.dart';
 import 'package:screen_app/routes/home/center_control/light_control.dart';
-import 'package:screen_app/routes/home/center_control/quick_scene.dart';
 import 'package:screen_app/routes/home/center_control/service.dart';
 import 'package:screen_app/routes/home/center_control/view_part.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
@@ -267,13 +266,6 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
               online: true,
               isFault: true,
               isNative: false,
-            ),
-            SmallSceneCardWidget(
-              name: '默认情景',
-              icon: Image(
-                image: AssetImage('assets/newUI/scene/default.png'),
-              ),
-              onOff: false,
             ),
           ],
         ),
