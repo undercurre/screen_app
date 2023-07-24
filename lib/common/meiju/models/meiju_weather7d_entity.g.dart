@@ -1,50 +1,50 @@
-import 'package:screen_app/generated/json/base/json_convert_content.dart';
+import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
 import 'meiju_weather7d_entity.dart';
 
 MeiJuWeather7dEntity $MeiJuWeather7dEntityFromJson(Map<String, dynamic> json) {
 	final MeiJuWeather7dEntity weather7dEntity = MeiJuWeather7dEntity();
-	final String? date = jsonConvert.convert<String>(json['date']);
+	final String? date = meijuJsonConvert.convert<String>(json['date']);
 	if (date != null) {
 		weather7dEntity.date = date;
 	}
-	final String? dayWeatherStatus = jsonConvert.convert<String>(json['dayWeatherStatus']);
+	final String? dayWeatherStatus = meijuJsonConvert.convert<String>(json['dayWeatherStatus']);
 	if (dayWeatherStatus != null) {
 		weather7dEntity.dayWeatherStatus = dayWeatherStatus;
 	}
-	final String? sunrise = jsonConvert.convert<String>(json['sunrise']);
+	final String? sunrise = meijuJsonConvert.convert<String>(json['sunrise']);
 	if (sunrise != null) {
 		weather7dEntity.sunrise = sunrise;
 	}
-	final String? dayWindDirection = jsonConvert.convert<String>(json['dayWindDirection']);
+	final String? dayWindDirection = meijuJsonConvert.convert<String>(json['dayWindDirection']);
 	if (dayWindDirection != null) {
 		weather7dEntity.dayWindDirection = dayWindDirection;
 	}
-	final String? nightWindDirection = jsonConvert.convert<String>(json['nightWindDirection']);
+	final String? nightWindDirection = meijuJsonConvert.convert<String>(json['nightWindDirection']);
 	if (nightWindDirection != null) {
 		weather7dEntity.nightWindDirection = nightWindDirection;
 	}
-	final String? dayWindForce = jsonConvert.convert<String>(json['dayWindForce']);
+	final String? dayWindForce = meijuJsonConvert.convert<String>(json['dayWindForce']);
 	if (dayWindForce != null) {
 		weather7dEntity.dayWindForce = dayWindForce;
 	}
-	final String? sunset = jsonConvert.convert<String>(json['sunset']);
+	final String? sunset = meijuJsonConvert.convert<String>(json['sunset']);
 	if (sunset != null) {
 		weather7dEntity.sunset = sunset;
 	}
-	final String? nightWeatherStatus = jsonConvert.convert<String>(json['nightWeatherStatus']);
+	final String? nightWeatherStatus = meijuJsonConvert.convert<String>(json['nightWeatherStatus']);
 	if (nightWeatherStatus != null) {
 		weather7dEntity.nightWeatherStatus = nightWeatherStatus;
 	}
-	final String? nightLowGrade = jsonConvert.convert<String>(json['nightLowGrade']);
+	final String? nightLowGrade = meijuJsonConvert.convert<String>(json['nightLowGrade']);
 	if (nightLowGrade != null) {
 		weather7dEntity.nightLowGrade = nightLowGrade;
 	}
-	final String? nightWindForce = jsonConvert.convert<String>(json['nightWindForce']);
+	final String? nightWindForce = meijuJsonConvert.convert<String>(json['nightWindForce']);
 	if (nightWindForce != null) {
 		weather7dEntity.nightWindForce = nightWindForce;
 	}
-	final String? dayHighGrade = jsonConvert.convert<String>(json['dayHighGrade']);
+	final String? dayHighGrade = meijuJsonConvert.convert<String>(json['dayHighGrade']);
 	if (dayHighGrade != null) {
 		weather7dEntity.dayHighGrade = dayHighGrade;
 	}

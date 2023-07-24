@@ -1,50 +1,49 @@
-import 'package:screen_app/generated/json/base/json_convert_content.dart';
-
+import '../generated/json/base/meiju_json_convert_content.dart';
 import 'meiju_user_entity.dart';
 
 MeiJuTokenEntity $MeiJuTokenEntityFromJson(Map<String, dynamic> json) {
 	final MeiJuTokenEntity userEntity = MeiJuTokenEntity();
-	final String? accessToken = jsonConvert.convert<String>(json['accessToken']);
+	final String? accessToken = meijuJsonConvert.convert<String>(json['accessToken']);
 	if (accessToken != null) {
 		userEntity.accessToken = accessToken;
 	}
-	final String? deviceId = jsonConvert.convert<String>(json['deviceId']);
+	final String? deviceId = meijuJsonConvert.convert<String>(json['deviceId']);
 	if (deviceId != null) {
 		userEntity.deviceId = deviceId;
 	}
-	final String? iotUserId = jsonConvert.convert<String>(json['iotUserId']);
+	final String? iotUserId = meijuJsonConvert.convert<String>(json['iotUserId']);
 	if (iotUserId != null) {
 		userEntity.iotUserId = iotUserId;
 	}
-	final String? key = jsonConvert.convert<String>(json['key']);
+	final String? key = meijuJsonConvert.convert<String>(json['key']);
 	if (key != null) {
 		userEntity.key = key;
 	}
-	final String? openId = jsonConvert.convert<String>(json['openId']);
+	final String? openId = meijuJsonConvert.convert<String>(json['openId']);
 	if (openId != null) {
 		userEntity.openId = openId;
 	}
-	final String? seed = jsonConvert.convert<String>(json['seed']);
+	final String? seed = meijuJsonConvert.convert<String>(json['seed']);
 	if (seed != null) {
 		userEntity.seed = seed;
 	}
-	final String? sessionId = jsonConvert.convert<String>(json['sessionId']);
+	final String? sessionId = meijuJsonConvert.convert<String>(json['sessionId']);
 	if (sessionId != null) {
 		userEntity.sessionId = sessionId;
 	}
-	final String? tokenPwd = jsonConvert.convert<String>(json['tokenPwd']);
+	final String? tokenPwd = meijuJsonConvert.convert<String>(json['tokenPwd']);
 	if (tokenPwd != null) {
 		userEntity.tokenPwd = tokenPwd;
 	}
-	final String? uid = jsonConvert.convert<String>(json['uid']);
+	final String? uid = meijuJsonConvert.convert<String>(json['uid']);
 	if (uid != null) {
 		userEntity.uid = uid;
 	}
-	final String? mzAccessToken = jsonConvert.convert<String>(json['mzAccessToken']);
+	final String? mzAccessToken = meijuJsonConvert.convert<String>(json['mzAccessToken']);
 	if (mzAccessToken != null) {
 		userEntity.mzAccessToken = mzAccessToken;
 	}
-	final int? expired = jsonConvert.convert<int>(json['expired']);
+	final int? expired = meijuJsonConvert.convert<int>(json['expired']);
 	if (expired != null) {
 		userEntity.expired = expired;
 	}

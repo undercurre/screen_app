@@ -1,5 +1,3 @@
-import 'package:screen_app/models/device_entity.dart';
-
 import '../generated/json/base/meiju_json_convert_content.dart';
 import 'meiju_device_entity.dart';
 import 'meiju_room_entity.dart';

@@ -8,7 +8,7 @@ part of 'meiju_scene_list_entity.dart';
 
 MeiJuSceneListEntity _$MeiJuSceneListEntityFromJson(Map<String, dynamic> json) {
       var entity = MeiJuSceneListEntity();
-      entity.list = meijuJsonConvert.fromJsonAsT(json['list']);
+      entity.list = meijuJsonConvert.fromJsonAsT<List<MeiJuSceneEntity>>(json['list']);
       return entity;
 }
 

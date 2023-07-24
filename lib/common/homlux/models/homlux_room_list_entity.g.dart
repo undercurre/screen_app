@@ -7,12 +7,13 @@ part of 'homlux_room_list_entity.dart';
 // **************************************************************************
 
 HomluxRoomListEntity _$HomluxRoomListEntityFromJson(
-        Map<String, dynamic> json) =>
-    HomluxRoomListEntity(
-      roomInfoWrap: (json['roomInfoList'] as List<dynamic>?)
-          ?.map((e) => HomluxRoomInfo.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+        Map<String, dynamic> json) {
+  HomluxRoomListEntity();
+  var entity = HomluxRoomListEntity();
+  entity.roomInfoWrap = homluxJsonConvert.convertListNotNull<HomluxRoomInfo>(json['roomInfoList']);
+  return entity;
+}
+
 
 Map<String, dynamic> _$HomluxRoomListEntityToJson(
         HomluxRoomListEntity instance) =>
