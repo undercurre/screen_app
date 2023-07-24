@@ -56,6 +56,7 @@ class MeiJuJsonConvert {
 		(MeiJuDeviceInfoEntity).toString(): MeiJuDeviceInfoEntity.fromJson,
 		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
 		(MeiJuDeleteDeviceResultEntity).toString(): MeiJuDeleteDeviceResultEntity.fromJson,
+		(MeiJuSceneEntity).toString(): MeiJuSceneEntity.fromJson,
 	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
@@ -134,6 +135,9 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuSceneEntity>[] is M) {
+			return data.map<MeiJuSceneEntity>((Map<String, dynamic> e) => MeiJuSceneEntity.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuDeviceInfoAbilityEntity>[] is M) {
 			return data.map<MeiJuDeviceInfoAbilityEntity>((Map<String, dynamic> e) => MeiJuDeviceInfoAbilityEntity.fromJson(e)).toList() as M;
 		}

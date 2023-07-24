@@ -6,13 +6,11 @@ part of 'meiju_scene_list_entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MeiJuSceneListEntity _$MeiJuSceneListEntityFromJson(
-        Map<String, dynamic> json) =>
-
-    MeiJuSceneListEntity(
-          list: json['list']?.map((element) => MeiJuSceneEntity.fromJson(element))
-              .toList(),
-    );
+MeiJuSceneListEntity _$MeiJuSceneListEntityFromJson(Map<String, dynamic> json) {
+      var entity = MeiJuSceneListEntity();
+      entity.list = meijuJsonConvert.fromJsonAsT(json['list']);
+      return entity;
+}
 
 Map<String, dynamic> _$MeiJuSceneListEntityToJson(
         MeiJuSceneListEntity instance) =>

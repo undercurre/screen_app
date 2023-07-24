@@ -1,9 +1,11 @@
+import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
+
 part 'meiju_scene_list_entity.g.dart';
 
 class MeiJuSceneListEntity {
-  final List<MeiJuSceneEntity>? list;
+  List<MeiJuSceneEntity>? list;
 
-  const MeiJuSceneListEntity({this.list});
+  MeiJuSceneListEntity();
 
   factory MeiJuSceneListEntity.fromJson(Map<String, dynamic> json) =>
       _$MeiJuSceneListEntityFromJson(json);
