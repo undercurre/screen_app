@@ -6,15 +6,13 @@ part of 'meiju_weather_entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MeiJuWeatherEntity _$MeiJuWeatherEntityFromJson(Map<String, dynamic> json) =>
-    MeiJuWeatherEntity(
-      weather: json['weather'] == null
-          ? null
-          : MeiJuWeather.fromJson(json['weather'] as Map<String, dynamic>),
-      location: json['location'] == null
-          ? null
-          : MeiJuLocation.fromJson(json['location'] as Map<String, dynamic>),
-    );
+MeiJuWeatherEntity _$MeiJuWeatherEntityFromJson(Map<String, dynamic> json) {
+      var entity = MeiJuWeatherEntity();
+      entity.location = meijuJsonConvert.fromJsonAsT(json['location']);
+      entity.weather = meijuJsonConvert.fromJsonAsT(json['weather']);
+      return entity;
+}
+
 
 Map<String, dynamic> _$MeiJuWeatherEntityToJson(MeiJuWeatherEntity instance) =>
     <String, dynamic>{

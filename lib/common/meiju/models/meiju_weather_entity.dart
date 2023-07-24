@@ -1,13 +1,12 @@
+import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
+
 part 'meiju_weather_entity.g.dart';
 
 class MeiJuWeatherEntity {
-  final MeiJuWeather? weather;
-  final MeiJuLocation? location;
+  MeiJuWeather? weather;
+  MeiJuLocation? location;
 
-  const MeiJuWeatherEntity({
-    this.weather,
-    this.location,
-  });
+  MeiJuWeatherEntity();
 
   factory MeiJuWeatherEntity.fromJson(Map<String, dynamic> json) =>
       _$MeiJuWeatherEntityFromJson(json);

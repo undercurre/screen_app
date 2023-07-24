@@ -57,6 +57,8 @@ class MeiJuJsonConvert {
 		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
 		(MeiJuDeleteDeviceResultEntity).toString(): MeiJuDeleteDeviceResultEntity.fromJson,
 		(MeiJuSceneEntity).toString(): MeiJuSceneEntity.fromJson,
+		(MeiJuLocation).toString(): MeiJuLocation.fromJson,
+		(MeiJuWeather).toString(): MeiJuWeather.fromJson,
 	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
@@ -135,6 +137,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuWeather>[] is M) {
+			return data.map<MeiJuWeather>((Map<String, dynamic> e) => MeiJuWeather.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuLocation>[] is M) {
+			return data.map<MeiJuLocation>((Map<String, dynamic> e) => MeiJuLocation.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuSceneEntity>[] is M) {
 			return data.map<MeiJuSceneEntity>((Map<String, dynamic> e) => MeiJuSceneEntity.fromJson(e)).toList() as M;
 		}
