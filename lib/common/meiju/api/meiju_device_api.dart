@@ -13,7 +13,7 @@ class MeiJuDeviceApi {
   static Future<MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>>> queryDeviceListByHomeId(String uid, String homegroupId) async {
 
     var res = await MeiJuApi.requestMideaIot(
-        'mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
+        '/mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
         options: Options(method: 'POST'),
         data: {
           'uid': uid,
@@ -46,7 +46,7 @@ class MeiJuDeviceApi {
   /// 获取某房间下所有的设备
   static Future<MeiJuResponseEntity> queryDeviceListByRoomId(String uid, String homegroupId, String roomId) async {
     var res = await MeiJuApi.requestMideaIot(
-        'mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
+        '/mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
         options: Options(method: 'POST'),
         data: {
           'uid': uid,
