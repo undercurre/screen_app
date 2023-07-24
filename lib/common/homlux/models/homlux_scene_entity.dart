@@ -1,41 +1,26 @@
+import 'package:screen_app/common/homlux/generated/json/base/homlux_json_convert_content.dart';
 
 part 'homlux_scene_entity.g.dart';
 // 接口文档地址：http://47.106.94.129:8001/doc.html#/mzaio-scene/%E5%9C%BA%E6%99%AF%E5%86%85%E9%83%A8%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1/querySceneListByHouseIdUsingPOST_1
 
 class HomluxSceneEntity {
-  final String? conditionType;
-  final String? defaultType;
-  final List<HomluxDeviceActions>? deviceActions;
-  final List<HomluxDeviceConditions>? deviceConditions;
-  final HomluxEffectiveTime? effectiveTime;
-  final String? houseId;
-  final String? isDefault;
-  final String? isEnabled;
-  final int? orderNum;
-  final String? roomId;
-  final String? roomName;
-  final String? sceneIcon;
-  final String? sceneId;
-  final String? sceneName;
-  final List<HomluxTimeConditions>? timeConditions;
+  String? conditionType;
+  String? defaultType;
+  List<HomluxDeviceActions>? deviceActions;
+  List<HomluxDeviceConditions>? deviceConditions;
+  HomluxEffectiveTime? effectiveTime;
+  String? houseId;
+  String? isDefault;
+  String? isEnabled;
+  int? orderNum;
+  String? roomId;
+  String? roomName;
+  String? sceneIcon;
+  String? sceneId;
+  String? sceneName;
+  List<HomluxTimeConditions>? timeConditions;
 
-  const HomluxSceneEntity({
-    this.conditionType,
-    this.defaultType,
-    this.deviceActions,
-    this.deviceConditions,
-    this.effectiveTime,
-    this.houseId,
-    this.isDefault,
-    this.isEnabled,
-    this.orderNum,
-    this.roomId,
-    this.roomName,
-    this.sceneIcon,
-    this.sceneId,
-    this.sceneName,
-    this.timeConditions,
-  });
+  HomluxSceneEntity();
 
   factory HomluxSceneEntity.fromJson(Map<String, dynamic> json) =>
       _$HomluxSceneEntityFromJson(json);

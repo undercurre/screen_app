@@ -6,33 +6,26 @@ part of 'homlux_scene_entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-HomluxSceneEntity _$HomluxSceneEntityFromJson(Map<String, dynamic> json) =>
-    HomluxSceneEntity(
-      conditionType: json['conditionType'] as String?,
-      defaultType: json['defaultType'] as String?,
-      deviceActions: (json['deviceActions'] as List<dynamic>?)
-          ?.map((e) => HomluxDeviceActions.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      deviceConditions: (json['deviceConditions'] as List<dynamic>?)
-          ?.map((e) => HomluxDeviceConditions.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      effectiveTime: json['effectiveTime'] == null
-          ? null
-          : HomluxEffectiveTime.fromJson(
-              json['effectiveTime'] as Map<String, dynamic>),
-      houseId: json['houseId'] as String?,
-      isDefault: json['isDefault'] as String?,
-      isEnabled: json['isEnabled'] as String?,
-      orderNum: json['orderNum'] as int?,
-      roomId: json['roomId'] as String?,
-      roomName: json['roomName'] as String?,
-      sceneIcon: json['sceneIcon'] as String?,
-      sceneId: json['sceneId'] as String?,
-      sceneName: json['sceneName'] as String?,
-      timeConditions: (json['timeConditions'] as List<dynamic>?)
-          ?.map((e) => HomluxTimeConditions.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+HomluxSceneEntity _$HomluxSceneEntityFromJson(Map<String, dynamic> json) {
+      var entity = HomluxSceneEntity();
+      entity.deviceActions = homluxJsonConvert.convertListNotNull(json['deviceActions']);
+      entity.deviceConditions = homluxJsonConvert.convertListNotNull(json['deviceConditions']);
+      entity.effectiveTime = homluxJsonConvert.convert(json['effectiveTime']);
+      entity.houseId = homluxJsonConvert.convert(json['houseId']);
+      entity.defaultType = homluxJsonConvert.convert(json['defaultType']);
+      entity.conditionType = homluxJsonConvert.convert(json['conditionType']);
+      entity.isDefault = homluxJsonConvert.convert(json['isDefault']);
+      entity.isEnabled = homluxJsonConvert.convert(json['isEnabled']);
+      entity.orderNum = homluxJsonConvert.convert(json['orderNum']);
+      entity.roomId = homluxJsonConvert.convert(json['roomId']);
+      entity.roomName = homluxJsonConvert.convert(json['roomName']);
+      entity.sceneIcon = homluxJsonConvert.convert(json['sceneIcon']);
+      entity.sceneId = homluxJsonConvert.convert(json['sceneId']);
+      entity.sceneName = homluxJsonConvert.convert(json['sceneName']);
+      entity.timeConditions = homluxJsonConvert.convertListNotNull<HomluxTimeConditions>(json['timeConditions']);
+      return entity;
+}
+
 
 Map<String, dynamic> _$HomluxSceneEntityToJson(HomluxSceneEntity instance) =>
     <String, dynamic>{

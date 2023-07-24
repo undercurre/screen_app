@@ -1,12 +1,12 @@
+import 'package:screen_app/common/homlux/generated/json/base/homlux_json_convert_content.dart';
+
 part 'homlux_auth_entity.g.dart';
 
 class HomluxAuthEntity {
 
-  final int? houseUserAuth;
+  int? houseUserAuth;
 
-  const HomluxAuthEntity({
-    this.houseUserAuth,
-  });
+  HomluxAuthEntity();
 
   factory HomluxAuthEntity.fromJson(Map<String, dynamic> json) =>
       _$HomluxAuthEntityFromJson(json);

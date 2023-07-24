@@ -1,14 +1,13 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:screen_app/common/homlux/generated/json/base/homlux_json_convert_content.dart';
 
 part 'homlux_room_list_entity.g.dart';
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.none)
 class HomluxRoomListEntity {
-  final List<HomluxRoomInfo>? roomInfoWrap;
+  List<HomluxRoomInfo>? roomInfoWrap;
 
-  const HomluxRoomListEntity({
-    this.roomInfoWrap,
-  });
+  HomluxRoomListEntity();
 
   factory HomluxRoomListEntity.fromJson(Map<String, dynamic> json) =>
       _$HomluxRoomListEntityFromJson(json);
