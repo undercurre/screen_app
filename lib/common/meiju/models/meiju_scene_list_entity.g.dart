@@ -21,14 +21,14 @@ Map<String, dynamic> _$MeiJuSceneListEntityToJson(
 
 MeiJuSceneEntity _$MeiJuSceneEntityFromJson(Map<String, dynamic> json) =>
     MeiJuSceneEntity(
-      sceneId: json['sceneId'] as String?,
+      sceneId: json['sceneId'].toString() as String?,
       name: json['name'] as String?,
       image: json['image'] as String?,
       sceneType: json['sceneType'] as int?,
       sceneStatus: json['sceneStatus'] as int?,
       location: json['location'] as String?,
       weather: json['weather'] as String?,
-      enable: json['enable'] as String?,
+      enable: json['enable'].toString() as String?,
       triggerType: json['triggerType'] as String?,
       startTime: json['startTime'] as String?,
       weekly: json['weekly'] as String?,
@@ -41,7 +41,7 @@ MeiJuSceneEntity _$MeiJuSceneEntityFromJson(Map<String, dynamic> json) =>
       pushTitle: json['pushTitle'] as String?,
       pushContent: json['pushContent'] as String?,
       version: json['version'] as String?,
-      cuid: json['cuid'] as String?,
+      cuid: json['cuid'].toString() as String?,
       createTime: json['createTime'] as String?,
       updateTime: json['updateTime'] as String?,
     );

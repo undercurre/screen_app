@@ -25,7 +25,6 @@ import 'plugins/0x40/index.dart';
 import 'plugins/0xAC/index.dart';
 import 'plugins/lightGroup/index.dart';
 import 'select_room/index.dart';
-import 'select_scene/index.dart';
 import 'setting/index.dart';
 import 'sniffer/device_connect.dart';
 import 'sniffer/index.dart';
@@ -37,7 +36,6 @@ var routes = <String, WidgetBuilder>{
   "Custom": (context) => const CustomPage(),
   "AddDevice": (context) => const AddDevicePage(),
   "SelectRoomPage": (context) => const SelectRoomPage(),
-  "SelectScenePage": (context) => const SelectScenePage(),
   "SelectAreaPage": (context) => const AreaSelector(),
   "ScreenSaver": (context) => const ScreenSaver(),
   "SpecialBlackBgSaverScreen": (context) => const SpecialBlackBgSaverScreen(),

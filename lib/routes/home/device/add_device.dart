@@ -1,17 +1,20 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/routes/home/device/card_dialog.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/routes/home/device/layout_data.dart';
+import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
 import '../../../common/global.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
-import '../../../states/device_position_notifier.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
 
@@ -189,18 +192,21 @@ class _AddDevicePageState extends State<AddDevicePage> {
     localPanel2.applianceCode = '1703838350';
     localPanel2.roomName = '客厅';
     devices.add(localPanel2);
-    // 虚拟场景——回家模式
-    SceneInfoEntity backhome = SceneInfoEntity();
-    backhome.name = '回家模式';
-    backhome.sceneId = '251';
-    backhome.image = '1';
-    scenes.add(backhome);
-    // 虚拟场景——睡眠模式
-    SceneInfoEntity sleep = SceneInfoEntity();
-    sleep.name = '睡眠模式';
-    sleep.sceneId = '252';
-    sleep.image = '2';
-    scenes.add(sleep);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    initData();
+  }
+
+  initData() async {
+    final sceneListModel = Provider.of<SceneListModel>(context);
+    scenes = await sceneListModel.getSceneList();
+    logger.i('有多少', scenes);
+    setState(() {
+      scenes = scenes;
+    });
   }
 
   @override
@@ -471,34 +477,48 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         ),
                         itemCount: scenes.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {
-                              resultData = Layout(
-                                  scenes[index].sceneId,
-                                  DeviceEntityTypeInP4.Scene,
-                                  CardType.Small,
-                                  -1, [], {
-                                'name': scenes[index].name,
-                                'icon': Image(
-                                  image: AssetImage(
-                                      'assets/newUI/scene/${scenes[index].image}.png'),
-                                ),
-                                'onOff': false,
-                              });
-                              Navigator.pop(context, resultData);
+                          return RawGestureDetector(
+                            gestures: {
+                              AllowMultipleGestureRecognizer:
+                                  GestureRecognizerFactoryWithHandlers<
+                                      AllowMultipleGestureRecognizer>(
+                                () => AllowMultipleGestureRecognizer(),
+                                (AllowMultipleGestureRecognizer instance) {
+                                  instance.onTap = () {
+                                    resultData = Layout(
+                                        scenes[index].sceneId,
+                                        DeviceEntityTypeInP4.Scene,
+                                        CardType.Small,
+                                        -1, [], {
+                                      'name': scenes[index].name,
+                                      'icon': Image(
+                                        image: AssetImage(
+                                            'assets/newUI/scene/${scenes[index].image}.png'),
+                                      ),
+                                      'onOff': false,
+                                      'sceneId': scenes[index].sceneId,
+                                      'disabled': false,
+                                    });
+                                    Navigator.pop(context, resultData);
+                                  };
+                                },
+                              )
                             },
+                            behavior: HitTestBehavior.opaque,
                             child: Stack(
                               children: [
                                 Center(
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
                                     child: SmallSceneCardWidget(
-                                        name: scenes[index].name,
-                                        icon: Image(
-                                          image: AssetImage(
-                                              'assets/newUI/scene/${scenes[index].image}.png'),
-                                        ),
-                                        onOff: false),
+                                      name: scenes[index].name,
+                                      icon: Image(
+                                        image: AssetImage(
+                                            'assets/newUI/scene/${scenes[index].image}.png'),
+                                      ),
+                                      sceneId: scenes[index].sceneId,
+                                      disabled: true,
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -728,4 +748,11 @@ class OtherEntity {
 
   late String name;
   late DeviceEntityTypeInP4 type;
+}
+
+class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
+  }
 }

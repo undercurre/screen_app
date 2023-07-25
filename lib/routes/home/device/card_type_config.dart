@@ -65,14 +65,17 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(dynamic params)>>
   DeviceEntityTypeInP4.Scene: {
     CardType.Small: (params) {
       return SmallSceneCardWidget(
-          name: params['name'], icon: params['icon'], onOff: params['onOff']);
+          name: params['name'],
+          icon: params['icon'],
+          sceneId: params['sceneId'],
+          disabled: params['disabled']);
     },
   },
   DeviceEntityTypeInP4.LocalPanel1: {
-    CardType.Small: (params) => LocalRelayWidget(relayIndex: 1)
+    CardType.Small: (params) => const LocalRelayWidget(relayIndex: 1)
   },
   DeviceEntityTypeInP4.LocalPanel2: {
-    CardType.Small: (params) => LocalRelayWidget(relayIndex: 2)
+    CardType.Small: (params) => const LocalRelayWidget(relayIndex: 2)
   },
   DeviceEntityTypeInP4.Device0xAC: {
     CardType.Small: (params) => SmallDeviceCardWidget(

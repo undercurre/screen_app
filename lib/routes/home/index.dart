@@ -22,13 +22,11 @@ import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
 import './center_control/index.dart';
 import './device/index.dart';
-import './scene/index.dart';
 import '../../channel/index.dart';
 import '../../common/global.dart';
 
 export './center_control/index.dart';
 export './device/index.dart';
-export './scene/index.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, this.initValue = 0});

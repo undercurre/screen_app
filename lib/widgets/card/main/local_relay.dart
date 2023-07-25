@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
 
@@ -67,6 +68,7 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
                       widget.relayIndex == 1 ? '灯1' : '灯2',
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
+                        height: 1.2,
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.w400,
@@ -83,7 +85,7 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
   }
 
   BoxDecoration _getBoxDecoration(bool value) {
-    return value
+    return !value
         ? BoxDecoration(
       borderRadius: BorderRadius.circular(24),
       gradient: const LinearGradient(
