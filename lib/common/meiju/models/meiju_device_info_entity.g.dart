@@ -102,6 +102,10 @@ MeiJuDeviceInfoEntity $MeijuDeviceInfoEntityFromJson(Map<String, dynamic> json) 
 	if (roomName != null) {
 		device.roomName = roomName;
 	}
+	final String? roomId = meijuJsonConvert.convert<String>(json['roomId']);
+	if (roomId != null) {
+		device.roomId = roomId;
+	}
 	final dynamic command = meijuJsonConvert.convert<dynamic>(json['command']);
 	if (command != null) {
 		device.command = command;
@@ -196,6 +200,7 @@ Map<String, dynamic> $MeijuDeviceInfoEntityToJson(MeiJuDeviceInfoEntity entity) 
 	data['bindType'] = entity.bindType;
 	data['applianceCode'] = entity.applianceCode;
 	data['roomName'] = entity.roomName;
+	data['roomId'] = entity.roomId;
 	data['command'] = entity.command;
 	data['attrs'] = entity.attrs;
 	data['btToken'] = entity.btToken;

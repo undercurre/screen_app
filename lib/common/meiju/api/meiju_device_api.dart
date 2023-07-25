@@ -21,8 +21,7 @@ class MeiJuDeviceApi {
         }
     );
 
-    if (!res.isSuccess || res.data == null
-        || res.data['homeList'] is List || res.data['homeList'].length <= 0) {
+    if (!res.isSuccess || res.data == null || !res.data['homeList'] is List || res.data['homeList'].length <= 0) {
       throw Exception('获取家庭列表失败');
     }
 
@@ -30,6 +29,10 @@ class MeiJuDeviceApi {
 
     res.data['homeList'][0]?['roomList']?.forEach((element) {
       if(element['applianceList'] != null) {
+        element['applianceList'].forEach((appliance) {
+          appliance?['roomName'] = element['name'];
+          appliance?['roomId'] = element['roomId'];
+        });
         applianceList.addAll(element['applianceList']);
       }
     });

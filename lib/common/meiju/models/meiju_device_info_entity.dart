@@ -26,6 +26,7 @@ class MeiJuDeviceInfoEntity {
   String? bindType;
   String? applianceCode;
   String? roomName;
+  String? roomId;
   dynamic command;
   String? attrs;
   String? btToken;
