@@ -28,7 +28,6 @@ import com.midea.light.ai.AiManager;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.bean.Add485DeviceBean;
-import com.midea.light.bean.OnlineState485Bean;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
@@ -153,35 +152,6 @@ public class MainActivity extends FlutterActivity {
                                 }
                                 Log.e("sky","给网关的设备列表:"+new Gson().toJson(AddDevList));
                                 GateWayUtils.add485(AddDevList);
-                                try {
-                                    Thread.sleep(10000);
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                ArrayList<OnlineState485Bean.PLC.OnlineState> onlineDevList=new ArrayList<>();
-                                for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
-                                    OnlineState485Bean.PLC.OnlineState AddDev=new OnlineState485Bean.PLC.OnlineState();
-                                    AddDev.setAddr(AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.cac.002");
-                                    AddDev.setStatus(1);
-                                    onlineDevList.add(AddDev);
-                                }
-                                for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
-                                    OnlineState485Bean.PLC.OnlineState AddDev=new OnlineState485Bean.PLC.OnlineState();
-                                    AddDev.setAddr(FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress()+FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.air.001");
-                                    AddDev.setStatus(1);
-                                    onlineDevList.add(AddDev);
-                                }
-                                for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
-                                    OnlineState485Bean.PLC.OnlineState AddDev=new OnlineState485Bean.PLC.OnlineState();
-                                    AddDev.setAddr(FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress()+FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.heat.001");
-                                    AddDev.setStatus(1);
-                                    onlineDevList.add(AddDev);
-                                }
-                                Log.e("sky","上报设备在线:"+new Gson().toJson(onlineDevList));
-                                GateWayUtils.updateOnlineState485(onlineDevList);
                             }
                         }
                     }.start();
