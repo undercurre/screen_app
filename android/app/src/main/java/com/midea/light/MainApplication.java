@@ -2,7 +2,6 @@ package com.midea.light;
 
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.aispeech.dca.DcaConfig;
 import com.aispeech.dca.DcaSdk;
@@ -13,6 +12,8 @@ import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.config.GatewayConfig;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.issued.IssuedManager;
+import com.midea.light.issued.distribution.GateWayDistributionIssuedMatch;
+import com.midea.light.issued.plc.PLCControlIssuedMatch;
 import com.midea.light.issued.relay.RelayIssuedMatch;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
@@ -24,10 +25,6 @@ import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
 import com.midea.light.utils.ProcessUtil;
 import com.tencent.bugly.crashreport.CrashReport;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 import androidx.multidex.MultiDex;
 
@@ -79,6 +76,10 @@ public class MainApplication extends BaseApplication {
         IssuedManager.getInstance().register(new RelayIssuedMatch());
         // #注册语音播报捕抓器
         IssuedManager.getInstance().register(new VoiceIssuedMatch());
+        // #注册网关配网状态捕抓器
+        IssuedManager.getInstance().register(new GateWayDistributionIssuedMatch());
+        // #注册485设备控制下发捕抓器
+        IssuedManager.getInstance().register(new PLCControlIssuedMatch());
 
         GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
         GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
