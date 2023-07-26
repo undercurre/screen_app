@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
-import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/routes/home/device/card_dialog.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
@@ -15,6 +14,8 @@ import 'package:screen_app/widgets/card/main/small_device.dart';
 import '../../../common/global.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
+import '../../../states/device_list_notifier.dart';
+import '../../../widgets/card/main/panelNum.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
 
@@ -38,160 +39,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void initState() {
     super.initState();
-    // 请求接口获取到设备、场景
-    // 然后过滤并准备卡片
-    // 虚拟一个wifi灯
-    DeviceEntity wifilight = DeviceEntity();
-    wifilight.name = 'WIFI灯';
-    wifilight.type = '0x13';
-    wifilight.modelNumber = '';
-    wifilight.applianceCode = '1703838320';
-    wifilight.roomName = '卧室';
-    devices.add(wifilight);
-    // 虚拟一台空调
-    DeviceEntity kongtiao = DeviceEntity();
-    kongtiao.name = '空调';
-    kongtiao.type = '0xAC';
-    kongtiao.modelNumber = '';
-    kongtiao.applianceCode = '1703838321';
-    kongtiao.roomName = '卧室';
-    devices.add(kongtiao);
-    // 虚拟一台窗帘
-    DeviceEntity chuanglian = DeviceEntity();
-    chuanglian.name = '窗帘';
-    chuanglian.type = '0x14';
-    chuanglian.modelNumber = '';
-    chuanglian.applianceCode = '1703838322';
-    chuanglian.roomName = '卧室';
-    devices.add(chuanglian);
-    // 虚拟一台新风
-    DeviceEntity xinfeng = DeviceEntity();
-    xinfeng.name = '新风';
-    xinfeng.type = '0xCE';
-    xinfeng.modelNumber = '';
-    xinfeng.applianceCode = '1703838323';
-    xinfeng.roomName = '客厅';
-    devices.add(xinfeng);
-    // 虚拟一台地暖
-    DeviceEntity dinuan = DeviceEntity();
-    dinuan.name = '地暖';
-    dinuan.type = '0xCF';
-    dinuan.modelNumber = '';
-    dinuan.applianceCode = '1703838330';
-    dinuan.roomName = '客厅';
-    devices.add(dinuan);
-    // 虚拟一台一路面板
-    DeviceEntity yilumianban = DeviceEntity();
-    yilumianban.name = '一路面板';
-    yilumianban.type = '0x21';
-    yilumianban.modelNumber = '1339';
-    yilumianban.applianceCode = '1703838334';
-    yilumianban.roomName = '客厅';
-    devices.add(yilumianban);
-    // 虚拟一台二路面板
-    DeviceEntity erlumianban = DeviceEntity();
-    erlumianban.name = '二路面板';
-    erlumianban.type = '0x21';
-    erlumianban.modelNumber = '1340';
-    erlumianban.applianceCode = '1703838335';
-    erlumianban.roomName = '客厅';
-    devices.add(erlumianban);
-    // 虚拟一台一路面板
-    DeviceEntity sanlumianban = DeviceEntity();
-    sanlumianban.name = '三路面板';
-    sanlumianban.type = '0x21';
-    sanlumianban.modelNumber = '1341';
-    sanlumianban.applianceCode = '1703838336';
-    sanlumianban.roomName = '客厅';
-    devices.add(sanlumianban);
-    // 虚拟一台一路面板
-    DeviceEntity silumianban = DeviceEntity();
-    silumianban.name = '四路面板';
-    silumianban.type = '0x21';
-    silumianban.modelNumber = '1342';
-    silumianban.applianceCode = '1703838337';
-    silumianban.roomName = '客厅';
-    devices.add(silumianban);
-    // 虚拟一台一路面板
-    DeviceEntity yiluduogongnengmianban = DeviceEntity();
-    yiluduogongnengmianban.name = '一路多功能面板';
-    yiluduogongnengmianban.type = '0x21';
-    yiluduogongnengmianban.modelNumber = '1360';
-    yiluduogongnengmianban.applianceCode = '1703838351';
-    yiluduogongnengmianban.roomName = '客厅';
-    devices.add(yiluduogongnengmianban);
-    // 虚拟一台二路面板
-    DeviceEntity erluduogongnengmianban = DeviceEntity();
-    erluduogongnengmianban.name = '二路多功能面板';
-    erluduogongnengmianban.type = '0x21';
-    erluduogongnengmianban.modelNumber = '1361';
-    erluduogongnengmianban.applianceCode = '1703838352';
-    erluduogongnengmianban.roomName = '客厅';
-    devices.add(erluduogongnengmianban);
-    // 虚拟一台一路面板
-    DeviceEntity sanduogongnenglumianban = DeviceEntity();
-    sanduogongnenglumianban.name = '三路多功能面板';
-    sanduogongnenglumianban.type = '0x21';
-    sanduogongnenglumianban.modelNumber = '1362';
-    sanduogongnenglumianban.applianceCode = '1703838353';
-    sanduogongnenglumianban.roomName = '客厅';
-    devices.add(sanduogongnenglumianban);
-    // 虚拟一台一路面板
-    DeviceEntity siluduogongnengmianban = DeviceEntity();
-    siluduogongnengmianban.name = '四路多功能面板';
-    siluduogongnengmianban.type = '0x21';
-    siluduogongnengmianban.modelNumber = '1363';
-    siluduogongnengmianban.applianceCode = '1703838354';
-    siluduogongnengmianban.roomName = '客厅';
-    devices.add(siluduogongnengmianban);
-    // 虚拟一台一路面板
-    DeviceEntity yiluchuanglianmianban = DeviceEntity();
-    yiluchuanglianmianban.name = '一路窗帘面板';
-    yiluchuanglianmianban.type = '0x21';
-    yiluchuanglianmianban.modelNumber = '1345';
-    yiluchuanglianmianban.applianceCode = '1703838355';
-    yiluchuanglianmianban.roomName = '客厅';
-    devices.add(yiluchuanglianmianban);
-    // 虚拟一台二路面板
-    DeviceEntity erluchuanglianmianban = DeviceEntity();
-    erluchuanglianmianban.name = '二路窗帘面板';
-    erluchuanglianmianban.type = '0x21';
-    erluchuanglianmianban.modelNumber = '1346';
-    erluchuanglianmianban.applianceCode = '1703838356';
-    erluchuanglianmianban.roomName = '客厅';
-    devices.add(erluchuanglianmianban);
-    // 虚拟一台调光灯
-    DeviceEntity tiaoguangdeng = DeviceEntity();
-    tiaoguangdeng.name = 'zigbee调光灯';
-    tiaoguangdeng.type = '0x21';
-    tiaoguangdeng.modelNumber = '55';
-    tiaoguangdeng.applianceCode = '1703838317';
-    tiaoguangdeng.roomName = '客厅';
-    devices.add(tiaoguangdeng);
-    // 虚拟一台zigbee窗帘
-    DeviceEntity zigbeechanglian = DeviceEntity();
-    zigbeechanglian.name = '窗帘控制器';
-    zigbeechanglian.type = '0x21';
-    zigbeechanglian.modelNumber = '1364';
-    zigbeechanglian.applianceCode = '1703838338';
-    zigbeechanglian.roomName = '客厅';
-    devices.add(zigbeechanglian);
-    // 虚拟一台本地线控器1
-    DeviceEntity localPanel1 = DeviceEntity();
-    localPanel1.name = '本地线控器1';
-    localPanel1.type = 'localPanel1';
-    localPanel1.modelNumber = '';
-    localPanel1.applianceCode = '1703838339';
-    localPanel1.roomName = '客厅';
-    devices.add(localPanel1);
-    // 虚拟一台本地线控器2
-    DeviceEntity localPanel2 = DeviceEntity();
-    localPanel2.name = '本地线控器2';
-    localPanel2.type = 'localPanel2';
-    localPanel2.modelNumber = '';
-    localPanel2.applianceCode = '1703838350';
-    localPanel2.roomName = '客厅';
-    devices.add(localPanel2);
   }
 
   @override
@@ -202,11 +49,17 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   initData() async {
     final sceneListModel = Provider.of<SceneListModel>(context);
-    scenes = await sceneListModel.getSceneList();
-    logger.i('有多少', scenes);
-    setState(() {
-      scenes = scenes;
-    });
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    deviceListModel.getDeviceList().then((value) => setState(() {
+          devices = value
+              .where((e) =>
+                  getDeviceEntityType(e.type, e.modelNumber) !=
+                  DeviceEntityTypeInP4.Default)
+              .toList();
+        }));
+    sceneListModel.getSceneList().then((value) => setState(() {
+          scenes = value;
+        }));
   }
 
   @override
@@ -705,38 +558,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return CardType.Small;
     }
-    Map<String, CardType> cardTypeMap = {
-      '1339': CardType.Small,
-      '1340': CardType.Middle,
-      '1341': CardType.Big,
-      '1342': CardType.Big,
-      '1345': CardType.Small,
-      '1346': CardType.Middle,
-      '1360': CardType.Small,
-      '1361': CardType.Middle,
-      '1362': CardType.Big,
-      '1363': CardType.Big
-    };
-    return cardTypeMap[modelNum] ?? CardType.Small;
+    return panelList[modelNum] ?? CardType.Small;
   }
 
   bool _isPanel(String modelNum, String? type) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
-    List<String> panelList = [
-      '1339',
-      '1340',
-      '1341',
-      '1342',
-      '1345',
-      '1346',
-      '1360',
-      '1361',
-      '1362',
-      '1363'
-    ];
-    return panelList.contains(modelNum);
+
+    return panelList.containsKey(modelNum);
   }
 }
 

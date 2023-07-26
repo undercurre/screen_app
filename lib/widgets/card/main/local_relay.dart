@@ -112,10 +112,6 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
         stops: [0.06, 1.0],
         transform: GradientRotation(213 * (3.1415926 / 360.0)),
       ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
-      ),
     );
   }
 }
