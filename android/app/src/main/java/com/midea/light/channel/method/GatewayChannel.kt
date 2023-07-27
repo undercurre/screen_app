@@ -8,6 +8,8 @@ import com.midea.light.bean.GatewayPlatformBean
 import com.midea.light.bean.GatewaySetPlatformBean
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.config.GatewayConfig
+import com.midea.light.device.explore.controller.control485.controller.AirConditionController
+import com.midea.light.device.explore.controller.control485.widget.AirConditionDialog
 import com.midea.light.gateway.GateWayUtils
 import com.midea.light.gateway.GatewayCallback
 import com.midea.light.issued.relay.RelayDeviceChangeEvent
@@ -59,6 +61,13 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
             "controlRelay1Open" -> {
                 GatewayConfig.relayControl.controlRelay1Open(call.arguments as Boolean)
                 result.safeSuccess(true)
+//                val dialog = AirConditionDialog(
+//                    MainApplication.mMainActivity,
+//                    AirConditionController.getInstance().AirConditionList[0]
+//                )
+//                dialog.create()
+//                dialog.show()
+
             }
             "controlRelay2Open" -> {
                 GatewayConfig.relayControl.controlRelay2Open(call.arguments as Boolean)
