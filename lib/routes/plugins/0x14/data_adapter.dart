@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -104,30 +105,30 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
 
   /// 控制全开全关
   Future<void> controlMode(Mode mode) async {
+    if (mode.key == 'open') {
+      device.curtainPosition = 100;
+      device.curtainStatus = mode.key;
+      updateUI();
+    } else if (mode.key == 'close'){
+      device.curtainPosition = 0;
+      device.curtainStatus = mode.key;
+      updateUI();
+    }
     if (platform.inMeiju()) {
-      if (mode.key == 'open') {
-        device.curtainPosition = 100;
-        device.curtainStatus = mode.key;
-        updateUI();
-      } else if (mode.key == 'close'){
-        device.curtainPosition = 0;
-        device.curtainStatus = mode.key;
-        updateUI();
-      }
       CurtainApi.setMode(device.deviceID, mode.key, device.curtainDirection);
     } else if(platform.inHomlux()) {
-
+      HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
     }
   }
 
   /// 控制位置
   Future<void> controlCurtain(num value) async {
+    device.curtainPosition = value.toInt();
+    updateUI();
     if (platform.inMeiju()) {
-      device.curtainPosition = value.toInt();
-      updateUI();
       CurtainApi.changePosition(device.deviceID, value, device.curtainPosition.toString());
     } else if (platform.inHomlux()) {
-
+      HomluxDeviceApi.controlWifiCurtainPosition(device.deviceID, "3", value.toInt());
     }
   }
 
