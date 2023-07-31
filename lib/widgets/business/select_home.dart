@@ -24,7 +24,7 @@ class _SelectHome extends State<SelectHome> {
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             titleSize: 24,
             descSize: 18,
-            tag: '创建',
+            tag: familyDataAd?.familyListEntity?.familyList[i].houseCreatorFlag == true ? '创建' : null,
             bgColor: Colors.transparent,
             hasTopBorder: false,
             hasBottomBorder: i + 1 != len + 1,

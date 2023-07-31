@@ -9,6 +9,8 @@ class MzButton extends StatelessWidget {
   final double borderWidth;
   final String text;
   final VoidCallback onPressed;
+  final bool isShowShadow;
+  final Color textColor;
 
   const MzButton({
     super.key,
@@ -20,6 +22,8 @@ class MzButton extends StatelessWidget {
     required this.borderWidth,
     required this.text,
     required this.onPressed,
+    this.isShowShadow = true,
+    this.textColor = const Color(0xFFFFFFFF),
   });
 
   @override
@@ -30,6 +34,7 @@ class MzButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
+          shadowColor: isShowShadow ? null : MaterialStateProperty.all(const Color(0x00000000)),
           backgroundColor: MaterialStateProperty.all(backgroundColor),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
@@ -43,8 +48,9 @@ class MzButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24.0,
+            color: textColor,
           ),
         ),
       ),

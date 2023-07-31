@@ -37,14 +37,14 @@ class MzDialog {
   Future<bool?> show(BuildContext context) {
     // 普通按钮样式
     ButtonStyle buttonStyle = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(255,255,255,0.10),
+        backgroundColor: const Color(0xFF858D9A),
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(29))),
         padding: const EdgeInsets.symmetric(vertical: 10));
 
     // 激活按钮样式
     ButtonStyle buttonStyleOn = TextButton.styleFrom(
-        backgroundColor: const Color(0xFF818C98),
+        backgroundColor: const Color(0xFF267AFF),
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(29))),
         padding: const EdgeInsets.symmetric(vertical: 10));
