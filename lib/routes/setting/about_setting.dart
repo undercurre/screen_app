@@ -11,9 +11,11 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/setting.dart';
 import '../../models/delete_device_result_entity.dart';
 import '../../models/midea_response_entity.dart';
+import '../../widgets/mz_setting_item.dart';
 
 // 关于页的数据提供者
 class AboutSettingProvider with ChangeNotifier {
@@ -23,6 +25,7 @@ class AboutSettingProvider with ChangeNotifier {
   String? macAddress;
   String? ipAddress;
   String? snCode;
+  bool? isLogin;
 
   AboutSettingProvider() {
     // 初始化页面数据
@@ -32,12 +35,13 @@ class AboutSettingProvider with ChangeNotifier {
   void init() {
     Timer(const Duration(milliseconds: 250), () async {
       deviceName = "智慧屏P4";
-      familyName = Global.isLogin ? Global.profile.homeInfo?.nickname : "未登录";
+      familyName = System.isLogin() ? System.familyInfo?.familyName : "未登录";
       ipAddress = await aboutSystemChannel.getIpAddress();
       macAddress = await aboutSystemChannel.getMacAddress();
       systemVersion = await aboutSystemChannel.getSystemVersion();
       // 可能获取时间比较长
       snCode = await aboutSystemChannel.getGatewaySn();
+      isLogin = System.isLogin();
       notifyListeners();
     });
   }
@@ -118,7 +122,7 @@ class AboutSettingProvider with ChangeNotifier {
         return true;
       }
     } catch (e) {
-      logger.e(e);
+      Log.e("删除设备错误", e);
     }
 
     if ((result?.isSuccess != true) && tryCount > 0) {
@@ -154,24 +158,23 @@ class AboutSettingPage extends StatelessWidget {
         title: '正在安装更新',
         titleSize: 28,
         maxWidth: 432,
-        contentSlot: const Column(children: [
-          Text('更新中其他功能不可使用，期间会重启，请勿断电',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 24,
-                  color: Color.fromRGBO(255, 255, 255, 0.60),
-                  fontFamily: 'MideaType',
-                  fontWeight: FontWeight.w400,
-                  height: 1.2)),
-          MzSlider(
-              width: 300,
-              height: 4,
-              value: 60),
-          Text('60%', style: TextStyle(
-            fontSize: 60,
-            color: Colors.white
-          ),)
-        ],),
+        contentSlot: const Column(
+          children: [
+            Text('更新中其他功能不可使用，期间会重启，请勿断电',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 24,
+                    color: Color.fromRGBO(255, 255, 255, 0.60),
+                    fontFamily: 'MideaType',
+                    fontWeight: FontWeight.w400,
+                    height: 1.2)),
+            MzSlider(width: 300, height: 4, value: 60),
+            Text(
+              '60%',
+              style: TextStyle(fontSize: 60, color: Colors.white),
+            )
+          ],
+        ),
         onPressed: (_, position, context) {
           Navigator.pop(context);
           if (position == 1) {
@@ -322,7 +325,7 @@ class AboutSettingPage extends StatelessWidget {
                   scrollDirection: Axis.vertical,
                   child: Container(
                     width: 432,
-                    margin: EdgeInsets.only(bottom: 20),
+                    margin: const EdgeInsets.only(bottom: 20),
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                     decoration: const BoxDecoration(
                       color: Color.fromRGBO(255, 255, 255, 0.05),
@@ -330,142 +333,67 @@ class AboutSettingPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        SizedBox(
-                          width: 432,
-                          height: 72,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text("设备名称",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  )),
-                              Text(
-                                  context
-                                          .watch<AboutSettingProvider>()
-                                          .deviceName ??
-                                      '',
-                                  style: const TextStyle(
-                                    color: Color.fromRGBO(255, 255, 255, 0.60),
-                                    fontSize: 20.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  )),
-                            ],
-                          ),
+                        MzSettingItem(
+                          leftText: '设备名称',
+                          rightText: context
+                                  .watch<AboutSettingProvider>()
+                                  .deviceName ??
+                              '',
                         ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 432,
-                          height: 72,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("所在家庭",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  )),
-                              Container(
-                                child: Row(
-                                  children: [
-                                    Text(
-                                        context
-                                                .watch<AboutSettingProvider>()
-                                                .familyName ??
-                                            '',
-                                        style: const TextStyle(
-                                          color: Color(0X7fFFFFFF),
-                                          fontSize: 20.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                    GestureDetector(
-                                      onTap: () {
-                                        MzDialog(
-                                            contentSlot: const Text(
-                                                '此操作将退出到扫码登录界面，是否继续?',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontFamily: 'MideaType',
-                                                    fontWeight: FontWeight.w100,
-                                                    height: 1.2)),
-                                            title: "登出",
-                                            maxWidth: 400,
-                                            btns: ['取消', '确定'],
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 30,
-                                                    horizontal: 50),
-                                            onPressed: (_, index, context) {
-                                              if (index == 1) {
-                                                Push.dispose();
-                                                System.loginOut();
-                                                Navigator
-                                                    .pushNamedAndRemoveUntil(
-                                                        context,
-                                                        "Login",
-                                                        (route) =>
-                                                            route.settings
-                                                                .name ==
-                                                            "/");
-                                              } else {
-                                                Navigator.pop(context);
-                                              }
-                                            }).show(context);
-                                      },
-                                      child: Container(
-                                        width: 88,
-                                        height: 40,
-                                        margin: const EdgeInsets.only(left: 10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          color: const Color(0x330092DC),
-                                          border: Border.all(
-                                              color: const Color(0xFF0092DC)),
-                                        ),
-                                        child: const Center(
-                                          child: Text("登出",
-                                              style: TextStyle(
-                                                color: Color(0xFF0092DC),
-                                                fontSize: 20.0,
-                                                fontFamily: "MideaType",
-                                                fontWeight: FontWeight.normal,
-                                                decoration: TextDecoration.none,
-                                              )),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
+                        MzSettingItem(
+                          leftText: '所在家庭',
+                          rightWidget: Row(children: [
+                            Text(
+                                context
+                                        .watch<AboutSettingProvider>()
+                                        .familyName ??
+                                    '',
+                                style: const TextStyle(
+                                  color: Color(0X7fFFFFFF),
+                                  fontSize: 20.0,
+                                  fontFamily: "MideaType",
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none,
+                                )),
+                            const SizedBox(width: 10),
+                            if (context.watch<AboutSettingProvider>().isLogin ?? false)
+                              MzSettingButton(
+                                onTap: () {
+                                  MzDialog(
+                                      contentSlot: const Text(
+                                          '此操作将退出到扫码登录界面，是否继续?',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontFamily: 'MideaType',
+                                              fontWeight: FontWeight.w100,
+                                              height: 1.2)),
+                                      title: "登出",
+                                      maxWidth: 400,
+                                      btns: ['取消', '确定'],
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 30, horizontal: 50),
+                                      onPressed: (_, index, context) {
+                                        if (index == 1) {
+                                          Push.dispose();
+                                          System.loginOut();
+                                          Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              "Login",
+                                              (route) =>
+                                                  route.settings.name == "/");
+                                        } else {
+                                          Navigator.pop(context);
+                                        }
+                                      }).show(context);
+                                },
+                                text: '登出',
+                                borderColor: const Color(0xFF0092DC),
+                                backgroundColor: const Color(0x330092DC),
+                                fontColor: const Color(0xFF0092DC),
+                              )
+                          ]),
                         ),
                         MultiClick(
                           duration: 3000,
@@ -475,42 +403,12 @@ class AboutSettingPage extends StatelessWidget {
                                 .read<AboutSettingProvider>()
                                 .checkDirectUpgrade();
                           },
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text("系统版本",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                                Text(
-                                    context
-                                            .watch<AboutSettingProvider>()
-                                            .systemVersion ??
-                                        '',
-                                    style: const TextStyle(
-                                      color: Color(0X7fFFFFFF),
-                                      fontSize: 20.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
+                          child: MzSettingItem(
+                            leftText: '系统版本',
+                            rightText: context
+                                    .watch<AboutSettingProvider>()
+                                    .systemVersion ??
+                                '',
                           ),
                         ),
                         MultiClick(
@@ -518,303 +416,67 @@ class AboutSettingPage extends StatelessWidget {
                           duration: 3000,
                           clickListener: () =>
                               Navigator.of(context).pushNamed("developer"),
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text("MAC地址",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                                Text(
-                                    context
-                                            .watch<AboutSettingProvider>()
-                                            .macAddress ??
-                                        '',
-                                    style: const TextStyle(
-                                      color: Color(0X7fFFFFFF),
-                                      fontSize: 20.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                              ],
-                            ),
+                          child: MzSettingItem(
+                            leftText: 'MAC地址',
+                            rightText: context
+                                    .watch<AboutSettingProvider>()
+                                    .macAddress ??
+                                '',
                           ),
                         ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
+                        MzSettingItem(
+                          leftText: 'IP地址',
+                          rightText:
+                              context.watch<AboutSettingProvider>().ipAddress ??
+                                  '',
                         ),
-                        SizedBox(
-                          width: 432,
-                          height: 72,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("IP地址",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  )),
-                              Container(
-                                child: Text(
-                                    context
-                                            .watch<AboutSettingProvider>()
-                                            .ipAddress ??
-                                        '',
-                                    style: const TextStyle(
-                                      color: Color(0X7fFFFFFF),
-                                      fontSize: 20.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                              ),
-                            ],
-                          ),
+                        MzSettingItem(
+                          leftText: 'SN码',
+                          rightTextSize: 16.0,
+                          rightTextAlign: TextAlign.left,
+                          rightText:
+                              context.watch<AboutSettingProvider>().snCode ??
+                                  "获取失败",
                         ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 432,
-                          height: 72,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("SN码",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24.0,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
-                                  )),
-                              Expanded(
-                                flex: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: Text(
-                                      context
-                                              .watch<AboutSettingProvider>()
-                                              .snCode ??
-                                          "获取失败",
-                                      style: const TextStyle(
-                                        color: Color(0X7fFFFFFF),
-                                        fontSize: 16.0,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      )),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
-                        ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => {
+                        MzSettingItem(
+                          onTap: () {
                             showUpdateGoing(
-                                context, context.read<AboutSettingProvider>()),
-                            context.read<AboutSettingProvider>().checkUpgrade()
+                                context, context.read<AboutSettingProvider>());
+                            context.read<AboutSettingProvider>().checkUpgrade();
                           },
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text("应用升级",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                    if (otaChannel.hasNewVersion)
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Text(
-                                          'New',
-                                          style: TextStyle(
-                                              color: Colors.blueAccent),
-                                        ),
-                                      )
-                                  ],
-                                ),
-                                Container(
-                                  width: 97,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(28),
-                                    color: const Color.fromRGBO(
-                                        255, 255, 255, 0.10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                        otaChannel.hasNewVersion
-                                            ? "立即更新"
-                                            : "检查更新",
-                                        style: const TextStyle(
-                                          color: Color.fromRGBO(
-                                              255, 255, 255, 0.60),
-                                          fontSize: 18.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          leftText: '应用升级',
+                          rightWidget: MzSettingButton(
+                            text: otaChannel.hasNewVersion ? "立即更新" : "检查更新",
+                          ),
+                          tipText: otaChannel.hasNewVersion ? 'New' : null,
+                        ),
+                        MzSettingItem(
+                          onTap: () {
+                            showRebootDialog(
+                                context, context.read<AboutSettingProvider>());
+                          },
+                          leftText: '重启系统',
+                          rightWidget: MzSettingButton(
+                            text: '重启',
                           ),
                         ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
+                        MzSettingItem(
+                          onTap: () {
+                            showClearUserDataDialog(
+                                context, context.read<AboutSettingProvider>());
+                          },
+                          leftText: '清除用户数据',
+                          rightWidget: MzSettingButton(
+                            text: '清除',
+                            backgroundColor: Colors.transparent,
+                            borderColor: const Color.fromRGBO(255, 59, 48, 1),
+                            fontColor: const Color.fromRGBO(255, 59, 48, 1),
                           ),
                         ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => showRebootDialog(
-                              context, context.read<AboutSettingProvider>()),
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text("重启系统",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                                Container(
-                                  width: 97,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(28),
-                                    color: const Color.fromRGBO(
-                                        255, 255, 255, 0.10),
-                                  ),
-                                  child: const Center(
-                                    child: Text("重启",
-                                        style: TextStyle(
-                                          color: Color.fromRGBO(
-                                              255, 255, 255, 0.60),
-                                          fontSize: 18.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
-                        ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => showClearUserDataDialog(
-                              context, context.read<AboutSettingProvider>()),
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  child: const Text("清除用户数据",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24.0,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none,
-                                      )),
-                                ),
-                                Container(
-                                    width: 97,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(28),
-                                        color: Colors.transparent,
-                                        border: Border.all(
-                                            width: 1,
-                                            color: const Color.fromRGBO(
-                                                255, 59, 48, 1))),
-                                    child: const Center(
-                                      child: Text("清除",
-                                          style: TextStyle(
-                                            color:
-                                                Color.fromRGBO(255, 59, 48, 1),
-                                            fontSize: 18.0,
-                                            fontFamily: "MideaType",
-                                            fontWeight: FontWeight.normal,
-                                            decoration: TextDecoration.none,
-                                          )),
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 464,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.05),
-                          ),
-                        ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
+                        MzSettingItem(
                           onTap: () {
                             MzDialog(
-                                contentSlot: const Text(
-                                    '此操作将退出到选择平台界面，是否继续?',
+                                contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 20,
@@ -824,66 +486,32 @@ class AboutSettingPage extends StatelessWidget {
                                 title: "切换平台",
                                 maxWidth: 400,
                                 btns: ['取消', '确定'],
-                                contentPadding:
-                                const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 30, horizontal: 50),
                                 onPressed: (_, index, context) {
                                   if (index == 1) {
-                                    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-                                      ChangePlatformHelper.changeToHomlux(context);
+                                    if (MideaRuntimePlatform.platform ==
+                                        GatewayPlatform.MEIJU) {
+                                      ChangePlatformHelper.changeToHomlux(
+                                          context);
                                     } else {
-                                      ChangePlatformHelper.changeToMeiju(context);
+                                      ChangePlatformHelper.changeToMeiju(
+                                          context);
                                     }
                                     Push.dispose();
-                                    Navigator
-                                        .pushNamedAndRemoveUntil(
+                                    Navigator.pushNamedAndRemoveUntil(
                                         context,
                                         "Login",
-                                            (route) =>
-                                        route.settings
-                                            .name ==
-                                            "/");
+                                        (route) => route.settings.name == "/");
                                   } else {
                                     Navigator.pop(context);
                                   }
                                 }).show(context);
                           },
-                          child: SizedBox(
-                            width: 432,
-                            height: 72,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text("切换平台",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.0,
-                                      fontFamily: "MideaType",
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.none,
-                                    )),
-                                Container(
-                                  width: 97,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(28),
-                                    color: const Color.fromRGBO(
-                                        255, 255, 255, 0.10),
-                                  ),
-                                  child: const Center(
-                                    child: Text("切换",
-                                        style: TextStyle(
-                                          color: Color.fromRGBO(
-                                              255, 255, 255, 0.60),
-                                          fontSize: 18.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          leftText: '切换平台',
+                          containBottomDivider: false,
+                          rightWidget: MzSettingButton(
+                            text: '切换',
                           ),
                         ),
                       ],
