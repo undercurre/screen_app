@@ -37,6 +37,8 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.type!;
           deviceObj.modelNumber = e.modelNumber!;
           deviceObj.roomName = e.roomName!;
+          deviceObj.masterId = e.masterId!;
+          deviceObj.onlineStatus = e.onlineStatus!;
           return deviceObj;
         }).toList();
       }
@@ -53,6 +55,8 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.proType!;
           deviceObj.modelNumber = e.deviceType.toString();
           deviceObj.roomName = e.roomName!;
+          deviceObj.masterId = e.gatewayId!;
+          deviceObj.onlineStatus = e.onLineStatus.toString();
           return deviceObj;
         }).toList();
       }

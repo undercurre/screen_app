@@ -250,26 +250,6 @@ class _CenterControlPageState extends State<CenterControlPage> with Throttle {
           colors: [Color(0xFF272F41), Color(0xFF080C14)],
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            SmallDeviceCardWidget(
-              name: '灯光',
-              icon: Image(
-                image: AssetImage('assets/newUI/device/0x21_55.png'),
-              ),
-              onOff: true,
-              roomName: '客厅',
-              characteristic: '40%',
-              onTap: () => {logger.i('点击卡片')},
-              online: true,
-              isFault: true,
-              isNative: false,
-            ),
-          ],
-        ),
-      ),
-    );
+      child: Container());
   }
 }

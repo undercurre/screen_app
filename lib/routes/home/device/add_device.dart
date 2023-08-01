@@ -77,7 +77,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   Widget build(BuildContext context) {
     Layout resultData = Layout(
-        uuid.v4(), DeviceEntityTypeInP4.Clock, CardType.Other, -1, [], null);
+        uuid.v4(),
+        DeviceEntityTypeInP4.Clock,
+        CardType.Other,
+        -1,
+        [],
+        DataInputCard(name: '', applianceCode: '', roomName: ''));
     return Stack(
       children: [
         Container(
@@ -224,13 +229,20 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           return GestureDetector(
                             onTap: () {
                               resultData = Layout(
-                                  devices[index].applianceCode,
-                                  getDeviceEntityType(devices[index].type,
-                                      devices[index].modelNumber),
-                                  CardType.Small,
-                                  -1,
-                                  [],
-                                  null);
+                                devices[index].applianceCode,
+                                getDeviceEntityType(devices[index].type,
+                                    devices[index].modelNumber),
+                                CardType.Small,
+                                -1,
+                                [],
+                                DataInputCard(
+                                  name: devices[index].name,
+                                  applianceCode: devices[index].applianceCode,
+                                  roomName: devices[index].roomName!,
+                                  modelNumber: devices[index].modelNumber,
+                                  masterId: devices[index].masterId,
+                                ),
+                              );
                               Navigator.pop(context, resultData);
                             },
                             child: Stack(
@@ -260,12 +272,22 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                   devices[index].modelNumber,
                                                   devices[index].type);
                                           resultData = Layout(
-                                              devices[index].applianceCode,
-                                              curDeviceEntity,
-                                              curCardType,
-                                              -1,
-                                              [],
-                                              null);
+                                            devices[index].applianceCode,
+                                            curDeviceEntity,
+                                            curCardType,
+                                            -1,
+                                            [],
+                                            DataInputCard(
+                                              name: devices[index].name,
+                                              applianceCode:
+                                                  devices[index].applianceCode,
+                                              roomName:
+                                                  devices[index].roomName!,
+                                              modelNumber:
+                                                  devices[index].modelNumber,
+                                              masterId: devices[index].masterId,
+                                            ),
+                                          );
                                           Navigator.pop(context, resultData);
                                         } else {
                                           showDialog(
@@ -274,6 +296,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               return CardDialog(
                                                 name: devices[index].name,
                                                 type: devices[index].type,
+                                                applianceCode: devices[index]
+                                                    .applianceCode,
                                                 modelNumber:
                                                     devices[index].modelNumber,
                                                 roomName:
@@ -283,12 +307,23 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                           ).then(
                                             (value) {
                                               resultData = Layout(
-                                                  devices[index].applianceCode,
-                                                  curDeviceEntity,
-                                                  value,
-                                                  -1,
-                                                  [],
-                                                  null);
+                                                devices[index].applianceCode,
+                                                curDeviceEntity,
+                                                value,
+                                                -1,
+                                                [],
+                                                DataInputCard(
+                                                  name: devices[index].name,
+                                                  applianceCode: devices[index]
+                                                      .applianceCode,
+                                                  roomName:
+                                                      devices[index].roomName!,
+                                                  modelNumber: devices[index]
+                                                      .modelNumber,
+                                                  masterId:
+                                                      devices[index].masterId,
+                                                ),
+                                              );
                                               Navigator.pop(
                                                   context, resultData);
                                             },
@@ -298,6 +333,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       online: true,
                                       isFault: false,
                                       isNative: false,
+                                      adapter: null,
                                     ),
                                   ),
                                 ),
@@ -339,19 +375,20 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 (AllowMultipleGestureRecognizer instance) {
                                   instance.onTap = () {
                                     resultData = Layout(
-                                        scenes[index].sceneId,
-                                        DeviceEntityTypeInP4.Scene,
-                                        CardType.Small,
-                                        -1, [], {
-                                      'name': scenes[index].name,
-                                      'icon': Image(
-                                        image: AssetImage(
-                                            'assets/newUI/scene/${scenes[index].image}.png'),
+                                      scenes[index].sceneId,
+                                      DeviceEntityTypeInP4.Scene,
+                                      CardType.Small,
+                                      -1,
+                                      [],
+                                      DataInputCard(
+                                        name: scenes[index].name,
+                                        applianceCode: uuid.v4(),
+                                        roomName: '',
+                                        sceneId: scenes[index].sceneId,
+                                        disabled: false,
+                                        icon: scenes[index].image,
                                       ),
-                                      'onOff': false,
-                                      'sceneId': scenes[index].sceneId,
-                                      'disabled': false,
-                                    });
+                                    );
                                     Navigator.pop(context, resultData);
                                   };
                                 },
@@ -365,10 +402,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     padding: const EdgeInsets.all(10),
                                     child: SmallSceneCardWidget(
                                       name: scenes[index].name,
-                                      icon: Image(
-                                        image: AssetImage(
-                                            'assets/newUI/scene/${scenes[index].image}.png'),
-                                      ),
+                                      icon: scenes[index].image,
                                       sceneId: scenes[index].sceneId,
                                       disabled: true,
                                     ),
@@ -406,7 +440,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           return GestureDetector(
                             onTap: () {
                               resultData = Layout(uuid.v4(), others[index].type,
-                                  CardType.Other, -1, [], null);
+                                  CardType.Other, -1, [], DataInputCard(
+                                  name: '',
+                                  applianceCode: uuid.v4(),
+                                  roomName: '',
+                                ),);
                               Navigator.pop(context, resultData);
                             },
                             child: Stack(

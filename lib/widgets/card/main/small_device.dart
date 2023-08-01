@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
@@ -14,8 +15,9 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
+  MideaDataAdapter? adapter; // 数据适配器
 
-  const SmallDeviceCardWidget(
+  SmallDeviceCardWidget(
       {super.key,
       required this.name,
       required this.icon,
@@ -26,7 +28,8 @@ class SmallDeviceCardWidget extends StatefulWidget {
       this.onMoreTap,
       required this.online,
       required this.isFault,
-      required this.isNative});
+      required this.isNative,
+      required this.adapter});
 
   @override
   _SmallDeviceCardWidgetState createState() => _SmallDeviceCardWidgetState();
@@ -104,14 +107,15 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                   ]),
                   if (widget.roomName != '' || _getRightText() != '')
                     Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
-                          style: TextStyle(
-                              color: Colors.white.withOpacity(0.64),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400),
-                        ))
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.64),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    )
                 ],
               ),
             ),

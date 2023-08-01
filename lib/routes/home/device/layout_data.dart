@@ -11,7 +11,7 @@ class Layout {
   CardType cardType;
   int pageIndex;
   List<int> grids;
-  dynamic data;
+  DataInputCard data;
 
   Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids, this.data);
 
@@ -29,13 +29,15 @@ class Layout {
   factory Layout.fromJson(String json) {
     final map = jsonDecode(json) as Map<String, dynamic>;
     final grids = (map['grids'] as List<dynamic>).cast<int>();
+    final dataJson = map['data'] as Map<String, dynamic>;
+    final data = DataInputCard.fromJson(dataJson);
     return Layout(
       map['deviceId'] as String,
       _parseDeviceEntityTypeInP4(map['type'] as String),
       _parseCardType(map['cardType'] as String),
       map['pageIndex'] as int,
       grids,
-      map['data'],
+      data,
     );
   }
 
@@ -46,7 +48,7 @@ class Layout {
       'cardType': _cardTypeToString(cardType),
       'pageIndex': pageIndex,
       'grids': grids,
-      'data': data,
+      'data': data.toJson(),
     };
   }
 

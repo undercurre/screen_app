@@ -33,16 +33,38 @@ class LayoutModel extends ChangeNotifier {
     } else {
       // 初次使用,展示默认布局
       setLayouts([
-        Layout(uuid.v4(), DeviceEntityTypeInP4.Clock, CardType.Other, 0, [1, 2, 5, 6], null),
-        Layout(uuid.v4(), DeviceEntityTypeInP4.Weather, CardType.Other, 0, [3, 4, 7, 8], null),
-        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanel1, CardType.Small, 0, [9, 10], {
-          'name': '开关1',
-          'onOff': false
-        }),
-        Layout(uuid.v4(), DeviceEntityTypeInP4.LocalPanel2, CardType.Small, 0, [11, 12], {
-          'name': '开关2',
-          'onOff': false
-        }),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.Clock,
+            CardType.Other,
+            0,
+            [1, 2, 5, 6],
+            DataInputCard(
+                name: '时钟', applianceCode: uuid.v4(), roomName: '屏内')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.Weather,
+            CardType.Other,
+            0,
+            [3, 4, 7, 8],
+            DataInputCard(
+                name: '天气', applianceCode: uuid.v4(), roomName: '屏内')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.LocalPanel1,
+            CardType.Small,
+            0,
+            [9, 10],
+            DataInputCard(
+                name: '继电器1', applianceCode: uuid.v4(), roomName: '屏内')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.LocalPanel2,
+            CardType.Small,
+            0,
+            [11, 12],
+            DataInputCard(
+                name: '继电器2', applianceCode: uuid.v4(), roomName: '屏内')),
       ]);
       _saveLayouts();
     }

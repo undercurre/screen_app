@@ -13,13 +13,15 @@ class CardDialog extends StatefulWidget {
   final String name;
   final String roomName;
   final String modelNumber;
+  final String applianceCode;
 
   const CardDialog(
       {super.key,
       required this.type,
       required this.name,
       required this.roomName,
-      required this.modelNumber});
+      required this.modelNumber,
+      required this.applianceCode});
 
   @override
   _CardDialogState createState() => _CardDialogState();
@@ -104,6 +106,7 @@ class _CardDialogState extends State<CardDialog> {
                         online: true,
                         isFault: false,
                         isNative: false,
+                        adapter: null,
                       ),
                     ),
                     Transform.scale(
@@ -137,9 +140,12 @@ class _CardDialogState extends State<CardDialog> {
                               child: Transform.scale(
                                   scale: 0.75,
                                   child: buildMap[_getDeviceEntityType(
-                                      widget.type,
-                                      widget
-                                          .modelNumber)]![CardType.Big]!(null)),
+                                          widget.type,
+                                          widget.modelNumber)]![CardType.Big]!(
+                                      DataInputCard(
+                                          name: widget.name,
+                                          applianceCode: widget.applianceCode,
+                                          roomName: widget.roomName))),
                             ),
                           ),
                         ],
@@ -176,18 +182,20 @@ class _CardDialogState extends State<CardDialog> {
                     ),
                   ),
                   if (buildMap[_getDeviceEntityType(
-                      widget.type, widget.modelNumber)]![CardType.Big] !=
-                      null) Container(
-                    width: _currentIndex == 2 ? 22 : 14,
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      color: _currentIndex == 2
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.6),
+                          widget.type, widget.modelNumber)]![CardType.Big] !=
+                      null)
+                    Container(
+                      width: _currentIndex == 2 ? 22 : 14,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(4)),
+                        color: _currentIndex == 2
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.6),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],

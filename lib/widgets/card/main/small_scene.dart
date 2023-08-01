@@ -9,7 +9,7 @@ import '../../../states/scene_list_notifier.dart';
 class SmallSceneCardWidget extends StatefulWidget {
   bool onOff = false;
   final String name;
-  final Widget icon;
+  final String icon;
   final String sceneId;
   final bool disabled;
 
@@ -87,25 +87,27 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                   stops: [0.06, 1.0],
                   transform: GradientRotation(213 * (3.1415926 / 360.0)),
                 ),
-                border: Border.all(
-                  color: const Color.fromRGBO(255, 255, 255, 0.32),
-                  width: 0.6,
-                ),
               ),
         child: Row(
           children: [
             Container(
               margin: const EdgeInsets.only(right: 16),
               width: 40,
-              child: widget.icon,
+              child: Image(
+                image: AssetImage('assets/newUI/scene/${widget.icon}.png'),
+              ),
             ),
-            Text(
-              widget.name,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w400),
-            )
+            SizedBox(
+              width: 100,
+              child: Text(
+                widget.name,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
           ],
         ),
       ),

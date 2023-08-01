@@ -160,7 +160,7 @@ class SelectFamilyDataAdapter extends MideaDataAdapter {
   SelectFamilyDataAdapter(super.platform);
 
   void queryFamilyList() async {
-    dataState = DataState.LONGING;
+    dataState = DataState.LOADING;
     if (platform.inHomlux()) {
       var res = await HomluxUserApi.queryFamilyList();
       if (res.isSuccess && res.data != null) {
