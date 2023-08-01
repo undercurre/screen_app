@@ -35,7 +35,7 @@ class AboutSettingProvider with ChangeNotifier {
   void init() {
     Timer(const Duration(milliseconds: 250), () async {
       deviceName = "智慧屏P4";
-      familyName = System.isLogin() ? System.familyInfo?.familyName : "未登录";
+      familyName = System.familyInfo?.familyName ?? "未登录";
       ipAddress = await aboutSystemChannel.getIpAddress();
       macAddress = await aboutSystemChannel.getMacAddress();
       systemVersion = await aboutSystemChannel.getSystemVersion();
