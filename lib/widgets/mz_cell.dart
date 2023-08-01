@@ -94,16 +94,21 @@ class _CellState extends State<MzCell> {
     List<Widget> compositeTitle = <Widget>[
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
-        Text(
-          widget.title!,
-          maxLines: widget.titleMaxLines,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: widget.titleSize,
-            fontFamily: "MideaType",
-            fontWeight: widget.fontWeight,
-            decoration: TextDecoration.none,
-            color: widget.titleColor,
+        Container(
+          constraints: const BoxConstraints(
+            maxWidth: 280,
+          ),
+          child: Text(
+            widget.title!,
+            maxLines: widget.titleMaxLines,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: widget.titleSize,
+              fontFamily: "MideaType",
+              fontWeight: widget.fontWeight,
+              decoration: TextDecoration.none,
+              color: widget.titleColor,
+            ),
           ),
         ),
 
@@ -114,7 +119,7 @@ class _CellState extends State<MzCell> {
           padding: const EdgeInsets.symmetric(horizontal: 6),
           decoration: const BoxDecoration(
               color: Color.fromRGBO(216, 216, 216, 0.3),
-              borderRadius: BorderRadius.all(Radius.circular(11.0))),
+              borderRadius: BorderRadius.all(Radius.circular(12.0))),
           child: Text(
             widget.tag!,
             maxLines: 1,
@@ -125,7 +130,7 @@ class _CellState extends State<MzCell> {
               fontWeight: FontWeight.w100,
               decoration: TextDecoration.none,
               color: Color.fromRGBO(255, 255, 255, 0.85),
-              height: 1.5,
+              height: 1.6,
             ),
           ),
         ),

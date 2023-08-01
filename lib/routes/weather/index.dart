@@ -59,7 +59,7 @@ class WeatherPageState extends State<WeatherPage>
     updateWeather(areaid);
 
     // 每10分钟刷新天气
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    _timer = Timer.periodic(const Duration(hours: 4), (timer) async {
       updateWeather(areaid!);
       debugPrint('update weather');
       widget.onTick();

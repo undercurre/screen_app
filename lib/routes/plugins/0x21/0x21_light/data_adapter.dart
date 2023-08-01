@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../common/adapter/midea_data_adapter.dart';
+import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/push.dart';
 import '../../../../models/device_entity.dart';
@@ -128,44 +129,48 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
 
   /// 控制开关
   Future<void> controlPower() async {
+    device.power = !device.power;
+    updateUI();
     if (platform.inMeiju()) {
-      device.power = !device.power;
-      updateUI();
       var res = await ZigbeeLightApi.powerPDM(device.deviceIDInDetail, device.power, device.nodeId);
       if (!res.isSuccess) {
         _delay2UpdateDetail(2);
       }
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.controlZigbeeLightOnOff(device.nodeId, "2", device.deviceIDInDetail, device.power ? 1 : 0);
+      if (!res.isSuccess) {
+        _delay2UpdateDetail(2);
+      }
     }
   }
 
   /// 控制延时关
   Future<void> controlDelay() async {
     if (!device.power) return;
+    if (device.delayClose == 0) {
+      device.delayClose = 3;
+    } else {
+      device.delayClose = 0;
+    }
+    updateUI();
     if (platform.inMeiju()) {
-      if (device.delayClose == 0) {
-        device.delayClose = 3;
-      } else {
-        device.delayClose = 0;
-      }
-      updateUI();
       await ZigbeeLightApi.delayPDM(device.deviceIDInDetail, !(device.delayClose == 0), device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      await HomluxDeviceApi.controlZigbeeLightDelayOff(device.nodeId, "2", device.deviceIDInDetail, device.delayClose);
+      _delay2UpdateDetail(2);
     }
   }
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
-    if (platform.inMeiju()) {
-      device.fakeModel = mode.key;
-      updateUI();
+    device.fakeModel = mode.key;
+    updateUI();
+    var curMode = lightModes
+        .where((element) => element.key == device.fakeModel)
+        .toList()[0] as ZigbeeLightMode;
 
-      var curMode = lightModes
-          .where((element) => element.key == device.fakeModel)
-          .toList()[0] as ZigbeeLightMode;
+    if (platform.inMeiju()) {
       await ZigbeeLightApi.adjustPDM(
           device.deviceIDInDetail,
           curMode.brightness,
@@ -173,33 +178,53 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
           device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      await HomluxDeviceApi.controlZigbeeColorTempAndBrightness(
+          device.nodeId,
+          "2",
+          device.deviceIDInDetail,
+          curMode.colorTemperature.toInt(),
+          curMode.brightness.toInt()
+      );
+      _delay2UpdateDetail(2);
     }
   }
 
   /// 控制亮度
   Future<void> controlBrightness(num value, Color activeColor) async {
+    device.brightness = value;
+    device.fakeModel = "";
+    updateUI();
+
     if (platform.inMeiju()) {
-      device.brightness = value;
-      device.fakeModel = "";
-      updateUI();
-      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, value, device.colorTemp, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, value, device.brightness, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      await HomluxDeviceApi.controlZigbeeBrightness(
+          device.nodeId,
+          "2",
+          device.deviceIDInDetail,
+          device.brightness.toInt()
+      );
+      _delay2UpdateDetail(2);
     }
   }
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color activeColor) async {
+    device.colorTemp = value;
+    device.fakeModel = "";
+    updateUI();
     if (platform.inMeiju()) {
-      device.colorTemp = value;
-      device.fakeModel = "";
-      updateUI();
-      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, device.brightness, value, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, device.colorTemp, value, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      await HomluxDeviceApi.controlZigbeeColorTemp(
+          device.nodeId,
+          "2",
+          device.deviceIDInDetail,
+          device.colorTemp.toInt()
+      );
+      _delay2UpdateDetail(2);
     }
   }
 

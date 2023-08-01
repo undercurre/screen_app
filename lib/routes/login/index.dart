@@ -17,6 +17,7 @@ import '../../common/logcat_helper.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
+import '../../widgets/mz_dialog.dart';
 import '../../widgets/util/net_utils.dart';
 import 'chose_platform.dart';
 import 'scan_code.dart';
@@ -34,6 +35,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   bool isNeedChoosePlatform = false;
   bool isSelectOnce = false;
   BindGatewayAdapter? bindGatewayAd;
+  bool isNeedShowClearAlert = false;
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -77,6 +79,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         } else {
           TipsUtils.toast(content: '请选择家庭');
         }
+        return;
+      }
+      if (isNeedShowClearAlert) {
+        showClearAlert(context);
         return;
       }
     }
@@ -148,6 +154,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
 
     isNeedChoosePlatform = MideaRuntimePlatform.platform == GatewayPlatform.NONE;
+    isNeedShowClearAlert = System.familyInfo != null;
   }
 
   @override
@@ -281,7 +288,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           width: 240,
                           height: 56,
                           borderRadius: 29,
-                          backgroundColor: const Color(0xFF818C98),
+                          backgroundColor: const Color(0xFF267AFF),
                           borderColor: Colors.transparent,
                           borderWidth: 1,
                           text: '下一步',
@@ -300,19 +307,38 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                         color: Colors.white.withOpacity(0.05),
                         width: MediaQuery.of(context).size.width,
                         height: 72,
-                        child: Center(
-                            child: MzButton(
-                          width: 240,
-                          height: 56,
-                          borderRadius: 29,
-                          backgroundColor: const Color(0x19FFFFFF),
-                          borderColor: Colors.transparent,
-                          borderWidth: 1,
-                          text: '上一步',
-                          onPressed: () {
-                            prevStep();
-                          },
-                        )),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            MzButton(
+                              width: 168,
+                              height: 56,
+                              borderRadius: 29,
+                              backgroundColor: const Color(0xFF949CA8),
+                              borderColor: Colors.transparent,
+                              borderWidth: 1,
+                              text: '切换平台',
+                              onPressed: () {
+                                setState(() {
+                                  isNeedChoosePlatform = true;
+                                });
+                              },
+                            ),
+                            MzButton(
+                              width: 168,
+                              height: 56,
+                              borderRadius: 29,
+                              backgroundColor: const Color(0xFF267AFF),
+                              borderColor: Colors.transparent,
+                              borderWidth: 1,
+                              text: '上一步',
+                              onPressed: () {
+                                prevStep();
+                              },
+                            )
+                          ],
+                        ),
                       ))))
         else if (stepNum != 5 && !isNeedChoosePlatform)
           Positioned(
@@ -333,8 +359,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                                   width: 168,
                                   height: 56,
                                   borderRadius: 29,
-                                  backgroundColor:
-                                      const Color.fromRGBO(255, 255, 255, 0.10),
+                                  backgroundColor: const Color(0xFF949CA8),
                                   borderColor: Colors.transparent,
                                   borderWidth: 1,
                                   text: '上一步',
@@ -346,7 +371,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                                   width: 168,
                                   height: 56,
                                   borderRadius: 29,
-                                  backgroundColor: const Color(0xFF818C98),
+                                  backgroundColor: const Color(0xFF267AFF),
                                   borderColor: Colors.transparent,
                                   borderWidth: 1,
                                   text: stepNum == 4 ? '完成' : '下一步',
@@ -363,6 +388,36 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           )
       ],
     );
+  }
+
+  void showClearAlert(BuildContext context) async {
+    if (System.familyInfo == null) return;
+    var name = System.familyInfo?.familyName ?? "";
+    MzDialog(
+        title: '绑定至新家庭',
+        titleSize: 28,
+        maxWidth: 432,
+        backgroundColor: const Color(0xFF494E59),
+        contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+        contentSlot: Text("智慧屏已绑定在家庭“$name”，绑定至新家庭将清除所有本地数据，是否继续？",
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            style: const TextStyle(
+              color: Color(0xFFB6B8BC),
+              fontSize: 24,
+              height: 1.6,
+              fontFamily: "MideaType",
+              decoration: TextDecoration.none,
+            )
+        ),
+        btns: ['取消', '确定'],
+        onPressed: (_, position, context) {
+          Navigator.pop(context);
+          if (position == 1) {
+            isNeedShowClearAlert = false;
+            nextStep();
+          }
+        }).show(context);
   }
 
   @override

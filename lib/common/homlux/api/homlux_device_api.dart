@@ -68,6 +68,26 @@ class HomluxDeviceApi {
   }
 
   /// ******************
+  /// 控制zigbee调光调色灯的延时关
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [masterId] 面板的网关id
+  /// [delayTime] 延时分钟
+  /// *******************
+  static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(
+      String deviceId, String deviceType, String masterId, int delayTime) {
+    var actions = [
+      <String, dynamic>{'devId': deviceId, 'ep': 1, 'delayClose': delayTime}
+    ];
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: masterId,
+        method: 'lightControl',
+        inputData: actions,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
   /// 控制zigbee调光调色灯的亮度
   /// [deviceId] 设备Id
   /// [deviceType] 设备类型
@@ -98,6 +118,27 @@ class HomluxDeviceApi {
       String deviceId, String deviceType, String masterId, int colorTemp) {
     var actions = [
       <String, dynamic>{'devId': deviceId, 'ep': 1, 'ColorTemp': colorTemp}
+    ];
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: masterId,
+        method: 'lightControl',
+        inputData: actions,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制zigbee调光调色灯的亮度和色温
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [masterId] 面板的网关id
+  /// [colorTemp] 0 - 100
+  /// [brightness] 0 - 100
+  /// *******************
+  static Future<HomluxResponseEntity> controlZigbeeColorTempAndBrightness(
+      String deviceId, String deviceType, String masterId, int colorTemp, int brightness) {
+    var actions = [
+      <String, dynamic>{'devId': deviceId, 'ep': 1, 'ColorTemp': colorTemp, 'Level': brightness}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -155,6 +196,44 @@ class HomluxDeviceApi {
       String deviceId, String deviceType, int colorTemp) {
     var actions = [
       <String, dynamic>{'color_temperature': '$colorTemp'}
+    ];
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        inputData: actions,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi调光调色灯的延时关
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [delayTime] 延时分钟
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiLightDelayOff(
+      String deviceId, String deviceType, int delayTime) {
+    var actions = [
+      <String, dynamic>{'delay_light_off': '$delayTime'}
+    ];
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        inputData: actions,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi调光调色灯的模式
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [delayTime] 延时分钟
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiLightMode(
+      String deviceId, String deviceType, String mode) {
+    var actions = [
+      <String, dynamic>{'scene_light': mode}
     ];
     return _controlDevice(
         topic: '/subdevice/control',

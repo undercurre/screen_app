@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
 
@@ -100,10 +99,10 @@ class _LinkNetworkModel with ChangeNotifier {
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
     _data.wifiList = list.toSet();
-    if (_data.currentConnect?.type == UpdateType.SUCCESS) {
-      _data.wifiList
-          ?.removeWhere((element) => element == _data.currentConnect?.data);
-    }
+    // if (_data.currentConnect?.type == UpdateType.SUCCESS) {
+    //   _data.wifiList
+    //       ?.removeWhere((element) => element == _data.currentConnect?.data);
+    // }
     notifyListeners();
   }
 
@@ -224,7 +223,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                         if (model._data.currentConnect?.type == UpdateType.LONGING) Positioned(
                           bottom: 0,
                           left: 0,
-                          child: Container(
+                          child: SizedBox(
                             width: 432,
                             height: 72,
                             child: Stack(
@@ -313,10 +312,9 @@ class _LinkNetwork extends State<LinkNetwork> {
                                   // wifi的子Item
                                   return MzCell(
                                       avatarIcon: null,
-                                      rightIcon: item.auth == 'encryption'
-                                          ? Row(
+                                      rightIcon: Row(
                                         children: [
-                                          const Padding(
+                                          if (item.auth == 'encryption') const Padding(
                                             padding: EdgeInsets.only(
                                                 right: 12.0),
                                             child: Image(
@@ -329,16 +327,20 @@ class _LinkNetwork extends State<LinkNetwork> {
                                               level: item.level.toInt(),
                                               size: const Size.square(28)),
                                         ],
-                                      )
-                                          : null,
+                                      ),
                                       title: item.ssid,
+                                      titleMaxLines: 1,
                                       titleSize: 18.0,
+                                      tag: item.bssid == model._data.currentConnect?.data.bssid ? "已连接" : null,
                                       hasTopBorder: false,
                                       hasBottomBorder:
                                       index + 1 != model.pageData.length,
                                       bgColor: const Color.fromRGBO(
                                           255, 255, 255, 0.05),
                                       onTap: () {
+                                        if (item.bssid == model._data.currentConnect?.data.bssid) {
+                                          return;
+                                        }
                                         if (item.auth == 'open') {
                                           // 尝试连接开放型WiFi
                                           model.connectWiFi(
@@ -504,10 +506,11 @@ class IgnorePasswordDialog extends StatelessWidget {
                 MzButton(
                     width: 152,
                     height: 56,
-                    borderRadius: 29.0,
-                    backgroundColor: const Color.fromRGBO(255, 255, 255, 0.10),
+                    backgroundColor: const Color(0xFF939AA6),
                     borderColor: Colors.transparent,
-                    borderWidth: 1,
+                    borderWidth: 0,
+                    isShowShadow: false,
+                    borderRadius: 29.0,
                     text: '取消',
                     onPressed: () {
                       Navigator.pop(context);
@@ -516,9 +519,10 @@ class IgnorePasswordDialog extends StatelessWidget {
                   width: 152,
                   height: 56,
                   borderRadius: 29.0,
-                  backgroundColor: const Color(0xFF818C98),
+                  backgroundColor: const Color(0xFF267AFF),
                   borderColor: Colors.transparent,
-                  borderWidth: 1,
+                  borderWidth: 0,
+                  isShowShadow: false,
                   text: '确认',
                   onPressed: () {
                     netMethodChannel.forgetWiFi(result.ssid, result.bssid);
@@ -589,6 +593,7 @@ class InputPasswordDialog extends StatefulWidget {
 class _InputPasswordDialogState extends State<InputPasswordDialog> {
   var closeEye = true;
   final TextEditingController _nameController = TextEditingController();
+  bool isLengthOk = false;
 
   _InputPasswordDialogState();
 
@@ -661,9 +666,20 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                                   controller: _nameController,
                                   obscureText: closeEye,
                                   maxLines: 1,
-                                  decoration: const InputDecoration(
-                                      border: InputBorder.none),
-                                )),
+                                  decoration: const InputDecoration(border: InputBorder.none),
+                                  onChanged: (str) {
+                                    if (str.length == 7) {
+                                      setState(() {
+                                        isLengthOk = false;
+                                      });
+                                    } else if (str.length == 8) {
+                                      setState(() {
+                                        isLengthOk = true;
+                                      });
+                                    }
+                                  },
+                                )
+                            ),
                             IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -689,9 +705,10 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         width: 152,
                         height: 56,
                         borderRadius: 29.0,
-                        backgroundColor: const Color.fromRGBO(255, 255, 255, 0.10),
+                        backgroundColor: const Color(0xFF939AA6),
                         borderColor: Colors.transparent,
-                        borderWidth: 1,
+                        borderWidth: 0,
+                        isShowShadow: false,
                         text: '取消',
                         onPressed: () {
                           Navigator.pop(context);
@@ -700,10 +717,12 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                       width: 152,
                       height: 56,
                       borderRadius: 29.0,
-                      backgroundColor: const Color(0xFF818C98),
+                      backgroundColor: isLengthOk ? const Color(0xFF267AFF) : const Color(0xFF4065A7),
                       borderColor: Colors.transparent,
-                      borderWidth: 1,
+                      borderWidth: 0,
+                      isShowShadow: false,
                       text: '加入',
+                      textColor: isLengthOk ? const Color(0xFFFFFFFF) : const Color(0xC8FFFFFF),
                       onPressed: () {
                         if (StrUtils.isNullOrEmpty(_nameController.text) ||
                             _nameController.text.length < 8) {

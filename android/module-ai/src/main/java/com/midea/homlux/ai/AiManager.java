@@ -43,11 +43,12 @@ import static android.content.Context.BIND_AUTO_CREATE;
 public class AiManager {
     private int mAuthCount = 0;// 授权次数,用来记录自动授权
     private boolean ddsIntial = false;
-    private boolean isAiEnable=true;
+    private boolean isAiEnable = true;
     Activity context;
     WakUpStateCallBack mWakUpStateCallBack;
     AISetVoiceCallBack mAISetVoiceCallBack;
     MyReceiver mInitReceiver;
+
     private AiManager() {
 
     }
@@ -58,18 +59,19 @@ public class AiManager {
         return Instance;
     }
 
-    public void startDuiAi(Activity context, String uid, String token, String refreshToken,int ExpiresTime, boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
+    public void startDuiAi(Activity context, String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
         this.context = context;
-        mWakUpStateCallBack= mCallBack;
-        mAISetVoiceCallBack=VoiceCallBack;
-        isAiEnable=aiEnable;
+        mWakUpStateCallBack = mCallBack;
+        mAISetVoiceCallBack = VoiceCallBack;
+        isAiEnable = aiEnable;
         new Thread() {
             public void run() {
                 while (true) {
                     if (checkNet()) {
                         context.runOnUiThread(() -> {
                             //没有登录过，调用登录接口
-                            AccountLogin(uid, token, refreshToken,ExpiresTime);
+                            DialogUtil.showLoadingMessage(context, "同步家庭数据中");
+                            AccountLogin(uid, token, refreshToken, ExpiresTime);
                         });
                         break;
                     }
@@ -81,7 +83,7 @@ public class AiManager {
     /**
      * 登录
      */
-    private void AccountLogin(String uid, String token, String refreshToken,int ExpiresTime) {
+    private void AccountLogin(String uid, String token, String refreshToken, int ExpiresTime) {
         //如果是使用贵司自己的账号，就调用AccountManager.linkAccount
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
@@ -91,7 +93,7 @@ public class AiManager {
 
             @Override
             public void onSuccess() {
-                getSkillDetail(token, refreshToken,ExpiresTime);
+                getSkillDetail(token, refreshToken, ExpiresTime);
             }
         });
     }
@@ -124,7 +126,7 @@ public class AiManager {
     /**
      * 跳过二次登录
      */
-    private void UpdateTokenInfo(String token, String refreshToken,int ExpiresTime) {
+    private void UpdateTokenInfo(String token, String refreshToken, int ExpiresTime) {
         SmartHomeTokenRequest request = new SmartHomeTokenRequest();
         request.setProductId(AppCommonConfig.PRODUCT_ID);
         request.setSkillId(AppCommonConfig.SKILL_ID);
@@ -135,7 +137,7 @@ public class AiManager {
         //这个token是第三方智能家居厂商自己的token，用来访问智能家居厂商的后台服务
 
 
-        if(ExpiresTime!=-1){
+        if (ExpiresTime != -1) {
             request.setSmartHomeRefreshToken(refreshToken);
             //除非AccessToken永久有效，否则需要传入refreshtoken、ExpiresIn相关参数以保证思必驰定时刷token
             //思必驰后台会在ExpiresIn的时间后刷新token，如果开发者想要自己维护token，
@@ -160,13 +162,13 @@ public class AiManager {
 
     }
 
-    public void getSkillDetail(String token, String refreshToken,int ExpiresTime){
+    public void getSkillDetail(String token, String refreshToken, int ExpiresTime) {
         DcaSdk.getSmartHomeManager().querySmartHomeSkillDetail(AppCommonConfig.SKILL_ID, new Callback<SmartHomeSkillDetail>() {
             @Override
             public void onSuccess(SmartHomeSkillDetail smartHomeSkillDetail) {
                 smartHomeSkillDetail.getSkillDirection();
-                AiConfig.skillVersion=smartHomeSkillDetail.getVersion();
-                UpdateTokenInfo(token,refreshToken,ExpiresTime);
+                AiConfig.skillVersion = smartHomeSkillDetail.getVersion();
+                UpdateTokenInfo(token, refreshToken, ExpiresTime);
             }
 
             @Override
@@ -202,7 +204,10 @@ public class AiManager {
                         if (ddsIntial == true) {
                             Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
                             AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
-                            context.runOnUiThread(() -> MusicManager.getInstance().startMusicServer(context));
+                            context.runOnUiThread(() -> {
+                                MusicManager.getInstance().startMusicServer(context);
+                                DialogUtil.closeLoadingDialog();
+                            });
                             break;
                         }
                     } else {
@@ -210,10 +215,12 @@ public class AiManager {
                         Log.e("sky", "自动授权");
                         doAutoAuth();
                         if (mAuthCount == 5) {
+                            DialogUtil.closeLoadingDialog();
                             break;
                         }
                     }
                 } catch (Exception e) {
+                    DialogUtil.closeLoadingDialog();
                     Log.e("sky", "DDS错误:" + e.getMessage());
                 }
             } else {
@@ -266,13 +273,14 @@ public class AiManager {
                 e.printStackTrace();
             }
         } else {
+            DialogUtil.closeLoadingDialog();
             DialogUtil.showToast("语音授权失败!");
         }
     }
 
     public void wakeupAi() {
         try {
-            if(DDS.getInstance().getAgent()!=null){
+            if (DDS.getInstance().getAgent() != null) {
                 DDS.getInstance().getAgent().avatarClick();
             }
         } catch (DDSNotInitCompleteException e) {
@@ -283,11 +291,11 @@ public class AiManager {
     public void setAiEnable(boolean enable) {
         try {
             if (enable) {
-                if(DDS.getInstance()!=null&&DDS.getInstance().getAgent()!=null&& DDS.getInstance().getAgent().getWakeupEngine()!=null){
+                if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null && DDS.getInstance().getAgent().getWakeupEngine() != null) {
                     DDS.getInstance().getAgent().getWakeupEngine().enableWakeup();
                 }
             } else {
-                if(DDS.getInstance()!=null&&DDS.getInstance().getAgent()!=null&& DDS.getInstance().getAgent().getWakeupEngine()!=null){
+                if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null && DDS.getInstance().getAgent().getWakeupEngine() != null) {
                     DDS.getInstance().getAgent().getWakeupEngine().disableWakeup();
                 }
             }
@@ -345,7 +353,7 @@ public class AiManager {
     }
 
     public void stopAi() {
-        if(context!=null){
+        if (context != null) {
             try {
                 Intent intentDDSService = new Intent(context, DDSService.class);
                 Intent intentAiService = new Intent(context, MideaAiService.class);
@@ -355,7 +363,7 @@ public class AiManager {
                 context.unregisterReceiver(mInitReceiver);
                 MusicManager.getInstance().stopService();
                 AccountManager.getInstance().clearToken();
-            }catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
 
             }
 
