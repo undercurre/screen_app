@@ -12,6 +12,11 @@ class HomluxSceneApi {
     var res = await HomluxApi.request<List<HomluxSceneEntity>>('/v1/mzgd/scene/querySceneListByHouseId', data: {
       "houseId": HomluxGlobal.homluxHomeInfo?.houseId
     });
+    /// 移除无效场景
+    if(res.isSuccess && (res.data?.isNotEmpty ?? false)) {
+      List<HomluxSceneEntity> scenes = res.data!;
+      scenes.removeWhere((element) => element.deviceActions?.isEmpty ?? true);
+    }
     return res;
   }
 
