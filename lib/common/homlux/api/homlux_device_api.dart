@@ -16,6 +16,19 @@ class HomluxDeviceApi {
         options: Options(method: 'POST'),
         data: {'roomId': roomId});
   }
+  /// *****************
+  /// 请求单个设备详情
+  /// [deviceId] 设备id
+  /// ****************
+  static Future<HomluxResponseEntity<HomluxDeviceEntity>>
+      queryDeviceStatusByDeviceId(String deviceId,
+          {CancelToken? cancelToken}) {
+    return HomluxApi.request<HomluxDeviceEntity>(
+        '/v1/device/queryDeviceInfoByDeviceId',
+        cancelToken: cancelToken,
+        options: Options(method: 'POST'),
+        data: {'deviceId': deviceId});
+  }
 
   /// ******************
   /// 获取家庭设备列表
@@ -136,9 +149,18 @@ class HomluxDeviceApi {
   /// [brightness] 0 - 100
   /// *******************
   static Future<HomluxResponseEntity> controlZigbeeColorTempAndBrightness(
-      String deviceId, String deviceType, String masterId, int colorTemp, int brightness) {
+      String deviceId,
+      String deviceType,
+      String masterId,
+      int colorTemp,
+      int brightness) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'ColorTemp': colorTemp, 'Level': brightness}
+      <String, dynamic>{
+        'devId': deviceId,
+        'ep': 1,
+        'ColorTemp': colorTemp,
+        'Level': brightness
+      }
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -287,46 +309,38 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightOnOff(String groupId, int onOff) {
+  static Future<HomluxResponseEntity> controlGroupLightOnOff(
+      String groupId, int onOff) {
     var actions = [
       <String, dynamic>{'OnOff': onOff}
     ];
-    return _controlGroupLight(
-      groupId: groupId,
-      action: actions
-    );
+    return _controlGroupLight(groupId: groupId, action: actions);
   }
-
 
   /// ******************
   /// 控制灯组的亮度
   /// [groupId] 分组id
   /// [brightness] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightBrightness(String groupId, int brightness) {
+  static Future<HomluxResponseEntity> controlGroupLightBrightness(
+      String groupId, int brightness) {
     var actions = [
       <String, dynamic>{'Level': brightness}
     ];
-    return _controlGroupLight(
-        groupId: groupId,
-        action: actions
-    );
+    return _controlGroupLight(groupId: groupId, action: actions);
   }
-
 
   /// ******************
   /// 控制灯组的色温
   /// [groupId] 分组id
   /// [colorTemp] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightColorTemp(String groupId, int colorTemp) {
+  static Future<HomluxResponseEntity> controlGroupLightColorTemp(
+      String groupId, int colorTemp) {
     var actions = [
       <String, dynamic>{'ColorTemp': colorTemp}
     ];
-    return _controlGroupLight(
-        groupId: groupId,
-        action: actions
-    );
+    return _controlGroupLight(groupId: groupId, action: actions);
   }
 
   /// *****************
