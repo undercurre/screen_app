@@ -130,7 +130,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         onChanging: dataAdapter?.controlBrightness,
                                       ),
                                     ),
-                                    if (dataAdapter?.device.isColorful ?? false) Container(
+                                    if ((dataAdapter?.device.isColorful ?? false) || MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
                                         disabled: dataAdapter?.device.power ?? true ? false : true,

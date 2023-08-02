@@ -7,6 +7,7 @@ import '../../../models/homlux_auth_entity.dart';
 import '../../../models/homlux_bind_device_entity.dart';
 import '../../../models/homlux_device_entity.dart';
 import '../../../models/homlux_dui_token_entity.dart';
+import '../../../models/homlux_group_entity.dart';
 import '../../../models/homlux_qr_code_auth_entity.dart';
 import '../../../models/homlux_qr_code_entity.dart';
 import '../../../models/homlux_refresh_token_entity.dart';
@@ -41,7 +42,7 @@ class HomluxJsonConvert {
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
     (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
     (HomluxWeatherEntity).toString(): HomluxWeatherEntity.fromJson,
-
+    (HomluxGroupEntity).toString(): HomluxGroupEntity.fromJson,
 
   };
 
@@ -105,6 +106,12 @@ class HomluxJsonConvert {
     }
     if(<HomluxBindDeviceEntity>[] is M) {
       return data.map<HomluxBindDeviceEntity>((e) => HomluxBindDeviceEntity.fromJson(e)).toList() as M;
+    }
+    if(<GroupDeviceList>[] is M) {
+      return data.map<GroupDeviceList>((e) => GroupDeviceList.fromJson(e)).toList() as M;
+    }
+    if(<ControlAction>[] is M) {
+      return data.map<ControlAction>((e) => ControlAction.fromJson(e)).toList() as M;
     }
     debugPrint("${M.toString()} not found");
     return null;

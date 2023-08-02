@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
+import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -41,6 +42,14 @@ class DeviceDataEntity {
       timeOff = int.parse(detail["delay_light_off"]);
     }
     deviceEnt?.detail = detail;
+  }
+
+  void setDetailHomlux(HomluxDeviceEntity detail) {
+    brightness = detail.mzgdPropertyDTOList?.x1?.level as num;
+    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemp ?? 0;
+    power = detail.mzgdPropertyDTOList?.x1?.onOff == 1;
+    // screenModel = detail.mzgdPropertyDTOList?.x1?.buttonScene ?? "manual";
+    timeOff = detail.mzgdPropertyDTOList?.x1?.delayClose ?? 0;
   }
 
   @override
@@ -112,7 +121,12 @@ class WIFILightDataAdapter extends MideaDataAdapter {
         }
       });
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
+      if (res.isSuccess) {
+        if (res.result == null) return;
+        device.setDetailHomlux(res.result!);
+        updateUI();
+      }
     }
   }
 

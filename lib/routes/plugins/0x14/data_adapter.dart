@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
+import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -30,6 +31,12 @@ class DeviceDataEntity {
     curtainDirection = detail['curtain_direction'];
 
     deviceEnt?.detail = detail;
+  }
+
+  void setDetailHomlux(HomluxDeviceEntity detail) {
+    // curtainPosition = detail.mzgdPropertyDTOList?.x1?.curtain_position;
+    // curtainStatus = detail.mzgdPropertyDTOList?.x1?.curtain_status;
+    //curtainDirection = detail.mzgdPropertyDTOList?.x1?.curtain_direction;
   }
 
   @override
@@ -99,7 +106,12 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
         }
       });
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
+      if (res.isSuccess) {
+        if (res.result == null) return;
+        device.setDetailHomlux(res.result!);
+        updateUI();
+      }
     }
   }
 
