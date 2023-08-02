@@ -115,7 +115,7 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
     }
   }
 
-  /// 控制全开全关
+  /// 控制模式
   Future<void> controlMode(Mode mode) async {
     if (mode.key == 'open') {
       device.curtainPosition = 100;
@@ -129,7 +129,11 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
     if (platform.inMeiju()) {
       CurtainApi.setMode(device.deviceID, mode.key, device.curtainDirection);
     } else if(platform.inHomlux()) {
-      HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
+      if (mode.key == "stop") {
+        HomluxDeviceApi.controlWifiCurtainStop(device.deviceID, "3");
+      } else {
+        HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
+      }
     }
   }
 
