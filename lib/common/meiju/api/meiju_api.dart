@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../global.dart';
 import '../../logcat_helper.dart';
+import '../../system.dart';
 import '../../utils.dart';
 import '../meiju_global.dart';
 
@@ -177,7 +177,7 @@ class MeiJuApi {
 
     if (MeiJuGlobal.isLogin) {
       headers.addAll({
-        'deviceId': Global.user?.deviceId,
+        'deviceId': System.deviceId,
       });
 
       params['userId'] = MeiJuGlobal.token?.uid;

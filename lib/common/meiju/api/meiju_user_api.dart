@@ -5,6 +5,7 @@ import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
 import '../../../models/home_list_entity.dart';
+import '../../logcat_helper.dart';
 import '../models/meiju_home_list_info_entity.dart';
 import '../models/meiju_qr_code_entity.dart';
 import '../models/meiju_user_entity.dart';
@@ -24,6 +25,7 @@ class MeiJuUserApi {
   /// 登录接口，登录成功后返回用户信息
   static Future<MeiJuResponseEntity<MeiJuTokenEntity>> getAccessToken(
       String sessionId) async {
+
     var res = await MeiJuApi.requestMideaIot<MeiJuTokenEntity>(
         "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
         queryParameters: {
@@ -32,7 +34,28 @@ class MeiJuUserApi {
         options: Options(method: 'GET'));
 
     if (res.isSuccess) {
-      MeiJuGlobal.token = res.data;
+      Log.file("美居接口授权成功");
+      MeiJuTokenEntity token = res.data!;
+      int tryCount = 3;
+      var authResult = false;
+      while (tryCount > 0) {
+        var authMzRes = await authMzPlatform(token);
+        if (authMzRes.isSuccess) {
+          Log.file("美居-美智接口授权成功");
+          token.mzAccessToken = authMzRes.data?['accessToken'];
+          authResult = true;
+          break;
+        } else {
+          Log.file("美居-美智接口授权失败");
+        }
+        tryCount--;
+      }
+      if (authResult) {
+        MeiJuGlobal.token = res.data;
+      } else {
+        // 强制修改请求错误，美智中台授权失败
+        res.code = -9999;
+      }
     }
 
     return res;
@@ -71,9 +94,8 @@ class MeiJuUserApi {
   }
 
   /// 美智中台——美居体系鉴权请求
-  static Future<MeiJuResponseEntity> authToken() async {
-    return authTokenWithParams(MeiJuGlobal.token?.deviceId,
-        MeiJuGlobal.token?.accessToken, MeiJuGlobal.token?.iotUserId);
+  static Future<MeiJuResponseEntity> authMzPlatform(MeiJuTokenEntity entity) async {
+    return authTokenWithParams(System.deviceId, entity.accessToken, entity.iotUserId);
   }
 
   static Future<MeiJuResponseEntity> authTokenWithParams(
@@ -85,13 +107,9 @@ class MeiJuUserApi {
           'appId': dotenv.get('APP_ID'),
           'appSecret': dotenv.get('APP_SECRET'),
           'itAccessToken': itAccessToken,
-          'tokenExpires': (8 * 60 * 60).toString(),
+          'tokenExpires': DateTime.timestamp().add(const Duration(hours: 2)).millisecondsSinceEpoch,
         },
         options: Options(method: 'POST', extra: {'isSign': true}));
-
-    if (res.isSuccess) {
-      MeiJuGlobal.token?.mzAccessToken = res.data?['accessToken'];
-    }
 
     return res;
   }
