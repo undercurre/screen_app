@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import '../../../models/delete_device_result_entity.dart';
@@ -21,7 +22,7 @@ class MeiJuDeviceApi {
         }
     );
 
-    if (!res.isSuccess || res.data == null || !res.data['homeList'] is List || res.data['homeList'].length <= 0) {
+    if (!res.isSuccess || res.data == null || (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
       throw Exception('获取家庭列表失败');
     }
 
@@ -59,7 +60,7 @@ class MeiJuDeviceApi {
     );
 
     if (!res.isSuccess || res.data == null
-        || res.data['homeList'] is List || res.data['homeList'].length <= 0) {
+        || (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
       throw Exception('获取家庭列表失败');
     }
 
@@ -180,6 +181,4 @@ class MeiJuDeviceApi {
         });
     return res;
   }
-
-
 }

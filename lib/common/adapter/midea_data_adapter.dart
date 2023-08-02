@@ -22,6 +22,7 @@ abstract class MideaDataAdapter {
   MideaDataAdapter(this.platform);
 
 
+
   /// 关联数据更新的回调函数
   void bindDataUpdateFunction(DataUpdateFunction function) {
     /// 初始化容器
@@ -61,5 +62,5 @@ abstract class MideaDataAdapter {
 
 /// 数据状态
 /// NONE(还未初始化)，Loading(加载中), Error(加载失败), Success(加载成功)
-enum DataState { NONE, LONGING, ERROR, SUCCESS }
+enum DataState { NONE, LOADING, ERROR, SUCCESS }
 

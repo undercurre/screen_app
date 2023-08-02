@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/states/device_list_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
 import 'package:screen_app/states/relay_change_notifier.dart';
@@ -74,6 +75,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => WeatherModel()),
         ChangeNotifierProvider(create: (_) => RelayModel()),
         ChangeNotifierProvider(create: (_) => SceneListModel()),
+        ChangeNotifierProvider(create: (_) => DeviceInfoListModel()),
       ],
       child: PointerDownListener(
           child: MaterialApp(

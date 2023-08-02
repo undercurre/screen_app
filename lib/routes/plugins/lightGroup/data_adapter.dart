@@ -8,13 +8,14 @@ import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
+import '../../../common/homlux/api/homlux_device_api.dart';
 import 'api.dart';
 
 class DeviceDataEntity {
   DeviceEntity? deviceEnt;
   String deviceID = "";
   String deviceName = "灯光分组";
-
+  String groupId = "";
   //-------
   num brightness = 1; // 亮度
   num colorTemp = 0; // 色温
@@ -26,6 +27,7 @@ class DeviceDataEntity {
     colorTemp = detail["colorTemperature"];
     power = detail["switchStatus"] == "1";
 
+    groupId = deviceEnt!.detail!["groupId"] ?? "";
     deviceEnt!.detail!["detail"] = detail;
   }
 
@@ -105,9 +107,9 @@ class LightGroupDataAdapter extends MideaDataAdapter {
 
   /// 控制开关
   Future<void> controlPower() async {
+    device.power = !device.power;
+    updateUI();
     if (platform.inMeiju()) {
-      device.power = !device.power;
-      updateUI();
       var res = await LightGroupApi.powerPDM(device.deviceEnt!, device.power);
       if (res.isSuccess) {
         _delay2UpdateDetail(2);
@@ -116,16 +118,22 @@ class LightGroupDataAdapter extends MideaDataAdapter {
         updateUI();
       }
     } else if (platform.inHomlux()) {
-
+      var res = await HomluxDeviceApi.controlGroupLightOnOff(device.groupId, device.power ? 1 : 0);
+      if (res.isSuccess) {
+        _delay2UpdateDetail(2);
+      } else {
+        device.power = !device.power;
+        updateUI();
+      }
     }
   }
 
   /// 控制亮度
   Future<void> controlBrightness(num value, Color activeColor) async {
+    var exValue = device.brightness;
+    device.brightness = value;
+    updateUI();
     if (platform.inMeiju()) {
-      var exValue = device.brightness;
-      device.brightness = value;
-      updateUI();
       var res = await LightGroupApi.brightnessPDM(device.deviceEnt!, value);
       if (res.isSuccess) {
         _delay2UpdateDetail(2);
@@ -134,16 +142,22 @@ class LightGroupDataAdapter extends MideaDataAdapter {
         updateUI();
       }
     } else if (platform.inHomlux()) {
-
+      var res = await HomluxDeviceApi.controlGroupLightBrightness(device.groupId, value.toInt());
+      if (res.isSuccess) {
+        _delay2UpdateDetail(2);
+      } else {
+        device.brightness = exValue;
+        updateUI();
+      }
     }
   }
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color activeColor) async {
+    var exValue = device.colorTemp;
+    device.colorTemp = value;
+    updateUI();
     if (platform.inMeiju()) {
-      var exValue = device.colorTemp;
-      device.colorTemp = value;
-      updateUI();
       var res = await LightGroupApi.colorTemperaturePDM(device.deviceEnt!, value);
       if (res.isSuccess) {
         _delay2UpdateDetail(2);
@@ -152,7 +166,13 @@ class LightGroupDataAdapter extends MideaDataAdapter {
         updateUI();
       }
     } else if (platform.inHomlux()) {
-
+      var res = await HomluxDeviceApi.controlGroupLightColorTemp(device.groupId, value.toInt());
+      if (res.isSuccess) {
+        _delay2UpdateDetail(2);
+      } else {
+        device.colorTemp = exValue;
+        updateUI();
+      }
     }
   }
 

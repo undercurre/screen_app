@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -117,9 +118,10 @@ class WIFILightDataAdapter extends MideaDataAdapter {
 
   /// 控制开关
   Future<void> controlPower() async {
+    device.power = !device.power;
+    updateUI();
+
     if (platform.inMeiju()) {
-      device.power = !device.power;
-      updateUI();
       var res = await WIFILightApi.powerLua(device.deviceID, device.power);
       if (!res.isSuccess) {
         device.power = !device.power;
@@ -127,7 +129,12 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.controlWifiLightOnOff(device.deviceID, "3", device.power ? 1 : 0);
+      if (!res.isSuccess) {
+        device.power = !device.power;
+        updateUI();
+      }
+      _delay2UpdateDetail(2);
     }
   }
 
@@ -160,7 +167,20 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      if (device.timeOff == 0) {
+        var res = await HomluxDeviceApi.controlWifiLightDelayOff(device.deviceID, "3", 3);
+        if (res.isSuccess) {
+          device.timeOff = 3;
+          updateUI();
+        }
+      } else {
+        var res = await HomluxDeviceApi.controlWifiLightDelayOff(device.deviceID, "3", 0);
+        if (res.isSuccess) {
+          device.timeOff = 0;
+          updateUI();
+        }
+      }
+      _delay2UpdateDetail(2);
     }
   }
 
@@ -178,7 +198,11 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.controlWifiLightMode(device.deviceID, "3", mode.key);
+      if (res.isSuccess) {
+        device.screenModel = mode.key;
+      }
+      _delay2UpdateDetail(2);
     }
   }
 
@@ -195,7 +219,7 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      HomluxDeviceApi.controlWifiLightBrightness(device.deviceID, "3", value.toInt());
     }
   }
 
@@ -212,7 +236,7 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      // TODO
+      HomluxDeviceApi.controlWifiLightColorTemp(device.deviceID, "3", value.toInt());
     }
   }
 

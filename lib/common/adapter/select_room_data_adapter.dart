@@ -138,7 +138,7 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
   SelectRoomDataAdapter(super.platform);
 
   void queryRoomList(SelectFamilyItem item) async {
-    dataState = DataState.LONGING;
+    dataState = DataState.LOADING;
     if (platform.inHomlux()) {
       HomluxFamilyEntity familyEntity = item.homluxData as HomluxFamilyEntity;
       var res = await HomluxUserApi.queryRoomList(familyEntity.houseId);

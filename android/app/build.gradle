@@ -149,7 +149,7 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation("com.android.support:multidex:1.0.3")
     implementation(project(":module-setting"))
-    implementation implementation(project(':module-manage-device',))
+    implementation(project(":module-manage-device"))
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
 
