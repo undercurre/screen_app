@@ -124,6 +124,13 @@ class HomluxGlobal {
     homluxRoomInfo = null;
     homluxQrCodeAuthEntity = null;
     aiToken = null;
+    gatewayApplianceCode = null;
+    LocalStorage.removeItem(HOMLUX_FAMILY_INFO);
+    LocalStorage.removeItem(HOMLUX_ROOM_INFO);
+    LocalStorage.removeItem(HOMLUX_TOKEN);
+    LocalStorage.removeItem(HOMLUX_AI_TOKEN);
+    LocalStorage.removeItem(HOMLUX_GATEWAY_DEVICE_ID);
+    LocalStorage.removeItem(HOMLUX_GATEWAY_SN);
   }
 
 }

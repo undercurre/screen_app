@@ -105,6 +105,18 @@ class HomluxUserApi {
         });
   }
 
+  // 解绑设备
+  static Future<HomluxResponseEntity> deleteDevices(List<Map<String, String>> devices, {CancelToken? cancelToken}) {
+    return HomluxApi.request(
+      '/v1/device/batchDelDevice',
+        cancelToken: cancelToken,
+      options: Options(method: 'POST'),
+      data: {
+        'deviceBaseDeviceVoList': devices
+      }
+    );
+  }
+
   // 是否能够授权登录
   // 绑定设备
   static Future<HomluxResponseEntity<HomluxAuthEntity>> queryHouseAuth(String houseId,

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
-import '../../../models/delete_device_result_entity.dart';
+import 'package:screen_app/common/meiju/models/meiju_delete_device_result_entity.dart';
+
 import '../models/meiju_device_info_entity.dart';
 import '../models/meiju_response_entity.dart';
 
@@ -165,7 +165,7 @@ class MeiJuDeviceApi {
   }
 
   /// 批量删除设备
-  static Future<MeiJuResponseEntity<DeleteDeviceResultEntity>> deleteDevices(List<String> applianceCodes, String homeGroupID) async {
+  static Future<MeiJuResponseEntity<MeiJuDeleteDeviceResultEntity>> deleteDevices(List<String> applianceCodes, String homeGroupID) async {
 
     final devices = applianceCodes.map((e) => {
       'applianceCode': e,
@@ -173,7 +173,7 @@ class MeiJuDeviceApi {
       'isOtherEquipment': '0'
     }).toList();
 
-    var res = await MeiJuApi.requestMideaIot<DeleteDeviceResultEntity>(
+    var res = await MeiJuApi.requestMideaIot<MeiJuDeleteDeviceResultEntity>(
         '/mas/v5/app/proxy?alias=/v1/appliance/batch/delete',
         data: {
           'applianceList': devices,

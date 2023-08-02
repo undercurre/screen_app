@@ -145,14 +145,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   void initState() {
     super.initState();
     // 初始化
-    if (System.isLogin()) {
-      stepNum = 3;
-    } else if (Platform.isAndroid && isConnected()) {
-      stepNum = 2;
+    if(!System.inNonePlatform()) {
+      if (System.isLogin()) {
+        stepNum = 3;
+      } else if (Platform.isAndroid && isConnected()) {
+        stepNum = 2;
+      }
+      isNeedShowClearAlert = System.familyInfo != null;
     }
 
-    isNeedChoosePlatform = MideaRuntimePlatform.platform == GatewayPlatform.NONE;
-    isNeedShowClearAlert = System.familyInfo != null;
+    isNeedChoosePlatform = System.inNonePlatform();
+
   }
 
   @override

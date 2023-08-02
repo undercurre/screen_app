@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
+import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
+import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -12,9 +16,8 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/logcat_helper.dart';
+import '../../common/meiju/models/meiju_delete_device_result_entity.dart';
 import '../../common/setting.dart';
-import '../../models/delete_device_result_entity.dart';
-import '../../models/midea_response_entity.dart';
 import '../../widgets/mz_setting_item.dart';
 
 // 关于页的数据提供者
@@ -112,21 +115,39 @@ class AboutSettingProvider with ChangeNotifier {
       return false;
     }
 
-    MideaResponseEntity<DeleteDeviceResultEntity>? result;
-
-    try {
-      result = await DeviceApi.deleteDevices(
-          [Global.profile.applianceCode ?? ''],
-          Global.profile.homeInfo?.homegroupId ?? '');
-      if (result.isSuccess) {
-        return true;
+    if(System.inHomluxPlatform()) {
+      HomluxResponseEntity? result;
+      try {
+        result = await HomluxUserApi.deleteDevices([
+          {
+            'deviceId': await System.gatewayApplianceCode ?? '',
+            'deviceType': '1'
+          }
+        ]);
+      } catch (e) {
+        Log.e("删除设备错误", e);
       }
-    } catch (e) {
-      Log.e("删除设备错误", e);
-    }
+      if ((result?.isSuccess != true) && tryCount > 0) {
+        return deleteGateway(--tryCount);
+      }
+    } else if(System.inMeiJuPlatform()) {
+      MeiJuResponseEntity<MeiJuDeleteDeviceResultEntity>? result;
 
-    if ((result?.isSuccess != true) && tryCount > 0) {
-      return deleteGateway(--tryCount);
+      try {
+        result = await MeiJuDeviceApi.deleteDevices(
+            [await System.gatewayApplianceCode ?? ''],
+            System.familyInfo?.familyId ?? '');
+        if (result.isSuccess) {
+          return true;
+        }
+      } catch (e) {
+        Log.e("删除设备错误", e);
+      }
+
+      if ((result?.isSuccess != true) && tryCount > 0) {
+        return deleteGateway(--tryCount);
+      }
+
     }
 
     return false;
@@ -263,6 +284,70 @@ class AboutSettingPage extends StatelessWidget {
         }).show(context);
   }
 
+  void showLogoutDialog(BuildContext context) {
+    MzDialog(
+        contentSlot: const Text(
+            '此操作将退出到扫码登录界面，是否继续?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'MideaType',
+                fontWeight: FontWeight.w100,
+                height: 1.2)),
+        title: "登出",
+        maxWidth: 400,
+        btns: ['取消', '确定'],
+        contentPadding:
+        const EdgeInsets.symmetric(
+            vertical: 30, horizontal: 50),
+        onPressed: (_, index, context) {
+          if (index == 1) {
+            Push.dispose();
+            System.loginOut();
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                "Login",
+                    (route) =>
+                route.settings.name == "/");
+          } else {
+            Navigator.pop(context);
+          }
+        }).show(context);
+  }
+
+  void showChangePlatformDialog(BuildContext context) {
+    MzDialog(
+        contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'MideaType',
+                fontWeight: FontWeight.w100,
+                height: 1.2)),
+        title: "切换平台",
+        maxWidth: 400,
+        btns: ['取消', '确定'],
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 30, horizontal: 50),
+        onPressed: (_, index, context) {
+          if (index == 1) {
+            if (MideaRuntimePlatform.platform ==
+                GatewayPlatform.MEIJU) {
+              ChangePlatformHelper.changeToHomlux();
+            } else {
+              ChangePlatformHelper.changeToMeiju();
+            }
+            Push.dispose();
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                "Login",
+                    (route) => route.settings.name == "/");
+          } else {
+            Navigator.pop(context);
+          }
+        }).show(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -359,34 +444,7 @@ class AboutSettingPage extends StatelessWidget {
                             if (context.watch<AboutSettingProvider>().isLogin ?? false)
                               MzSettingButton(
                                 onTap: () {
-                                  MzDialog(
-                                      contentSlot: const Text(
-                                          '此操作将退出到扫码登录界面，是否继续?',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontFamily: 'MideaType',
-                                              fontWeight: FontWeight.w100,
-                                              height: 1.2)),
-                                      title: "登出",
-                                      maxWidth: 400,
-                                      btns: ['取消', '确定'],
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 30, horizontal: 50),
-                                      onPressed: (_, index, context) {
-                                        if (index == 1) {
-                                          Push.dispose();
-                                          System.loginOut();
-                                          Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              "Login",
-                                              (route) =>
-                                                  route.settings.name == "/");
-                                        } else {
-                                          Navigator.pop(context);
-                                        }
-                                      }).show(context);
+                                  showLogoutDialog(context);
                                 },
                                 text: '登出',
                                 borderColor: const Color(0xFF0092DC),
@@ -475,36 +533,7 @@ class AboutSettingPage extends StatelessWidget {
                         ),
                         MzSettingItem(
                           onTap: () {
-                            MzDialog(
-                                contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontFamily: 'MideaType',
-                                        fontWeight: FontWeight.w100,
-                                        height: 1.2)),
-                                title: "切换平台",
-                                maxWidth: 400,
-                                btns: ['取消', '确定'],
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 30, horizontal: 50),
-                                onPressed: (_, index, context) {
-                                  if (index == 1) {
-                                    if (MideaRuntimePlatform.platform ==
-                                        GatewayPlatform.MEIJU) {
-                                      ChangePlatformHelper.changeToHomlux();
-                                    } else {
-                                      ChangePlatformHelper.changeToMeiju();
-                                    }
-                                    Push.dispose();
-                                    Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        "Login",
-                                        (route) => route.settings.name == "/");
-                                  } else {
-                                    Navigator.pop(context);
-                                  }
-                                }).show(context);
+                            showChangePlatformDialog(context);
                           },
                           leftText: '切换平台',
                           containBottomDivider: false,

@@ -17,12 +17,19 @@ class FileOutput extends LogOutput {
     this.overrideExisting = false,
     this.encoding = utf8,
   }) {
-    file.createSync(recursive: true, exclusive: false);
+    if(!file.existsSync()) {
+      file.createSync(recursive: true, exclusive: false);
+    }
   }
 
   @override
   void init() {
-    randomAccessFile = file.openSync(mode: FileMode.writeOnly);
+    randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
+    if(randomAccessFile!.lengthSync() > _maxFileOutputLength) {
+      randomAccessFile!.setPositionSync(0);
+    } else {
+      randomAccessFile!.setPositionSync(randomAccessFile!.lengthSync());
+    }
   }
 
   @override
@@ -33,7 +40,6 @@ class FileOutput extends LogOutput {
     }
     for (var element in event.lines) {
       randomAccessFile!.writeStringSync('$element\n');
-      randomAccessFile!.setPositionSync(randomAccessFile!.positionSync() + element.length + 1);
     }
     randomAccessFile!.flushSync();
   }
@@ -59,7 +65,7 @@ class Log {
   /// 文件打印
   static final _fileLogger = Logger(
     filter: ProductionFilter(),
-    printer: PrettyPrinter(printTime: true),
+    printer: SimplePrinter(printTime: true),
     output: MultiOutput([
       ConsoleOutput(),
       FileOutput(
