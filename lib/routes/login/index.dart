@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 
@@ -13,7 +12,6 @@ import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
-import '../../common/logcat_helper.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
@@ -213,7 +211,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         if (isNeedChoosePlatform) ChosePlatform(
           onChose: (index) {
             if(index == 0) {
-              ChangePlatformHelper.changeToMeiju(context).then((isOK) {
+              ChangePlatformHelper.changeToMeiju().then((isOK) {
                 if (isOK) {
                   setState(() {
                     isNeedChoosePlatform = false;
@@ -223,7 +221,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
               });
             } else if(index == 1) {
-              ChangePlatformHelper.changeToHomlux(context).then((isOK) {
+              ChangePlatformHelper.changeToHomlux().then((isOK) {
                 if (isOK) {
                   setState(() {
                     isNeedChoosePlatform = false;

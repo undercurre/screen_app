@@ -27,8 +27,10 @@ class _Boot extends State<Boot> {
           var platform = await ChangePlatformHelper.checkGatewayPlatform();
           if (platform != -1) {
             if (platform == 1) {
+              await ChangePlatformHelper.changeToMeiju(false);
               MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
             } else if (platform == 2) {
+              await ChangePlatformHelper.changeToHomlux(false);
               MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
             } else {
               MideaRuntimePlatform.platform = GatewayPlatform.NONE;

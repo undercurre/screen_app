@@ -42,21 +42,19 @@ class HomluxApi {
 
   static void init() {
     // 全局Https、Http请求监听者
-    HomluxApi()._dio.interceptors.add(
-        InterceptorsWrapper(onRequest: (options, handler) {
-          if (options.extra['isLog'] != false) {
-            Log.i('【onRequest】: ${options.path} \n '
-                'method: ${options.method} \n'
-                'headers: ${options.headers} \n '
-                'data: ${options.data} \n '
-                'queryParameters: ${options.queryParameters}  \n');
-          }
+    HomluxApi()
+        ._dio
+        .interceptors
+        .add(InterceptorsWrapper(onRequest: (options, handler) {
+          Log.i('【onRequest】: ${options.path} \n '
+              'method: ${options.method} \n'
+              'headers: ${options.headers} \n '
+              'data: ${options.data} \n '
+              'queryParameters: ${options.queryParameters}  \n');
           return handler.next(options);
         }, onResponse: (response, handler) {
-          if (response.requestOptions.extra['isLog'] != false) {
-            Log.i('${response.requestOptions.path} \n '
-                'onResponse: $response.');
-          }
+          Log.i('${response.requestOptions.path} \n '
+              'onResponse: $response.');
           return handler.next(response);
         }, onError: (e, handler) {
           Log.e('onError:\n'
@@ -70,13 +68,12 @@ class HomluxApi {
 
   static Future<HomluxResponseEntity<T>> request<T>(String path,
       {Map<String, dynamic>? data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        Options? options,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress}) {
-    return $request(
-        '${dotenv.get('HOMLUX_URL')}/mzaio$path',
+      Map<String, dynamic>? queryParameters,
+      CancelToken? cancelToken,
+      Options? options,
+      ProgressCallback? onSendProgress,
+      ProgressCallback? onReceiveProgress}) {
+    return $request('${dotenv.get('HOMLUX_URL')}/mzaio$path',
         data: data,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -94,19 +91,17 @@ class HomluxApi {
       _lock.unlock();
     }
   }
-
 }
 
 Future<HomluxResponseEntity<T>> $request<T>(String path,
     {Map<String, dynamic>? data,
-      Map<String, dynamic>? queryParameters,
-      CancelToken? cancelToken,
-      Options? options,
-      ProgressCallback? onSendProgress,
-      ProgressCallback? onReceiveProgress}) async {
-
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress}) async {
   //// 锁自旋, 等待Token刷新成功
-  while(_lock.locked) {
+  while (_lock.locked) {
     Log.e("----> 等待Token刷新返回");
     sleep(const Duration(milliseconds: 20));
   }
@@ -137,9 +132,9 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
     // try {
     //   _lock.lock();
 
-      if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
-        _$refreshToken();
-      }
+    if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
+      _$refreshToken();
+    }
     // } finally {
     //   _lock.unlock();
     // }
@@ -155,15 +150,14 @@ void _$refreshToken() async {
       data: {
         ...$commonBodyData(),
         "refreshToken": HomluxGlobal.homluxQrCodeAuthEntity?.refreshToken
-      }
-  );
-  var entity = HomluxResponseEntity<HomluxRefreshTokenEntity>.fromJson(refreshToken.data);
+      });
+  var entity = HomluxResponseEntity<HomluxRefreshTokenEntity>.fromJson(
+      refreshToken.data);
   if (entity.isSuccess) {
     HomluxGlobal.homluxQrCodeAuthEntity = HomluxQrCodeAuthEntity(
         authorizeStatus: 1,
         refreshToken: entity.result?.refreshToken,
-        token: entity.result?.token
-    );
+        token: entity.result?.token);
   } else if (entity.code == refreshExpireCode) {
     Log.e("refreshToken 过期 即将退出登录");
     // 真正退出逻辑
@@ -178,9 +172,7 @@ Map<String, dynamic> $commonBodyData() {
     "frontendType": "ANDROID",
     "reqId": uuid.v4(),
     "systemSource": "FSMARTSCREEN",
-    "timestamp": DateTime
-        .now()
-        .millisecondsSinceEpoch
+    "timestamp": DateTime.now().millisecondsSinceEpoch
   };
 }
 

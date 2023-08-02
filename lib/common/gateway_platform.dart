@@ -47,7 +47,7 @@ class ChangePlatformHelper {
 
   /// 切换到美居
   /// gatewaySubDeviceDel 参数含义：是否要将网关子设备清空
-  static Future<bool> changeToMeiju(BuildContext context, [bool gatewaySubDeviceDel = true]) async {
+  static Future<bool> changeToMeiju([bool gatewaySubDeviceDel = true]) async {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
@@ -68,7 +68,7 @@ class ChangePlatformHelper {
 
   /// 切换到Homlux
   /// gatewaySubDeviceDel 参数含义：是否要将网关子设备清空
-  static Future<bool> changeToHomlux(BuildContext context, [bool gatewaySubDeviceDel = true]) async {
+  static Future<bool> changeToHomlux([bool gatewaySubDeviceDel = true]) async {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {

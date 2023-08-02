@@ -492,11 +492,9 @@ class AboutSettingPage extends StatelessWidget {
                                   if (index == 1) {
                                     if (MideaRuntimePlatform.platform ==
                                         GatewayPlatform.MEIJU) {
-                                      ChangePlatformHelper.changeToHomlux(
-                                          context);
+                                      ChangePlatformHelper.changeToHomlux();
                                     } else {
-                                      ChangePlatformHelper.changeToMeiju(
-                                          context);
+                                      ChangePlatformHelper.changeToMeiju();
                                     }
                                     Push.dispose();
                                     Navigator.pushNamedAndRemoveUntil(

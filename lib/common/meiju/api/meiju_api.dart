@@ -18,6 +18,7 @@ const uuid = Uuid();
 class MeiJuApi {
   // 单例实例
   static final MeiJuApi _instance = MeiJuApi._internal();
+
   MeiJuApi._internal();
 
   factory MeiJuApi() {
@@ -35,7 +36,6 @@ class MeiJuApi {
   static const int TOKEN_EXPIRED = 65013;
   static const int ACCOUNT_LOGOUT = 40002;
 
-
   final Dio _dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
@@ -43,24 +43,21 @@ class MeiJuApi {
     receiveTimeout: 20000,
   ));
 
-
   static void init() {
     // 全局Https、Http请求监听者
-    MeiJuApi()._dio.interceptors.add(
-        InterceptorsWrapper(onRequest: (options, handler) {
-          if (options.extra['isLog'] != false) {
-            Log.i('【onRequest】: ${options.path} \n '
-                'method: ${options.method} \n'
-                'headers: ${options.headers} \n '
-                'data: ${options.data} \n '
-                'queryParameters: ${options.queryParameters}  \n');
-          }
+    MeiJuApi()
+        ._dio
+        .interceptors
+        .add(InterceptorsWrapper(onRequest: (options, handler) {
+          Log.i('【onRequest】: ${options.path} \n '
+              'method: ${options.method} \n'
+              'headers: ${options.headers} \n '
+              'data: ${options.data} \n '
+              'queryParameters: ${options.queryParameters}  \n');
           return handler.next(options);
         }, onResponse: (response, handler) {
-          if (response.requestOptions.extra['isLog'] != false) {
-            Log.i('${response.requestOptions.path} \n '
-                'onResponse: $response.');
-          }
+          Log.i('${response.requestOptions.path} \n '
+              'onResponse: $response.');
           return handler.next(response);
         }, onError: (e, handler) {
           Log.e('onError:\n'
@@ -72,28 +69,22 @@ class MeiJuApi {
         }));
   }
 
-
   /// IOT接口发起公共接口
   ///
   static Future<MeiJuResponseEntity<T>> requestMideaIot<T>(
-      String path, {
-        Map<String, dynamic>? data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        Options? options,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-        bool isLog = true,
-      }) async {
-
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress
+  }) async {
     options ??= Options();
     options.headers ??= {};
     data ??= {};
     queryParameters ??= {};
     options.extra ??= {};
-
-    // 是否打印日志标识
-    options.extra!['isLog'] = isLog;
 
     var reqId = uuid.v4();
     var params = options.method == 'GET' ? queryParameters : data;
@@ -136,39 +127,32 @@ class MeiJuApi {
     // sign签名 end
 
     var res = await MeiJuApi()._dio.request(
-      dotenv.get('IOT_URL') + path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
+          dotenv.get('IOT_URL') + path,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onSendProgress: onSendProgress,
+          onReceiveProgress: onReceiveProgress,
+        );
 
-
-    if(res.statusCode != 200) {
-      throw DioError(
-          requestOptions: res.requestOptions,
-          response: res
-      );
+    if (res.statusCode != 200) {
+      throw DioError(requestOptions: res.requestOptions, response: res);
     }
 
     return MeiJuResponseEntity<T>.fromJson(res.data);
   }
 
-
-
   /// 美智光电IOT中台接口发起公共接口
   static Future<MeiJuResponseEntity<T>> requestMzIot<T>(
-      String path, {
-        Map<String, dynamic>? data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        Options? options,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-        bool isLog = true,
-      }) async {
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress
+  }) async {
     options ??= Options();
     options.headers ??= {};
     data ??= {}; // data默认值
@@ -177,7 +161,7 @@ class MeiJuApi {
 
     var reqId = uuid.v4();
     var params =
-    options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
+        options.method == 'GET' ? queryParameters : data; // get\post参数统一处理
 
     var headers = options.headers as LinkedHashMap<String, dynamic>;
 
@@ -217,25 +201,19 @@ class MeiJuApi {
     // sign签名 end
 
     var res = await MeiJuApi()._dio.request(
-      dotenv.get('MZ_URL') + path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
+          dotenv.get('MZ_URL') + path,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onSendProgress: onSendProgress,
+          onReceiveProgress: onReceiveProgress,
+        );
 
-
-    if(res.statusCode != 200) {
-      throw DioError(
-          requestOptions: res.requestOptions,
-          response: res
-      );
+    if (res.statusCode != 200) {
+      throw DioError(requestOptions: res.requestOptions, response: res);
     }
 
     return MeiJuResponseEntity<T>.fromJson(res.data);
   }
-
-
 }

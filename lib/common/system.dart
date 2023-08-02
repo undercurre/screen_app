@@ -167,8 +167,7 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return MeiJuGlobal.isLogin;
     } else {
-      //throw Exception("No No No 运行环境为NONE 请勿调用此方法");
-      return false; // TODO test
+      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
     }
   }
 
