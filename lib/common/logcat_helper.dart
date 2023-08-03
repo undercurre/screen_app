@@ -65,7 +65,7 @@ class Log {
   /// 文件打印
   static final _fileLogger = Logger(
     filter: ProductionFilter(),
-    printer: SimplePrinter(printTime: true),
+    printer: PrettyPrinter(printTime: true),
     output: MultiOutput([
       ConsoleOutput(),
       FileOutput(

@@ -46,18 +46,18 @@ class HomluxApi {
         ._dio
         .interceptors
         .add(InterceptorsWrapper(onRequest: (options, handler) {
-          Log.i('【onRequest】: ${options.path} \n '
+          Log.file('【onRequest】: ${options.path} \n '
               'method: ${options.method} \n'
               'headers: ${options.headers} \n '
               'data: ${options.data} \n '
               'queryParameters: ${options.queryParameters}  \n');
           return handler.next(options);
         }, onResponse: (response, handler) {
-          Log.i('${response.requestOptions.path} \n '
+          Log.file('${response.requestOptions.path} \n '
               'onResponse: $response.');
           return handler.next(response);
         }, onError: (e, handler) {
-          Log.e('onError:\n'
+          Log.file('onError:\n'
               '${e.toString()} \n '
               '${e.requestOptions.path} \n'
               '${e.response}');
