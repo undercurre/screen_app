@@ -145,7 +145,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
       var res = await MeiJuUserApi.getAccessToken(qrCodeEntity?._meijuData?.sessionId ?? '');
       if (res.isSuccess && res.data != null) {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
-        Log.i('授权成功: ${res.toJson()}');
+        Log.i('美居授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
         // 自动保存登录Token
         MeiJuGlobal.token = res.data;
@@ -158,7 +158,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
       var res = await HomluxUserApi.getAccessToken(qrCodeEntity?._homluxData?.qrcode ?? '');
       if(res.isSuccess && res.data?.authorizeStatus == 1) {
         updateQrCodeTime?.cancel(); // 取消登录状态查询定时
-        Log.i('授权成功: ${res.toJson()}');
+        Log.i('Homlux授权成功: ${res.toJson()}');
         authQrCodeSucCallback?.call();
         // 自动保存登录Token
         HomluxGlobal.homluxQrCodeAuthEntity = res.data;

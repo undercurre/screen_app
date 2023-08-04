@@ -6,6 +6,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
+import 'package:screen_app/states/layout_notifier.dart';
 
 /// 定义网关运行环境
 enum GatewayPlatform {
@@ -61,6 +62,7 @@ class ChangePlatformHelper {
       MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
       HomluxGlobal.setLogout();
       MeiJuApi.init();
+      LayoutModel().removeLayouts();
       System.initForMeiju();
       return true;
     }
@@ -82,6 +84,7 @@ class ChangePlatformHelper {
       MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
       MeiJuGlobal.setLogout();
       HomluxApi.init();
+      LayoutModel().removeLayouts();
       System.initForHomlux();
       return true;
     }

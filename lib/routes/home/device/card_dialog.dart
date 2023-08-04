@@ -145,7 +145,8 @@ class _CardDialogState extends State<CardDialog> {
                                       DataInputCard(
                                           name: widget.name,
                                           applianceCode: widget.applianceCode,
-                                          roomName: widget.roomName))),
+                                          roomName: widget.roomName,
+                                          isOnline: '1'))),
                             ),
                           ),
                         ],

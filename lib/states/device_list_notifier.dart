@@ -6,6 +6,7 @@ import 'package:screen_app/common/meiju/meiju_global.dart';
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
 import '../common/homlux/models/homlux_device_entity.dart';
+import '../common/logcat_helper.dart';
 import '../common/meiju/api/meiju_device_api.dart';
 import '../common/meiju/models/meiju_device_info_entity.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
@@ -29,7 +30,7 @@ class DeviceInfoListModel extends ChangeNotifier {
               MeiJuGlobal.token!.uid, familyInfo!.familyId);
       if (MeijuRes.isSuccess) {
         deviceListMeiju = MeijuRes.data!;
-        logger.i('设备列表数据', deviceListMeiju.length);
+        Log.i('设备列表数据', deviceListMeiju.length);
         return deviceListMeiju.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e.name!;

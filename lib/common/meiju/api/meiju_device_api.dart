@@ -1,35 +1,36 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import '../../../models/delete_device_result_entity.dart';
+import '../../logcat_helper.dart';
+import '../../models/endpoint.dart';
+import '../../models/node_info.dart';
 import '../models/meiju_device_info_entity.dart';
 import '../models/meiju_response_entity.dart';
 
 class MeiJuDeviceApi {
-
   /// 获取某家庭下所有的设备
-  static Future<MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>>> queryDeviceListByHomeId(String uid, String homegroupId) async {
-
+  static Future<MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>>>
+  queryDeviceListByHomeId(String uid, String homegroupId) async {
     var res = await MeiJuApi.requestMideaIot(
         '/mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
         options: Options(method: 'POST'),
-        data: {
-          'uid': uid,
-          'homegroupId': homegroupId
-        }
-    );
+        data: {'uid': uid, 'homegroupId': homegroupId});
 
-    if (!res.isSuccess || res.data == null || (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
+    if (!res.isSuccess ||
+        res.data == null ||
+        (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
       throw Exception('获取家庭列表失败');
     }
 
     List<dynamic> applianceList = [];
 
     res.data['homeList'][0]?['roomList']?.forEach((element) {
-      if(element['applianceList'] != null) {
+      if (element['applianceList'] != null) {
         element['applianceList'].forEach((appliance) {
           appliance?['roomName'] = element['name'];
           appliance?['roomId'] = element['roomId'];
@@ -38,63 +39,48 @@ class MeiJuDeviceApi {
       }
     });
 
-    return MeiJuResponseEntity.fromJson({
-      'code': 0,
-      'msg': '成功',
-      'data': applianceList
-    });
-
-
+    return MeiJuResponseEntity.fromJson(
+        {'code': 0, 'msg': '成功', 'data': applianceList});
   }
 
   /// 获取某房间下所有的设备
-  static Future<MeiJuResponseEntity> queryDeviceListByRoomId(String uid, String homegroupId, String roomId) async {
+  static Future<MeiJuResponseEntity> queryDeviceListByRoomId(String uid,
+      String homegroupId, String roomId) async {
     var res = await MeiJuApi.requestMideaIot(
         '/mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
         options: Options(method: 'POST'),
-        data: {
-          'uid': uid,
-          'homegroupId': homegroupId,
-          'roomId': roomId
-        }
-    );
+        data: {'uid': uid, 'homegroupId': homegroupId, 'roomId': roomId});
 
-    if (!res.isSuccess || res.data == null
-        || (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
+    if (!res.isSuccess ||
+        res.data == null ||
+        (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
       throw Exception('获取家庭列表失败');
     }
 
     List<dynamic> applianceList = [];
 
     res.data['homeList'][0]?['roomList']?.forEach((element) {
-      if(element['applianceList'] != null) {
+      if (element['applianceList'] != null) {
         applianceList.addAll(element['applianceList']);
       }
     });
 
-    return MeiJuResponseEntity.fromJson({
-      'code': 0,
-      'msg': '成功',
-      'data': applianceList
-    });
+    return MeiJuResponseEntity.fromJson(
+        {'code': 0, 'msg': '成功', 'data': applianceList});
   }
 
   /// 获取设备详情（lua）
-  static Future<MeiJuResponseEntity> getDeviceDetail(String type, String applianceCode) async {
+  static Future<MeiJuResponseEntity> getDeviceDetail(String type,
+      String applianceCode) async {
     var res = await MeiJuApi.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/status/query",
-        data: {
-          "applianceCode": applianceCode,
-          "categoryCode": type
-        },
-        options: Options(method: 'POST')
-    );
+        data: {"applianceCode": applianceCode, "categoryCode": type},
+        options: Options(method: 'POST'));
     return res;
   }
 
   /// 设备lua控制
-  static Future<MeiJuResponseEntity> sendLuaOrder({
-    required String categoryCode,
+  static Future<MeiJuResponseEntity> sendLuaOrder({required String categoryCode,
     required String applianceCode,
     required Object command}) async {
     var res = await MeiJuApi.requestMzIot<Map<String, dynamic>>(
@@ -105,21 +91,17 @@ class MeiJuDeviceApi {
           "command": command,
           "categoryCode": categoryCode,
         },
-        options: Options(
-          method: 'POST')
-    );
+        options: Options(method: 'POST'));
 
     return res;
   }
 
-  /// 设备物模型控制
-  static Future<MeiJuResponseEntity> sendPDMOrder({
-      required String categoryCode,
-      required String uri,
-      required String applianceCode,
-      required Object command,
-    String? method = "PUT"
-  }) async {
+  /// 设备物模型查询
+  static Future<MeiJuResponseEntity> sendPDMQueryOrder({required String categoryCode,
+    required String uri,
+    required String applianceCode,
+    required Object command,
+    String? method = "POST"}) async {
     var res = await MeiJuApi.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/control",
         data: {
@@ -134,21 +116,55 @@ class MeiJuDeviceApi {
     return res;
   }
 
-  /// 获取智慧屏继电器详情
-  static Future<MeiJuResponseEntity<String>> getGatewayInfo(
-      String deviceId, String masterId) async {
-    var res = await MeiJuApi.requestMzIot<String>("/v1/category/midea/getGatewayInfo",
+  /// 设备物模型控制
+  static Future<MeiJuResponseEntity<T>> sendPDMControlOrder<T>({required String categoryCode,
+    required String uri,
+    required String applianceCode,
+    required Object command,
+    String? method = "PUT"}) async {
+    MeiJuResponseEntity<T> res = await MeiJuApi.requestMzIot<T>(
+        "/v1/category/midea/device/control",
         data: {
+          "categoryCode": categoryCode,
+          "method": method,
+          "command": command,
+          "uri": '/$uri/$applianceCode',
+          "deviceId": applianceCode,
           "userId": MeiJuGlobal.token?.uid,
-          "applianceCode": masterId,
-          "devId": deviceId,
         },
         options: Options(method: 'POST'));
     return res;
   }
 
+  /// 获取智慧屏继电器详情
+  static Future<NodeInfo<Endpoint<T>>> getGatewayInfo<T extends Event>(
+      String deviceId, String masterId, T Function(Map<String, dynamic>) eventFromJson) async {
+    var res = await MeiJuApi.requestMzIot<String>(
+      "/v1/category/midea/getGatewayInfo",
+      data: {
+        "userId": MeiJuGlobal.token?.uid,
+        "applianceCode": masterId,
+        "devId": deviceId,
+      },
+      options: Options(method: 'POST'),
+    );
+
+    if (res.isSuccess) {
+      Map<String, dynamic> jsonMap = json.decode(res.data!);
+      NodeInfo<Endpoint<T>> nodeInfo = NodeInfo.fromJson(
+        jsonMap,
+            (json) => Endpoint<T>.fromJson(json, eventFromJson),
+      );
+      return nodeInfo;
+    }
+
+    throw Exception('Failed to get gateway info');
+  }
+
+
   // 灯组查询
-  static Future<MeiJuResponseEntity<Map<String, dynamic>>> getGroupList() async {
+  static Future<MeiJuResponseEntity<Map<String, dynamic>>>
+  getGroupList() async {
     var res = await MeiJuApi.requestMideaIot<Map<String, dynamic>>(
         "/mas/v5/app/proxy?alias=/mzgd/v2/appliance/group/list",
         data: {
@@ -165,13 +181,16 @@ class MeiJuDeviceApi {
   }
 
   /// 批量删除设备
-  static Future<MeiJuResponseEntity<DeleteDeviceResultEntity>> deleteDevices(List<String> applianceCodes, String homeGroupID) async {
-
-    final devices = applianceCodes.map((e) => {
+  static Future<MeiJuResponseEntity<DeleteDeviceResultEntity>> deleteDevices(
+      List<String> applianceCodes, String homeGroupID) async {
+    final devices = applianceCodes
+        .map((e) =>
+    {
       'applianceCode': e,
       'homegroupId': MeiJuGlobal.homeInfo?.homegroupId,
       'isOtherEquipment': '0'
-    }).toList();
+    })
+        .toList();
 
     var res = await MeiJuApi.requestMideaIot<DeleteDeviceResultEntity>(
         '/mas/v5/app/proxy?alias=/v1/appliance/batch/delete',

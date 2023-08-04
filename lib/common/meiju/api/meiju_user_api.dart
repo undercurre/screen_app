@@ -95,7 +95,7 @@ class MeiJuUserApi {
 
   /// 美智中台——美居体系鉴权请求
   static Future<MeiJuResponseEntity> authMzPlatform(MeiJuTokenEntity entity) async {
-    return authTokenWithParams(System.deviceId, entity.accessToken, entity.iotUserId);
+    return authTokenWithParams(System.deviceId, entity.accessToken, entity.uid);
   }
 
   static Future<MeiJuResponseEntity> authTokenWithParams(
