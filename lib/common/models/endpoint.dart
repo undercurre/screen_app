@@ -1,12 +1,12 @@
 class Endpoint<T extends Event> {
   int endpoint;
-  String icon;
+  String? icon;
   String name;
   T event;
 
   Endpoint({
     required this.endpoint,
-    required this.icon,
+    this.icon,
     required this.name,
     required this.event,
   });

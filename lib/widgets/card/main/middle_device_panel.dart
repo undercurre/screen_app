@@ -1,51 +1,53 @@
-
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/logcat_helper.dart';
+
+import '../../../common/adapter/panel_data_adapter.dart';
 
 class MiddleDevicePanelCardWidget extends StatefulWidget {
-  final String name;
   final Widget icon;
-  final bool online;
-  final bool isFault;
-  final bool isNative;
+  final String name;
   final String roomName;
-  final String characteristic; // 特征值
-  final Function? onMoreTap; // 右边的三点图标的点击事件
+  final String isOnline;
+  PanelDataAdapter adapter; // 数据适配器
 
-  /// 按钮1
-  final String btn1Name; // 名称
-  final bool btn1IsOn; // 开关状态
-
-  /// 按钮2
-  final String btn2Name; // 名称
-  final bool btn2IsOn; // 开关状态
-
-  /// 按钮事件 (index) => {}
-  final void Function(int index)? onBtnTap;
-
-  const MiddleDevicePanelCardWidget(
-      {super.key,
-        required this.name,
-        required this.icon,
-        required this.roomName,
-        required this.characteristic,
-        this.onMoreTap,
-        required this.online,
-        required this.isFault,
-        required this.isNative,
-        required this.btn1Name,
-        required this.btn1IsOn,
-        required this.btn2Name,
-        required this.btn2IsOn,
-        this.onBtnTap});
+  MiddleDevicePanelCardWidget({
+    super.key,
+    required this.icon,
+    required this.adapter,
+    required this.roomName,
+    required this.isOnline,
+    required this.name,
+  });
 
   @override
-  _MiddleDevicePanelCardWidgetState createState() => _MiddleDevicePanelCardWidgetState();
+  _MiddleDevicePanelCardWidgetState createState() =>
+      _MiddleDevicePanelCardWidgetState();
 }
 
-class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidget> {
+class _MiddleDevicePanelCardWidgetState
+    extends State<MiddleDevicePanelCardWidget> {
   @override
   void initState() {
     super.initState();
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      setState(() {
+        widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
+      });
+      Log.i('更新数据', widget.adapter.data.statusList);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      setState(() {
+        widget.adapter.data.statusList = widget.adapter.data.statusList;
+      });
+      Log.i('更新数据', widget.adapter.data.nameList);
+    });
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -63,30 +65,14 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
         children: [
           Positioned(
             top: 16,
-            right: 12,
-            child: GestureDetector(
-              onTap: () => widget.onMoreTap?.call(),
-              child: const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')
-              ),
-            ),
-          ),
-
-          Positioned(
-            top: 16,
             left: 16,
             child: widget.icon,
           ),
-
           Positioned(
             top: 0,
             left: 72,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                  maxWidth: 90
-              ),
+              constraints: const BoxConstraints(maxWidth: 90),
               child: Text(widget.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -95,20 +81,16 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                       fontSize: 20,
                       fontFamily: "MideaType",
                       fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none)
-              ),
+                      decoration: TextDecoration.none)),
             ),
           ),
-
           Positioned(
             top: 32,
             left: 72,
             child: Row(
               children: [
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 50
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 50),
                   child: Text(widget.roomName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -117,13 +99,10 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 50
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 50),
                   child: Text(" | ${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -132,19 +111,18 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
               ],
             ),
           ),
-
           Positioned(
             top: 68,
             left: 16,
             child: GestureDetector(
-              onTap: () {
-                widget.onBtnTap?.call(0);
+              onTap: () async {
+                await widget.adapter.fetchOrderPowerMeiju(1);
+                await widget.adapter.fetchData();
               },
               child: Container(
                 alignment: Alignment.center,
@@ -152,11 +130,12 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.btn1IsOn ? 'assets/newUI/panel_btn_on.png' : 'assets/newUI/panel_btn_off.png'),
-                      fit: BoxFit.contain
-                  ),
+                      image: ExactAssetImage(widget.adapter.data.statusList[0]
+                          ? 'assets/newUI/panel_btn_on.png'
+                          : 'assets/newUI/panel_btn_off.png'),
+                      fit: BoxFit.contain),
                 ),
-                child: Text(widget.btn1Name,
+                child: Text(widget.adapter.data.nameList[0],
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -164,18 +143,17 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                         fontSize: 16,
                         fontFamily: "MideaType",
                         fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)
-                ),
+                        decoration: TextDecoration.none)),
               ),
             ),
           ),
-
           Positioned(
             top: 68,
             right: 16,
             child: GestureDetector(
-              onTap: () {
-                widget.onBtnTap?.call(1);
+              onTap: () async {
+                await widget.adapter.fetchOrderPowerMeiju(2);
+                await widget.adapter.fetchData();
               },
               child: Container(
                 alignment: Alignment.center,
@@ -183,11 +161,12 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.btn2IsOn ? 'assets/newUI/panel_btn_on.png' : 'assets/newUI/panel_btn_off.png'),
-                      fit: BoxFit.contain
-                  ),
+                      image: ExactAssetImage(widget.adapter.data.statusList[1]
+                          ? 'assets/newUI/panel_btn_on.png'
+                          : 'assets/newUI/panel_btn_off.png'),
+                      fit: BoxFit.contain),
                 ),
-                child: Text(widget.btn2Name,
+                child: Text(widget.adapter.data.nameList[1],
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -195,8 +174,7 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                         fontSize: 16,
                         fontFamily: "MideaType",
                         fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)
-                ),
+                        decoration: TextDecoration.none)),
               ),
             ),
           ),
@@ -206,16 +184,33 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
   }
 
   String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
+    if (widget.isOnline == '0') {
       return '离线';
     }
-    return widget.characteristic;
+    if (widget.adapter.data!.statusList.isNotEmpty) {
+      return '在线';
+    } else {
+      return '离线';
+    }
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.isOnline != '0' && widget.adapter.data!.statusList.isNotEmpty) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
       gradient: const LinearGradient(
@@ -232,5 +227,4 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
       ),
     );
   }
-
 }
