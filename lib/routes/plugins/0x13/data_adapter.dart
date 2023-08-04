@@ -45,11 +45,11 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxDeviceEntity detail) {
-    brightness = detail.mzgdPropertyDTOList?.x1?.level as num;
-    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemp ?? 0;
-    power = detail.mzgdPropertyDTOList?.x1?.onOff == 1;
-    // screenModel = detail.mzgdPropertyDTOList?.x1?.buttonScene ?? "manual";
-    timeOff = detail.mzgdPropertyDTOList?.x1?.delayClose ?? 0;
+    brightness = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightBrightness ?? "0");
+    colorTemp = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightColorTemp ?? "0");
+    power = detail.mzgdPropertyDTOList?.x1?.wifiLightPower == "on";
+    screenModel = detail.mzgdPropertyDTOList?.x1?.wifiLightScene ?? "manual";
+    timeOff = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightDelayOff ?? "0");
   }
 
   @override
@@ -200,6 +200,8 @@ class WIFILightDataAdapter extends MideaDataAdapter {
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
+    device.screenModel = mode.key;
+    updateUI();
     if (platform.inMeiju()) {
       late MzResponseEntity<dynamic> res;
       if (device.deviceEnt?.sn8 == '79009833') {
@@ -209,12 +211,14 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       if (res.isSuccess) {
         device.screenModel = mode.key;
+        updateUI();
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       var res = await HomluxDeviceApi.controlWifiLightMode(device.deviceID, "3", mode.key);
       if (res.isSuccess) {
         device.screenModel = mode.key;
+        updateUI();
       }
       _delay2UpdateDetail(2);
     }

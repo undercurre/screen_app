@@ -109,6 +109,16 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 	String? curtainStatus;
 	@JSONField(name: "curtain_direction")
 	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList1();
 
@@ -148,6 +158,16 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 	String? curtainStatus;
 	@JSONField(name: "curtain_direction")
 	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList2();
 
@@ -187,6 +207,16 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 	String? curtainStatus;
 	@JSONField(name: "curtain_direction")
 	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList3();
 
@@ -226,6 +256,16 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	String? curtainStatus;
 	@JSONField(name: "curtain_direction")
 	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList4();
 

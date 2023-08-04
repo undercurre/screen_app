@@ -242,6 +242,26 @@ HomluxDeviceMzgdPropertyDTOList1 $HomluxDeviceMzgdPropertyDTOList1FromJson(Map<S
 	if (curtainDirection != null) {
 		homluxDeviceMzgdPropertyDTOList1.curtainDirection = curtainDirection;
 	}
+	final String? wifiLightPower = homluxJsonConvert.convert<String>(json['power']);
+	if (wifiLightPower != null) {
+		homluxDeviceMzgdPropertyDTOList1.wifiLightPower = wifiLightPower;
+	}
+	final String? wifiLightDelayOff = homluxJsonConvert.convert<String>(json['delay_light_off']);
+	if (wifiLightDelayOff != null) {
+		homluxDeviceMzgdPropertyDTOList1.wifiLightDelayOff = wifiLightDelayOff;
+	}
+	final String? wifiLightScene = homluxJsonConvert.convert<String>(json['scene_light']);
+	if (wifiLightScene != null) {
+		homluxDeviceMzgdPropertyDTOList1.wifiLightScene = wifiLightScene;
+	}
+	final String? wifiLightBrightness = homluxJsonConvert.convert<String>(json['brightness']);
+	if (wifiLightBrightness != null) {
+		homluxDeviceMzgdPropertyDTOList1.wifiLightBrightness = wifiLightBrightness;
+	}
+	final String? wifiLightColorTemp = homluxJsonConvert.convert<String>(json['color_temperature']);
+	if (wifiLightColorTemp != null) {
+		homluxDeviceMzgdPropertyDTOList1.wifiLightColorTemp = wifiLightColorTemp;
+	}
 	return homluxDeviceMzgdPropertyDTOList1;
 }
 
@@ -259,6 +279,11 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList1ToJson(HomluxDeviceMzgdPro
 	data['curtain_position'] = entity.curtainPosition;
 	data['curtain_status'] = entity.curtainStatus;
 	data['curtain_direction'] = entity.curtainDirection;
+	data['power'] = entity.wifiLightPower;
+	data['delay_light_off'] = entity.wifiLightDelayOff;
+	data['scene_light'] = entity.wifiLightScene;
+	data['brightness'] = entity.wifiLightBrightness;
+	data['color_temperature'] = entity.wifiLightColorTemp;
 	return data;
 }
 
@@ -312,6 +337,26 @@ HomluxDeviceMzgdPropertyDTOList2 $HomluxDeviceMzgdPropertyDTOList2FromJson(Map<S
 	if (curtainDirection != null) {
 		homluxDeviceMzgdPropertyDTOList2.curtainDirection = curtainDirection;
 	}
+	final String? wifiLightPower = homluxJsonConvert.convert<String>(json['power']);
+	if (wifiLightPower != null) {
+		homluxDeviceMzgdPropertyDTOList2.wifiLightPower = wifiLightPower;
+	}
+	final String? wifiLightDelayOff = homluxJsonConvert.convert<String>(json['delay_light_off']);
+	if (wifiLightDelayOff != null) {
+		homluxDeviceMzgdPropertyDTOList2.wifiLightDelayOff = wifiLightDelayOff;
+	}
+	final String? wifiLightScene = homluxJsonConvert.convert<String>(json['scene_light']);
+	if (wifiLightScene != null) {
+		homluxDeviceMzgdPropertyDTOList2.wifiLightScene = wifiLightScene;
+	}
+	final String? wifiLightBrightness = homluxJsonConvert.convert<String>(json['brightness']);
+	if (wifiLightBrightness != null) {
+		homluxDeviceMzgdPropertyDTOList2.wifiLightBrightness = wifiLightBrightness;
+	}
+	final String? wifiLightColorTemp = homluxJsonConvert.convert<String>(json['color_temperature']);
+	if (wifiLightColorTemp != null) {
+		homluxDeviceMzgdPropertyDTOList2.wifiLightColorTemp = wifiLightColorTemp;
+	}
 	return homluxDeviceMzgdPropertyDTOList2;
 }
 
@@ -329,6 +374,11 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList2ToJson(HomluxDeviceMzgdPro
 	data['curtain_position'] = entity.curtainPosition;
 	data['curtain_status'] = entity.curtainStatus;
 	data['curtain_direction'] = entity.curtainDirection;
+	data['power'] = entity.wifiLightPower;
+	data['delay_light_off'] = entity.wifiLightDelayOff;
+	data['scene_light'] = entity.wifiLightScene;
+	data['brightness'] = entity.wifiLightBrightness;
+	data['color_temperature'] = entity.wifiLightColorTemp;
 	return data;
 }
 
@@ -382,6 +432,26 @@ HomluxDeviceMzgdPropertyDTOList3 $HomluxDeviceMzgdPropertyDTOList3FromJson(Map<S
 	if (curtainDirection != null) {
 		homluxDeviceMzgdPropertyDTOList3.curtainDirection = curtainDirection;
 	}
+	final String? wifiLightPower = homluxJsonConvert.convert<String>(json['power']);
+	if (wifiLightPower != null) {
+		homluxDeviceMzgdPropertyDTOList3.wifiLightPower = wifiLightPower;
+	}
+	final String? wifiLightDelayOff = homluxJsonConvert.convert<String>(json['delay_light_off']);
+	if (wifiLightDelayOff != null) {
+		homluxDeviceMzgdPropertyDTOList3.wifiLightDelayOff = wifiLightDelayOff;
+	}
+	final String? wifiLightScene = homluxJsonConvert.convert<String>(json['scene_light']);
+	if (wifiLightScene != null) {
+		homluxDeviceMzgdPropertyDTOList3.wifiLightScene = wifiLightScene;
+	}
+	final String? wifiLightBrightness = homluxJsonConvert.convert<String>(json['brightness']);
+	if (wifiLightBrightness != null) {
+		homluxDeviceMzgdPropertyDTOList3.wifiLightBrightness = wifiLightBrightness;
+	}
+	final String? wifiLightColorTemp = homluxJsonConvert.convert<String>(json['color_temperature']);
+	if (wifiLightColorTemp != null) {
+		homluxDeviceMzgdPropertyDTOList3.wifiLightColorTemp = wifiLightColorTemp;
+	}
 	return homluxDeviceMzgdPropertyDTOList3;
 }
 
@@ -399,6 +469,11 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList3ToJson(HomluxDeviceMzgdPro
 	data['curtain_position'] = entity.curtainPosition;
 	data['curtain_status'] = entity.curtainStatus;
 	data['curtain_direction'] = entity.curtainDirection;
+	data['power'] = entity.wifiLightPower;
+	data['delay_light_off'] = entity.wifiLightDelayOff;
+	data['scene_light'] = entity.wifiLightScene;
+	data['brightness'] = entity.wifiLightBrightness;
+	data['color_temperature'] = entity.wifiLightColorTemp;
 	return data;
 }
 
@@ -452,6 +527,26 @@ HomluxDeviceMzgdPropertyDTOList4 $HomluxDeviceMzgdPropertyDTOList4FromJson(Map<S
 	if (curtainDirection != null) {
 		homluxDeviceMzgdPropertyDTOList4.curtainDirection = curtainDirection;
 	}
+	final String? wifiLightPower = homluxJsonConvert.convert<String>(json['power']);
+	if (wifiLightPower != null) {
+		homluxDeviceMzgdPropertyDTOList4.wifiLightPower = wifiLightPower;
+	}
+	final String? wifiLightDelayOff = homluxJsonConvert.convert<String>(json['delay_light_off']);
+	if (wifiLightDelayOff != null) {
+		homluxDeviceMzgdPropertyDTOList4.wifiLightDelayOff = wifiLightDelayOff;
+	}
+	final String? wifiLightScene = homluxJsonConvert.convert<String>(json['scene_light']);
+	if (wifiLightScene != null) {
+		homluxDeviceMzgdPropertyDTOList4.wifiLightScene = wifiLightScene;
+	}
+	final String? wifiLightBrightness = homluxJsonConvert.convert<String>(json['brightness']);
+	if (wifiLightBrightness != null) {
+		homluxDeviceMzgdPropertyDTOList4.wifiLightBrightness = wifiLightBrightness;
+	}
+	final String? wifiLightColorTemp = homluxJsonConvert.convert<String>(json['color_temperature']);
+	if (wifiLightColorTemp != null) {
+		homluxDeviceMzgdPropertyDTOList4.wifiLightColorTemp = wifiLightColorTemp;
+	}
 	return homluxDeviceMzgdPropertyDTOList4;
 }
 
@@ -469,5 +564,10 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPro
 	data['curtain_position'] = entity.curtainPosition;
 	data['curtain_status'] = entity.curtainStatus;
 	data['curtain_direction'] = entity.curtainDirection;
+	data['power'] = entity.wifiLightPower;
+	data['delay_light_off'] = entity.wifiLightDelayOff;
+	data['scene_light'] = entity.wifiLightScene;
+	data['brightness'] = entity.wifiLightBrightness;
+	data['color_temperature'] = entity.wifiLightColorTemp;
 	return data;
 }
