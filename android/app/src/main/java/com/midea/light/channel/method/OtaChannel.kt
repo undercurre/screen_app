@@ -10,6 +10,9 @@ import com.midea.light.upgrade.control.UpgradeInstallControl
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import com.midea.light.MainApplication
+import com.midea.light.bean.GatewayPlatform
+
 
 /**
  * @ClassName OtaChannel
@@ -119,11 +122,11 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
 
                     val uid = call.argument<String>("uid")
                     val deviceId = call.argument<String>("deviceId")
-                    val mzToken = call.argument<String>("mzToken")
+                    val token = call.argument<String>("token")
                     val sn = call.argument<String>("sn")
                     val type = call.argument<Int>("numType")
 
-                    OTAUpgradeHelper.initUserConfig(uid, deviceId, mzToken, sn)
+                    OTAUpgradeHelper.initUserConfig(uid, deviceId, token, sn, MainApplication.gatewayPlatform.rawPlatform())
 
                     OTAUpgradeHelper.queryUpgrade(when(type) {
                         3 -> UpgradeType.ROOM

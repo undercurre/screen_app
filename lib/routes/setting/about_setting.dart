@@ -157,78 +157,6 @@ class AboutSettingProvider with ChangeNotifier {
 class AboutSettingPage extends StatelessWidget {
   const AboutSettingPage({super.key});
 
-  void showInstallFail(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '安装失败',
-        titleSize: 28,
-        maxWidth: 432,
-        btns: ['取消', '确定'],
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
-
-  void showUpdateGoing(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '正在安装更新',
-        titleSize: 28,
-        maxWidth: 432,
-        contentSlot: const Column(
-          children: [
-            Text('更新中其他功能不可使用，期间会重启，请勿断电',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 24,
-                    color: Color.fromRGBO(255, 255, 255, 0.60),
-                    fontFamily: 'MideaType',
-                    fontWeight: FontWeight.w400,
-                    height: 1.2)),
-            MzSlider(width: 300, height: 4, value: 60),
-            Text(
-              '60%',
-              style: TextStyle(fontSize: 60, color: Colors.white),
-            )
-          ],
-        ),
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
-
-  void showUpdateVersion(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '有新版本可用',
-        titleSize: 28,
-        maxWidth: 432,
-        contentSlot: const Text('此操作将使网关子设备暂时离线，是否确认重启？',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 24,
-                color: Color.fromRGBO(255, 255, 255, 0.60),
-                fontFamily: 'MideaType',
-                fontWeight: FontWeight.w400,
-                height: 1.2)),
-        btns: ['取消', '更新'],
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
-
   void showRebootDialog(
       BuildContext context, AboutSettingProvider provider) async {
     MzDialog(
@@ -498,8 +426,6 @@ class AboutSettingPage extends StatelessWidget {
                         ),
                         MzSettingItem(
                           onTap: () {
-                            showUpdateGoing(
-                                context, context.read<AboutSettingProvider>());
                             context.read<AboutSettingProvider>().checkUpgrade();
                           },
                           leftText: '应用升级',

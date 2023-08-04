@@ -14,6 +14,7 @@ import com.midea.light.upgrade.Callback;
 import com.midea.light.upgrade.UpgradeClient;
 import com.midea.light.upgrade.UpgradeConfig;
 import com.midea.light.upgrade.UpgradeType;
+import com.midea.light.upgrade.api.HomluxApiService;
 import com.midea.light.upgrade.api.NormalApiService;
 import com.midea.light.upgrade.control.IUpgradeControl;
 import com.midea.light.upgrade.control.UpgradeDownloadControl;
@@ -31,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,14 +99,17 @@ public class OTAUpgradeHelper {
 
     static String uid;
     static String deviceId;
-    static String mzToken;
+    static String token;
     static String gatewaySn;
 
-    public static void initUserConfig(String uid, String deviceId, String mzToken, String gatewaySn) {
+    static int gatewayPlatform;//1 美居 2 Homlux
+
+    public static void initUserConfig(String uid, String deviceId, String token, String gatewaySn, int platform) {
         OTAUpgradeHelper.uid = uid;
         OTAUpgradeHelper.deviceId = deviceId;
-        OTAUpgradeHelper.mzToken = mzToken;
+        OTAUpgradeHelper.token = token;
         OTAUpgradeHelper.gatewaySn = gatewaySn;
+        OTAUpgradeHelper.gatewayPlatform = platform;
     }
 
     public static void globalInit(Context context, V2IOTCallback callback) {
@@ -129,19 +134,25 @@ public class OTAUpgradeHelper {
             String roomCategoryCode = Objects.equals(channel, "JH") ? "JH-Q" : "LD-Q";
             UpgradeConfig room = new UpgradeConfig()
                     .withOtaType(2)
-                    .withVersion(RoomUtils.getRoomVersion())
+                    .withVersion(unused -> RoomUtils.getRoomVersion())
                     .withCategoryCode(roomCategoryCode)
                     .withDebug(true)
 //                .withDebug(BuildConfig.DEBUG)
                     .withExecutorService(executorService)
-                    .withUserIdFunction(_void -> uid)
                     .withInstallerFunction(UpgradeConfig.JH_ROOM_INSTALLER_FUNCTION)
                     .withFilePath("/sdcard/")
                     .withFileCompressName("update.zip")
                     .withApiServiceFunction(debug -> {
-                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
-                        service1.setDebug(true);
-                        return service1;
+                        if(gatewayPlatform == 1) {
+                            NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
+                            service1.setDebug(true);
+                            return service1;
+                        } else if(gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            return service2;
+                        } else {
+                            return null;
+                        }
                     });
             UpgradeClient.getInstant().putConfig(UpgradeType.ROOM, room);
         }
@@ -153,16 +164,22 @@ public class OTAUpgradeHelper {
 
             UpgradeConfig direct = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
+                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
                     .withSn(_void-> gatewaySn)
                     .withExecutorService(executorService)
-                    .withUserIdFunction(_void -> uid)
                     .withApiServiceFunction(debug -> {
-                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
-                        service1.setDebug(true);
-                        return service1;
+                        if(gatewayPlatform == 1) {
+                            NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
+                            service1.setDebug(true);
+                            return service1;
+                        } else if(gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            return service2;
+                        } else {
+                            return null;
+                        }
                     });
             UpgradeClient.getInstant().putConfig(UpgradeType.DIRECT, direct);
         }
@@ -174,15 +191,21 @@ public class OTAUpgradeHelper {
 
             UpgradeConfig normal = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
+                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
                     .withExecutorService(executorService)
-                    .withUserIdFunction(_void -> uid)
                     .withApiServiceFunction(debug -> {
-                        NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, mzToken, AppCommonConfig.MZ_APP_SECRET);
-                        service1.setDebug(true);
-                        return service1;
+                        if(gatewayPlatform == 1) {
+                            NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
+                            service1.setDebug(true);
+                            return service1;
+                        } else if(gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            return service2;
+                        } else {
+                            return null;
+                        }
                     });
             UpgradeClient.getInstant().putConfig(UpgradeType.NORMAL, normal);
         }

@@ -29,6 +29,9 @@ class MzSlider extends StatefulWidget {
   // 是否禁用操作
   final bool disabled;
 
+  // 滑动条底部颜色
+  final Color seekbarBgColor;
+
   // 滑动回调，传递出进度值和当前颜色
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
@@ -63,6 +66,7 @@ class MzSlider extends StatefulWidget {
     this.disabled = false,
     this.padding = const EdgeInsets.all(20),
     this.isBarColorKeepFull = false,
+    this.seekbarBgColor = const Color(0xFF000000)
   });
 
   @override
@@ -130,7 +134,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 key: _railKey,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF000000),
+                  color: widget.seekbarBgColor,
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),

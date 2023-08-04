@@ -1,12 +1,13 @@
 
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:screen_app/channel/asb_channel.dart';
-import 'package:screen_app/channel/index.dart';
+
+import '../common/homlux/homlux_global.dart';
 import '../common/index.dart';
+import '../common/logcat_helper.dart';
+import '../common/meiju/meiju_global.dart';
 import '../widgets/event_bus.dart';
 
 enum OtaUpgradeType {
@@ -86,25 +87,32 @@ class OtaChannel extends AbstractChannel {
   void checkUpgrade(OtaUpgradeType type, void Function() onUpgrade) async {
 
     if(OtaUpgradeType.normal == type && !await supportNormalOta) {
-      logger.e('暂时不支持normal类型ota');
+      Log.e('暂时不支持normal类型ota');
       onUpgrade.call();
       return;
     }
     if(OtaUpgradeType.direct == type && !await supportDirectOTA) {
-      logger.e('暂时不支持direct类型ota');
+      Log.e('暂时不支持direct类型ota');
       onUpgrade.call();
       return;
     }
     if(OtaUpgradeType.rom == type && !await supportRomOTA) {
-      logger.e('暂时不支持rom类型ota');
+      Log.e('暂时不支持rom类型ota');
       onUpgrade.call();
       return;
     }
 
-    String uid = Global.user?.uid ?? "";
-    String deviceId = Global.user?.deviceId ?? "";
-    String token = Global.user?.mzAccessToken ?? "";
-    String sn = gatewaySn ?? (gatewaySn = await aboutSystemChannel.getGatewaySn()) ?? "";
+    String deviceId = System.deviceId ?? "";
+    String token;
+    String uid;
+    if(System.inMeiJuPlatform()) {
+      token = MeiJuGlobal.token?.mzAccessToken ?? "";
+      uid = MeiJuGlobal.token?.uid ?? "";
+    } else {
+      token = HomluxGlobal.homluxQrCodeAuthEntity?.token ?? "";
+      uid = "";
+    }
+    String sn = gatewaySn ?? (gatewaySn = await System.gatewaySn) ?? "";
 
     int numType;
     if(OtaUpgradeType.normal == type) {
@@ -131,7 +139,7 @@ class OtaChannel extends AbstractChannel {
         _isDownloading = true;
       }
       TipsUtils.toast(content: e.message ?? '请稍后重试');
-      logger.e(e.message, e.stacktrace);
+      Log.e(e.message ?? '请稍后重试', e.stacktrace);
     }
   }
   // 确认下载
@@ -161,7 +169,7 @@ class OtaChannel extends AbstractChannel {
     _hasNewVersion = true;
     String content = arguments;
     bus.emit('ota-new-version', content);
-    logger.i('ota-new-version');
+    Log.i('ota-new-version');
     _onUpgrade = null;
   }
   // 提示没有新版本更新
@@ -169,24 +177,24 @@ class OtaChannel extends AbstractChannel {
     _hasNewVersion = false;
     _onUpgrade?.call();
     _onUpgrade = null;
-    logger.i('ota-no-version');
+    Log.i('ota-no-version');
   }
   // 下载安装包成功
   void onHandlerDownloadSuc(dynamic arguments) {
     bus.emit('ota-download-suc');
-    logger.i('ota-download-suc');
+    Log.i('ota-download-suc');
   }
   // 下载安装包失败
   void onHandlerDownloadFail(dynamic arguments) {
     _isDownloading = false;
     bus.emit('ota-download-fail');
-    logger.i('ota-download-fail');
+    Log.i('ota-download-fail');
   }
   // 正在下载安装包
   void onHandlerDownloading(dynamic arguments) {
     int process = arguments;// 0 - 100
     bus.emit('ota-download-loading', process / 100);
-    logger.i('ota-downloading-$process');
+    Log.i('ota-downloading-$process');
   }
   // 安装失败
   void onHandlerInstallFail() {

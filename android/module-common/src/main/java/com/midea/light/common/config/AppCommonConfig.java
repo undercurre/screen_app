@@ -101,6 +101,8 @@ public class AppCommonConfig {
     public static int ASD_ID;
     private static String CHANNEL; // LD -》灵动 JH -》 晶华
 
+    public static String HOMLUX_HOST;
+
     // ##动态获取当前的渠道
     public static String getChannel() {
         if (TextUtils.isEmpty(CHANNEL)) {
@@ -154,6 +156,8 @@ public class AppCommonConfig {
             ROM_UP_GRADE_HOST= "http://8.135.27.6:8007/v1/base2pro/uploadFile";
             SSE_HOST = "sse-sit.smartmidea.net";
             ASD_ID = 0x010102;
+            HOMLUX_HOST = "https://sit.meizgd.com";
+
 
             CLIENT_ID="da4d6b7b65ae49fb94755700294e66ce";
             MANUFACTURE="mFwjoGVl5GDi5lAF103er4DBs/cwV8LrIxYYSlqzO4wKYnnBV0SeeMMZQP84bHsO4r+5c54x3pvqAueKh8QWMAHYyelvEtAkmkMUI5LQYZ1A4AXb6C+q7ekZRSDoN/NP" +
@@ -192,6 +196,7 @@ public class AppCommonConfig {
             ROM_UP_GRADE_HOST= "https://mzcategory.meizgd.com/v1/base2pro/uploadFile";
             SSE_HOST = "sse.smartmidea.net";
             ASD_ID = 0x010101;
+            HOMLUX_HOST = "https://mzaio.meizgd.com";
 
             CLIENT_ID="68d039a1f847493992fff3d0221fe965";
             MANUFACTURE="NBDgdrH/hzmrWNUERU3GEB/697l53Q/cNtvUWbxIq2cXOx1iv4Cq5Q0vlj+sHVe2XNnjlFlonuOLGwUpybMavU3Tc8V4WHQZ91VGWm320Mjs7mVipqt/wOdYvPBBKn7Tf0YIK3zeWtH2jmYXMXoKNHhgrun81yiPYwJ7N+K/Hpg=";
