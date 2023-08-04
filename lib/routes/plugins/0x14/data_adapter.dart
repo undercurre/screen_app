@@ -34,9 +34,9 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxDeviceEntity detail) {
-    // curtainPosition = detail.mzgdPropertyDTOList?.x1?.curtain_position;
-    // curtainStatus = detail.mzgdPropertyDTOList?.x1?.curtain_status;
-    //curtainDirection = detail.mzgdPropertyDTOList?.x1?.curtain_direction;
+    curtainPosition = int.parse(detail.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
+    curtainStatus = detail.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
+    curtainDirection = detail.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
   }
 
   @override
@@ -117,15 +117,13 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
+    device.curtainStatus = mode.key;
     if (mode.key == 'open') {
       device.curtainPosition = 100;
-      device.curtainStatus = mode.key;
-      updateUI();
-    } else if (mode.key == 'close'){
+    } else if (mode.key == 'close') {
       device.curtainPosition = 0;
-      device.curtainStatus = mode.key;
-      updateUI();
     }
+    updateUI();
     if (platform.inMeiju()) {
       CurtainApi.setMode(device.deviceID, mode.key, device.curtainDirection);
     } else if(platform.inHomlux()) {

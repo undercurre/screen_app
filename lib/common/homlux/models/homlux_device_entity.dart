@@ -103,6 +103,22 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList1();
 
@@ -136,6 +152,22 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList2();
 
@@ -169,6 +201,22 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList3();
 
@@ -202,6 +250,22 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+	@JSONField(name: "brightness")
+	String? wifiLightBrightness;
+	@JSONField(name: "color_temperature")
+	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList4();
 
