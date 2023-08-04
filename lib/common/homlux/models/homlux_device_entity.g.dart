@@ -230,6 +230,18 @@ HomluxDeviceMzgdPropertyDTOList1 $HomluxDeviceMzgdPropertyDTOList1FromJson(Map<S
 	if (delayClose != null) {
 		homluxDeviceMzgdPropertyDTOList1.delayClose = delayClose;
 	}
+	final String? curtainPosition = homluxJsonConvert.convert<String>(json['curtain_position']);
+	if (curtainPosition != null) {
+		homluxDeviceMzgdPropertyDTOList1.curtainPosition = curtainPosition;
+	}
+	final String? curtainStatus = homluxJsonConvert.convert<String>(json['curtain_status']);
+	if (curtainStatus != null) {
+		homluxDeviceMzgdPropertyDTOList1.curtainStatus = curtainStatus;
+	}
+	final String? curtainDirection = homluxJsonConvert.convert<String>(json['curtain_direction']);
+	if (curtainDirection != null) {
+		homluxDeviceMzgdPropertyDTOList1.curtainDirection = curtainDirection;
+	}
 	return homluxDeviceMzgdPropertyDTOList1;
 }
 
@@ -244,6 +256,9 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList1ToJson(HomluxDeviceMzgdPro
 	data['Duration'] = entity.duration;
 	data['BcReportTime'] = entity.bcReportTime;
 	data['DelayClose'] = entity.delayClose;
+	data['curtain_position'] = entity.curtainPosition;
+	data['curtain_status'] = entity.curtainStatus;
+	data['curtain_direction'] = entity.curtainDirection;
 	return data;
 }
 
@@ -285,6 +300,18 @@ HomluxDeviceMzgdPropertyDTOList2 $HomluxDeviceMzgdPropertyDTOList2FromJson(Map<S
 	if (delayClose != null) {
 		homluxDeviceMzgdPropertyDTOList2.delayClose = delayClose;
 	}
+	final String? curtainPosition = homluxJsonConvert.convert<String>(json['curtain_position']);
+	if (curtainPosition != null) {
+		homluxDeviceMzgdPropertyDTOList2.curtainPosition = curtainPosition;
+	}
+	final String? curtainStatus = homluxJsonConvert.convert<String>(json['curtain_status']);
+	if (curtainStatus != null) {
+		homluxDeviceMzgdPropertyDTOList2.curtainStatus = curtainStatus;
+	}
+	final String? curtainDirection = homluxJsonConvert.convert<String>(json['curtain_direction']);
+	if (curtainDirection != null) {
+		homluxDeviceMzgdPropertyDTOList2.curtainDirection = curtainDirection;
+	}
 	return homluxDeviceMzgdPropertyDTOList2;
 }
 
@@ -299,6 +326,9 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList2ToJson(HomluxDeviceMzgdPro
 	data['Duration'] = entity.duration;
 	data['BcReportTime'] = entity.bcReportTime;
 	data['DelayClose'] = entity.delayClose;
+	data['curtain_position'] = entity.curtainPosition;
+	data['curtain_status'] = entity.curtainStatus;
+	data['curtain_direction'] = entity.curtainDirection;
 	return data;
 }
 
@@ -340,6 +370,18 @@ HomluxDeviceMzgdPropertyDTOList3 $HomluxDeviceMzgdPropertyDTOList3FromJson(Map<S
 	if (delayClose != null) {
 		homluxDeviceMzgdPropertyDTOList3.delayClose = delayClose;
 	}
+	final String? curtainPosition = homluxJsonConvert.convert<String>(json['curtain_position']);
+	if (curtainPosition != null) {
+		homluxDeviceMzgdPropertyDTOList3.curtainPosition = curtainPosition;
+	}
+	final String? curtainStatus = homluxJsonConvert.convert<String>(json['curtain_status']);
+	if (curtainStatus != null) {
+		homluxDeviceMzgdPropertyDTOList3.curtainStatus = curtainStatus;
+	}
+	final String? curtainDirection = homluxJsonConvert.convert<String>(json['curtain_direction']);
+	if (curtainDirection != null) {
+		homluxDeviceMzgdPropertyDTOList3.curtainDirection = curtainDirection;
+	}
 	return homluxDeviceMzgdPropertyDTOList3;
 }
 
@@ -354,6 +396,9 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList3ToJson(HomluxDeviceMzgdPro
 	data['Duration'] = entity.duration;
 	data['BcReportTime'] = entity.bcReportTime;
 	data['DelayClose'] = entity.delayClose;
+	data['curtain_position'] = entity.curtainPosition;
+	data['curtain_status'] = entity.curtainStatus;
+	data['curtain_direction'] = entity.curtainDirection;
 	return data;
 }
 
@@ -395,6 +440,18 @@ HomluxDeviceMzgdPropertyDTOList4 $HomluxDeviceMzgdPropertyDTOList4FromJson(Map<S
 	if (delayClose != null) {
 		homluxDeviceMzgdPropertyDTOList4.delayClose = delayClose;
 	}
+	final String? curtainPosition = homluxJsonConvert.convert<String>(json['curtain_position']);
+	if (curtainPosition != null) {
+		homluxDeviceMzgdPropertyDTOList4.curtainPosition = curtainPosition;
+	}
+	final String? curtainStatus = homluxJsonConvert.convert<String>(json['curtain_status']);
+	if (curtainStatus != null) {
+		homluxDeviceMzgdPropertyDTOList4.curtainStatus = curtainStatus;
+	}
+	final String? curtainDirection = homluxJsonConvert.convert<String>(json['curtain_direction']);
+	if (curtainDirection != null) {
+		homluxDeviceMzgdPropertyDTOList4.curtainDirection = curtainDirection;
+	}
 	return homluxDeviceMzgdPropertyDTOList4;
 }
 
@@ -409,5 +466,8 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPro
 	data['Duration'] = entity.duration;
 	data['BcReportTime'] = entity.bcReportTime;
 	data['DelayClose'] = entity.delayClose;
+	data['curtain_position'] = entity.curtainPosition;
+	data['curtain_status'] = entity.curtainStatus;
+	data['curtain_direction'] = entity.curtainDirection;
 	return data;
 }

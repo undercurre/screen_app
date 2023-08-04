@@ -289,7 +289,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiCurtainOnOff(
       String deviceId, String deviceType, int onOff) {
     var actions = [
-      <String, dynamic>{'curtain_position': onOff == 1 ? 100 : 0}
+      <String, dynamic>{'curtain_status': onOff == 1 ? "open" : "close"}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -308,7 +308,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiCurtainPosition(
       String deviceId, String deviceType, int position) {
     var actions = [
-      <String, dynamic>{'curtain_position': position}
+      <String, dynamic>{'curtain_position': "$position"}
     ];
     return _controlDevice(
         topic: '/subdevice/control',

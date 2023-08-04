@@ -103,6 +103,12 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
 
 	HomluxDeviceMzgdPropertyDTOList1();
 
@@ -136,6 +142,12 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
 
 	HomluxDeviceMzgdPropertyDTOList2();
 
@@ -169,6 +181,12 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
 
 	HomluxDeviceMzgdPropertyDTOList3();
 
@@ -202,6 +220,12 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	int? bcReportTime;
 	@JSONField(name: "DelayClose")
 	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
 
 	HomluxDeviceMzgdPropertyDTOList4();
 
