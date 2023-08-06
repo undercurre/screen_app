@@ -129,15 +129,14 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
 
   /// 重新刷新token, refreshToken
   if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
-    // try {
-    //   _lock.lock();
-
-    if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
-      _$refreshToken();
+    try {
+      _lock.lock();
+      if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
+        _$refreshToken();
+      }
+    } finally {
+      _lock.unlock();
     }
-    // } finally {
-    //   _lock.unlock();
-    // }
   }
   return response;
 }
@@ -145,7 +144,7 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
 /// 刷新refreshToken
 void _$refreshToken() async {
   var refreshToken = await HomluxApi()._dio.request(
-      '${dotenv.get('HOMLUX_URL')}/v1/mzgdApi/mzgdUserRefreshToken',
+      '${dotenv.get('HOMLUX_URL')}/mzaio/v1/mzgdApi/mzgdUserRefreshToken',
       options: Options(method: 'POST'),
       data: {
         ...$commonBodyData(),
@@ -158,8 +157,10 @@ void _$refreshToken() async {
         authorizeStatus: 1,
         refreshToken: entity.result?.refreshToken,
         token: entity.result?.token);
+    Log.file(
+        "refreshToken 成功 ${HomluxGlobal.homluxQrCodeAuthEntity?.toJson()}");
   } else if (entity.code == refreshExpireCode) {
-    Log.e("refreshToken 过期 即将退出登录");
+    Log.file("refreshToken 过期 即将退出登录");
     // 真正退出逻辑
     System.loginOut();
     bus.emit("logout");
