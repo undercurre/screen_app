@@ -262,8 +262,8 @@ class MeiJuApi {
   static tryToRefreshToken() async {
     try {
       _lock.lock();
-      await iotAutoLogin();
-      await mzAutoLogin();
+      // 一定要前面请求成功之后，后面的才允许接着请求
+      await iotAutoLogin() || await mzAutoLogin();
     } finally {
       _lock.unlock();
     }
