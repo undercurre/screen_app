@@ -84,21 +84,21 @@ class OtaChannel extends AbstractChannel {
   }
 
   // 检查更新
-  void checkUpgrade(OtaUpgradeType type, void Function() onUpgrade) async {
+  void checkUpgrade(OtaUpgradeType type, void Function() noUpgrade) async {
 
     if(OtaUpgradeType.normal == type && !await supportNormalOta) {
       Log.e('暂时不支持normal类型ota');
-      onUpgrade.call();
+      noUpgrade.call();
       return;
     }
     if(OtaUpgradeType.direct == type && !await supportDirectOTA) {
       Log.e('暂时不支持direct类型ota');
-      onUpgrade.call();
+      noUpgrade.call();
       return;
     }
     if(OtaUpgradeType.rom == type && !await supportRomOTA) {
       Log.e('暂时不支持rom类型ota');
-      onUpgrade.call();
+      noUpgrade.call();
       return;
     }
 
@@ -123,14 +123,14 @@ class OtaChannel extends AbstractChannel {
       numType = 3;
     }
 
-    _onUpgrade = onUpgrade;
+    _onUpgrade = noUpgrade;
 
     try {
       methodChannel.invokeMethod('checkUpgrade', {
         'numType': numType,
         'uid': uid,
         'deviceId': deviceId,
-        'mzToken': token,
+        'token': token,
         'sn': sn
       });
     } on PlatformException catch (e) {

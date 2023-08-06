@@ -330,7 +330,8 @@ class _OtaState1 extends State<_OtaDialog> {
           ),
         ];
       }
-    } else if(_stepInstall == step) {
+    }
+    else if(_stepInstall == step) {
       content = [
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -356,7 +357,7 @@ class _OtaState1 extends State<_OtaDialog> {
             seekbarBgColor: Colors.white30,
             width: 300,
             height: 4,
-            value: progress * 100 + 60,
+            value: progress * 100,
             disabled: false),
         ),
         Padding(

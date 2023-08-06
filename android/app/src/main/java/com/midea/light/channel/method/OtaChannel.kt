@@ -117,7 +117,7 @@ class OtaChannel(override val context: Context) : AbsMZMethodChannel(context) {
                 } else {
                     assert(call.hasArgument("uid"))
                     assert(call.hasArgument("deviceId"))
-                    assert(call.hasArgument("mzToken"))
+                    assert(call.hasArgument("token"))
                     assert(call.hasArgument("sn"))
 
                     val uid = call.argument<String>("uid")

@@ -148,7 +148,7 @@ public class OTAUpgradeHelper {
                             service1.setDebug(true);
                             return service1;
                         } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
                             return service2;
                         } else {
                             return null;
@@ -175,7 +175,7 @@ public class OTAUpgradeHelper {
                             service1.setDebug(true);
                             return service1;
                         } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
                             return service2;
                         } else {
                             return null;
@@ -201,7 +201,7 @@ public class OTAUpgradeHelper {
                             service1.setDebug(true);
                             return service1;
                         } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST+ "/mzaio", deviceId, token);
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
                             return service2;
                         } else {
                             return null;
