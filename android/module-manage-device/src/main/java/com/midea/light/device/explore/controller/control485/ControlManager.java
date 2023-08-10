@@ -93,22 +93,22 @@ public class ControlManager implements Data485Subject {
                                         byte b = buffer[3];
                                         int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
                                         totalSize = num * 3 + 5;
-                                        Log.e("sky", "需要数据量:" + totalSize);
+//                                        Log.e("sky", "需要数据量:" + totalSize);
                                     } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_PARELETE_CODE.data)) {
                                         byte b = buffer[3];
                                         int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
                                         totalSize = num * 10 + 5;
-                                        Log.e("sky", "需要数据量:" + totalSize);
+//                                        Log.e("sky", "需要数据量:" + totalSize);
                                     } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data)) {
                                         byte b = buffer[3];
                                         int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
                                         totalSize = num * 3 + 5;
-                                        Log.e("sky", "需要数据量:" + totalSize);
+//                                        Log.e("sky", "需要数据量:" + totalSize);
                                     } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data)) {
                                         byte b = buffer[3];
                                         int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
                                         totalSize = num * 10 + 5;
-                                        Log.e("sky", "需要数据量:" + totalSize);
+//                                        Log.e("sky", "需要数据量:" + totalSize);
                                     } else {
                                         totalSize = 7;
                                     }
@@ -233,9 +233,14 @@ public class ControlManager implements Data485Subject {
                     GetWayController.getInstance().findAllAirConditionOnlineState();
                     Thread.sleep(100);
                     GetWayController.getInstance().getAllAirConditionParamete();
-//                    Thread.sleep(500);
-//                    GetWayController.getInstance().getAllAirConditionParamete();
-//                    Thread.sleep(300);
+                    Thread.sleep(100);
+                    GetWayController.getInstance().findAllFreshAirOnlineState();
+                    Thread.sleep(100);
+                    GetWayController.getInstance().getAllFreshAirParamete();
+                    Thread.sleep(100);
+                    GetWayController.getInstance().findAllFloorHotOnlineState();
+                    Thread.sleep(100);
+                    GetWayController.getInstance().getAllFloorHotParamete();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
