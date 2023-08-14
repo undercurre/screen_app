@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.midea.light.RxBus;
+import com.midea.light.bean.OnlineState485Bean;
 import com.midea.light.bean.Update485DeviceBean;
 import com.midea.light.device.explore.controller.control485.ControlManager;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Observer;
@@ -11,8 +12,10 @@ import com.midea.light.device.explore.controller.control485.deviceModel.FloorHot
 import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent;
 import com.midea.light.device.explore.controller.control485.util.SumUtil;
 import com.midea.light.gateway.GateWayUtils;
+import com.midea.light.utils.GsonUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.midea.light.device.explore.controller.control485.agreement.FloorHotAgr.ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE;
@@ -64,39 +67,131 @@ public class FloorHotController implements Data485Observer {
    @Override
    public void getMessage(String data) {
       String[] arrayData=data.split(" ");
+      //判断是否离在线,同时判断是否有新增和删减
       if(arrayData[1].equals(FLOOR_HOT_QUERY_CODE.data)&&arrayData[2].equals(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data)){
-         int num = Integer.parseInt(arrayData[3], 16);//num为拿到地暖数量
-         FloorHotList.clear();
+         int num = Integer.parseInt(arrayData[3], 16);//num为拿到新风数量
+         TempFloorHotList.clear();
+         /**
+          * 1,找出所有拉取到的设备
+          * 2,通过拉取到的设备地址判断是否存在这个设备
+          * 3,判断地址是新的就要新增这个设备
+          * 4,判断地址在所有拉取到的设备列表里面没有就列出需要删除的地址
+          * 5,通过列出的需要删除的地址,删除对应地址设备
+          * 6,判断在线状态是否有变更,如果有变更就要通知出去
+          * */
+
+         List<FloorHotModel>FindList=new ArrayList<>();//找到的设备列表
+         List<String>FindAddressList=new ArrayList<>();//找到的设备地址列表
+         List<String>HasAddressList=new ArrayList<>();//已经有的设备地址列表
+         List<String>NeedAddressList=new ArrayList<>();//需要添加的设备地址列表
+         List<String>NeedDeleteAddressList=new ArrayList<>();//需要删除的设备地址列表
+         ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+
+         //保存拉取到的设备以及设备地址到列表
          for (int i = 0; i <num ; i++) {
-            FloorHotModel device=new FloorHotModel();
-            device.setOutSideAddress(arrayData[4+(i*3)]);
-            device.setInSideAddress(arrayData[5+(i*3)]);
+            FloorHotModel FloorHot=new FloorHotModel();
+            FloorHot.setOutSideAddress(arrayData[4+(i*3)]);
+            FloorHot.setInSideAddress(arrayData[5+(i*3)]);
             if(arrayData[6+(i*3)].equals(FLOOR_HOT_ON_LINE.data)){
-               device.setOnlineState(FLOOR_HOT_ON_LINE.data);
+               FloorHot.setOnlineState(FLOOR_HOT_ON_LINE.data);
             }else{
-               device.setOnlineState(FLOOR_HOT_OFF_LINE.data);
+               FloorHot.setOnlineState(FLOOR_HOT_OFF_LINE.data);
             }
-            FloorHotList.add(device);
+            FindAddressList.add(FloorHot.getOutSideAddress()+FloorHot.getInSideAddress());
+            FindList.add(FloorHot);
          }
+
+         //保存已经有的设备地址到列表
+         for (int j = 0; j <FloorHotList.size() ; j++) {
+            String address=FloorHotList.get(j).getOutSideAddress()+FloorHotList.get(j).getInSideAddress();
+            HasAddressList.add(address);
+         }
+
+         //保存需要新增的设备地址到列表
+         for (int i = 0; i <FindAddressList.size() ; i++) {
+            if(!HasAddressList.contains(FindAddressList.get(i))){
+               NeedAddressList.add(FindAddressList.get(i));
+            }
+         }
+
+         //保存需要删除设备地址到列表
+         for (int i = 0; i <HasAddressList.size() ; i++) {
+            if(!FindAddressList.contains(HasAddressList.get(i))){
+               NeedDeleteAddressList.add(HasAddressList.get(i));
+            }
+         }
+
+         //通过需要新增地址列表,从拉取到的设备中添加需要添加的设备
+         for (int i = 0; i <FindList.size() ; i++) {
+            for (int j = 0; j <NeedAddressList.size() ; j++) {
+               String address=FindList.get(i).getOutSideAddress()+FindList.get(i).getInSideAddress();
+               if(NeedAddressList.get(j).equals(address)){
+                  FloorHotList.add(FindList.get(i));
+               }
+            }
+         }
+
+         //通过需要删除的地址列表,从已经保存的设备列表中删除需要删除的设备
+         for (int i = 0; i <NeedDeleteAddressList.size() ; i++) {
+            deleteDevice(FloorHotList,NeedDeleteAddressList.get(i));
+         }
+
+         //判断离在线状态是否有变化
+         for (int i = 0; i <FindList.size() ; i++) {
+            for (int j = 0; j <FloorHotList.size() ; j++) {
+               String findAddress=FindList.get(i).getOutSideAddress()+FindList.get(i).getInSideAddress();
+               String address=FloorHotList.get(j).getOutSideAddress()+FloorHotList.get(j).getInSideAddress();
+               if(address.equals(findAddress)){
+                  if(!FloorHotList.get(j).getOnlineState().equals(FindList.get(i).getOnlineState())){
+                     //在线状态不一致,就通知出去
+                     OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                     if(FindList.get(i).getOnlineState().equals(FLOOR_HOT_ON_LINE.data)){
+                        state.setStatus(1);
+                     }else{
+                        state.setStatus(0);
+                     }
+                     state.setAddr(address);
+                     state.setModelId("zhonghong.heat.001");
+                     diffStatelsit.add(state);
+                  }
+               }
+            }
+         }
+         if(diffStatelsit.size()>0){
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+         }
+         //将在线状态同步过来
+         for (int i = 0; i <FindList.size() ; i++) {
+            for (int j = 0; j <FloorHotList.size() ; j++) {
+               String findAddress=FindList.get(i).getOutSideAddress()+FindList.get(i).getInSideAddress();
+               String address=FloorHotList.get(j).getOutSideAddress()+FloorHotList.get(j).getInSideAddress();
+               if(address.equals(findAddress)){
+                  FloorHotList.get(j).setOnlineState(FindList.get(i).getOnlineState());
+               }
+            }
+         }
+         List<FloorHotModel> mFloorHotList = GsonUtils.fromJsonList((new Gson().toJson(FloorHotList)), FloorHotModel.class);
+         TempFloorHotList.addAll(mFloorHotList);
+         //判断属性变化
       }else if(arrayData[1].equals(FLOOR_HOT_QUERY_CODE.data)&&arrayData[2].equals(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data)){
          int num = Integer.parseInt(arrayData[3], 16);//num为拿到地暖数量
          for (int i = 0; i <num ; i++) {
-            for (int j = 0; j <FloorHotList.size() ; j++) {
+            for (int j = 0; j <TempFloorHotList.size() ; j++) {
                String querAddr=arrayData[4+(i*10)]+arrayData[5+(i*10)];
-               String deviceAddr=FloorHotList.get(j).getOutSideAddress()+FloorHotList.get(j).getInSideAddress();
+               String deviceAddr=TempFloorHotList.get(j).getOutSideAddress()+TempFloorHotList.get(j).getInSideAddress();
                if(querAddr.equals(deviceAddr)){
                   if(arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
-                     FloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
+                     TempFloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
                   }else{
-                     FloorHotList.get(j).setOnOff(FLOOR_HOT_CLOSE.data);
+                     TempFloorHotList.get(j).setOnOff(FLOOR_HOT_CLOSE.data);
                   }
-                  FloorHotList.get(j).setTemperature(arrayData[7+(i*10)]);
-                  FloorHotList.get(j).setCurrTemperature(arrayData[10+(i*10)]);
-                  FloorHotList.get(j).setErrorCode(arrayData[11+(i*10)]);
+                  TempFloorHotList.get(j).setTemperature(arrayData[7+(i*10)]);
+                  TempFloorHotList.get(j).setCurrTemperature(arrayData[10+(i*10)]);
+                  TempFloorHotList.get(j).setErrorCode(arrayData[11+(i*10)]);
                   if(arrayData[12+(i*10)].equals(FLOOR_HOT_FANG_DONG_OPEN.data)){
-                     FloorHotList.get(j).setFrostProtection(FLOOR_HOT_FANG_DONG_OPEN.data);
+                     TempFloorHotList.get(j).setFrostProtection(FLOOR_HOT_FANG_DONG_OPEN.data);
                   }else{
-                     FloorHotList.get(j).setFrostProtection(FLOOR_HOT_FANG_DONG_CLOSE.data);
+                     TempFloorHotList.get(j).setFrostProtection(FLOOR_HOT_FANG_DONG_CLOSE.data);
                   }
                }
             }
@@ -138,9 +233,22 @@ public class FloorHotController implements Data485Observer {
                      Attribute.setEvent(event);
                      deviceList.add(Attribute);
                      GateWayUtils.update485Device(deviceList);
+
                   }
                }
             }
+         }
+
+      }
+   }
+
+   private void deleteDevice(List<FloorHotModel>FreshAirList,String deleteAddress){
+      Iterator<FloorHotModel> iterator = FreshAirList.iterator();
+      while (iterator.hasNext()) {
+         FloorHotModel item = iterator.next();
+         String address=item.getOutSideAddress()+item.getInSideAddress();
+         if (address.equals(deleteAddress)) {
+            iterator.remove();
          }
       }
    }

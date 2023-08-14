@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/card/main/big_device_air.dart';
 import 'package:screen_app/widgets/card/main/big_device_curtain.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
@@ -7,11 +8,23 @@ import 'package:screen_app/widgets/card/main/big_device_panel.dart';
 import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
+import '../../../widgets/card/main/big_485Air_device.dart';
+import '../../../widgets/card/main/big_485CAC_device.dart';
+import '../../../widgets/card/main/big_485Floor_device.dart';
+import '../../../widgets/card/main/middle_485Air_device.dart';
+import '../../../widgets/card/main/middle_485CAC_device.dart';
+import '../../../widgets/card/main/middle_485Floor_device.dart';
+import '../../../widgets/card/main/small_485Air_device.dart';
+import '../../../widgets/card/main/small_485CAC_device.dart';
+import '../../../widgets/card/main/small_485Floor_device.dart';
 import '../../../widgets/card/main/small_device.dart';
 import '../../../widgets/card/main/small_panel.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/card/other/clock.dart';
 import '../../../widgets/card/other/weather.dart';
+import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
+import '../../plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
@@ -118,7 +131,13 @@ enum DeviceEntityTypeInP4 {
   Zigbee_82,
   Zigbee_83,
   Zigbee_23,
-  Zigbee_22
+  Zigbee_22,
+  // 485空调
+  Zigbee_3017,
+  // 485新风
+  Zigbee_3018,
+  // 485地暖
+  Zigbee_3019,
 }
 
 class DataInputCard {
@@ -246,6 +265,204 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           min: 0,
           max: 32,
         ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3017: {
+    CardType.Small: (params) => Small485CACDeviceCardWidget(
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline,
+          isFault: false,
+          isNative: false,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+    CardType.Middle: (params) => Middle485CACDeviceCardWidget(
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+    CardType.Big: (params) => Big485CACDeviceAirCardWidget(
+          name: params.name,
+          onOff: true,
+          roomName: params.roomName,
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          temperature: 26,
+          min: 16,
+          max: 30,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3018: {
+    CardType.Small: (params) => Small485AirDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Middle: (params) => Middle485AirDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Big: (params) => Big485AirDeviceAirCardWidget(
+      name: params.name,
+      onOff: true,
+      roomName: params.roomName,
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3019: {
+    CardType.Small: (params) => Small485FloorDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline,
+      isFault: false,
+      isNative: false,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Middle: (params) => Middle485FloorDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
+      name: params.name,
+      onOff: true,
+      roomName: params.roomName,
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      temperature: 30,
+      min: 5,
+      max: 90,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
   },
   DeviceEntityTypeInP4.Device0x13: {
     CardType.Small: (params) => SmallDeviceCardWidget(
@@ -407,41 +624,41 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1364: {
     CardType.Small: (params) => SmallDeviceCardWidget(
-      name: '窗帘控制器',
-      icon: const Image(
-        image: AssetImage('assets/newUI/device/0x21_1364.png'),
-      ),
-      onOff: true,
-      roomName: '卧室',
-      characteristic: '',
-      onTap: () => {},
-      online: true,
-      isFault: false,
-      isNative: false,
-      adapter: null,
-    ),
+          name: '窗帘控制器',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          ),
+          onOff: true,
+          roomName: '卧室',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+          adapter: null,
+        ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
-      name: '窗帘控制器',
-      icon: const Image(
-        image: AssetImage('assets/newUI/device/0x21_1364.png'),
-      ),
-      onOff: true,
-      roomName: '',
-      characteristic: '',
-      onTap: () => {},
-      online: true,
-      isFault: false,
-      isNative: false,
-    ),
+          name: '窗帘控制器',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          ),
+          onOff: true,
+          roomName: '',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+        ),
     CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-      name: '窗帘控制器',
-      onOff: true,
-      roomName: '卧室',
-      online: true,
-      isFault: false,
-      isNative: false,
-      percent: 50,
-    ),
+          name: '窗帘控制器',
+          onOff: true,
+          roomName: '卧室',
+          online: true,
+          isFault: false,
+          isNative: false,
+          percent: 50,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_55: {
     CardType.Small: (params) => SmallDeviceCardWidget(
@@ -1181,434 +1398,434 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1341: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1104: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1085: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1103: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_73: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_74: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_43: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_36: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_19: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1114: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1113: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_82: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_83: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_23: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1362: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1349: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1303: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1342: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1363: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1350: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1106: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1087: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_1105: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_75: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_76: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_37: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_16: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
 };

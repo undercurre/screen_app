@@ -130,7 +130,9 @@ public class MainActivity extends FlutterActivity {
                     new Thread(){
                         public void run(){
                             if(mGateWayDistributionEvent.getState()==60){
-                                Log.e("sky","接收到网关配网状态,设备数量空调:"+AirConditionController.getInstance().AirConditionList.size());
+                                Log.e("sky","接收到网关配网状态,空调设备数量:"+AirConditionController.getInstance().AirConditionList.size());
+                                Log.e("sky","接收到网关配网状态,新风设备数量:"+FreshAirController.getInstance().FreshAirList.size());
+                                Log.e("sky","接收到网关配网状态,地暖设备数量:"+FloorHotController.getInstance().FloorHotList.size());
                                 ArrayList<Add485DeviceBean.PLC.AddDev> AddDevList=new ArrayList<>();
                                 for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
                                     Add485DeviceBean.PLC.AddDev AddDev=new Add485DeviceBean.PLC.AddDev();
@@ -161,7 +163,7 @@ public class MainActivity extends FlutterActivity {
         //云端下发控制指令
         RxBus.getInstance().toObservableOnMain(this, PLCControlEvent.class)
                 .subscribe(PLCControlEvent -> {
-                    Log.e("sky","接收到下发控制请求");
+                    Log.e("sky","接收到下发控制请求"+new Gson().toJson(PLCControlEvent));
                     if(PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.cac")){
                        for (int i = 0; i <AirConditionController.getInstance().AirConditionList.size() ; i++) {
                            String deviceAddr= AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
