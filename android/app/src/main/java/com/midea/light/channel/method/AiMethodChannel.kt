@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.midea.light.MainApplication
 import com.midea.light.RxBus
-import com.midea.light.ai.AiManager
 import com.midea.light.ai.music.MusicManager
 import com.midea.light.ai.music.MusicPlayEvent
+import com.midea.light.bean.GatewayPlatform
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
 import com.midea.light.utils.CollectionUtil
@@ -56,42 +56,89 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
         LogUtil.tag(TAG).msg("flutter -> method: ${call.method}")
         when (call.method) {
             "InitialAi" -> {
-                Log.e("sky","初始化ai参数:"+call.arguments.toString())
-                MainApplication.mMainActivity.initialAi(call.argument<String?>("deviceSn").toString(),call.argument<String?>("deviceId").toString(),call.argument<String?>("macAddress").toString().replace
-                    (":",""), call.argument<Boolean?>("aiEnable") == true
-                )
+                val plarform = call.argument<Int?>("platform")
+                if(MainApplication.gatewayPlatform.rawPlatform() != plarform) {
+                    Log.e("sky", "初始化AI语音失败，flutter运行平台与原生平台不一致")
+                } else {
+                    Log.e("sky","初始化ai参数:"+call.arguments.toString())
+                    if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                        MainApplication.mMainActivity.initialMeiJuAi(
+                            call.argument<String?>("deviceSn").toString(),
+                            call.argument<String?>("deviceId").toString(),
+                            call.argument<String?>("macAddress").toString().replace
+                                (":",""),
+                            call.argument<Boolean?>("aiEnable") == true
+                        )
+                    } else if(MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                        MainApplication.mMainActivity.initialHomluxAI(
+                            call.argument<String?>("uid").toString(),
+                            call.argument<String?>("token").toString(),
+                            call.argument<Boolean?>("aiEnable") == true,
+                            call.argument<String?>("houseId").toString(),
+                            call.argument<String?>("aiClientId").toString()
+                        )
+                    }
+                }
+            }
+            "StopAi" -> {
+                Log.e("sky","停止运行ai")
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    com.midea.light.ai.AiManager.getInstance().stopAi()
+                } else if(MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    com.midea.homlux.ai.AiManager.getInstance().stopAi()
+                }
             }
             "WakeUpAi" -> {
-                AiManager.getInstance().wakeupAi()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    com.midea.light.ai.AiManager.getInstance().wakeupAi()
+                } else if(MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    com.midea.homlux.ai.AiManager.getInstance().wakeupAi()
+                }
             }
             "EnableAi" -> {
-                AiManager.getInstance().setAiEnable(call.arguments as Boolean)
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    com.midea.light.ai.AiManager.getInstance().setAiEnable(call.arguments as Boolean)
+                } else if(MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    com.midea.homlux.ai.AiManager.getInstance().setAiEnable(call.arguments as Boolean)
+                }
             }
             "GetAiEnable" -> {
 
             }
             "AiMusicStart" -> {
-                if (CollectionUtil.isEmpty(MusicManager.getInstance().getPlayList())) {
-                    AiManager.getInstance().getMusicList()
-                    //需要延迟一段时间后返回播放信息
-                } else {
-                    MusicManager.getInstance().startMusic()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    if (CollectionUtil.isEmpty(MusicManager.getInstance().getPlayList())) {
+                        com.midea.light.ai.AiManager.getInstance().getMusicList()
+                        //需要延迟一段时间后返回播放信息
+                    } else {
+                        MusicManager.getInstance().startMusic()
+                    }
                 }
             }
             "AiMusicPause" -> {
-                MusicManager.getInstance().pauseMusic()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    MusicManager.getInstance().pauseMusic()
+                }
             }
             "AiMusicPrevious" -> {
-                MusicManager.getInstance().prevMusic()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    MusicManager.getInstance().prevMusic()
+                }
             }
             "AiMusicNext" -> {
-                MusicManager.getInstance().nextMusic()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    MusicManager.getInstance().nextMusic()
+                }
             }
             "AiMusicIsPlaying" -> {
-                result.success(MusicManager.getInstance().isPaying())
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    result.success(MusicManager.getInstance().isPaying())
+                }
             }
             "AiMusicInforGet" -> {
-                flashMusicInfor()
+                if(MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    flashMusicInfor()
+                }
             }
 
             else -> {
