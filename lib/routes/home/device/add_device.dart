@@ -111,6 +111,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
       await Future.wait([deviceFuture, sceneFuture]);
       deviceRes = await deviceFuture;
       sceneRes = await sceneFuture;
+      deviceCache = deviceCache.where((e) =>
+      getDeviceEntityType(e.type, e.modelNumber) !=
+          DeviceEntityTypeInP4.Default)
+          .toList();
       deviceRes = deviceRes.where((e) =>
       getDeviceEntityType(e.type, e.modelNumber) !=
           DeviceEntityTypeInP4.Default)
@@ -125,6 +129,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
     List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
     List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
+
+    Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
 
     setState(() {
       devices.removeWhere((element) => compareDevice[1].contains(element));

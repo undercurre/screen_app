@@ -18,7 +18,6 @@ class DeviceInfoListModel extends ChangeNotifier {
   List<HomluxDeviceEntity> deviceListHomlux = [];
 
   DeviceListModel() {
-    logger.i('设备model加载');
     getDeviceList();
   }
 
