@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
@@ -25,6 +27,25 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
 
 class _MiddleDevicePanelCardWidgetState
     extends State<MiddleDevicePanelCardWidget> {
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
+
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
+      }
+
+      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+        Log.i('触发更新');
+        await widget.adapter.fetchData();
+        _isFetching = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -127,7 +148,7 @@ class _MiddleDevicePanelCardWidgetState
             child: GestureDetector(
               onTap: () async {
                 await widget.adapter.fetchOrderPowerMeiju(1);
-                await widget.adapter.fetchData();
+                _throttledFetchData();
               },
               child: Container(
                 alignment: Alignment.center,
@@ -158,7 +179,7 @@ class _MiddleDevicePanelCardWidgetState
             child: GestureDetector(
               onTap: () async {
                 await widget.adapter.fetchOrderPowerMeiju(2);
-                await widget.adapter.fetchData();
+                _throttledFetchData();
               },
               child: Container(
                 alignment: Alignment.center,

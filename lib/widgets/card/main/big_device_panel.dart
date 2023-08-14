@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/routes/plugins/0x17/mode_list.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
@@ -26,6 +28,25 @@ class BigDevicePanelCardWidget extends StatefulWidget {
 
 class _BigDevicePanelCardWidgetState
     extends State<BigDevicePanelCardWidget> {
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
+
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
+      }
+
+      _debounceTimer = Timer(Duration(milliseconds: 1000), () async {
+        Log.i('触发更新');
+        await widget.adapter.fetchData();
+        _isFetching = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -153,7 +174,7 @@ class _BigDevicePanelCardWidgetState
       child: GestureDetector(
         onTap: () async {
           await widget.adapter.fetchOrderPowerMeiju(index + 1);
-          await widget.adapter.fetchData();
+          _throttledFetchData();
         },
         child: Stack(
           alignment: Alignment.center,
