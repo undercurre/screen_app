@@ -7,8 +7,9 @@ import '../models/homlux_dui_token_entity.dart';
 class HomluxDuiTokenApi {
 
   /// 思必驰语音token接口
-  static Future<HomluxResponseEntity<HomluxDuiTokenEntity>> queryDuiToken(String houseId,String clientId,
+  static Future<HomluxResponseEntity<HomluxDuiTokenEntity>> queryDuiToken(String houseId, String clientId,
       {CancelToken? cancelToken}) {
+
     return HomluxApi.request<HomluxDuiTokenEntity>(
         '/v1/thirdparty/dui/get/oauth2/access_token',
         cancelToken: cancelToken,
@@ -16,7 +17,6 @@ class HomluxDuiTokenApi {
         data: {
           'client_id': clientId,
           'houseId': houseId
-
         });
   }
 

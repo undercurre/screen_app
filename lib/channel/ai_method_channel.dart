@@ -78,6 +78,11 @@ class AiMethodChannel {
     return result;
   }
 
+  Future<String> stopAi() async {
+    String result = await _AiMethodChannel.invokeMethod('StopAi');
+    return result;
+  }
+
   Future<String> musicNext() async {
     String result =  await _AiMethodChannel.invokeMethod('AiMusicNext');
     return result;

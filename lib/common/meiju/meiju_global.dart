@@ -102,6 +102,13 @@ class MeiJuGlobal {
     homeInfo = null;
     roomInfo = null;
     gatewayApplianceCode = null;
+    LocalStorage.removeItem(MEIJU_FAMILY_INFO);
+    LocalStorage.removeItem(MEIJU_ROOM_INFO);
+    LocalStorage.removeItem(MEIJU_USER_INFO);
+    LocalStorage.removeItem(MEIJU_TOKEN);
+    LocalStorage.removeItem(MEIJU_AI_TOKEN);
+    LocalStorage.removeItem(MEIJU_GATEWAY_DEVICE_ID);
+    LocalStorage.removeItem(MEIJU_GATEWAY_SN);
   }
 
 }

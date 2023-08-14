@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.google.gson.Gson;
-import com.midea.light.ai.AiManager;
+import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.bean.Add485DeviceBean;
@@ -48,6 +48,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister;
@@ -304,36 +306,54 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {
+    public void initialMeiJuAi(String sn, String deviceId, String mac, boolean aiEnable) {
         new Thread(() -> {
             //复制assets/xiaomei文件夹中的文件到SD卡
             FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
-            runOnUiThread(() -> startAiService(sn, deviceId, mac, aiEnable));
+            runOnUiThread(() -> startMeiJuAiService(sn, deviceId, mac, aiEnable));
         }).start();
     }
 
-    private void startAiService(String sn, String deviceId, String mac, boolean aiEnable) {
-        AiManager.getInstance().startAiServer(this, isBind -> {
+    private void startMeiJuAiService(String sn, String deviceId, String mac, boolean aiEnable) {
+        com.midea.light.ai.AiManager.getInstance().startAiServer(this, isBind -> {
             if (isBind) {
                 setDeviceInfor(sn, deviceId, mac);
             }
         }, isInitial -> {
             if (isInitial) {
-                AiManager.getInstance().setAiEnable(aiEnable);
+                com.midea.light.ai.AiManager.getInstance().setAiEnable(aiEnable);
             } else {
                 runOnUiThread(() -> DialogUtil.showToast("语音初始化失败,请重新启动智慧屏"));
             }
         });
     }
 
+    public void initialHomluxAI(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
+//        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, new HomluxAiApi.IHomluxQueryDuiTokenCallback() {
+//            @Override
+//            public void result(@Nullable HomluxAiApi.HomluxDuiTokenEntity entity) {
+//                if(entity != null) {
+//                    com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.accessToken, entity.refreshToken, entity.accessTokenExpireTime, aiEnable, isWakUp -> {
+//                        LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
+//                        runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
+//                    }, Voice -> {
+//                        runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
+//                        LogUtil.i("Homlux语音大小 " + Voice);
+//                    });
+//                }
+//            }
+//        });
+    }
+
+
     private void setDeviceInfor(String sn, String deviceId, String mac) {
-        AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
+        com.midea.light.ai.AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
         MusicManager.getInstance().startMusicServer(this);
-        AiManager.getInstance().addFlashMusicListCallBack(list -> {
+        com.midea.light.ai.AiManager.getInstance().addFlashMusicListCallBack(list -> {
             isFlashMusic = true;
             MusicManager.getInstance().setPlayList(list);
         });
-        AiManager.getInstance().addWakUpStateCallBack(b -> {
+        com.midea.light.ai.AiManager.getInstance().addWakUpStateCallBack(b -> {
             if (b) {
                 isFlashMusic = false;
                 if (!isScreenOn()) {
@@ -361,7 +381,7 @@ public class MainActivity extends FlutterActivity {
             }
 
         });
-        AiManager.getInstance().addMusicPlayControlBack(Control -> {
+        com.midea.light.ai.AiManager.getInstance().addMusicPlayControlBack(Control -> {
             if (MusicManager.getInstance().getPlayMusicInfor() == null) {
                 return;
             }
@@ -369,19 +389,19 @@ public class MainActivity extends FlutterActivity {
                 case "RESUME":
                     isMusicPlay = true;
                     MusicManager.getInstance().startMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "PAUSE":
                     isMusicPlay = false;
                     MusicManager.getInstance().pauseMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "pause");
                     break;
                 case "STOP":
                     isMusicPlay = false;
                     MusicManager.getInstance().stopMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "stop");
                     break;
                 case "prev":
@@ -391,7 +411,7 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
                     MusicManager.getInstance().prevMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "next":
@@ -401,14 +421,14 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
                     MusicManager.getInstance().nextMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(),
                             MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
             }
         });
-        AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
-        AiManager.getInstance().addControlDeviceErrorCallBack(() -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiControlDeviceError",
+        com.midea.light.ai.AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
+        com.midea.light.ai.AiManager.getInstance().addControlDeviceErrorCallBack(() -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiControlDeviceError",
                 true)));
     }
 

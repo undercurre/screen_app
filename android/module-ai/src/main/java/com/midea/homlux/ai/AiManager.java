@@ -59,7 +59,8 @@ public class AiManager {
         return Instance;
     }
 
-    public void startDuiAi(Activity context, String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
+    public void startDuiAi(Activity context, String uid, String token, String refreshToken, int ExpiresTime,
+                           boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
         this.context = context;
         mWakUpStateCallBack = mCallBack;
         mAISetVoiceCallBack = VoiceCallBack;

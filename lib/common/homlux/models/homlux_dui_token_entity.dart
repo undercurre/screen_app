@@ -2,7 +2,6 @@ import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/common/homlux/models/homlux_dui_token_entity.g.dart';
 import 'dart:convert';
 
-@JsonSerializable()
 class HomluxDuiTokenEntity {
   int? refreshTokenExpireTime;
   int? accessTokenExpireTime;

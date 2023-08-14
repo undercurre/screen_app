@@ -4,6 +4,7 @@ import 'package:screen_app/common/adapter/select_room_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 
 import '../../channel/index.dart';
@@ -26,6 +27,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
       MeiJuHomeInfoEntity familyEntity = selectFamily.meijuData as MeiJuHomeInfoEntity;
       _meijuCheck(familyEntity.homegroupId).then((value) {
         Log.i('是否绑定${value.value1} 设备ID${value.value2}');
+        if(value.value1) {
+          MeiJuGlobal.gatewayApplianceCode = value.value2;
+          Log.file('检查设备已经绑定, 设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+        }
         result.call(value.value1, value.value2);
       }, onError: (error) {
         error.call();
@@ -35,6 +40,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
           selectFamily.homluxData as HomluxFamilyEntity;
       _homluxCheck(familyEntity.houseId).then((value) {
         Log.i('是否绑定${value.value1} 设备ID${value.value2}');
+        if(value.value1) {
+          HomluxGlobal.gatewayApplianceCode = value.value2;
+          Log.file('检查设备已经绑定, 设备ID为${HomluxGlobal.gatewayApplianceCode}');
+        }
         result.call(value.value1, value.value2);
       }, onError: (error) {
         Log.i('查询绑定失败');
@@ -58,6 +67,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
           roomId: roomEntity.roomId,
           applianceType: '0x16',
           modelNumber: 'MSGWZ010');
+      if(res.isSuccess) {
+        MeiJuGlobal.gatewayApplianceCode = res.data['applianceCode'];
+        Log.file('绑定网关成功, 设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+      }
       return res.isSuccess;
     } else if (platform == GatewayPlatform.HOMLUX) {
       HomluxFamilyEntity familyEntity =
@@ -68,6 +81,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
       String homeId = familyEntity.houseId;
       String roomId = roomEntity.roomId;
       var res = await HomluxUserApi.bindDevice('智慧屏', homeId, roomId, sn!, deviceType);
+      if(res.isSuccess) {
+        HomluxGlobal.gatewayApplianceCode = res.result?.deviceId;
+        Log.file('绑定网关成功, 设备ID为${HomluxGlobal.gatewayApplianceCode}');
+      }
       return res.isSuccess && res.result?.isBind == true;
     } else {
       var exception = Exception('No No No 错误平台');

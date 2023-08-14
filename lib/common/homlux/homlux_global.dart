@@ -9,6 +9,7 @@ import 'models/homlux_dui_token_entity.dart';
 import 'models/homlux_family_entity.dart';
 import 'models/homlux_qr_code_auth_entity.dart';
 import 'models/homlux_room_list_entity.dart';
+import 'models/homlux_user_info_entity.dart';
 
 class HomluxGlobal {
   /// 是否为release版本
@@ -32,12 +33,16 @@ class HomluxGlobal {
   /// 网关SN
   static const HOMLUX_GATEWAY_SN = 'homlux_gateway_sn';
 
+  /// 登录用户信息
+  static const HOMLUX_USER_INFO = 'homlux_user_info';
+
   static HomluxFamilyEntity? _homluxHomeInfo;
   static HomluxRoomInfo? _homluxRoomInfo;
   static HomluxQrCodeAuthEntity? _homluxQrCodeAuthEntity;
   static HomluxDuiTokenEntity? _aiToken;
   static String? _gatewaySn;  // 屏下网关的sn
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
+  static HomluxUserInfoEntity? _homluxUserInfo;
 
   HomluxGlobal._();
 
@@ -48,10 +53,19 @@ class HomluxGlobal {
     _homluxHomeInfo = await _$parseToJsonByCache(HOMLUX_FAMILY_INFO);
     _homluxRoomInfo = await _$parseToJsonByCache(HOMLUX_ROOM_INFO);
     _homluxQrCodeAuthEntity = await _$parseToJsonByCache(HOMLUX_TOKEN);
+    _homluxUserInfo = await _$parseToJsonByCache(HOMLUX_USER_INFO);
     _aiToken = await _$parseToJsonByCache(HOMLUX_AI_TOKEN);
     _gatewaySn = await LocalStorage.getItem(HOMLUX_GATEWAY_SN);
     _gatewayApplianceCode = await LocalStorage.getItem(HOMLUX_GATEWAY_DEVICE_ID);
   }
+
+  static HomluxUserInfoEntity? get homluxUserInfo => _homluxUserInfo;
+
+  static set homluxUserInfo (HomluxUserInfoEntity? userInfoEntity) {
+    _homluxUserInfo = userInfoEntity;
+    LocalStorage.setItem(HOMLUX_USER_INFO, _homluxUserInfo != null ? jsonEncode(_homluxUserInfo!.toJson()) : '');
+  }
+
 
 
   static String? get gatewayApplianceCode =>  _gatewayApplianceCode;
@@ -123,7 +137,15 @@ class HomluxGlobal {
     homluxHomeInfo = null;
     homluxRoomInfo = null;
     homluxQrCodeAuthEntity = null;
+    homluxUserInfo = null;
     aiToken = null;
+    gatewayApplianceCode = null;
+    LocalStorage.removeItem(HOMLUX_FAMILY_INFO);
+    LocalStorage.removeItem(HOMLUX_ROOM_INFO);
+    LocalStorage.removeItem(HOMLUX_TOKEN);
+    LocalStorage.removeItem(HOMLUX_AI_TOKEN);
+    LocalStorage.removeItem(HOMLUX_GATEWAY_DEVICE_ID);
+    LocalStorage.removeItem(HOMLUX_GATEWAY_SN);
   }
 
 }

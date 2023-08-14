@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
+import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
+import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
@@ -12,9 +16,8 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/logcat_helper.dart';
+import '../../common/meiju/models/meiju_delete_device_result_entity.dart';
 import '../../common/setting.dart';
-import '../../models/delete_device_result_entity.dart';
-import '../../models/midea_response_entity.dart';
 import '../../widgets/mz_setting_item.dart';
 
 // 关于页的数据提供者
@@ -112,21 +115,39 @@ class AboutSettingProvider with ChangeNotifier {
       return false;
     }
 
-    MideaResponseEntity<DeleteDeviceResultEntity>? result;
-
-    try {
-      result = await DeviceApi.deleteDevices(
-          [Global.profile.applianceCode ?? ''],
-          Global.profile.homeInfo?.homegroupId ?? '');
-      if (result.isSuccess) {
-        return true;
+    if(System.inHomluxPlatform()) {
+      HomluxResponseEntity? result;
+      try {
+        result = await HomluxUserApi.deleteDevices([
+          {
+            'deviceId': await System.gatewayApplianceCode ?? '',
+            'deviceType': '1'
+          }
+        ]);
+      } catch (e) {
+        Log.e("删除设备错误", e);
       }
-    } catch (e) {
-      Log.e("删除设备错误", e);
-    }
+      if ((result?.isSuccess != true) && tryCount > 0) {
+        return deleteGateway(--tryCount);
+      }
+    } else if(System.inMeiJuPlatform()) {
+      MeiJuResponseEntity<MeiJuDeleteDeviceResultEntity>? result;
 
-    if ((result?.isSuccess != true) && tryCount > 0) {
-      return deleteGateway(--tryCount);
+      try {
+        result = await MeiJuDeviceApi.deleteDevices(
+            [await System.gatewayApplianceCode ?? ''],
+            System.familyInfo?.familyId ?? '');
+        if (result.isSuccess) {
+          return true;
+        }
+      } catch (e) {
+        Log.e("删除设备错误", e);
+      }
+
+      if ((result?.isSuccess != true) && tryCount > 0) {
+        return deleteGateway(--tryCount);
+      }
+
     }
 
     return false;
@@ -135,78 +156,6 @@ class AboutSettingProvider with ChangeNotifier {
 
 class AboutSettingPage extends StatelessWidget {
   const AboutSettingPage({super.key});
-
-  void showInstallFail(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '安装失败',
-        titleSize: 28,
-        maxWidth: 432,
-        btns: ['取消', '确定'],
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
-
-  void showUpdateGoing(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '正在安装更新',
-        titleSize: 28,
-        maxWidth: 432,
-        contentSlot: const Column(
-          children: [
-            Text('更新中其他功能不可使用，期间会重启，请勿断电',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 24,
-                    color: Color.fromRGBO(255, 255, 255, 0.60),
-                    fontFamily: 'MideaType',
-                    fontWeight: FontWeight.w400,
-                    height: 1.2)),
-            MzSlider(width: 300, height: 4, value: 60),
-            Text(
-              '60%',
-              style: TextStyle(fontSize: 60, color: Colors.white),
-            )
-          ],
-        ),
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
-
-  void showUpdateVersion(
-      BuildContext context, AboutSettingProvider provider) async {
-    MzDialog(
-        title: '有新版本可用',
-        titleSize: 28,
-        maxWidth: 432,
-        contentSlot: const Text('此操作将使网关子设备暂时离线，是否确认重启？',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 24,
-                color: Color.fromRGBO(255, 255, 255, 0.60),
-                fontFamily: 'MideaType',
-                fontWeight: FontWeight.w400,
-                height: 1.2)),
-        btns: ['取消', '更新'],
-        onPressed: (_, position, context) {
-          Navigator.pop(context);
-          if (position == 1) {
-            // 此处执行清除数据的业务逻辑
-            provider.reboot();
-          }
-        }).show(context);
-  }
 
   void showRebootDialog(
       BuildContext context, AboutSettingProvider provider) async {
@@ -259,6 +208,70 @@ class AboutSettingPage extends StatelessWidget {
                 TipsUtils.hideLoading();
               }
             });
+          }
+        }).show(context);
+  }
+
+  void showLogoutDialog(BuildContext context) {
+    MzDialog(
+        contentSlot: const Text(
+            '此操作将退出到扫码登录界面，是否继续?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'MideaType',
+                fontWeight: FontWeight.w100,
+                height: 1.2)),
+        title: "登出",
+        maxWidth: 400,
+        btns: ['取消', '确定'],
+        contentPadding:
+        const EdgeInsets.symmetric(
+            vertical: 30, horizontal: 50),
+        onPressed: (_, index, context) {
+          if (index == 1) {
+            Push.dispose();
+            System.loginOut();
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                "Login",
+                    (route) =>
+                route.settings.name == "/");
+          } else {
+            Navigator.pop(context);
+          }
+        }).show(context);
+  }
+
+  void showChangePlatformDialog(BuildContext context) {
+    MzDialog(
+        contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'MideaType',
+                fontWeight: FontWeight.w100,
+                height: 1.2)),
+        title: "切换平台",
+        maxWidth: 400,
+        btns: ['取消', '确定'],
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 30, horizontal: 50),
+        onPressed: (_, index, context) {
+          if (index == 1) {
+            if (MideaRuntimePlatform.platform ==
+                GatewayPlatform.MEIJU) {
+              ChangePlatformHelper.changeToHomlux();
+            } else {
+              ChangePlatformHelper.changeToMeiju();
+            }
+            Push.dispose();
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                "Login",
+                    (route) => route.settings.name == "/");
+          } else {
+            Navigator.pop(context);
           }
         }).show(context);
   }
@@ -359,34 +372,7 @@ class AboutSettingPage extends StatelessWidget {
                             if (context.watch<AboutSettingProvider>().isLogin ?? false)
                               MzSettingButton(
                                 onTap: () {
-                                  MzDialog(
-                                      contentSlot: const Text(
-                                          '此操作将退出到扫码登录界面，是否继续?',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontFamily: 'MideaType',
-                                              fontWeight: FontWeight.w100,
-                                              height: 1.2)),
-                                      title: "登出",
-                                      maxWidth: 400,
-                                      btns: ['取消', '确定'],
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 30, horizontal: 50),
-                                      onPressed: (_, index, context) {
-                                        if (index == 1) {
-                                          Push.dispose();
-                                          System.loginOut();
-                                          Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              "Login",
-                                              (route) =>
-                                                  route.settings.name == "/");
-                                        } else {
-                                          Navigator.pop(context);
-                                        }
-                                      }).show(context);
+                                  showLogoutDialog(context);
                                 },
                                 text: '登出',
                                 borderColor: const Color(0xFF0092DC),
@@ -440,8 +426,6 @@ class AboutSettingPage extends StatelessWidget {
                         ),
                         MzSettingItem(
                           onTap: () {
-                            showUpdateGoing(
-                                context, context.read<AboutSettingProvider>());
                             context.read<AboutSettingProvider>().checkUpgrade();
                           },
                           leftText: '应用升级',
@@ -475,36 +459,7 @@ class AboutSettingPage extends StatelessWidget {
                         ),
                         MzSettingItem(
                           onTap: () {
-                            MzDialog(
-                                contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontFamily: 'MideaType',
-                                        fontWeight: FontWeight.w100,
-                                        height: 1.2)),
-                                title: "切换平台",
-                                maxWidth: 400,
-                                btns: ['取消', '确定'],
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 30, horizontal: 50),
-                                onPressed: (_, index, context) {
-                                  if (index == 1) {
-                                    if (MideaRuntimePlatform.platform ==
-                                        GatewayPlatform.MEIJU) {
-                                      ChangePlatformHelper.changeToHomlux();
-                                    } else {
-                                      ChangePlatformHelper.changeToMeiju();
-                                    }
-                                    Push.dispose();
-                                    Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        "Login",
-                                        (route) => route.settings.name == "/");
-                                  } else {
-                                    Navigator.pop(context);
-                                  }
-                                }).show(context);
+                            showChangePlatformDialog(context);
                           },
                           leftText: '切换平台',
                           containBottomDivider: false,

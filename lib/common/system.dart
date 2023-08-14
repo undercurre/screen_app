@@ -23,6 +23,12 @@ class System {
 
   System._();
 
+  static bool inMeiJuPlatform() => MideaRuntimePlatform.platform == GatewayPlatform.MEIJU;
+
+  static bool inHomluxPlatform() => MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX;
+
+  static bool inNonePlatform() => MideaRuntimePlatform.platform == GatewayPlatform.NONE;
+
   /// 全局初始化
   static Future globalInit([String? deviceId]) async {
     if (StrUtils.isNotNullAndEmpty(deviceId)) {

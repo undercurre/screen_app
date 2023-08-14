@@ -43,4 +43,17 @@ class LocalStorage {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
+
+  // 删除数据
+  static Future<bool> removeItem(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.remove(key);
+  }
+
+  // 清除所有数据
+  static Future<bool> clearAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.clear();
+  }
+
 }

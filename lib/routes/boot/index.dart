@@ -25,6 +25,7 @@ class _Boot extends State<Boot> {
         Log.file('启动查询网关环境次数${maxTryCount - 29}');
         try {
           var platform = await ChangePlatformHelper.checkGatewayPlatform();
+          Log.file('查询到的运行平台为$platform');
           if (platform != -1) {
             if (platform == 1) {
               await ChangePlatformHelper.changeToMeiju(false);
