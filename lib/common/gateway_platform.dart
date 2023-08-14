@@ -7,6 +7,8 @@ import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
 
+import 'adapter/ai_data_adapter.dart';
+
 /// 定义网关运行环境
 enum GatewayPlatform {
   NONE,           /// 空
@@ -51,17 +53,19 @@ class ChangePlatformHelper {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
-        MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
         HomluxGlobal.setLogout();
         MeiJuApi.init();
         System.initForMeiju();
+        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+        MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
       }
       return suc;
     } else {
-      MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
       HomluxGlobal.setLogout();
       MeiJuApi.init();
       System.initForMeiju();
+      AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+      MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
       return true;
     }
   }
@@ -72,17 +76,19 @@ class ChangePlatformHelper {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {
-        MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
         MeiJuGlobal.setLogout();
         HomluxApi.init();
         System.initForHomlux();
+        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+        MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
       }
       return suc;
     } else {
-      MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
       MeiJuGlobal.setLogout();
       HomluxApi.init();
       System.initForHomlux();
+      AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+      MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
       return true;
     }
 

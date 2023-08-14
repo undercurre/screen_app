@@ -10,6 +10,7 @@ import '../models/homlux_bind_device_entity.dart';
 import '../models/homlux_qr_code_auth_entity.dart';
 import '../models/homlux_qr_code_entity.dart';
 import '../models/homlux_room_list_entity.dart';
+import '../models/homlux_user_info_entity.dart';
 
 class HomluxUserApi {
   /// 家庭列表接口
@@ -69,7 +70,23 @@ class HomluxUserApi {
         data: {"qrcode": qrCode});
 
     if (res.isSuccess && res.data?.authorizeStatus == 1) {
-      HomluxGlobal.homluxQrCodeAuthEntity = res.data;
+      int tryCount = 3;
+      bool operateSuc = false;
+      while(tryCount > 0) {
+        var userRes = await queryUserInfo(null, res.data?.token);
+        if (userRes.isSuccess && userRes.data  != null) {
+          HomluxGlobal.homluxUserInfo = userRes.data;
+          HomluxGlobal.homluxQrCodeAuthEntity = res.data;
+          operateSuc = true;
+        }
+        tryCount --;
+      }
+
+      if(!operateSuc) {
+        // 改写请求结果
+        res.code = -1048;
+      }
+
     }
 
     return res;
@@ -83,6 +100,29 @@ class HomluxUserApi {
         cancelToken: cancelToken,
         options: Options(method: 'POST', extra: {"carryToken": false}),
         data: {"refreshToken": refreshToken});
+  }
+
+  // 查询用户信息
+  // uid 为空 则查询自己的信息
+  static Future<HomluxResponseEntity<HomluxUserInfoEntity>> queryUserInfo(String? uid, String? token,
+      {CancelToken? cancelToken}) async {
+
+    var res =  await HomluxApi.request<HomluxUserInfoEntity>(
+        '/v1/mzgd/user/queryWxUserInfo',
+        cancelToken: cancelToken,
+        options: Options(
+            method: 'POST',
+            extra: {"carryToken": token == null},
+            headers: token != null
+                ? {'Authorization': 'Bearer $token'}
+                : null),
+        data: {"userId": uid});
+
+    if(res.isSuccess && res.data != null) {
+      HomluxGlobal.homluxUserInfo = res.data;
+    }
+
+    return res;
   }
 
   // 绑定设备

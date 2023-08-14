@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/top_to_bottom_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
@@ -8,22 +6,19 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
-import '../../channel/ota_channel.dart';
-import '../../common/api/ai_author_api.dart';
+import './device/index.dart';
+import '../../channel/index.dart';
+import '../../common/adapter/ai_data_adapter.dart';
 import '../../common/api/gateway_api.dart';
+import '../../common/gateway_platform.dart';
+import '../../common/global.dart';
 import '../../common/system.dart';
 import '../../common/utils.dart';
 import '../../mixins/ota.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/standby.dart';
-import '../../widgets/keep_alive_wrapper.dart';
 import '../dropdown/drop_down_page.dart';
-import '../sniffer/auto_sniffer.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
-import './center_control/index.dart';
-import './device/index.dart';
-import '../../channel/index.dart';
-import '../../common/global.dart';
 
 export './center_control/index.dart';
 export './device/index.dart';
@@ -68,12 +63,6 @@ class HomeState extends State<Home>
 
   initial() async {
     try {
-      Future.delayed(const Duration(milliseconds: 4000), () {
-        aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
-        aiMethodChannel
-            .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
-        AiAuthorApi.AiAuthor(deviceId: Global.profile.applianceCode);
-      });
       num lightValue = await settingMethodChannel.getSystemLight();
       num soundValue = await settingMethodChannel.getSystemVoice();
       bool autoLight = await settingMethodChannel.getAutoLight();
@@ -83,13 +72,10 @@ class HomeState extends State<Home>
       Global.lightValue = lightValue;
       Global.autoLight = autoLight;
       Global.nearWakeup = nearWakeup;
-      String? deviceSn = await aboutSystemChannel.getGatewaySn(false);
-      String? deviceId = Global.profile.applianceCode;
-      String macAddress = await aboutSystemChannel.getMacAddress();
-      var jsonData =
-          '{ "deviceSn" : "$deviceSn", "deviceId" : "$deviceId", "macAddress" : "$macAddress","aiEnable":${Global.profile.aiEnable}}';
-      var parsedJson = json.decode(jsonData);
-      await aiMethodChannel.initialAi(parsedJson);
+      // 初始化AI语音
+      aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+      aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
+      AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
     } catch (e) {
       debugPrint(e.toString());
     }

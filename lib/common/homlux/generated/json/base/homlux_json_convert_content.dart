@@ -12,6 +12,7 @@ import '../../../models/homlux_qr_code_entity.dart';
 import '../../../models/homlux_refresh_token_entity.dart';
 import '../../../models/homlux_room_list_entity.dart';
 import '../../../models/homlux_scene_entity.dart';
+import '../../../models/homlux_user_info_entity.dart';
 import '../../../models/homlux_weather_entity.dart';
 
 HomluxJsonConvert homluxJsonConvert = HomluxJsonConvert();
@@ -22,6 +23,7 @@ typedef EnumConvertFunction<T> = T Function(String value);
 class HomluxJsonConvert {
 
   static final Map<String, JsonConvertFunction> convertFuncMap = {
+    (HomluxUserInfoEntity).toString(): HomluxUserInfoEntity.fromJson,
     (HomluxFamilyEntity).toString(): HomluxFamilyEntity.fromJson,
     (HomluxRoomListEntity).toString(): HomluxRoomListEntity.fromJson,
     (HomluxQrCodeEntity).toString(): HomluxQrCodeEntity.fromJson,
@@ -46,6 +48,9 @@ class HomluxJsonConvert {
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxUserInfoEntity>[] is M) {
+      return data.map<HomluxUserInfoEntity>((e) => HomluxUserInfoEntity.fromJson(e)).toList() as M;
+    }
     if(<HomluxWeatherEntity>[] is M) {
       return data.map<HomluxWeatherEntity>((e) => HomluxWeatherEntity.fromJson(e)).toList() as M;
     }
