@@ -18,6 +18,7 @@ import '../../../models/meiju_device_entity.dart';
 import '../../../models/meiju_device_info_entity.dart';
 import '../../../models/meiju_home_info_entity.dart';
 import '../../../models/meiju_home_list_info_entity.dart';
+import '../../../models/meiju_panel_scene_bind_list_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
 import '../../../models/meiju_scene_list_entity.dart';
@@ -59,6 +60,8 @@ class MeiJuJsonConvert {
 		(MeiJuSceneEntity).toString(): MeiJuSceneEntity.fromJson,
 		(MeiJuLocation).toString(): MeiJuLocation.fromJson,
 		(MeiJuWeather).toString(): MeiJuWeather.fromJson,
+		(MeiJuPanelSceneBindItemEntity).toString(): MeiJuPanelSceneBindItemEntity.fromJson,
+		(MeiJuPanelSceneBindListEntity).toString(): MeiJuPanelSceneBindListEntity.fromJson,
 	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
@@ -137,6 +140,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuPanelSceneBindListEntity>[] is M) {
+			return data.map<MeiJuPanelSceneBindListEntity>((Map<String, dynamic> e) => MeiJuPanelSceneBindListEntity.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuPanelSceneBindItemEntity>[] is M) {
+			return data.map<MeiJuPanelSceneBindItemEntity>((Map<String, dynamic> e) => MeiJuPanelSceneBindItemEntity.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuWeather>[] is M) {
 			return data.map<MeiJuWeather>((Map<String, dynamic> e) => MeiJuWeather.fromJson(e)).toList() as M;
 		}

@@ -426,4 +426,85 @@ class MeiJuApi {
     }
     return entity;
   }
+
+  /// IOT-网关云公共接口
+  static Future<MeiJuResponseEntity<T>> requestGCloudIot<T>(String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress
+  }) async {
+    options ??= Options();
+    options.headers ??= {};
+    data ??= {};
+    queryParameters ??= {};
+    options.extra ??= {};
+
+    var reqId = uuid.v4();
+    var params = options.method == 'GET' ? queryParameters : data;
+    var headers = options.headers as LinkedHashMap<String, dynamic>;
+
+    // 公共data参数
+    var timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+    params['openId'] = 'zhinengjiadian';
+    params['iotAppId'] = '12002';
+    params['reqId'] = reqId;
+    params['stamp'] = timestamp;
+    params['timestamp'] = timestamp;
+
+    if (MeiJuGlobal.isLogin) {
+      params['uid'] = MeiJuGlobal.token?.uid;
+      headers['accessToken'] = MeiJuGlobal.token?.accessToken;
+    }
+
+    // 公共header参数
+    // 云端接口出错时，返回调试信息
+    if (!MeiJuGlobal.isRelease) {
+      headers['debug'] = true;
+    }
+
+    // sign签名 start
+    var md5Origin = httpSignSecret; // 拼接加密前字符串
+    md5Origin += json.encode(data);
+    if (queryParameters.isNotEmpty) {
+      var sortParams = SplayTreeMap<String, dynamic>.from(
+          queryParameters); // 对queryParameters排序
+      sortParams.forEach((key, value) {
+        md5Origin += '$key$value';
+      });
+    }
+    md5Origin += reqId;
+
+    headers['sign'] = md5.convert(utf8.encode(md5Origin));
+    headers['random'] = reqId;
+    // sign签名 end
+
+    var res = await MeiJuApi()._dio.request(
+      dotenv.get('IOT_GCLOUD_URL') + path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    if (res.statusCode != 200) {
+      throw DioError(requestOptions: res.requestOptions, response: res);
+    }
+
+    var entity =  MeiJuResponseEntity<T>.fromJson(res.data);
+
+    if(isIOTLogoutCode(entity.code)) {
+      tryToRefreshToken();
+    }
+
+    return entity;
+
+  }
+
+
 }
