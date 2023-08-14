@@ -40,7 +40,7 @@ class LayoutModel extends ChangeNotifier {
             0,
             [1, 2, 5, 6],
             DataInputCard(
-                name: '时钟', applianceCode: uuid.v4(), roomName: '屏内')),
+                name: '时钟', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.Weather,
@@ -48,7 +48,7 @@ class LayoutModel extends ChangeNotifier {
             0,
             [3, 4, 7, 8],
             DataInputCard(
-                name: '天气', applianceCode: uuid.v4(), roomName: '屏内')),
+                name: '天气', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel1,
@@ -56,7 +56,7 @@ class LayoutModel extends ChangeNotifier {
             0,
             [9, 10],
             DataInputCard(
-                name: '继电器1', applianceCode: uuid.v4(), roomName: '屏内')),
+                name: '继电器1', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel2,
@@ -64,7 +64,7 @@ class LayoutModel extends ChangeNotifier {
             0,
             [11, 12],
             DataInputCard(
-                name: '继电器2', applianceCode: uuid.v4(), roomName: '屏内')),
+                name: '继电器2', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
       ]);
       _saveLayouts();
     }
@@ -78,7 +78,7 @@ class LayoutModel extends ChangeNotifier {
     await prefs.setStringList('layouts', layoutList);
   }
 
-  Future<void> _removeLayouts() async {
+  Future<void> removeLayouts() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('layouts');
     layouts.clear(); // 清除内存

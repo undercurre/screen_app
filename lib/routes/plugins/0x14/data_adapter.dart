@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
+import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -30,6 +31,12 @@ class DeviceDataEntity {
     curtainDirection = detail['curtain_direction'];
 
     deviceEnt?.detail = detail;
+  }
+
+  void setDetailHomlux(HomluxDeviceEntity detail) {
+    curtainPosition = int.parse(detail.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
+    curtainStatus = detail.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
+    curtainDirection = detail.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
   }
 
   @override
@@ -99,25 +106,32 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
         }
       });
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
+      if (res.isSuccess) {
+        if (res.result == null) return;
+        device.setDetailHomlux(res.result!);
+        updateUI();
+      }
     }
   }
 
-  /// 控制全开全关
+  /// 控制模式
   Future<void> controlMode(Mode mode) async {
+    device.curtainStatus = mode.key;
     if (mode.key == 'open') {
       device.curtainPosition = 100;
-      device.curtainStatus = mode.key;
-      updateUI();
-    } else if (mode.key == 'close'){
+    } else if (mode.key == 'close') {
       device.curtainPosition = 0;
-      device.curtainStatus = mode.key;
-      updateUI();
     }
+    updateUI();
     if (platform.inMeiju()) {
       CurtainApi.setMode(device.deviceID, mode.key, device.curtainDirection);
     } else if(platform.inHomlux()) {
-      HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
+      if (mode.key == "stop") {
+        HomluxDeviceApi.controlWifiCurtainStop(device.deviceID, "3");
+      } else {
+        HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
+      }
     }
   }
 

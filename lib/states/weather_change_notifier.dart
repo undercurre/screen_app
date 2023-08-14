@@ -53,7 +53,7 @@ class WeatherModel extends ChangeNotifier {
     } else {
       if (selectedDistrict != null) {
         HomluxResponseEntity<HomluxWeatherEntity> res = await HomluxWeatherApi.queryWeather(selectedDistrict.cityName, selectedDistrict.latitude, selectedDistrict.longitude);
-        curWeatherInHomlux = res.data ?? HomluxWeatherEntity();
+        curWeatherInHomlux = res.data ?? HomluxWeatherEntity(condition: "晴天");
       }
     }
     notifyListeners();
@@ -121,6 +121,7 @@ class WeatherModel extends ChangeNotifier {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return curWeatherInMeiJu.weatherCode ?? '01';
     } else {
+      if (curWeatherInHomlux.condition == null) return '01';
       if (curWeatherInHomlux.condition!.contains('雨')) {
         return '03';
       } else if (curWeatherInHomlux.condition!.contains('雪')) {

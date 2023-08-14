@@ -251,9 +251,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                                   child: ScrollConfiguration(
                                       behavior: ScrollConfiguration.of(context)
                                           .copyWith(scrollbars: false),
-                                      child: zigbeeControllerList[
-                                      dataAdapter?.device.modelNumber] ==
-                                          '0x21_light_colorful'
+                                      child: zigbeeControllerList[dataAdapter?.device.modelNumber] == '0x21_light_colorful'
+                                        || MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX
                                           ? colorful
                                           : noColor),
                                 ),

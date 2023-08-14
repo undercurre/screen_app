@@ -1,57 +1,66 @@
-import 'dart:convert';
+import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 
-import '../../routes/plugins/0x21/0x21_curtain/api.dart';
 import '../gateway_platform.dart';
-import '../global.dart';
 import '../meiju/api/meiju_device_api.dart';
 import '../meiju/models/meiju_response_entity.dart';
+import '../models/endpoint.dart';
+import '../models/node_info.dart';
 import 'midea_data_adapter.dart';
 
 class PanelDataAdapter extends MideaDataAdapter {
-  PanelData data = PanelData(name: '开关', nameList: [], statusList: [], isOnline: false, roomName: '');
-
-  dynamic _meijuData;
+  NodeInfo<Endpoint<PanelEvent>> _meijuData = NodeInfo(
+    devId: '',
+    registerUsers: [],
+    masterId: 123,
+    nodeName: '',
+    idType: '',
+    modelId: '',
+    endList: [],
+    guard: 0,
+    isAlarmDevice: '',
+    nodeId: '',
+    status: 0,
+  );
   dynamic _homluxData;
 
   String applianceCode;
   String masterId;
   String nodeId = '';
+  String modelNumber = '';
+
+  PanelData data = PanelData(
+    nameList: ['按键1', '按键2', '按键3', '按键4'],
+    statusList: [false, false, false, false],
+  );
 
   DataState dataState = DataState.NONE;
 
-  PanelDataAdapter(
-      this.applianceCode, this.masterId, GatewayPlatform platform)
+  PanelDataAdapter(this.applianceCode, this.masterId, this.modelNumber, GatewayPlatform platform)
       : super(platform);
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
-    if (nodeId.isEmpty) {
-      initNodeId();
-    }
     try {
       dataState = DataState.LOADING;
 
-      if (platform.inHomlux()) {
-        dynamic MeijuRes = MeiJuDeviceApi.sendPDMOrder(
-            categoryCode: '0x16',
-            uri: '/subDeviceGetStatus',
-            applianceCode: applianceCode,
-            command: {
-              "msgId": uuid.v4(),
-              "deviceId": masterId,
-              "nodeId": nodeId
-            });
-        logger.i('美居状态刷新结果', MeijuRes);
-      } else {}
+      if (platform.inMeiju()) {
+        _meijuData = await fetchMeijuData();
+      } else {
+        _homluxData = await fetchHomluxData();
+      }
 
       if (_meijuData != null) {
-        data = PanelData.fromMeiJu(_meijuData);
+        data = PanelData.fromMeiJu(_meijuData, modelNumber);
       } else if (_homluxData != null) {
-        data = PanelData.fromHomlux(_homluxData);
+        data = PanelData.fromHomlux(_homluxData, modelNumber);
       } else {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
-        data = PanelData(name: '开关', nameList: [], statusList: [], isOnline: false, roomName: '');
+        data = PanelData(
+          nameList: [],
+          statusList: [],
+        );
         return;
       }
 
@@ -61,15 +70,23 @@ class PanelDataAdapter extends MideaDataAdapter {
     } catch (e) {
       // Error occurred while fetching data
       dataState = DataState.ERROR;
-      data = PanelData(name: '开关', nameList: [], statusList: [], isOnline: false, roomName: '');
+      data = PanelData(
+        nameList: [],
+        statusList: [],
+      );
       updateUI();
     }
+  }
+
+  Future<void> orderPower() async {
+    if (platform.inMeiju()) {
+    } else {}
   }
 
   @override
   void init() {
     // Initialize the adapter and fetch data
-    // fetchData();
+    fetchData();
   }
 
   @override
@@ -77,71 +94,124 @@ class PanelDataAdapter extends MideaDataAdapter {
     clearBindDataUpdateFunction();
   }
 
-  // Implement fetchMeijuData() and fetchHomluxData() methods to retrieve data
-  Future<dynamic> fetchMeijuData() async {
-    // Replace the following line with your Meiju platform data retrieval logic
-    // For example, you can use API calls or other methods to fetch data
-    return null;
-  }
-
-  Future<dynamic> fetchHomluxData() async {
-    // Replace the following line with your Homlux platform data retrieval logic
-    // For example, you can use API calls or other methods to fetch data
-    return null;
-  }
-
-  Future<void> initNodeId() async {
-    MeiJuResponseEntity<String> nodeInfo = await MeiJuDeviceApi.getGatewayInfo(applianceCode, masterId);
-    if (nodeInfo.data != null) {
-      Map<String, dynamic> infoMap = json.decode(nodeInfo.data!);
-      nodeId = infoMap["nodeid"];
+  Future<NodeInfo<Endpoint<PanelEvent>>> fetchMeijuData() async {
+    try {
+      NodeInfo<Endpoint<PanelEvent>> nodeInfo =
+          await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
+              applianceCode, masterId, (json) => PanelEvent.fromJson(json));
+      nodeId = nodeInfo.nodeId;
+      return nodeInfo;
+    } catch (e) {
+      Log.i('getNodeInfo Error', e);
+      return NodeInfo(
+        devId: '',
+        registerUsers: [],
+        masterId: 123,
+        nodeName: '',
+        idType: '',
+        modelId: '',
+        endList: [],
+        guard: 0,
+        isAlarmDevice: '',
+        nodeId: '',
+        status: 0,
+      );
     }
   }
 
+  Future<dynamic> fetchHomluxData() async {
+    dynamic HomluxRes = {};
+    return HomluxRes;
+  }
+
+  Future<MeiJuResponseEntity> fetchOrderPowerMeiju(int PanelIndex) async {
+    data.statusList[PanelIndex - 1] = !data.statusList[PanelIndex - 1];
+    updateUI();
+    MeiJuResponseEntity MeijuRes = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'subDeviceControl',
+        applianceCode: masterId,
+        command: {
+          "msgId": uuid.v4(),
+          "deviceId": masterId,
+          "nodeId": nodeId,
+          "deviceControlList": [
+            {
+              "endPoint": PanelIndex,
+              "attribute": data.statusList[PanelIndex - 1] ? 1 : 0
+            }
+          ]
+        });
+    if (!MeijuRes.isSuccess) {
+      data.statusList[PanelIndex - 1] = !data.statusList[PanelIndex - 1];
+      updateUI();
+    }
+    return MeijuRes;
+  }
+
+  Future<void> fetchOrderPowerHomlux() async {
+    dynamic HomluxRes = {};
+    return HomluxRes;
+  }
+
   static PanelDataAdapter create(
-      String applianceCode, String masterId) {
-    return PanelDataAdapter(applianceCode, masterId, MideaRuntimePlatform.platform);
+      String applianceCode, String masterId, String modelNumber) {
+    return PanelDataAdapter(
+        applianceCode, masterId, modelNumber, MideaRuntimePlatform.platform);
   }
 }
 
 // The rest of the code for PanelData class remains the same as before
 class PanelData {
-  // 开关设备名称
-  String name = '开关面板';
-
   // 开关名称列表
-  List<String> nameList = [];
+  List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
 
   // 开关状态列表
-  List<bool> statusList = [];
-
-  // 是否在线
-  bool isOnline = false;
-
-  // 房间名
-  String roomName = '房间';
+  List<bool> statusList = [false, false, false, false];
 
   PanelData({
-    required this.name,
     required this.nameList,
     required this.statusList,
-    required this.isOnline,
-    required this.roomName
   });
 
-  PanelData.fromMeiJu(dynamic data) {
-    name = data.name;
-    nameList = data.nameList;
-    statusList = data.statusList;
-    isOnline = data.isOnline;
-    roomName = data.roomName;
+  PanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
+    if (_isWaterElectron(modelNumber)) {
+      nameList = ['水阀', '电阀'];
+    } else {
+      nameList = data.endList.map((e) => e.name).toList();
+    }
+    statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }
 
-  PanelData.fromHomlux(dynamic data) {
-    name = data.name;
+  PanelData.fromHomlux(dynamic data, String modelNumber) {
     nameList = data.nameList;
     statusList = data.statusList;
-    isOnline = data.isOnline;
-    roomName = data.roomName;
   }
+}
+
+class PanelEvent extends Event {
+  String onOff;
+  dynamic startupOnOff; // 将 startupOnOff 变为可选属性
+
+  PanelEvent({
+    required this.onOff,
+    this.startupOnOff, // 标记 startupOnOff 为可选参数
+  });
+
+  factory PanelEvent.fromJson(Map<String, dynamic> json) {
+    return PanelEvent(
+      onOff: json['OnOff'],
+      startupOnOff: json['StartUpOnOff'], // 可能不存在的键
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'onOff': onOff, 'startupOnOff': startupOnOff};
+  }
+}
+
+bool _isWaterElectron(String modelNumber) {
+  List<String> validList = ['1344', '1112', '1111', '80', '81', '22'];
+
+  return validList.contains(modelNumber);
 }

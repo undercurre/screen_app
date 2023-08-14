@@ -5,18 +5,22 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../../../common/logcat_helper.dart';
+
 class SmallPanelCardWidget extends StatefulWidget {
   final Widget icon;
-  final String? fakerName;
-  final String? roomFakerName;
+  final String name;
+  final String roomName;
+  final String isOnline;
   PanelDataAdapter adapter; // 数据适配器
 
   SmallPanelCardWidget({
     super.key,
     required this.icon,
     required this.adapter,
-    this.roomFakerName,
-    this.fakerName,
+    required this.roomName,
+    required this.isOnline,
+    required this.name,
   });
 
   @override
@@ -27,18 +31,43 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   @override
   void initState() {
     super.initState();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
+      });
+      Log.i('更新数据', widget.adapter.data.nameList);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.adapter.unBindDataUpdateFunction(() {
+      updateData();
+    });
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        logger.i('点击卡片', widget.adapter.applianceCode);
+      onTap: () async {
+        await widget.adapter.fetchOrderPowerMeiju(1);
+        await widget.adapter.fetchData();
       },
       child: Container(
         width: 210,
@@ -62,7 +91,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.fakerName ?? widget.adapter.data!.name,
+                      widget.name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
@@ -74,7 +103,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
-                      '${widget.roomFakerName ?? widget.adapter.data!.roomName} | ${_getRightText()}',
+                      '${widget.roomName} | ${_getRightText()}',
                       style: TextStyle(
                           color: Colors.white.withOpacity(0.64),
                           fontSize: 16,
@@ -91,15 +120,19 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   }
 
   Object? _getRightText() {
-    if (!widget.adapter.data!.isOnline) {
+    if (widget.isOnline == '0') {
       return '离线';
     }
-    return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
+    if (widget.adapter.data!.statusList.isNotEmpty) {
+      return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
+    } else {
+      return '离线';
+    }
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (!widget.adapter.data!.isOnline) {
-      BoxDecoration(
+    if (widget.isOnline != '0' && widget.adapter.data!.statusList.isNotEmpty && widget.adapter.data!.statusList[0]) {
+      return BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,

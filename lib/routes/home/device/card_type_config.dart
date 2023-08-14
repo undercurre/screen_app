@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/card/main/big_device_air.dart';
 import 'package:screen_app/widgets/card/main/big_device_curtain.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
@@ -7,11 +8,23 @@ import 'package:screen_app/widgets/card/main/big_device_panel.dart';
 import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
+import '../../../widgets/card/main/big_485Air_device.dart';
+import '../../../widgets/card/main/big_485CAC_device.dart';
+import '../../../widgets/card/main/big_485Floor_device.dart';
+import '../../../widgets/card/main/middle_485Air_device.dart';
+import '../../../widgets/card/main/middle_485CAC_device.dart';
+import '../../../widgets/card/main/middle_485Floor_device.dart';
+import '../../../widgets/card/main/small_485Air_device.dart';
+import '../../../widgets/card/main/small_485CAC_device.dart';
+import '../../../widgets/card/main/small_485Floor_device.dart';
 import '../../../widgets/card/main/small_device.dart';
 import '../../../widgets/card/main/small_panel.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/card/other/clock.dart';
 import '../../../widgets/card/other/weather.dart';
+import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
+import '../../plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
@@ -118,13 +131,20 @@ enum DeviceEntityTypeInP4 {
   Zigbee_82,
   Zigbee_83,
   Zigbee_23,
-  Zigbee_22
+  Zigbee_22,
+  // 485空调
+  Zigbee_3017,
+  // 485新风
+  Zigbee_3018,
+  // 485地暖
+  Zigbee_3019,
 }
 
 class DataInputCard {
   String name;
   String roomName;
   String applianceCode;
+  String isOnline;
   String? masterId;
   String? modelNumber;
   String? icon;
@@ -140,11 +160,13 @@ class DataInputCard {
     required this.roomName,
     this.masterId,
     this.modelNumber,
+    required this.isOnline,
   });
 
   factory DataInputCard.fromJson(Map<String, dynamic> json) {
     return DataInputCard(
       name: json['name'] as String,
+      isOnline: json['isOnline'] as String,
       roomName: json['roomName'] as String,
       applianceCode: json['applianceCode'] as String,
       masterId: json['masterId'] as String?,
@@ -160,6 +182,7 @@ class DataInputCard {
       'name': name,
       'roomName': roomName,
       'applianceCode': applianceCode,
+      'isOnline': isOnline,
     };
     if (masterId != null) {
       data['masterId'] = masterId;
@@ -242,6 +265,204 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           min: 0,
           max: 32,
         ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3017: {
+    CardType.Small: (params) => Small485CACDeviceCardWidget(
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline,
+          isFault: false,
+          isNative: false,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+    CardType.Middle: (params) => Middle485CACDeviceCardWidget(
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+    CardType.Big: (params) => Big485CACDeviceAirCardWidget(
+          name: params.name,
+          onOff: true,
+          roomName: params.roomName,
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          temperature: 26,
+          min: 16,
+          max: 30,
+          adapter: CACDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3018: {
+    CardType.Small: (params) => Small485AirDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Middle: (params) => Middle485AirDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Big: (params) => Big485AirDeviceAirCardWidget(
+      name: params.name,
+      onOff: true,
+      roomName: params.roomName,
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: AirDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3019: {
+    CardType.Small: (params) => Small485FloorDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline,
+      isFault: false,
+      isNative: false,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Middle: (params) => Middle485FloorDeviceCardWidget(
+      name: params.name,
+      applianceCode: params.applianceCode,
+      modelNumber: params.modelNumber,
+      masterId: params.masterId,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      onOff: true,
+      roomName: params.roomName,
+      characteristic: '',
+      onTap: () => {},
+      onMoreTap: () => {},
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+    CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
+      name: params.name,
+      onOff: true,
+      roomName: params.roomName,
+      online: params.isOnline == "0" ? false : true,
+      isFault: false,
+      isNative: false,
+      temperature: 30,
+      min: 5,
+      max: 90,
+      adapter: FloorDataAdapter.create(
+        params.name,
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
   },
   DeviceEntityTypeInP4.Device0x13: {
     CardType.Small: (params) => SmallDeviceCardWidget(
@@ -402,15 +623,41 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1364: {
-    CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '四路多功能面板',
+    CardType.Small: (params) => SmallDeviceCardWidget(
+          name: '窗帘控制器',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          ),
+          onOff: true,
+          roomName: '卧室',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+          adapter: null,
+        ),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+          name: '窗帘控制器',
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          ),
+          onOff: true,
+          roomName: '',
+          characteristic: '',
+          onTap: () => {},
+          online: true,
+          isFault: false,
+          isNative: false,
+        ),
+    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
+          name: '窗帘控制器',
           onOff: true,
           roomName: '卧室',
           online: true,
           isFault: false,
           isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3', '按键4'],
-          buttonsOnOff: [true, false, false, true],
+          percent: 50,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_55: {
@@ -455,1236 +702,1130 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1339: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      fakerName: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomFakerName: params.roomName,
-      adapter: PanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-      ),
-    ),
-  },
-  DeviceEntityTypeInP4.Zigbee_1100: {
-    CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
+        ),
+  },
+  DeviceEntityTypeInP4.Zigbee_1100: {
+    CardType.Small: (params) => SmallPanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1081: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1099: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_67: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_68: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_69: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_41: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_34: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_17: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1301: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1345: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1108: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1107: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_84: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_85: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_45: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_39: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_31: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1347: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1360: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          fakerName: params.name,
+          name: params.name,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          roomFakerName: params.roomName,
+          roomName: params.roomName,
           adapter: PanelDataAdapter.create(
             params.applianceCode,
             params.masterId!,
+            params.modelNumber!,
           ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1361: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1348: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1344: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1112: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1111: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_22: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路多功能面板',
+          name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1346: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1110: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1109: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_86: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_87: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_40: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_32: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1302: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1340: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1102: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1083: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1101: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_70: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_71: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_72: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_42: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_35: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_18: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          name: '二路窗帘面板',
+          name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1346.png'),
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
           ),
-          roomName: '卧室',
-          characteristic: '',
-          online: true,
-          isFault: false,
-          isNative: false,
-          btn1Name: '按键1',
-          btn1IsOn: true,
-          btn2Name: '按键2',
-          btn2IsOn: false,
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1341: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1104: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1085: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1103: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_73: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_74: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_43: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_36: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_19: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1114: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1113: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_82: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_83: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_23: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1362: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路多功能面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1349: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路多功能面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1303: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '三路多功能面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3'],
-          buttonsOnOff: [true, false, false],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1342: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '四路灯光面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3', '按键4'],
-          buttonsOnOff: [true, false, false, true],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1363: {
     CardType.Big: (params) => BigDevicePanelCardWidget(
-          name: '四路多功能面板',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          buttonsName: ['按键1', '按键2', '按键3', '按键4'],
-          buttonsOnOff: [true, false, false, true],
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1350: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1106: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1087: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1105: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_75: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_76: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_37: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_16: {
-    CardType.Small: (params) => SmallDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
-          roomName: '卧室',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
-        ),
-    CardType.Middle: (params) => MiddleDeviceCardWidget(
-          name: '窗帘控制器',
-          icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_1364.png'),
+          roomName: params.roomName,
+          adapter: PanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
           ),
-          onOff: true,
-          roomName: '',
-          characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-        ),
-    CardType.Big: (params) => const BigDeviceCurtainCardWidget(
-          name: '窗帘控制器',
-          onOff: true,
-          roomName: '卧室',
-          online: true,
-          isFault: false,
-          isNative: false,
-          percent: 50,
+          isOnline: params.isOnline,
         ),
   },
 };

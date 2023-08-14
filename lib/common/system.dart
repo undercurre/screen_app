@@ -102,7 +102,7 @@ class System {
           ? SelectFamilyItem.fromMeiJu(MeiJuGlobal.homeInfo!)
           : null;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+     return null;
     }
   }
 
@@ -173,7 +173,7 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return MeiJuGlobal.isLogin;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      return false;
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
+import 'package:screen_app/states/layout_notifier.dart';
 
 import 'adapter/ai_data_adapter.dart';
 
@@ -63,6 +64,7 @@ class ChangePlatformHelper {
     } else {
       HomluxGlobal.setLogout();
       MeiJuApi.init();
+      LayoutModel().removeLayouts();
       System.initForMeiju();
       AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
       MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
@@ -86,6 +88,7 @@ class ChangePlatformHelper {
     } else {
       MeiJuGlobal.setLogout();
       HomluxApi.init();
+      LayoutModel().removeLayouts();
       System.initForHomlux();
       AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
       MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;

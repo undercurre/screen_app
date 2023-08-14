@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
+import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/push.dart';
 import '../../../models/device_entity.dart';
@@ -41,6 +42,14 @@ class DeviceDataEntity {
       timeOff = int.parse(detail["delay_light_off"]);
     }
     deviceEnt?.detail = detail;
+  }
+
+  void setDetailHomlux(HomluxDeviceEntity detail) {
+    brightness = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightBrightness ?? "0");
+    colorTemp = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightColorTemp ?? "0");
+    power = detail.mzgdPropertyDTOList?.x1?.wifiLightPower == "on";
+    screenModel = detail.mzgdPropertyDTOList?.x1?.wifiLightScene ?? "manual";
+    timeOff = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightDelayOff ?? "0");
   }
 
   @override
@@ -112,7 +121,12 @@ class WIFILightDataAdapter extends MideaDataAdapter {
         }
       });
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
+      if (res.isSuccess) {
+        if (res.result == null) return;
+        device.setDetailHomlux(res.result!);
+        updateUI();
+      }
     }
   }
 
@@ -186,6 +200,8 @@ class WIFILightDataAdapter extends MideaDataAdapter {
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
+    device.screenModel = mode.key;
+    updateUI();
     if (platform.inMeiju()) {
       late MzResponseEntity<dynamic> res;
       if (device.deviceEnt?.sn8 == '79009833') {
@@ -195,12 +211,14 @@ class WIFILightDataAdapter extends MideaDataAdapter {
       }
       if (res.isSuccess) {
         device.screenModel = mode.key;
+        updateUI();
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       var res = await HomluxDeviceApi.controlWifiLightMode(device.deviceID, "3", mode.key);
       if (res.isSuccess) {
         device.screenModel = mode.key;
+        updateUI();
       }
       _delay2UpdateDetail(2);
     }

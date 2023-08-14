@@ -11,7 +11,7 @@ import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
-import '../../../common/global.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
@@ -44,22 +44,109 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    initCache();
+  }
+
+  initCache() async {
+    final sceneListModel = Provider.of<SceneListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
+    List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
+    if (deviceRes.length > 8) {
+      setState(() {
+        devices = deviceRes
+            .sublist(0, 8)
+            .where((e) =>
+        getDeviceEntityType(e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
+      });
+    } else {
+      setState(() {
+        devices = deviceRes
+            .where((e) =>
+        getDeviceEntityType(e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
+      });
+    }
+    if (sceneRes.length > 8) {
+      setState(() {
+        scenes = sceneRes.sublist(0, 8);
+      });
+    } else {
+      setState(() {
+        scenes = sceneRes;
+      });
+    }
+    await Future.delayed(Duration(milliseconds: 500));
+    if (sceneRes.length > 8) {
+      setState(() {
+        scenes.addAll(sceneRes.sublist(8));
+      });
+    }
+    if (deviceRes.length > 8) {
+      devices.addAll(deviceRes
+          .sublist(8)
+          .where((e) =>
+      getDeviceEntityType(e.type, e.modelNumber) !=
+          DeviceEntityTypeInP4.Default)
+          .toList());
+    }
     initData();
   }
 
   initData() async {
-    final sceneListModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    deviceListModel.getDeviceList().then((value) => setState(() {
-          devices = value
-              .where((e) =>
-                  getDeviceEntityType(e.type, e.modelNumber) !=
-                  DeviceEntityTypeInP4.Default)
-              .toList();
-        }));
-    sceneListModel.getSceneList().then((value) => setState(() {
-          scenes = value;
-        }));
+    final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    List<DeviceEntity> deviceCache = deviceListModel.getCacheDeviceList();
+    List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
+    Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
+    Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
+
+    List<DeviceEntity> deviceRes = [];
+    List<SceneInfoEntity> sceneRes = [];
+
+    try {
+      await Future.wait([deviceFuture, sceneFuture]);
+      deviceRes = await deviceFuture;
+      sceneRes = await sceneFuture;
+      deviceRes = deviceRes.where((e) =>
+      getDeviceEntityType(e.type, e.modelNumber) !=
+          DeviceEntityTypeInP4.Default)
+          .toList();
+
+      // Here you can work with deviceRes and sceneRes
+      print("Device Results: $deviceRes");
+      print("Scene Results: $sceneRes");
+    } catch (error) {
+      print("Error occurred: $error");
+    }
+
+    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
+
+    setState(() {
+      devices.removeWhere((element) => compareDevice[1].contains(element));
+      scenes.removeWhere((element) => compareScene[1].contains(element));
+
+      for (DeviceEntity item in compareDevice[0]) {
+        int index = deviceRes.indexOf(item);
+        if (index >= 0 && index <= devices.length) {
+          devices.insert(index, item);
+        } else {
+          devices.add(item);
+        }
+      }
+      for (SceneInfoEntity item in compareScene[0]) {
+        int index = sceneRes.indexOf(item);
+        if (index >= 0 && index <= scenes.length) {
+          scenes.insert(index, item);
+        } else {
+          scenes.add(item);
+        }
+      }
+    });
   }
 
   @override
@@ -82,7 +169,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
         CardType.Other,
         -1,
         [],
-        DataInputCard(name: '', applianceCode: '', roomName: ''));
+        DataInputCard(name: '', applianceCode: '', roomName: '', isOnline: ''));
     return Stack(
       children: [
         Container(
@@ -111,7 +198,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              logger.i('设备页');
                               _pageController.animateToPage(
                                 0,
                                 duration: const Duration(milliseconds: 500),
@@ -143,7 +229,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              logger.i('场景页');
                               _pageController.animateToPage(
                                 1,
                                 duration: const Duration(milliseconds: 500),
@@ -175,7 +260,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              logger.i('其他页');
                               _pageController.animateToPage(
                                 2,
                                 duration: const Duration(milliseconds: 500),
@@ -241,6 +325,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   roomName: devices[index].roomName!,
                                   modelNumber: devices[index].modelNumber,
                                   masterId: devices[index].masterId,
+                                  isOnline: devices[index].onlineStatus,
                                 ),
                               );
                               Navigator.pop(context, resultData);
@@ -286,6 +371,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               modelNumber:
                                                   devices[index].modelNumber,
                                               masterId: devices[index].masterId,
+                                              isOnline:
+                                                  devices[index].onlineStatus,
                                             ),
                                           );
                                           Navigator.pop(context, resultData);
@@ -322,6 +409,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                       .modelNumber,
                                                   masterId:
                                                       devices[index].masterId,
+                                                  isOnline: devices[index]
+                                                      .onlineStatus,
                                                 ),
                                               );
                                               Navigator.pop(
@@ -387,6 +476,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         sceneId: scenes[index].sceneId,
                                         disabled: false,
                                         icon: scenes[index].image,
+                                        isOnline: '',
                                       ),
                                     );
                                     Navigator.pop(context, resultData);
@@ -439,12 +529,19 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
-                              resultData = Layout(uuid.v4(), others[index].type,
-                                  CardType.Other, -1, [], DataInputCard(
+                              resultData = Layout(
+                                uuid.v4(),
+                                others[index].type,
+                                CardType.Other,
+                                -1,
+                                [],
+                                DataInputCard(
                                   name: '',
                                   applianceCode: uuid.v4(),
                                   roomName: '',
-                                ),);
+                                  isOnline: '',
+                                ),
+                              );
                               Navigator.pop(context, resultData);
                             },
                             child: Stack(
@@ -469,7 +566,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                           // 设置渐变色的起始位置
                                           end: const Alignment(1, 1),
                                           // 设置渐变色的结束位置
-                                          stops: [0.06, 1.0],
+                                          stops: const [0.06, 1.0],
                                           // 设置渐变色的起始和结束位置的停止点
                                           transform: const GradientRotation(
                                               213 *
@@ -567,9 +664,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   _getIconUrl(String type, String modelNum) {
     if (type == '0x21') {
-      return 'assets/newUI/device/${type}_${modelNum}.png';
+      return 'assets/newUI/device/${type}_$modelNum.png';
     } else {
-      return 'assets/newUI/device/${type}.png';
+      return 'assets/newUI/device/$type.png';
     }
   }
 
@@ -623,4 +720,15 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
   void rejectGesture(int pointer) {
     acceptGesture(pointer);
   }
+}
+
+List<List<T>> compareData<T>(List<T> cachedData,List<T> apiData) {
+
+  Set<T> cachedDataSet = Set.from(cachedData);
+  Set<T> apiDataSet = Set.from(apiData);
+
+  Set<T> addedData = apiDataSet.difference(cachedDataSet);
+  Set<T> removedData = cachedDataSet.difference(apiDataSet);
+
+  return [addedData.toList(), removedData.toList()];
 }

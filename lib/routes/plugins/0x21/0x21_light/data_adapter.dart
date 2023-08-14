@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/push.dart';
 import '../../../../models/device_entity.dart';
@@ -41,6 +42,13 @@ class DeviceDataEntity {
     nodeId = detail["nodeId"];
 
     deviceEnt?.detail = detail;
+  }
+
+  void setDetailHomlux(HomluxDeviceEntity detail) {
+    power = detail.mzgdPropertyDTOList?.x1?.onOff == 1;
+    brightness = detail.mzgdPropertyDTOList?.x1?.level as num;
+    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemp as num;
+
   }
 
   @override
@@ -113,7 +121,13 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
         }
       });
     } else if (platform.inHomlux()) {
-      // TODO
+      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.nodeId);
+      if(res.isSuccess) {
+        if(res.result == null) return;
+        device.setDetailHomlux(res.result!);
+        judgeModel();
+        updateUI();
+      }
     }
   }
 

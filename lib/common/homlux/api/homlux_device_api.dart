@@ -3,6 +3,7 @@ import 'package:screen_app/common/homlux/api/homlux_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 
 import '../models/homlux_device_entity.dart';
+import '../models/homlux_group_entity.dart';
 
 class HomluxDeviceApi {
   /// ******************
@@ -39,6 +40,20 @@ class HomluxDeviceApi {
         cancelToken: cancelToken,
         options: Options(method: 'POST'),
         data: {'houseId': homeId});
+  }
+
+  /// *****************
+  /// 根据分组id查设备详情
+  /// [groupId] 分组id
+  /// ****************
+  static Future<HomluxResponseEntity<HomluxGroupEntity>>
+  queryGroupByGroupId(String groupId,
+      {CancelToken? cancelToken}) {
+    return HomluxApi.request<HomluxGroupEntity>(
+        '/v1/mzgd/scene/queryGroupByGroupId',
+        cancelToken: cancelToken,
+        options: Options(method: 'POST'),
+        data: {'groupId': groupId});
   }
 
   /// ******************
@@ -90,7 +105,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(
       String deviceId, String deviceType, String masterId, int delayTime) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'delayClose': delayTime}
+      <String, dynamic>{'devId': deviceId, 'ep': 1, 'DelayClose': delayTime}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -266,7 +281,7 @@ class HomluxDeviceApi {
   }
 
   /// ******************
-  /// 控制wifi窗帘的开和关
+  /// 控制wifi窗帘的全开和全关
   /// [deviceId] 设备Id
   /// [deviceType] 设备类型
   /// [onOff] 0关 1开
@@ -274,7 +289,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiCurtainOnOff(
       String deviceId, String deviceType, int onOff) {
     var actions = [
-      <String, dynamic>{'curtain_position': onOff == 1 ? 100 : 0}
+      <String, dynamic>{'curtain_status': onOff == 1 ? "open" : "close"}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -285,7 +300,7 @@ class HomluxDeviceApi {
   }
 
   /// ******************
-  /// 控制wifi调光调色灯的色温
+  /// 控制wifi窗帘位置百分比
   /// [deviceId] 设备Id
   /// [deviceType] 设备类型
   /// [position] 0 - 100
@@ -293,7 +308,25 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiCurtainPosition(
       String deviceId, String deviceType, int position) {
     var actions = [
-      <String, dynamic>{'curtain_position': position}
+      <String, dynamic>{'curtain_position': "$position"}
+    ];
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiCurtainControl',
+        inputData: actions,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi窗帘暂停
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiCurtainStop(
+      String deviceId, String deviceType) {
+    var actions = [
+      <String, dynamic>{'curtain_status': "stop"}
     ];
     return _controlDevice(
         topic: '/subdevice/control',

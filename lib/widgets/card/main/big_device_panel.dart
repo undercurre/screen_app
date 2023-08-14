@@ -1,48 +1,63 @@
-
 import 'package:flutter/cupertino.dart';
-import '../../mz_slider.dart';
+import 'package:screen_app/routes/plugins/0x17/mode_list.dart';
+import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 
 class BigDevicePanelCardWidget extends StatefulWidget {
+  final Widget icon;
   final String name;
-  final bool onOff;
-  final bool online;
-  final bool isFault;
-  final bool isNative;
   final String roomName;
-  final Function? onMoreTap; // 右边的三点图标的点击事件
-  //----
-  final List<String> buttonsName; // 面板按键名称，最多4个
-  final List<bool> buttonsOnOff; // 面板按键是否开启
+  final String isOnline;
+  PanelDataAdapter adapter; // 数据适配器
 
-  /// index:索引，value: 将要设置的值，name；该路的名称
-  final void Function(num index, bool value, String name)? onButtonTap; // 面板按键点击
-
-  const BigDevicePanelCardWidget(
-      {super.key,
-        required this.name,
-        required this.onOff,
-        required this.roomName,
-        this.onMoreTap,
-        required this.online,
-        required this.isFault,
-        required this.isNative,
-        required this.buttonsName,
-        required this.buttonsOnOff,
-        this.onButtonTap});
+  BigDevicePanelCardWidget({
+    super.key,
+    required this.icon,
+    required this.adapter,
+    required this.roomName,
+    required this.isOnline,
+    required this.name,
+  });
 
   @override
-  _BigDevicePanelCardWidgetState createState() => _BigDevicePanelCardWidgetState();
+  _BigDevicePanelCardWidgetState createState() =>
+      _BigDevicePanelCardWidgetState();
 }
 
-class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
-
+class _BigDevicePanelCardWidgetState
+    extends State<BigDevicePanelCardWidget> {
   @override
   void initState() {
     super.initState();
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        widget.adapter.data.statusList = widget.adapter.data.statusList;
+      });
+      Log.i('更新数据', widget.adapter.data.nameList);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.adapter.unBindDataUpdateFunction(() {
+      updateData();
+    });
     super.dispose();
   }
 
@@ -57,26 +72,9 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
           Positioned(
             top: 14,
             left: 24,
-            child: Image(
-                width: 40,
-                height: 40,
-                image: AssetImage(_getIconSrc())
-            ),
+            child:
+                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
-
-          Positioned(
-            top: 16,
-            right: 16,
-            child: GestureDetector(
-              onTap: () => widget.onMoreTap?.call(),
-              child: const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')
-              ),
-            ),
-          ),
-
           Positioned(
             top: 10,
             left: 88,
@@ -86,9 +84,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: widget.isNative ? 100 : 140
-                    ),
+                    constraints:
+                        const BoxConstraints(maxWidth: 140),
                     child: Text(widget.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -97,15 +94,11 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                             fontSize: 22,
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)
-                    ),
+                            decoration: TextDecoration.none)),
                   ),
                 ),
-
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 90
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 90),
                   child: Text(widget.roomName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -114,13 +107,10 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 90
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 90),
                   child: Text(" | ${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -129,33 +119,11 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
-
-                if(widget.isNative) Container(
-                  alignment: Alignment.center,
-                  width: 48,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(24)),
-                    border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
-                  ),
-                  margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                  child: const Text("本地",
-                    style: TextStyle(
-                        height: 1.6,
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 14,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none),
-                  ),
-                )
               ],
             ),
           ),
-
           Positioned(
             top: 68,
             left: 32,
@@ -165,15 +133,14 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if(widget.buttonsName.isNotEmpty) _panelItem(0),
-                  if(widget.buttonsName.length >= 2) _panelItem(1),
-                  if(widget.buttonsName.length >= 3) _panelItem(2),
-                  if(widget.buttonsName.length >= 4) _panelItem(3),
+                  if (widget.adapter.data.statusList.isNotEmpty) _panelItem(0),
+                  if (widget.adapter.data.statusList.length >= 2) _panelItem(1),
+                  if (widget.adapter.data.statusList.length >= 3) _panelItem(2),
+                  if (widget.adapter.data.statusList.length >= 4) _panelItem(3),
                 ],
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -184,16 +151,22 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       width: 84,
       height: 120,
       child: GestureDetector(
-        onTap: () => widget.onButtonTap?.call(index, !_isPanelItemOn(index), widget.buttonsName[index]),
+        onTap: () async {
+          await widget.adapter.fetchOrderPowerMeiju(index + 1);
+          await widget.adapter.fetchData();
+        },
         child: Stack(
           alignment: Alignment.center,
           children: [
             Image(
               height: 120,
               width: 84,
-              image: _isPanelItemOn(index) ? const AssetImage("assets/newUI/panel_btn_on.png") : const AssetImage("assets/newUI/panel_btn_off.png"),
+              image: _isPanelItemOn(index)
+                  ? const AssetImage("assets/newUI/panel_btn_on.png")
+                  : const AssetImage("assets/newUI/panel_btn_off.png"),
             ),
-            Text(widget.buttonsName[index],
+            Text(
+              widget.adapter.data.nameList[index],
               style: const TextStyle(
                   overflow: TextOverflow.ellipsis,
                   color: Color(0XFFFFFFFF),
@@ -209,42 +182,51 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   }
 
   String _getIconSrc() {
-    if(widget.buttonsName.length == 1) return "assets/newUI/device/0x21_1339.png";
-    if(widget.buttonsName.length == 2) return "assets/newUI/device/0x21_1340.png";
-    if(widget.buttonsName.length == 3) return "assets/newUI/device/0x21_1341.png";
+    if (widget.adapter.data.nameList.length == 1) {
+      return "assets/newUI/device/0x21_1339.png";
+    }
+    if (widget.adapter.data.nameList.length == 2) {
+      return "assets/newUI/device/0x21_1340.png";
+    }
+    if (widget.adapter.data.nameList.length == 3) {
+      return "assets/newUI/device/0x21_1341.png";
+    }
     return "assets/newUI/device/0x21_1342.png";
   }
 
   bool _isPanelItemOn(int index) {
-    if(index < 0 || index > widget.buttonsOnOff.length - 1) {
+    if (index < 0 || index > widget.adapter.data.statusList.length - 1) {
       return false;
     } else {
-      return widget.buttonsOnOff[index];
+      return widget.adapter.data.statusList[index];
     }
   }
 
   String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
+    if (widget.isOnline == '0') {
       return '离线';
     }
-    return '在线';
+    if (widget.adapter.data!.statusList.isNotEmpty) {
+      return '在线';
+    } else {
+      return '离线';
+    }
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
-      return const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
+    if (widget.isOnline != '0' && widget.adapter.data!.statusList.isNotEmpty) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            Color(0xFF818895),
+            Color(0xFF767B86),
             Color(0xFF88909F),
             Color(0xFF516375),
           ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
         ),
       );
     }
@@ -264,5 +246,4 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       ),
     );
   }
-
 }

@@ -8,6 +8,7 @@ import 'package:screen_app/states/index.dart';
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
 import '../common/homlux/models/homlux_scene_entity.dart';
+import '../common/logcat_helper.dart';
 import '../common/meiju/api/meiju_scene_api.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
 import '../common/system.dart';
@@ -20,6 +21,27 @@ class SceneListModel extends ChangeNotifier {
   SceneListModel() {
     logger.i('场景model加载');
     getSceneList();
+  }
+
+  List<SceneInfoEntity> getCacheSceneList() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      Log.i('场景列表数据', sceneListMeiju.list?.length);
+      return sceneListMeiju.list!.map((e) {
+        SceneInfoEntity sceneObj = SceneInfoEntity();
+        sceneObj.name = e.name;
+        sceneObj.sceneId = e.sceneId;
+        sceneObj.image = e.image;
+        return sceneObj;
+      }).toList();
+    } else {
+      return sceneListHomlux.map((e) {
+        SceneInfoEntity sceneObj = SceneInfoEntity();
+        sceneObj.name = e.sceneName;
+        sceneObj.sceneId = e.sceneId;
+        sceneObj.image = e.sceneIcon;
+        return sceneObj;
+      }).toList();
+    }
   }
 
   Future<List<SceneInfoEntity>> getSceneList() async {
