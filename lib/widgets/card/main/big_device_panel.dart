@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/routes/plugins/0x17/mode_list.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
-import '../../mz_slider.dart';
 
 class BigDevicePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -24,33 +24,40 @@ class BigDevicePanelCardWidget extends StatefulWidget {
       _BigDevicePanelCardWidgetState();
 }
 
-class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
+class _BigDevicePanelCardWidgetState
+    extends State<BigDevicePanelCardWidget> {
   @override
   void initState() {
     super.initState();
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
       Log.i('更新数据', widget.adapter.data.nameList);
-    });
+    }
   }
 
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
-      setState(() {
-        widget.adapter.data.statusList = widget.adapter.data.statusList;
-      });
-      Log.i('更新数据', widget.adapter.data.nameList);
+      updateData();
     });
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.adapter.unBindDataUpdateFunction(() {
+      updateData();
+    });
     super.dispose();
   }
 

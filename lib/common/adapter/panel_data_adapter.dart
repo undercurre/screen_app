@@ -164,10 +164,10 @@ class PanelDataAdapter extends MideaDataAdapter {
 // The rest of the code for PanelData class remains the same as before
 class PanelData {
   // 开关名称列表
-  List<String> nameList = [];
+  List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
 
   // 开关状态列表
-  List<bool> statusList = [];
+  List<bool> statusList = [false, false, false, false];
 
   PanelData({
     required this.nameList,

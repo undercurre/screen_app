@@ -32,27 +32,33 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   void initState() {
     super.initState();
     widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
       setState(() {
         widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
       });
       Log.i('更新数据', widget.adapter.data.nameList);
-    });
+    }
   }
 
   @override
   void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
-      setState(() {
-        widget.adapter.data.statusList = widget.adapter.data.statusList;
-      });
-      Log.i('更新数据', widget.adapter.data.nameList);
+      updateData();
     });
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.adapter.unBindDataUpdateFunction(() {
+      updateData();
+    });
     super.dispose();
   }
 

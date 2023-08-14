@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/logcat_helper.dart';
-
 import '../../../common/adapter/panel_data_adapter.dart';
 
 class MiddleDevicePanelCardWidget extends StatefulWidget {
@@ -31,10 +30,16 @@ class _MiddleDevicePanelCardWidgetState
     super.initState();
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
+      updataData();
+    });
+  }
+
+  void updataData() {
+    widget.adapter.bindDataUpdateFunction(() {
       setState(() {
-        widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
+        widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
-      Log.i('更新数据', widget.adapter.data.statusList);
+      Log.i('更新数据', widget.adapter.data.nameList);
     });
   }
 
@@ -42,16 +47,16 @@ class _MiddleDevicePanelCardWidgetState
   void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
-      setState(() {
-        widget.adapter.data.statusList = widget.adapter.data.statusList;
-      });
-      Log.i('更新数据', widget.adapter.data.nameList);
+      updataData();
     });
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.adapter.unBindDataUpdateFunction(() {
+      updataData();
+    });
     super.dispose();
   }
 
