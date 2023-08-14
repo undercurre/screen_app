@@ -5,6 +5,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/global.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
 import 'card_type_config.dart';
@@ -318,6 +319,9 @@ class _CustomPageState extends State<CustomPage> {
                               List<int> fillCells = screenLayer
                                   .checkAvailability(result.cardType);
                               result.grids = fillCells;
+                              Log.i('cardInfo', result.type);
+                              Log.i('cardInfo', result.cardType);
+                              Log.i('cardData', result.data);
                               Widget cardWidget =
                                   buildMap[result.type]![result.cardType]!(
                                       result.data);
@@ -328,28 +332,8 @@ class _CustomPageState extends State<CustomPage> {
                                 child: UnconstrainedBox(child: cardWidget),
                               );
                               // 插入pageview
-                              if (_screens.isEmpty) {
-                                // 在屏幕为空的情况下
-                                _screens.add(
-                                  UnconstrainedBox(
-                                    child: Container(
-                                      width: 480,
-                                      height: 480,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 32, 20, 34),
-                                      child: StaggeredGrid.count(
-                                        crossAxisCount: 4,
-                                        mainAxisSpacing: 20,
-                                        crossAxisSpacing: 20,
-                                        axisDirection: AxisDirection.down,
-                                        children: [cardWithPosition],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                                logger.i('屏幕列表', _screens);
-                              } else {
-                                _screens[curPageIndex] = UnconstrainedBox(
+                              _screens.add(
+                                UnconstrainedBox(
                                   child: Container(
                                     width: 480,
                                     height: 480,
@@ -363,8 +347,9 @@ class _CustomPageState extends State<CustomPage> {
                                       children: [cardWithPosition],
                                     ),
                                   ),
-                                );
-                              }
+                                ),
+                              );
+                              logger.i('屏幕列表', _screens);
                             }
                             layoutModel.addLayout(result);
                           }

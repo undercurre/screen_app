@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:screen_app/common/logcat_helper.dart';
+import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 
 class MiddleDevicePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -38,7 +38,7 @@ class _MiddleDevicePanelCardWidgetState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 1000), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
@@ -51,24 +51,24 @@ class _MiddleDevicePanelCardWidgetState
     super.initState();
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
-      updataData();
+      updateData();
     });
   }
 
-  void updataData() {
-    widget.adapter.bindDataUpdateFunction(() {
+  void updateData() {
+    if (mounted) {
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
       Log.i('更新数据', widget.adapter.data.nameList);
-    });
+    }
   }
 
   @override
   void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
-      updataData();
+      updateData();
     });
     super.didUpdateWidget(oldWidget);
   }
@@ -76,7 +76,7 @@ class _MiddleDevicePanelCardWidgetState
   @override
   void dispose() {
     widget.adapter.unBindDataUpdateFunction(() {
-      updataData();
+      updateData();
     });
     super.dispose();
   }

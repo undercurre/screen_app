@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:screen_app/routes/plugins/0x17/mode_list.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 
@@ -39,7 +38,7 @@ class _BigDevicePanelCardWidgetState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(Duration(milliseconds: 1000), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 1000), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
