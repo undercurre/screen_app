@@ -22,6 +22,35 @@ class DeviceInfoListModel extends ChangeNotifier {
     getDeviceList();
   }
 
+  List<DeviceEntity> getCacheDeviceList() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      Log.i('设备列表数据', deviceListMeiju.length);
+      return deviceListMeiju.map((e) {
+        DeviceEntity deviceObj = DeviceEntity();
+        deviceObj.name = e.name!;
+        deviceObj.applianceCode = e.applianceCode!;
+        deviceObj.type = e.type!;
+        deviceObj.modelNumber = e.modelNumber!;
+        deviceObj.roomName = e.roomName!;
+        deviceObj.masterId = e.masterId!;
+        deviceObj.onlineStatus = e.onlineStatus!;
+        return deviceObj;
+      }).toList();
+    } else {
+      return deviceListHomlux.map((e) {
+        DeviceEntity deviceObj = DeviceEntity();
+        deviceObj.name = e.deviceName!;
+        deviceObj.applianceCode = e.deviceId!;
+        deviceObj.type = e.proType!;
+        deviceObj.modelNumber = e.deviceType.toString();
+        deviceObj.roomName = e.roomName!;
+        deviceObj.masterId = e.gatewayId!;
+        deviceObj.onlineStatus = e.onLineStatus.toString();
+        return deviceObj;
+      }).toList();
+    }
+  }
+
   Future<List<DeviceEntity>> getDeviceList() async {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       final familyInfo = System.familyInfo;

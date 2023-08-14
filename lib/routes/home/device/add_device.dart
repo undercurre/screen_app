@@ -11,6 +11,7 @@ import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
+import '../../../common/logcat_helper.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
@@ -43,22 +44,109 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    initCache();
+  }
+
+  initCache() async {
+    final sceneListModel = Provider.of<SceneListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
+    List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
+    if (deviceRes.length > 8) {
+      setState(() {
+        devices = deviceRes
+            .sublist(0, 8)
+            .where((e) =>
+        getDeviceEntityType(e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
+      });
+    } else {
+      setState(() {
+        devices = deviceRes
+            .where((e) =>
+        getDeviceEntityType(e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
+      });
+    }
+    if (sceneRes.length > 8) {
+      setState(() {
+        scenes = sceneRes.sublist(0, 8);
+      });
+    } else {
+      setState(() {
+        scenes = sceneRes;
+      });
+    }
+    await Future.delayed(Duration(milliseconds: 500));
+    if (sceneRes.length > 8) {
+      setState(() {
+        scenes.addAll(sceneRes.sublist(8));
+      });
+    }
+    if (deviceRes.length > 8) {
+      devices.addAll(deviceRes
+          .sublist(8)
+          .where((e) =>
+      getDeviceEntityType(e.type, e.modelNumber) !=
+          DeviceEntityTypeInP4.Default)
+          .toList());
+    }
     initData();
   }
 
   initData() async {
-    final sceneListModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    deviceListModel.getDeviceList().then((value) => setState(() {
-          devices = value
-              .where((e) =>
-                  getDeviceEntityType(e.type, e.modelNumber) !=
-                  DeviceEntityTypeInP4.Default)
-              .toList();
-        }));
-    sceneListModel.getSceneList().then((value) => setState(() {
-          scenes = value;
-        }));
+    final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    List<DeviceEntity> deviceCache = deviceListModel.getCacheDeviceList();
+    List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
+    Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
+    Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
+
+    List<DeviceEntity> deviceRes = [];
+    List<SceneInfoEntity> sceneRes = [];
+
+    try {
+      await Future.wait([deviceFuture, sceneFuture]);
+      deviceRes = await deviceFuture;
+      sceneRes = await sceneFuture;
+      deviceRes = deviceRes.where((e) =>
+      getDeviceEntityType(e.type, e.modelNumber) !=
+          DeviceEntityTypeInP4.Default)
+          .toList();
+
+      // Here you can work with deviceRes and sceneRes
+      print("Device Results: $deviceRes");
+      print("Scene Results: $sceneRes");
+    } catch (error) {
+      print("Error occurred: $error");
+    }
+
+    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
+
+    setState(() {
+      devices.removeWhere((element) => compareDevice[1].contains(element));
+      scenes.removeWhere((element) => compareScene[1].contains(element));
+
+      for (DeviceEntity item in compareDevice[0]) {
+        int index = deviceRes.indexOf(item);
+        if (index >= 0 && index <= devices.length) {
+          devices.insert(index, item);
+        } else {
+          devices.add(item);
+        }
+      }
+      for (SceneInfoEntity item in compareScene[0]) {
+        int index = sceneRes.indexOf(item);
+        if (index >= 0 && index <= scenes.length) {
+          scenes.insert(index, item);
+        } else {
+          scenes.add(item);
+        }
+      }
+    });
   }
 
   @override
@@ -632,4 +720,15 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
   void rejectGesture(int pointer) {
     acceptGesture(pointer);
   }
+}
+
+List<List<T>> compareData<T>(List<T> cachedData,List<T> apiData) {
+
+  Set<T> cachedDataSet = Set.from(cachedData);
+  Set<T> apiDataSet = Set.from(apiData);
+
+  Set<T> addedData = apiDataSet.difference(cachedDataSet);
+  Set<T> removedData = cachedDataSet.difference(apiDataSet);
+
+  return [addedData.toList(), removedData.toList()];
 }
