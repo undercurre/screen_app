@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.AIR_CONDITION_QUERY_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE;
@@ -34,7 +38,7 @@ public class ControlManager implements Data485Subject {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
     private static final int BAUD_RATE = 9600;
-    private boolean running = true, isFirstFrame = false, commandFinsh = true;
+    private boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
     private int totalSize = 0;
@@ -132,13 +136,16 @@ public class ControlManager implements Data485Subject {
                                 //拿到所有数据后再发出
                                 if (totalArry.length == totalSize) {
 //                                    Log.e("sky", "完整数据:" + total);
-                                    commandFinsh = true;
                                     notifyObservers(total.toString());
+                                    Thread.sleep(20);
+                                    commandFinish = true;
                                 }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                             Log.e("sky", "mInputStream报错:" + e.getMessage());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
                     } else {
                         Log.e("sky", "mInputStream为空");
@@ -148,39 +155,75 @@ public class ControlManager implements Data485Subject {
         }.start();
 
 
-
-
     }
 
+    BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    boolean firstIn = true;
+    long firstInTime = 0;
+
     public void write(String str) {
-//        Log.e("sky", "发出去的数据:" + str);
-        if (commandFinsh == false) {
-            //上次任务没完成,不执行这次任务
-            return;
+        //生产者生产数据
+        queue.offer(str);
+//        Log.e("sky", "放进去的数据:" + str);
+        if (firstIn) {
+            firstInTime = System.currentTimeMillis();
+            firstIn = false;
+            ExecutorService service = Executors.newCachedThreadPool();
+            Consumer consumer = new Consumer(queue);
+            service.execute(consumer);
         }
-        isFirstFrame = true;
-        commandFinsh = false;
-        commandStrArry = str.split(" ");
-        if (mOutputStream != null) {
-            List<Byte> data = new ArrayList<>();
-            String[] strArry = str.split(" ");
-            for (int i = 0; i < strArry.length; i++) {
-                data.add(hexToByte(strArry[i]));
+        if (System.currentTimeMillis() - firstInTime > 10000) {//10秒内没有任何设备就停止刷新查找设备
+            if (AirConditionController.getInstance().AirConditionList.size() == 0 && FreshAirController.getInstance().FreshAirList.size() == 0 && FloorHotController.getInstance().FloorHotList.size() == 0) {
+                queue.clear();
+                stopFresh();
+                running = false;
             }
-            byte[] destinationArray = new byte[data.size()];
-            for (int i = 0; i < data.size(); i++) {
-                destinationArray[i] = data.get(i);
-            }
-            try {
-                mOutputStream.write(destinationArray);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e("sky", "mOutputStream报错:" + e.getMessage());
-            }
-        } else {
-            Log.e("sky", "mOutputStream为空");
+        }
+    }
+
+    public class Consumer implements Runnable {
+
+        private BlockingQueue<String> queue;
+
+        //构造函数
+        public Consumer(BlockingQueue<String> queue) {
+            this.queue = queue;
         }
 
+        public void run() {
+            while (running) {
+                //消费者消费数据,消费结束的标志是commandFinish为true
+                if (commandFinish == true) {
+                    String str = queue.poll();
+                    isFirstFrame = true;
+                    commandFinish = false;
+                    if (null != str) {
+//                            Log.e("sky", "拿到要执行的数据:"+str);
+                        commandStrArry = str.split(" ");
+                        if (mOutputStream != null) {
+                            List<Byte> data = new ArrayList<>();
+                            String[] strArry = str.split(" ");
+                            for (int i = 0; i < strArry.length; i++) {
+                                data.add(hexToByte(strArry[i]));
+                            }
+                            byte[] destinationArray = new byte[data.size()];
+                            for (int i = 0; i < data.size(); i++) {
+                                destinationArray[i] = data.get(i);
+                            }
+                            try {
+                                mOutputStream.write(destinationArray);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sky", "mOutputStream报错:" + e.getMessage());
+                            }
+                        } else {
+                            Log.e("sky", "mOutputStream为空");
+                        }
+                    }
+                }
+
+            }
+        }
     }
 
     public void close() {
@@ -250,15 +293,16 @@ public class ControlManager implements Data485Subject {
     }
 
     public void stopFresh() {
-        if (task != null) {
-            task.cancel();
-        }
         if (timer != null) {
             timer.cancel();
         }
-        commandFinsh=true;
-        totalSize=0;
+        if (task != null) {
+            task.cancel();
+        }
+        commandFinish = true;
+        totalSize = 0;
         total = new StringBuffer();
+        queue.clear();
     }
 
     TimerTask task = new TimerTask() {

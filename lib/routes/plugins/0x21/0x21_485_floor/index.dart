@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../../widgets/event_bus.dart';
-import '../0x21_485_cac/cac_data_adapter.dart';
 import 'floor_data_adapter.dart';
 
 class FloorHeating485PageState extends State<FloorHeating485Page> {
@@ -78,7 +77,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
             child: Image(
               width: 276,
               height: 386,
-              image: AssetImage("assets/imgs/plugins/0xAC_FloorHeating485/floor_heating_dev.png"),
+              image: AssetImage("assets/imgs/plugins/0xAC_floorHeating/floor_heating_dev.png"),
             ),
           ),
 
