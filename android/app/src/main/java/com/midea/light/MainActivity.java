@@ -23,6 +23,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
@@ -241,11 +243,11 @@ public class MainActivity extends FlutterActivity {
                                    }
                                    FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i),temp);
                                }
-                               if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null&&PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()==0){
-                                   FloorHotController.getInstance().setFrostProtectionOff(FloorHotController.getInstance().FloorHotList.get(i));
-                               }else{
-                                   FloorHotController.getInstance().setFrostProtectionOn(FloorHotController.getInstance().FloorHotList.get(i));
-                               }
+//                               if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null&&null!=PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()&&PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()==0){
+//                                   FloorHotController.getInstance().setFrostProtectionOff(FloorHotController.getInstance().FloorHotList.get(i));
+//                               }else{
+//                                   FloorHotController.getInstance().setFrostProtectionOn(FloorHotController.getInstance().FloorHotList.get(i));
+//                               }
                            }
                        }
 

@@ -10,8 +10,6 @@ import com.midea.light.device.explore.controller.control485.ControlManager;
 import com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Observer;
 import com.midea.light.device.explore.controller.control485.deviceModel.FreshAirModel;
-import com.midea.light.device.explore.controller.control485.deviceModel.FreshAirModel;
-import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent;
 import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent;
 import com.midea.light.device.explore.controller.control485.util.SumUtil;
 import com.midea.light.gateway.GateWayUtils;
@@ -21,12 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.AIR_CONDITION_QUERY_CODE;
-import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE;
-import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.ALL_AIR_CONDITION_QUERY_PARELETE_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.CLOSE;
-import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.OFF_LINE;
-import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.ON_LINE;
 import static com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr.OPEN;
 import static com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr.ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr.ALL_FRESH_AIR_QUERY_PARELETE_CODE;
@@ -258,6 +251,7 @@ public class FreshAirController implements Data485Observer {
    }
 
    private void controlDataCombination(FreshAirModel device ,String commandCode,String data){
+      ControlManager.getInstance().stopFresh();
       StringBuffer sb = new StringBuffer();
       sb.append("01");
       sb.append(" ");
@@ -273,5 +267,7 @@ public class FreshAirController implements Data485Observer {
       sb.append(" ");
       sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().write(sb.toString());
+      ControlManager.getInstance().startFresh();
+
    }
 }

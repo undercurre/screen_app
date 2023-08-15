@@ -272,7 +272,7 @@ public class AirConditionController implements Data485Observer {
       sb.append(" ");
       sb.append(device.getInSideAddress());
       sb.append(" ");
-      sb.append(SumUtil.sum(sb.toString()));
+      sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().write(sb.toString());
       ControlManager.getInstance().startFresh();
 
