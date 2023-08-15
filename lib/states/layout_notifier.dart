@@ -8,6 +8,7 @@ import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../common/logcat_helper.dart';
 import '../routes/home/device/layout_data.dart';
 
 class LayoutModel extends ChangeNotifier {
@@ -40,7 +41,10 @@ class LayoutModel extends ChangeNotifier {
             0,
             [1, 2, 5, 6],
             DataInputCard(
-                name: '时钟', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
+                name: '时钟',
+                applianceCode: uuid.v4(),
+                roomName: '屏内',
+                isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.Weather,
@@ -48,7 +52,10 @@ class LayoutModel extends ChangeNotifier {
             0,
             [3, 4, 7, 8],
             DataInputCard(
-                name: '天气', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
+                name: '天气',
+                applianceCode: uuid.v4(),
+                roomName: '屏内',
+                isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel1,
@@ -56,7 +63,10 @@ class LayoutModel extends ChangeNotifier {
             0,
             [9, 10],
             DataInputCard(
-                name: '继电器1', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
+                name: '继电器1',
+                applianceCode: uuid.v4(),
+                roomName: '屏内',
+                isOnline: '')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel2,
@@ -64,7 +74,10 @@ class LayoutModel extends ChangeNotifier {
             0,
             [11, 12],
             DataInputCard(
-                name: '继电器2', applianceCode: uuid.v4(), roomName: '屏内', isOnline: '')),
+                name: '继电器2',
+                applianceCode: uuid.v4(),
+                roomName: '屏内',
+                isOnline: '')),
       ]);
       _saveLayouts();
     }
@@ -150,6 +163,100 @@ class LayoutModel extends ChangeNotifier {
             item.pageIndex == pageIndex &&
             item != getLayoutsByDevice(deviceId))
         .toList();
+  }
+
+  // 根据pageIndex判断该页是否已经储存满
+  bool isFillPage(int pageIndex) {
+    int itemsPerPage = 16;
+    List<Layout> layoutsOnPage =
+        layouts.where((element) => element.pageIndex == pageIndex).toList();
+    List<int> gridFilledOnPage = [];
+    layoutsOnPage.forEach((element) {
+      gridFilledOnPage.addAll(element.grids);
+    });
+    return gridFilledOnPage.length < itemsPerPage;
+  }
+
+  // 根据CardType判断第几页有适合的空位
+  LayoutPosition getFlexiblePage(CardType cardType) {
+    int maxPage = getMaxPageIndex();
+    Log.i('最大页序', maxPage);
+    for (int i = 0; i <= maxPage; i++) {
+      Log.i('${i}页${isFillPage(i) ? '有' : '无'}空位');
+      if (isFillPage(i)) {
+        // 该页有空位
+
+        // 获取该页的layouts
+        List<Layout> layoutsInCurPage =
+            layouts.where((element) => element.pageIndex == i).toList();
+        Screen screenLayer = Screen();
+        for (int j = 0; j < layoutsInCurPage.length; j++) {
+          for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
+            int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
+            int col = (layoutsInCurPage[j].grids[k] - 1) % 4;
+            screenLayer.setCellOccupied(row, col, true);
+          }
+        }
+        Log.i('填充后的布局', screenLayer.getOccupiedGridIndices());
+        // 尝试填充
+        List<int> fillCells = screenLayer.checkAvailability(cardType);
+        Log.i('检索合适的位置', '${i}页${fillCells}');
+        if (fillCells.isNotEmpty) {
+          // 有合适的位置
+          return LayoutPosition(pageIndex: i, grids: fillCells);
+        }
+        screenLayer.resetGrid();
+      }
+    }
+
+    return LayoutPosition(pageIndex: -1, grids: []);
+  }
+
+  List<Layout> fillNullLayoutList(List<Layout> layoutList, int pageIndex) {
+    Log.i('填充前', layoutList.map((e) => e.grids));
+
+    // 深复制一份
+    List<Layout> cloneList = deepCopy(layoutList);
+    if (isFillPage(pageIndex)) {
+      // 该页有空位
+
+      // 获取该页的layouts
+      List<Layout> layoutsInCurPage =
+          layouts.where((element) => element.pageIndex == pageIndex).toList();
+      Screen screenLayer = Screen();
+      for (int j = 0; j < layoutsInCurPage.length; j++) {
+        for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
+          int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
+          int col = (layoutsInCurPage[j].grids[k] - 1) % 4;
+          screenLayer.setCellOccupied(row, col, true);
+        }
+      }
+      int filledCount = screenLayer.getOccupiedGridIndices().length;
+      Log.i('填充格子数$filledCount');
+      // 尝试填充
+      for (int n = 0; n <= ((16 - filledCount) / 2); n++) {
+        List<int> fillCells = screenLayer.checkAvailability(CardType.Small);
+        for (int o = 0; o < fillCells.length; o++) {
+          int row = (fillCells[o] - 1) ~/ 4;
+          int col = (fillCells[o] - 1) % 4;
+          screenLayer.setCellOccupied(row, col, true);
+        }
+        if (fillCells.isNotEmpty) {
+          // 有合适的位置
+          cloneList.add(Layout(
+              uuid.v4(),
+              DeviceEntityTypeInP4.DeviceNull,
+              CardType.Small,
+              pageIndex,
+              fillCells,
+              DataInputCard(
+                  name: '', applianceCode: '', roomName: '', isOnline: '')));
+        }
+      }
+      screenLayer.resetGrid();
+    }
+    Log.i('填充后', cloneList.map((e) => e.grids));
+    return cloneList;
   }
 
   // 拖拽换位算法
@@ -242,4 +349,22 @@ class LayoutModel extends ChangeNotifier {
     _saveLayouts();
     notifyListeners();
   }
+}
+
+class LayoutPosition {
+  int pageIndex;
+  List<int> grids;
+
+  LayoutPosition({
+    required this.pageIndex,
+    required this.grids,
+  });
+}
+
+List<Layout> deepCopy(List<Layout> original) {
+  List<Layout> copy = [];
+  for (var element in original) {
+    copy.add(element);
+  }
+  return copy;
 }
