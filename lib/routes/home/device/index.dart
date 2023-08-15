@@ -104,8 +104,6 @@ class _DevicePageState extends State<DevicePage> {
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
           int row = (grid - 1) ~/ 4;
           int col = grid % 4 - 1 != -1 ? grid % 4 - 1 : 3;
-          Log.i('行', row);
-          Log.i('列', col);
           screenLayer.setCellOccupied(row, col, true);
         }
         // 查询是否已经用持久化的数据就填满了这一页
@@ -174,8 +172,6 @@ class _DevicePageState extends State<DevicePage> {
       if (pageCount == hadPageCount && hadNotInList.isEmpty) {
         List<int> editCardFillCells =
             screenLayer.checkAvailability(CardType.Edit);
-        Log.i('占位情况', screenLayer.getOccupiedGridIndices());
-        Log.i('Edit条目占位', editCardFillCells);
         // 当占位成功
         if (editCardFillCells.isNotEmpty) {
           Widget editCardWithPosition = const StaggeredGridTile.count(
