@@ -51,6 +51,7 @@ class PanelDataAdapter extends MideaDataAdapter {
       }
 
       if (_meijuData != null) {
+        Log.i(_meijuData.toString(), modelNumber);
         data = PanelData.fromMeiJu(_meijuData, modelNumber);
       } else if (_homluxData != null) {
         data = PanelData.fromHomlux(_homluxData, modelNumber);
@@ -63,18 +64,13 @@ class PanelDataAdapter extends MideaDataAdapter {
         );
         return;
       }
-
       // Data retrieval success
       dataState = DataState.SUCCESS;
       updateUI();
     } catch (e) {
       // Error occurred while fetching data
       dataState = DataState.ERROR;
-      data = PanelData(
-        nameList: [],
-        statusList: [],
-      );
-      updateUI();
+      Log.i(e.toString());
     }
   }
 

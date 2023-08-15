@@ -6,6 +6,7 @@ import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
 import '../../../common/logcat_helper.dart';
+import '../../mz_dialog.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -85,8 +86,37 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await widget.adapter.fetchOrderPowerMeiju(1);
-        _throttledFetchData();
+        if (widget.isOnline == '0') {
+          MzDialog(
+              title: '该设备已离线',
+              titleSize: 28,
+              maxWidth: 432,
+              backgroundColor:
+              const Color(0xFF494E59),
+              contentPadding:
+              const EdgeInsets.fromLTRB(
+                  33, 24, 33, 0),
+              contentSlot: const Text(
+                  "设备离线，请检查网络是否正常",
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  style: TextStyle(
+                    color: Color(0xFFB6B8BC),
+                    fontSize: 24,
+                    height: 1.6,
+                    fontFamily: "MideaType",
+                    decoration:
+                    TextDecoration.none,
+                  )),
+              btns: ['确定'],
+              onPressed:
+                  (_, position, context) {
+                Navigator.pop(context);
+              }).show(context);
+        } else {
+          await widget.adapter.fetchOrderPowerMeiju(1);
+          _throttledFetchData();
+        }
       },
       child: Container(
         width: 210,

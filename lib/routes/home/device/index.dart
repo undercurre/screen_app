@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/global.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../states/layout_notifier.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';
@@ -101,9 +102,8 @@ class _DevicePageState extends State<DevicePage> {
             gridsIndex++) {
           // 把已经布局的数据在布局器中占位
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
-          int row = grid ~/ 4;
+          int row = (grid - 1) ~/ 4;
           int col = grid % 4 - 1 != -1 ? grid % 4 - 1 : 3;
-          logger.i(row, col);
           screenLayer.setCellOccupied(row, col, true);
         }
         // 查询是否已经用持久化的数据就填满了这一页

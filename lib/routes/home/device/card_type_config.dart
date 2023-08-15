@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/card/main/big_device_air.dart';
@@ -28,6 +29,8 @@ import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
+  // 空位
+  DeviceNull,
   // 默认
   Default,
   // 时间组件
@@ -205,6 +208,13 @@ class DataInputCard {
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     buildMap = {
+  DeviceEntityTypeInP4.DeviceNull: {
+    CardType.Small: (params) => Container(
+          width: 210,
+          height: 88,
+          color: Colors.transparent
+        )
+  },
   DeviceEntityTypeInP4.Clock: {
     CardType.Other: (params) => DigitalClockWidget(),
   },
@@ -335,134 +345,134 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_3018: {
     CardType.Small: (params) => Small485AirDeviceCardWidget(
-      name: params.name,
-      applianceCode: params.applianceCode,
-      modelNumber: params.modelNumber,
-      masterId: params.masterId,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      onOff: true,
-      roomName: params.roomName,
-      characteristic: '',
-      onTap: () => {},
-      onMoreTap: () => {},
-      online: params.isOnline,
-      isFault: false,
-      isNative: false,
-      adapter: AirDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline,
+          isFault: false,
+          isNative: false,
+          adapter: AirDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
     CardType.Middle: (params) => Middle485AirDeviceCardWidget(
-      name: params.name,
-      applianceCode: params.applianceCode,
-      modelNumber: params.modelNumber,
-      masterId: params.masterId,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      onOff: true,
-      roomName: params.roomName,
-      characteristic: '',
-      onTap: () => {},
-      onMoreTap: () => {},
-      online: params.isOnline == "0" ? false : true,
-      isFault: false,
-      isNative: false,
-      adapter: AirDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          adapter: AirDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
     CardType.Big: (params) => Big485AirDeviceAirCardWidget(
-      name: params.name,
-      onOff: true,
-      roomName: params.roomName,
-      online: params.isOnline == "0" ? false : true,
-      isFault: false,
-      isNative: false,
-      adapter: AirDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          onOff: true,
+          roomName: params.roomName,
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          adapter: AirDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_3019: {
     CardType.Small: (params) => Small485FloorDeviceCardWidget(
-      name: params.name,
-      applianceCode: params.applianceCode,
-      modelNumber: params.modelNumber,
-      masterId: params.masterId,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      onOff: true,
-      roomName: params.roomName,
-      characteristic: '',
-      onTap: () => {},
-      onMoreTap: () => {},
-      online: params.isOnline,
-      isFault: false,
-      isNative: false,
-      adapter: FloorDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline,
+          isFault: false,
+          isNative: false,
+          adapter: FloorDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
     CardType.Middle: (params) => Middle485FloorDeviceCardWidget(
-      name: params.name,
-      applianceCode: params.applianceCode,
-      modelNumber: params.modelNumber,
-      masterId: params.masterId,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      onOff: true,
-      roomName: params.roomName,
-      characteristic: '',
-      onTap: () => {},
-      onMoreTap: () => {},
-      online: params.isOnline == "0" ? false : true,
-      isFault: false,
-      isNative: false,
-      adapter: FloorDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          applianceCode: params.applianceCode,
+          modelNumber: params.modelNumber,
+          masterId: params.masterId,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          onOff: true,
+          roomName: params.roomName,
+          characteristic: '',
+          onTap: () => {},
+          onMoreTap: () => {},
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          adapter: FloorDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
     CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
-      name: params.name,
-      onOff: true,
-      roomName: params.roomName,
-      online: params.isOnline == "0" ? false : true,
-      isFault: false,
-      isNative: false,
-      temperature: 30,
-      min: 5,
-      max: 90,
-      adapter: FloorDataAdapter.create(
-        params.name,
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          name: params.name,
+          onOff: true,
+          roomName: params.roomName,
+          online: params.isOnline == "0" ? false : true,
+          isFault: false,
+          isNative: false,
+          temperature: 30,
+          min: 5,
+          max: 90,
+          adapter: FloorDataAdapter.create(
+            params.name,
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
   },
   DeviceEntityTypeInP4.Device0x13: {
     CardType.Small: (params) => SmallDeviceCardWidget(

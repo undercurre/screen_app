@@ -15,9 +15,11 @@ import '../../../common/logcat_helper.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../../widgets/card/main/panelNum.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
+import '../../../widgets/mz_dialog.dart';
 
 class AddDevicePage extends StatefulWidget {
   const AddDevicePage({Key? key}) : super(key: key);
@@ -57,16 +59,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
         devices = deviceRes
             .sublist(0, 8)
             .where((e) =>
-        getDeviceEntityType(e.type, e.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+                getDeviceEntityType(e.type, e.modelNumber) !=
+                DeviceEntityTypeInP4.Default)
             .toList();
       });
     } else {
       setState(() {
         devices = deviceRes
             .where((e) =>
-        getDeviceEntityType(e.type, e.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+                getDeviceEntityType(e.type, e.modelNumber) !=
+                DeviceEntityTypeInP4.Default)
             .toList();
       });
     }
@@ -89,8 +91,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devices.addAll(deviceRes
           .sublist(8)
           .where((e) =>
-      getDeviceEntityType(e.type, e.modelNumber) !=
-          DeviceEntityTypeInP4.Default)
+              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
           .toList());
     }
     initData();
@@ -98,7 +100,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   initData() async {
     final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
     List<DeviceEntity> deviceCache = deviceListModel.getCacheDeviceList();
     List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
     Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
@@ -111,13 +114,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       await Future.wait([deviceFuture, sceneFuture]);
       deviceRes = await deviceFuture;
       sceneRes = await sceneFuture;
-      deviceCache = deviceCache.where((e) =>
-      getDeviceEntityType(e.type, e.modelNumber) !=
-          DeviceEntityTypeInP4.Default)
+      deviceCache = deviceCache
+          .where((e) =>
+              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
           .toList();
-      deviceRes = deviceRes.where((e) =>
-      getDeviceEntityType(e.type, e.modelNumber) !=
-          DeviceEntityTypeInP4.Default)
+      deviceRes = deviceRes
+          .where((e) =>
+              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
           .toList();
 
       // Here you can work with deviceRes and sceneRes
@@ -127,8 +132,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
       print("Error occurred: $error");
     }
 
-    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
-    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
+    List<List<DeviceEntity>> compareDevice =
+        compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene =
+        compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
 
@@ -169,6 +176,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final layoutModel = Provider.of<LayoutModel>(context);
     Layout resultData = Layout(
         uuid.v4(),
         DeviceEntityTypeInP4.Clock,
@@ -318,6 +326,30 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
+                              if (layoutModel.hasLayoutWithDeviceId(
+                                  devices[index].applianceCode)) {
+                                MzDialog(
+                                    title: '该设备已添加',
+                                    titleSize: 28,
+                                    maxWidth: 432,
+                                    backgroundColor: const Color(0xFF494E59),
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        33, 24, 33, 0),
+                                    contentSlot: const Text("如需更换卡片，请先删除再添加",
+                                        textAlign: TextAlign.center,
+                                        maxLines: 3,
+                                        style: TextStyle(
+                                          color: Color(0xFFB6B8BC),
+                                          fontSize: 24,
+                                          height: 1.6,
+                                          fontFamily: "MideaType",
+                                          decoration: TextDecoration.none,
+                                        )),
+                                    btns: ['确定'],
+                                    onPressed: (_, position, context) {
+                                      Navigator.pop(context);
+                                    }).show(context);
+                              }
                               resultData = Layout(
                                 devices[index].applianceCode,
                                 getDeviceEntityType(devices[index].type,
@@ -352,77 +384,110 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       roomName: devices[index].roomName!,
                                       characteristic: '',
                                       onTap: () {
-                                        DeviceEntityTypeInP4 curDeviceEntity =
-                                            getDeviceEntityType(
-                                                devices[index].type,
-                                                devices[index].modelNumber);
-                                        if (_isPanel(devices[index].modelNumber,
-                                            devices[index].type)) {
-                                          CardType curCardType =
-                                              _getPanelCardType(
-                                                  devices[index].modelNumber,
-                                                  devices[index].type);
-                                          resultData = Layout(
-                                            devices[index].applianceCode,
-                                            curDeviceEntity,
-                                            curCardType,
-                                            -1,
-                                            [],
-                                            DataInputCard(
-                                              name: devices[index].name,
-                                              applianceCode:
-                                                  devices[index].applianceCode,
-                                              roomName:
-                                                  devices[index].roomName!,
-                                              modelNumber:
-                                                  devices[index].modelNumber,
-                                              masterId: devices[index].masterId,
-                                              isOnline:
-                                                  devices[index].onlineStatus,
-                                            ),
-                                          );
-                                          Navigator.pop(context, resultData);
+                                        if (layoutModel.hasLayoutWithDeviceId(
+                                            devices[index].applianceCode)) {
+                                          MzDialog(
+                                              title: '该设备已添加',
+                                              titleSize: 28,
+                                              maxWidth: 432,
+                                              backgroundColor:
+                                                  const Color(0xFF494E59),
+                                              contentPadding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      33, 24, 33, 0),
+                                              contentSlot: const Text(
+                                                  "如需更换卡片，请先删除再添加",
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 3,
+                                                  style: TextStyle(
+                                                    color: Color(0xFFB6B8BC),
+                                                    fontSize: 24,
+                                                    height: 1.6,
+                                                    fontFamily: "MideaType",
+                                                    decoration:
+                                                        TextDecoration.none,
+                                                  )),
+                                              btns: ['确定'],
+                                              onPressed:
+                                                  (_, position, context) {
+                                                Navigator.pop(context);
+                                              }).show(context);
                                         } else {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return CardDialog(
+                                          DeviceEntityTypeInP4 curDeviceEntity =
+                                              getDeviceEntityType(
+                                                  devices[index].type,
+                                                  devices[index].modelNumber);
+                                          if (_isPanel(
+                                              devices[index].modelNumber,
+                                              devices[index].type)) {
+                                            CardType curCardType =
+                                                _getPanelCardType(
+                                                    devices[index].modelNumber,
+                                                    devices[index].type);
+                                            resultData = Layout(
+                                              devices[index].applianceCode,
+                                              curDeviceEntity,
+                                              curCardType,
+                                              -1,
+                                              [],
+                                              DataInputCard(
                                                 name: devices[index].name,
-                                                type: devices[index].type,
                                                 applianceCode: devices[index]
                                                     .applianceCode,
-                                                modelNumber:
-                                                    devices[index].modelNumber,
                                                 roomName:
                                                     devices[index].roomName!,
-                                              );
-                                            },
-                                          ).then(
-                                            (value) {
-                                              resultData = Layout(
-                                                devices[index].applianceCode,
-                                                curDeviceEntity,
-                                                value,
-                                                -1,
-                                                [],
-                                                DataInputCard(
+                                                modelNumber:
+                                                    devices[index].modelNumber,
+                                                masterId:
+                                                    devices[index].masterId,
+                                                isOnline:
+                                                    devices[index].onlineStatus,
+                                              ),
+                                            );
+                                            Navigator.pop(context, resultData);
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CardDialog(
                                                   name: devices[index].name,
+                                                  type: devices[index].type,
                                                   applianceCode: devices[index]
                                                       .applianceCode,
-                                                  roomName:
-                                                      devices[index].roomName!,
                                                   modelNumber: devices[index]
                                                       .modelNumber,
-                                                  masterId:
-                                                      devices[index].masterId,
-                                                  isOnline: devices[index]
-                                                      .onlineStatus,
-                                                ),
-                                              );
-                                              Navigator.pop(
-                                                  context, resultData);
-                                            },
-                                          );
+                                                  roomName:
+                                                      devices[index].roomName!,
+                                                );
+                                              },
+                                            ).then(
+                                              (value) {
+                                                resultData = Layout(
+                                                  devices[index].applianceCode,
+                                                  curDeviceEntity,
+                                                  value,
+                                                  -1,
+                                                  [],
+                                                  DataInputCard(
+                                                    name: devices[index].name,
+                                                    applianceCode:
+                                                        devices[index]
+                                                            .applianceCode,
+                                                    roomName: devices[index]
+                                                        .roomName!,
+                                                    modelNumber: devices[index]
+                                                        .modelNumber,
+                                                    masterId:
+                                                        devices[index].masterId,
+                                                    isOnline: devices[index]
+                                                        .onlineStatus,
+                                                  ),
+                                                );
+                                                Navigator.pop(
+                                                    context, resultData);
+                                              },
+                                            );
+                                          }
                                         }
                                       },
                                       online: true,
@@ -728,8 +793,7 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
   }
 }
 
-List<List<T>> compareData<T>(List<T> cachedData,List<T> apiData) {
-
+List<List<T>> compareData<T>(List<T> cachedData, List<T> apiData) {
   Set<T> cachedDataSet = Set.from(cachedData);
   Set<T> apiDataSet = Set.from(apiData);
 

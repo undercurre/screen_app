@@ -254,6 +254,7 @@ public class FloorHotController implements Data485Observer {
    }
 
    private void controlDataCombination(FloorHotModel device ,String commandCode,String data){
+      ControlManager.getInstance().stopFresh();
       StringBuffer sb = new StringBuffer();
       sb.append("01");
       sb.append(" ");
@@ -267,7 +268,9 @@ public class FloorHotController implements Data485Observer {
       sb.append(" ");
       sb.append(device.getInSideAddress());
       sb.append(" ");
-      sb.append(SumUtil.sum(sb.toString()));
+      sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().write(sb.toString());
+      ControlManager.getInstance().startFresh();
+
    }
 }
