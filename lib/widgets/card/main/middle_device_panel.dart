@@ -161,15 +161,22 @@ class _MiddleDevicePanelCardWidgetState
                           : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
-                child: Text(widget.adapter.data.nameList[0],
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 16,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)),
+                child: SizedBox(
+                  width: 84,
+                  child: Center(
+                    child: Text(
+                      widget.adapter.data.nameList[0],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XFFFFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -192,15 +199,22 @@ class _MiddleDevicePanelCardWidgetState
                           : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
-                child: Text(widget.adapter.data.nameList[1],
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 16,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)),
+                child: SizedBox(
+                  width: 84,
+                  child: Center(
+                    child: Text(
+                      widget.adapter.data.nameList[1],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XFFFFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
