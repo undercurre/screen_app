@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/push/homlux_push_message_model.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
@@ -56,27 +57,24 @@ class HomluxPushManager {
   }
 
   static void stopConnect() async {
-    // 1. 关闭旧连接, 定时器
-    _isConnect = false;
-    retryConnectTimer?.cancel();
-    hearPacketTimeoutTimer?.cancel();
-    webSocket?.close();
-    webSocket = null;
+    if(_isConnect) {
+      // 1. 关闭旧连接, 定时器
+      _isConnect = false;
+      retryConnectTimer?.cancel();
+      hearPacketTimeoutTimer?.cancel();
+      webSocket?.close();
+      webSocket = null;
+    }
   }
 
-  static startConnect(
-      {required String token,
-      required String houseId,
-      int retrySeconds = 2}) async {
+  static startConnect([int retrySeconds = 2]) async {
 
     _isConnect = false;
-
-
 
     // 重连函数
     void reconnectFunction() {
       retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
-        startConnect(token: token, houseId: houseId, retrySeconds: retrySeconds * 2);
+        startConnect(retrySeconds * 2);
         retryConnectTimer = null;
       });
     }
@@ -89,6 +87,10 @@ class HomluxPushManager {
       await webSocket?.close();
       webSocket = null;
 
+      if (!HomluxGlobal.isLogin) {
+        return;
+      }
+
       // 1.1 判断是否能建立连接
       if(!System.isLogin() || !System.inHomluxPlatform()) {
         Log.file('homlux ws 状态不符合，无法建立连接');
@@ -96,7 +98,12 @@ class HomluxPushManager {
       }
 
       // 2.建立新连接
-      webSocket = await WebSocket.connect(dotenv.get('HOMLUX_PUSH_WSS') + houseId);
+      webSocket = await WebSocket.connect(
+          dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
+          headers: {
+            'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
+          });
+
       webSocket?.pingInterval = const Duration(seconds: _pingInterval);
       webSocket?.timeout(const Duration(seconds: _connectTimeout));
 

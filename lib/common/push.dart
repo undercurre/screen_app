@@ -15,6 +15,7 @@ import 'package:web_socket_channel/io.dart';
 
 typedef EventCallback = void Function(Map<String,dynamic> arg);
 
+@Deprecated('此类已过期，请使用新方式对接')
 class Push {
   static Timer? _timer;
   static Timer? _subscriptTimer;

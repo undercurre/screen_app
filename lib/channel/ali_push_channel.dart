@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 
 import '../common/logcat_helper.dart';
-import '../common/meiju/push/MeiJuPushManager.dart';
+import '../common/meiju/push/meiju_push_manager.dart';
 
 class AliPushMethodChannel extends AbstractChannel{
   // 构造器函数

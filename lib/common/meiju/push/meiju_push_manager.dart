@@ -30,18 +30,20 @@ class MeiJuPushManager {
   }
 
   static void stopConnect() {
-    _isConnect = false;
-    if (_timer?.isActive ?? false) {
-      _timer?.cancel();
+    if(_isConnect) {
+      _isConnect = false;
+      if (_timer?.isActive ?? false) {
+        _timer?.cancel();
+      }
+
+      if (_subscriptTimer?.isActive ?? false) {
+        _subscriptTimer?.cancel();
+      }
+
+      _channel?.sink.close();
+
+      _aliPushUnBind();
     }
-
-    if (_subscriptTimer?.isActive ?? false) {
-      _subscriptTimer?.cancel();
-    }
-
-    _channel?.sink.close();
-
-    _aliPushUnBind();
   }
 
   static Future<void> startConnect() async {

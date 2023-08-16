@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../common/gateway_platform.dart';
@@ -12,10 +13,21 @@ class _Boot extends State<Boot> {
     super.initState();
 
     bus.on("logout", (arg) {
-      Push.dispose();
+      PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
       System.loginOut();
       Navigator.pushNamedAndRemoveUntil(
           context, 'Login', (route) => route.settings.name == "/");
+    });
+
+    bus.on('change_platform', (arg) {
+      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+        ChangePlatformHelper.changeToHomlux();
+      } else {
+        ChangePlatformHelper.changeToMeiju();
+      }
+      Navigator.pushNamedAndRemoveUntil(
+          context,
+          "Login", (route) => route.settings.name == "/");
     });
 
     () async {
@@ -105,10 +117,6 @@ class _Boot extends State<Boot> {
         context,
         isFinishLogin ? 'Home' : 'Login',
       );
-
-      if (isFinishLogin) {
-        Push.sseInit();
-      }
     }
 
   }

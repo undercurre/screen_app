@@ -18,6 +18,7 @@ import '../../common/gateway_platform.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/meiju/models/meiju_delete_device_result_entity.dart';
 import '../../common/setting.dart';
+import '../../widgets/event_bus.dart';
 import '../../widgets/mz_setting_item.dart';
 
 // 关于页的数据提供者
@@ -230,13 +231,7 @@ class AboutSettingPage extends StatelessWidget {
             vertical: 30, horizontal: 50),
         onPressed: (_, index, context) {
           if (index == 1) {
-            Push.dispose();
-            System.loginOut();
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                "Login",
-                    (route) =>
-                route.settings.name == "/");
+            bus.emit('logout');
           } else {
             Navigator.pop(context);
           }
@@ -259,17 +254,7 @@ class AboutSettingPage extends StatelessWidget {
             vertical: 30, horizontal: 50),
         onPressed: (_, index, context) {
           if (index == 1) {
-            if (MideaRuntimePlatform.platform ==
-                GatewayPlatform.MEIJU) {
-              ChangePlatformHelper.changeToHomlux();
-            } else {
-              ChangePlatformHelper.changeToMeiju();
-            }
-            Push.dispose();
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                "Login",
-                    (route) => route.settings.name == "/");
+            bus.emit('change_platform');
           } else {
             Navigator.pop(context);
           }
