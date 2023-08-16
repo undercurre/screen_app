@@ -12,7 +12,6 @@ import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
-import '../../common/logcat_helper.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
@@ -32,10 +31,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
   bool isNeedChoosePlatform = false;
-  bool isSelectOnce = false;
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
+  GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -74,11 +73,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     if (stepNum == 3) {
       if (System.familyInfo == null) {
         // 必须选择家庭信息才能进行下一步
-        if (isSelectOnce) {
-          TipsUtils.toast(content: '该家庭无登陆权限，请重新选择');
-        } else {
-          TipsUtils.toast(content: '请选择家庭');
-        }
+        // 检查家庭是否有权限
+        selectHomeKey.currentState?.checkAndSelect();
         return;
       }
       if (isNeedShowClearAlert) {
@@ -204,10 +200,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Step(
           '选择家庭',
           SelectHome(
+              key: selectHomeKey,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
-                isSelectOnce = true;
                 System.familyInfo = home;
+                nextStep();
               })
       ),
       Step(
