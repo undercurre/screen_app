@@ -94,14 +94,14 @@ class _DevicePageState extends State<DevicePage> {
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
       List<Layout> layoutsInCurPage =
-      layoutModel.getLayoutsByPageIndex(pageCount);
+          layoutModel.getLayoutsByPageIndex(pageCount);
       for (int layoutInCurPageIndex = 0;
-      layoutInCurPageIndex < layoutsInCurPage.length;
-      layoutInCurPageIndex++) {
+          layoutInCurPageIndex < layoutsInCurPage.length;
+          layoutInCurPageIndex++) {
         // 取出当前布局的grids
         for (int gridsIndex = 0;
-        gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length;
-        gridsIndex++) {
+            gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length;
+            gridsIndex++) {
           // 把已经布局的数据在布局器中占位
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
           int row = (grid - 1) ~/ 4;
@@ -150,35 +150,39 @@ class _DevicePageState extends State<DevicePage> {
       // ************单页构造
       // 当前页
       List<Layout> curScreenLayouts =
-      layoutModel.getLayoutsByPageIndex(pageCount);
+          layoutModel.getLayoutsByPageIndex(pageCount);
       // 处理editCard
       bool isCanAdd = true;
       // if (pageCount == hadPageCount && hadNotInList.isEmpty) {
       if (pageCount == hadPageCount) {
         List<int> editCardFillCells =
-        screenLayer.checkAvailability(CardType.Edit);
+            screenLayer.checkAvailability(CardType.Edit);
         Log.i('编辑条目占位结果', editCardFillCells);
         // 当占位成功
         if (editCardFillCells.isNotEmpty) {
           curScreenLayouts.add(Layout(
-              uuid.v4(), DeviceEntityTypeInP4.DeviceEdit, CardType.Edit,
-              hadPageCount, editCardFillCells, DataInputCard(
-              name: '', applianceCode: '', roomName: '', isOnline: '')));
+              uuid.v4(),
+              DeviceEntityTypeInP4.DeviceEdit,
+              CardType.Edit,
+              hadPageCount,
+              editCardFillCells,
+              DataInputCard(
+                  name: '', applianceCode: '', roomName: '', isOnline: '')));
         } else {
           isCanAdd = false;
         }
       }
       // 填充
       List<Layout> fillNullLayoutList =
-      layoutModel.fillNullLayoutList(curScreenLayouts, pageCount);
+          layoutModel.fillNullLayoutList(curScreenLayouts, pageCount);
       // 映射排序
       List<Layout> sortedLayoutList = Layout.sortLayoutList(fillNullLayoutList);
       // 根据队列顺序插入该屏页面
       for (Layout layoutAfterSort in sortedLayoutList) {
         // 映射出对应的Card
         Widget cardWidget =
-        buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
-            layoutAfterSort.data);
+            buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
+                layoutAfterSort.data);
         // 映射布局占格
         Widget cardWithPosition = StaggeredGridTile.fit(
             crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
@@ -217,12 +221,14 @@ class _DevicePageState extends State<DevicePage> {
             width: 480,
             height: 480,
             padding: const EdgeInsets.fromLTRB(20, 32, 20, 34),
-            child: StaggeredGrid.count(
-              crossAxisCount: 4,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              axisDirection: AxisDirection.down,
-              children: [...curScreenWidgetList],
+            child: SingleChildScrollView(
+              child: StaggeredGrid.count(
+                crossAxisCount: 4,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                axisDirection: AxisDirection.down,
+                children: [...curScreenWidgetList],
+              ),
             ),
           ),
         ),

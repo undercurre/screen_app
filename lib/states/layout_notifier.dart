@@ -237,14 +237,11 @@ class LayoutModel extends ChangeNotifier {
     if (isFillPage(pageIndex)) {
       // 该页有空位
 
-      // 获取该页的layouts
-      List<Layout> layoutsInCurPage =
-          layouts.where((element) => element.pageIndex == pageIndex).toList();
       Screen screenLayer = Screen();
-      for (int j = 0; j < layoutsInCurPage.length; j++) {
-        for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
-          int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
-          int col = (layoutsInCurPage[j].grids[k] - 1) % 4;
+      for (int j = 0; j < layoutList.length; j++) {
+        for (int k = 0; k < layoutList[j].grids.length; k++) {
+          int row = (layoutList[j].grids[k] - 1) ~/ 4;
+          int col = (layoutList[j].grids[k] - 1) % 4;
           screenLayer.setCellOccupied(row, col, true);
         }
       }
