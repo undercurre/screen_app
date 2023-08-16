@@ -100,7 +100,7 @@ class MzDialog {
       for (int i = 0; i < btns!.length; i++) {
         bool isLast = btns!.length - 1 == i;
         btnList.add(SizedBox(
-            width: 168,
+            width: btns!.length > 1 ? 168 : 240,
             height: 56,
             child: TextButton(
               style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
@@ -132,7 +132,7 @@ class MzDialog {
               if(btnList.isNotEmpty) Container(
                   padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
                   child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: btnList.length > 1 ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                       children: btnList))
             ],
           );

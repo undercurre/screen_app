@@ -15,7 +15,7 @@ mixin Ota<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
-    bus.on("ota-new-version", (arg) {
+    bus.on<String>("ota-new-version", (arg) {
       // 显示OTA弹窗
       showOtaDialog(context, arg);
     });
@@ -106,7 +106,7 @@ class _OtaState1 extends State<_OtaDialog> {
   void initState() {
     super.initState();
 
-    bus.on('ota-download-loading', (arg) {
+    bus.on<double>('ota-download-loading', (arg) {
       print("当前下载的进度为：$arg");
       setState(() {
         step = _stepDownload;
@@ -415,7 +415,7 @@ class _OtaState extends State<_OtaDialog> {
   void initState() {
     super.initState();
 
-    bus.on('ota-download-loading', (arg) {
+    bus.on<double>('ota-download-loading', (arg) {
       print("当前下载的进度为：$arg");
       setState(() {
         step = _stepDownload;

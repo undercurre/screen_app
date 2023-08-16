@@ -60,11 +60,11 @@ class ChangePlatformHelper {
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
       }
+      LayoutModel().removeLayouts();
       return suc;
     } else {
       HomluxGlobal.setLogout();
       MeiJuApi.init();
-      LayoutModel().removeLayouts();
       System.initForMeiju();
       AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
       MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
@@ -84,11 +84,11 @@ class ChangePlatformHelper {
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
       }
+      LayoutModel().removeLayouts();
       return suc;
     } else {
       MeiJuGlobal.setLogout();
       HomluxApi.init();
-      LayoutModel().removeLayouts();
       System.initForHomlux();
       AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
       MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;

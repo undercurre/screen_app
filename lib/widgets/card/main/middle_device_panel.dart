@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../mz_dialog.dart';
 
 class MiddleDevicePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -147,8 +148,37 @@ class _MiddleDevicePanelCardWidgetState
             left: 16,
             child: GestureDetector(
               onTap: () async {
-                await widget.adapter.fetchOrderPowerMeiju(1);
-                _throttledFetchData();
+                if (widget.isOnline == '0') {
+                  MzDialog(
+                      title: '该设备已离线',
+                      titleSize: 28,
+                      maxWidth: 432,
+                      backgroundColor:
+                      const Color(0xFF494E59),
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(
+                          33, 24, 33, 0),
+                      contentSlot: const Text(
+                          "设备离线，请检查网络是否正常",
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          style: TextStyle(
+                            color: Color(0xFFB6B8BC),
+                            fontSize: 24,
+                            height: 1.6,
+                            fontFamily: "MideaType",
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                      btns: ['确定'],
+                      onPressed:
+                          (_, position, context) {
+                        Navigator.pop(context);
+                      }).show(context);
+                } else {
+                  await widget.adapter.fetchOrderPowerMeiju(1);
+                  _throttledFetchData();
+                }
               },
               child: Container(
                 alignment: Alignment.center,
@@ -161,15 +191,22 @@ class _MiddleDevicePanelCardWidgetState
                           : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
-                child: Text(widget.adapter.data.nameList[0],
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 16,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)),
+                child: SizedBox(
+                  width: 84,
+                  child: Center(
+                    child: Text(
+                      widget.adapter.data.nameList[0],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XFFFFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -178,8 +215,37 @@ class _MiddleDevicePanelCardWidgetState
             right: 16,
             child: GestureDetector(
               onTap: () async {
-                await widget.adapter.fetchOrderPowerMeiju(2);
-                _throttledFetchData();
+                if (widget.isOnline == '0') {
+                  MzDialog(
+                      title: '该设备已离线',
+                      titleSize: 28,
+                      maxWidth: 432,
+                      backgroundColor:
+                      const Color(0xFF494E59),
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(
+                          33, 24, 33, 0),
+                      contentSlot: const Text(
+                          "设备离线，请检查网络是否正常",
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          style: TextStyle(
+                            color: Color(0xFFB6B8BC),
+                            fontSize: 24,
+                            height: 1.6,
+                            fontFamily: "MideaType",
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                      btns: ['确定'],
+                      onPressed:
+                          (_, position, context) {
+                        Navigator.pop(context);
+                      }).show(context);
+                } else {
+                  await widget.adapter.fetchOrderPowerMeiju(2);
+                  _throttledFetchData();
+                }
               },
               child: Container(
                 alignment: Alignment.center,
@@ -192,15 +258,22 @@ class _MiddleDevicePanelCardWidgetState
                           : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
-                child: Text(widget.adapter.data.nameList[1],
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 16,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)),
+                child: SizedBox(
+                  width: 84,
+                  child: Center(
+                    child: Text(
+                      widget.adapter.data.nameList[1],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XFFFFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -221,36 +294,16 @@ class _MiddleDevicePanelCardWidgetState
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.isOnline != '0' && widget.adapter.data!.statusList.isNotEmpty) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
+    return const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(24)),
+      gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
           Color(0x33616A76),
           Color(0x33434852),
         ],
-      ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
-      ),
+      )
     );
   }
 }
