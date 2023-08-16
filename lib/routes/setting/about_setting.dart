@@ -368,17 +368,6 @@ class AboutSettingPage extends StatelessWidget {
                                   fontWeight: FontWeight.normal,
                                   decoration: TextDecoration.none,
                                 )),
-                            const SizedBox(width: 10),
-                            if (context.watch<AboutSettingProvider>().isLogin ?? false)
-                              MzSettingButton(
-                                onTap: () {
-                                  showLogoutDialog(context);
-                                },
-                                text: '登出',
-                                borderColor: const Color(0xFF0092DC),
-                                backgroundColor: const Color(0x330092DC),
-                                fontColor: const Color(0xFF0092DC),
-                              )
                           ]),
                         ),
                         MultiClick(
@@ -434,39 +423,68 @@ class AboutSettingPage extends StatelessWidget {
                           ),
                           tipText: otaChannel.hasNewVersion ? 'New' : null,
                         ),
-                        MzSettingItem(
-                          onTap: () {
-                            showRebootDialog(
-                                context, context.read<AboutSettingProvider>());
-                          },
-                          leftText: '重启系统',
-                          rightWidget: MzSettingButton(
-                            text: '重启',
-                          ),
-                        ),
-                        MzSettingItem(
-                          onTap: () {
-                            showClearUserDataDialog(
-                                context, context.read<AboutSettingProvider>());
-                          },
-                          leftText: '清除用户数据',
-                          rightWidget: MzSettingButton(
-                            text: '清除',
-                            backgroundColor: Colors.transparent,
-                            borderColor: const Color.fromRGBO(255, 59, 48, 1),
-                            fontColor: const Color.fromRGBO(255, 59, 48, 1),
-                          ),
-                        ),
-                        MzSettingItem(
-                          onTap: () {
-                            showChangePlatformDialog(context);
-                          },
-                          leftText: '切换平台',
-                          containBottomDivider: false,
-                          rightWidget: MzSettingButton(
-                            text: '切换',
-                          ),
-                        ),
+                        // MzSettingItem(
+                        //   onTap: () {
+                        //     showRebootDialog(
+                        //         context, context.read<AboutSettingProvider>());
+                        //   },
+                        //   leftText: '重启系统',
+                        //   rightWidget: MzSettingButton(
+                        //     text: '重启',
+                        //   ),
+                        // ),
+                        // MzSettingItem(
+                        //   onTap: () {
+                        //     showClearUserDataDialog(
+                        //         context, context.read<AboutSettingProvider>());
+                        //   },
+                        //   leftText: '清除用户数据',
+                        //   rightWidget: MzSettingButton(
+                        //     text: '清除',
+                        //     backgroundColor: Colors.transparent,
+                        //     borderColor: const Color.fromRGBO(255, 59, 48, 1),
+                        //     fontColor: const Color.fromRGBO(255, 59, 48, 1),
+                        //   ),
+                        // ),
+                        // MzSettingItem(
+                        //   onTap: () {
+                        //     MzDialog(
+                        //         contentSlot: const Text('此操作将退出到选择平台界面，是否继续?',
+                        //             textAlign: TextAlign.center,
+                        //             style: TextStyle(
+                        //                 fontSize: 20,
+                        //                 fontFamily: 'MideaType',
+                        //                 fontWeight: FontWeight.w100,
+                        //                 height: 1.2)),
+                        //         title: "切换平台",
+                        //         maxWidth: 400,
+                        //         btns: ['取消', '确定'],
+                        //         contentPadding: const EdgeInsets.symmetric(
+                        //             vertical: 30, horizontal: 50),
+                        //         onPressed: (_, index, context) {
+                        //           if (index == 1) {
+                        //             if (MideaRuntimePlatform.platform ==
+                        //                 GatewayPlatform.MEIJU) {
+                        //               ChangePlatformHelper.changeToHomlux();
+                        //             } else {
+                        //               ChangePlatformHelper.changeToMeiju();
+                        //             }
+                        //             Push.dispose();
+                        //             Navigator.pushNamedAndRemoveUntil(
+                        //                 context,
+                        //                 "Login",
+                        //                 (route) => route.settings.name == "/");
+                        //           } else {
+                        //             Navigator.pop(context);
+                        //           }
+                        //         }).show(context);
+                        //   },
+                        //   leftText: '切换平台',
+                        //   containBottomDivider: false,
+                        //   rightWidget: MzSettingButton(
+                        //     text: '切换',
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
