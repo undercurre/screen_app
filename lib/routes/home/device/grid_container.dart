@@ -213,6 +213,7 @@ Map<CardType, Map<String, int>> sizeMap = {
   CardType.Middle: {'cross': 2, 'main': 2},
   CardType.Other: {'cross': 2, 'main': 2},
   CardType.Big: {'cross': 4, 'main': 2},
+  CardType.Edit: {'cross': 4, 'main': 1}
 };
 
 enum CardType { Small, Middle, Big, Other, Edit }

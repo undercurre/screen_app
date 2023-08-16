@@ -31,9 +31,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
   bool isNeedChoosePlatform = false;
-  bool isSelectOnce = false;
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
+  String routeFrom = "";
+  GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -72,11 +73,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     if (stepNum == 3) {
       if (System.familyInfo == null) {
         // 必须选择家庭信息才能进行下一步
-        if (isSelectOnce) {
-          TipsUtils.toast(content: '该家庭无登陆权限，请重新选择');
-        } else {
-          TipsUtils.toast(content: '请选择家庭');
-        }
+        // 检查家庭是否有权限
+        selectHomeKey.currentState?.checkAndSelect();
         return;
       }
       if (isNeedShowClearAlert) {
@@ -156,6 +154,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
     isNeedChoosePlatform = System.inNonePlatform();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      if (args != null) {
+        routeFrom = args["from"] ?? "";
+        if (routeFrom == "changePlatform") {
+          setState(() {
+            isNeedChoosePlatform = true;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -191,10 +200,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Step(
           '选择家庭',
           SelectHome(
+              key: selectHomeKey,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
-                isSelectOnce = true;
                 System.familyInfo = home;
+                nextStep();
               })
       ),
       Step(
@@ -212,28 +222,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     return Stack(
       children: [
         if (isNeedChoosePlatform) ChosePlatform(
-          onChose: (index) {
-            if(index == 0) {
-              ChangePlatformHelper.changeToMeiju().then((isOK) {
-                if (isOK) {
-                  setState(() {
-                    isNeedChoosePlatform = false;
-                  });
-                } else {
-                  TipsUtils.toast(content: '启动平台失败');
-                }
-              });
-            } else if(index == 1) {
-              ChangePlatformHelper.changeToHomlux().then((isOK) {
-                if (isOK) {
-                  setState(() {
-                    isNeedChoosePlatform = false;
-                  });
-                } else {
-                  TipsUtils.toast(content: '启动平台失败');
-                }
-              });
-            }
+          isChose: routeFrom == "changePlatform",
+          onFinished: () {
+            setState(() {
+              isNeedChoosePlatform = false;
+            });
           },
         ),
 
@@ -323,6 +316,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                               onPressed: () {
                                 setState(() {
                                   isNeedChoosePlatform = true;
+                                  routeFrom = "";
                                 });
                               },
                             ),

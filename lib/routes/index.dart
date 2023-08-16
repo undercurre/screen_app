@@ -59,6 +59,8 @@ var routes = <String, WidgetBuilder>{
   "SelectStandbyStylePage": (contest) => const SelectStandbyStylePage(),
   "MigrationOldVersionDataPage": (contest) => const MigrationOldVersionDataPage(),
   "AccountSettingPage": (contest) => const AccountSettingPage(),
+  "AdvancedSettingPage": (contest) => const AdvancedSettingPage(),
+  "CurrentPlatformPage": (contest) => const CurrentPlatformPage(),
 
 
   "0x13": (context) => const WifiLightPage(),

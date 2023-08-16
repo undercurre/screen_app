@@ -49,9 +49,6 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister;
@@ -331,20 +328,17 @@ public class MainActivity extends FlutterActivity {
     }
 
     public void initialHomluxAI(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
-//        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, new HomluxAiApi.IHomluxQueryDuiTokenCallback() {
-//            @Override
-//            public void result(@Nullable HomluxAiApi.HomluxDuiTokenEntity entity) {
-//                if(entity != null) {
-//                    com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.accessToken, entity.refreshToken, entity.accessTokenExpireTime, aiEnable, isWakUp -> {
-//                        LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
-//                        runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
-//                    }, Voice -> {
-//                        runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
-//                        LogUtil.i("Homlux语音大小 " + Voice);
-//                    });
-//                }
-//            }
-//        });
+        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, entity -> {
+            if(entity != null) {
+                com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(), entity.getResult().getAccessTokenExpireTime(), aiEnable, isWakUp -> {
+                    LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
+                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
+                }, Voice -> {
+                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
+                    LogUtil.i("Homlux语音大小 " + Voice);
+                });
+            }
+        });
     }
 
 

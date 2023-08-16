@@ -13,6 +13,12 @@ import '../routes/home/device/layout_data.dart';
 
 class LayoutModel extends ChangeNotifier {
   List<Layout> layouts = [];
+  int go2Refresh = 0;
+
+  void refresh() {
+    go2Refresh++;
+    notifyListeners();
+  }
 
   void setLayouts(List<Layout> newLayouts) {
     layouts = newLayouts;
@@ -31,6 +37,17 @@ class LayoutModel extends ChangeNotifier {
     logger.i('加载model', layoutList);
     if (layoutList != null) {
       layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+      // 安全过滤
+      for (int i = 0; i < layouts.length; i ++) {
+        // 找到数组中的最小值
+        int minValue = layouts[i].grids.reduce((min, current) => min < current ? min : current);
+
+        // 计算最小值与1的差距
+        int difference = 1 - minValue;
+
+        // 将最小值变为1，其他的值增加相同的差距
+        layouts[i].grids = layouts[i].grids.map((number) => number + difference).toList();
+      }
     } else {
       // 初次使用,展示默认布局
       setLayouts([
@@ -220,14 +237,11 @@ class LayoutModel extends ChangeNotifier {
     if (isFillPage(pageIndex)) {
       // 该页有空位
 
-      // 获取该页的layouts
-      List<Layout> layoutsInCurPage =
-          layouts.where((element) => element.pageIndex == pageIndex).toList();
       Screen screenLayer = Screen();
-      for (int j = 0; j < layoutsInCurPage.length; j++) {
-        for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
-          int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
-          int col = (layoutsInCurPage[j].grids[k] - 1) % 4;
+      for (int j = 0; j < layoutList.length; j++) {
+        for (int k = 0; k < layoutList[j].grids.length; k++) {
+          int row = (layoutList[j].grids[k] - 1) ~/ 4;
+          int col = (layoutList[j].grids[k] - 1) % 4;
           screenLayer.setCellOccupied(row, col, true);
         }
       }
@@ -342,7 +356,18 @@ class LayoutModel extends ChangeNotifier {
       if (!isValid) return;
     }
 
-    source.grids = target;
+    // 安全过滤：排除负值
+
+    // 找到数组中的最小值
+    int minValue = target.reduce((min, current) => min < current ? min : current);
+
+    // 计算最小值与1的差距
+    int difference = 1 - minValue;
+
+    // 将最小值变为1，其他的值增加相同的差距
+    List<int> modifiedNumbers = target.map((number) => number + difference).toList();
+
+    source.grids = modifiedNumbers;
     logger.i(
         '处理完成', getLayoutsByPageIndex(source.pageIndex).map((e) => e.grids));
 

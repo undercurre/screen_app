@@ -15,6 +15,7 @@ class AiDataAdapter extends MideaDataAdapter {
 
   AiDataAdapter(super.platform);
 
+  //原生有,先放着
   Future<bool> homluxQueryAiStartUpData(String houseId) async {
     var aiClientId = dotenv.get('HOMLUX_AI_CLIENT_ID');
     var result = await HomluxDuiTokenApi.queryDuiToken(houseId, aiClientId);

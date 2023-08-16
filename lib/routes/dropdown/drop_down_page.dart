@@ -96,7 +96,7 @@ class _DropDownPageState extends State<DropDownPage>
           ),
           child: Stack(
             children: [
-              /// 添加设备
+              /// 自定义
               Positioned(
                 left: 24,
                 top: 32,
@@ -105,7 +105,7 @@ class _DropDownPageState extends State<DropDownPage>
                     Navigator.pop(context),
                     Navigator.pushNamed(
                       context,
-                      'SnifferPage',
+                      'Custom',
                     )
                   },
                   child: Container(
@@ -119,11 +119,11 @@ class _DropDownPageState extends State<DropDownPage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
-                          "assets/newUI/add_device.png",
+                          "assets/newUI/custom.png",
                           width: 48,
                           height: 48,
                         ),
-                        const Text("添加设备",
+                        const Text("自定义",
                             style: TextStyle(
                               color: Color.fromRGBO(
                                   255, 255, 255, 0.5),

@@ -19,6 +19,7 @@ class MzCell extends StatefulWidget {
   final Widget? avatarIcon; // 左侧图标
   final Widget? rightIcon; // 右侧图标
   final String? rightText; // 显示右边文本
+  final Color? rightTextColor; // 右边文本颜色
   final bool hasArrow; // 显示右箭头
   final bool hasSwitch; // 显示右边Switch
   final bool initSwitchValue; // Switch初始值
@@ -47,6 +48,7 @@ class MzCell extends StatefulWidget {
     this.avatarIcon,
     this.rightIcon,
     this.rightText,
+    this.rightTextColor = const Color.fromRGBO(0, 145, 255, 1),
     this.hasArrow = false,
     this.hasSwitch = false,
     this.initSwitchValue = false,
@@ -191,12 +193,12 @@ class _CellState extends State<MzCell> {
             widget.rightText!,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 20,
               fontFamily: "MideaType",
-              fontWeight: FontWeight.w100,
+              fontWeight: FontWeight.w400,
               decoration: TextDecoration.none,
-              color: Color.fromRGBO(0, 145, 255, 1),
+              color: widget.rightTextColor,
             ),
           ),
         ),

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -250,15 +249,11 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                               );
                             });
                           }),
-                          Positioned(
-                            top: 72,
-                            left: 20,
-                            child: Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
+                          Container(
+                            width: 392,
+                            height: 1,
+                            decoration: const BoxDecoration(
+                                color: Color(0x19FFFFFF)
                             ),
                           ),
                           Consumer<StandbyChangeNotifier>(builder: (_, model, child) {
@@ -275,18 +270,14 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                             }, model.standbyTimeOpt.value != -1);
                           }
                           ),
-                          Positioned(
-                            top: 72,
-                            left: 20,
-                            child: Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
+                          Container(
+                            width: 392,
+                            height: 1,
+                            decoration: const BoxDecoration(
+                                color: Color(0x19FFFFFF)
                             ),
                           ),
-                          settingItem("息屏时间段", duration, () {
+                          settingItem("夜间模式", duration, () {
                             Navigator.of(context).pushNamed("SelectTimeDurationPage").then((value) {
                               final result = value as Pair<int, int>;
                               final startTime = result.value1;
