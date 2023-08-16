@@ -13,6 +13,12 @@ import '../routes/home/device/layout_data.dart';
 
 class LayoutModel extends ChangeNotifier {
   List<Layout> layouts = [];
+  int go2Refresh = 0;
+
+  void refresh() {
+    go2Refresh++;
+    notifyListeners();
+  }
 
   void setLayouts(List<Layout> newLayouts) {
     layouts = newLayouts;

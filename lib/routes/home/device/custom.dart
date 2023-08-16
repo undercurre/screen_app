@@ -398,7 +398,7 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
                         borderWidth: 1,
                         text: '完成',
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, '自定义返回');
                         },
                       )
                     ],

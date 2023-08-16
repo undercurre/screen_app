@@ -51,6 +51,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   @override
   void initState() {
     super.initState();
+    widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
     });

@@ -49,6 +49,7 @@ class _DevicePageState extends State<DevicePage> {
   List<Widget> getScreenList(List<Layout> layout) {
     // 使用provider
     final layoutModel = Provider.of<LayoutModel>(context);
+    Log.i('自定义刷新次数', layoutModel.go2Refresh);
     Log.i('布局数量', layoutModel.layouts.length);
     // 屏幕页面列表
     List<Widget> screenList = [];

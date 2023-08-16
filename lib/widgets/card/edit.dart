@@ -1,20 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/global.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/common/logcat_helper.dart';
+
+import '../../states/layout_notifier.dart';
 
 class EditCardWidget extends StatelessWidget {
   const EditCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final layoutModel = Provider.of<LayoutModel>(context);
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         /// 跳到编辑页去
-        logger.i('custom');
-        Navigator.pushNamed(
+        Log.i('custom');
+        final callback = await Navigator.pushNamed(
           context,
           'Custom',
         );
+        Log.i('自定义返回', callback);
+        layoutModel.refresh();
       },
       child: SizedBox(
         width: 440,
