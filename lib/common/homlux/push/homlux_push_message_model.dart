@@ -7,6 +7,12 @@ class HomluxPushMessageEntity {
   bool? success;
   int? timestamp;
 
+  // 【】【】【】【】【】【】【】【】
+  //心跳包数据
+  String? topic;
+  String? message;
+  // 【】【】【】【】【】【】【】【】
+
   factory HomluxPushMessageEntity.fromJson(Map<String, dynamic> json) {
     HomluxPushMessageEntity model = HomluxPushMessageEntity();
     model.code = json['code'] as int?;
@@ -14,6 +20,8 @@ class HomluxPushMessageEntity {
     model.result = HomluxPushResultEntity.fromJson(json['result'] as Map<String, dynamic>);
     model.success = json['success'] as bool?;
     model.timestamp = json['timestamp'] as int?;
+    model.topic = json['topic'] as String?;
+    model.message = json['message'] as String?;
     return model;
   }
 
