@@ -146,9 +146,14 @@ class _DevicePageState extends State<DevicePage> {
       // ************布局
 
       // ************单页构造
+      // 当前页
+      List<Layout> curScreenLayouts =
+          layoutModel.getLayoutsByPageIndex(pageCount);
+      // 填充
+      List<Layout> fillNullLayoutList =
+          layoutModel.fillNullLayoutList(curScreenLayouts, pageCount);
       // 映射排序
-      List<Layout> sortedLayoutList =
-          Layout.sortLayoutList(layoutModel.getLayoutsByPageIndex(pageCount));
+      List<Layout> sortedLayoutList = Layout.sortLayoutList(fillNullLayoutList);
       // 根据队列顺序插入该屏页面
       for (Layout layoutAfterSort in sortedLayoutList) {
         // 映射出对应的Card

@@ -11,7 +11,8 @@ class NodeInfo<T extends Endpoint> {
   int guard;
   String isAlarmDevice;
   String nodeId;
-  int status;
+  // 多功能面板是stirng，其他是int
+  dynamic status;
 
   NodeInfo({
     required this.devId,

@@ -91,13 +91,9 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
               title: '该设备已离线',
               titleSize: 28,
               maxWidth: 432,
-              backgroundColor:
-              const Color(0xFF494E59),
-              contentPadding:
-              const EdgeInsets.fromLTRB(
-                  33, 24, 33, 0),
-              contentSlot: const Text(
-                  "设备离线，请检查网络是否正常",
+              backgroundColor: const Color(0xFF494E59),
+              contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+              contentSlot: const Text("设备离线，请检查网络是否正常",
                   textAlign: TextAlign.center,
                   maxLines: 3,
                   style: TextStyle(
@@ -105,12 +101,10 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                     fontSize: 24,
                     height: 1.6,
                     fontFamily: "MideaType",
-                    decoration:
-                    TextDecoration.none,
+                    decoration: TextDecoration.none,
                   )),
               btns: ['确定'],
-              onPressed:
-                  (_, position, context) {
+              onPressed: (_, position, context) {
                 Navigator.pop(context);
               }).show(context);
         } else {
@@ -121,7 +115,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       child: Container(
         width: 210,
         height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
         decoration: _getBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,24 +135,24 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                     width: 120,
                     child: Text(
                       widget.name,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w400,
-                      ),
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      '${widget.roomName} | ${_getRightText()}',
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.64),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400),
-                    ),
-                  )
+                  Text(
+                    '${widget.roomName} | ${_getRightText()}',
+                    style: TextStyle(
+                        color: Colors.white.withOpacity(0.64),
+                        fontSize: 16,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal),
+                  ),
                 ],
               ),
             ),
@@ -180,7 +174,9 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.isOnline != '0' && widget.adapter.data!.statusList.isNotEmpty && widget.adapter.data!.statusList[0]) {
+    if (widget.isOnline != '0' &&
+        widget.adapter.data!.statusList.isNotEmpty &&
+        widget.adapter.data!.statusList[0]) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
