@@ -91,14 +91,7 @@ public class MainApplication extends BaseApplication {
         // 设置是否位开发设备
         CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
 
-        //思必驰语音sdk初始化
-        DcaConfig dcaConfig = new DcaConfig.Builder()
-                .apiKey(AppCommonConfig.DCA_API_KEY)
-                .apiSecret(AppCommonConfig.DCA_API_SECRET)
-                .openDebugLog(true)
-                .publicKey(AppCommonConfig.DCA_PUB_KEY)
-                .build();
-        DcaSdk.initialize(MainApplication.this, dcaConfig);  //初始化dca sdk
+
 
         //wifi 10秒刷新一次
 //        CommandExecution.execCommand("wpa_cli bss_expire_age 10", true);

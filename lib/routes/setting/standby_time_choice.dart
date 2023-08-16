@@ -168,7 +168,7 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                                 height: 56,
                                 decoration: const BoxDecoration(
                                   borderRadius: BorderRadius.all(Radius.circular(28)),
-                                  color: Color(0xFF868E9D),
+                                  color: Color(0xFF267AFF),
                                 ),
                                 alignment: Alignment.center,
                                 child: const Text('确定',

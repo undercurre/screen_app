@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../common/global.dart';
+import 'package:screen_app/common/index.dart';
+import '../../widgets/mz_cell.dart';
 
 export 'about_setting.dart';
 export 'ai_setting.dart';
@@ -7,6 +8,8 @@ export 'display_setting.dart';
 export 'net_setting.dart';
 export 'sound_setting.dart';
 export 'standby_time_choice.dart';
+export 'advanced_setting.dart';
+export 'current_platform.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key});
@@ -16,7 +19,6 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  late double po;
 
   @override
   void initState() {
@@ -69,8 +71,8 @@ class _SettingPageState extends State<SettingPage> {
                           decoration: TextDecoration.none)
                     ),
                     const SizedBox(
-                      width: 32,
-                      height: 32,
+                      width: 64,
+                      height: 64,
                     ),
                   ],
                 ),
@@ -103,7 +105,7 @@ class _SettingPageState extends State<SettingPage> {
                                 left: 20,
                                 top: 17,
                                 child: CircleAvatar(
-                                  backgroundImage: AssetImage("assets/imgs/weather/icon-rainy.png"),
+                                  backgroundImage: AssetImage("assets/newUI/default_account.png"),
                                   backgroundColor: Color(0x00FFFFFF),
                                   radius: 30,
                                 ),
@@ -111,7 +113,7 @@ class _SettingPageState extends State<SettingPage> {
                               Positioned(
                                 left: 97,
                                 top: 9,
-                                child: Text(Global.profile.homeInfo?.name ?? '--',
+                                child: Text(System.familyInfo?.familyName ?? '--',
                                     style: const TextStyle(
                                         color: Color(0XFFFFFFFF),
                                         fontSize: 24,
@@ -146,298 +148,73 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ),
 
-                      /// 无线局域网
-                      GestureDetector(
-                        onTap: () => {
-                          Navigator.pushNamed(
-                            context,
-                            'NetSettingPage',
-                          )
-                        },
-                        child: Container(
-                          width: 432,
-                          height: 71,
-                          margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                          decoration: const BoxDecoration(
-                              color: Color(0x0DFFFFFF),
-                              borderRadius: BorderRadius.all(Radius.circular(16))
-                          ),
-                          child: const Stack(
-                            children: [
-                              Positioned(
-                                left: 20,
-                                top: 17,
-                                child: Image(
-                                  width: 36,
-                                  height: 36,
-                                  image: AssetImage("assets/newUI/WiFi_setting.png"),
-                                ),
-                              ),
-                              Positioned(
-                                left: 72,
-                                top: 12,
-                                child: Text("无线局域网",
-                                    style: TextStyle(
-                                        color: Color(0XFFFFFFFF),
-                                        fontSize: 24,
-                                        fontFamily: "MideaType",
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.none)
-                                ),
-                              ),
-                              Positioned(
-                                right: 20,
-                                top: 24,
-                                child: Image(
-                                  width: 24,
-                                  height: 24,
-                                  image: AssetImage("assets/newUI/arrow_right.png"),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
                       Container(
                         width: 432,
-                        height: 291,
+                        height: 360,
                         margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                         decoration: const BoxDecoration(
                             color: Color(0x0DFFFFFF),
                             borderRadius: BorderRadius.all(Radius.circular(16))
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            /// 显示设置
-                            GestureDetector(
-                              onTap: () => {
-                                Navigator.pushNamed(
-                                  context,
-                                  'DisplaySettingPage',
-                                )
-                              },
-                              child: Container(
-                                width: 432,
-                                height: 72,
-                                decoration: const BoxDecoration(
-                                    color: Color(0x00FFFFFF)
-                                ),
-                                child: const Stack(
-                                  children: [
-                                    Positioned(
-                                      left: 20,
-                                      top: 18,
-                                      child: Image(
-                                        width: 36,
-                                        height: 36,
-                                        image: AssetImage("assets/newUI/display_setting.png"),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: 72,
-                                      top: 12,
-                                      child: Text("显示设置",
-                                          style: TextStyle(
-                                              color: Color(0XFFFFFFFF),
-                                              fontSize: 24,
-                                              fontFamily: "MideaType",
-                                              fontWeight: FontWeight.normal,
-                                              decoration: TextDecoration.none)
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 20,
-                                      top: 24,
-                                      child: Image(
-                                        width: 24,
-                                        height: 24,
-                                        image: AssetImage("assets/newUI/arrow_right.png"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            settingCell("assets/newUI/WiFi_setting.png", "无线局域网", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'NetSettingPage',
+                              )
+                            }, true),
+                            settingCell("assets/newUI/add_device.png", "发现设备", () => {
+                              Navigator.pop(context),
+                              Navigator.pushNamed(
+                                context,
+                                'SnifferPage',
+                              )
+                            }, true),
+                            settingCell("assets/newUI/display_setting.png", "显示设置", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'DisplaySettingPage',
+                              )
+                            }, true),
+                            settingCell("assets/newUI/volume_setting.png", "音量设置", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'SoundSettingPage',
+                              )
+                            }, true),
+                            settingCell("assets/newUI/sound.png", "语音设置", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'AiSettingPage',
+                              )
+                            }, false),
+                          ],
+                        ),
+                      ),
 
-                            Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
-                            ),
-
-                            /// 音量设置
-                            GestureDetector(
-                              onTap: () => {
-                                Navigator.pushNamed(
-                                  context,
-                                  'SoundSettingPage',
-                                )
-                              },
-                              child: Container(
-                                width: 432,
-                                height: 72,
-                                decoration: const BoxDecoration(
-                                    color: Color(0x00FFFFFF)
-                                ),
-                                child: const Stack(
-                                  children: [
-                                    Positioned(
-                                      left: 20,
-                                      top: 18,
-                                      child: Image(
-                                        width: 36,
-                                        height: 36,
-                                        image: AssetImage("assets/newUI/volume_setting.png"),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: 72,
-                                      top: 12,
-                                      child: Text("音量设置",
-                                          style: TextStyle(
-                                              color: Color(0XFFFFFFFF),
-                                              fontSize: 24,
-                                              fontFamily: "MideaType",
-                                              fontWeight: FontWeight.normal,
-                                              decoration: TextDecoration.none)
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 20,
-                                      top: 24,
-                                      child: Image(
-                                        width: 24,
-                                        height: 24,
-                                        image: AssetImage("assets/newUI/arrow_right.png"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
-                            ),
-
-                            /// 语音设置
-                            GestureDetector(
-                              onTap: () => {
-                                Navigator.pushNamed(
-                                  context,
-                                  'AiSettingPage',
-                                )
-                              },
-                              child: Container(
-                                width: 432,
-                                height: 72,
-                                decoration: const BoxDecoration(
-                                    color: Color(0x00FFFFFF)
-                                ),
-                                child: const Stack(
-                                  children: [
-                                    Positioned(
-                                      left: 20,
-                                      top: 18,
-                                      child: Image(
-                                        width: 36,
-                                        height: 36,
-                                        image: AssetImage("assets/newUI/sound.png"),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: 72,
-                                      top: 12,
-                                      child: Text("语音设置",
-                                          style: TextStyle(
-                                              color: Color(0XFFFFFFFF),
-                                              fontSize: 24,
-                                              fontFamily: "MideaType",
-                                              fontWeight: FontWeight.normal,
-                                              decoration: TextDecoration.none)
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 20,
-                                      top: 24,
-                                      child: Image(
-                                        width: 24,
-                                        height: 24,
-                                        image: AssetImage("assets/newUI/arrow_right.png"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
-                            ),
-
-                            /// 关于本机
-                            GestureDetector(
-                              onTap: () => {
-                                Navigator.pushNamed(
-                                  context,
-                                  'AboutSettingPage',
-                                )
-                              },
-                              child: Container(
-                                width: 432,
-                                height: 72,
-                                decoration: const BoxDecoration(
-                                    color: Color(0x00FFFFFF)
-                                ),
-                                child: const Stack(
-                                  children: [
-                                    Positioned(
-                                      left: 20,
-                                      top: 18,
-                                      child: Image(
-                                        width: 36,
-                                        height: 36,
-                                        image: AssetImage("assets/newUI/about.png"),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: 72,
-                                      top: 12,
-                                      child: Text("关于本机",
-                                          style: TextStyle(
-                                              color: Color(0XFFFFFFFF),
-                                              fontSize: 24,
-                                              fontFamily: "MideaType",
-                                              fontWeight: FontWeight.normal,
-                                              decoration: TextDecoration.none)
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 20,
-                                      top: 24,
-                                      child: Image(
-                                        width: 24,
-                                        height: 24,
-                                        image: AssetImage("assets/newUI/arrow_right.png"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
+                      Container(
+                        width: 432,
+                        height: 144,
+                        margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                        decoration: const BoxDecoration(
+                            color: Color(0x0DFFFFFF),
+                            borderRadius: BorderRadius.all(Radius.circular(16))
+                        ),
+                        child: Column(
+                          children: [
+                            settingCell("assets/newUI/about.png", "关于本机", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'AboutSettingPage',
+                              )
+                            }, true),
+                            settingCell("assets/newUI/shezhi.png", "高级设置", () => {
+                              Navigator.pushNamed(
+                                context,
+                                'AdvancedSettingPage',
+                              )
+                            }, false),
                           ],
                         ),
                       ),
@@ -455,6 +232,22 @@ class _SettingPageState extends State<SettingPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget settingCell(String icon, String name, Function callback, bool? isLast) {
+    return MzCell(
+      avatarIcon: Image(
+        width: 36,
+        height: 36,
+        image: AssetImage(icon),
+      ),
+      title: name,
+      titleSize: 24,
+      hasArrow: true,
+      bgColor: Colors.transparent,
+      hasBottomBorder: isLast?? false,
+      onTap: callback,
     );
   }
 

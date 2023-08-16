@@ -67,7 +67,7 @@ class Setting {
 
   /// 设置息屏时间段
   Future<bool> setScreedDuration(Pair<int, int> duration) async {
-    if(duration.value2 < 0 || duration.value1 <0 || duration.value1 >= duration.value2) {
+    if(duration.value2 >= 0 && duration.value1 >= 0 && duration.value1 >= duration.value2) {
       throw Exception("请设置正确的时间区间");
     }
     _screedDuration = duration;

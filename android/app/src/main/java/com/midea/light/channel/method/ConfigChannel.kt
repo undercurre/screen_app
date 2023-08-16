@@ -1,6 +1,9 @@
 package com.midea.light.channel.method
 
 import android.content.Context
+import com.aispeech.dca.DcaConfig
+import com.aispeech.dca.DcaSdk
+import com.midea.light.MainApplication
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.config.AppCommonConfig
 import io.flutter.plugin.common.BinaryMessenger
@@ -34,6 +37,15 @@ class ConfigChannel(override val context: Context) : AbsMZMethodChannel(context)
                 assert(call.hasArgument("env"))
                 val env = call.argument<String>("env")
                 AppCommonConfig.init(if(env == "prod") AppCommonConfig.CONFIG_TYPE_PRODUCT else AppCommonConfig.CONFIG_TYPE_DEVELOP)
+                //思必驰语音sdk初始化
+                val dcaConfig = DcaConfig.Builder()
+                        .apiKey(AppCommonConfig.DCA_API_KEY)
+                        .apiSecret(AppCommonConfig.DCA_API_SECRET)
+                        .openDebugLog(true)
+                        .publicKey(AppCommonConfig.DCA_PUB_KEY)
+                        .build()
+                DcaSdk.initialize(MainApplication.getContext(), dcaConfig) //初始化dca sdk
+
             }
         }
     }

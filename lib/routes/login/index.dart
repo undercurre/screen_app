@@ -12,6 +12,7 @@ import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/logcat_helper.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
@@ -34,6 +35,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   bool isSelectOnce = false;
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
+  String routeFrom = "";
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -156,6 +158,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
     isNeedChoosePlatform = System.inNonePlatform();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      if (args != null) {
+        routeFrom = args["from"] ?? "";
+        if (routeFrom == "changePlatform") {
+          setState(() {
+            isNeedChoosePlatform = true;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -212,28 +225,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     return Stack(
       children: [
         if (isNeedChoosePlatform) ChosePlatform(
-          onChose: (index) {
-            if(index == 0) {
-              ChangePlatformHelper.changeToMeiju().then((isOK) {
-                if (isOK) {
-                  setState(() {
-                    isNeedChoosePlatform = false;
-                  });
-                } else {
-                  TipsUtils.toast(content: '启动平台失败');
-                }
-              });
-            } else if(index == 1) {
-              ChangePlatformHelper.changeToHomlux().then((isOK) {
-                if (isOK) {
-                  setState(() {
-                    isNeedChoosePlatform = false;
-                  });
-                } else {
-                  TipsUtils.toast(content: '启动平台失败');
-                }
-              });
-            }
+          isChose: routeFrom == "changePlatform",
+          onFinished: () {
+            setState(() {
+              isNeedChoosePlatform = false;
+            });
           },
         ),
 
@@ -323,6 +319,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                               onPressed: () {
                                 setState(() {
                                   isNeedChoosePlatform = true;
+                                  routeFrom = "";
                                 });
                               },
                             ),

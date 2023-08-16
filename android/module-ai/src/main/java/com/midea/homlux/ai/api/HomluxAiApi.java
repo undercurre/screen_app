@@ -22,10 +22,91 @@ import okhttp3.Response;
 public class HomluxAiApi {
 
     public static class HomluxDuiTokenEntity {
-        public int refreshTokenExpireTime;
-        public int accessTokenExpireTime;
-        public String accessToken;
-        public String refreshToken;
+
+        private Result result;
+        private Integer code;
+        private Object msg;
+        private Boolean success;
+        private Long timestamp;
+
+        public Result getResult() {
+            return result;
+        }
+
+        public void setResult(Result result) {
+            this.result = result;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public void setCode(Integer code) {
+            this.code = code;
+        }
+
+        public Object getMsg() {
+            return msg;
+        }
+
+        public void setMsg(Object msg) {
+            this.msg = msg;
+        }
+
+        public Boolean getSuccess() {
+            return success;
+        }
+
+        public void setSuccess(Boolean success) {
+            this.success = success;
+        }
+
+        public Long getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(Long timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public static class Result {
+            private Integer refreshTokenExpireTime;
+            private Integer accessTokenExpireTime;
+            private String accessToken;
+            private String refreshToken;
+
+            public Integer getRefreshTokenExpireTime() {
+                return refreshTokenExpireTime;
+            }
+
+            public void setRefreshTokenExpireTime(Integer refreshTokenExpireTime) {
+                this.refreshTokenExpireTime = refreshTokenExpireTime;
+            }
+
+            public Integer getAccessTokenExpireTime() {
+                return accessTokenExpireTime;
+            }
+
+            public void setAccessTokenExpireTime(Integer accessTokenExpireTime) {
+                this.accessTokenExpireTime = accessTokenExpireTime;
+            }
+
+            public String getAccessToken() {
+                return accessToken;
+            }
+
+            public void setAccessToken(String accessToken) {
+                this.accessToken = accessToken;
+            }
+
+            public String getRefreshToken() {
+                return refreshToken;
+            }
+
+            public void setRefreshToken(String refreshToken) {
+                this.refreshToken = refreshToken;
+            }
+        }
     }
 
     // AI Token Callback
@@ -69,7 +150,7 @@ public class HomluxAiApi {
                 try {
                     if (response.body() != null) {
                         String resultContent = response.body().string();
-                        Log.i("sky", "获取HomluxAiToken请求成功：$resultContent");
+//                        Log.i("sky", "获取HomluxAiToken请求成功:"+resultContent);
                         callback.result(GsonUtils.tryParse(HomluxDuiTokenEntity.class, resultContent));
                     } else {
                         Log.i("sky", "获取HomluxAiToken请求失败");
