@@ -9,6 +9,7 @@ import 'package:screen_app/widgets/card/main/big_device_panel.dart';
 import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
+import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
 import '../../../widgets/card/main/big_485CAC_device.dart';
 import '../../../widgets/card/main/big_485Floor_device.dart';
@@ -29,6 +30,8 @@ import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
+  // 编辑
+  DeviceEdit,
   // 空位
   DeviceNull,
   // 默认
@@ -208,6 +211,9 @@ class DataInputCard {
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     buildMap = {
+  DeviceEntityTypeInP4.DeviceEdit: {
+    CardType.Edit: (params) => const EditCardWidget()
+  },
   DeviceEntityTypeInP4.DeviceNull: {
     CardType.Small: (params) => Container(
           width: 210,

@@ -19,7 +19,9 @@ class CustomPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CustomPageState();
 }
 
-class _CustomPageState extends State<CustomPage> {
+class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _animation;
   final PageController _pageController = PageController();
   int curPageIndex = 0;
   List<Widget> _screens = [];
@@ -32,10 +34,22 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
+    _animation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(200, 200), // Set the desired coordinate here
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _controller.forward();
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
@@ -209,7 +223,15 @@ class _CustomPageState extends State<CustomPage> {
                                   childWhenDragging: Opacity(
                                     opacity: 0.5,
                                     child: Container(
-                                      child: cardWithIcon,
+                                      child: AnimatedBuilder(
+                                        animation: _controller,
+                                        builder: (context, child) {
+                                          return Transform.translate(
+                                            offset: _animation.value,
+                                            child: cardWithIcon,
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                   child: cardWithIcon,
