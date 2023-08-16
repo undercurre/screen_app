@@ -59,8 +59,7 @@ public class AiManager {
         return Instance;
     }
 
-    public void startDuiAi(Activity context, String uid, String token, String refreshToken, int ExpiresTime,
-                           boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
+    public void startDuiAi(Activity context, String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
         this.context = context;
         mWakUpStateCallBack = mCallBack;
         mAISetVoiceCallBack = VoiceCallBack;
@@ -70,7 +69,7 @@ public class AiManager {
                 while (true) {
                     if (checkNet()) {
                         context.runOnUiThread(() -> {
-                            //没有登录过，调用登录接口
+//                            Log.e("sky","参数uid:"+uid+"---参数token:"+token+"---参数refreshToken:"+refreshToken+"---参数ExpiresTime:"+ExpiresTime);
                             DialogUtil.showLoadingMessage(context, "同步家庭数据中");
                             AccountLogin(uid, token, refreshToken, ExpiresTime);
                         });
@@ -89,6 +88,8 @@ public class AiManager {
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
             public void onError(int i, String s) {
+                DialogUtil.closeLoadingDialog();
+                DialogUtil.showToast("语音初始化失败!");
                 Log.d("sky", "linkAccountOnError : " + s);
             }
 
@@ -110,6 +111,8 @@ public class AiManager {
             @Override
             public void onError(String s) {
                 Log.e("sky", "OAuthOnError : " + s);
+                DialogUtil.showToast("语音初始化失败!");
+                DialogUtil.closeLoadingDialog();
             }
 
             @Override
@@ -244,9 +247,9 @@ public class AiManager {
             mMyBinder.getService().addAISetVoiceCallBack(mAISetVoiceCallBack);
             setAiEnable(isAiEnable);
             try {
-//                if(GlobalSetting.getInstance().getHomluxAiFullDuplex()){
+//                if (GlobalSetting.getInstance().getHomluxAiFullDuplex()) {
 //                    DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.FULL_DUPLEX);
-//                }else{
+//                } else {
 //                    DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.HALF_DUPLEX);
 //                }
                 DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.HALF_DUPLEX);
