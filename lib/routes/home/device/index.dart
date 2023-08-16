@@ -95,6 +95,8 @@ class _DevicePageState extends State<DevicePage> {
       // 先获取当前页的布局，设置screenLayer布局器
       List<Layout> layoutsInCurPage =
           layoutModel.getLayoutsByPageIndex(pageCount);
+      // 逃避空页
+      if (layoutsInCurPage.isEmpty) continue;
       for (int layoutInCurPageIndex = 0;
           layoutInCurPageIndex < layoutsInCurPage.length;
           layoutInCurPageIndex++) {
