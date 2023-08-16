@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/push.dart';
+
+import '../common/logcat_helper.dart';
+import '../common/meiju/push/MeiJuPushManager.dart';
 
 class AliPushMethodChannel extends AbstractChannel{
   // 构造器函数
@@ -26,7 +27,7 @@ class AliPushMethodChannel extends AbstractChannel{
 
   void onHandlerNotifyPushMessage(dynamic arguments) async {
     String title = arguments;
-    logger.i("aliPushLog rev $title");
-    Push.notifyPushMessage(title);
+    Log.i("aliPushLog rev $title");
+    MeiJuPushManager.notifyPushMessage(title);
   }
 }

@@ -60,7 +60,7 @@ class HomluxPushManager {
     _isConnect = false;
     retryConnectTimer?.cancel();
     hearPacketTimeoutTimer?.cancel();
-    await webSocket?.close();
+    webSocket?.close();
     webSocket = null;
   }
 
