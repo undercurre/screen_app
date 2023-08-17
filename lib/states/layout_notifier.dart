@@ -102,7 +102,6 @@ class LayoutModel extends ChangeNotifier {
   }
 
   Future<void> _saveLayouts() async {
-    handleNullPage();
     final prefs = await SharedPreferences.getInstance();
     final layoutList =
         layouts.map((layout) => jsonEncode(layout.toJson())).toList();
@@ -327,6 +326,7 @@ class LayoutModel extends ChangeNotifier {
         }
       }
     }
+    _saveLayouts();
     notifyListeners();
   }
 }

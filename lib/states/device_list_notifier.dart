@@ -58,7 +58,7 @@ class DeviceInfoListModel extends ChangeNotifier {
               MeiJuGlobal.token!.uid, familyInfo!.familyId);
       if (MeijuRes.isSuccess) {
         deviceListMeiju = MeijuRes.data!;
-        Log.i('设备列表数据', deviceListMeiju.length);
+        // Log.i('设备列表数据', deviceListMeiju.length);
         return deviceListMeiju.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e.name!;
