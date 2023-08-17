@@ -9,6 +9,8 @@ import 'package:screen_app/common/system.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 
 import 'adapter/ai_data_adapter.dart';
+import 'adapter/push_data_adapter.dart';
+import 'logcat_helper.dart';
 
 /// 定义网关运行环境
 enum GatewayPlatform {
@@ -54,20 +56,32 @@ class ChangePlatformHelper {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
-        HomluxGlobal.setLogout();
-        MeiJuApi.init();
-        System.initForMeiju();
-        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
-        MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+        try {
+          HomluxGlobal.setLogout();
+          MeiJuApi.init();
+          System.initForMeiju();
+          AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+          PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+        } on Exception catch(e) {
+          Log.file(e.toString());
+        } finally {
+          MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+        }
       }
       LayoutModel().removeLayouts();
       return suc;
     } else {
-      HomluxGlobal.setLogout();
-      MeiJuApi.init();
-      System.initForMeiju();
-      AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
-      MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+      try {
+        HomluxGlobal.setLogout();
+        MeiJuApi.init();
+        System.initForMeiju();
+        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+        PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+      } catch(e) {
+        Log.file(e.toString());
+      } finally {
+        MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+      }
       return true;
     }
   }
@@ -78,20 +92,32 @@ class ChangePlatformHelper {
     if(gatewaySubDeviceDel) {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {
-        MeiJuGlobal.setLogout();
-        HomluxApi.init();
-        System.initForHomlux();
-        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
-        MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+        try {
+          MeiJuGlobal.setLogout();
+          HomluxApi.init();
+          System.initForHomlux();
+          AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+          PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+        } on Exception catch(e) {
+          Log.file(e.toString());
+        } finally {
+          MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+        }
       }
       LayoutModel().removeLayouts();
       return suc;
     } else {
-      MeiJuGlobal.setLogout();
-      HomluxApi.init();
-      System.initForHomlux();
-      AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
-      MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+      try {
+        MeiJuGlobal.setLogout();
+        HomluxApi.init();
+        System.initForHomlux();
+        AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
+        PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+      } on Exception catch(e) {
+        Log.file(e.toString());
+      } finally {
+        MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+      }
       return true;
     }
 

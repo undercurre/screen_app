@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/push/homlux_push_message_model.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
@@ -49,33 +50,31 @@ class HomluxPushManager {
   static Timer? retryConnectTimer;
   static Timer? hearPacketTimeoutTimer;
   static bool _isConnect = false;
+  static bool heartBeatReply = false;
 
   static bool isConnect() {
     return _isConnect;
   }
 
   static void stopConnect() async {
-    // 1. 关闭旧连接, 定时器
-    _isConnect = false;
-    retryConnectTimer?.cancel();
-    hearPacketTimeoutTimer?.cancel();
-    await webSocket?.close();
-    webSocket = null;
+    if(_isConnect) {
+      // 1. 关闭旧连接, 定时器
+      _isConnect = false;
+      retryConnectTimer?.cancel();
+      hearPacketTimeoutTimer?.cancel();
+      webSocket?.close();
+      webSocket = null;
+    }
   }
 
-  static startConnect(
-      {required String token,
-      required String houseId,
-      int retrySeconds = 2}) async {
+  static startConnect([int retrySeconds = 2]) async {
 
     _isConnect = false;
-
-
 
     // 重连函数
     void reconnectFunction() {
       retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
-        startConnect(token: token, houseId: houseId, retrySeconds: retrySeconds * 2);
+        startConnect(retrySeconds * 2);
         retryConnectTimer = null;
       });
     }
@@ -88,6 +87,10 @@ class HomluxPushManager {
       await webSocket?.close();
       webSocket = null;
 
+      if (!HomluxGlobal.isLogin) {
+        return;
+      }
+
       // 1.1 判断是否能建立连接
       if(!System.isLogin() || !System.inHomluxPlatform()) {
         Log.file('homlux ws 状态不符合，无法建立连接');
@@ -95,7 +98,12 @@ class HomluxPushManager {
       }
 
       // 2.建立新连接
-      webSocket = await WebSocket.connect(dotenv.get('HOMLUX_PUSH_WSS') + houseId);
+      webSocket = await WebSocket.connect(
+          dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
+          headers: {
+            'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
+          });
+
       webSocket?.pingInterval = const Duration(seconds: _pingInterval);
       webSocket?.timeout(const Duration(seconds: _connectTimeout));
 
@@ -105,7 +113,8 @@ class HomluxPushManager {
           onDone: _done(reconnectFunction));
 
       // 4.发送心跳包
-      _sendHearPacket(reconnectFunction);
+      // TODO 临时去除心跳机制，后台还没上
+      // _sendHearPacket(reconnectFunction);
 
       _isConnect = true;
     } catch(e) {
@@ -171,11 +180,16 @@ class HomluxPushManager {
       } else if(TypeDeleteHouseUser == eventType) {
         bus.typeEmit(HomluxDeleteHouseUser());
       } else {
-        Log.file('此消息类型无法处理：$event');
+        if(entity.topic == 'heartbeatTopic') {
+          /// 心跳包回复
+          heartBeatReply = true;
+        } else {
+          Log.file('此消息类型无法处理：$event');
+        }
       }
 
       // 3.重新启动心跳计时器
-      _sendHearPacket(reconnectFunction);
+      // _sendHearPacket(reconnectFunction);
     } catch(e) {
       Log.file('homlux ws message error ->  $event $e');
     }
@@ -201,11 +215,17 @@ class HomluxPushManager {
 
   static _sendHearPacket(void Function() reconnectFunction) {
     hearPacketTimeoutTimer?.cancel();
-    hearPacketTimeoutTimer = Timer(const Duration(seconds: _connectTimeout), () {
-      reconnectFunction();
-      hearPacketTimeoutTimer = null;
+    hearPacketTimeoutTimer = Timer(const Duration(seconds: _pingInterval), () {
+      if(heartBeatReply) {
+        _sendHearPacket(reconnectFunction);
+      } else {
+        reconnectFunction();
+        hearPacketTimeoutTimer = null;
+      }
     });
+    // 发送心跳包
     webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
+    heartBeatReply = false;
   }
 
 }

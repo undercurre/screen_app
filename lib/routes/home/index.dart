@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/top_to_bottom_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/common/push.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
@@ -76,6 +77,8 @@ class HomeState extends State<Home>
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
       aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
+      // 初始化推送
+      PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
     } catch (e) {
       debugPrint(e.toString());
     }

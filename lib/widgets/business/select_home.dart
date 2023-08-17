@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/gateway_platform.dart';
+import '../../common/utils.dart';
 import '../index.dart';
 
-class _SelectHome extends State<SelectHome> {
+class SelectHomeState extends State<SelectHome> {
   SelectFamilyDataAdapter? familyDataAd;
   int selectVal = -1;
+  SelectFamilyItem? itemTemp;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class _SelectHome extends State<SelectHome> {
               setState(() {
                 selectVal = i;
               });
-              checkAndSelect(item!);
+              itemTemp = item;
             },
             rightSlot: MzRadio<int>(
               activeColor: const Color.fromRGBO(0, 145, 255, 1),
@@ -90,12 +92,16 @@ class _SelectHome extends State<SelectHome> {
     familyDataAd = null;
   }
 
-  void checkAndSelect(SelectFamilyItem item) {
-    familyDataAd?.queryHouseAuth(item).then((isAuth) {
+  void checkAndSelect() {
+    if (itemTemp == null) {
+      TipsUtils.toast(content: '请选择家庭');
+      return;
+    }
+    familyDataAd?.queryHouseAuth(itemTemp!).then((isAuth) {
       if (isAuth == true) {
-        widget.onChange?.call(item);
+        widget.onChange?.call(itemTemp);
       } else {
-        widget.onChange?.call(null);
+        TipsUtils.toast(content: '该家庭无登陆权限，请重新选择');
       }
     });
   }
@@ -110,5 +116,5 @@ class SelectHome extends StatefulWidget {
   const SelectHome({super.key, this.onChange});
 
   @override
-  State<SelectHome> createState() => _SelectHome();
+  State<SelectHome> createState() => SelectHomeState();
 }
