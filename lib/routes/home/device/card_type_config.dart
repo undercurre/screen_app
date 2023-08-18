@@ -144,6 +144,11 @@ enum DeviceEntityTypeInP4 {
   Zigbee_3018,
   // 485地暖
   Zigbee_3019,
+  // homlux面板
+  Zigbee_homlux1,
+  Zigbee_homlux2,
+  Zigbee_homlux3,
+  Zigbee_homlux4
 }
 
 class DataInputCard {
@@ -211,6 +216,69 @@ class DataInputCard {
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     buildMap = {
+  DeviceEntityTypeInP4.Zigbee_homlux1: {
+    CardType.Small: (params) => SmallPanelCardWidget(
+      name: params.name,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      roomName: params.roomName,
+      adapter: PanelDataAdapter.create(
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+      isOnline: params.isOnline,
+    ),
+  },
+  DeviceEntityTypeInP4.Zigbee_homlux2: {
+    CardType.Middle: (params) => MiddleDevicePanelCardWidget(
+      name: params.name,
+      icon: const Image(
+        image: AssetImage('assets/newUI/device/0x21_1361.png'),
+      ),
+      roomName: params.roomName,
+      isOnline: params.isOnline,
+      adapter: PanelDataAdapter.create(
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+    ),
+  },
+  DeviceEntityTypeInP4.Zigbee_homlux3: {
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+      name: params.name,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      roomName: params.roomName,
+      adapter: PanelDataAdapter.create(
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+      isOnline: params.isOnline,
+    ),
+  },
+  DeviceEntityTypeInP4.Zigbee_homlux4: {
+    CardType.Big: (params) => BigDevicePanelCardWidget(
+      name: params.name,
+      icon: Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_${params.modelNumber}.png'),
+      ),
+      roomName: params.roomName,
+      adapter: PanelDataAdapter.create(
+        params.applianceCode,
+        params.masterId!,
+        params.modelNumber!,
+      ),
+      isOnline: params.isOnline,
+    ),
+  },
   DeviceEntityTypeInP4.DeviceEdit: {
     CardType.Edit: (params) => const EditCardWidget()
   },

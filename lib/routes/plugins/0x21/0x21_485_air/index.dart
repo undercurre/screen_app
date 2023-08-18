@@ -45,7 +45,7 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   @override
   void initState() {
     super.initState();
-
+    adapter?.bindDataUpdateFunction(() {setState(() {});});
 
   }
 

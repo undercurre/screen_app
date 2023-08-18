@@ -80,6 +80,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   @override
   void initState() {
     super.initState();
+    adapter?.bindDataUpdateFunction(() {setState(() {});});
   }
 
   @override
@@ -141,7 +142,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
       ),
       child: Stack(
         children: [
-          Positioned(
+          const Positioned(
               left: 0,
               top: 0,
               child: AirCondition(

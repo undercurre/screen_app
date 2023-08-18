@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import '../../channel/index.dart';
 import '../utils.dart';
 import 'generated/json/base/homlux_json_convert_content.dart' as json;
+import 'models/homlux_485_device_list_entity.dart';
 import 'models/homlux_dui_token_entity.dart';
 import 'models/homlux_family_entity.dart';
 import 'models/homlux_qr_code_auth_entity.dart';
@@ -36,10 +37,14 @@ class HomluxGlobal {
   /// 登录用户信息
   static const HOMLUX_USER_INFO = 'homlux_user_info';
 
+  /// 485设备列表信息
+  static const HOMLUX_485_DEVICE_LIST = 'homlux_485_device_list';
+
   static HomluxFamilyEntity? _homluxHomeInfo;
   static HomluxRoomInfo? _homluxRoomInfo;
   static HomluxQrCodeAuthEntity? _homluxQrCodeAuthEntity;
   static HomluxDuiTokenEntity? _aiToken;
+  static Homlux485DeviceListEntity? _485DeviceLsit;
   static String? _gatewaySn;  // 屏下网关的sn
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
   static HomluxUserInfoEntity? _homluxUserInfo;
@@ -126,6 +131,16 @@ class HomluxGlobal {
   static set aiToken(HomluxDuiTokenEntity? aiToken) {
     _aiToken = aiToken;
     LocalStorage.setItem(HOMLUX_AI_TOKEN, aiToken != null ? jsonEncode(aiToken.toJson()) : '');
+  }
+
+  static Homlux485DeviceListEntity? get getHomlux485DeviceList {
+    return _485DeviceLsit;
+  }
+
+  static set homlux485DeviceList(Homlux485DeviceListEntity? homlux485DeviceList) {
+    _485DeviceLsit = homlux485DeviceList;
+    LocalStorage.setItem(HOMLUX_485_DEVICE_LIST, homlux485DeviceList != null ? jsonEncode(homlux485DeviceList.toJson()) : '');
+
   }
 
 

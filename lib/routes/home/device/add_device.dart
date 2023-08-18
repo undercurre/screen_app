@@ -114,6 +114,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
       await Future.wait([deviceFuture, sceneFuture]);
       deviceRes = await deviceFuture;
       sceneRes = await sceneFuture;
+      Log.i("Device Results1: $deviceRes");
+      Log.i("Scene Results1: $sceneRes");
       deviceCache = deviceCache
           .where((e) =>
               getDeviceEntityType(e.type, e.modelNumber) !=
@@ -126,18 +128,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
           .toList();
 
       // Here you can work with deviceRes and sceneRes
-      print("Device Results: $deviceRes");
-      print("Scene Results: $sceneRes");
+      Log.i("Device Results2: $deviceRes");
+      Log.i("Scene Results2: $sceneRes");
     } catch (error) {
-      print("Error occurred: $error");
+      Log.i("Error occurred: $error");
     }
-
-    List<List<DeviceEntity>> compareDevice =
-        compareData<DeviceEntity>(deviceCache, deviceRes);
-    List<List<SceneInfoEntity>> compareScene =
-        compareData<SceneInfoEntity>(sceneCache, sceneRes);
+    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
+    Log.i('场景删除了${compareScene[1].length}, 增加${compareScene[0].length}');
 
     setState(() {
       devices.removeWhere((element) => compareDevice[1].contains(element));
@@ -796,7 +796,6 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
 List<List<T>> compareData<T>(List<T> cachedData, List<T> apiData) {
   Set<T> cachedDataSet = Set.from(cachedData);
   Set<T> apiDataSet = Set.from(apiData);
-
   Set<T> addedData = apiDataSet.difference(cachedDataSet);
   Set<T> removedData = cachedDataSet.difference(apiDataSet);
 

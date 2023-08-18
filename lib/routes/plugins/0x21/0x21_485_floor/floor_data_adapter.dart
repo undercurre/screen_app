@@ -1,8 +1,10 @@
-import 'dart:convert';
 
+import '../../../../channel/index.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
+import '../../../../common/homlux/homlux_global.dart';
+import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -29,6 +31,7 @@ class FloorDataAdapter extends MideaDataAdapter {
   String masterId;
   String nodeId = '';
   String modelNumber = '';
+  bool isLocalDevice=false;
 
   Floor485Data data = Floor485Data(
       name: "",
@@ -44,67 +47,66 @@ class FloorDataAdapter extends MideaDataAdapter {
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
-    try {
-      dataState = DataState.LOADING;
+    if(isLocalDevice==false){
+      try {
+        dataState = DataState.LOADING;
 
-      if (platform.inMeiju()) {
-        _meijuData = await fetchMeijuData();
-      } else {
-        _homluxData = await fetchHomluxData();
-      }
+        if (platform.inMeiju()) {
+          _meijuData = await fetchMeijuData();
+        } else {
+          _homluxData = await fetchHomluxData();
+        }
 
-      if (_meijuData != null) {
-        data = Floor485Data.fromMeiJu(_meijuData, modelNumber);
-      } else if (_homluxData != null) {
-        data = Floor485Data.fromHomlux(_homluxData, modelNumber);
-      } else {
-        // If both platforms return null data, consider it an error state
-        dataState = DataState.ERROR;
-        data = Floor485Data(
+        if (_meijuData != null) {
+          data = Floor485Data.fromMeiJu(_meijuData, modelNumber);
+        } else if (_homluxData != null) {
+          data = Floor485Data.fromHomlux(_homluxData, modelNumber);
+        } else {
+          // If both platforms return null data, consider it an error state
+          dataState = DataState.ERROR;
+          data = Floor485Data(
             name: name,
             targetTemp: "26",
             OnOff: "0",
-            );
-        return;
-      }
+          );
+          return;
+        }
 
-      // Data retrieval success
-      dataState = DataState.SUCCESS;
-      updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      data = Floor485Data(
+        // Data retrieval success
+        dataState = DataState.SUCCESS;
+        updateUI();
+      } catch (e) {
+        // Error occurred while fetching data
+        dataState = DataState.ERROR;
+        data = Floor485Data(
           name: name,
           targetTemp: "26",
           OnOff: "0",
-          );
-      updateUI();
+        );
+        updateUI();
+      }
     }
   }
 
   Future<void> orderPower(int onOff) async {
-    if (platform.inMeiju()) {
-      fetchOrderPowerMeiju(onOff);
-    } else {}
-  }
-
-  Future<void> orderMode(int mode) async {
-    if (platform.inMeiju()) {
-      fetchOrderModeMeiju(mode);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderPowerMeiju(onOff);
+      } else {}
+    }else{
+      deviceLocal485ControlChannel.controlLocal485FloorHeatPower(onOff.toString(),applianceCode);
+    }
   }
 
   Future<void> orderTemp(int temp) async {
-    if (platform.inMeiju()) {
-      fetchOrderTempMeiju(temp);
-    } else {}
-  }
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderTempMeiju(temp);
+      } else {}
+    }else{
+      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(temp.toString(),applianceCode);
+    }
 
-  Future<void> orderSpeed(int speed) async {
-    if (platform.inMeiju()) {
-      fetchOrderSpeedMeiju(speed);
-    } else {}
   }
 
   Future<MeiJuResponseEntity> fetchOrderModeMeiju(int mode) async {
@@ -192,7 +194,33 @@ class FloorDataAdapter extends MideaDataAdapter {
   void init() {
     // Initialize the adapter and fetch data
     Log.i("初始化空调adapter");
-    fetchData();
+    if(applianceCode.length!=4){
+      isLocalDevice=false;
+      fetchData();
+    }else{
+      isLocalDevice=true;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+      ///homlux添加本地485空调设备
+      if(deviceList!=null){
+        for (int i = 0; i < deviceList!.nameValuePairs!.floorHotList!.length; i++) {
+          if("${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}"==applianceCode){
+            String? OnOff=deviceList!.nameValuePairs!.floorHotList![i].onOff;
+            String? targetTemp=deviceList!.nameValuePairs!.floorHotList![i].currTemperature;
+            data = Floor485Data(
+                name: name,
+                targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
+                OnOff: OnOff!,
+                );
+          }
+        }
+      }else{
+        data = Floor485Data(
+            name: name,
+            targetTemp: "26",
+            OnOff: "0",
+            );
+      }
+    }
   }
 
   @override

@@ -176,7 +176,7 @@ class _MiddleDevicePanelCardWidgetState
                         Navigator.pop(context);
                       }).show(context);
                 } else {
-                  await widget.adapter.fetchOrderPowerMeiju(1);
+                  await widget.adapter.fetchOrderPower(1);
                   _throttledFetchData();
                 }
               },
@@ -243,7 +243,7 @@ class _MiddleDevicePanelCardWidgetState
                         Navigator.pop(context);
                       }).show(context);
                 } else {
-                  await widget.adapter.fetchOrderPowerMeiju(2);
+                  await widget.adapter.fetchOrderPower(2);
                   _throttledFetchData();
                 }
               },
