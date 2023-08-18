@@ -45,6 +45,7 @@ class HomluxJsonConvert {
     (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
     (HomluxWeatherEntity).toString(): HomluxWeatherEntity.fromJson,
     (HomluxGroupEntity).toString(): HomluxGroupEntity.fromJson,
+    (HomluxDeviceActions).toString(): HomluxDeviceActions.fromJson,
 
   };
 
