@@ -118,6 +118,14 @@ class PanelDataAdapter extends MideaDataAdapter {
     }
   }
 
+  Future<void> fetchOrderPower(int PanelIndex) async {
+    if (platform.inMeiju()) {
+      fetchOrderPowerMeiju(PanelIndex);
+    } else {
+      fetchOrderPowerHomlux(PanelIndex);
+    }
+  }
+
   Future<MeiJuResponseEntity> fetchOrderPowerMeiju(int PanelIndex) async {
     data.statusList[PanelIndex - 1] = !data.statusList[PanelIndex - 1];
     updateUI();
@@ -143,8 +151,14 @@ class PanelDataAdapter extends MideaDataAdapter {
     return MeijuRes;
   }
 
-  Future<void> fetchOrderPowerHomlux() async {
-    dynamic HomluxRes = {};
+  Future<HomluxResponseEntity> fetchOrderPowerHomlux(int PanelIndex) async {
+    data.statusList[PanelIndex - 1] = !data.statusList[PanelIndex - 1];
+    updateUI();
+    HomluxResponseEntity HomluxRes = await HomluxDeviceApi.controlPanelOnOff(applianceCode, PanelIndex.toString(), masterId, data.statusList[PanelIndex - 1] ? 1 : 0);
+    if (!HomluxRes.isSuccess) {
+      data.statusList[PanelIndex - 1] = !data.statusList[PanelIndex - 1];
+      updateUI();
+    }
     return HomluxRes;
   }
 

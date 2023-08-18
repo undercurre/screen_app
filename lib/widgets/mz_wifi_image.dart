@@ -18,5 +18,4 @@ class MzWiFiImage extends StatelessWidget {
       return 'assets/imgs/icon/wifi-4.png';
     }
   }
-
 }

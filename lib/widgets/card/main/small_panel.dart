@@ -109,7 +109,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                 Navigator.pop(context);
               }).show(context);
         } else {
-          await widget.adapter.fetchOrderPowerMeiju(1);
+          await widget.adapter.fetchOrderPower(1);
           _throttledFetchData();
         }
       },

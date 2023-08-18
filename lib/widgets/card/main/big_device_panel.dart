@@ -201,7 +201,7 @@ class _BigDevicePanelCardWidgetState
                   Navigator.pop(context);
                 }).show(context);
           } else {
-            await widget.adapter.fetchOrderPowerMeiju(index + 1);
+            await widget.adapter.fetchOrderPower(index + 1);
             _throttledFetchData();
           }
         },
