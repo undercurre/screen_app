@@ -166,9 +166,22 @@ class _CustomPageState extends State<CustomPage> {
                                 // 映射图标
                                 Widget cardWithIcon = GestureDetector(
                                   onTap: () {
+                                    Layout deleteBackup = layoutModel
+                                        .getLayoutsByDevice(result.deviceId);
                                     layoutModel.deleteLayout(
                                         result.deviceId, result.pageIndex);
                                     layoutModel.handleNullPage();
+                                    // 取出当前布局的grids
+                                    for (int gridsIndex = 0;
+                                        gridsIndex < deleteBackup.grids.length;
+                                        gridsIndex++) {
+                                      // 把已经布局的数据在布局器中占位
+                                      int grid = deleteBackup.grids[gridsIndex];
+                                      int row = (grid - 1) ~/ 4;
+                                      int col = (grid - 1) % 4;
+                                      screenLayer.setCellOccupied(
+                                          row, col, false);
+                                    }
                                   },
                                   child: Stack(children: [
                                     Padding(
