@@ -1,10 +1,12 @@
-
-
 import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/common/index.dart';
 
+import '../common/logcat_helper.dart';
+
 class AboutSystemChannel extends AbstractChannel {
+  String? encryptSn;
+  String? decryptSn;
   
   AboutSystemChannel.fromName(super.channelName) : super.fromName();
 
@@ -41,12 +43,23 @@ class AboutSystemChannel extends AbstractChannel {
 
   // isEncrypt 是否加密
   Future<String?> getGatewaySn([bool isEncrypt = false, String? secretKey]) async {
-    try {
-      assert(isEncrypt && StrUtils.isNotNullAndEmpty(secretKey) || !isEncrypt);
-      String sn = await methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
-      return sn;
-    } on PlatformException catch(e) {
-      print(e);
+    if(isEncrypt && encryptSn != null) {
+      return encryptSn;
+    } else if(decryptSn != null) {
+      return decryptSn;
+    } else {
+      try {
+        assert(isEncrypt && StrUtils.isNotNullAndEmpty(secretKey) || !isEncrypt);
+        String sn = await methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
+        if(isEncrypt && sn.isNotEmpty) {
+          encryptSn = sn;
+        } else if(sn.isNotEmpty) {
+          decryptSn = sn;
+        }
+        return sn;
+      } on PlatformException catch(e) {
+        Log.file(e.toString());
+      }
     }
     return null;
   }
