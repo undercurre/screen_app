@@ -131,11 +131,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     } catch (error) {
       print("Error occurred: $error");
     }
-
-    List<List<DeviceEntity>> compareDevice =
-        compareData<DeviceEntity>(deviceCache, deviceRes);
-    List<List<SceneInfoEntity>> compareScene =
-        compareData<SceneInfoEntity>(sceneCache, sceneRes);
+    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
 
@@ -796,7 +793,6 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
 List<List<T>> compareData<T>(List<T> cachedData, List<T> apiData) {
   Set<T> cachedDataSet = Set.from(cachedData);
   Set<T> apiDataSet = Set.from(apiData);
-
   Set<T> addedData = apiDataSet.difference(cachedDataSet);
   Set<T> removedData = cachedDataSet.difference(apiDataSet);
 

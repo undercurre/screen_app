@@ -44,6 +44,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   @override
   void initState() {
     super.initState();
+    adapter?.bindDataUpdateFunction(() {setState(() {});});
   }
 
   @override

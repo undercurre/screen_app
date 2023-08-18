@@ -1,8 +1,9 @@
-import 'dart:convert';
-
+import '../../../../channel/index.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
+import '../../../../common/homlux/homlux_global.dart';
+import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -29,6 +30,7 @@ class CACDataAdapter extends MideaDataAdapter {
   String masterId;
   String nodeId = '';
   String modelNumber = '';
+  bool isLocalDevice=false;
 
   CAC485Data data = CAC485Data(
       name: "",
@@ -40,27 +42,42 @@ class CACDataAdapter extends MideaDataAdapter {
 
   DataState dataState = DataState.NONE;
 
-  CACDataAdapter(this.name,this.applianceCode, this.masterId, this.modelNumber,
-      GatewayPlatform platform)
-      : super(platform);
+  CACDataAdapter(this.name,this.applianceCode, this.masterId, this.modelNumber, GatewayPlatform platform) : super(platform);
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
-    try {
-      dataState = DataState.LOADING;
+    if(isLocalDevice==false){
+      try {
+        dataState = DataState.LOADING;
 
-      if (platform.inMeiju()) {
-        _meijuData = await fetchMeijuData();
-      } else {
-        _homluxData = await fetchHomluxData();
-      }
+        if (platform.inMeiju()) {
+          _meijuData = await fetchMeijuData();
+        } else {
+          _homluxData = await fetchHomluxData();
+        }
 
-      if (_meijuData != null) {
-        data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
-      } else if (_homluxData != null) {
-        data = CAC485Data.fromHomlux(_homluxData, modelNumber);
-      } else {
-        // If both platforms return null data, consider it an error state
+        if (_meijuData != null) {
+          data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
+        } else if (_homluxData != null) {
+          data = CAC485Data.fromHomlux(_homluxData, modelNumber);
+        } else {
+          // If both platforms return null data, consider it an error state
+          dataState = DataState.ERROR;
+          data = CAC485Data(
+              name: name,
+              currTemp: "28",
+              targetTemp: "26",
+              operationMode: "4",
+              OnOff: "0",
+              windSpeed: "1");
+          return;
+        }
+
+        // Data retrieval success
+        dataState = DataState.SUCCESS;
+        updateUI();
+      } catch (e) {
+        // Error occurred while fetching data
         dataState = DataState.ERROR;
         data = CAC485Data(
             name: name,
@@ -69,48 +86,52 @@ class CACDataAdapter extends MideaDataAdapter {
             operationMode: "4",
             OnOff: "0",
             windSpeed: "1");
-        return;
+        updateUI();
       }
-
-      // Data retrieval success
-      dataState = DataState.SUCCESS;
-      updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      data = CAC485Data(
-          name: name,
-          currTemp: "28",
-          targetTemp: "26",
-          operationMode: "4",
-          OnOff: "0",
-          windSpeed: "1");
-      updateUI();
     }
   }
 
   Future<void> orderPower(int onOff) async {
-    if (platform.inMeiju()) {
-      fetchOrderPowerMeiju(onOff);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderPowerMeiju(onOff);
+      } else {}
+    }else{
+      deviceLocal485ControlChannel.controlLocal485AirConditionPower(onOff.toString(),applianceCode);
+    }
   }
 
   Future<void> orderMode(int mode) async {
-    if (platform.inMeiju()) {
-      fetchOrderModeMeiju(mode);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderModeMeiju(mode);
+      } else {}
+    }else{
+      Log.i("控制空调模式:$mode");
+      deviceLocal485ControlChannel.controlLocal485AirConditionModel(mode.toString(),applianceCode);
+    }
   }
 
   Future<void> orderTemp(int temp) async {
-    if (platform.inMeiju()) {
-      fetchOrderTempMeiju(temp);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderTempMeiju(temp);
+      } else {}
+    }else{
+      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(temp.toString(),applianceCode);
+    }
+
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (platform.inMeiju()) {
-      fetchOrderSpeedMeiju(speed);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderSpeedMeiju(speed);
+      } else {}
+    }else{
+      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(speed.toString(),applianceCode);
+    }
+
   }
 
   Future<MeiJuResponseEntity> fetchOrderModeMeiju(int mode) async {
@@ -198,7 +219,40 @@ class CACDataAdapter extends MideaDataAdapter {
   void init() {
     // Initialize the adapter and fetch data
     Log.i("初始化空调adapter");
-    fetchData();
+    if(applianceCode.length!=4){
+      isLocalDevice=false;
+      fetchData();
+    }else{
+      isLocalDevice=true;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+      ///homlux添加本地485空调设备
+      if(deviceList!=null){
+        for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
+          if("${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}"==applianceCode){
+            String? targetTemp=deviceList!.nameValuePairs!.airConditionList![i].currTemperature;
+            String? currTemp=deviceList!.nameValuePairs!.airConditionList![i].temperature;
+            String? operationMode=deviceList!.nameValuePairs!.airConditionList![i].workModel;
+            String? OnOff=deviceList!.nameValuePairs!.airConditionList![i].onOff;
+            String? windSpeed=deviceList!.nameValuePairs!.airConditionList![i].windSpeed;
+            data = CAC485Data(
+                name: name,
+                currTemp: int.parse(currTemp!, radix: 16).toString()!,
+                targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
+                operationMode: int.parse(operationMode!, radix: 16).toString()!,
+                OnOff: OnOff!,
+                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+          }
+        }
+      }else{
+        data = CAC485Data(
+            name: name,
+            currTemp: "28",
+            targetTemp: "26",
+            operationMode: "4",
+            OnOff: "0",
+            windSpeed: "1");
+      }
+    }
   }
 
   @override

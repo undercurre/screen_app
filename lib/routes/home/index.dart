@@ -7,6 +7,7 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
+import '../../common/logcat_helper.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
@@ -75,8 +76,12 @@ class HomeState extends State<Home>
       Global.nearWakeup = nearWakeup;
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
-      aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
-      AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
+      aiMethodChannel
+          .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
+      if (System.isLogin()) {
+        AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
+      }
+      deviceLocal485ControlChannel.find485Device();
       // 初始化推送
       PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
     } catch (e) {
@@ -145,7 +150,8 @@ class HomeState extends State<Home>
                           colors: [Color(0xFF272F41), Color(0xFF080C14)],
                         ),
                       ),
-                      constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                      constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width),
                       height: MediaQuery.of(context).size.height,
                       child: const DevicePage(),
                     ),

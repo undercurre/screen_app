@@ -3,8 +3,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.wifi.ScanResult
-import android.net.wifi.WifiInfo
 import android.os.*
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.utils.JSONArrayUtils
@@ -16,6 +14,10 @@ import com.midea.light.device.explore.beans.BindResult
 import com.midea.light.device.explore.beans.WiFiScanResult
 import com.midea.light.device.explore.beans.ZigbeeScanResult
 import com.midea.light.device.explore.config.BaseConfig
+import com.midea.light.device.explore.controller.control485.controller.AirConditionController
+import com.midea.light.device.explore.controller.control485.controller.FloorHotController
+import com.midea.light.device.explore.controller.control485.controller.FreshAirController
+import com.midea.light.issued.plc.PLCControlEvent
 import com.midea.light.log.LogUtil
 import com.midea.light.utils.CollectionUtil
 import com.midea.light.utils.GsonUtils
@@ -28,7 +30,7 @@ import org.json.JSONObject
 class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
 
     companion object {
-        fun create( channelName: String, binaryMessenger: BinaryMessenger, context: Context): ManagerDeviceChannel {
+        fun create(channelName: String, binaryMessenger: BinaryMessenger, context: Context): ManagerDeviceChannel {
             val channel = ManagerDeviceChannel(context)
             channel.setup(binaryMessenger, channelName)
             return channel
@@ -37,7 +39,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val method = call.method
-        when(method) {
+        when (method) {
             "updateToken" -> {
                 val token = requireNotNull(call.argument<String>("token"))
                 updateToken(token)
@@ -55,7 +57,9 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 val httpHeaderDataKey = requireNotNull(call.argument<String?>("httpHeaderDataKey"))
                 init(host, token, httpSign, seed, key, deviceId, userId, iotAppCount, iotSecret, httpHeaderDataKey)
             }
-            "reset" -> { reset() }
+            "reset" -> {
+                reset()
+            }
             "findZigbee" -> {
                 assert(isInit)
                 val homeGroupId = requireNotNull(call.argument<String?>("homeGroupId"))
@@ -112,7 +116,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                     scanResults.add(scanResult)
                 }
 
-                if(CollectionUtil.isEmpty(scanResults)) {
+                if (CollectionUtil.isEmpty(scanResults)) {
                     throw java.lang.RuntimeException("请指定需要绑定的wifi设备")
                 }
 
@@ -131,7 +135,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
 
     var serverMessenger: Messenger? = null
     var clientMessenger: Messenger? = null
-    var serviceConnection: ServiceConnection? =null
+    var serviceConnection: ServiceConnection? = null
     var isConnectedService = false
     var isInit = false
 
@@ -146,7 +150,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 LogUtil.tag("device_zigbee_wifi").bundle(this)
                 val actionType = requireNotNull(this.getString(Portal.ACTION_TYPE))
                 val methodType = requireNotNull(this.getString(Portal.METHOD_TYPE))
-                when(actionType) {
+                when (actionType) {
                     Portal.REQUEST_BIND_ZIGBEE_DEVICES -> {
                         zigbeeBindMethodHandle(methodType, this)
                     }
@@ -172,10 +176,10 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
 
     private fun findZigbeeHandle(methodType: String, bundle: Bundle) {
-        if(methodType == Portal.METHOD_SCAN_ZIGBEE_START) {
+        if (methodType == Portal.METHOD_SCAN_ZIGBEE_START) {
             val devices = bundle.getParcelableArrayList<ZigbeeScanResult>(Portal.RESULT_SCAN_ZIGBEE_DEVICES)
             LogUtil.tag("device_zigbee_wifi").array(devices)
-            if(devices?.isNotEmpty() == true) {
+            if (devices?.isNotEmpty() == true) {
                 zigbeeDevices.addAll(devices)
                 val json = GsonUtils.stringify(devices)
                 val jsonArray = JSONArray(json)
@@ -185,7 +189,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
 
     private fun modifyDeviceHandler(methodType: String, bundle: Bundle) {
-        if(methodType == Portal.METHOD_MODIFY_DEVICE) {
+        if (methodType == Portal.METHOD_MODIFY_DEVICE) {
             val suc = requireNotNull(bundle.getInt(Portal.RESULT_MODIFY_DEVICE)) == 0
             //val applianceBean: ApplianceBean? = bundle.getParcelable(Portal.RESULT_MODIFY_DEVICE_DATA)
             val jsonObject = JSONObject()
@@ -199,7 +203,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
 
     fun zigbeeBindMethodHandle(method: String, data: Bundle) {
-        when(method) {
+        when (method) {
             Portal.METHOD_BIND_ZIGBEE -> {
                 val bindResult: BindResult = requireNotNull(data.getParcelable(Portal.RESULT_BIND_ZIGBEE_DEVICES))
                 val json = JSONObject()
@@ -207,7 +211,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 json.put("message", bindResult.message) // 如果失败会有报错的原因，此字段用处不大
                 json.put("waitDeviceBind", bindResult.waitDeviceBind) // 剩下多少设备需要绑定
                 json.put("findResult", JSONObjectUtils.objectToJson(bindResult.deviceInfo as ZigbeeScanResult))
-                if(bindResult.code == 0) {
+                if (bindResult.code == 0) {
                     json.put("bindInfo", JSONObjectUtils.objectToJson(bindResult.bindResult as ApplianceBean))
                 }
                 mMethodChannel.invokeMethod("zigbeeBindResult", json)
@@ -221,25 +225,26 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     fun init(host: String, token: String, httpSign: String,
              seed: String, key: String, deviceId: String, userId: String,
              iotAppCount: String, iotSecret: String, httpHeaderDataKey: String) {
-        if(isInit) return
+        if (isInit) return
 
         val baseConfig = BaseConfig(host, token, httpSign, seed, key, deviceId, userId, iotAppCount, iotSecret, httpHeaderDataKey)
         Portal.initBaseConfig(baseConfig)
 
         context.bindService(
-            Intent(context, DevicesExploreService::class.java),
-            object : ServiceConnection {
-                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                    serverMessenger = Messenger(service)
-                    clientMessenger = Messenger(receiveDataFromServer)
-                    serviceConnection = this
-                    isConnectedService = true
-                }
-                override fun onServiceDisconnected(name: ComponentName?) {
-                    isConnectedService = false
-                }
-            },
-            Context.BIND_AUTO_CREATE
+                Intent(context, DevicesExploreService::class.java),
+                object : ServiceConnection {
+                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                        serverMessenger = Messenger(service)
+                        clientMessenger = Messenger(receiveDataFromServer)
+                        serviceConnection = this
+                        isConnectedService = true
+                    }
+
+                    override fun onServiceDisconnected(name: ComponentName?) {
+                        isConnectedService = false
+                    }
+                },
+                Context.BIND_AUTO_CREATE
         )
 
         isInit = true
@@ -247,7 +252,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
 
     // 重置
     fun reset() {
-        if(!isInit) return
+        if (!isInit) return
         Portal.resetBaseConfig()
         serviceConnection?.run { context.unbindService(this) }
         isInit = false
@@ -282,13 +287,14 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     // 2.zigbee设备绑定
     private fun bindZigbee(homeGroupId: String, roomId: String?, applianceCodes: List<String>) {
         val devices = zigbeeDevices
-                        .filter { zigbeeScanResult ->
-                            applianceCodes.find { code->
-                                code.equals(zigbeeScanResult.device.applianceCode) } != null
-                        }
-                        .toTypedArray()
+                .filter { zigbeeScanResult ->
+                    applianceCodes.find { code ->
+                        code.equals(zigbeeScanResult.device.applianceCode)
+                    } != null
+                }
+                .toTypedArray()
 
-        if(devices.isNotEmpty()) {
+        if (devices.isNotEmpty()) {
             val message = Message()
             val data = Bundle()
             data.putString(Portal.ACTION_TYPE, Portal.REQUEST_BIND_ZIGBEE_DEVICES)
@@ -300,8 +306,9 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
             message.replyTo = clientMessenger
             serverMessenger?.send(message)
             zigbeeDevices.removeIf { zigbeeScanResult ->
-                applianceCodes.find { code->
-                    code.equals(zigbeeScanResult.device.applianceCode) } != null
+                applianceCodes.find { code ->
+                    code.equals(zigbeeScanResult.device.applianceCode)
+                } != null
             }
         }
     }
@@ -352,15 +359,16 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         message.replyTo = clientMessenger
         serverMessenger?.send(message)
     }
+
     // 5. 绑定wifi设备
     private fun bindWifi(
-        homeGroupId: String,
-        roomId: String,
-        wifiBssId: String,
-        wifiName: String,
-        wifiPassword: String,
-        encrypt: String,
-        scanResults: MutableList<WiFiScanResult>
+            homeGroupId: String,
+            roomId: String,
+            wifiBssId: String,
+            wifiName: String,
+            wifiPassword: String,
+            encrypt: String,
+            scanResults: MutableList<WiFiScanResult>
     ) {
         val message = Message()
         val data = Bundle()
@@ -388,11 +396,12 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
         serverMessenger?.send(message)
         wifiDevices.clear()
     }
+
     // 6. 发现wifi设备结果
     private fun findWifiHandle(methodType: String, bundle: Bundle) {
-        if(methodType == Portal.METHOD_SCAN_WIFI_START) {
-            val result =  bundle.getParcelableArrayList<WiFiScanResult>(Portal.RESULT_SCAN_WIFI_DEVICES)
-            if(CollectionUtil.isNotEmpty(result)) {
+        if (methodType == Portal.METHOD_SCAN_WIFI_START) {
+            val result = bundle.getParcelableArrayList<WiFiScanResult>(Portal.RESULT_SCAN_WIFI_DEVICES)
+            if (CollectionUtil.isNotEmpty(result)) {
                 wifiDevices.addAll(result!!)
                 val jsonArray = JSONArray()
                 result.forEach { wiFiScanResult ->
@@ -402,17 +411,18 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
             }
         }
     }
+
     // 7. 绑定wifi设备结果
     private fun wifiBindMethodHandle(methodType: String, data: Bundle) {
         LogUtil.tag("BindDeviceController").bundle(data)
-        if(methodType == Portal.METHOD_BIND_WIFI) {
+        if (methodType == Portal.METHOD_BIND_WIFI) {
             val bindResult: BindResult = requireNotNull(data.getParcelable(Portal.RESULT_BIND_WIFI_DEVICES))
             val json = JSONObject()
             json.put("code", bindResult.code) // 0成功 -1失败
             json.put("message", bindResult.message) // 如果失败会有报错的原因，此字段用处不大
             json.put("waitDeviceBind", bindResult.waitDeviceBind) // 剩下多少设备需要绑定
             json.put("findResult", (covertWiFiScanResultToFlutterType(bindResult.deviceInfo as WiFiScanResult)))
-            if(bindResult.code == 0) {
+            if (bindResult.code == 0) {
                 json.put("bindInfo", JSONObjectUtils.objectToJson(bindResult.bindResult as ApplianceBean))
             }
             mMethodChannel.invokeMethod("wifiBindResult", json)
@@ -432,7 +442,7 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
     }
 
     // WiFiScanResult -> Convert (用于转换数据类型到Flutter上去)
-    private fun covertWiFiScanResultToFlutterType(wiFiScanResult: WiFiScanResult) : JSONObject {
+    private fun covertWiFiScanResultToFlutterType(wiFiScanResult: WiFiScanResult): JSONObject {
         val jsonObject = JSONObject()
         jsonObject.put("icon", wiFiScanResult.icon)
         jsonObject.put("name", wiFiScanResult.name)
