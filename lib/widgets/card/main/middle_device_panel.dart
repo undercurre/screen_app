@@ -61,7 +61,7 @@ class _MiddleDevicePanelCardWidgetState
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
-      Log.i('更新数据', widget.adapter.data.nameList);
+      // Log.i('更新数据', widget.adapter.data.nameList);
     }
   }
 

@@ -62,7 +62,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       setState(() {
         widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
       });
-      Log.i('更新数据', widget.adapter.data.nameList);
+      // Log.i('更新数据', widget.adapter.data.nameList);
     }
   }
 

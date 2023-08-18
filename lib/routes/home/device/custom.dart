@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
@@ -19,37 +20,26 @@ class CustomPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CustomPageState();
 }
 
-class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _animation;
+class _CustomPageState extends State<CustomPage>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   int curPageIndex = 0;
   List<Widget> _screens = [];
   late Layout curLayout;
-  String dargingWidgetId = '';
+  String dragingWidgetId = '';
+  String overlayId = '';
   List<Layout> curscreenLayout = [];
+  List<Layout> backupLayout = [];
   double dragSumX = 0;
   double dragSumY = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    _animation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(200, 200), // Set the desired coordinate here
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _controller.forward();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -61,7 +51,9 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
     double screenWidth = mediaQuery.size.width;
     double screenHeight = mediaQuery.size.height;
     // 处理布局信息
-    _screens = getScreenList(screenWidth, screenHeight);
+    if (mounted) {
+      _screens = getScreenList(screenWidth, screenHeight, layoutModel);
+    }
     return Stack(
       children: [
         Container(
@@ -223,21 +215,13 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
                                   childWhenDragging: Opacity(
                                     opacity: 0.5,
                                     child: Container(
-                                      child: AnimatedBuilder(
-                                        animation: _controller,
-                                        builder: (context, child) {
-                                          return Transform.translate(
-                                            offset: _animation.value,
-                                            child: cardWithIcon,
-                                          );
-                                        },
-                                      ),
+                                      child: cardWithIcon,
                                     ),
                                   ),
                                   child: cardWithIcon,
                                   onDragStarted: () {
                                     setState(() {
-                                      dargingWidgetId = result.deviceId;
+                                      dragingWidgetId = result.deviceId;
                                       curLayout = layoutModel
                                           .getLayoutsByDevice(result.deviceId);
                                       curscreenLayout =
@@ -255,8 +239,6 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
                                   onDragEnd: (details) {
                                     int columnIndex = dragSumX ~/ gridWidth + 1;
                                     int rowIndex = dragSumY ~/ gridHeight;
-                                    layoutModel.swapPosition(
-                                        curLayout, rowIndex, columnIndex);
                                   },
                                   onDragUpdate: (details) {
                                     // 计算出拖拽中卡片的位置
@@ -412,9 +394,8 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
     );
   }
 
-  List<Widget> getScreenList(double width, double height) {
-    // 使用provider
-    final layoutModel = Provider.of<LayoutModel>(context);
+  List<Widget> getScreenList(
+      double width, double height, LayoutModel layoutModel) {
     // 屏幕页面列表
     List<Widget> screenList = [];
     // 计算出网格的宽高
@@ -427,6 +408,8 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
       List<Widget> curScreenWidgets = [];
       // 拿到当前页的layout
       List<Layout> curScreenLayouts = layoutModel.getLayoutsByPageIndex(page);
+      // 逃避空页
+      if (curScreenLayouts.isEmpty) continue;
       // 填充
       List<Layout> fillNullLayoutList =
           layoutModel.fillNullLayoutList(curScreenLayouts, page);
@@ -442,7 +425,36 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
             crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
             child: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
-              child: cardWidget,
+              child: LongPressDraggable<String>(
+                data: layout.deviceId,
+                // 拖拽时原位置的样子
+                childWhenDragging: Container(),
+                // 拖拽时的样子
+                feedback: cardWidget,
+                child: DragTarget<String>(
+                  builder: (context, candidateData, rejectedData) {
+                    return cardWidget;
+                  },
+                  onWillAccept: (data) {
+                    Log.i('正在移动', dragingWidgetId);
+                    Log.i('移动到', layout.deviceId);
+                    // 计算被移动多少格,滑动1格以上算滑动
+                    double absX = dragSumX.abs();
+                    double absY = dragSumY.abs();
+                    if (absX < 50 && absY < 50) {
+                      return false;
+                    } else {
+                      layoutModel.swapPosition(
+                        sortedLayoutList
+                            .firstWhere((item) => item.deviceId == dragingWidgetId),
+                        sortedLayoutList
+                            .firstWhere((item) => item.deviceId == layout.deviceId),
+                      );
+                      return true;
+                    }
+                  },
+                ),
+              ),
             ),
           );
           curScreenWidgets.add(cardWithPosition);
@@ -475,40 +487,74 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
             ]),
           );
           // 映射拖拽
-          Widget cardWithDrag = LongPressDraggable(
+          Widget cardWithDrag = LongPressDraggable<String>(
             data: layout.deviceId,
-            feedback: cardWidget,
+            // 拖拽时原位置的样子
             childWhenDragging: Opacity(
-              opacity: 0.5,
+              opacity: 0,
               child: Container(
                 child: cardWithIcon,
               ),
             ),
-            child: cardWithIcon,
+            // 拖拽时的样子
+            feedback: cardWidget,
             onDragStarted: () {
               setState(() {
-                dargingWidgetId = layout.deviceId;
+                dragingWidgetId = layout.deviceId;
                 curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);
                 curscreenLayout =
                     layoutModel.getLayoutsByPageIndex(layout.pageIndex);
-                dragSumX = curLayout.grids[0] % 4 - 1 == -1
-                    ? (3 * gridWidth)
-                    : ((curLayout.grids[0] % 4 - 1) * gridWidth);
-                dragSumY = curLayout.grids[0] / 4 * gridHeight;
+                backupLayout = [...curscreenLayout];
               });
             },
             onDragEnd: (details) {
-              int columnIndex = dragSumX ~/ gridWidth + 1;
-              int rowIndex = dragSumY ~/ gridHeight;
-              layoutModel.swapPosition(curLayout, rowIndex, columnIndex);
+              dragSumX = 0;
+              dragSumY = 0;
+              dragingWidgetId = '';
             },
             onDragUpdate: (details) {
               // 计算出拖拽中卡片的位置
               dragSumX += details.delta.dx;
               dragSumY += details.delta.dy;
             },
-            onDragCompleted: () {},
+            onDragCompleted: () {
+              setState(() {
+                dragSumX = 0;
+                dragSumY = 0;
+                dragingWidgetId = '';
+              });
+            },
             onDraggableCanceled: (_, __) {},
+            child: DragTarget<String>(
+              builder: (context, candidateData, rejectedData) {
+                return Opacity(
+                  opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
+                  child: Container(
+                    child: cardWithIcon,
+                  ),
+                );
+              },
+              onAccept: (data) {},
+              onLeave: (data) {},
+              onWillAccept: (data) {
+                Log.i('正在移动', dragingWidgetId);
+                Log.i('移动到', layout.deviceId);
+                // 计算被移动多少格,滑动1格以上算滑动
+                double absX = dragSumX.abs();
+                double absY = dragSumY.abs();
+                if (absX < 50 && absY < 50) {
+                  return false;
+                } else {
+                  layoutModel.swapPosition(
+                    sortedLayoutList
+                        .firstWhere((item) => item.deviceId == dragingWidgetId),
+                    sortedLayoutList
+                        .firstWhere((item) => item.deviceId == layout.deviceId),
+                  );
+                  return true;
+                }
+              },
+            ),
           );
           // 映射占位
           Widget cardWithPosition = StaggeredGridTile.fit(
@@ -521,12 +567,14 @@ class _CustomPageState extends State<CustomPage> with SingleTickerProviderStateM
       screenList.add(
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 0, 34),
-          child: StaggeredGrid.count(
-            crossAxisCount: 4,
-            mainAxisSpacing: 0,
-            crossAxisSpacing: 0,
-            axisDirection: AxisDirection.down,
-            children: [...curScreenWidgets],
+          child: SingleChildScrollView(
+            child: StaggeredGrid.count(
+              crossAxisCount: 4,
+              mainAxisSpacing: 0,
+              crossAxisSpacing: 0,
+              axisDirection: AxisDirection.down,
+              children: [...curScreenWidgets],
+            ),
           ),
         ),
       );

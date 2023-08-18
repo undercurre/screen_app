@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
@@ -36,8 +38,10 @@ class _DevicePageState extends State<DevicePage> {
   Widget build(BuildContext context) {
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
-    _screens = getScreenList(layoutModel.layouts);
-    logger.i('屏幕页面数量', _screens.length);
+    if (mounted) {
+      _screens = getScreenList(layoutModel);
+    }
+    // logger.i('屏幕页面数量', _screens.length);
     return PageView(
       controller: _pageController,
       scrollDirection: Axis.horizontal,
@@ -46,11 +50,9 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  List<Widget> getScreenList(List<Layout> layout) {
-    // 使用provider
-    final layoutModel = Provider.of<LayoutModel>(context);
-    Log.i('自定义刷新次数', layoutModel.go2Refresh);
-    Log.i('布局数量', layoutModel.layouts.length);
+  List<Widget> getScreenList(LayoutModel layoutModel) {
+    // Log.i('自定义刷新次数', layoutModel.go2Refresh);
+    // Log.i('布局数量', layoutModel.layouts.length);
     // 屏幕页面列表
     List<Widget> screenList = [];
     // 当前页面的widgets
@@ -86,9 +88,9 @@ class _DevicePageState extends State<DevicePage> {
     // logger.i('有多少未布局数据', hadNotInList.length);
     // 虚拟布局计算: 占位——>映射单页——>插入pageview
     // 先处理到现有最大页码
-    Log.i('要处理$hadPageCount页');
+    // Log.i('要处理$hadPageCount页');
     for (; pageCount <= hadPageCount; pageCount++) {
-      Log.i('当前处理页码', pageCount);
+      // Log.i('当前处理页码', pageCount);
       // 先排除掉已经被排布的格子
 
       // ************布局
@@ -159,17 +161,28 @@ class _DevicePageState extends State<DevicePage> {
       if (pageCount == hadPageCount) {
         List<int> editCardFillCells =
             screenLayer.checkAvailability(CardType.Edit);
-        Log.i('编辑条目占位结果', editCardFillCells);
+        // Log.i('编辑条目占位结果', editCardFillCells);
         // 当占位成功
-        if (editCardFillCells.isNotEmpty) {
-          curScreenLayouts.add(Layout(
+        List<int> sumGrid = [];
+        layoutModel.layouts.forEach((element) {
+          sumGrid.addAll(element.grids);
+        });
+        if (editCardFillCells.isNotEmpty && editCardFillCells[0] > sumGrid.reduce(max)) {
+          curScreenLayouts.add(
+            Layout(
               uuid.v4(),
               DeviceEntityTypeInP4.DeviceEdit,
               CardType.Edit,
               hadPageCount,
               editCardFillCells,
               DataInputCard(
-                  name: '', applianceCode: '', roomName: '', isOnline: '')));
+                name: '',
+                applianceCode: '',
+                roomName: '',
+                isOnline: '',
+              ),
+            ),
+          );
         } else {
           isCanAdd = false;
         }

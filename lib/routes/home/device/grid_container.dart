@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../common/global.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_device_light.dart';
 import '../../../widgets/card/main/middle_device.dart';
@@ -22,6 +23,14 @@ class Screen {
 
   // 设置这个格子是否被占用
   void setCellOccupied(int row, int col, bool isOccupied) {
+    if (row < 0 || row > 3) {
+      Log.i('行溢出');
+      return;
+    }
+    if (col < 0 || col > 3) {
+      Log.i('列溢出');
+      return;
+    }
     int mask = 0x1 << (row * 4 + col);
     if (isOccupied) {
       occupiedCells[0] |= mask;

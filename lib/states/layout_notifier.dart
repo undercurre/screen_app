@@ -102,6 +102,7 @@ class LayoutModel extends ChangeNotifier {
   }
 
   Future<void> _saveLayouts() async {
+    handleNullPage();
     final prefs = await SharedPreferences.getInstance();
     final layoutList =
         layouts.map((layout) => jsonEncode(layout.toJson())).toList();
@@ -246,7 +247,7 @@ class LayoutModel extends ChangeNotifier {
         }
       }
       int filledCount = screenLayer.getOccupiedGridIndices().length;
-      Log.i('填充格子数$filledCount');
+      // Log.i('填充格子数$filledCount');
       // 尝试填充
       for (int n = 0; n <= ((16 - filledCount) / 2); n++) {
         List<int> fillCells = screenLayer.checkAvailability(CardType.Small);
@@ -274,59 +275,13 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 拖拽换位算法
-  void swapPosition(Layout source, rowIndex, columnIndex) {
+  void swapPosition(Layout source, Layout targetOne) {
+    Log.i('源布局', source.grids);
+    Log.i('目标布局', targetOne.grids);
+    int distance = targetOne.grids[0] - source.grids[0];
+    List<int> target = source.grids.map((e) => e + distance).toList();
+    Log.i('演变目标', target);
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
-    // 小卡片
-    if (source.cardType == CardType.Small) {
-      if (columnIndex <= 1) {
-        columnIndex = 0;
-      } else {
-        columnIndex = 2;
-      }
-      if (rowIndex <= 0) {
-        rowIndex = 0;
-      }
-      if (rowIndex >= 3) {
-        rowIndex = 3;
-      }
-    }
-    // 中卡片
-    if (source.cardType == CardType.Middle ||
-        source.cardType == CardType.Other) {
-      if (columnIndex <= 1) {
-        columnIndex = 0;
-      } else {
-        columnIndex = 2;
-      }
-      if (rowIndex <= 0) {
-        rowIndex = 0;
-      }
-      if (rowIndex >= 2) {
-        rowIndex = 2;
-      }
-    }
-
-    // 大卡片
-    if (source.cardType == CardType.Big) {
-      columnIndex = 0;
-
-      if (rowIndex <= 0) {
-        rowIndex = 0;
-      }
-
-      if (curPageLayoutList.any((element) =>
-          element.cardType == CardType.Middle ||
-          element.cardType == CardType.Other && rowIndex <= 1)) {
-        rowIndex = 0;
-      }
-
-      if (rowIndex >= 2) {
-        rowIndex = 2;
-      }
-    }
-
-    int zengliang = rowIndex * 4 + columnIndex + 1 - source.grids[0];
-    List<int> target = source.grids.map((e) => e + zengliang).toList();
     List<int> targetIndexes = [];
 
     // 找到目标
@@ -345,6 +300,7 @@ class LayoutModel extends ChangeNotifier {
         Layout targetLayout = layouts.firstWhere((layout) =>
             layout.deviceId == curPageLayoutList[targetIndexes[i]].deviceId);
         if (targetLayout.grids.length > source.grids.length) {
+          // 只能大替换小
           isValid = false;
           break;
         }
@@ -355,23 +311,22 @@ class LayoutModel extends ChangeNotifier {
       }
       if (!isValid) return;
     }
+    // 进行目标动作
+    source.grids = target;
 
-    // 安全过滤：排除负值
+    // _saveLayouts();
+    notifyListeners();
+  }
 
-    // 找到数组中的最小值
-    int minValue = target.reduce((min, current) => min < current ? min : current);
-
-    // 计算最小值与1的差距
-    int difference = 1 - minValue;
-
-    // 将最小值变为1，其他的值增加相同的差距
-    List<int> modifiedNumbers = target.map((number) => number + difference).toList();
-
-    source.grids = modifiedNumbers;
-    logger.i(
-        '处理完成', getLayoutsByPageIndex(source.pageIndex).map((e) => e.grids));
-
-    _saveLayouts();
+  void handleNullPage() {
+    List<int> pagesList = layouts.map((e) => e.pageIndex).toList();
+    for (int i = 0; i < pagesList.length; i ++) {
+      for (var element in layouts) {
+        if (element.pageIndex == pagesList[i]) {
+          element.pageIndex = i;
+        }
+      }
+    }
     notifyListeners();
   }
 }
@@ -393,3 +348,4 @@ List<Layout> deepCopy(List<Layout> original) {
   }
   return copy;
 }
+
