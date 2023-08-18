@@ -25,7 +25,7 @@ class SceneListModel extends ChangeNotifier {
 
   List<SceneInfoEntity> getCacheSceneList() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      Log.i('场景列表数据', sceneListMeiju.list?.length);
+      // Log.i('场景列表数据', sceneListMeiju.list?.length);
       if (sceneListMeiju.list != null) {
         return sceneListMeiju.list!.map((e) {
           SceneInfoEntity sceneObj = SceneInfoEntity();

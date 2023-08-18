@@ -20,8 +20,7 @@ class CustomPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CustomPageState();
 }
 
-class _CustomPageState extends State<CustomPage>
-    with SingleTickerProviderStateMixin {
+class _CustomPageState extends State<CustomPage> {
   final PageController _pageController = PageController();
   int curPageIndex = 0;
   List<Widget> _screens = [];
@@ -104,7 +103,6 @@ class _CustomPageState extends State<CustomPage>
 
                           if (result != null) {
                             result as Layout;
-                            logger.i('增加卡片', result.deviceId);
                             // 处理回调的增加信息
                             // 尝试增加在当页
                             // 初始化布局占位器
@@ -112,17 +110,12 @@ class _CustomPageState extends State<CustomPage>
                             // 拿到当前页的layout
                             List<Layout> layoutsInCurPage =
                                 layoutModel.getLayoutsByPageIndex(curPageIndex);
-                            logger.i('layouts数量', layoutsInCurPage);
                             if (layoutsInCurPage.isNotEmpty) {
                               // 非空页
                               for (int layoutInCurPageIndex = 0;
                                   layoutInCurPageIndex <
                                       layoutsInCurPage.length;
                                   layoutInCurPageIndex++) {
-                                logger.i(
-                                    '清点当前页已有布局',
-                                    layoutsInCurPage[layoutInCurPageIndex]
-                                        .grids);
                                 // 取出当前布局的grids
                                 for (int gridsIndex = 0;
                                     gridsIndex <
@@ -142,13 +135,12 @@ class _CustomPageState extends State<CustomPage>
                               // 查询是否已经用持久化的数据就填满了这一页
                               List<int> arrHasPosition =
                                   screenLayer.getOccupiedGridIndices();
-                              logger.i('该页已被占据', arrHasPosition);
                               // 尝试占位
                               List<int> fillCells = screenLayer
                                   .checkAvailability(result.cardType);
-                              logger.i('新卡片占位尝试结果', fillCells);
+                              Log.i('新卡片占位尝试结果', fillCells);
                               if (fillCells.isEmpty) {
-                                logger.i('屏幕被占满或放不下');
+                                Log.i('屏幕被占满或放不下');
                                 // 屏幕占满或放不下
                                 int maxPage = layoutModel.getMaxPageIndex();
                                 // 找到有合适空位的一页
@@ -175,9 +167,9 @@ class _CustomPageState extends State<CustomPage>
                                 // 映射图标
                                 Widget cardWithIcon = GestureDetector(
                                   onTap: () {
-                                    logger.i('删除卡片');
                                     layoutModel.deleteLayout(
                                         result.deviceId, result.pageIndex);
+                                    layoutModel.handleNullPage();
                                   },
                                   child: Stack(children: [
                                     Padding(
@@ -202,51 +194,90 @@ class _CustomPageState extends State<CustomPage>
                                     ),
                                   ]),
                                 );
-                                MediaQueryData mediaQuery =
-                                    MediaQuery.of(context);
-                                double screenWidth = mediaQuery.size.width;
-                                double screenHeight = mediaQuery.size.height;
-                                double gridWidth = screenWidth / 4;
-                                double gridHeight = screenHeight / 4;
                                 // 映射拖拽
-                                Widget cardWithDrag = LongPressDraggable(
+                                Widget cardWithDrag =
+                                    LongPressDraggable<String>(
                                   data: result.deviceId,
-                                  feedback: cardWidget,
+                                  // 拖拽时原位置的样子
                                   childWhenDragging: Opacity(
-                                    opacity: 0.5,
+                                    opacity: 1,
                                     child: Container(
                                       child: cardWithIcon,
                                     ),
                                   ),
-                                  child: cardWithIcon,
+                                  // 拖拽时的样子
+                                  feedback: cardWidget,
                                   onDragStarted: () {
                                     setState(() {
                                       dragingWidgetId = result.deviceId;
                                       curLayout = layoutModel
                                           .getLayoutsByDevice(result.deviceId);
-                                      curscreenLayout =
-                                          layoutModel.getLayoutsByPageIndex(
-                                              result.pageIndex);
-                                      dragSumX =
-                                          curLayout.grids[0] % 4 - 1 == -1
-                                              ? (3 * gridWidth)
-                                              : ((curLayout.grids[0] % 4 - 1) *
-                                                  gridWidth);
-                                      dragSumY =
-                                          curLayout.grids[0] / 4 * gridHeight;
+                                      curscreenLayout = layoutModel
+                                          .getLayoutsByPageIndex(curPageIndex);
+                                      backupLayout = [...curscreenLayout];
                                     });
                                   },
                                   onDragEnd: (details) {
-                                    int columnIndex = dragSumX ~/ gridWidth + 1;
-                                    int rowIndex = dragSumY ~/ gridHeight;
+                                    dragSumX = 0;
+                                    dragSumY = 0;
+                                    dragingWidgetId = '';
                                   },
                                   onDragUpdate: (details) {
                                     // 计算出拖拽中卡片的位置
                                     dragSumX += details.delta.dx;
                                     dragSumY += details.delta.dy;
                                   },
-                                  onDragCompleted: () {},
+                                  onDragCompleted: () {
+                                    setState(() {
+                                      dragSumX = 0;
+                                      dragSumY = 0;
+                                      dragingWidgetId = '';
+                                    });
+                                  },
                                   onDraggableCanceled: (_, __) {},
+                                  child: DragTarget<String>(
+                                    builder:
+                                        (context, candidateData, rejectedData) {
+                                      return Opacity(
+                                        opacity:
+                                            result.deviceId == dragingWidgetId
+                                                ? 0.5
+                                                : 1,
+                                        child: Container(
+                                          child: cardWithIcon,
+                                        ),
+                                      );
+                                    },
+                                    onAccept: (data) {},
+                                    onLeave: (data) {},
+                                    onWillAccept: (data) {
+                                      // 计算被移动多少格,滑动1格以上算滑动
+                                      double absX = dragSumX.abs();
+                                      double absY = dragSumY.abs();
+                                      if (absX < 50 && absY < 50) {
+                                        return false;
+                                      } else {
+                                        List<Layout> curScreenLayouts =
+                                            layoutModel.getLayoutsByPageIndex(
+                                                curPageIndex);
+                                        // 填充
+                                        List<Layout> fillNullLayoutList =
+                                            layoutModel.fillNullLayoutList(
+                                                curScreenLayouts, curPageIndex);
+                                        // 排序
+                                        List<Layout> sortedLayoutList =
+                                            Layout.sortLayoutList(
+                                                fillNullLayoutList);
+                                        layoutModel.swapPosition(
+                                          sortedLayoutList.firstWhere((item) =>
+                                              item.deviceId == dragingWidgetId),
+                                          sortedLayoutList.firstWhere((item) =>
+                                              item.deviceId == result.deviceId),
+                                        );
+                                        return true;
+                                      }
+                                    },
+                                  ),
                                 );
                                 // 映射占位
                                 Widget cardWithPosition = StaggeredGridTile.fit(
@@ -402,6 +433,7 @@ class _CustomPageState extends State<CustomPage>
     double gridWidth = width / 4;
     double gridHeight = height / 4;
     // 最大页数
+    Log.i('布局数据', layoutModel.layouts.map((e) => e.pageIndex));
     int maxPage = layoutModel.getMaxPageIndex();
     for (int page = 0; page <= maxPage; page++) {
       // 收集当前page的widget
@@ -436,8 +468,6 @@ class _CustomPageState extends State<CustomPage>
                     return cardWidget;
                   },
                   onWillAccept: (data) {
-                    Log.i('正在移动', dragingWidgetId);
-                    Log.i('移动到', layout.deviceId);
                     // 计算被移动多少格,滑动1格以上算滑动
                     double absX = dragSumX.abs();
                     double absY = dragSumY.abs();
@@ -445,10 +475,10 @@ class _CustomPageState extends State<CustomPage>
                       return false;
                     } else {
                       layoutModel.swapPosition(
-                        sortedLayoutList
-                            .firstWhere((item) => item.deviceId == dragingWidgetId),
-                        sortedLayoutList
-                            .firstWhere((item) => item.deviceId == layout.deviceId),
+                        sortedLayoutList.firstWhere(
+                            (item) => item.deviceId == dragingWidgetId),
+                        sortedLayoutList.firstWhere(
+                            (item) => item.deviceId == layout.deviceId),
                       );
                       return true;
                     }
@@ -491,7 +521,7 @@ class _CustomPageState extends State<CustomPage>
             data: layout.deviceId,
             // 拖拽时原位置的样子
             childWhenDragging: Opacity(
-              opacity: 0,
+              opacity: 1,
               child: Container(
                 child: cardWithIcon,
               ),
@@ -537,8 +567,6 @@ class _CustomPageState extends State<CustomPage>
               onAccept: (data) {},
               onLeave: (data) {},
               onWillAccept: (data) {
-                Log.i('正在移动', dragingWidgetId);
-                Log.i('移动到', layout.deviceId);
                 // 计算被移动多少格,滑动1格以上算滑动
                 double absX = dragSumX.abs();
                 double absY = dragSumY.abs();
