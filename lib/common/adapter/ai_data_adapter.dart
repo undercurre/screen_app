@@ -64,13 +64,7 @@ class AiDataAdapter extends MideaDataAdapter {
 
   // 停止AI语音
   void stopAiVoice() {
-    if (platform.inMeiju()) {
-      aiMethodChannel.stopAi();
-    } else if (platform.inHomlux()) {
-      aiMethodChannel.stopAi();
-    } else {
-      Log.file('程序执行异常');
-    }
+    aiMethodChannel.stopAi();
   }
 
 }

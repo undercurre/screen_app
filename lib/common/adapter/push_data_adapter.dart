@@ -31,13 +31,8 @@ class PushDataAdapter extends MideaDataAdapter {
   }
 
   void stopConnect() {
-    if (platform.inMeiju()) {
-      MeiJuPushManager.stopConnect();
-    } else if (platform.inHomlux()) {
-      HomluxPushManager.stopConnect();
-    } else {
-      Log.file('程序执行异常');
-    }
+    MeiJuPushManager.stopConnect();
+    HomluxPushManager.stopConnect();
   }
 
 

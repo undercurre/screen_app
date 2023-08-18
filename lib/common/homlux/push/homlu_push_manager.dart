@@ -15,6 +15,7 @@ const _connectTimeout = 5;
 const _pingInterval = 30;
 
 // //设备属性变化
+const TypeConnectSuc = 'connect_success_status';
 const TypeDeviceProperty = 'device_property';
 const TypeScreenOnlineStatusSubDevice = 'screen_online_status_sub_device';
 const TypeScreenOnlineStatusWifiDevice = 'screen_online_status_wifi_device';
@@ -73,6 +74,8 @@ class HomluxPushManager {
 
     // 重连函数
     void reconnectFunction() {
+      Log.file('即将重新连接');
+      retryConnectTimer?.cancel();
       retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
         startConnect(retrySeconds * 2);
         retryConnectTimer = null;
@@ -80,7 +83,7 @@ class HomluxPushManager {
     }
 
     try {
-      Log.file('homlux ws 重新建立连接中');
+      Log.file('homlux ws 建立连接中');
       // 1. 关闭旧连接, 定时器
       retryConnectTimer?.cancel();
       hearPacketTimeoutTimer?.cancel();
@@ -109,8 +112,9 @@ class HomluxPushManager {
 
       // 3.设置消息监听
       webSocket?.listen((event) => _message(event, reconnectFunction),
-          onError: _error(reconnectFunction),
-          onDone: _done(reconnectFunction));
+          onError: (err) => _error(err, reconnectFunction),
+          onDone: () => _done(reconnectFunction),
+          cancelOnError: false);
 
       // 4.发送心跳包
       // TODO 临时去除心跳机制，后台还没上
@@ -118,9 +122,7 @@ class HomluxPushManager {
 
       _isConnect = true;
     } catch(e) {
-      Log.file('homlux ws 执行异常 $e');
-    } finally {
-      Log.file('执行异常，尝试重连');
+      Log.file('执行异常，尝试重连 $e');
       reconnectFunction();
     }
 
@@ -134,7 +136,11 @@ class HomluxPushManager {
       hearPacketTimeoutTimer = null;
       // 2.处理业务逻辑
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
-      var eventType = jsonMap['result']?['eventType'];
+      var eventType = jsonMap['result']?['eventType'] as String?;
+      if (TypeConnectSuc == eventType) {
+        Log.file('websocket 建立连接成功');
+        return;
+      }
       HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
       if(entity.result?.eventType == TypeDeviceProperty) {
         bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity.result!));
@@ -195,8 +201,8 @@ class HomluxPushManager {
     }
   }
   
-  static _error(void Function() reconnectFunction) {
-    Log.file('homlux ws error');
+  static _error(dynamic error, void Function() reconnectFunction) {
+    Log.file('homlux ws error $error');
     try {
 
     } catch(e) {

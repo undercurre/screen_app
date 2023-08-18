@@ -2,7 +2,7 @@
 class HomluxPushMessageEntity {
   HomluxPushMessageEntity();
   int? code;
-  int? msg;
+  String? msg;
   HomluxPushResultEntity? result;
   bool? success;
   int? timestamp;
@@ -16,7 +16,7 @@ class HomluxPushMessageEntity {
   factory HomluxPushMessageEntity.fromJson(Map<String, dynamic> json) {
     HomluxPushMessageEntity model = HomluxPushMessageEntity();
     model.code = json['code'] as int?;
-    model.msg = json['msg'] as int?;
+    model.msg = json['msg'] as String?;
     model.result = HomluxPushResultEntity.fromJson(json['result'] as Map<String, dynamic>);
     model.success = json['success'] as bool?;
     model.timestamp = json['timestamp'] as int?;

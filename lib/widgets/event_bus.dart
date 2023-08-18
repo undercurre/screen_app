@@ -75,7 +75,7 @@ class EventBus {
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
-    Log.i('订阅的类型为$type');
+    Log.i('销毁订阅的类型为$type');
     on(type, callback);
   }
 
@@ -86,6 +86,7 @@ class EventBus {
       type = type.replaceAll("?", '');
     }
     emit(type, d);
+    Log.file('发送事件类型 ${d.runtimeType} ${d.toString()}');
   }
 
 }
