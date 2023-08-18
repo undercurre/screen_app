@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import '../../../../channel/index.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
+import '../../../../common/homlux/homlux_global.dart';
+import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -29,6 +32,8 @@ class AirDataAdapter extends MideaDataAdapter {
   String masterId;
   String nodeId = '';
   String modelNumber = '';
+  bool isLocalDevice=false;
+
 
   Air485Data data = Air485Data(
       name: "",
@@ -44,67 +49,67 @@ class AirDataAdapter extends MideaDataAdapter {
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
-    try {
-      dataState = DataState.LOADING;
+    if(isLocalDevice==false){
+      try {
+        dataState = DataState.LOADING;
 
-      if (platform.inMeiju()) {
-        _meijuData = await fetchMeijuData();
-      } else {
-        _homluxData = await fetchHomluxData();
-      }
+        if (platform.inMeiju()) {
+          _meijuData = await fetchMeijuData();
+        } else {
+          _homluxData = await fetchHomluxData();
+        }
 
-      if (_meijuData != null) {
-        data = Air485Data.fromMeiJu(_meijuData, modelNumber);
-      } else if (_homluxData != null) {
-        data = Air485Data.fromHomlux(_homluxData, modelNumber);
-      } else {
-        // If both platforms return null data, consider it an error state
+        if (_meijuData != null) {
+          data = Air485Data.fromMeiJu(_meijuData, modelNumber);
+        } else if (_homluxData != null) {
+          data = Air485Data.fromHomlux(_homluxData, modelNumber);
+        } else {
+          // If both platforms return null data, consider it an error state
+          dataState = DataState.ERROR;
+          data = Air485Data(
+              name: name,
+              operationMode: "4",
+              OnOff: "0",
+              windSpeed: "1");
+          return;
+        }
+
+        // Data retrieval success
+        dataState = DataState.SUCCESS;
+        updateUI();
+      } catch (e) {
+        // Error occurred while fetching data
         dataState = DataState.ERROR;
         data = Air485Data(
             name: name,
             operationMode: "4",
             OnOff: "0",
             windSpeed: "1");
-        return;
+        updateUI();
       }
-
-      // Data retrieval success
-      dataState = DataState.SUCCESS;
-      updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      data = Air485Data(
-          name: name,
-          operationMode: "4",
-          OnOff: "0",
-          windSpeed: "1");
-      updateUI();
     }
   }
 
   Future<void> orderPower(int onOff) async {
-    if (platform.inMeiju()) {
-      fetchOrderPowerMeiju(onOff);
-    } else {}
-  }
-
-  Future<void> orderMode(int mode) async {
-    if (platform.inMeiju()) {
-      fetchOrderModeMeiju(mode);
-    } else {}
-  }
-
-  Future<void> orderTemp(int temp) async {
-    if (platform.inMeiju()) {
-      fetchOrderTempMeiju(temp);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderPowerMeiju(onOff);
+      } else {}
+    }else{
+      Log.i("控制新风开关:$onOff");
+      deviceLocal485ControlChannel.controlLocal485AirFreshPower(onOff.toString(),applianceCode);
+    }
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (platform.inMeiju()) {
-      fetchOrderSpeedMeiju(speed);
-    } else {}
+    if(isLocalDevice==false){
+      if (platform.inMeiju()) {
+        fetchOrderSpeedMeiju(speed);
+      } else {}
+    }else{
+      Log.i("控制新风风速:$speed");
+      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(speed.toString(),applianceCode);
+    }
   }
 
   Future<MeiJuResponseEntity> fetchOrderModeMeiju(int mode) async {
@@ -192,7 +197,34 @@ class AirDataAdapter extends MideaDataAdapter {
   void init() {
     // Initialize the adapter and fetch data
     Log.i("初始化空调adapter");
-    fetchData();
+    if(applianceCode.length!=4){
+      isLocalDevice=false;
+      fetchData();
+    }else{
+      isLocalDevice=true;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+      ///homlux添加本地485空调设备
+      if(deviceList!=null){
+        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
+          if("${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}"==applianceCode){
+            String? operationMode=deviceList!.nameValuePairs!.freshAirList![i].workModel;
+            String? OnOff=deviceList!.nameValuePairs!.freshAirList![i].onOff;
+            String? windSpeed=deviceList!.nameValuePairs!.freshAirList![i].windSpeed;
+            data = Air485Data(
+                name: name,
+                operationMode: int.parse(operationMode!, radix: 16).toString()!,
+                OnOff: OnOff!,
+                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+          }
+        }
+      }else{
+        data = Air485Data(
+            name: name,
+            operationMode: "4",
+            OnOff: "0",
+            windSpeed: "1");
+      }
+    }
   }
 
   @override

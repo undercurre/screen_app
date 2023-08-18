@@ -1,5 +1,6 @@
 package com.midea.light.channel
 
+import Local485DeviceControlChannel
 import ManagerDeviceChannel
 import android.app.Application
 import android.content.Context
@@ -24,10 +25,12 @@ const val CHANNEL_NAME_ABOUT = "com.midea.light/about"
 const val CHANNEL_CONFIG = "com.midea.light/config"
 const val CHANNEL_OTA = "com.midea.light/ota"
 const val CHANNEL_MANAGER_DEVICES = "com.midea.light/deviceManager"
-const val CHANNEL_GATEWAY = "com.midea.light/gateway";
+const val CHANNEL_GATEWAY = "com.midea.light/gateway"
 const val CHANNEL_BUGLY = "com.midea.light/bugly"
 const val CHANNEL_ALI_PUSH = "com.midea.light/push"
 const val CHANNEL_MIGRATE = "com.midea.light/migrate"
+const val CHANNEL_LOCAL_485_CONTROL = "com.midea.light/local485Control"
+
 
 class Channels {
     // Channel信使
@@ -47,6 +50,9 @@ class Channels {
     lateinit var buglyReportChannel: BuglyReportChannel
     lateinit var migrateChannel: MigrationDataChannel
 
+    lateinit var local485DeviceControlChannel: Local485DeviceControlChannel
+
+
     private var isInit = false
 
     fun init(context: Context, binaryMessenger: BinaryMessenger) {
@@ -64,6 +70,7 @@ class Channels {
             aliPushChannel = AliPushChannel.create(CHANNEL_ALI_PUSH,binaryMessenger,context)
             buglyReportChannel = BuglyReportChannel.create(CHANNEL_BUGLY, binaryMessenger, context)
             migrateChannel = MigrationDataChannel.create(CHANNEL_MIGRATE, binaryMessenger, context)
+            local485DeviceControlChannel=Local485DeviceControlChannel.create(CHANNEL_LOCAL_485_CONTROL, binaryMessenger, context)
             isInit = true
         }
     }

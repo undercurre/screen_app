@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 
+import '../../../models/homlux_485_device_list_entity.dart';
 import '../../../models/homlux_auth_entity.dart';
 import '../../../models/homlux_bind_device_entity.dart';
 import '../../../models/homlux_device_entity.dart';
@@ -46,6 +47,11 @@ class HomluxJsonConvert {
     (HomluxWeatherEntity).toString(): HomluxWeatherEntity.fromJson,
     (HomluxGroupEntity).toString(): HomluxGroupEntity.fromJson,
     (HomluxDeviceActions).toString(): HomluxDeviceActions.fromJson,
+    (Homlux485DeviceListEntity).toString(): Homlux485DeviceListEntity.fromJson,
+    (Homlux485DeviceListNameValuePairs).toString(): Homlux485DeviceListNameValuePairs.fromJson,
+    (Homlux485DeviceListNameValuePairsAirConditionList).toString(): Homlux485DeviceListNameValuePairsAirConditionList.fromJson,
+    (Homlux485DeviceListNameValuePairsFreshAirList).toString(): Homlux485DeviceListNameValuePairsFreshAirList.fromJson,
+    (Homlux485DeviceListNameValuePairsFloorHotList).toString(): Homlux485DeviceListNameValuePairsFloorHotList.fromJson,
 
   };
 
@@ -118,6 +124,24 @@ class HomluxJsonConvert {
     }
     if(<ControlAction>[] is M) {
       return data.map<ControlAction>((e) => ControlAction.fromJson(e)).toList() as M;
+    }
+    if (<Homlux485DeviceListEntity>[] is M) {
+      return data.map<Homlux485DeviceListEntity>((Map<String, dynamic> e) => Homlux485DeviceListEntity.fromJson(e)).toList() as M;
+    }
+    if (<Homlux485DeviceListNameValuePairs>[] is M) {
+      return data.map<Homlux485DeviceListNameValuePairs>((Map<String, dynamic> e) => Homlux485DeviceListNameValuePairs.fromJson(e)).toList() as M;
+    }
+    if (<Homlux485DeviceListNameValuePairsAirConditionList>[] is M) {
+      return data.map<Homlux485DeviceListNameValuePairsAirConditionList>((Map<String, dynamic> e) => Homlux485DeviceListNameValuePairsAirConditionList.fromJson(e))
+          .toList() as M;
+    }
+    if (<Homlux485DeviceListNameValuePairsFreshAirList>[] is M) {
+      return data.map<Homlux485DeviceListNameValuePairsFreshAirList>((Map<String, dynamic> e) => Homlux485DeviceListNameValuePairsFreshAirList.fromJson(e))
+          .toList() as M;
+    }
+    if (<Homlux485DeviceListNameValuePairsFloorHotList>[] is M) {
+      return data.map<Homlux485DeviceListNameValuePairsFloorHotList>((Map<String, dynamic> e) => Homlux485DeviceListNameValuePairsFloorHotList.fromJson(e))
+          .toList() as M;
     }
     debugPrint("${M.toString()} not found");
     return null;

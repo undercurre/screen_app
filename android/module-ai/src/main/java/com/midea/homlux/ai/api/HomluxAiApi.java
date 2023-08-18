@@ -150,8 +150,11 @@ public class HomluxAiApi {
                 try {
                     if (response.body() != null) {
                         String resultContent = response.body().string();
-//                        Log.i("sky", "获取HomluxAiToken请求成功:"+resultContent);
-                        callback.result(GsonUtils.tryParse(HomluxDuiTokenEntity.class, resultContent));
+                        Log.i("sky", "获取HomluxAiToken请求成功:"+resultContent);
+                        HomluxDuiTokenEntity HomluxDuiToken= GsonUtils.tryParse(HomluxDuiTokenEntity.class, resultContent);
+                        if(HomluxDuiToken.code==0){
+                            callback.result(GsonUtils.tryParse(HomluxDuiTokenEntity.class, resultContent));
+                        }
                     } else {
                         Log.i("sky", "获取HomluxAiToken请求失败");
                         callback.result(null);
