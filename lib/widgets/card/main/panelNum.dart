@@ -67,5 +67,9 @@ Map<String, CardType> panelList = {
   '40': CardType.Middle,
   '39': CardType.Small,
   '32': CardType.Middle,
-  '31': CardType.Small
+  '31': CardType.Small,
+  'homlux1': CardType.Small,
+  'homlux2': CardType.Middle,
+  'homlux3': CardType.Big,
+  'homlux4': CardType.Big
 };

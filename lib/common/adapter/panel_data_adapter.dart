@@ -1,7 +1,10 @@
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
 import '../gateway_platform.dart';
+import '../homlux/models/homlux_device_entity.dart';
+import '../homlux/models/homlux_response_entity.dart';
 import '../meiju/api/meiju_device_api.dart';
 import '../meiju/models/meiju_response_entity.dart';
 import '../models/endpoint.dart';
@@ -9,20 +12,8 @@ import '../models/node_info.dart';
 import 'midea_data_adapter.dart';
 
 class PanelDataAdapter extends MideaDataAdapter {
-  NodeInfo<Endpoint<PanelEvent>> _meijuData = NodeInfo(
-    devId: '',
-    registerUsers: [],
-    masterId: 123,
-    nodeName: '',
-    idType: '',
-    modelId: '',
-    endList: [],
-    guard: 0,
-    isAlarmDevice: '',
-    nodeId: '',
-    status: 0,
-  );
-  dynamic _homluxData;
+  NodeInfo<Endpoint<PanelEvent>>? _meijuData = null;
+  HomluxDeviceEntity? _homluxData = null;
 
   String applianceCode;
   String masterId;
@@ -36,7 +27,8 @@ class PanelDataAdapter extends MideaDataAdapter {
 
   DataState dataState = DataState.NONE;
 
-  PanelDataAdapter(this.applianceCode, this.masterId, this.modelNumber, GatewayPlatform platform)
+  PanelDataAdapter(this.applianceCode, this.masterId, this.modelNumber,
+      GatewayPlatform platform)
       : super(platform);
 
   // Method to retrieve data from both platforms and construct PanelData object
@@ -52,9 +44,9 @@ class PanelDataAdapter extends MideaDataAdapter {
 
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        data = PanelData.fromMeiJu(_meijuData, modelNumber);
+        data = PanelData.fromMeiJu(_meijuData!, modelNumber);
       } else if (_homluxData != null) {
-        data = PanelData.fromHomlux(_homluxData, modelNumber);
+        data = PanelData.fromHomlux(_homluxData!);
       } else {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
@@ -115,9 +107,15 @@ class PanelDataAdapter extends MideaDataAdapter {
     }
   }
 
-  Future<dynamic> fetchHomluxData() async {
-    dynamic HomluxRes = {};
-    return HomluxRes;
+  Future<HomluxDeviceEntity> fetchHomluxData() async {
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
+        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+    if (nodeInfo != null) {
+      return nodeInfo;
+    } else {
+      return HomluxDeviceEntity();
+    }
   }
 
   Future<MeiJuResponseEntity> fetchOrderPowerMeiju(int PanelIndex) async {
@@ -179,9 +177,14 @@ class PanelData {
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }
 
-  PanelData.fromHomlux(dynamic data, String modelNumber) {
-    nameList = data.nameList;
-    statusList = data.statusList;
+  PanelData.fromHomlux(HomluxDeviceEntity data) {
+    nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
+    statusList = [
+      data.mzgdPropertyDTOList!.x1?.onOff == 1,
+      data.mzgdPropertyDTOList!.x2?.onOff == 1,
+      data.mzgdPropertyDTOList!.x3?.onOff == 1,
+      data.mzgdPropertyDTOList!.x4?.onOff == 1
+    ];
   }
 }
 

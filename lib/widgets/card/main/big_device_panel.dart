@@ -154,10 +154,10 @@ class _BigDevicePanelCardWidgetState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (widget.adapter.data.statusList.isNotEmpty) _panelItem(0),
-                  if (widget.adapter.data.statusList.length >= 2) _panelItem(1),
-                  if (widget.adapter.data.statusList.length >= 3) _panelItem(2),
-                  if (widget.adapter.data.statusList.length >= 4) _panelItem(3),
+                  if (widget.adapter.data.nameList.isNotEmpty) _panelItem(0),
+                  if (widget.adapter.data.nameList.length >= 2) _panelItem(1),
+                  if (widget.adapter.data.nameList.length >= 3) _panelItem(2),
+                  if (widget.adapter.data.nameList.length >= 4) _panelItem(3),
                 ],
               ),
             ),

@@ -23,7 +23,6 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   List<DeviceEntity> getCacheDeviceList() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      Log.i('设备列表数据', deviceListMeiju.length);
       return deviceListMeiju.map((e) {
         DeviceEntity deviceObj = DeviceEntity();
         deviceObj.name = e.name!;
@@ -41,9 +40,9 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.name = e.deviceName!;
         deviceObj.applianceCode = e.deviceId!;
         deviceObj.type = e.proType!;
-        deviceObj.modelNumber = e.deviceType.toString();
+        deviceObj.modelNumber = 'homlux${e.switchInfoDTOList?.length}';
         deviceObj.roomName = e.roomName!;
-        deviceObj.masterId = e.gatewayId!;
+        deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
         return deviceObj;
       }).toList();
@@ -74,7 +73,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     } else {
       final familyInfo = System.familyInfo;
       HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes =
-          await HomluxDeviceApi.queryDeviceListByRoomId(familyInfo!.roomNum);
+          await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo!.familyId);
       if (HomluxRes.isSuccess) {
         deviceListHomlux = HomluxRes.data!;
         return deviceListHomlux.map((e) {
@@ -82,9 +81,9 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.name = e.deviceName!;
           deviceObj.applianceCode = e.deviceId!;
           deviceObj.type = e.proType!;
-          deviceObj.modelNumber = e.deviceType.toString();
+          deviceObj.modelNumber = 'homlux${e.switchInfoDTOList?.length}';
           deviceObj.roomName = e.roomName!;
-          deviceObj.masterId = e.gatewayId!;
+          deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
           return deviceObj;
         }).toList();
