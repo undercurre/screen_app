@@ -7,10 +7,11 @@ import 'package:provider/provider.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../../common/logcat_helper.dart';
-import '../../../../common/push.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
+import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
 import '../../../home/device/service.dart';
 import 'api.dart';
@@ -18,10 +19,9 @@ import 'mode_list.dart';
 
 class DeviceDataEntity {
   DeviceEntity? deviceEnt;
-  String deviceID = "";
   String deviceName = "Zigbee智能灯";
 
-  String deviceIDInDetail = "";
+  String masterId = "";
   String nodeId = "";
   String modelNumber = "";
   //-------
@@ -38,7 +38,7 @@ class DeviceDataEntity {
     power = detail["lightPanelDeviceList"][0]["attribute"] == 1;
     delayClose = detail["lightPanelDeviceList"][0]["delayClose"];
 
-    deviceIDInDetail = detail["deviceId"];
+    masterId = detail["deviceId"];
     nodeId = detail["nodeId"];
 
     deviceEnt?.detail = detail;
@@ -55,8 +55,7 @@ class DeviceDataEntity {
   String toString() {
     return jsonEncode({
       "deviceEnt": deviceEnt?.toJson(),
-      "deviceID": deviceID,
-      "deviceIDInDetail": deviceIDInDetail,
+      "masterId": masterId,
       "nodeId": nodeId,
       "power": power,
       "brightness": brightness,
@@ -70,39 +69,33 @@ class DeviceDataEntity {
 class ZigbeeLightDataAdapter extends MideaDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
-
   final BuildContext context;
 
   Timer? delayTimer;
 
-  ZigbeeLightDataAdapter(super.platform, this.context);
+  ZigbeeLightDataAdapter(super.platform, this.context, String masterId, String nodeId) {
+    device.masterId = masterId;
+    device.nodeId = nodeId;
+  }
 
-  /// 初始化，开启推送监听
-  void initAdapter() {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    device.deviceID = args?['deviceId'] ?? "";
-    if (device.deviceID.isNotEmpty) {
-      device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-
+  @override
+  void init() {
+    if (device.masterId.isNotEmpty) {
       if (platform.inMeiju()) {
-        var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
+        device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
+
+        var data = context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
         if (data.isNotEmpty) {
           device.deviceName = data["deviceName"] ?? "";
           device.modelNumber = data["modelNumber"] ?? "";
-          data['detail']["lightPanelDeviceList"][0]["attribute"] = args?['power'] ? 1 : 0;
           device.setDetailMeiJu(data['detail']);
         }
       } else if (platform.inHomlux()) {
-        // TODO
 
       }
     }
-
-    Log.i("lmn>>> initAdapter:: ${device.toString()}");
-    _startPushListen(context);
-    _delay2UpdateDetail(1);
+    _startPushListen();
+    updateDetail();
   }
 
   /// 查询状态
@@ -146,12 +139,12 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     device.power = !device.power;
     updateUI();
     if (platform.inMeiju()) {
-      var res = await ZigbeeLightApi.powerPDM(device.deviceIDInDetail, device.power, device.nodeId);
+      var res = await ZigbeeLightApi.powerPDM(device.masterId, device.power, device.nodeId);
       if (!res.isSuccess) {
         _delay2UpdateDetail(2);
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlZigbeeLightOnOff(device.nodeId, "2", device.deviceIDInDetail, device.power ? 1 : 0);
+      var res = await HomluxDeviceApi.controlZigbeeLightOnOff(device.nodeId, "2", device.masterId, device.power ? 1 : 0);
       if (!res.isSuccess) {
         _delay2UpdateDetail(2);
       }
@@ -168,10 +161,10 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     }
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.delayPDM(device.deviceIDInDetail, !(device.delayClose == 0), device.nodeId);
+      await ZigbeeLightApi.delayPDM(device.masterId, !(device.delayClose == 0), device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeLightDelayOff(device.nodeId, "2", device.deviceIDInDetail, device.delayClose);
+      await HomluxDeviceApi.controlZigbeeLightDelayOff(device.nodeId, "2", device.masterId, device.delayClose);
       _delay2UpdateDetail(2);
     }
   }
@@ -186,7 +179,7 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
 
     if (platform.inMeiju()) {
       await ZigbeeLightApi.adjustPDM(
-          device.deviceIDInDetail,
+          device.masterId,
           curMode.brightness,
           curMode.colorTemperature,
           device.nodeId);
@@ -195,7 +188,7 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
       await HomluxDeviceApi.controlZigbeeColorTempAndBrightness(
           device.nodeId,
           "2",
-          device.deviceIDInDetail,
+          device.masterId,
           curMode.colorTemperature.toInt(),
           curMode.brightness.toInt()
       );
@@ -210,13 +203,13 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     updateUI();
 
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, value, device.brightness, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(device.masterId, value, device.brightness, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       await HomluxDeviceApi.controlZigbeeBrightness(
           device.nodeId,
           "2",
-          device.deviceIDInDetail,
+          device.masterId,
           device.brightness.toInt()
       );
       _delay2UpdateDetail(2);
@@ -229,13 +222,13 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     device.fakeModel = "";
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(device.deviceIDInDetail, device.colorTemp, value, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(device.masterId, device.colorTemp, value, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       await HomluxDeviceApi.controlZigbeeColorTemp(
           device.nodeId,
           "2",
-          device.deviceIDInDetail,
+          device.masterId,
           device.colorTemp.toInt()
       );
       _delay2UpdateDetail(2);
@@ -250,36 +243,22 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     });
   }
 
-  void _startPushListen(BuildContext context) {
-    Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-      String event = (arg['event'] as String).replaceAll("\\\"", "\"");
-      Map<String, dynamic> eventMap = json.decode(event);
-      String nodeId = eventMap['nodeId'] ?? "";
-      var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
+  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == device.masterId) {
+      updateDetail();
+    }
+  }
 
-      if (nodeId.isEmpty) {
-        if (detail['deviceId'] == arg['applianceCode']) {
-          updateDetail();
-        }
-      } else {
-        if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-          updateDetail();
-        }
-      }
-    }));
-    Push.listen("appliance/status/report", _reportCallback = ((arg) {
-      var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-      if (arg.containsKey('applianceId')) {
-        if (detail['deviceId'] == arg['applianceId']) {
-          updateDetail();
-        }
-      }
-    }));
+  void _startPushListen() {
+    if (platform.inHomlux()) {
+      bus.typeOn(statusChangePushHomlux);
+    }
   }
 
   void _stopPushListen() {
-    Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report", _reportCallback);
+    if (platform.inHomlux()) {
+      bus.typeOff(statusChangePushHomlux);
+    }
   }
 
   @override

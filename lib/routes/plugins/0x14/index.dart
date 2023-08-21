@@ -25,12 +25,12 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   @override
   void initState() {
     super.initState();
-    dataAdapter = WIFICurtainDataAdapter(MideaRuntimePlatform.platform, context);
-    dataAdapter?.bindDataUpdateFunction(() {
-      setState(() {});
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      dataAdapter?.initAdapter();
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      dataAdapter = args?['adapter'];
+      dataAdapter?.bindDataUpdateFunction(() {
+        setState(() {});
+      });
     });
   }
 
