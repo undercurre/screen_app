@@ -281,49 +281,13 @@ class LayoutModel extends ChangeNotifier {
     List<int> target = source.grids.map((e) => e + distance).toList();
     Log.i('演变目标', target);
     // 避免越界
-    if (source.cardType == CardType.Small) {
-      List<List<int>> valid = [
-        [1,2],
-        [3,4],
-        [5,6],
-        [7,8],
-        [9,10],
-        [11,12],
-        [13,14],
-        [15,16]
-      ];
-      if (!isTargetInValidList(valid, target)) {
-        return;
-      }
-    }
 
-    if (source.cardType == CardType.Middle || source.cardType == CardType.Other ) {
-      List<List<int>> valid = [
-        [1,2,5,6],
-        [3,4,7,8],
-        [5,6,9,10],
-        [7,8,11,12],
-        [9,10,13,14],
-        [11,12,15,16]
-      ];
-      if (!isTargetInValidList(valid, target)) {
-        return;
-      }
-    }
-
-    if (source.cardType == CardType.Big) {
-      List<List<int>> valid = [
-        [1,2,3,4,5,6,7,8],
-        [5,6,7,8,9,10,11,12],
-        [9,10,11,12,13,14,15,16]
-      ];
-      if (!isTargetInValidList(valid, target)) {
-        return;
-      }
-    }
-    Log.i('可以替换');
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     List<int> targetIndexes = [];
+
+    if (isOver(source.cardType, target)) {
+      return;
+    }
 
     // 找到目标
     for (int i = 0; i < curPageLayoutList.length; i++) {
@@ -345,14 +309,19 @@ class LayoutModel extends ChangeNotifier {
           isValid = false;
           break;
         }
-        targetLayout.grids = targetLayout.grids
+        List<int> newGrids = targetLayout.grids
             .map((item) => item + source.grids[0] - target[0])
             .cast<int>()
             .toList();
+        if (isOver(targetLayout.cardType, newGrids)) {
+          isValid = false;
+          break;
+        }
+        targetLayout.grids = newGrids;
       }
       if (!isValid) return;
     }
-    // 进行目标动作
+    // 进行源到目标动作
     source.grids = target;
 
     // _saveLayouts();
@@ -412,4 +381,47 @@ bool isTargetInValidList(List<List<int>> valid, List<int> target) {
     }
   }
   return false;
+}
+
+bool isOver(CardType cardType,List<int> target) {
+  if (cardType == CardType.Small) {
+    List<List<int>> valid = [
+      [1,2],
+      [3,4],
+      [5,6],
+      [7,8],
+      [9,10],
+      [11,12],
+      [13,14],
+      [15,16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
+
+  if (cardType == CardType.Middle || cardType == CardType.Other ) {
+    List<List<int>> valid = [
+      [1,2,5,6],
+      [3,4,7,8],
+      [5,6,9,10],
+      [7,8,11,12],
+      [9,10,13,14],
+      [11,12,15,16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
+
+  if (cardType == CardType.Big) {
+    List<List<int>> valid = [
+      [1, 2, 3, 4, 5, 6, 7, 8],
+      [5, 6, 7, 8, 9, 10, 11, 12],
+      [9, 10, 11, 12, 13, 14, 15, 16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
 }
