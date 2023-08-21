@@ -10,6 +10,8 @@ import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/homlux/models/homlux_group_entity.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../widgets/event_bus.dart';
 import 'api.dart';
 
 class DeviceDataEntity {
@@ -58,37 +60,31 @@ class DeviceDataEntity {
 class LightGroupDataAdapter extends MideaDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
-  // Function(Map<String,dynamic> arg)? _eventCallback;
-  // Function(Map<String,dynamic> arg)? _reportCallback;
-
   final BuildContext context;
 
   Timer? delayTimer;
 
-  LightGroupDataAdapter(super.platform, this.context);
+  LightGroupDataAdapter(super.platform, this.context, String deviceId) {
+    device.deviceID = deviceId;
+  }
 
-  /// 初始化，开启推送监听
-  void initAdapter() {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    device.deviceID = args?['deviceId'] ?? "";
+  @override
+  void init() {
     if (device.deviceID.isNotEmpty) {
-      device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-      device.setIsColorFul();
-
       if (platform.inMeiju()) {
+        device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
+        device.setIsColorFul();
+
         var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
         if (data["detail"]["detail"] != null) {
           device.setDetailMeiJu(data["detail"]["detail"]);
         }
       } else if (platform.inHomlux()) {
-        // TODO
 
       }
     }
-
-    Log.i("lmn>>> initAdapter:: ${device.toString()}");
-    _startPushListen(context);
-    _delay2UpdateDetail(1);
+    _startPushListen();
+    updateDetail();
   }
 
   /// 查询状态
@@ -194,26 +190,22 @@ class LightGroupDataAdapter extends MideaDataAdapter {
     });
   }
 
-  void _startPushListen(BuildContext context) {
-    // Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-    //   String event = (arg['event'] as String).replaceAll("\\\"", "\"");
-    //   Map<String, dynamic> eventMap = json.decode(event);
-    //   var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-    //
-    // }));
-    // Push.listen("appliance/status/report", _reportCallback = ((arg) {
-    //   var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-    //   if (arg.containsKey('applianceId')) {
-    //     if (detail['deviceId'] == arg['applianceId']) {
-    //       updateDetail();
-    //     }
-    //   }
-    // }));
+  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == device.deviceID) {
+      updateDetail();
+    }
+  }
+
+  void _startPushListen() {
+    if (platform.inHomlux()) {
+      bus.typeOn(statusChangePushHomlux);
+    }
   }
 
   void _stopPushListen() {
-    // Push.dislisten("gemini/appliance/event", _eventCallback);
-    // Push.dislisten("appliance/status/report", _reportCallback);
+    if (platform.inHomlux()) {
+      bus.typeOff(statusChangePushHomlux);
+    }
   }
 
   @override
