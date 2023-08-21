@@ -101,10 +101,10 @@ class _DevicePageState extends State<DevicePage> {
       if (pageCount == hadPageCount) {
         List<int> editCardFillCells =
             screenLayer.checkAvailability(CardType.Edit);
-        // Log.i('编辑条目占位结果', editCardFillCells);
+        Log.i('编辑条目占位结果', editCardFillCells);
         // 当占位成功
         List<int> sumGrid = [];
-        layoutModel.layouts.forEach((element) {
+        curScreenLayouts.forEach((element) {
           sumGrid.addAll(element.grids);
         });
         if (editCardFillCells.isNotEmpty && editCardFillCells[0] > sumGrid.reduce(max)) {
