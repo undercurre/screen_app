@@ -280,6 +280,48 @@ class LayoutModel extends ChangeNotifier {
     int distance = targetOne.grids[0] - source.grids[0];
     List<int> target = source.grids.map((e) => e + distance).toList();
     Log.i('演变目标', target);
+    // 避免越界
+    if (source.cardType == CardType.Small) {
+      List<List<int>> valid = [
+        [1,2],
+        [3,4],
+        [5,6],
+        [7,8],
+        [9,10],
+        [11,12],
+        [13,14],
+        [15,16]
+      ];
+      if (!isTargetInValidList(valid, target)) {
+        return;
+      }
+    }
+
+    if (source.cardType == CardType.Middle || source.cardType == CardType.Other ) {
+      List<List<int>> valid = [
+        [1,2,5,6],
+        [3,4,7,8],
+        [5,6,9,10],
+        [7,8,11,12],
+        [9,10,13,14],
+        [11,12,15,16]
+      ];
+      if (!isTargetInValidList(valid, target)) {
+        return;
+      }
+    }
+
+    if (source.cardType == CardType.Big) {
+      List<List<int>> valid = [
+        [1,2,3,4,5,6,7,8],
+        [5,6,7,8,9,10,11,12],
+        [9,10,11,12,13,14,15,16]
+      ];
+      if (!isTargetInValidList(valid, target)) {
+        return;
+      }
+    }
+    Log.i('可以替换');
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     List<int> targetIndexes = [];
 
@@ -349,3 +391,25 @@ List<Layout> deepCopy(List<Layout> original) {
   return copy;
 }
 
+bool listsEqual(List<int> list1, List<int> list2) {
+  if (list1.length != list2.length) {
+    return false;
+  }
+
+  for (var i = 0; i < list1.length; i++) {
+    if (list1[i] != list2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool isTargetInValidList(List<List<int>> valid, List<int> target) {
+  for (var list in valid) {
+    if (listsEqual(list, target)) {
+      return true;
+    }
+  }
+  return false;
+}

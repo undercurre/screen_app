@@ -221,6 +221,7 @@ class _CustomPageState extends State<CustomPage> {
                                   feedback: cardWidget,
                                   onDragStarted: () {
                                     setState(() {
+                                      Log.i('触发拖拽开始');
                                       dragingWidgetId = result.deviceId;
                                       curLayout = layoutModel
                                           .getLayoutsByDevice(result.deviceId);
@@ -541,6 +542,7 @@ class _CustomPageState extends State<CustomPage> {
             // 拖拽时的样子
             feedback: cardWidget,
             onDragStarted: () {
+              Log.i('触发拖拽开始');
               setState(() {
                 dragingWidgetId = layout.deviceId;
                 curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);
