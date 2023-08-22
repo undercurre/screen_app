@@ -56,13 +56,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
   Future<bool> bindGateway(
       SelectFamilyItem selectFamily, SelectRoomItem selectRoom) async {
     if (platform == GatewayPlatform.MEIJU) {
-      MeiJuHomeInfoEntity familyEntity =
-          selectFamily.meijuData as MeiJuHomeInfoEntity;
+      MeiJuHomeInfoEntity familyEntity = selectFamily.meijuData as MeiJuHomeInfoEntity;
       MeiJuRoomEntity roomEntity = selectRoom.meijuData as MeiJuRoomEntity;
-      String seed = MeiJuGlobal.token?.seed ?? '';
-      var sn = await aboutSystemChannel.getGatewaySn(true, seed);
       var res = await MeiJuUserApi.bindHome(
-          sn: sn!,
+          sn: (await aboutSystemChannel.getGatewaySn(true, MeiJuGlobal.token?.seed ?? ''))!,
           homegroupId: familyEntity.homegroupId,
           roomId: roomEntity.roomId,
           applianceType: '0x16',
