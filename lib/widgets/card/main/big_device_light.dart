@@ -1,56 +1,56 @@
 
 import 'package:flutter/material.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
   final String name;
-  final bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final Function? onMoreTap; // 右边的三点图标的点击事件
-  //----
-  final int brightness; // 亮度
-  final int colorTemp; // 色温值
-  final int colorPercent; // 色温滑条百分比
 
-  /// type: 0-亮度，1-色温; value: 百分比; activeColor: 当前颜色
-  final void Function(num type, num value, Color activeColor)? onChanging;
-  /// type: 0-亮度，1-色温; value: 百分比; activeColor: 当前颜色
-  final void Function(num type, num value, Color activeColor)? onChanged;
-
-  final void Function(bool toOn)? onPowerTap; // 开关点击
+  final DeviceCardDataAdapter? adapter;
 
   const BigDeviceLightCardWidget(
       {super.key,
         required this.name,
-        required this.onOff,
         required this.roomName,
-        this.onPowerTap,
-        this.onMoreTap,
         required this.online,
         required this.isFault,
         required this.isNative,
-        required this.brightness,
-        required this.colorTemp,
-        required this.colorPercent,
-        this.onChanging,
-        this.onChanged});
+        this.adapter});
 
   @override
   _BigDeviceLightCardWidgetState createState() => _BigDeviceLightCardWidgetState();
 }
 
 class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
+  bool onOff = true;
+  int brightness = 0; // 亮度
+  int colorPercent = 0; // 色温滑条百分比
+  int colorTemp = 0;
+
   @override
   void initState() {
     super.initState();
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    var status = widget.adapter?.getCardStatus();
+    setState(() {
+      onOff = status?["power"] ?? false;
+      brightness = status?["brightness"];
+      colorPercent = status?["colorTemp"];
+    });
   }
 
   @override
@@ -65,11 +65,13 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => widget.onPowerTap?.call(!widget.onOff),
+              onTap: () {
+                widget.adapter?.power(!onOff);
+              },
               child: Image(
                   width: 40,
                   height: 40,
-                  image: AssetImage(widget.onOff ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')
+                  image: AssetImage(onOff ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')
               ),
             ),
           ),
@@ -78,7 +80,15 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 16,
             right: 16,
             child: GestureDetector(
-              onTap: () => widget.onMoreTap?.call(),
+              onTap: () {
+                if (widget.adapter?.type == AdapterType.wifiLight) {
+                  Navigator.pushNamed(context, '0x13', arguments: {"name": widget.name, "adapter": widget.adapter});
+                } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
+                  Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": widget.name, "adapter": widget.adapter});
+                } else if (widget.adapter?.type == AdapterType.lightGroup) {
+                  Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
+                }
+              },
               child: const Image(
                   width: 32,
                   height: 32,
@@ -169,7 +179,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Positioned(
             top: 62,
             left: 25,
-            child: Text("亮度 | ${widget.brightness}%",
+            child: Text("亮度 | $brightness%",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -185,18 +195,18 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 80,
             left: 4,
             child: MzSlider(
-              value: widget.brightness,
+              value: brightness,
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !widget.onOff,
+              disabled: !onOff,
               activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
-              onChanging: (val, color) => {
-                widget.onChanging?.call(0, val, color)
+              onChanging: (val, color) {
+                widget.adapter?.slider1To(val.toInt());
               },
-              onChanged: (val, color) => {
-                widget.onChanged?.call(0, val, color)
+              onChanged: (val, color) {
+                widget.adapter?.slider1To(val.toInt());
               },
             ),
           ),
@@ -204,7 +214,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Positioned(
             top: 124,
             left: 25,
-            child: Text("色温 | ${widget.colorTemp}K",
+            child: Text("色温 | ${colorTemp}K",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -220,19 +230,19 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 140,
             left: 4,
             child: MzSlider(
-              value: widget.colorPercent,
+              value: colorPercent,
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !widget.onOff,
+              disabled: !onOff,
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
               isBarColorKeepFull: true,
-              onChanging: (val, color) => {
-                widget.onChanging?.call(1, val, color)
+              onChanging: (val, color) {
+                widget.adapter?.slider2To(val.toInt());
               },
-              onChanged: (val, color) => {
-                widget.onChanged?.call(1, val, color)
+              onChanged: (val, color) {
+                widget.adapter?.slider2To(val.toInt());
               },
             ),
           ),
@@ -252,7 +262,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
+    if (onOff && widget.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

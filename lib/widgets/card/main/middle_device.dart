@@ -1,49 +1,65 @@
 import 'package:flutter/material.dart';
 
+import '../../../common/adapter/device_card_data_adapter.dart';
+
 class MiddleDeviceCardWidget extends StatefulWidget {
   final String name;
   final Widget icon;
-  final bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
-  final Function? onMoreTap; // 右边的三点图标的点击事件
+
+  final DeviceCardDataAdapter? adapter;
 
   const MiddleDeviceCardWidget(
       {super.key,
       required this.name,
       required this.icon,
-      required this.onOff,
       required this.roomName,
-      required this.characteristic,
-      this.onTap,
-      this.onMoreTap,
       required this.online,
       required this.isFault,
-      required this.isNative});
+      required this.isNative,
+      this.adapter,
+      this.onTap});
 
   @override
   _MiddleDeviceCardWidgetState createState() => _MiddleDeviceCardWidgetState();
 }
 
 class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
+  bool onOff = true;
+  String characteristic = "";
+
   @override
   void initState() {
     super.initState();
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    var status = widget.adapter?.getCardStatus();
+    setState(() {
+      onOff = status?["power"] ?? false;
+      characteristic = widget.adapter?.getStatusDes() ?? "";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => widget.onTap?.call(),
+      onTap: () {
+        widget.onTap?.call();
+        widget.adapter?.power(!onOff);
+      },
       child: Container(
         width: 210,
         height: 196,
@@ -54,7 +70,15 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               top: 16,
               right: 16,
               child: GestureDetector(
-                onTap: () => widget.onMoreTap?.call(),
+                onTap: () {
+                  if (widget.adapter?.type == AdapterType.wifiLight) {
+                    Navigator.pushNamed(context, '0x13', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
+                    Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
+                    Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  }
+                },
                 child: const Image(
                     width: 32,
                     height: 32,
@@ -164,11 +188,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     if (!widget.online) {
       return '离线';
     }
-    return widget.characteristic;
+    return characteristic;
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
+    if (onOff && widget.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

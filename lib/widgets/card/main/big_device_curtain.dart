@@ -1,53 +1,54 @@
 
 import 'package:flutter/cupertino.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {
   final String name;
-  final bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
-  final int percent; // 开合百分比
-
-  final void Function(num value)? onChanging; // 滑条滑动中
-  final void Function(num value)? onChanged; // 滑条滑动结束
-
-  final int? index; // 三个操作选项index=0|1|2，都不选传null
-  final void Function(int value)? onTap; // 三个操作选项点击
+  final DeviceCardDataAdapter? adapter;
 
   const BigDeviceCurtainCardWidget(
       {super.key,
         required this.name,
-        required this.onOff,
         required this.roomName,
-        this.onMoreTap,
         required this.online,
         required this.isFault,
         required this.isNative,
-        this.onChanging,
-        this.onChanged,
-        required this.percent,
-        this.index,
-        this.onTap});
+        this.adapter});
 
   @override
   _BigDeviceCurtainCardWidgetState createState() => _BigDeviceCurtainCardWidgetState();
 }
 
 class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget> {
+  bool onOff = true;
+  int? index = 0; // 三个操作选项index=0|1|2，都不选传null
+  int percent = 0; // 开合百分比
 
   @override
   void initState() {
     super.initState();
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    var status = widget.adapter?.getCardStatus();
+    setState(() {
+      percent = status?["curtainPosition"] ?? 0;
+      index = status?["index"] ?? 0;
+    });
   }
 
   @override
@@ -72,7 +73,9 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
             top: 16,
             right: 16,
             child: GestureDetector(
-              onTap: () => widget.onMoreTap?.call(),
+              onTap: () {
+                Navigator.pushNamed(context, '0x14', arguments: {"name": widget.name, "adapter": widget.adapter});
+              },
               child: const Image(
                   width: 32,
                   height: 32,
@@ -163,7 +166,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
           Positioned(
             top: 44,
             left: 32,
-            child: Text("${widget.percent == 0 ? '全关' : widget.percent == 100 ? '全开' : widget.percent}",
+            child: Text("${percent == 0 ? '全关' : percent == 100 ? '全开' : percent}",
                 style: const TextStyle(
                     color: Color(0XFFFFFFFF),
                     fontSize: 60,
@@ -172,7 +175,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                     decoration: TextDecoration.none)
             ),
           ),
-          if(widget.percent > 0 && widget.percent < 100) const Positioned(
+          if(percent > 0 && percent < 100) const Positioned(
             top: 66,
             left: 114,
             child: Text("%",
@@ -189,7 +192,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
             top: 74,
             left: 174,
             child: CupertinoSlidingSegmentedControl(
-              backgroundColor: widget.onOff ? const Color(0xFF767D87) : const Color(0xFF4C525E),
+              backgroundColor: onOff ? const Color(0xFF767D87) : const Color(0xFF4C525E),
               thumbColor: const Color(0xC1B7C4CF),
               padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
               children: {
@@ -226,7 +229,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
               },
               groupValue: _getGroupIndex(),
               onValueChanged: (int? value) {
-                widget.onTap?.call(value!);
+                widget.adapter?.tabTo(value);
               },
             ),
           ),
@@ -235,18 +238,18 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
             top: 140,
             left: 4,
             child: MzSlider(
-              value: widget.percent,
+              value: percent,
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !widget.onOff,
+              disabled: !onOff,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              onChanging: (val, color) => {
-                widget.onChanging?.call(val)
+              onChanging: (val, color) {
+                widget.adapter?.slider1To(val.toInt());
               },
-              onChanged: (val, color) => {
-                widget.onChanged?.call(val)
+              onChanged: (val, color) {
+                widget.adapter?.slider1To(val.toInt());
               },
             ),
           ),
@@ -256,9 +259,9 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
   }
 
   int? _getGroupIndex() {
-    if(widget.index == null) return null;
-    if(widget.index! < 0 || widget.index! > 2) return null;
-    return widget.index;
+    if(index == null) return null;
+    if(index! < 0 || index! > 2) return null;
+    return index;
   }
 
   String _getRightText() {
@@ -272,7 +275,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
+    if (onOff && widget.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

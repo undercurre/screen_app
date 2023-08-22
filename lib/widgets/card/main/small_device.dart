@@ -1,55 +1,66 @@
-import 'dart:async';
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/global.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
   final String name;
   final Widget icon;
-  final bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
-  final Function? onMoreTap; // 右边的三点图标的点击事件
-  MideaDataAdapter? adapter; // 数据适配器
 
-  SmallDeviceCardWidget(
+  final DeviceCardDataAdapter? adapter;
+
+  const SmallDeviceCardWidget(
       {super.key,
       required this.name,
       required this.icon,
-      required this.onOff,
       required this.roomName,
-      required this.characteristic,
-      this.onTap,
-      this.onMoreTap,
       required this.online,
       required this.isFault,
       required this.isNative,
-      required this.adapter});
+      this.adapter,
+      this.onTap});
 
   @override
   _SmallDeviceCardWidgetState createState() => _SmallDeviceCardWidgetState();
 }
 
 class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
+  bool onOff = true;
+  String characteristic = "";
+
   @override
   void initState() {
     super.initState();
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    var status = widget.adapter?.getCardStatus();
+    setState(() {
+      onOff = status?["power"] ?? false;
+      characteristic = widget.adapter?.getStatusDes() ?? "";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => widget.onTap?.call(),
+      onTap: () {
+        widget.onTap?.call();
+        widget.adapter?.power(!onOff);
+      },
       child: Container(
         width: 210,
         height: 88,
@@ -119,9 +130,17 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                 ],
               ),
             ),
-            if (widget.onMoreTap != null)
+            if (widget.adapter?.type != AdapterType.panel)
               GestureDetector(
-                onTap: () => widget.onMoreTap?.call(),
+                onTap: () {
+                  if (widget.adapter?.type == AdapterType.wifiLight) {
+                    Navigator.pushNamed(context, '0x13', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
+                    Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
+                    Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
+                  }
+                },
                 child: const Image(
                   width: 24,
                   image: AssetImage('assets/newUI/to_plugin.png'),
@@ -140,7 +159,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     if (!widget.online) {
       return '离线';
     }
-    return widget.characteristic;
+    return characteristic;
   }
 
   BoxDecoration _getBoxDecoration() {

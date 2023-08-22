@@ -100,9 +100,9 @@ class _CardDialogState extends State<CardDialog> {
                           image: AssetImage(
                               '${_getIconUrl(widget.type, widget.modelNumber)}'),
                         ),
-                        onOff: true,
+                        //onOff: true,
                         roomName: widget.roomName,
-                        characteristic: '',
+                        //characteristic: '',
                         online: true,
                         isFault: false,
                         isNative: false,
@@ -118,9 +118,9 @@ class _CardDialogState extends State<CardDialog> {
                             image: AssetImage(
                                 '${_getIconUrl(widget.type, widget.modelNumber)}'),
                           ),
-                          onOff: true,
+                          //onOff: true,
                           roomName: widget.roomName,
-                          characteristic: '',
+                          //characteristic: '',
                           online: true,
                           isFault: false,
                           isNative: false,
