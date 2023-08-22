@@ -10,6 +10,7 @@ import '../homlux/models/homlux_family_entity.dart';
 import '../homlux/models/homlux_room_list_entity.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
 import '../meiju/models/meiju_home_info_entity.dart';
+import '../meiju/models/meiju_login_home_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
 
 class SelectRoomItem {
@@ -149,7 +150,7 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
         dataState = DataState.ERROR;
       }
     } else if (platform.inMeiju()) {
-      MeiJuHomeInfoEntity familyEntity = item.meijuData as MeiJuHomeInfoEntity;
+      MeiJuLoginHomeEntity familyEntity = item.meijuData;
       var res = await MeiJuUserApi.getHomeDetail(homegroupId: familyEntity.homegroupId);
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {
         familyListEntity = SelectRoomListEntity.fromMeiJu(res.data?.homeList?[0].roomList ?? []);

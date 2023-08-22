@@ -5,6 +5,7 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
+import 'package:screen_app/common/meiju/models/meiju_login_home_entity.dart';
 
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
 import '../homlux/models/homlux_family_entity.dart';
@@ -31,10 +32,10 @@ class SelectFamilyItem {
   // 是否为创建者
   bool houseCreatorFlag;
 
-  MeiJuHomeInfoEntity? _meijuData;
+  MeiJuLoginHomeEntity? _meijuData;
   HomluxFamilyEntity? _homluxData;
 
-  SelectFamilyItem.fromMeiJu(MeiJuHomeInfoEntity data)
+  SelectFamilyItem.fromMeiJu(MeiJuLoginHomeEntity data)
       : familyName = data.name ?? '',
         familyId = data.homegroupId ?? '',
         roomNum = data.roomCount ?? "0",
@@ -63,7 +64,7 @@ class SelectFamilyItem {
           homluxJsonConvert.convert<HomluxFamilyEntity>(json['_homluxData'])!);
     } else if (json['_meijuData'] != null) {
       return SelectFamilyItem.fromMeiJu(
-          meijuJsonConvert.convert<MeiJuHomeInfoEntity>(json['_meijuData'])!);
+          meijuJsonConvert.convert<MeiJuLoginHomeEntity>(json['_meijuData'])!);
     } else {
       throw UnimplementedError(
           "失败：fromJson解析QRCodeEntity失败 解析的数据为：${const JsonEncoder().convert(json)}");
@@ -102,12 +103,12 @@ class SelectFamilyListEntity {
     familyList = data.map((e) => SelectFamilyItem.fromHomlux(e)).toList();
   }
 
-  SelectFamilyListEntity.fromMeiJu(List<MeiJuHomeInfoEntity> data) {
+  SelectFamilyListEntity.fromMeiJu(List<MeiJuLoginHomeEntity> data) {
     _meijuData = data;
     familyList = data.map((e) => SelectFamilyItem.fromMeiJu(e)).toList();
   }
 
-  List<MeiJuHomeInfoEntity>? _meijuData;
+  List<MeiJuLoginHomeEntity>? _meijuData;
   List<HomluxFamilyEntity>? _homluxData;
 
   /// 下面两方法对UI层的意义
@@ -120,7 +121,7 @@ class SelectFamilyListEntity {
           []);
     } else if (json['_meijuData'] != null) {
       return SelectFamilyListEntity.fromMeiJu(meijuJsonConvert
-              .convertListNotNull<MeiJuHomeInfoEntity>(json['_meijuData']) ??
+              .convertListNotNull<MeiJuLoginHomeEntity>(json['_meijuData']) ??
           []);
     } else {
       throw UnimplementedError(
@@ -170,7 +171,7 @@ class SelectFamilyDataAdapter extends MideaDataAdapter {
         dataState = DataState.ERROR;
       }
     } else if (platform.inMeiju()) {
-      var res = await MeiJuUserApi.getHomeDetail();
+      var res = await MeiJuUserApi.getHomeListFromMidea();
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {
         familyListEntity =
             SelectFamilyListEntity.fromMeiJu(res.data?.homeList ?? []);
@@ -196,7 +197,7 @@ class SelectFamilyDataAdapter extends MideaDataAdapter {
       }
       return res.isSuccess && (res.data?.isTourist() == false);
     } else if (platform.inMeiju()) {
-      MeiJuHomeInfoEntity meiJuHomeInfoEntity = entity.meijuData as MeiJuHomeInfoEntity;
+      MeiJuLoginHomeEntity meiJuHomeInfoEntity = entity.meijuData;
       /// 延时一秒再返回
       return Future.delayed(const Duration(seconds: 1), () {
         if (meiJuHomeInfoEntity.roleId == '1003') {

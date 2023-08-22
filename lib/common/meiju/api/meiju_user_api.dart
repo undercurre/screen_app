@@ -4,9 +4,9 @@ import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
-import '../../../models/home_list_entity.dart';
 import '../../logcat_helper.dart';
 import '../models/meiju_home_list_info_entity.dart';
+import '../models/meiju_login_home_list_entity.dart';
 import '../models/meiju_qr_code_entity.dart';
 import '../models/meiju_user_entity.dart';
 import 'meiju_api.dart';
@@ -81,9 +81,9 @@ class MeiJuUserApi {
   }
 
   /// 获取用户的家庭列表——美的iot中台
-  static Future<MeiJuResponseEntity<HomeListEntity>>
+  static Future<MeiJuResponseEntity<MeiJuLoginHomeListEntity>>
       getHomeListFromMidea() async {
-    var res = await MeiJuApi.requestMideaIot<HomeListEntity>(
+    var res = await MeiJuApi.requestMideaIot<MeiJuLoginHomeListEntity>(
         "/mas/v5/app/proxy?alias=/v1/homegroup/list/get",
         data: {},
         options: Options(

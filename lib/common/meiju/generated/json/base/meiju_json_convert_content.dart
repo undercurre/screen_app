@@ -18,6 +18,8 @@ import '../../../models/meiju_device_entity.dart';
 import '../../../models/meiju_device_info_entity.dart';
 import '../../../models/meiju_home_info_entity.dart';
 import '../../../models/meiju_home_list_info_entity.dart';
+import '../../../models/meiju_login_home_entity.dart';
+import '../../../models/meiju_login_home_list_entity.dart';
 import '../../../models/meiju_panel_scene_bind_list_entity.dart';
 import '../../../models/meiju_qr_code_entity.dart';
 import '../../../models/meiju_room_entity.dart';
@@ -35,11 +37,6 @@ class MeiJuJsonConvert {
 		(AiMusicState).toString(): AiMusicState.fromJson,
 		(NetState).toString(): NetState.fromJson,
 		(WiFiScanResult).toString(): WiFiScanResult.fromJson,
-		(DeviceHomeListEntity).toString(): DeviceHomeListEntity.fromJson,
-		(DeviceHomeListHomeList).toString(): DeviceHomeListHomeList.fromJson,
-		(DeviceHomeListHomeListRoomList).toString(): DeviceHomeListHomeListRoomList.fromJson,
-		(DeviceHomeListHomeListRoomListApplianceList).toString(): DeviceHomeListHomeListRoomListApplianceList.fromJson,
-		(DeviceHomeListHomeListRoomListApplianceListAbility).toString(): DeviceHomeListHomeListRoomListApplianceListAbility.fromJson,
 		(DeviceLuaEntity).toString(): DeviceLuaEntity.fromJson,
 		(DevicePDMEntity).toString(): DevicePDMEntity.fromJson,
 		(LocationEntity).toString(): LocationEntity.fromJson,
@@ -62,6 +59,8 @@ class MeiJuJsonConvert {
 		(MeiJuWeather).toString(): MeiJuWeather.fromJson,
 		(MeiJuPanelSceneBindItemEntity).toString(): MeiJuPanelSceneBindItemEntity.fromJson,
 		(MeiJuPanelSceneBindListEntity).toString(): MeiJuPanelSceneBindListEntity.fromJson,
+		(MeiJuLoginHomeEntity).toString(): MeiJuLoginHomeEntity.fromJson,
+		(MeiJuLoginHomeListEntity).toString(): MeiJuLoginHomeListEntity.fromJson,
 	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
@@ -140,6 +139,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuLoginHomeEntity>[] is M) {
+			return data.map<MeiJuLoginHomeEntity>((Map<String, dynamic> e) => MeiJuLoginHomeEntity.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuLoginHomeListEntity>[] is M) {
+			return data.map<MeiJuLoginHomeListEntity>((Map<String, dynamic> e) => MeiJuLoginHomeListEntity.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuPanelSceneBindListEntity>[] is M) {
 			return data.map<MeiJuPanelSceneBindListEntity>((Map<String, dynamic> e) => MeiJuPanelSceneBindListEntity.fromJson(e)).toList() as M;
 		}

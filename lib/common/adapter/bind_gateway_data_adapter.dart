@@ -14,6 +14,7 @@ import '../homlux/models/homlux_room_list_entity.dart';
 import '../logcat_helper.dart';
 import '../meiju/meiju_global.dart';
 import '../meiju/models/meiju_home_info_entity.dart';
+import '../meiju/models/meiju_login_home_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
 
 /// 绑定网关适配层
@@ -24,7 +25,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
   void checkGatewayBindState(SelectFamilyItem selectFamily,
       void Function(bool, String?) result, void Function() error) async {
     if (platform == GatewayPlatform.MEIJU) {
-      MeiJuHomeInfoEntity familyEntity = selectFamily.meijuData as MeiJuHomeInfoEntity;
+      MeiJuLoginHomeEntity familyEntity = selectFamily.meijuData;
       _meijuCheck(familyEntity.homegroupId).then((value) {
         Log.i('是否绑定${value.value1} 设备ID${value.value2}');
         if(value.value1) {
@@ -56,10 +57,12 @@ class BindGatewayAdapter extends MideaDataAdapter {
   Future<bool> bindGateway(
       SelectFamilyItem selectFamily, SelectRoomItem selectRoom) async {
     if (platform == GatewayPlatform.MEIJU) {
-      MeiJuHomeInfoEntity familyEntity = selectFamily.meijuData as MeiJuHomeInfoEntity;
+      MeiJuLoginHomeEntity familyEntity = selectFamily.meijuData;
       MeiJuRoomEntity roomEntity = selectRoom.meijuData as MeiJuRoomEntity;
+      String? sn = await aboutSystemChannel.getGatewaySn(true, MeiJuGlobal.token?.seed ?? '');
+      Log.i('绑定网关获取的SN = $sn');
       var res = await MeiJuUserApi.bindHome(
-          sn: (await aboutSystemChannel.getGatewaySn(true, MeiJuGlobal.token?.seed ?? ''))!,
+          sn: sn ?? '',
           homegroupId: familyEntity.homegroupId,
           roomId: roomEntity.roomId,
           applianceType: '0x16',

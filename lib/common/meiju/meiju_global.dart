@@ -6,7 +6,7 @@ import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
 import '../utils.dart';
-import 'models/meiju_home_info_entity.dart';
+import 'models/meiju_login_home_entity.dart';
 import 'models/meiju_room_entity.dart';
 import 'models/meiju_user_entity.dart';
 
@@ -31,7 +31,7 @@ class MeiJuGlobal {
   static const MEIJU_GATEWAY_SN = 'meiju_gateway_sn';
 
   static MeiJuTokenEntity? _token;
-  static MeiJuHomeInfoEntity? _homeEntity;
+  static MeiJuLoginHomeEntity? _homeEntity;
   static MeiJuRoomEntity? _roomEntity;
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
   static String? _gatewaySn;  // 屏下网关的sn
@@ -72,9 +72,9 @@ class MeiJuGlobal {
     }
   }
 
-  static MeiJuHomeInfoEntity? get homeInfo => _homeEntity;
+  static MeiJuLoginHomeEntity? get homeInfo => _homeEntity;
 
-  static set homeInfo(MeiJuHomeInfoEntity? homeInfo) {
+  static set homeInfo(MeiJuLoginHomeEntity? homeInfo) {
     _homeEntity = homeInfo;
     LocalStorage.setItem(MEIJU_FAMILY_INFO, _homeEntity == null ? '' : jsonEncode(_homeEntity!.toJson()));
   }

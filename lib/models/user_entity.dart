@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/generated/json/user_entity.g.dart';
