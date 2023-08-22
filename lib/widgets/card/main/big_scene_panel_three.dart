@@ -3,18 +3,19 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../mz_dialog.dart';
 
-class BigDevicePanelCardWidget extends StatefulWidget {
+class BigScenePanelCardWidgetThree extends StatefulWidget {
   final Widget icon;
   final String name;
   final String roomName;
   final String isOnline;
   final bool disabled;
-  PanelDataAdapter adapter; // 数据适配器
+  ScenePanelDataAdapter adapter; // 数据适配器
 
-  BigDevicePanelCardWidget({
+  BigScenePanelCardWidgetThree({
     super.key,
     required this.icon,
     required this.adapter,
@@ -25,12 +26,12 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   });
 
   @override
-  _BigDevicePanelCardWidgetState createState() =>
-      _BigDevicePanelCardWidgetState();
+  _BigScenePanelCardWidgetThreeState createState() =>
+      _BigScenePanelCardWidgetThreeState();
 }
 
-class _BigDevicePanelCardWidgetState
-    extends State<BigDevicePanelCardWidget> {
+class _BigScenePanelCardWidgetThreeState
+    extends State<BigScenePanelCardWidgetThree> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -69,7 +70,7 @@ class _BigDevicePanelCardWidgetState
   }
 
   @override
-  void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
+  void didUpdateWidget(covariant BigScenePanelCardWidgetThree oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
@@ -160,7 +161,6 @@ class _BigDevicePanelCardWidgetState
                   if (widget.adapter.data.nameList.isNotEmpty) _panelItem(0),
                   if (widget.adapter.data.nameList.length >= 2) _panelItem(1),
                   if (widget.adapter.data.nameList.length >= 3) _panelItem(2),
-                  if (widget.adapter.data.nameList.length >= 4) _panelItem(3),
                 ],
               ),
             ),

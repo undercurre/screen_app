@@ -160,6 +160,7 @@ class _CustomPageState extends State<CustomPage> {
                                   result.pageIndex = maxPage + 1;
                                   result.grids = fillCells;
                                 }
+                                result.data.disabled = true;
                                 Widget cardWidget =
                                     buildMap[result.type]![result.cardType]!(
                                         result.data);
@@ -338,6 +339,7 @@ class _CustomPageState extends State<CustomPage> {
                                   logger.i('当前映射card', layoutAfterSort.type);
                                   logger.i(
                                       '当前映射card', layoutAfterSort.cardType);
+                                  layoutAfterSort.data.disabled = true;
                                   Widget cardWidget =
                                       buildMap[layoutAfterSort.type]![
                                           layoutAfterSort
@@ -380,8 +382,9 @@ class _CustomPageState extends State<CustomPage> {
                                   .checkAvailability(result.cardType);
                               result.grids = fillCells;
                               Log.i('cardInfo', result.type);
-                              Log.i('cardInfo', result.cardType);
+                              Log.i('cardType', result.cardType);
                               Log.i('cardData', result.data);
+                              result.data.disabled = true;
                               Widget cardWidget =
                                   buildMap[result.type]![result.cardType]!(
                                       result.data);
@@ -462,6 +465,7 @@ class _CustomPageState extends State<CustomPage> {
       List<Layout> sortedLayoutList = Layout.sortLayoutList(fillNullLayoutList);
       // 映射成widget放进去
       for (Layout layout in sortedLayoutList) {
+        layout.data.disabled = true;
         // 映射出对应的Card
         Widget cardWidget =
             buildMap[layout.type]![layout.cardType]!(layout.data);

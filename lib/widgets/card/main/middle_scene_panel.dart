@@ -1,20 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../mz_dialog.dart';
 
-class MiddleDevicePanelCardWidget extends StatefulWidget {
+class MiddleScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
   final String name;
   final String roomName;
   final String isOnline;
   final bool disabled;
-  PanelDataAdapter adapter; // 数据适配器
+  ScenePanelDataAdapter adapter; // 数据适配器
 
-  MiddleDevicePanelCardWidget({
+  MiddleScenePanelCardWidget({
     super.key,
     required this.icon,
     required this.adapter,
@@ -25,12 +26,12 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
   });
 
   @override
-  _MiddleDevicePanelCardWidgetState createState() =>
-      _MiddleDevicePanelCardWidgetState();
+  _MiddleScenePanelCardWidgetState createState() =>
+      _MiddleScenePanelCardWidgetState();
 }
 
-class _MiddleDevicePanelCardWidgetState
-    extends State<MiddleDevicePanelCardWidget> {
+class _MiddleScenePanelCardWidgetState
+    extends State<MiddleScenePanelCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -69,7 +70,7 @@ class _MiddleDevicePanelCardWidgetState
   }
 
   @override
-  void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
+  void didUpdateWidget(covariant MiddleScenePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();

@@ -12,8 +12,9 @@ class Layout {
   int pageIndex;
   List<int> grids;
   DataInputCard data;
+  bool disabled;
 
-  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids, this.data);
+  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids, this.data, { this.disabled = false });
 
   Layout clone() {
     return Layout(
@@ -23,6 +24,7 @@ class Layout {
       pageIndex,
       grids,
       data,
+      disabled: disabled,
     );
   }
 
@@ -38,6 +40,7 @@ class Layout {
       map['pageIndex'] as int,
       grids,
       data,
+      disabled: map['disabled'] as bool ?? false,
     );
   }
 
@@ -49,6 +52,7 @@ class Layout {
       'pageIndex': pageIndex,
       'grids': grids,
       'data': data.toJson(),
+      'disabled': disabled,
     };
   }
 

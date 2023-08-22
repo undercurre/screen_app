@@ -33,7 +33,13 @@ class LayoutModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final layoutList = prefs.getStringList('layouts');
     if (layoutList != null) {
-      layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+      try {
+        layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+      } catch (e) {
+        removeLayouts();
+        await Future.delayed(const Duration(seconds: 2));
+        _loadLayouts();
+      }
       // 安全过滤
       for (int i = 0; i < layouts.length; i ++) {
         // 找到数组中的最小值

@@ -3,20 +3,21 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
 import '../../../common/logcat_helper.dart';
 import '../../mz_dialog.dart';
 
-class SmallPanelCardWidget extends StatefulWidget {
+class SmallScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
   final String name;
   final String roomName;
   final String isOnline;
   final bool disabled;
-  PanelDataAdapter adapter; // 数据适配器
+  ScenePanelDataAdapter adapter; // 数据适配器
 
-  SmallPanelCardWidget({
+  SmallScenePanelCardWidget({
     super.key,
     required this.icon,
     required this.adapter,
@@ -27,10 +28,10 @@ class SmallPanelCardWidget extends StatefulWidget {
   });
 
   @override
-  _SmallPanelCardWidgetState createState() => _SmallPanelCardWidgetState();
+  _SmallScenePanelCardWidgetState createState() => _SmallScenePanelCardWidgetState();
 }
 
-class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
+class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -69,7 +70,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
+  void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();

@@ -1,20 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../mz_dialog.dart';
 
-class BigDevicePanelCardWidget extends StatefulWidget {
+class BigScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
   final String name;
   final String roomName;
   final String isOnline;
   final bool disabled;
-  PanelDataAdapter adapter; // 数据适配器
+  ScenePanelDataAdapter adapter; // 数据适配器
 
-  BigDevicePanelCardWidget({
+  BigScenePanelCardWidget({
     super.key,
     required this.icon,
     required this.adapter,
@@ -25,12 +26,12 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   });
 
   @override
-  _BigDevicePanelCardWidgetState createState() =>
-      _BigDevicePanelCardWidgetState();
+  _BigScenePanelCardWidgetState createState() =>
+      _BigScenePanelCardWidgetState();
 }
 
-class _BigDevicePanelCardWidgetState
-    extends State<BigDevicePanelCardWidget> {
+class _BigScenePanelCardWidgetState
+    extends State<BigScenePanelCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -69,7 +70,7 @@ class _BigDevicePanelCardWidgetState
   }
 
   @override
-  void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
+  void didUpdateWidget(covariant BigScenePanelCardWidget oldWidget) {
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();

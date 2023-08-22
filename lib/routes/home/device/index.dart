@@ -101,7 +101,7 @@ class _DevicePageState extends State<DevicePage> {
       if (pageCount == hadPageCount) {
         List<int> editCardFillCells =
             screenLayer.checkAvailability(CardType.Edit);
-        Log.i('编辑条目占位结果', editCardFillCells);
+        // Log.i('编辑条目占位结果', editCardFillCells);
         // 当占位成功
         List<int> sumGrid = [];
         curScreenLayouts.forEach((element) {
@@ -135,6 +135,7 @@ class _DevicePageState extends State<DevicePage> {
       // 根据队列顺序插入该屏页面
       for (Layout layoutAfterSort in sortedLayoutList) {
         // 映射出对应的Card
+        layoutAfterSort.data.disabled = false;
         Widget cardWidget =
             buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
                 layoutAfterSort.data);
