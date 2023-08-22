@@ -183,7 +183,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
         CardType.Other,
         -1,
         [],
-        DataInputCard(name: '', applianceCode: '', roomName: '', isOnline: ''));
+        DataInputCard(name: '', applianceCode: '', roomName: '', isOnline: '', disabled: true));
     return Stack(
       children: [
         Container(
@@ -364,6 +364,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   modelNumber: devices[index].modelNumber,
                                   masterId: devices[index].masterId,
                                   isOnline: devices[index].onlineStatus,
+                                  disabled: true
                                 ),
                               );
                               Navigator.pop(context, resultData);
@@ -442,6 +443,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                     devices[index].masterId,
                                                 isOnline:
                                                     devices[index].onlineStatus,
+                                                disabled: true
                                               ),
                                             );
                                             Navigator.pop(context, resultData);
@@ -481,6 +483,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                         devices[index].masterId,
                                                     isOnline: devices[index]
                                                         .onlineStatus,
+                                                    disabled: true,
                                                   ),
                                                 );
                                                 Navigator.pop(
@@ -545,9 +548,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         applianceCode: uuid.v4(),
                                         roomName: '',
                                         sceneId: scenes[index].sceneId,
-                                        disabled: false,
                                         icon: scenes[index].image,
                                         isOnline: '',
+                                        disabled: true
                                       ),
                                     );
                                     Navigator.pop(context, resultData);
@@ -611,6 +614,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   applianceCode: uuid.v4(),
                                   roomName: '',
                                   isOnline: '',
+                                  disabled: true
                                 ),
                               );
                               Navigator.pop(context, resultData);

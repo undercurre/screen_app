@@ -160,15 +160,29 @@ class _CustomPageState extends State<CustomPage> {
                                   result.pageIndex = maxPage + 1;
                                   result.grids = fillCells;
                                 }
+                                result.data.disabled = true;
                                 Widget cardWidget =
                                     buildMap[result.type]![result.cardType]!(
                                         result.data);
                                 // 映射图标
                                 Widget cardWithIcon = GestureDetector(
                                   onTap: () {
+                                    Layout deleteBackup = layoutModel
+                                        .getLayoutsByDevice(result.deviceId);
                                     layoutModel.deleteLayout(
                                         result.deviceId, result.pageIndex);
                                     layoutModel.handleNullPage();
+                                    // 取出当前布局的grids
+                                    for (int gridsIndex = 0;
+                                        gridsIndex < deleteBackup.grids.length;
+                                        gridsIndex++) {
+                                      // 把已经布局的数据在布局器中占位
+                                      int grid = deleteBackup.grids[gridsIndex];
+                                      int row = (grid - 1) ~/ 4;
+                                      int col = (grid - 1) % 4;
+                                      screenLayer.setCellOccupied(
+                                          row, col, false);
+                                    }
                                   },
                                   child: Stack(children: [
                                     Padding(
@@ -208,6 +222,7 @@ class _CustomPageState extends State<CustomPage> {
                                   feedback: cardWidget,
                                   onDragStarted: () {
                                     setState(() {
+                                      Log.i('触发拖拽开始');
                                       dragingWidgetId = result.deviceId;
                                       curLayout = layoutModel
                                           .getLayoutsByDevice(result.deviceId);
@@ -324,6 +339,7 @@ class _CustomPageState extends State<CustomPage> {
                                   logger.i('当前映射card', layoutAfterSort.type);
                                   logger.i(
                                       '当前映射card', layoutAfterSort.cardType);
+                                  layoutAfterSort.data.disabled = true;
                                   Widget cardWidget =
                                       buildMap[layoutAfterSort.type]![
                                           layoutAfterSort
@@ -366,8 +382,9 @@ class _CustomPageState extends State<CustomPage> {
                                   .checkAvailability(result.cardType);
                               result.grids = fillCells;
                               Log.i('cardInfo', result.type);
-                              Log.i('cardInfo', result.cardType);
+                              Log.i('cardType', result.cardType);
                               Log.i('cardData', result.data);
+                              result.data.disabled = true;
                               Widget cardWidget =
                                   buildMap[result.type]![result.cardType]!(
                                       result.data);
@@ -432,7 +449,7 @@ class _CustomPageState extends State<CustomPage> {
     double gridWidth = width / 4;
     double gridHeight = height / 4;
     // 最大页数
-    Log.i('布局数据', layoutModel.layouts.map((e) => e.pageIndex));
+    Log.i('布局数据', layoutModel.layouts.map((e) => e.grids));
     int maxPage = layoutModel.getMaxPageIndex();
     for (int page = 0; page <= maxPage; page++) {
       // 收集当前page的widget
@@ -448,6 +465,7 @@ class _CustomPageState extends State<CustomPage> {
       List<Layout> sortedLayoutList = Layout.sortLayoutList(fillNullLayoutList);
       // 映射成widget放进去
       for (Layout layout in sortedLayoutList) {
+        layout.data.disabled = true;
         // 映射出对应的Card
         Widget cardWidget =
             buildMap[layout.type]![layout.cardType]!(layout.data);
@@ -528,6 +546,7 @@ class _CustomPageState extends State<CustomPage> {
             // 拖拽时的样子
             feedback: cardWidget,
             onDragStarted: () {
+              Log.i('触发拖拽开始');
               setState(() {
                 dragingWidgetId = layout.deviceId;
                 curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);

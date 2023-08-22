@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/api.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,9 +32,14 @@ class LayoutModel extends ChangeNotifier {
   Future<void> _loadLayouts() async {
     final prefs = await SharedPreferences.getInstance();
     final layoutList = prefs.getStringList('layouts');
-    logger.i('加载model', layoutList);
     if (layoutList != null) {
-      layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+      try {
+        layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
+      } catch (e) {
+        removeLayouts();
+        await Future.delayed(const Duration(seconds: 2));
+        _loadLayouts();
+      }
       // 安全过滤
       for (int i = 0; i < layouts.length; i ++) {
         // 找到数组中的最小值
@@ -121,7 +124,6 @@ class LayoutModel extends ChangeNotifier {
       return; // 已存在具有相同 deviceId 的布局对象，不进行更新
     }
     layouts.add(layout);
-    logger.i('layout长度', layouts.length);
     _saveLayouts();
     notifyListeners();
   }
@@ -197,9 +199,7 @@ class LayoutModel extends ChangeNotifier {
   // 根据CardType判断第几页有适合的空位
   LayoutPosition getFlexiblePage(CardType cardType) {
     int maxPage = getMaxPageIndex();
-    Log.i('最大页序', maxPage);
     for (int i = 0; i <= maxPage; i++) {
-      Log.i('${i}页${isFillPage(i) ? '有' : '无'}空位');
       if (isFillPage(i)) {
         // 该页有空位
 
@@ -214,10 +214,8 @@ class LayoutModel extends ChangeNotifier {
             screenLayer.setCellOccupied(row, col, true);
           }
         }
-        Log.i('填充后的布局', screenLayer.getOccupiedGridIndices());
         // 尝试填充
         List<int> fillCells = screenLayer.checkAvailability(cardType);
-        Log.i('检索合适的位置', '${i}页${fillCells}');
         if (fillCells.isNotEmpty) {
           // 有合适的位置
           return LayoutPosition(pageIndex: i, grids: fillCells);
@@ -230,7 +228,6 @@ class LayoutModel extends ChangeNotifier {
   }
 
   List<Layout> fillNullLayoutList(List<Layout> layoutList, int pageIndex) {
-    Log.i('填充前', layoutList.map((e) => e.grids));
 
     // 深复制一份
     List<Layout> cloneList = deepCopy(layoutList);
@@ -246,7 +243,6 @@ class LayoutModel extends ChangeNotifier {
         }
       }
       int filledCount = screenLayer.getOccupiedGridIndices().length;
-      // Log.i('填充格子数$filledCount');
       // 尝试填充
       for (int n = 0; n <= ((16 - filledCount) / 2); n++) {
         List<int> fillCells = screenLayer.checkAvailability(CardType.Small);
@@ -269,26 +265,34 @@ class LayoutModel extends ChangeNotifier {
       }
       screenLayer.resetGrid();
     }
-    Log.i('填充后', cloneList.map((e) => e.grids));
     return cloneList;
   }
 
   // 拖拽换位算法
   void swapPosition(Layout source, Layout targetOne) {
-    Log.i('源布局', source.grids);
-    Log.i('目标布局', targetOne.grids);
     int distance = targetOne.grids[0] - source.grids[0];
     List<int> target = source.grids.map((e) => e + distance).toList();
-    Log.i('演变目标', target);
+    // 避免越界
+
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     List<int> targetIndexes = [];
 
+    if (isOver(source.cardType, target)) {
+      return;
+    }
+
+    int lengthSum = 0;
     // 找到目标
     for (int i = 0; i < curPageLayoutList.length; i++) {
       List<int> grids = curPageLayoutList[i].grids;
       if (target.any((element) => grids.contains(element))) {
         targetIndexes.add(i);
+        lengthSum += grids.length;
       }
+    }
+    // 目标违规
+    if (lengthSum != target.length) {
+      return;
     }
 
     // 对占位进行替换
@@ -303,14 +307,20 @@ class LayoutModel extends ChangeNotifier {
           isValid = false;
           break;
         }
-        targetLayout.grids = targetLayout.grids
+        List<int> newGrids = targetLayout.grids
             .map((item) => item + source.grids[0] - target[0])
             .cast<int>()
             .toList();
+        if (isOver(targetLayout.cardType, newGrids)) {
+          isValid = false;
+          break;
+        }
+        // 检查目标位置是否已在某元素中
+        targetLayout.grids = newGrids;
       }
       if (!isValid) return;
     }
-    // 进行目标动作
+    // 进行源到目标动作
     source.grids = target;
 
     // _saveLayouts();
@@ -349,3 +359,70 @@ List<Layout> deepCopy(List<Layout> original) {
   return copy;
 }
 
+bool listsEqual(List<int> list1, List<int> list2) {
+  if (list1.length != list2.length) {
+    return false;
+  }
+
+  for (var i = 0; i < list1.length; i++) {
+    if (list1[i] != list2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool isTargetInValidList(List<List<int>> valid, List<int> target) {
+  for (var list in valid) {
+    if (listsEqual(list, target)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isOver(CardType cardType, List<int> target) {
+  if (cardType == CardType.Small) {
+    List<List<int>> valid = [
+      [1,2],
+      [3,4],
+      [5,6],
+      [7,8],
+      [9,10],
+      [11,12],
+      [13,14],
+      [15,16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
+
+  if (cardType == CardType.Middle || cardType == CardType.Other) {
+    List<List<int>> valid = [
+      [1,2,5,6],
+      [3,4,7,8],
+      [5,6,9,10],
+      [7,8,11,12],
+      [9,10,13,14],
+      [11,12,15,16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
+
+  if (cardType == CardType.Big) {
+    List<List<int>> valid = [
+      [1, 2, 3, 4, 5, 6, 7, 8],
+      [5, 6, 7, 8, 9, 10, 11, 12],
+      [9, 10, 11, 12, 13, 14, 15, 16]
+    ];
+    if (!isTargetInValidList(valid, target)) {
+      return true;
+    }
+  }
+
+  return false;
+}

@@ -7,10 +7,10 @@ import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/homlux/models/homlux_device_entity.dart';
-import '../../../common/logcat_helper.dart';
-import '../../../common/push.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_change_notifier.dart';
+import '../../../widgets/event_bus.dart';
 import '../../../widgets/plugins/mode_card.dart';
 import '../../home/device/service.dart';
 import 'api.dart';
@@ -55,40 +55,31 @@ class DeviceDataEntity {
 class WIFICurtainDataAdapter extends MideaDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
-
   final BuildContext context;
 
   Timer? delayTimer;
 
-  WIFICurtainDataAdapter(super.platform, this.context);
+  WIFICurtainDataAdapter(super.platform, this.context, String deviceId) {
+    device.deviceID = deviceId;
+  }
 
-  /// 初始化，开启推送监听
-  void initAdapter() {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    device.deviceID = args?['deviceId'] ?? "";
-    device.curtainPosition = args?['power'] ? 100 : 0;
-    updateUI();
-
+  @override
+  void init() {
     if (device.deviceID.isNotEmpty) {
-      device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-
       if (platform.inMeiju()) {
+        device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
+
         var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
         if (data.isNotEmpty) {
           device.deviceName = data["deviceName"];
           device.setDetailMeiJu(data['detail']);
         }
       } else if (platform.inHomlux()) {
-        // TODO
 
       }
     }
-
-    Log.i("lmn>>> initAdapter:: ${device.toString()}");
-    _startPushListen(context);
-    _delay2UpdateDetail(1);
+    _startPushListen();
+    updateDetail();
   }
 
   /// 查询状态
@@ -154,36 +145,22 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
     });
   }
 
-  void _startPushListen(BuildContext context) {
-    Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-      String event = (arg['event'] as String).replaceAll("\\\"", "\"");
-      Map<String, dynamic> eventMap = json.decode(event);
-      String nodeId = eventMap['nodeId'] ?? "";
-      var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
+  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == device.deviceID) {
+      updateDetail();
+    }
+  }
 
-      if (nodeId.isEmpty) {
-        if (detail['deviceId'] == arg['applianceCode']) {
-          updateDetail();
-        }
-      } else {
-        if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-          updateDetail();
-        }
-      }
-    }));
-    Push.listen("appliance/status/report", _reportCallback = ((arg) {
-      var detail = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-      if (arg.containsKey('applianceId')) {
-        if (detail['deviceId'] == arg['applianceId']) {
-          updateDetail();
-        }
-      }
-    }));
+  void _startPushListen() {
+    if (platform.inHomlux()) {
+      bus.typeOn(statusChangePushHomlux);
+    }
   }
 
   void _stopPushListen() {
-    Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report", _reportCallback);
+    if (platform.inHomlux()) {
+      bus.typeOff(statusChangePushHomlux);
+    }
   }
 
   @override

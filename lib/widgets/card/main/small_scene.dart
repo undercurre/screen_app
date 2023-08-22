@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../../../common/logcat_helper.dart';
 import '../../../states/scene_list_notifier.dart';
 
 class SmallSceneCardWidget extends StatefulWidget {
@@ -42,6 +43,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
     final sceneListModel = Provider.of<SceneListModel>(context);
     return GestureDetector(
       onTap: () {
+        Log.i('disabled', widget.disabled);
         if (!widget.disabled) {
           sceneListModel.sceneExec(widget.sceneId);
           setState(() {
