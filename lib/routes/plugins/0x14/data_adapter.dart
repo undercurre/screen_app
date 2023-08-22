@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
@@ -14,6 +14,7 @@ import '../../../widgets/event_bus.dart';
 import '../../../widgets/plugins/mode_card.dart';
 import '../../home/device/service.dart';
 import 'api.dart';
+import 'mode_list.dart';
 
 class DeviceDataEntity {
   DeviceEntity? deviceEnt;
@@ -52,7 +53,7 @@ class DeviceDataEntity {
   
 }
 
-class WIFICurtainDataAdapter extends MideaDataAdapter {
+class WIFICurtainDataAdapter extends DeviceCardDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
   final BuildContext context;
@@ -61,6 +62,7 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
 
   WIFICurtainDataAdapter(super.platform, this.context, String deviceId) {
     device.deviceID = deviceId;
+    type = AdapterType.wifiCurtain;
   }
 
   @override
@@ -80,6 +82,37 @@ class WIFICurtainDataAdapter extends MideaDataAdapter {
     }
     _startPushListen();
     updateDetail();
+  }
+
+  @override
+  Map<String, dynamic>? getCardStatus() {
+    return {
+      "curtainPosition": device.curtainPosition,
+      "curtainStatus": device.curtainStatus,
+      "curtainDirection": device.curtainDirection,
+      "index": device.curtainStatus == "open"
+          ? 0 : device.curtainStatus == "stop"
+          ? 1 : device.curtainStatus == "close"
+          ? 2 : 0
+    };
+  }
+
+  @override
+  String? getStatusDes() {
+    return "${device.curtainPosition}%";
+  }
+
+  @override
+  Future<dynamic> tabTo(int? index) async {
+    if (index == null) return;
+    if (index < 0 || index > curtainModes.length - 1) return;
+    Mode mode = curtainModes[index];
+    return controlMode(mode);
+  }
+
+  @override
+  Future<dynamic> slider1To(int? value) async {
+    return controlCurtain(value as num);
   }
 
   /// 查询状态

@@ -33,17 +33,18 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
       dataAdapter = args?['adapter'];
-      dataAdapter?.bindDataUpdateFunction(() {
-        setState(() {});
-      });
+      dataAdapter?.bindDataUpdateFunction(updateCallback);
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    dataAdapter?.destroy();
-    dataAdapter = null;
+    dataAdapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    setState(() {});
   }
 
   @override

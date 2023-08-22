@@ -381,9 +381,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             devices[index].type,
                                             devices[index].modelNumber)),
                                       ),
-                                      onOff: false,
+                                      //onOff: false,
                                       roomName: devices[index].roomName!,
-                                      characteristic: '',
+                                      //characteristic: '',
                                       onTap: () {
                                         if (layoutModel.hasLayoutWithDeviceId(
                                             devices[index].applianceCode)) {

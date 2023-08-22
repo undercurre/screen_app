@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
@@ -70,7 +70,7 @@ class DeviceDataEntity {
   }
 }
 
-class WIFILightDataAdapter extends MideaDataAdapter {
+class WIFILightDataAdapter extends DeviceCardDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
   final BuildContext context;
@@ -79,6 +79,7 @@ class WIFILightDataAdapter extends MideaDataAdapter {
 
   WIFILightDataAdapter(super.platform, this.context, String deviceId) {
     device.deviceID = deviceId;
+    type = AdapterType.wifiLight;
   }
 
   @override
@@ -98,6 +99,35 @@ class WIFILightDataAdapter extends MideaDataAdapter {
     }
     _startPushListen();
     updateDetail();
+  }
+
+  @override
+  Map<String, dynamic>? getCardStatus() {
+    return {
+      "power": device.power,
+      "brightness": device.brightness,
+      "colorTemp": device.colorTemp
+    };
+  }
+
+  @override
+  String? getStatusDes() {
+    return "${device.brightness}%";
+  }
+
+  @override
+  Future<void> power(bool? onOff) async {
+    return controlPower();
+  }
+
+  @override
+  Future<dynamic> slider1To(int? value) async {
+    return controlBrightness(value as num, null);
+  }
+
+  @override
+  Future<dynamic> slider2To(int? value) async {
+    return controlColorTemperature(value as num, null);
   }
 
   /// 查询状态
@@ -219,7 +249,7 @@ class WIFILightDataAdapter extends MideaDataAdapter {
   }
 
   /// 控制亮度
-  Future<void> controlBrightness(num value, Color activeColor) async {
+  Future<void> controlBrightness(num value, Color? activeColor) async {
     device.brightness = value.toInt();
     updateUI();
 
@@ -236,7 +266,7 @@ class WIFILightDataAdapter extends MideaDataAdapter {
   }
 
   /// 控制色温
-  Future<void> controlColorTemperature(num value, Color activeColor) async {
+  Future<void> controlColorTemperature(num value, Color? activeColor) async {
     device.colorTemp = value.toInt();
     updateUI();
 

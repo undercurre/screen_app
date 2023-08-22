@@ -4,11 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../common/adapter/midea_data_adapter.dart';
+import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
-import '../../../../common/logcat_helper.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';
@@ -66,7 +65,7 @@ class DeviceDataEntity {
 
 }
 
-class ZigbeeLightDataAdapter extends MideaDataAdapter {
+class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
   DeviceDataEntity device = DeviceDataEntity();
 
   final BuildContext context;
@@ -76,6 +75,7 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
   ZigbeeLightDataAdapter(super.platform, this.context, String masterId, String nodeId) {
     device.masterId = masterId;
     device.nodeId = nodeId;
+    type = AdapterType.zigbeeLight;
   }
 
   @override
@@ -96,6 +96,35 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
     }
     _startPushListen();
     updateDetail();
+  }
+
+  @override
+  Map<String, dynamic>? getCardStatus() {
+    return {
+      "power": device.power,
+      "brightness": device.brightness,
+      "colorTemp": device.colorTemp
+    };
+  }
+
+  @override
+  String? getStatusDes() {
+    return "${device.brightness}%";
+  }
+
+  @override
+  Future<void> power(bool? onOff) async {
+    return controlPower();
+  }
+
+  @override
+  Future<dynamic> slider1To(int? value) async {
+    return controlBrightness(value as num, null);
+  }
+
+  @override
+  Future<dynamic> slider2To(int? value) async {
+    return controlColorTemperature(value as num, null);
   }
 
   /// 查询状态
@@ -197,7 +226,7 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
   }
 
   /// 控制亮度
-  Future<void> controlBrightness(num value, Color activeColor) async {
+  Future<void> controlBrightness(num value, Color? activeColor) async {
     device.brightness = value;
     device.fakeModel = "";
     updateUI();
@@ -217,7 +246,7 @@ class ZigbeeLightDataAdapter extends MideaDataAdapter {
   }
 
   /// 控制色温
-  Future<void> controlColorTemperature(num value, Color activeColor) async {
+  Future<void> controlColorTemperature(num value, Color? activeColor) async {
     device.colorTemp = value;
     device.fakeModel = "";
     updateUI();
