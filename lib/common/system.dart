@@ -83,11 +83,13 @@ class System {
 
   /// 初始化美居平台数据
   static Future<void> initForMeiju() {
+    Log.i('system init MeiJu');
     return MeiJuGlobal.init();
   }
 
   /// 初始化美的照明平台数据
   static Future<void> initForHomlux() {
+    Log.i('system init Homlux');
     return HomluxGlobal.init();
   }
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
-import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
@@ -109,6 +108,15 @@ class _Boot extends State<Boot> {
         'Login',
       );
     } else {
+      bool isLogin = System.isLogin();
+      bool familyInfo = System.familyInfo != null;
+      bool roomInfo = System.roomInfo != null;
+
+      Log.i(
+          'isLogin = $isLogin '
+          'familyInfo = $familyInfo '
+          'roomInfo = $roomInfo');
+
       var isFinishLogin = System.isLogin() &&
           System.familyInfo != null &&
           System.roomInfo != null;

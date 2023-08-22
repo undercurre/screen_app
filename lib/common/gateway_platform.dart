@@ -59,7 +59,7 @@ class ChangePlatformHelper {
         try {
           HomluxGlobal.setLogout();
           MeiJuApi.init();
-          System.initForMeiju();
+          await System.initForMeiju();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
         } on Exception catch(e) {
@@ -74,7 +74,7 @@ class ChangePlatformHelper {
       try {
         HomluxGlobal.setLogout();
         MeiJuApi.init();
-        System.initForMeiju();
+        await System.initForMeiju();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
       } catch(e) {

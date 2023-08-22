@@ -43,7 +43,7 @@ class MeiJuGlobal {
     WidgetsFlutterBinding.ensureInitialized();
     _roomEntity = await _$parseToJsonByCache(MEIJU_ROOM_INFO);
     _homeEntity = await _$parseToJsonByCache(MEIJU_FAMILY_INFO);
-    _token = await _$parseToJsonByCache(MEIJU_USER_INFO);
+    _token = await _$parseToJsonByCache(MEIJU_TOKEN);
     _gatewayApplianceCode = await LocalStorage.getItem(MEIJU_GATEWAY_DEVICE_ID);
     _gatewaySn = await LocalStorage.getItem(MEIJU_GATEWAY_SN);
   }
@@ -83,7 +83,7 @@ class MeiJuGlobal {
 
   static set roomInfo(MeiJuRoomEntity? roomInfo) {
     _roomEntity = roomInfo;
-    LocalStorage.setItem(MEIJU_TOKEN, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
+    LocalStorage.setItem(MEIJU_ROOM_INFO, _roomEntity == null ? '' : jsonEncode(_roomEntity!.toJson()));
   }
 
   static MeiJuTokenEntity? get token => _token;

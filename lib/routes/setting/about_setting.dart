@@ -8,13 +8,12 @@ import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
-import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/gesture/mutil_click.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../channel/index.dart';
-import '../../common/gateway_platform.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/meiju/models/meiju_delete_device_result_entity.dart';
 import '../../common/setting.dart';
@@ -30,10 +29,12 @@ class AboutSettingProvider with ChangeNotifier {
   String? ipAddress;
   String? snCode;
   bool? isLogin;
+  bool? debug;
 
   AboutSettingProvider() {
     // 初始化页面数据
     init();
+    debug = !kReleaseMode;
   }
 
   void init() {
@@ -116,7 +117,7 @@ class AboutSettingProvider with ChangeNotifier {
       return false;
     }
 
-    if(System.inHomluxPlatform()) {
+    if (System.inHomluxPlatform()) {
       HomluxResponseEntity? result;
       try {
         result = await HomluxUserApi.deleteDevices([
@@ -131,7 +132,7 @@ class AboutSettingProvider with ChangeNotifier {
       if ((result?.isSuccess != true) && tryCount > 0) {
         return deleteGateway(--tryCount);
       }
-    } else if(System.inMeiJuPlatform()) {
+    } else if (System.inMeiJuPlatform()) {
       MeiJuResponseEntity<MeiJuDeleteDeviceResultEntity>? result;
 
       try {
@@ -148,7 +149,6 @@ class AboutSettingProvider with ChangeNotifier {
       if ((result?.isSuccess != true) && tryCount > 0) {
         return deleteGateway(--tryCount);
       }
-
     }
 
     return false;
@@ -215,8 +215,7 @@ class AboutSettingPage extends StatelessWidget {
 
   void showLogoutDialog(BuildContext context) {
     MzDialog(
-        contentSlot: const Text(
-            '此操作将退出到扫码登录界面，是否继续?',
+        contentSlot: const Text('此操作将退出到扫码登录界面，是否继续?',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 20,
@@ -227,8 +226,7 @@ class AboutSettingPage extends StatelessWidget {
         maxWidth: 400,
         btns: ['取消', '确定'],
         contentPadding:
-        const EdgeInsets.symmetric(
-            vertical: 30, horizontal: 50),
+            const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
         onPressed: (_, index, context) {
           if (index == 1) {
             bus.emit('logout');
@@ -250,8 +248,8 @@ class AboutSettingPage extends StatelessWidget {
         title: "切换平台",
         maxWidth: 400,
         btns: ['取消', '确定'],
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 30, horizontal: 50),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
         onPressed: (_, index, context) {
           if (index == 1) {
             bus.emit('change_platform');
@@ -408,6 +406,19 @@ class AboutSettingPage extends StatelessWidget {
                           ),
                           tipText: otaChannel.hasNewVersion ? 'New' : null,
                         ),
+                        if (context.read<AboutSettingProvider>().debug == true)
+                          MzSettingItem(
+                            onTap: () {
+                              showLogoutDialog(context);
+                            },
+                            leftText: '账号管理[Debug模式]',
+                            rightWidget: MzSettingButton(
+                              text: '退出登录',
+                              backgroundColor: Colors.transparent,
+                              borderColor: const Color.fromRGBO(255, 59, 48, 1),
+                              fontColor: const Color.fromRGBO(255, 59, 48, 1),
+                            ),
+                          )
                         // MzSettingItem(
                         //   onTap: () {
                         //     showRebootDialog(
