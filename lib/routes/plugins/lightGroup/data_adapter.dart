@@ -32,9 +32,9 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxGroupEntity detail) {
-    brightness = detail.controlAction?[0].Level as num;
-    colorTemp = detail.controlAction?[0].ColorTemp as num;
-    power = detail.controlAction?[0].OnOff == 1;
+    brightness = detail.controlAction?[0].brightness as num;
+    colorTemp = detail.controlAction?[0].colorTemperature as num;
+    power = detail.controlAction?[0].power == 1;
   }
 
   setIsColorFul() async {
