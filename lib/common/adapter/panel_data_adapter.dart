@@ -194,10 +194,10 @@ class PanelData {
   PanelData.fromHomlux(HomluxDeviceEntity data) {
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
-      data.mzgdPropertyDTOList!.x1?.onOff == 1,
-      data.mzgdPropertyDTOList!.x2?.onOff == 1,
-      data.mzgdPropertyDTOList!.x3?.onOff == 1,
-      data.mzgdPropertyDTOList!.x4?.onOff == 1
+      data.mzgdPropertyDTOList!.x1?.power == 1,
+      data.mzgdPropertyDTOList!.x2?.power == 1,
+      data.mzgdPropertyDTOList!.x3?.power == 1,
+      data.mzgdPropertyDTOList!.x4?.power == 1
     ];
   }
 }

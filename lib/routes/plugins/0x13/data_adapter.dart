@@ -45,8 +45,8 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxDeviceEntity detail) {
-    brightness = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightBrightness ?? "0");
-    colorTemp = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightColorTemp ?? "0");
+    brightness = detail.mzgdPropertyDTOList?.x1?.brightness ?? 0;
+    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemperature ?? 0;
     power = detail.mzgdPropertyDTOList?.x1?.wifiLightPower == "on";
     screenModel = detail.mzgdPropertyDTOList?.x1?.wifiLightScene ?? "manual";
     timeOff = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightDelayOff ?? "0");

@@ -62,13 +62,13 @@ class HomluxDeviceSwitchInfoDTOList {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOList {
-	@JSONField(name: "1")
+	@JSONField(name: "wallSwitch1")
 	HomluxDeviceMzgdPropertyDTOList1? x1;
-	@JSONField(name: "2")
+	@JSONField(name: "wallSwitch2")
 	HomluxDeviceMzgdPropertyDTOList2? x2;
-	@JSONField(name: "3")
+	@JSONField(name: "wallSwitch3")
 	HomluxDeviceMzgdPropertyDTOList3? x3;
-	@JSONField(name: "4")
+	@JSONField(name: "wallSwitch4")
 	HomluxDeviceMzgdPropertyDTOList4? x4;
 
 	HomluxDeviceMzgdPropertyDTOList();
@@ -89,14 +89,14 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 	int? buttonScene;
 	@JSONField(name: "ButtonMode")
 	int? buttonMode;
-	@JSONField(name: "OnOff")
-	int? onOff;
+	@JSONField(name: "power")
+	int? power;
 	@JSONField(name: "StartUpOnOff")
 	int? startUpOnOff;
-	@JSONField(name: "ColorTemp")
-	int? colorTemp;
-	@JSONField(name: "Level")
-	int? level;
+	@JSONField(name: "colorTemperature")
+	int? colorTemperature;
+	@JSONField(name: "brightness")
+	int? brightness;
 	@JSONField(name: "Duration")
 	int? duration;
 	@JSONField(name: "BcReportTime")
@@ -115,10 +115,6 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 	String? wifiLightDelayOff;
 	@JSONField(name: "scene_light")
 	String? wifiLightScene;
-	@JSONField(name: "brightness")
-	String? wifiLightBrightness;
-	@JSONField(name: "color_temperature")
-	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList1();
 
@@ -138,14 +134,14 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 	int? buttonScene;
 	@JSONField(name: "ButtonMode")
 	int? buttonMode;
-	@JSONField(name: "OnOff")
-	int? onOff;
+	@JSONField(name: "power")
+	int? power;
 	@JSONField(name: "StartUpOnOff")
 	int? startUpOnOff;
-	@JSONField(name: "ColorTemp")
-	int? colorTemp;
-	@JSONField(name: "Level")
-	int? level;
+	@JSONField(name: "colorTemperature")
+	int? colorTemperature;
+	@JSONField(name: "brightness")
+	int? brightness;
 	@JSONField(name: "Duration")
 	int? duration;
 	@JSONField(name: "BcReportTime")
@@ -164,10 +160,6 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 	String? wifiLightDelayOff;
 	@JSONField(name: "scene_light")
 	String? wifiLightScene;
-	@JSONField(name: "brightness")
-	String? wifiLightBrightness;
-	@JSONField(name: "color_temperature")
-	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList2();
 
@@ -187,14 +179,14 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 	int? buttonScene;
 	@JSONField(name: "ButtonMode")
 	int? buttonMode;
-	@JSONField(name: "OnOff")
-	int? onOff;
+	@JSONField(name: "power")
+	int? power;
 	@JSONField(name: "StartUpOnOff")
 	int? startUpOnOff;
-	@JSONField(name: "ColorTemp")
-	int? colorTemp;
-	@JSONField(name: "Level")
-	int? level;
+	@JSONField(name: "colorTemperature")
+	int? colorTemperature;
+	@JSONField(name: "brightness")
+	int? brightness;
 	@JSONField(name: "Duration")
 	int? duration;
 	@JSONField(name: "BcReportTime")
@@ -213,10 +205,6 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 	String? wifiLightDelayOff;
 	@JSONField(name: "scene_light")
 	String? wifiLightScene;
-	@JSONField(name: "brightness")
-	String? wifiLightBrightness;
-	@JSONField(name: "color_temperature")
-	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList3();
 
@@ -236,14 +224,14 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	int? buttonScene;
 	@JSONField(name: "ButtonMode")
 	int? buttonMode;
-	@JSONField(name: "OnOff")
-	int? onOff;
+	@JSONField(name: "power")
+	int? power;
 	@JSONField(name: "StartUpOnOff")
 	int? startUpOnOff;
-	@JSONField(name: "ColorTemp")
-	int? colorTemp;
-	@JSONField(name: "Level")
-	int? level;
+	@JSONField(name: "colorTemperature")
+	int? colorTemperature;
+	@JSONField(name: "brightness")
+	int? brightness;
 	@JSONField(name: "Duration")
 	int? duration;
 	@JSONField(name: "BcReportTime")
@@ -262,10 +250,6 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	String? wifiLightDelayOff;
 	@JSONField(name: "scene_light")
 	String? wifiLightScene;
-	@JSONField(name: "brightness")
-	String? wifiLightBrightness;
-	@JSONField(name: "color_temperature")
-	String? wifiLightColorTemp;
 
 	HomluxDeviceMzgdPropertyDTOList4();
 
