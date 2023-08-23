@@ -2,6 +2,7 @@ import 'dart:core';
 
 import '../../logcat_helper.dart';
 import '../homlux_global.dart';
+import '../models/homlux_panel_associate_scene_entity.dart';
 import '../models/homlux_scene_entity.dart';
 import '../models/homlux_response_entity.dart';
 import 'homlux_api.dart';
@@ -32,4 +33,13 @@ class HomluxSceneApi {
     }
     return res;
   }
+
+  /// 查询面关联的场景
+  static Future<HomluxResponseEntity<HomluxPanelAssociateSceneEntity>> querySceneListByPanel(String deviceId) async {
+    var res = await HomluxApi.request<HomluxPanelAssociateSceneEntity>('/v1/mzgd/scene/querySceneListByPanel', data: {
+      "deviceId": deviceId
+    });
+    return res;
+  }
+
 }

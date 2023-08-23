@@ -2,9 +2,9 @@
 import '../generated/json/base/homlux_json_convert_content.dart';
 
 class HomluxResponseEntity<T> {
-  late int code;
-  late String msg;
-  late int timestamp;
+  int code = -1;
+  String msg = '未知错误';
+  int timestamp = -1;
   T? result;
 
   /// 增加别名

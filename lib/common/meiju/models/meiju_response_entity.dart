@@ -3,8 +3,8 @@ import '../generated/json/base/meiju_json_convert_content.dart';
 
 /// 美居接口模型
 class MeiJuResponseEntity<T> {
-  late int code;
-  late String msg;
+  int code = -1;
+  String msg = '未知错误';
 
   /// 以下为了兼容It中台与美智中台数据返回格式
   T? _data;
