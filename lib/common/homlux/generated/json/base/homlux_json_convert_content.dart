@@ -9,6 +9,7 @@ import '../../../models/homlux_bind_device_entity.dart';
 import '../../../models/homlux_device_entity.dart';
 import '../../../models/homlux_dui_token_entity.dart';
 import '../../../models/homlux_group_entity.dart';
+import '../../../models/homlux_panel_associate_scene_entity.dart';
 import '../../../models/homlux_qr_code_auth_entity.dart';
 import '../../../models/homlux_qr_code_entity.dart';
 import '../../../models/homlux_refresh_token_entity.dart';
@@ -52,10 +53,18 @@ class HomluxJsonConvert {
     (Homlux485DeviceListNameValuePairsAirConditionList).toString(): Homlux485DeviceListNameValuePairsAirConditionList.fromJson,
     (Homlux485DeviceListNameValuePairsFreshAirList).toString(): Homlux485DeviceListNameValuePairsFreshAirList.fromJson,
     (Homlux485DeviceListNameValuePairsFloorHotList).toString(): Homlux485DeviceListNameValuePairsFloorHotList.fromJson,
+    (HomluxPanelAssociateSceneEntity).toString(): HomluxPanelAssociateSceneEntity.fromJson,
+    (HomluxPanelAssociateSceneEntitySceneList).toString(): HomluxPanelAssociateSceneEntitySceneList.fromJson,
 
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxPanelAssociateSceneEntity>[] is M) {
+      return data.map<HomluxPanelAssociateSceneEntity>((e) => HomluxPanelAssociateSceneEntity.fromJson(e)).toList() as M;
+    }
+    if(<HomluxPanelAssociateSceneEntitySceneList>[] is M) {
+      return data.map<HomluxPanelAssociateSceneEntitySceneList>((e) => HomluxPanelAssociateSceneEntitySceneList.fromJson(e)).toList() as M;
+    }
     if(<HomluxUserInfoEntity>[] is M) {
       return data.map<HomluxUserInfoEntity>((e) => HomluxUserInfoEntity.fromJson(e)).toList() as M;
     }

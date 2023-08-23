@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
-import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../models/scene_info_entity.dart';
+import '../../../states/scene_list_notifier.dart';
 import '../../mz_dialog.dart';
 
 class MiddleScenePanelCardWidget extends StatefulWidget {
@@ -13,6 +15,7 @@ class MiddleScenePanelCardWidget extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  List<bool> sceneOnOff = [false, false];
   ScenePanelDataAdapter adapter; // 数据适配器
 
   MiddleScenePanelCardWidget({
@@ -54,16 +57,18 @@ class _MiddleScenePanelCardWidgetState
   @override
   void initState() {
     super.initState();
-    widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
     });
+    widget.adapter.init();
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
+        widget.adapter.data.modeList = widget.adapter.data.modeList;
+        widget.adapter.data.sceneList = widget.adapter.data.sceneList;
       });
       // Log.i('更新数据', widget.adapter.data.nameList);
     }
@@ -88,6 +93,14 @@ class _MiddleScenePanelCardWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final sceneModel = Provider.of<SceneListModel>(context);
+    List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
+    if (sceneListCache.isEmpty) {
+      sceneModel.getSceneList().then((value) {
+        sceneListCache = sceneModel.getCacheSceneList();
+      });
+    }
+
     return Container(
       width: 210,
       height: 196,
@@ -161,7 +174,7 @@ class _MiddleScenePanelCardWidgetState
                         maxWidth: 432,
                         backgroundColor: const Color(0xFF494E59),
                         contentPadding:
-                            const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                        const EdgeInsets.fromLTRB(33, 24, 33, 0),
                         contentSlot: const Text("设备离线，请检查网络是否正常",
                             textAlign: TextAlign.center,
                             maxLines: 3,
@@ -177,8 +190,20 @@ class _MiddleScenePanelCardWidgetState
                           Navigator.pop(context);
                         }).show(context);
                   } else {
-                    await widget.adapter.fetchOrderPower(1);
-                    _throttledFetchData();
+                    if (widget.adapter.data.modeList[0] == '2') {
+                      sceneModel.sceneExec(widget.adapter.data.sceneList[0]);
+                      setState(() {
+                        widget.sceneOnOff[0] = true;
+                      });
+                      Future.delayed(const Duration(seconds: 2), () {
+                        setState(() {
+                          widget.sceneOnOff[0] = false;
+                        });
+                      });
+                    } else {
+                      await widget.adapter.fetchOrderPower(1);
+                      _throttledFetchData();
+                    }
                   }
                 }
               },
@@ -188,7 +213,7 @@ class _MiddleScenePanelCardWidgetState
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.adapter.data.statusList[0] && !widget.disabled
+                      image: ExactAssetImage(_getIconOnOff(0)
                           ? 'assets/newUI/panel_btn_on.png'
                           : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
@@ -197,7 +222,8 @@ class _MiddleScenePanelCardWidgetState
                   width: 84,
                   child: Center(
                     child: Text(
-                      widget.adapter.data.nameList[0],
+                      widget.adapter.data.modeList[0] == '2' ? _getSceneName(
+                          0, sceneListCache) : widget.adapter.data.nameList[0],
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -226,7 +252,7 @@ class _MiddleScenePanelCardWidgetState
                         maxWidth: 432,
                         backgroundColor: const Color(0xFF494E59),
                         contentPadding:
-                            const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                        const EdgeInsets.fromLTRB(33, 24, 33, 0),
                         contentSlot: const Text("设备离线，请检查网络是否正常",
                             textAlign: TextAlign.center,
                             maxLines: 3,
@@ -242,8 +268,20 @@ class _MiddleScenePanelCardWidgetState
                           Navigator.pop(context);
                         }).show(context);
                   } else {
-                    await widget.adapter.fetchOrderPower(2);
-                    _throttledFetchData();
+                    if (widget.adapter.data.modeList[1] == '2') {
+                      sceneModel.sceneExec(widget.adapter.data.sceneList[1]);
+                      setState(() {
+                        widget.sceneOnOff[1] = true;
+                      });
+                      Future.delayed(const Duration(seconds: 2), () {
+                        setState(() {
+                          widget.sceneOnOff[1] = false;
+                        });
+                      });
+                    } else {
+                      await widget.adapter.fetchOrderPower(2);
+                      _throttledFetchData();
+                    }
                   }
                 }
               },
@@ -253,16 +291,18 @@ class _MiddleScenePanelCardWidgetState
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.adapter.data.statusList[1] && !widget.disabled
-                          ? 'assets/newUI/panel_btn_on.png'
-                          : 'assets/newUI/panel_btn_off.png'),
+                      image: ExactAssetImage(
+                          _getIconOnOff(1)
+                              ? 'assets/newUI/panel_btn_on.png'
+                              : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
                 child: SizedBox(
                   width: 84,
                   child: Center(
                     child: Text(
-                      widget.adapter.data.nameList[1],
+                      widget.adapter.data.modeList[1] == '2' ? _getSceneName(
+                          1, sceneListCache) : widget.adapter.data.nameList[1],
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -313,5 +353,42 @@ class _MiddleScenePanelCardWidgetState
             Color(0x33434852),
           ],
         ));
+  }
+
+  String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
+    if (sceneListCache.isEmpty) return '加载中';
+
+    if (panelIndex >= 0 && panelIndex < widget.adapter.data.sceneList.length) {
+      String sceneIdToCompare = widget.adapter.data.sceneList[panelIndex];
+      SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+        return element.sceneId.toString() == sceneIdToCompare;
+      }, orElse: () {
+        SceneInfoEntity sceneObj = SceneInfoEntity();
+        sceneObj.name = '加载中';
+        return sceneObj;
+      });
+      Log.i('加载名字', widget.adapter.data.sceneList[panelIndex]);
+
+      if (curScene != null) {
+        return curScene.name;
+      } else {
+        return '加载中';
+      }
+    } else {
+      return '加载中';
+    }
+  }
+
+  bool _getIconOnOff(int panelIndex) {
+    // 禁用——关闭
+    if (widget.disabled) return false;
+
+    // 普通开关模式
+    if (widget.adapter.data.modeList[panelIndex] != '2') {
+      return widget.adapter.data.statusList[panelIndex];
+    } else {
+      // 场景模式
+      return widget.sceneOnOff[panelIndex];
+    }
   }
 }

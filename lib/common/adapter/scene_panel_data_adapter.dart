@@ -1,9 +1,12 @@
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
+import '../../models/scene_info_entity.dart';
 import '../gateway_platform.dart';
 import '../homlux/models/homlux_device_entity.dart';
+import '../homlux/models/homlux_panel_associate_scene_entity.dart';
 import '../homlux/models/homlux_response_entity.dart';
 import '../meiju/api/meiju_device_api.dart';
 import '../meiju/api/meiju_gateway_cloud_api.dart';
@@ -37,19 +40,18 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
   // Method to retrieve data from both platforms and construct ScenePanelData object
   Future<void> fetchData() async {
     try {
+      await getSceneNameList();
       dataState = DataState.LOADING;
-
       if (platform.inMeiju()) {
         _meijuData = await fetchMeijuData();
       } else {
         _homluxData = await fetchHomluxData();
       }
-
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        data = ScenePanelData.fromMeiJu(_meijuData!, modelNumber);
+        data = ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
       } else if (_homluxData != null) {
-        data = ScenePanelData.fromHomlux(_homluxData!);
+        data = ScenePanelData.fromHomlux(_homluxData!, data.sceneList);
       } else {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
@@ -89,8 +91,6 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   Future<NodeInfo<Endpoint<PanelEvent>>> fetchMeijuData() async {
     try {
-      MeiJuResponseEntity sceneListRes = await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
-      Log.i('多功能面板场景接口', sceneListRes.data);
       NodeInfo<Endpoint<PanelEvent>> nodeInfo =
       await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
           applianceCode, masterId, (json) => PanelEvent.fromJson(json));
@@ -178,15 +178,53 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     return ScenePanelDataAdapter(
         applianceCode, masterId, modelNumber, MideaRuntimePlatform.platform);
   }
+
+  Future<void> getSceneNameList() async {
+    if (platform.inMeiju()) {
+      MeiJuResponseEntity sceneListRes = await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
+      if (sceneListRes.isSuccess) {
+        sceneListRes.data!["list"].forEach((e) {
+          data.sceneList[e["endpoint"] - 1] = e["sceneId"].toString();
+        });
+      }
+    } else {
+      HomluxResponseEntity<
+          List<HomluxPanelAssociateSceneEntity>> sceneListRes = await HomluxSceneApi
+          .querySceneListByPanel(applianceCode);
+      if (sceneListRes.isSuccess) {
+        List<Map<String, dynamic>> outputList = [];
+
+        for (HomluxPanelAssociateSceneEntity item in sceneListRes.result!) {
+          String deviceCode = item.deviceId!;
+          String endpoint = item.modelName!.substring(
+              item.modelName!.length - 1);
+          List<HomluxPanelAssociateSceneEntitySceneList> sceneList = item.sceneList!;
+
+          for (var scene in sceneList) {
+            String sceneId = scene.sceneId!;
+            Map<String, dynamic> outputItem = {
+              "applianceCode": deviceCode,
+              "sceneId": sceneId,
+              "endpoint": int.parse(endpoint),
+            };
+            outputList.add(outputItem);
+          }
+        }
+        for (Map<String, dynamic> e in outputList) {
+          data.sceneList[e["endpoint"] - 1] = e["sceneId"];
+        }
+      }
+    }
+  }
 }
 
 // The rest of the code for ScenePanelData class remains the same as before
 class ScenePanelData {
   // 模式列表
-  List modeList = ['0', '0', '0', '0'];
+  List<String> modeList = ['0', '0', '0', '0'];
 
   // 绑定的场景列表
-  List<String> sceneList = ['场景1', '场景2', '场景3', '场景4'];
+  List<dynamic> sceneList = ['场景1', '场景2', '场景3', '场景4'];
 
   // 开关名称列表
   List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
@@ -202,16 +240,21 @@ class ScenePanelData {
   });
 
   ScenePanelData.fromMeiJu(
-      NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
+      NodeInfo<Endpoint<PanelEvent>> data, String modelNumber, List<dynamic> sceneNet) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
       nameList = data.endList.map((e) => e.name).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
+
+    modeList = data.endList.map((e) => e.event.buttonMode).toList();
+
+    sceneList = sceneNet;
   }
 
-  ScenePanelData.fromHomlux(HomluxDeviceEntity data) {
+  ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
+    Log.i('面板数据', data.mzgdPropertyDTOList);
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
       data.mzgdPropertyDTOList!.x1?.power == 1,
@@ -219,27 +262,39 @@ class ScenePanelData {
       data.mzgdPropertyDTOList!.x3?.power == 1,
       data.mzgdPropertyDTOList!.x4?.power == 1
     ];
+
+    modeList = [
+      data.mzgdPropertyDTOList!.x1?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x2?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x3?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x4?.buttonMode.toString() ?? '0'
+    ];
+
+    sceneList = sceneNet;
   }
 }
 
 class PanelEvent extends Event {
   dynamic onOff;
   dynamic startupOnOff; // 将 startupOnOff 变为可选属性
+  String buttonMode;
 
   PanelEvent({
     required this.onOff,
+    required this.buttonMode,
     this.startupOnOff, // 标记 startupOnOff 为可选参数
   });
 
   factory PanelEvent.fromJson(Map<String, dynamic> json) {
     return PanelEvent(
       onOff: json['OnOff'],
+      buttonMode: json['buttonMode'],
       startupOnOff: json['StartUpOnOff'], // 可能不存在的键
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'onOff': onOff, 'startupOnOff': startupOnOff};
+    return {'onOff': onOff, 'startupOnOff': startupOnOff, 'buttonMode': buttonMode};
   }
 }
 

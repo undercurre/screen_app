@@ -115,6 +115,7 @@ flutter:
     - assets/
     - .sit.env
     - .prod.env
+    - .dev.env
     - assets/video/
     - assets/data/default_city_data.json
     - assets/data/iot_city.json

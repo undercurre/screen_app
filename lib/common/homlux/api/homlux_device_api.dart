@@ -66,12 +66,12 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlPanelOnOff(
       String panelId, String switchId, String masterId, int onOff) {
     var actions = [
-      <String, dynamic>{'devId': panelId, 'ep': switchId, 'OnOff': onOff}
+      <String, dynamic>{'devId': panelId, 'modelName': 'wallSwitch$switchId', 'power': onOff}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'panelSingleControl',
+        method: 'panelSingleControlNew',
         inputData: actions);
   }
 
@@ -85,7 +85,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeLightOnOff(
       String deviceId, String deviceType, String masterId, int onOff) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'OnOff': onOff}
+      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'OnOff': onOff}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -105,7 +105,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(
       String deviceId, String deviceType, String masterId, int delayTime) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'DelayClose': delayTime}
+      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'DelayClose': delayTime}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -125,7 +125,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeBrightness(
       String deviceId, String deviceType, String masterId, int brightness) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'Level': brightness}
+      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'Level': brightness}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -145,7 +145,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeColorTemp(
       String deviceId, String deviceType, String masterId, int colorTemp) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'ep': 1, 'ColorTemp': colorTemp}
+      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'ColorTemp': colorTemp}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -172,7 +172,7 @@ class HomluxDeviceApi {
     var actions = [
       <String, dynamic>{
         'devId': deviceId,
-        'ep': 1,
+        'modelName': 1,
         'ColorTemp': colorTemp,
         'Level': brightness
       }

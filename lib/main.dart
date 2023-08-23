@@ -14,6 +14,7 @@ import 'package:screen_app/widgets/event_bus.dart';
 import './channel/index.dart';
 import 'common/crash/android_crash_handler.dart';
 import 'common/index.dart';
+import 'common/logcat_helper.dart';
 import 'common/setting.dart';
 import 'routes/index.dart';
 import 'states/index.dart';
@@ -107,7 +108,8 @@ class _App extends State<App> {
 
 setupConfig() async {
   const env = String.fromEnvironment('env');
-  if (env != 'sit' && env != 'prod') {
+  Log.i('当前环境', env);
+  if (env != 'sit' && env != 'prod' && env != 'dev') {
     // 如果不传sit或者prod默认使用sit环境
     await dotenv.load(fileName: ".sit.env");
   } else {

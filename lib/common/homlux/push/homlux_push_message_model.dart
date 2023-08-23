@@ -64,7 +64,7 @@ class HomluxPushResultEntity {
 class HomluxEventDataEntity {
 
   HomluxEventDataEntity();
-  String? ep;
+  String? modelName;
   // 目前存在下面的属性
   // {"level": 123, "colorTemp": 123,  “onOff”: 1, "brightness": 123, "color_temperature": 123}
   dynamic event;
@@ -78,7 +78,7 @@ class HomluxEventDataEntity {
 
   factory HomluxEventDataEntity.fromJson(Map<String, dynamic> json) {
     HomluxEventDataEntity entity = HomluxEventDataEntity();
-    entity.ep = json['ep'] as String?;
+    entity.modelName = json['modelName'] as String?;
     entity.deviceId = json['deviceId'] as String?;
     entity.sn = json['sn'] as String?;
     entity.roomId = json['roomId'] as String?;
@@ -93,7 +93,7 @@ class HomluxEventDataEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      'ep': ep,
+      'modelName': modelName,
       'event': event,
       'deviceId': deviceId,
       'sn': sn,
