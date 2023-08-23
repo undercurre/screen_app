@@ -38,13 +38,14 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   }
 
   Future<void> updateDetail() async {
-
+    adapter?.fetchData();
   }
 
   @override
   void initState() {
     super.initState();
     adapter?.bindDataUpdateFunction(() {setState(() {});});
+    adapter?.fetchData();
   }
 
   @override

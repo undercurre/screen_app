@@ -7,8 +7,10 @@ import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../widgets/event_bus.dart';
 
 class CACDataAdapter extends MideaDataAdapter {
   NodeInfo<Endpoint<CAC485Event>> _meijuData = NodeInfo(
@@ -221,6 +223,14 @@ class CACDataAdapter extends MideaDataAdapter {
     Log.i("初始化空调adapter");
     if(applianceCode.length!=4){
       isLocalDevice=false;
+      var nid;
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
+        nid=args.nodeId,
+        Log.i("收到推送:$nid"),
+        if(nodeId==args.nodeId){
+          fetchData()
+        }
+      });
       fetchData();
     }else{
       isLocalDevice=true;

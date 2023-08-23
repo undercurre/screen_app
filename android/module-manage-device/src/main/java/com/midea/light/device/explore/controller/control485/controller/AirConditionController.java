@@ -196,6 +196,11 @@ public class AirConditionController implements Data485Observer {
             for (int j = 0; j <AirConditionList.size() ; j++) {
                String querAddr=TempAirConditionList.get(i).getOutSideAddress()+TempAirConditionList.get(i).getInSideAddress();
                String deviceAddr=AirConditionList.get(j).getOutSideAddress()+AirConditionList.get(j).getInSideAddress();
+//               if(querAddr.equals("0101")){
+//                  Log.e("sky","开关状态:"+TempAirConditionList.get(i).getOnOff());
+//                  Log.e("sky","设定温度:"+Integer.parseInt(TempAirConditionList.get(i).getTemperature(),16));
+//
+//               }
                if(querAddr.equals(deviceAddr)){
                   String TempDeviceStr=new Gson().toJson(TempAirConditionList.get(i));
                   String DeviceStr=new Gson().toJson(AirConditionList.get(j));
@@ -258,7 +263,7 @@ public class AirConditionController implements Data485Observer {
    }
 
    private void controlDataCombination(AirConditionModel device ,String commandCode,String data){
-      ControlManager.getInstance().stopFresh();
+//      ControlManager.getInstance().stopFresh();
       StringBuffer sb = new StringBuffer();
       sb.append("01");
       sb.append(" ");
@@ -274,7 +279,7 @@ public class AirConditionController implements Data485Observer {
       sb.append(" ");
       sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().write(sb.toString());
-      ControlManager.getInstance().startFresh();
+//      ControlManager.getInstance().startFresh();
 
    }
 }

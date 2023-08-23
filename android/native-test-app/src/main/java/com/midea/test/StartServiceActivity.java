@@ -36,6 +36,9 @@ public class StartServiceActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_service_layout);
         ControlManager.getInstance().initial();
+        ControlManager.getInstance().regestOber();
+        ControlManager.getInstance().startFresh();
+
         ArrayList mData = new ArrayList<>();
         ArrayList mDataFreshAir = new ArrayList<>();
         ArrayList mDataFloor = new ArrayList<>();
