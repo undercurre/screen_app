@@ -43,7 +43,7 @@ public class DeviceAdapter extends BaseAdapter {
         } else {
             textView = (TextView) convertView;
         }
-        textView.setText(mData.get(position));
+//        textView.setText(mData.get(position));
         return textView;
     }
 }

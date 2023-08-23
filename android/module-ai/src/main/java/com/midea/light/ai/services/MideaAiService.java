@@ -1282,8 +1282,13 @@ public class MideaAiService extends Service {
     }
 
     public void unreregisterNetworkReceiver() {
-        unregisterReceiver(NetWorkStateReceiver.getInstant());
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(NetWorkStateReceiver.getInstant());
+            unregisterReceiver(receiver);
+        }catch (RuntimeException e){
+
+        }
+
     }
 
     public void dismissAiDialog() {

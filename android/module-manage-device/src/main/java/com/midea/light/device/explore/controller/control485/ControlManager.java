@@ -42,15 +42,25 @@ public class ControlManager implements Data485Subject {
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
     private int totalSize = 0;
-    private List<Data485Observer> observers = new ArrayList<>();
+    private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
     private Timer timer;
     private Integer cacheTime = 100;
+    private Integer overTime = 1000;
+    private ExecutorService service,readService;
+
 
     public static ControlManager Instance = new ControlManager();
 
     public static ControlManager getInstance() {
         return Instance;
+    }
+
+    public static void regestOber(){
+        observers.add(GetWayController.getInstance());
+        observers.add(AirConditionController.getInstance());
+        observers.add(FreshAirController.getInstance());
+        observers.add(FloorHotController.getInstance());
     }
 
     public void initial() {
@@ -69,92 +79,7 @@ public class ControlManager implements Data485Subject {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        registerObserver(GetWayController.getInstance());
-        registerObserver(AirConditionController.getInstance());
-        registerObserver(FreshAirController.getInstance());
-        registerObserver(FloorHotController.getInstance());
-        new Thread() {
-            public void run() {
-                while (running) {
-                    if (mInputStream != null) {
-                        try {
-                            int size = mInputStream.read(buffer);
-                            if (size > 0) {
-//                                Log.e("sky", "读到数据量:" + size);
-//                                //判断请求指令,根据请求指令来判断是否数据完整
-                                if (isFirstFrame) {
-                                    if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
-                                        totalSize = num * 3 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_PARELETE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
-                                        totalSize = num * 10 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
-                                        totalSize = num * 3 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_PARELETE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
-                                        totalSize = num * 10 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
-                                        totalSize = num * 3 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data)) {
-                                        byte b = buffer[3];
-                                        int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
-                                        totalSize = num * 10 + 5;
-//                                        Log.e("sky", "需要数据量:" + totalSize);
-                                    } else {
-                                        totalSize = 7;
-                                    }
-                                    isFirstFrame = false;
-                                }
-                                StringBuffer sb = new StringBuffer();
-                                for (int i = 0; i < size; i++) {
-                                    byte b = buffer[i];
-                                    if (Integer.toHexString(b & 0xFF).length() == 1) {
-                                        sb.append("0" + Integer.toHexString(b & 0xFF).toUpperCase());
-                                    } else {
-                                        sb.append(Integer.toHexString(b & 0xFF).toUpperCase());
-                                    }
-                                    sb.append(" ");
-                                }
-//                                Log.e("sky", "读取数据:" + sb);
-                                total.append(sb);
-//                                Log.e("sky", "部分数据:" + total);
-                                String[] totalArry = total.toString().split(" ");
-//                                Log.e("sky", "当前数据量:" + totalArry.length);
-                                //拿到所有数据后再发出
-                                if (totalArry.length == totalSize) {
-//                                    Log.e("sky", "完整数据:" + total);
-                                    notifyObservers(total.toString());
-                                    Thread.sleep(20);
-                                    commandFinish = true;
-                                }
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Log.e("sky", "mInputStream报错:" + e.getMessage());
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        Log.e("sky", "mInputStream为空");
-                    }
-                }
-            }
-        }.start();
-
-
+        startReadRunnable();
     }
 
     BlockingQueue<String> queue = new LinkedBlockingQueue<>();
@@ -168,9 +93,7 @@ public class ControlManager implements Data485Subject {
         if (firstIn) {
             firstInTime = System.currentTimeMillis();
             firstIn = false;
-            ExecutorService service = Executors.newCachedThreadPool();
-            Consumer consumer = new Consumer(queue);
-            service.execute(consumer);
+            startConsumer();
         }
         if (System.currentTimeMillis() - firstInTime > 10000) {//10秒内没有任何设备就停止刷新查找设备
             if (AirConditionController.getInstance().AirConditionList.size() == 0 && FreshAirController.getInstance().FreshAirList.size() == 0 && FloorHotController.getInstance().FloorHotList.size() == 0) {
@@ -178,6 +101,117 @@ public class ControlManager implements Data485Subject {
                 stopFresh();
                 running = false;
             }
+        }
+    }
+
+    private void startReadRunnable(){
+        if(readService!=null){
+            readService.shutdownNow();
+        }
+        readService = Executors.newCachedThreadPool();
+        Reader reader = new Reader();
+        readService.execute(reader);
+    }
+
+    private void startConsumer(){
+        if(service!=null){
+            service.shutdownNow();
+        }
+        service = Executors.newCachedThreadPool();
+        Consumer consumer = new Consumer(queue);
+        service.execute(consumer);
+    }
+
+    public class Reader implements Runnable {
+
+        public void run() {
+            while (running) {
+                if (mInputStream != null) {
+                    try {
+                        //阻塞判断,如果超过1秒还没数据就重新写新的数据
+                        Timer overTimer = new Timer();
+                        overTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                commandReset();
+                            }
+                        }, overTime);
+                        int size = mInputStream.read(buffer);
+                        if(overTimer!=null){
+                            overTimer.cancel();
+                        }
+                        if (size > 0) {
+//                                Log.e("sky", "读到数据量:" + size);
+//                                //判断请求指令,根据请求指令来判断是否数据完整
+                            if (isFirstFrame) {
+                                if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
+                                    totalSize = num * 3 + 5;
+//                                        Log.e("sky", "数量需要数据量:" + totalSize);
+                                } else if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_PARELETE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
+                                    totalSize = num * 10 + 5;
+//                                        Log.e("sky", "属性需要数据量:" + totalSize);
+                                } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
+                                    totalSize = num * 3 + 5;
+//                                        Log.e("sky", "需要数据量:" + totalSize);
+                                } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_PARELETE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
+                                    totalSize = num * 10 + 5;
+//                                        Log.e("sky", "需要数据量:" + totalSize);
+                                } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
+                                    totalSize = num * 3 + 5;
+//                                        Log.e("sky", "需要数据量:" + totalSize);
+                                } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data)) {
+                                    byte b = buffer[3];
+                                    int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
+                                    totalSize = num * 10 + 5;
+//                                        Log.e("sky", "需要数据量:" + totalSize);
+                                } else {
+                                    totalSize = 7;
+                                }
+                                isFirstFrame = false;
+                            }
+                            StringBuffer sb = new StringBuffer();
+                            for (int i = 0; i < size; i++) {
+                                byte b = buffer[i];
+                                if (Integer.toHexString(b & 0xFF).length() == 1) {
+                                    sb.append("0" + Integer.toHexString(b & 0xFF).toUpperCase());
+                                } else {
+                                    sb.append(Integer.toHexString(b & 0xFF).toUpperCase());
+                                }
+                                sb.append(" ");
+                            }
+//                                Log.e("sky", "读取数据:" + sb);
+                            total.append(sb);
+//                                Log.e("sky", "部分数据:" + total);
+                            String[] totalArry = total.toString().split(" ");
+//                                Log.e("sky", "当前数据量:" + totalArry.length);
+                            //拿到所有数据后再发出
+                            if (totalArry.length == totalSize) {
+//                                    Log.e("sky", "完整数据:" + total);
+                                notifyObservers(total.toString());
+                                Thread.sleep(20);
+                                commandFinish = true;
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e("sky", "mInputStream报错:" + e.getMessage());
+                    } catch (InterruptedException e) {
+                    }
+                } else {
+                    Log.e("sky", "mInputStream为空");
+                }
+            }
+
         }
     }
 
@@ -198,7 +232,7 @@ public class ControlManager implements Data485Subject {
                     isFirstFrame = true;
                     commandFinish = false;
                     if (null != str) {
-//                            Log.e("sky", "拿到要执行的数据:"+str);
+//                      Log.e("sky", "拿到要执行的数据:"+str);
                         commandStrArry = str.split(" ");
                         if (mOutputStream != null) {
                             List<Byte> data = new ArrayList<>();
@@ -224,6 +258,14 @@ public class ControlManager implements Data485Subject {
 
             }
         }
+    }
+
+    private void commandReset(){
+        commandFinish = true;
+        totalSize = 0;
+        total = new StringBuffer();
+//        queue.clear();
+//        Log.e("sky", "重置指令");
     }
 
     public void close() {
@@ -254,8 +296,10 @@ public class ControlManager implements Data485Subject {
     @Override
     public void notifyObservers(String data) {
         isFirstFrame = false;
-        for (Data485Observer observer : observers) {
-            observer.getMessage(data);
+        if(observers.size()==4){
+            for (Data485Observer observer : observers) {
+                observer.getMessage(data);
+            }
         }
         total.delete(0, total.length());
     }
@@ -311,4 +355,6 @@ public class ControlManager implements Data485Subject {
 
         }
     };
+
+
 }

@@ -234,6 +234,7 @@ class FloorDataAdapter extends MideaDataAdapter {
           await MeiJuDeviceApi.getGatewayInfo<Floor485Event>(
               applianceCode, masterId, (json) => Floor485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
+      Log.i('拿到的nodeid:$nodeId');
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
