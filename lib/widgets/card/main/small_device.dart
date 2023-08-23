@@ -10,6 +10,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
+  final bool hasMore;
   final Function? onTap; // 整卡点击事件
 
   final DeviceCardDataAdapter? adapter;
@@ -22,6 +23,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
       required this.online,
       required this.isFault,
       required this.isNative,
+      this.hasMore = true,
       this.adapter,
       this.onTap});
 
@@ -141,10 +143,10 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                     Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
                   }
                 },
-                child: const Image(
+                child: widget.hasMore ? const Image(
                   width: 24,
                   image: AssetImage('assets/newUI/to_plugin.png'),
-                ),
+                ) : Container(),
               )
           ],
         ),

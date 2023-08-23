@@ -364,7 +364,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   modelNumber: devices[index].modelNumber,
                                   masterId: devices[index].masterId,
                                   isOnline: devices[index].onlineStatus,
-                                  disabled: true
+                                  disabled: true,
                                 ),
                               );
                               Navigator.pop(context, resultData);
@@ -443,7 +443,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                     devices[index].masterId,
                                                 isOnline:
                                                     devices[index].onlineStatus,
-                                                disabled: true
+                                                disabled: true,
                                               ),
                                             );
                                             Navigator.pop(context, resultData);
@@ -497,6 +497,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       isFault: false,
                                       isNative: false,
                                       adapter: null,
+                                      hasMore: false,
                                     ),
                                   ),
                                 ),
@@ -550,7 +551,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         sceneId: scenes[index].sceneId,
                                         icon: scenes[index].image,
                                         isOnline: '',
-                                        disabled: true
+                                        disabled: true,
                                       ),
                                     );
                                     Navigator.pop(context, resultData);

@@ -4,9 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/scene_list_notifier.dart';
+import '../../event_bus.dart';
 import '../../mz_dialog.dart';
 
 class MiddleScenePanelCardWidget extends StatefulWidget {
@@ -57,6 +61,19 @@ class _MiddleScenePanelCardWidgetState
   @override
   void initState() {
     super.initState();
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == widget.adapter.nodeId) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    }
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
     });

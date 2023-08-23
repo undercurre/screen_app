@@ -167,12 +167,14 @@ class DataInputCard {
   String? icon;
   String? sceneId;
   bool? disabled;
+  bool? hasMore;
 
   DataInputCard({
     required this.name,
     this.icon,
     this.sceneId,
     this.disabled,
+    this.hasMore,
     required this.applianceCode,
     required this.roomName,
     this.masterId,
@@ -191,6 +193,7 @@ class DataInputCard {
       sceneId: json['sceneId'] as String?,
       icon: json['icon'] as String?,
       disabled: json['disabled'] as bool?,
+      hasMore: json['hasMore'] as bool?,
     );
   }
 
@@ -215,6 +218,9 @@ class DataInputCard {
     }
     if (disabled != null) {
       data['disabled'] = disabled;
+    }
+    if (hasMore != null) {
+      data['hasMore'] = disabled;
     }
     return data;
   }

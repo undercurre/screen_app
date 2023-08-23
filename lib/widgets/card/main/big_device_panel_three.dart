@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../event_bus.dart';
 import '../../mz_dialog.dart';
 
 class BigDevicePanelCardWidgetThree extends StatefulWidget {
@@ -53,6 +57,19 @@ class _BigDevicePanelCardWidgetThreeState
   @override
   void initState() {
     super.initState();
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == widget.adapter.nodeId) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    }
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();

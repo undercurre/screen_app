@@ -6,8 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/api/api.dart';
-import '../../../common/global.dart';
-import '../../../common/logcat_helper.dart';
 import '../../../states/layout_notifier.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';

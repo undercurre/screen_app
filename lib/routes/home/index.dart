@@ -7,7 +7,6 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
-import '../../common/logcat_helper.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';

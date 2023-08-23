@@ -7,9 +7,13 @@ import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
 import '../../../common/adapter/scene_panel_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/scene_list_notifier.dart';
+import '../../event_bus.dart';
 import '../../mz_dialog.dart';
 
 class SmallScenePanelCardWidget extends StatefulWidget {
@@ -58,6 +62,19 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   void initState() {
     super.initState();
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == widget.adapter.nodeId) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    }
     widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
@@ -167,7 +184,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      _getName(sceneListCache),
+                      widget.adapter.data.modeList[0] == '0' ? widget.adapter.data.nameList[0] : _getName(sceneListCache),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -262,7 +279,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       return false;
     }
     // 模式
-    if (widget.adapter.data.modeList == '2') {
+    if (widget.adapter.data.modeList[0] == '2') {
       // 场景模式
       return widget.sceneOnOff;
     } else {
