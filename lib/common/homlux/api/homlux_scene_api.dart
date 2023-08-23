@@ -36,10 +36,10 @@ class HomluxSceneApi {
   }
 
   /// 查询面关联的场景
-  static Future<HomluxResponseEntity<HomluxPanelAssociateSceneEntity>>
+  static Future<HomluxResponseEntity<List<HomluxPanelAssociateSceneEntity>>>
       querySceneListByPanel(String deviceId) async {
-    HomluxResponseEntity<HomluxPanelAssociateSceneEntity> res =
-        await HomluxApi.request<HomluxPanelAssociateSceneEntity>(
+    HomluxResponseEntity<List<HomluxPanelAssociateSceneEntity>> res =
+        await HomluxApi.request<List<HomluxPanelAssociateSceneEntity>>(
             '/v1/mzgd/scene/querySceneListByPanel',
             data: {"deviceId": deviceId});
     return res;

@@ -42,7 +42,6 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     try {
       await getSceneNameList();
       dataState = DataState.LOADING;
-
       if (platform.inMeiju()) {
         _meijuData = await fetchMeijuData();
       } else {
@@ -52,7 +51,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
         // Log.i(_meijuData.toString(), modelNumber);
         data = ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
       } else if (_homluxData != null) {
-        data = ScenePanelData.fromHomlux(_homluxData!);
+        data = ScenePanelData.fromHomlux(_homluxData!, data.sceneList);
       } else {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
@@ -189,8 +188,32 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
         });
       }
     } else {
-      HomluxResponseEntity<HomluxPanelAssociateSceneEntity> sceneListRes = await HomluxSceneApi.querySceneListByPanel(applianceCode);
-      Log.i('场景模式', sceneListRes);
+      HomluxResponseEntity<
+          List<HomluxPanelAssociateSceneEntity>> sceneListRes = await HomluxSceneApi
+          .querySceneListByPanel(applianceCode);
+      if (sceneListRes.isSuccess) {
+        List<Map<String, dynamic>> outputList = [];
+
+        for (HomluxPanelAssociateSceneEntity item in sceneListRes.result!) {
+          String deviceCode = item.deviceId!;
+          String endpoint = item.modelName!.substring(
+              item.modelName!.length - 1);
+          List<HomluxPanelAssociateSceneEntitySceneList> sceneList = item.sceneList!;
+
+          for (var scene in sceneList) {
+            String sceneId = scene.sceneId!;
+            Map<String, dynamic> outputItem = {
+              "applianceCode": deviceCode,
+              "sceneId": sceneId,
+              "endpoint": int.parse(endpoint),
+            };
+            outputList.add(outputItem);
+          }
+        }
+        for (Map<String, dynamic> e in outputList) {
+          data.sceneList[e["endpoint"] - 1] = e["sceneId"];
+        }
+      }
     }
   }
 }
@@ -230,7 +253,8 @@ class ScenePanelData {
     sceneList = sceneNet;
   }
 
-  ScenePanelData.fromHomlux(HomluxDeviceEntity data) {
+  ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
+    Log.i('面板数据', data.mzgdPropertyDTOList!.x1);
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
       data.mzgdPropertyDTOList!.x1?.onOff == 1,
@@ -238,6 +262,15 @@ class ScenePanelData {
       data.mzgdPropertyDTOList!.x3?.onOff == 1,
       data.mzgdPropertyDTOList!.x4?.onOff == 1
     ];
+
+    modeList = [
+      data.mzgdPropertyDTOList!.x1?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x2?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x3?.buttonMode.toString() ?? '0',
+      data.mzgdPropertyDTOList!.x4?.buttonMode.toString() ?? '0'
+    ];
+
+    sceneList = sceneNet;
   }
 }
 
