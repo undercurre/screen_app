@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../models/scene_info_entity.dart';
+import '../../../states/scene_list_notifier.dart';
 import '../../mz_dialog.dart';
 
 class BigScenePanelCardWidgetThree extends StatefulWidget {
@@ -13,6 +16,7 @@ class BigScenePanelCardWidgetThree extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  List<bool> sceneOnOff = [false, false, false];
   ScenePanelDataAdapter adapter; // 数据适配器
 
   BigScenePanelCardWidgetThree({
@@ -54,16 +58,18 @@ class _BigScenePanelCardWidgetThreeState
   @override
   void initState() {
     super.initState();
-    widget.adapter.init();
     widget.adapter.bindDataUpdateFunction(() {
       updateData();
     });
+    widget.adapter.init();
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
+        widget.adapter.data.modeList = widget.adapter.data.modeList;
+        widget.adapter.data.sceneList = widget.adapter.data.sceneList;
       });
       // Log.i('更新数据', widget.adapter.data.nameList);
     }
@@ -88,6 +94,14 @@ class _BigScenePanelCardWidgetThreeState
 
   @override
   Widget build(BuildContext context) {
+    final sceneModel = Provider.of<SceneListModel>(context);
+    List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
+    if (sceneListCache.isEmpty) {
+      sceneModel.getSceneList().then((value) {
+        sceneListCache = sceneModel.getCacheSceneList();
+      });
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -158,9 +172,9 @@ class _BigScenePanelCardWidgetThreeState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (widget.adapter.data.nameList.isNotEmpty) _panelItem(0),
-                  if (widget.adapter.data.nameList.length >= 2) _panelItem(1),
-                  if (widget.adapter.data.nameList.length >= 3) _panelItem(2),
+                  if (widget.adapter.data.nameList.isNotEmpty) _panelItem(0, sceneModel, sceneListCache),
+                  if (widget.adapter.data.nameList.length >= 2) _panelItem(1, sceneModel, sceneListCache),
+                  if (widget.adapter.data.nameList.length >= 3) _panelItem(2, sceneModel, sceneListCache),
                 ],
               ),
             ),
@@ -170,7 +184,9 @@ class _BigScenePanelCardWidgetThreeState
     );
   }
 
-  Widget _panelItem(int index) {
+  Widget _panelItem(int index, SceneListModel sceneModel, List<SceneInfoEntity> sceneListCache) {
+
+
     return SizedBox(
       width: 84,
       height: 120,
@@ -206,8 +222,20 @@ class _BigScenePanelCardWidgetThreeState
                     Navigator.pop(context);
                   }).show(context);
             } else {
-              await widget.adapter.fetchOrderPower(index + 1);
-              _throttledFetchData();
+              if (widget.adapter.data.modeList[index] == '2') {
+                sceneModel.sceneExec(widget.adapter.data.sceneList[index]);
+                setState(() {
+                  widget.sceneOnOff[index] = true;
+                });
+                Future.delayed(const Duration(seconds: 2), () {
+                  setState(() {
+                    widget.sceneOnOff[index] = false;
+                  });
+                });
+              } else {
+                await widget.adapter.fetchOrderPower(index + 1);
+                _throttledFetchData();
+              }
             }
           }
         },
@@ -222,7 +250,8 @@ class _BigScenePanelCardWidgetThreeState
                   : const AssetImage("assets/newUI/panel_btn_off.png"),
             ),
             Text(
-              widget.adapter.data.nameList[index],
+              widget.adapter.data.modeList[index] == '2' ? _getSceneName(
+                  index, sceneListCache) : widget.adapter.data.nameList[index],
               style: const TextStyle(
                   overflow: TextOverflow.ellipsis,
                   color: Color(0XFFFFFFFF),
@@ -255,7 +284,11 @@ class _BigScenePanelCardWidgetThreeState
       if (index < 0 || index > widget.adapter.data.statusList.length - 1) {
         return false;
       } else {
-        return widget.adapter.data.statusList[index];
+        if (widget.adapter.data.modeList[index] == '2') {
+          return widget.sceneOnOff[index];
+        } else {
+          return widget.adapter.data.statusList[index];
+        }
       }
     } else {
       return false;
@@ -279,6 +312,29 @@ class _BigScenePanelCardWidgetThreeState
       return '在线';
     } else {
       return '离线';
+    }
+  }
+
+  String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
+    if (sceneListCache.isEmpty) return '加载中';
+
+    if (panelIndex >= 0 && panelIndex < widget.adapter.data.sceneList.length) {
+      String sceneIdToCompare = widget.adapter.data.sceneList[panelIndex];
+      SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+        return element.sceneId.toString() == sceneIdToCompare;
+      }, orElse: () {
+        SceneInfoEntity sceneObj = SceneInfoEntity();
+        sceneObj.name = '加载中';
+        return sceneObj;
+      });
+
+      if (curScene != null) {
+        return curScene.name;
+      } else {
+        return '加载中';
+      }
+    } else {
+      return '加载中';
     }
   }
 

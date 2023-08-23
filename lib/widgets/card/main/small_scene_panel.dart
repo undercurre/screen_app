@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
-import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../models/scene_info_entity.dart';
+import '../../../states/scene_list_notifier.dart';
 import '../../mz_dialog.dart';
 
 class SmallScenePanelCardWidget extends StatefulWidget {
@@ -15,6 +18,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  bool sceneOnOff = false;
   ScenePanelDataAdapter adapter; // 数据适配器
 
   SmallScenePanelCardWidget({
@@ -64,6 +68,8 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     if (mounted) {
       setState(() {
         widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
+        widget.adapter.data.modeList = widget.adapter.data.modeList;
+        widget.adapter.data.sceneList = widget.adapter.data.sceneList;
       });
       // Log.i('更新数据', widget.adapter.data.nameList);
     }
@@ -88,6 +94,14 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final sceneModel = Provider.of<SceneListModel>(context);
+    List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
+    if (sceneListCache.isEmpty) {
+      sceneModel.getSceneList().then((value) {
+        sceneListCache = sceneModel.getCacheSceneList();
+      });
+    }
+
     return GestureDetector(
       onTap: () async {
         Log.i('disabled', widget.disabled);
@@ -114,8 +128,20 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   Navigator.pop(context);
                 }).show(context);
           } else {
-            await widget.adapter.fetchOrderPower(1);
-            _throttledFetchData();
+            if (widget.adapter.data.modeList[0] == '2') {
+              sceneModel.sceneExec(widget.adapter.data.sceneList[0]);
+              setState(() {
+                widget.sceneOnOff = true;
+              });
+              Future.delayed(const Duration(seconds: 2), () {
+                setState(() {
+                  widget.sceneOnOff = false;
+                });
+              });
+            } else {
+              await widget.adapter.fetchOrderPower(1);
+              _throttledFetchData();
+            }
           }
         }
       },
@@ -141,7 +167,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.name,
+                      _getName(sceneListCache),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -182,19 +208,20 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     if (widget.adapter.dataState == DataState.ERROR) {
       return '加载失败';
     }
-    if (widget.adapter.data!.statusList.isNotEmpty) {
-      return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
+    if (widget.adapter.data!.modeList[0] == '2') {
+      // 场景模式
+      return '在线';
     } else {
-      return '离线';
+      if (widget.adapter.data!.statusList.isNotEmpty) {
+        return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
+      } else {
+        return '离线';
+      }
     }
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.isOnline != '0' &&
-        widget.adapter.data!.statusList.isNotEmpty &&
-        widget.adapter.data!.statusList[0] &&
-        !widget.disabled &&
-        widget.adapter.dataState == DataState.SUCCESS) {
+    if (_getOnOff()) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
@@ -223,5 +250,45 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         transform: GradientRotation(213 * (3.1415926 / 360.0)),
       ),
     );
+  }
+
+  bool _getOnOff() {
+    // 禁用
+    if (widget.disabled) {
+      return false;
+    }
+    // 离线
+    if (widget.isOnline == '0') {
+      return false;
+    }
+    // 模式
+    if (widget.adapter.data.modeList == '2') {
+      // 场景模式
+      return widget.sceneOnOff;
+    } else {
+      // 普通模式
+      return widget.adapter.data!.statusList.isNotEmpty &&
+          widget.adapter.data!.statusList[0] &&
+          widget.adapter.dataState == DataState.SUCCESS;
+    }
+  }
+
+  String _getName(List<SceneInfoEntity> sceneListCache) {
+    if (sceneListCache.isEmpty) return '加载中';
+
+    String sceneIdToCompare = widget.adapter.data.sceneList[0];
+    SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+      return element.sceneId.toString() == sceneIdToCompare;
+    }, orElse: () {
+      SceneInfoEntity sceneObj = SceneInfoEntity();
+      sceneObj.name = '加载中';
+      return sceneObj;
+    });
+
+    if (curScene != null) {
+      return curScene.name;
+    } else {
+      return '加载中';
+    }
   }
 }
