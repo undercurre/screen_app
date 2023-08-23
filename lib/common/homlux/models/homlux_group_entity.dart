@@ -66,14 +66,14 @@ class GroupDeviceList {
 
 @JsonSerializable()
 class ControlAction {
-  final int? OnOff;
-  final int? Level;
-  final int? ColorTemp;
+  final int? power;
+  final int? brightness;
+  final int? colorTemperature;
 
   const ControlAction({
-    this.OnOff,
-    this.Level,
-    this.ColorTemp,
+    this.power,
+    this.brightness,
+    this.colorTemperature,
   });
 
   factory ControlAction.fromJson(Map<String, dynamic> json) =>

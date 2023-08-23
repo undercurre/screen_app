@@ -69,16 +69,16 @@ Map<String, dynamic> _$GroupDeviceListToJson(GroupDeviceList instance) =>
 
 ControlAction _$ControlActionFromJson(Map<String, dynamic> json) =>
     ControlAction(
-      OnOff: json['OnOff'] as int?,
-      Level: json['Level'] as int?,
-      ColorTemp: json['ColorTemp'] as int?,
+      power: json['power'] as int?,
+      brightness: json['brightness'] as int?,
+      colorTemperature: json['colorTemperature'] as int?,
     );
 
 Map<String, dynamic> _$ControlActionToJson(ControlAction instance) =>
     <String, dynamic>{
-      'OnOff': instance.OnOff,
-      'Level': instance.Level,
-      'ColorTemp': instance.ColorTemp,
+      'power': instance.power,
+      'brightness': instance.brightness,
+      'colorTemperature': instance.colorTemperature,
     };
 
 ColorTempRangeMap _$ColorTempRangeMapFromJson(Map<String, dynamic> json) =>
