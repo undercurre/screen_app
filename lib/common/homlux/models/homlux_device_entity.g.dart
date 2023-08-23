@@ -194,15 +194,15 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 
 HomluxDeviceMzgdPropertyDTOList1 $HomluxDeviceMzgdPropertyDTOList1FromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOList1 homluxDeviceMzgdPropertyDTOList1 = HomluxDeviceMzgdPropertyDTOList1();
-	final int? buttonScene = homluxJsonConvert.convert<int>(json['ButtonScene']);
+	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
 	if (buttonScene != null) {
 		homluxDeviceMzgdPropertyDTOList1.buttonScene = buttonScene;
 	}
-	final int? buttonMode = homluxJsonConvert.convert<int>(json['ButtonMode']);
+	final int? buttonMode = homluxJsonConvert.convert<int>(json['buttonMode']);
 	if (buttonMode != null) {
 		homluxDeviceMzgdPropertyDTOList1.buttonMode = buttonMode;
 	}
-	final int? onOff = homluxJsonConvert.convert<int>(json['OnOff']);
+	final int? onOff = homluxJsonConvert.convert<int>(json['power']);
 	if (onOff != null) {
 		homluxDeviceMzgdPropertyDTOList1.onOff = onOff;
 	}
@@ -267,9 +267,9 @@ HomluxDeviceMzgdPropertyDTOList1 $HomluxDeviceMzgdPropertyDTOList1FromJson(Map<S
 
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList1ToJson(HomluxDeviceMzgdPropertyDTOList1 entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
-	data['ButtonScene'] = entity.buttonScene;
-	data['ButtonMode'] = entity.buttonMode;
-	data['OnOff'] = entity.onOff;
+	data['buttonScene'] = entity.buttonScene;
+	data['buttonMode'] = entity.buttonMode;
+	data['power'] = entity.onOff;
 	data['StartUpOnOff'] = entity.startUpOnOff;
 	data['ColorTemp'] = entity.colorTemp;
 	data['Level'] = entity.level;
@@ -289,15 +289,15 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList1ToJson(HomluxDeviceMzgdPro
 
 HomluxDeviceMzgdPropertyDTOList2 $HomluxDeviceMzgdPropertyDTOList2FromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOList2 homluxDeviceMzgdPropertyDTOList2 = HomluxDeviceMzgdPropertyDTOList2();
-	final int? buttonScene = homluxJsonConvert.convert<int>(json['ButtonScene']);
+	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
 	if (buttonScene != null) {
 		homluxDeviceMzgdPropertyDTOList2.buttonScene = buttonScene;
 	}
-	final int? buttonMode = homluxJsonConvert.convert<int>(json['ButtonMode']);
+	final int? buttonMode = homluxJsonConvert.convert<int>(json['buttonMode']);
 	if (buttonMode != null) {
 		homluxDeviceMzgdPropertyDTOList2.buttonMode = buttonMode;
 	}
-	final int? onOff = homluxJsonConvert.convert<int>(json['OnOff']);
+	final int? onOff = homluxJsonConvert.convert<int>(json['power']);
 	if (onOff != null) {
 		homluxDeviceMzgdPropertyDTOList2.onOff = onOff;
 	}
@@ -362,9 +362,9 @@ HomluxDeviceMzgdPropertyDTOList2 $HomluxDeviceMzgdPropertyDTOList2FromJson(Map<S
 
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList2ToJson(HomluxDeviceMzgdPropertyDTOList2 entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
-	data['ButtonScene'] = entity.buttonScene;
-	data['ButtonMode'] = entity.buttonMode;
-	data['OnOff'] = entity.onOff;
+	data['buttonScene'] = entity.buttonScene;
+	data['buttonMode'] = entity.buttonMode;
+	data['power'] = entity.onOff;
 	data['StartUpOnOff'] = entity.startUpOnOff;
 	data['ColorTemp'] = entity.colorTemp;
 	data['Level'] = entity.level;
@@ -384,15 +384,15 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList2ToJson(HomluxDeviceMzgdPro
 
 HomluxDeviceMzgdPropertyDTOList3 $HomluxDeviceMzgdPropertyDTOList3FromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOList3 homluxDeviceMzgdPropertyDTOList3 = HomluxDeviceMzgdPropertyDTOList3();
-	final int? buttonScene = homluxJsonConvert.convert<int>(json['ButtonScene']);
+	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
 	if (buttonScene != null) {
 		homluxDeviceMzgdPropertyDTOList3.buttonScene = buttonScene;
 	}
-	final int? buttonMode = homluxJsonConvert.convert<int>(json['ButtonMode']);
+	final int? buttonMode = homluxJsonConvert.convert<int>(json['buttonMode']);
 	if (buttonMode != null) {
 		homluxDeviceMzgdPropertyDTOList3.buttonMode = buttonMode;
 	}
-	final int? onOff = homluxJsonConvert.convert<int>(json['OnOff']);
+	final int? onOff = homluxJsonConvert.convert<int>(json['power']);
 	if (onOff != null) {
 		homluxDeviceMzgdPropertyDTOList3.onOff = onOff;
 	}
@@ -457,9 +457,9 @@ HomluxDeviceMzgdPropertyDTOList3 $HomluxDeviceMzgdPropertyDTOList3FromJson(Map<S
 
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList3ToJson(HomluxDeviceMzgdPropertyDTOList3 entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
-	data['ButtonScene'] = entity.buttonScene;
-	data['ButtonMode'] = entity.buttonMode;
-	data['OnOff'] = entity.onOff;
+	data['buttonScene'] = entity.buttonScene;
+	data['buttonMode'] = entity.buttonMode;
+	data['power'] = entity.onOff;
 	data['StartUpOnOff'] = entity.startUpOnOff;
 	data['ColorTemp'] = entity.colorTemp;
 	data['Level'] = entity.level;
@@ -479,15 +479,15 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList3ToJson(HomluxDeviceMzgdPro
 
 HomluxDeviceMzgdPropertyDTOList4 $HomluxDeviceMzgdPropertyDTOList4FromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOList4 homluxDeviceMzgdPropertyDTOList4 = HomluxDeviceMzgdPropertyDTOList4();
-	final int? buttonScene = homluxJsonConvert.convert<int>(json['ButtonScene']);
+	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
 	if (buttonScene != null) {
 		homluxDeviceMzgdPropertyDTOList4.buttonScene = buttonScene;
 	}
-	final int? buttonMode = homluxJsonConvert.convert<int>(json['ButtonMode']);
+	final int? buttonMode = homluxJsonConvert.convert<int>(json['buttonMode']);
 	if (buttonMode != null) {
 		homluxDeviceMzgdPropertyDTOList4.buttonMode = buttonMode;
 	}
-	final int? onOff = homluxJsonConvert.convert<int>(json['OnOff']);
+	final int? onOff = homluxJsonConvert.convert<int>(json['power']);
 	if (onOff != null) {
 		homluxDeviceMzgdPropertyDTOList4.onOff = onOff;
 	}
@@ -552,9 +552,9 @@ HomluxDeviceMzgdPropertyDTOList4 $HomluxDeviceMzgdPropertyDTOList4FromJson(Map<S
 
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPropertyDTOList4 entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
-	data['ButtonScene'] = entity.buttonScene;
-	data['ButtonMode'] = entity.buttonMode;
-	data['OnOff'] = entity.onOff;
+	data['buttonScene'] = entity.buttonScene;
+	data['buttonMode'] = entity.buttonMode;
+	data['power'] = entity.onOff;
 	data['StartUpOnOff'] = entity.startUpOnOff;
 	data['ColorTemp'] = entity.colorTemp;
 	data['Level'] = entity.level;

@@ -254,7 +254,7 @@ class ScenePanelData {
   }
 
   ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
-    Log.i('面板数据', data.mzgdPropertyDTOList!.x1);
+    Log.i('面板数据', data.mzgdPropertyDTOList);
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
       data.mzgdPropertyDTOList!.x1?.onOff == 1,
@@ -288,7 +288,7 @@ class PanelEvent extends Event {
   factory PanelEvent.fromJson(Map<String, dynamic> json) {
     return PanelEvent(
       onOff: json['OnOff'],
-      buttonMode: json['ButtonMode'],
+      buttonMode: json['buttonMode'],
       startupOnOff: json['StartUpOnOff'], // 可能不存在的键
     );
   }
