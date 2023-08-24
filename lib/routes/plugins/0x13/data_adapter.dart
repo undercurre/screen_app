@@ -45,11 +45,12 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxDeviceEntity detail) {
-    brightness = detail.mzgdPropertyDTOList?.x1?.brightness ?? 0;
-    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemperature ?? 0;
-    power = detail.mzgdPropertyDTOList?.x1?.wifiLightPower == "on";
-    screenModel = detail.mzgdPropertyDTOList?.x1?.wifiLightScene ?? "manual";
-    timeOff = int.parse(detail.mzgdPropertyDTOList?.x1?.wifiLightDelayOff ?? "0");
+    brightness = detail.mzgdPropertyDTOList?.light?.brightness ?? 0;
+    colorTemp = detail.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
+    power = detail.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
+        || detail.mzgdPropertyDTOList?.light?.power == 1;
+    screenModel = detail.mzgdPropertyDTOList?.light?.wifiLightScene ?? "manual";
+    timeOff = int.parse(detail.mzgdPropertyDTOList?.light?.wifiLightDelayOff ?? "0");
   }
 
   @override
