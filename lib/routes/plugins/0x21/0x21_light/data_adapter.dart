@@ -44,9 +44,9 @@ class DeviceDataEntity {
   }
 
   void setDetailHomlux(HomluxDeviceEntity detail) {
-    power = detail.mzgdPropertyDTOList?.x1?.power == 1;
-    brightness = detail.mzgdPropertyDTOList?.x1?.brightness as num;
-    colorTemp = detail.mzgdPropertyDTOList?.x1?.colorTemperature as num;
+    power = detail.mzgdPropertyDTOList?.light?.power == 1;
+    brightness = detail.mzgdPropertyDTOList?.light?.brightness as num;
+    colorTemp = detail.mzgdPropertyDTOList?.light?.colorTemperature as num;
 
   }
 
