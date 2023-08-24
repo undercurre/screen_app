@@ -474,33 +474,27 @@ class _CustomPageState extends State<CustomPage> {
             crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
             child: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
-              child: LongPressDraggable<String>(
-                data: layout.deviceId,
-                // 拖拽时原位置的样子
-                childWhenDragging: Container(),
-                // 拖拽时的样子
-                feedback: cardWidget,
-                child: DragTarget<String>(
-                  builder: (context, candidateData, rejectedData) {
-                    return cardWidget;
-                  },
-                  onWillAccept: (data) {
-                    // 计算被移动多少格,滑动1格以上算滑动
-                    double absX = dragSumX.abs();
-                    double absY = dragSumY.abs();
-                    if (absX < 50 && absY < 50) {
-                      return false;
-                    } else {
-                      layoutModel.swapPosition(
-                        sortedLayoutList.firstWhere(
-                            (item) => item.deviceId == dragingWidgetId),
-                        sortedLayoutList.firstWhere(
-                            (item) => item.deviceId == layout.deviceId),
-                      );
-                      return true;
-                    }
-                  },
-                ),
+              child: DragTarget<String>(
+                builder: (context, candidateData, rejectedData) {
+                  return cardWidget;
+                },
+                onWillAccept: (data) {
+                  Log.i('准备接招');
+                  // 计算被移动多少格,滑动1格以上算滑动
+                  double absX = dragSumX.abs();
+                  double absY = dragSumY.abs();
+                  if (absX < 50 && absY < 50) {
+                    return false;
+                  } else {
+                    layoutModel.swapPosition(
+                      sortedLayoutList.firstWhere(
+                          (item) => item.deviceId == data),
+                      sortedLayoutList.firstWhere(
+                          (item) => item.deviceId == layout.deviceId),
+                    );
+                    return true;
+                  }
+                },
               ),
             ),
           );
@@ -593,7 +587,7 @@ class _CustomPageState extends State<CustomPage> {
                 } else {
                   layoutModel.swapPosition(
                     sortedLayoutList
-                        .firstWhere((item) => item.deviceId == dragingWidgetId),
+                        .firstWhere((item) => item.deviceId == data),
                     sortedLayoutList
                         .firstWhere((item) => item.deviceId == layout.deviceId),
                   );

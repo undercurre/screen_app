@@ -138,15 +138,19 @@ class _CardDialogState extends State<CardDialog> {
                             child: Transform.translate(
                               offset: const Offset(-45, 0),
                               child: Transform.scale(
-                                  scale: 0.75,
-                                  child: buildMap[_getDeviceEntityType(
-                                          widget.type,
-                                          widget.modelNumber)]![CardType.Big]!(
-                                      DataInputCard(
-                                          name: widget.name,
-                                          applianceCode: widget.applianceCode,
-                                          roomName: widget.roomName,
-                                          isOnline: '1'))),
+                                scale: 0.75,
+                                child: buildMap[_getDeviceEntityType(
+                                    widget.type,
+                                    widget.modelNumber)]![CardType.Big]!(
+                                  DataInputCard(
+                                    name: widget.name,
+                                    applianceCode: widget.applianceCode,
+                                    roomName: widget.roomName,
+                                    isOnline: '1',
+                                    hasMore: false,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],

@@ -272,12 +272,14 @@ class LayoutModel extends ChangeNotifier {
   void swapPosition(Layout source, Layout targetOne) {
     int distance = targetOne.grids[0] - source.grids[0];
     List<int> target = source.grids.map((e) => e + distance).toList();
+    Log.i('原位置${source.grids}到目标${targetOne.grids}', distance);
     // 避免越界
 
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
     List<int> targetIndexes = [];
 
     if (isOver(source.cardType, target)) {
+      Log.i('目标越界');
       return;
     }
 
@@ -291,7 +293,8 @@ class LayoutModel extends ChangeNotifier {
       }
     }
     // 目标违规
-    if (lengthSum != target.length) {
+    if (lengthSum != target.length && lengthSum != 0) {
+      Log.i('目标违规');
       return;
     }
 

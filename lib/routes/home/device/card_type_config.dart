@@ -302,7 +302,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => Container(
           width: 210,
           height: 88,
-          color: Colors.transparent
+          color: Colors.red
         )
   },
   DeviceEntityTypeInP4.Clock: {

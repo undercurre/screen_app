@@ -254,7 +254,6 @@ class ScenePanelData {
   }
 
   ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
-    Log.i('面板数据', data.mzgdPropertyDTOList);
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
       data.mzgdPropertyDTOList!.x1?.power == 1,
