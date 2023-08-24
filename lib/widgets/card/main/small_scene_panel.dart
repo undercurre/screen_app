@@ -184,7 +184,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.adapter.data.modeList[0] == '0' ? widget.adapter.data.nameList[0] : _getName(sceneListCache),
+                      widget.adapter.data.modeList[0] == '0' ? widget.name : _getName(sceneListCache),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

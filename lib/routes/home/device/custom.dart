@@ -231,17 +231,13 @@ class _CustomPageState extends State<CustomPage> {
                                       backupLayout = [...curscreenLayout];
                                     });
                                   },
-                                  onDragEnd: (details) {
-                                    dragSumX = 0;
-                                    dragSumY = 0;
-                                    dragingWidgetId = '';
-                                  },
                                   onDragUpdate: (details) {
                                     // 计算出拖拽中卡片的位置
                                     dragSumX += details.delta.dx;
                                     dragSumY += details.delta.dy;
                                   },
-                                  onDragCompleted: () {
+                                  onDragEnd: (detail) {
+                                    Log.i('拖拽结束');
                                     setState(() {
                                       dragSumX = 0;
                                       dragSumY = 0;
@@ -262,7 +258,14 @@ class _CustomPageState extends State<CustomPage> {
                                         ),
                                       );
                                     },
-                                    onAccept: (data) {},
+                                    onAccept: (data) {
+                                      Log.i('拖拽结束');
+                                      setState(() {
+                                        dragSumX = 0;
+                                        dragSumY = 0;
+                                        dragingWidgetId = '';
+                                      });
+                                    },
                                     onLeave: (data) {},
                                     onWillAccept: (data) {
                                       // 计算被移动多少格,滑动1格以上算滑动
@@ -487,13 +490,21 @@ class _CustomPageState extends State<CustomPage> {
                     return false;
                   } else {
                     layoutModel.swapPosition(
-                      sortedLayoutList.firstWhere(
-                          (item) => item.deviceId == data),
+                      sortedLayoutList
+                          .firstWhere((item) => item.deviceId == data),
                       sortedLayoutList.firstWhere(
                           (item) => item.deviceId == layout.deviceId),
                     );
                     return true;
                   }
+                },
+                onAccept: (data) {
+                  Log.i('拖拽结束');
+                  setState(() {
+                    dragSumX = 0;
+                    dragSumY = 0;
+                    dragingWidgetId = '';
+                  });
                 },
               ),
             ),
@@ -549,17 +560,13 @@ class _CustomPageState extends State<CustomPage> {
                 backupLayout = [...curscreenLayout];
               });
             },
-            onDragEnd: (details) {
-              dragSumX = 0;
-              dragSumY = 0;
-              dragingWidgetId = '';
-            },
             onDragUpdate: (details) {
               // 计算出拖拽中卡片的位置
               dragSumX += details.delta.dx;
               dragSumY += details.delta.dy;
             },
-            onDragCompleted: () {
+            onDragEnd: (detail) {
+              Log.i('拖拽结束');
               setState(() {
                 dragSumX = 0;
                 dragSumY = 0;
@@ -576,7 +583,14 @@ class _CustomPageState extends State<CustomPage> {
                   ),
                 );
               },
-              onAccept: (data) {},
+              onAccept: (data) {
+                Log.i('拖拽结束');
+                setState(() {
+                  dragSumX = 0;
+                  dragSumY = 0;
+                  dragingWidgetId = '';
+                });
+              },
               onLeave: (data) {},
               onWillAccept: (data) {
                 // 计算被移动多少格,滑动1格以上算滑动
