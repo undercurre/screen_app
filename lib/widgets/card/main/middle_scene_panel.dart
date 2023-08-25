@@ -74,10 +74,12 @@ class _MiddleScenePanelCardWidgetState
         }
       });
     }
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
-    widget.adapter.init();
+    if (!widget.disabled) {
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+      widget.adapter.init();
+    }
   }
 
   void updateData() {
@@ -93,10 +95,12 @@ class _MiddleScenePanelCardWidgetState
 
   @override
   void didUpdateWidget(covariant MiddleScenePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -384,7 +388,6 @@ class _MiddleScenePanelCardWidgetState
         sceneObj.name = '加载中';
         return sceneObj;
       });
-      Log.i('加载名字', widget.adapter.data.sceneList[panelIndex]);
 
       if (curScene != null) {
         return curScene.name;

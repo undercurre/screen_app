@@ -252,8 +252,6 @@ class ScenePanelData {
 
     modeList = data.endList.map((e) => e.event.buttonMode).toList();
 
-    Log.i('modeList', modeList);
-
     sceneList = sceneNet;
   }
 

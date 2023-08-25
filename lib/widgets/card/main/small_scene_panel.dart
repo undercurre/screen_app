@@ -36,7 +36,8 @@ class SmallScenePanelCardWidget extends StatefulWidget {
   });
 
   @override
-  _SmallScenePanelCardWidgetState createState() => _SmallScenePanelCardWidgetState();
+  _SmallScenePanelCardWidgetState createState() =>
+      _SmallScenePanelCardWidgetState();
 }
 
 class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
@@ -70,15 +71,18 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+        if (arg.deviceInfo.eventData?.deviceId ==
+            widget.adapter.applianceCode) {
           _throttledFetchData();
         }
       });
     }
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
   }
 
   void updateData() {
@@ -94,10 +98,12 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -184,7 +190,9 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.adapter.data.modeList[0] == '0' ? widget.name : _getName(sceneListCache),
+                      widget.adapter.data.modeList[0] == '0'
+                          ? widget.name
+                          : _getName(sceneListCache),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

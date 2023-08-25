@@ -3,7 +3,6 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_scene_list_entity.dart';
-import 'package:screen_app/states/index.dart';
 
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
@@ -54,7 +53,6 @@ class SceneListModel extends ChangeNotifier {
       MeiJuResponseEntity<MeiJuSceneListEntity> MeijuRes = await MeiJuSceneApi.getSceneList(familyInfo!.familyId, MeiJuGlobal.token!.uid);
       if (MeijuRes.isSuccess) {
         sceneListMeiju = MeijuRes.data!;
-        logger.i('场景数据', sceneListMeiju.list?.length);
         return sceneListMeiju.list!.map((e) {
             SceneInfoEntity sceneObj = SceneInfoEntity();
             sceneObj.name = e.name;

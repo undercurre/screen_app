@@ -213,7 +213,7 @@ class _CustomPageState extends State<CustomPage> {
                                   data: result.deviceId,
                                   // 拖拽时原位置的样子
                                   childWhenDragging: Opacity(
-                                    opacity: 1,
+                                    opacity: result.deviceId == dragingWidgetId ? 0.5 : 1,
                                     child: Container(
                                       child: cardWithIcon,
                                     ),
@@ -235,6 +235,7 @@ class _CustomPageState extends State<CustomPage> {
                                     // 计算出拖拽中卡片的位置
                                     dragSumX += details.delta.dx;
                                     dragSumY += details.delta.dy;
+                                    Log.i('锚点', details.localPosition);
                                   },
                                   onDragEnd: (detail) {
                                     Log.i('拖拽结束');
@@ -543,7 +544,7 @@ class _CustomPageState extends State<CustomPage> {
             data: layout.deviceId,
             // 拖拽时原位置的样子
             childWhenDragging: Opacity(
-              opacity: 1,
+              opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
               child: Container(
                 child: cardWithIcon,
               ),
