@@ -271,6 +271,8 @@ class ScenePanelData {
       data.mzgdPropertyDTOList!.x4?.buttonMode.toString() ?? '0'
     ];
 
+    Log.i('${data.deviceName}状态显示', data.mzgdPropertyDTOList);
+
     sceneList = sceneNet;
   }
 }

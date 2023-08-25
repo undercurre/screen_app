@@ -96,7 +96,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
               margin: const EdgeInsets.only(right: 16),
               width: 40,
               child: Image(
-                image: AssetImage('assets/newUI/scene/${widget.icon}.png'),
+                image: isNumeric(widget.icon) ? AssetImage('assets/newUI/scene/${widget.icon}.png') : AssetImage('assets/newUI/scene/default.png'),
               ),
             ),
             SizedBox(
@@ -115,4 +115,12 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
       ),
     );
   }
+}
+
+bool isNumeric(String str) {
+  if (str == null) {
+    return false;
+  }
+  final numericRegex = RegExp(r'^-?(\d+\.\d+|\d+)$');
+  return numericRegex.hasMatch(str);
 }
