@@ -56,24 +56,26 @@ class _MiddleDevicePanelCardWidgetState
 
   @override
   void initState() {
+    super.initState();
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
         if (args.nodeId == widget.adapter.nodeId) {
-          updateData();
+          _throttledFetchData();
         }
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
         if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
-          updateData();
+          _throttledFetchData();
         }
       });
     }
-    super.initState();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
   }
 
   void updateData() {
@@ -87,10 +89,12 @@ class _MiddleDevicePanelCardWidgetState
 
   @override
   void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
     super.didUpdateWidget(oldWidget);
   }
 

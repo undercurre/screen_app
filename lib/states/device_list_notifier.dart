@@ -222,7 +222,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         vLocalPanel2.onlineStatus = '1';
         tempList.add(vLocalPanel2);
 
-        Log.i('网表', tempList.map((e) => e.name));
+        Log.i('网表', tempList.map((e) => e.name).toList());
 
         return tempList;
       }

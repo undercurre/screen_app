@@ -70,10 +70,12 @@ class _BigDevicePanelCardWidgetThreeState
         }
       });
     }
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
   }
 
   void updateData() {
@@ -87,10 +89,12 @@ class _BigDevicePanelCardWidgetThreeState
 
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidgetThree oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
     super.didUpdateWidget(oldWidget);
   }
 
