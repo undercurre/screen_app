@@ -87,9 +87,9 @@ class HomluxDeviceMzgdPropertyDTOList {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOList1 {
-	@JSONField(name: "ButtonScene")
+	@JSONField(name: "buttonScene")
 	int? buttonScene;
-	@JSONField(name: "ButtonMode")
+	@JSONField(name: "buttonMode")
 	int? buttonMode;
 	@JSONField(name: "power")
 	int? power;
@@ -132,9 +132,9 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOList2 {
-	@JSONField(name: "ButtonScene")
+	@JSONField(name: "buttonScene")
 	int? buttonScene;
-	@JSONField(name: "ButtonMode")
+	@JSONField(name: "buttonMode")
 	int? buttonMode;
 	@JSONField(name: "power")
 	int? power;
@@ -177,9 +177,9 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOList3 {
-	@JSONField(name: "ButtonScene")
+	@JSONField(name: "buttonScene")
 	int? buttonScene;
-	@JSONField(name: "ButtonMode")
+	@JSONField(name: "buttonMode")
 	int? buttonMode;
 	@JSONField(name: "power")
 	int? power;
@@ -222,9 +222,9 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOList4 {
-	@JSONField(name: "ButtonScene")
+	@JSONField(name: "buttonScene")
 	int? buttonScene;
-	@JSONField(name: "ButtonMode")
+	@JSONField(name: "buttonMode")
 	int? buttonMode;
 	@JSONField(name: "power")
 	int? power;
@@ -267,9 +267,9 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOListLight {
-	@JSONField(name: "ButtonScene")
+	@JSONField(name: "buttonScene")
 	int? buttonScene;
-	@JSONField(name: "ButtonMode")
+	@JSONField(name: "buttonMode")
 	int? buttonMode;
 	@JSONField(name: "power")
 	int? power;

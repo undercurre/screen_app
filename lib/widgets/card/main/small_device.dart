@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
@@ -10,6 +9,8 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
+  final bool? disableOnOff;
+  final bool disabled;
   final bool hasMore;
   final Function? onTap; // 整卡点击事件
 
@@ -24,6 +25,8 @@ class SmallDeviceCardWidget extends StatefulWidget {
       required this.isFault,
       required this.isNative,
       this.hasMore = true,
+      this.disableOnOff = false,
+      this.disabled = false,
       this.adapter,
       this.onTap});
 
@@ -136,17 +139,29 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
               GestureDetector(
                 onTap: () {
                   if (widget.adapter?.type == AdapterType.wifiLight) {
-                    Navigator.pushNamed(context, '0x13', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, '0x13', arguments: {
+                      "name": widget.name,
+                      "adapter": widget.adapter
+                    });
                   } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                    Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, '0x21_light_colorful',
+                        arguments: {
+                          "name": widget.name,
+                          "adapter": widget.adapter
+                        });
                   } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                    Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, 'lightGroup', arguments: {
+                      "name": widget.name,
+                      "adapter": widget.adapter
+                    });
                   }
                 },
-                child: widget.hasMore ? const Image(
-                  width: 24,
-                  image: AssetImage('assets/newUI/to_plugin.png'),
-                ) : Container(),
+                child: widget.hasMore
+                    ? const Image(
+                        width: 24,
+                        image: AssetImage('assets/newUI/to_plugin.png'),
+                      )
+                    : Container(),
               )
           ],
         ),
@@ -165,6 +180,38 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      if (widget.disableOnOff ?? false) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF767B86),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+            stops: [0, 0.24, 1],
+            transform: GradientRotation(194 * (3.1415926 / 360.0)),
+          ),
+        );
+      } else {
+        BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+    }
     if (widget.isFault) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),

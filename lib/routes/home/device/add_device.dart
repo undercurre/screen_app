@@ -132,7 +132,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
       Log.i("Scene Results2: $sceneRes");
     } catch (error) {
       Log.i("Error occurred: $error");
+      deviceRes = deviceCache;
+      sceneRes = sceneCache;
     }
+
     List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
     List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
