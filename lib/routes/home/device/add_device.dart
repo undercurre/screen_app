@@ -463,6 +463,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                       .modelNumber,
                                                   roomName:
                                                       devices[index].roomName!,
+                                                  masterId: devices[index].masterId,
                                                 );
                                               },
                                             ).then(

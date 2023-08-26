@@ -15,6 +15,7 @@ class CardDialog extends StatefulWidget {
   final String roomName;
   final String modelNumber;
   final String applianceCode;
+  final String masterId;
 
   const CardDialog(
       {super.key,
@@ -22,7 +23,9 @@ class CardDialog extends StatefulWidget {
       required this.name,
       required this.roomName,
       required this.modelNumber,
-      required this.applianceCode});
+      required this.applianceCode,
+      required this.masterId
+      });
 
   @override
   _CardDialogState createState() => _CardDialogState();
@@ -147,6 +150,7 @@ class _CardDialogState extends State<CardDialog> {
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
                                     roomName: widget.roomName,
+                                    masterId: widget.masterId,
                                     isOnline: '1',
                                     hasMore: false,
                                   ),
