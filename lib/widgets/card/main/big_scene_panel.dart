@@ -140,6 +140,8 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
                       _throttledFetchData();
                     },
                     child: const Image(
+                      width: 40,
+                      height: 40,
                       image: AssetImage('assets/newUI/refresh.png'),
                     ),
                   )
@@ -228,7 +230,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
       child: GestureDetector(
         onTap: () async {
           Log.i('disabled', widget.disabled);
-          if (!widget.disabled) {
+          if (!widget.disabled  && widget.adapter.dataState == DataState.SUCCESS) {
             if (widget.isOnline == '0') {
               MzDialog(
                   title: '该设备已离线',
@@ -329,7 +331,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING &&
+    if (widget.adapter.dataState == DataState.LOADING ||
         widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }

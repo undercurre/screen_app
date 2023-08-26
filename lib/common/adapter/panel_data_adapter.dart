@@ -62,6 +62,7 @@ class PanelDataAdapter extends MideaDataAdapter {
     } catch (e) {
       // Error occurred while fetching data
       dataState = DataState.ERROR;
+      updateUI();
       Log.i(e.toString());
     }
   }
@@ -82,7 +83,7 @@ class PanelDataAdapter extends MideaDataAdapter {
     clearBindDataUpdateFunction();
   }
 
-  Future<NodeInfo<Endpoint<PanelEvent>>> fetchMeijuData() async {
+  Future<NodeInfo<Endpoint<PanelEvent>>?> fetchMeijuData() async {
     try {
       NodeInfo<Endpoint<PanelEvent>> nodeInfo =
           await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
@@ -91,19 +92,9 @@ class PanelDataAdapter extends MideaDataAdapter {
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
-      return NodeInfo(
-        devId: '',
-        registerUsers: [],
-        masterId: 123,
-        nodeName: '',
-        idType: '',
-        modelId: '',
-        endList: [],
-        guard: 0,
-        isAlarmDevice: '',
-        nodeId: '',
-        status: 0,
-      );
+      dataState = DataState.ERROR;
+      updateUI();
+      return null;
     }
   }
 

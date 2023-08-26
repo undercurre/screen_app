@@ -57,11 +57,12 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
         data = ScenePanelData(
-          modeList: [],
-          sceneList: [],
-          nameList: [],
-          statusList: [],
+          modeList: ['0', '0', '0', '0'],
+          sceneList: ['场景1', '场景2', '场景3', '场景4'],
+          nameList: ['按键1', '按键2', '按键3', '按键4'],
+          statusList: [false, false, false, false],
         );
+        updateUI();
         return;
       }
       // Data retrieval success
@@ -70,6 +71,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     } catch (e) {
       // Error occurred while fetching data
       dataState = DataState.ERROR;
+      updateUI();
       Log.i(e.toString());
     }
   }
@@ -90,7 +92,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     clearBindDataUpdateFunction();
   }
 
-  Future<NodeInfo<Endpoint<PanelEvent>>> fetchMeijuData() async {
+  Future<NodeInfo<Endpoint<PanelEvent>>?> fetchMeijuData() async {
     try {
       NodeInfo<Endpoint<PanelEvent>> nodeInfo =
           await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
@@ -99,19 +101,9 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
-      return NodeInfo(
-        devId: '',
-        registerUsers: [],
-        masterId: 123,
-        nodeName: '',
-        idType: '',
-        modelId: '',
-        endList: [],
-        guard: 0,
-        isAlarmDevice: '',
-        nodeId: '',
-        status: 0,
-      );
+      dataState = DataState.ERROR;
+      updateUI();
+      return null;
     }
   }
 
