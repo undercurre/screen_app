@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
@@ -8,6 +9,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../event_bus.dart';
+import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 
 class BigDevicePanelCardWidget extends StatefulWidget {
@@ -33,8 +35,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
       _BigDevicePanelCardWidgetState();
 }
 
-class _BigDevicePanelCardWidgetState
-    extends State<BigDevicePanelCardWidget> {
+class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -65,7 +66,8 @@ class _BigDevicePanelCardWidgetState
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+        if (arg.deviceInfo.eventData?.deviceId ==
+            widget.adapter.applianceCode) {
           _throttledFetchData();
         }
       });
@@ -117,8 +119,17 @@ class _BigDevicePanelCardWidgetState
           Positioned(
             top: 14,
             left: 24,
-            child:
-                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
+            child: widget.adapter.dataState == DataState.ERROR
+                ? GestureDetector(
+                    onTap: () {
+                      _throttledFetchData();
+                    },
+                    child: const Image(
+                      image: AssetImage('assets/newUI/refresh.png'),
+                    ),
+                  )
+                : Image(
+                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(
             top: 10,
@@ -129,8 +140,7 @@ class _BigDevicePanelCardWidgetState
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(maxWidth: 140),
+                    constraints: const BoxConstraints(maxWidth: 140),
                     child: Text(widget.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -204,13 +214,9 @@ class _BigDevicePanelCardWidgetState
                   title: '该设备已离线',
                   titleSize: 28,
                   maxWidth: 432,
-                  backgroundColor:
-                  const Color(0xFF494E59),
-                  contentPadding:
-                  const EdgeInsets.fromLTRB(
-                      33, 24, 33, 0),
-                  contentSlot: const Text(
-                      "设备离线，请检查网络是否正常",
+                  backgroundColor: const Color(0xFF494E59),
+                  contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                  contentSlot: const Text("设备离线，请检查网络是否正常",
                       textAlign: TextAlign.center,
                       maxLines: 3,
                       style: TextStyle(
@@ -218,12 +224,10 @@ class _BigDevicePanelCardWidgetState
                         fontSize: 24,
                         height: 1.6,
                         fontFamily: "MideaType",
-                        decoration:
-                        TextDecoration.none,
+                        decoration: TextDecoration.none,
                       )),
                   btns: ['确定'],
-                  onPressed:
-                      (_, position, context) {
+                  onPressed: (_, position, context) {
                     Navigator.pop(context);
                   }).show(context);
             } else {
@@ -287,7 +291,8 @@ class _BigDevicePanelCardWidgetState
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING) {
+    if (widget.adapter.dataState == DataState.LOADING &&
+        widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {

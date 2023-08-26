@@ -180,7 +180,16 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
             Container(
               margin: const EdgeInsets.only(right: 16),
               width: 40,
-              child: widget.icon,
+              child: widget.adapter.dataState == DataState.ERROR
+                  ? GestureDetector(
+                      onTap: () {
+                        _throttledFetchData();
+                      },
+                      child: const Image(
+                        image: AssetImage('assets/newUI/refresh.png'),
+                      ),
+                    )
+                  : widget.icon,
             ),
             Expanded(
               child: Column(
@@ -224,7 +233,8 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING) {
+    if (widget.adapter.dataState == DataState.LOADING &&
+        widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {

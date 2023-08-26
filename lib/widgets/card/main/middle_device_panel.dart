@@ -117,7 +117,16 @@ class _MiddleDevicePanelCardWidgetState
           Positioned(
             top: 16,
             left: 16,
-            child: widget.icon,
+            child: widget.adapter.dataState == DataState.ERROR
+                ? GestureDetector(
+              onTap: () {
+                _throttledFetchData();
+              },
+              child: const Image(
+                image: AssetImage('assets/newUI/refresh.png'),
+              ),
+            )
+                : widget.icon,
           ),
           Positioned(
             top: 0,
@@ -306,7 +315,7 @@ class _MiddleDevicePanelCardWidgetState
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING) {
+    if (widget.adapter.dataState == DataState.LOADING  && widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {

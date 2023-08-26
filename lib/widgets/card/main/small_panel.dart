@@ -10,6 +10,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../event_bus.dart';
+import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
@@ -65,7 +66,8 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+        if (arg.deviceInfo.eventData?.deviceId ==
+            widget.adapter.applianceCode) {
           _throttledFetchData();
         }
       });
@@ -151,7 +153,16 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
             Container(
               margin: const EdgeInsets.only(right: 16),
               width: 40,
-              child: widget.icon,
+              child: widget.adapter.dataState == DataState.ERROR
+                  ? GestureDetector(
+                onTap: () {
+                  _throttledFetchData();
+                },
+                child: const Image(
+                  image: AssetImage('assets/newUI/refresh.png'),
+                ),
+              )
+                  : widget.icon,
             ),
             Expanded(
               child: Column(
@@ -193,7 +204,8 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING) {
+    if (widget.adapter.dataState == DataState.LOADING &&
+        widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {
