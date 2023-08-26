@@ -235,11 +235,13 @@ public class MainActivity extends FlutterActivity {
                                    FloorHotController.getInstance().open(FloorHotController.getInstance().FloorHotList.get(i));
                                }
                                if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null){
-                                   String temp=Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
-                                   if(temp.length()==1){
-                                       temp="0"+temp;
+                                   if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()<=90&&PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()>=5){
+                                       String temp=Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
+                                       if(temp.length()==1){
+                                           temp="0"+temp;
+                                       }
+                                       FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i),temp);
                                    }
-                                   FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i),temp);
                                }
 //                               if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null&&null!=PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()&&PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()==0){
 //                                   FloorHotController.getInstance().setFrostProtectionOff(FloorHotController.getInstance().FloorHotList.get(i));

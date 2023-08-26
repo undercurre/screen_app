@@ -32,7 +32,7 @@ class CACDataAdapter extends MideaDataAdapter {
   String masterId;
   String nodeId = '';
   String modelNumber = '';
-  bool isLocalDevice=false;
+  bool isLocalDevice = false;
 
   CAC485Data data = CAC485Data(
       name: "",
@@ -44,21 +44,22 @@ class CACDataAdapter extends MideaDataAdapter {
 
   DataState dataState = DataState.NONE;
 
-  CACDataAdapter(this.name,this.applianceCode, this.masterId, this.modelNumber, GatewayPlatform platform) : super(platform);
+  CACDataAdapter(this.name, this.applianceCode, this.masterId, this.modelNumber,
+      GatewayPlatform platform)
+      : super(platform);
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
-    if(isLocalDevice==false){
+    if (isLocalDevice == false) {
       try {
         dataState = DataState.LOADING;
-
         if (platform.inMeiju()) {
           _meijuData = await fetchMeijuData();
         } else {
           _homluxData = await fetchHomluxData();
         }
-
         if (_meijuData != null) {
+          Log.i("fetch美居数据");
           data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
         } else if (_homluxData != null) {
           data = CAC485Data.fromHomlux(_homluxData, modelNumber);
@@ -72,11 +73,13 @@ class CACDataAdapter extends MideaDataAdapter {
               operationMode: "4",
               OnOff: "0",
               windSpeed: "1");
+          updateUI();
           return;
         }
-
         // Data retrieval success
         dataState = DataState.SUCCESS;
+        String fengsu=data.windSpeed;
+        Log.i("刷新数据:$fengsu");
         updateUI();
       } catch (e) {
         // Error occurred while fetching data
@@ -94,46 +97,48 @@ class CACDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> orderPower(int onOff) async {
-    if(isLocalDevice==false){
+    if (isLocalDevice == false) {
       if (platform.inMeiju()) {
         fetchOrderPowerMeiju(onOff);
       } else {}
-    }else{
-      deviceLocal485ControlChannel.controlLocal485AirConditionPower(onOff.toString(),applianceCode);
+    } else {
+      deviceLocal485ControlChannel.controlLocal485AirConditionPower(
+          onOff.toString(), applianceCode);
     }
   }
 
   Future<void> orderMode(int mode) async {
-    if(isLocalDevice==false){
+    if (isLocalDevice == false) {
       if (platform.inMeiju()) {
         fetchOrderModeMeiju(mode);
       } else {}
-    }else{
+    } else {
       Log.i("控制空调模式:$mode");
-      deviceLocal485ControlChannel.controlLocal485AirConditionModel(mode.toString(),applianceCode);
+      deviceLocal485ControlChannel.controlLocal485AirConditionModel(
+          mode.toString(), applianceCode);
     }
   }
 
   Future<void> orderTemp(int temp) async {
-    if(isLocalDevice==false){
+    if (isLocalDevice == false) {
       if (platform.inMeiju()) {
         fetchOrderTempMeiju(temp);
       } else {}
-    }else{
-      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(temp.toString(),applianceCode);
+    } else {
+      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
+          temp.toString(), applianceCode);
     }
-
   }
 
   Future<void> orderSpeed(int speed) async {
-    if(isLocalDevice==false){
+    if (isLocalDevice == false) {
       if (platform.inMeiju()) {
         fetchOrderSpeedMeiju(speed);
       } else {}
-    }else{
-      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(speed.toString(),applianceCode);
+    } else {
+      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
+          speed.toString(), applianceCode);
     }
-
   }
 
   Future<MeiJuResponseEntity> fetchOrderModeMeiju(int mode) async {
@@ -197,7 +202,6 @@ class CACDataAdapter extends MideaDataAdapter {
   }
 
   Future<MeiJuResponseEntity> fetchOrderPowerMeiju(int onOff) async {
-    updateUI();
     MeiJuResponseEntity MeijuRes = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'subDeviceControl',
@@ -216,34 +220,40 @@ class CACDataAdapter extends MideaDataAdapter {
     return MeijuRes;
   }
 
-
   @override
   void init() {
     // Initialize the adapter and fetch data
-    Log.i("初始化空调adapter");
-    if(applianceCode.length!=4){
-      isLocalDevice=false;
+    if (applianceCode.length != 4) {
+      isLocalDevice = false;
       var nid;
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-        nid=args.nodeId,
-        Log.i("收到推送:$nid"),
-        if(nodeId==args.nodeId){
-          fetchData()
-        }
-      });
+        // Log.i("收到推送:$nid"),
+        // Log.i("设备的id:$nodeId"),
+            if (nodeId == args.nodeId) {fetchData()}
+          });
       fetchData();
-    }else{
-      isLocalDevice=true;
-      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+    } else {
+      isLocalDevice = true;
+      Homlux485DeviceListEntity? deviceList =
+          HomluxGlobal.getHomlux485DeviceList;
+
       ///homlux添加本地485空调设备
-      if(deviceList!=null){
-        for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
-          if("${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}"==applianceCode){
-            String? targetTemp=deviceList!.nameValuePairs!.airConditionList![i].currTemperature;
-            String? currTemp=deviceList!.nameValuePairs!.airConditionList![i].temperature;
-            String? operationMode=deviceList!.nameValuePairs!.airConditionList![i].workModel;
-            String? OnOff=deviceList!.nameValuePairs!.airConditionList![i].onOff;
-            String? windSpeed=deviceList!.nameValuePairs!.airConditionList![i].windSpeed;
+      if (deviceList != null) {
+        for (int i = 0;
+            i < deviceList!.nameValuePairs!.airConditionList!.length;
+            i++) {
+          if ("${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}" ==
+              applianceCode) {
+            String? targetTemp = deviceList!
+                .nameValuePairs!.airConditionList![i].currTemperature;
+            String? currTemp =
+                deviceList!.nameValuePairs!.airConditionList![i].temperature;
+            String? operationMode =
+                deviceList!.nameValuePairs!.airConditionList![i].workModel;
+            String? OnOff =
+                deviceList!.nameValuePairs!.airConditionList![i].onOff;
+            String? windSpeed =
+                deviceList!.nameValuePairs!.airConditionList![i].windSpeed;
             data = CAC485Data(
                 name: name,
                 currTemp: int.parse(currTemp!, radix: 16).toString()!,
@@ -253,7 +263,7 @@ class CACDataAdapter extends MideaDataAdapter {
                 windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
           }
         }
-      }else{
+      } else {
         data = CAC485Data(
             name: name,
             currTemp: "28",
@@ -272,8 +282,7 @@ class CACDataAdapter extends MideaDataAdapter {
 
   Future<NodeInfo<Endpoint<CAC485Event>>> fetchMeijuData() async {
     try {
-      NodeInfo<Endpoint<CAC485Event>> nodeInfo =
-          await MeiJuDeviceApi.getGatewayInfo<CAC485Event>(
+      NodeInfo<Endpoint<CAC485Event>> nodeInfo = await MeiJuDeviceApi.getGatewayInfo<CAC485Event>(
               applianceCode, masterId, (json) => CAC485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       return nodeInfo;
@@ -300,7 +309,6 @@ class CACDataAdapter extends MideaDataAdapter {
     return HomluxRes;
   }
 
-
   Future<void> fetchOrderPowerHomlux() async {
     dynamic HomluxRes = {};
     return HomluxRes;
@@ -309,8 +317,8 @@ class CACDataAdapter extends MideaDataAdapter {
   static CACDataAdapter create(
       String name, String applianceCode, String masterId, String modelNumber) {
     Log.i("创建空调adapter");
-    return CACDataAdapter(
-        name,applianceCode, masterId, modelNumber, MideaRuntimePlatform.platform);
+    return CACDataAdapter(name, applianceCode, masterId, modelNumber,
+        MideaRuntimePlatform.platform);
   }
 }
 
