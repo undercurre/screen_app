@@ -3,16 +3,16 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../../common/logcat_helper.dart';
 import '../../../../widgets/event_bus.dart';
-import '../0x21_485_cac/cac_data_adapter.dart';
 import 'air_data_adapter.dart';
 
 class FreshAir485PageState extends State<FreshAir485Page> {
-
   var localWind = 1;
+  String OnOff = "0";
 
   AirDataAdapter? adapter;
-  String name="";
+  String name = "";
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -20,46 +20,86 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   }
 
   Future<void> powerHandle() async {
-    if(adapter!.data.OnOff == '1'){
+    if (adapter!.data.OnOff == '1') {
+      adapter!.data.OnOff = "0";
+      OnOff = "0";
+      setState(() {});
       adapter?.orderPower(0);
-      adapter!.data.OnOff="0";
-    }else{
+    } else {
+      adapter!.data.OnOff = "1";
+      OnOff = "1";
+      setState(() {});
       adapter?.orderPower(1);
-      adapter!.data.OnOff="1";
     }
-    setState(() {
-
-    });
   }
 
   Future<void> gearHandle(num value) async {
+    if (value == 1) {
+      value = 4;
+    } else if (value == 3) {
+      value = 1;
+    }
     adapter?.orderSpeed(value.toInt());
-    localWind=value.toInt();
-    adapter!.data.windSpeed=value.toString();
+    localWind = value.toInt();
+    adapter!.data.windSpeed = value.toString();
   }
 
   Future<void> updateDetail() async {
     adapter?.fetchData();
   }
 
+  int setWinSpeed(int wind) {
+    int speed = wind;
+    if (speed == 1) {
+      speed = 3;
+    } else if (speed == 2) {
+      speed = 2;
+    } else if (speed == 4) {
+      speed = 1;
+    } else {
+      speed = 3;
+    }
+    return speed;
+  }
+
   @override
   void initState() {
     super.initState();
-    adapter?.bindDataUpdateFunction(() {setState(() {});});
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
+      name = args?['name'] ?? "";
+      adapter = args?['adapter'];
+      localWind = int.parse(adapter!.data.windSpeed);
+      OnOff = adapter!.data.OnOff;
+      adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
+  }
 
+  void updateData() {
+    Log.i("更新状态");
+    if (mounted) {
+      Log.i("进来更新状态");
+      setState(() {
+        adapter?.data = adapter!.data;
+        localWind = int.parse(adapter!.data.windSpeed);
+        OnOff = adapter!.data.OnOff;
+        Log.i("更新状态完成");
+      });
+    }
   }
 
   @override
   void dispose() {
+    adapter!.unBindDataUpdateFunction(() {updateData();});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    name= args?['name'] ?? "";
-    adapter= args?['adapter'];
-    localWind=int.parse(adapter!.data.windSpeed);
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -81,17 +121,17 @@ class FreshAir485PageState extends State<FreshAir485Page> {
             child: Image(
               width: 190,
               height: 246,
-              image: AssetImage("assets/imgs/plugins/0xAC_newWind/new_wind_dev.png"),
+              image: AssetImage(
+                  "assets/imgs/plugins/0xAC_newWind/new_wind_dev.png"),
             ),
           ),
-
           Column(
             children: [
               MzNavigationBar(
                 onLeftBtnTap: goBack,
                 onRightBtnTap: powerHandle,
                 title: name,
-                power: adapter!.data.OnOff == '1',
+                power: OnOff == '1',
                 hasPower: true,
               ),
               Expanded(
@@ -123,8 +163,8 @@ class FreshAir485PageState extends State<FreshAir485Page> {
                             child: GearCard(
                               maxGear: 3,
                               minGear: 1,
-                              disabled:  false,
-                              value: localWind,
+                              disabled: false,
+                              value: setWinSpeed(localWind),
                               onChanged: gearHandle,
                             ),
                           ),

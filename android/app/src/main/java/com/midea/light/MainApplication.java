@@ -3,8 +3,8 @@ package com.midea.light;
 
 import android.content.Context;
 
-import com.aispeech.dca.DcaConfig;
-import com.aispeech.dca.DcaSdk;
+import androidx.multidex.MultiDex;
+
 import com.midea.light.basic.BuildConfig;
 import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.channel.method.AliPushChannel;
@@ -23,10 +23,9 @@ import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
+import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
 import com.tencent.bugly.crashreport.CrashReport;
-
-import androidx.multidex.MultiDex;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = BuildConfig.DEBUG;
@@ -88,6 +87,8 @@ public class MainApplication extends BaseApplication {
         GatewayConfig.relayControl.reportRelayStateChange();
         // 初始化Bugly
         CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
+        //带上设备的mac地址
+        CrashReport.putUserData(this, "mac_address",  MacUtil.macAddress("wlan0"));
         // 设置是否位开发设备
         CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
 

@@ -8,33 +8,35 @@ import '../../../../widgets/event_bus.dart';
 import 'floor_data_adapter.dart';
 
 class FloorHeating485PageState extends State<FloorHeating485Page> {
-
-  String targetTemp="";
+  String targetTemp = "30";
+  String OnOff = "1";
   FloorDataAdapter? adapter;
-  String name="";
+  String name = "";
 
   void goBack() {
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
+
   }
 
   Future<void> powerHandle() async {
-    if(adapter!.data.OnOff == '1'){
+    if (adapter!.data.OnOff == '1') {
+      adapter!.data.OnOff = "0";
+      OnOff="0";
+      setState(() {});
       adapter?.orderPower(0);
-      adapter!.data.OnOff="0";
-    }else{
+    } else {
+      adapter!.data.OnOff = "1";
+      OnOff="1";
+      setState(() {});
       adapter?.orderPower(1);
-      adapter!.data.OnOff="1";
     }
-    setState(() {
-
-    });
   }
 
   Future<void> temperatureHandle(num value) async {
     adapter?.orderTemp(value.toInt());
-    targetTemp=value.toString();
-    adapter!.data.targetTemp=targetTemp;
+    targetTemp = value.toString();
+    adapter!.data.targetTemp = targetTemp;
   }
 
   Future<void> updateDetail() async {
@@ -44,20 +46,38 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   @override
   void initState() {
     super.initState();
-    adapter?.bindDataUpdateFunction(() {setState(() {});});
-    adapter?.fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
+      name = args?['name'] ?? "";
+      adapter = args?['adapter'];
+      targetTemp = adapter!.data.targetTemp;
+      OnOff = adapter!.data.OnOff;
+      adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        adapter?.data = adapter!.data;
+        targetTemp = adapter!.data.targetTemp;
+        OnOff = adapter!.data.OnOff;
+      });
+    }
   }
 
   @override
   void dispose() {
+    adapter!.unBindDataUpdateFunction(() {updateData();});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    name= args?['name'] ?? "";
-    adapter= args?['adapter'];
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -79,17 +99,17 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
             child: Image(
               width: 276,
               height: 386,
-              image: AssetImage("assets/imgs/plugins/0xAC_floorHeating/floor_heating_dev.png"),
+              image: AssetImage(
+                  "assets/imgs/plugins/0xAC_floorHeating/floor_heating_dev.png"),
             ),
           ),
-
           Column(
             children: [
               MzNavigationBar(
                 onLeftBtnTap: goBack,
                 onRightBtnTap: powerHandle,
                 title: name,
-                power: adapter!.data.OnOff == '1',
+                power: OnOff == '1',
                 hasPower: true,
               ),
               Expanded(
@@ -119,11 +139,11 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
                           Container(
                             margin: const EdgeInsets.fromLTRB(0, 32, 16, 0),
                             child: SliderButtonCard(
-                              disabled: adapter!.data.OnOff == '0',
+                              disabled: OnOff == '0',
                               min: 5,
                               max: 90,
                               step: 1,
-                              value: int.parse(adapter!.data.targetTemp),
+                              value: int.parse(targetTemp),
                               onChanged: temperatureHandle,
                             ),
                           ),

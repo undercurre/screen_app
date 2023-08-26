@@ -9,8 +9,10 @@ import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../widgets/event_bus.dart';
 
 class AirDataAdapter extends MideaDataAdapter {
   NodeInfo<Endpoint<Air485Event>> _meijuData = NodeInfo(
@@ -76,6 +78,10 @@ class AirDataAdapter extends MideaDataAdapter {
 
         // Data retrieval success
         dataState = DataState.SUCCESS;
+        String wendu=data.windSpeed;
+        String kaiguan=data.OnOff;
+        Log.i("设定风速:$wendu");
+        Log.i("设定开关:$kaiguan");
         updateUI();
       } catch (e) {
         // Error occurred while fetching data
@@ -199,6 +205,15 @@ class AirDataAdapter extends MideaDataAdapter {
     Log.i("初始化空调adapter");
     if(applianceCode.length!=4){
       isLocalDevice=false;
+      var nid;
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
+        nid=args.nodeId,
+        Log.i("收到推送:$nid"),
+        Log.i("设备的id:$nodeId"),
+        if(nodeId==args.nodeId){
+          fetchData()
+        }
+      });
       fetchData();
     }else{
       isLocalDevice=true;
@@ -270,7 +285,6 @@ class AirDataAdapter extends MideaDataAdapter {
 
   static AirDataAdapter create(
       String name, String applianceCode, String masterId, String modelNumber) {
-    Log.i("创建空调adapter");
     return AirDataAdapter(
         name,applianceCode, masterId, modelNumber, MideaRuntimePlatform.platform);
   }

@@ -1,33 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/logcat_helper.dart';
-import 'package:screen_app/common/push.dart';
-import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
-
-import '../../../../common/gateway_platform.dart';
-import '../../../../common/meiju/models/meiju_response_entity.dart';
-import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';
-import '../../../home/device/service.dart';
 import '../../../../widgets/business/dropdown_menu.dart' as ui;
 import 'cac_data_adapter.dart';
 
 class AirCondition485PageState extends State<AirCondition485Page> {
-
-  String targetTemp="";
-  String currentTemp="";
-  String windSpeed="";
-  String mode="";
+  String targetTemp = "26";
+  String currentTemp = "30";
+  String windSpeed = "1";
+  String mode = "1";
+  String OnOff = "0";
   CACDataAdapter? adapter;
-  String name="";
+  String name = "";
   bool menuVisible = false;
-
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -35,34 +23,40 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   }
 
   Future<void> powerHandle() async {
-    if(adapter!.data.OnOff == '1'){
+    if (adapter!.data.OnOff == '1') {
+      adapter!.data.OnOff = "0";
+      OnOff="0";
+      setState(() {});
       adapter?.orderPower(0);
-      adapter!.data.OnOff="0";
-    }else{
+    } else {
+      adapter!.data.OnOff = "1";
+      OnOff="1";
+      setState(() {});
       adapter?.orderPower(1);
-      adapter!.data.OnOff="1";
     }
-    setState(() {
-
-    });
   }
 
   Future<void> gearHandle(num value) async {
+    if(value==1){
+      value=4;
+    }else if(value==3){
+      value=1;
+    }
     adapter?.orderSpeed(value.toInt());
-    windSpeed=value.toString();
-    adapter!.data.windSpeed=windSpeed;
+    windSpeed = value.toString();
+    adapter!.data.windSpeed = windSpeed;
   }
 
   Future<void> temperatureHandle(num value) async {
     adapter?.orderTemp(value.toInt());
-    targetTemp=value.toString();
-    adapter!.data.targetTemp=targetTemp;
+    targetTemp = value.toString();
+    adapter!.data.targetTemp = targetTemp;
   }
 
   Future<void> modeHandle(String mode) async {
     adapter!.orderMode(int.tryParse(mode)!.toInt());
-    adapter!.data.operationMode=mode;
-    this.mode=mode;
+    adapter!.data.operationMode = mode;
+    this.mode = mode;
   }
 
   List<Map<String, dynamic>> modeList = [];
@@ -80,11 +74,53 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   @override
   void initState() {
     super.initState();
-    adapter?.bindDataUpdateFunction(() {setState(() {});});
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
+      name = args?['name'] ?? "";
+      adapter = args?['adapter'];
+      targetTemp = adapter!.data.targetTemp;
+      currentTemp = adapter!.data.currTemp;
+      windSpeed = adapter!.data.windSpeed;
+      mode = adapter!.data.operationMode;
+      OnOff = adapter!.data.OnOff;
+      adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
+  }
+
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        adapter?.data = adapter!.data;
+        targetTemp = adapter!.data.targetTemp;
+        currentTemp = adapter!.data.currTemp;
+        windSpeed = adapter!.data.windSpeed;
+        mode = adapter!.data.operationMode;
+        OnOff = adapter!.data.OnOff;
+      });
+    }
+  }
+
+  int setWinSpeed(String wind) {
+    int speed = int.parse(wind);
+    if (speed == 1) {
+      speed = 3;
+    } else if (speed == 2) {
+      speed = 2;
+    } else if (speed == 4) {
+      speed = 1;
+    } else {
+      speed = 3;
+    }
+    return speed;
   }
 
   @override
   void dispose() {
+    adapter!.unBindDataUpdateFunction(() {updateData();});
     super.dispose();
   }
 
@@ -112,21 +148,13 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   ];
 
   Map<String, String> getCurModeConfig() {
-    Map<String, String> curMode = btnList.where((element) => element["key"] == mode).toList()[0];
+    Map<String, String> curMode =
+        btnList.where((element) => element["key"] == mode).toList()[0];
     return curMode;
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-    name= args?['name'] ?? "";
-    adapter= args?['adapter'];
-    targetTemp=adapter!.data.targetTemp;
-    currentTemp=adapter!.data.currTemp;
-    windSpeed=adapter!.data.windSpeed;
-    mode=adapter!.data.operationMode;
-
-
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -164,8 +192,8 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
-                    title:  name,
-                    power: adapter!.data.OnOff == '1',
+                    title: name,
+                    power: OnOff == '1',
                     hasPower: true,
                   ),
                 ),
@@ -210,7 +238,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                     child: FunctionCard(
                                       title: '模式',
                                       child: ui.DropdownMenu(
-                                        disabled: adapter!.data.OnOff == '0',
+                                        disabled: OnOff == '0',
                                         menu: btnList.map(
                                           (item) {
                                             return PopupMenuItem<String>(
@@ -224,8 +252,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                                     margin: const EdgeInsets
                                                         .symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: mode ==
-                                                              item['key']
+                                                      color: mode == item['key']
                                                           ? const Color(
                                                               0x26101010)
                                                           : Colors.transparent,
@@ -319,7 +346,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
                                       disabled: false,
-                                      value: int.parse(windSpeed),
+                                      value: setWinSpeed(windSpeed),
                                       maxGear: 3,
                                       minGear: 1,
                                       onChanged: gearHandle,
@@ -344,7 +371,6 @@ class AirCondition485PageState extends State<AirCondition485Page> {
 }
 
 class AirCondition485Page extends StatefulWidget {
-
   const AirCondition485Page({super.key});
 
   @override
