@@ -33,6 +33,7 @@ import '../../../widgets/card/other/weather.dart';
 import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
+import '../../plugins/0x21/0x21_light/data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
@@ -62,6 +63,8 @@ enum DeviceEntityTypeInP4 {
   Device0xCE,
   // 地暖组件
   Device0xCF,
+  // 灯组
+  Zigbee_lightGroup,
   // zigbee灯
   Zigbee_55,
   // zigbee窗帘
@@ -167,17 +170,25 @@ class DataInputCard {
   String? icon;
   String? sceneId;
   bool? disabled;
+  bool? hasMore;
+  bool? isFault;
+  bool? isNative;
+  Function? onTap;
 
   DataInputCard({
     required this.name,
     this.icon,
     this.sceneId,
     this.disabled,
+    this.hasMore,
+    this.isFault,
+    this.isNative,
     required this.applianceCode,
     required this.roomName,
     this.masterId,
     this.modelNumber,
     required this.isOnline,
+    this.onTap,
   });
 
   factory DataInputCard.fromJson(Map<String, dynamic> json) {
@@ -191,6 +202,9 @@ class DataInputCard {
       sceneId: json['sceneId'] as String?,
       icon: json['icon'] as String?,
       disabled: json['disabled'] as bool?,
+      hasMore: json['hasMore'] as bool?,
+      isFault: json['isFault'] as bool?,
+      isNative: json['isNative'] as bool?,
     );
   }
 
@@ -215,6 +229,15 @@ class DataInputCard {
     }
     if (disabled != null) {
       data['disabled'] = disabled;
+    }
+    if (hasMore != null) {
+      data['hasMore'] = hasMore;
+    }
+    if (isFault != null) {
+      data['isFault'] = isFault;
+    }
+    if (isNative != null) {
+      data['isNative'] = isNative;
     }
     return data;
   }
@@ -761,14 +784,12 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_55.png'),
           ),
-          //onOff: true,
           roomName: '卧室',
-          //characteristic: '',
-          onTap: () => {},
-          online: true,
-          isFault: false,
-          isNative: false,
-          adapter: null,
+          onTap: () => params.onTap,
+          online: params.isOnline == '1',
+          isFault: params.isFault ?? false,
+          isNative: params.isNative ?? false,
+          hasMore: params.hasMore ?? true,
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           name: '调光调色灯',

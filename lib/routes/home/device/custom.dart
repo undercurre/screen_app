@@ -213,7 +213,7 @@ class _CustomPageState extends State<CustomPage> {
                                   data: result.deviceId,
                                   // 拖拽时原位置的样子
                                   childWhenDragging: Opacity(
-                                    opacity: 1,
+                                    opacity: result.deviceId == dragingWidgetId ? 0.5 : 1,
                                     child: Container(
                                       child: cardWithIcon,
                                     ),
@@ -231,17 +231,14 @@ class _CustomPageState extends State<CustomPage> {
                                       backupLayout = [...curscreenLayout];
                                     });
                                   },
-                                  onDragEnd: (details) {
-                                    dragSumX = 0;
-                                    dragSumY = 0;
-                                    dragingWidgetId = '';
-                                  },
                                   onDragUpdate: (details) {
                                     // 计算出拖拽中卡片的位置
                                     dragSumX += details.delta.dx;
                                     dragSumY += details.delta.dy;
+                                    Log.i('锚点', details.localPosition);
                                   },
-                                  onDragCompleted: () {
+                                  onDragEnd: (detail) {
+                                    Log.i('拖拽结束');
                                     setState(() {
                                       dragSumX = 0;
                                       dragSumY = 0;
@@ -262,7 +259,14 @@ class _CustomPageState extends State<CustomPage> {
                                         ),
                                       );
                                     },
-                                    onAccept: (data) {},
+                                    onAccept: (data) {
+                                      Log.i('拖拽结束');
+                                      setState(() {
+                                        dragSumX = 0;
+                                        dragSumY = 0;
+                                        dragingWidgetId = '';
+                                      });
+                                    },
                                     onLeave: (data) {},
                                     onWillAccept: (data) {
                                       // 计算被移动多少格,滑动1格以上算滑动
@@ -474,33 +478,35 @@ class _CustomPageState extends State<CustomPage> {
             crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
             child: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
-              child: LongPressDraggable<String>(
-                data: layout.deviceId,
-                // 拖拽时原位置的样子
-                childWhenDragging: Container(),
-                // 拖拽时的样子
-                feedback: cardWidget,
-                child: DragTarget<String>(
-                  builder: (context, candidateData, rejectedData) {
-                    return cardWidget;
-                  },
-                  onWillAccept: (data) {
-                    // 计算被移动多少格,滑动1格以上算滑动
-                    double absX = dragSumX.abs();
-                    double absY = dragSumY.abs();
-                    if (absX < 50 && absY < 50) {
-                      return false;
-                    } else {
-                      layoutModel.swapPosition(
-                        sortedLayoutList.firstWhere(
-                            (item) => item.deviceId == dragingWidgetId),
-                        sortedLayoutList.firstWhere(
-                            (item) => item.deviceId == layout.deviceId),
-                      );
-                      return true;
-                    }
-                  },
-                ),
+              child: DragTarget<String>(
+                builder: (context, candidateData, rejectedData) {
+                  return cardWidget;
+                },
+                onWillAccept: (data) {
+                  Log.i('准备接招');
+                  // 计算被移动多少格,滑动1格以上算滑动
+                  double absX = dragSumX.abs();
+                  double absY = dragSumY.abs();
+                  if (absX < 50 && absY < 50) {
+                    return false;
+                  } else {
+                    layoutModel.swapPosition(
+                      sortedLayoutList
+                          .firstWhere((item) => item.deviceId == data),
+                      sortedLayoutList.firstWhere(
+                          (item) => item.deviceId == layout.deviceId),
+                    );
+                    return true;
+                  }
+                },
+                onAccept: (data) {
+                  Log.i('拖拽结束');
+                  setState(() {
+                    dragSumX = 0;
+                    dragSumY = 0;
+                    dragingWidgetId = '';
+                  });
+                },
               ),
             ),
           );
@@ -538,7 +544,7 @@ class _CustomPageState extends State<CustomPage> {
             data: layout.deviceId,
             // 拖拽时原位置的样子
             childWhenDragging: Opacity(
-              opacity: 1,
+              opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
               child: Container(
                 child: cardWithIcon,
               ),
@@ -555,17 +561,13 @@ class _CustomPageState extends State<CustomPage> {
                 backupLayout = [...curscreenLayout];
               });
             },
-            onDragEnd: (details) {
-              dragSumX = 0;
-              dragSumY = 0;
-              dragingWidgetId = '';
-            },
             onDragUpdate: (details) {
               // 计算出拖拽中卡片的位置
               dragSumX += details.delta.dx;
               dragSumY += details.delta.dy;
             },
-            onDragCompleted: () {
+            onDragEnd: (detail) {
+              Log.i('拖拽结束');
               setState(() {
                 dragSumX = 0;
                 dragSumY = 0;
@@ -582,7 +584,14 @@ class _CustomPageState extends State<CustomPage> {
                   ),
                 );
               },
-              onAccept: (data) {},
+              onAccept: (data) {
+                Log.i('拖拽结束');
+                setState(() {
+                  dragSumX = 0;
+                  dragSumY = 0;
+                  dragingWidgetId = '';
+                });
+              },
               onLeave: (data) {},
               onWillAccept: (data) {
                 // 计算被移动多少格,滑动1格以上算滑动
@@ -593,7 +602,7 @@ class _CustomPageState extends State<CustomPage> {
                 } else {
                   layoutModel.swapPosition(
                     sortedLayoutList
-                        .firstWhere((item) => item.deviceId == dragingWidgetId),
+                        .firstWhere((item) => item.deviceId == data),
                     sortedLayoutList
                         .firstWhere((item) => item.deviceId == layout.deviceId),
                   );

@@ -330,6 +330,12 @@ class AboutSettingPage extends StatelessWidget {
                     child: Column(
                       children: [
                         MzSettingItem(
+                          onLongTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              'EngineeringModePage',
+                            );
+                          },
                           leftText: '设备名称',
                           rightText: context
                                   .watch<AboutSettingProvider>()

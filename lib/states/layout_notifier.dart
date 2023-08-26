@@ -272,26 +272,42 @@ class LayoutModel extends ChangeNotifier {
   void swapPosition(Layout source, Layout targetOne) {
     int distance = targetOne.grids[0] - source.grids[0];
     List<int> target = source.grids.map((e) => e + distance).toList();
+    Log.i('原位置${source.grids}到目标${targetOne.grids}', distance);
     // 避免越界
 
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
+    List<Layout> fillNulls = fillNullLayoutList(curPageLayoutList, source.pageIndex);
     List<int> targetIndexes = [];
 
     if (isOver(source.cardType, target)) {
-      return;
+      Log.i('目标越界');
+      if (source.cardType == CardType.Big && distance.abs() > 8) {
+        distance = distance > 0 ? 8 : -8;
+        target = source.grids.map((e) => e + distance).toList();
+      } else if (source.cardType == CardType.Big && distance < -4) {
+        distance = -8;
+        target = source.grids.map((e) => e + distance).toList();
+      } else {
+        return;
+      }
+      Log.i('目标变更${target}', distance);
     }
 
     int lengthSum = 0;
     // 找到目标
-    for (int i = 0; i < curPageLayoutList.length; i++) {
-      List<int> grids = curPageLayoutList[i].grids;
+    for (int i = 0; i < fillNulls.length; i++) {
+      List<int> grids = fillNulls[i].grids;
       if (target.any((element) => grids.contains(element))) {
-        targetIndexes.add(i);
+        if (i < curPageLayoutList.length && curPageLayoutList.any((element) => element.deviceId == fillNulls[i].deviceId)) {
+          targetIndexes.add(i);
+        }
         lengthSum += grids.length;
       }
     }
+
     // 目标违规
-    if (lengthSum != target.length) {
+    if (lengthSum != target.length && lengthSum != 0) {
+      Log.i('目标违规');
       return;
     }
 

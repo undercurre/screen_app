@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 @immutable
@@ -56,6 +58,11 @@ class MzSettingItem extends StatelessWidget {
   bool containBottomDivider;
   String? tipText;
   TextAlign rightTextAlign;
+  int longTapSecond;
+  GestureTapCallback? onLongTap;
+
+  Timer? tapTimer;
+  int timerCnt = 0;
 
   MzSettingItem({super.key,
     required this.leftText,
@@ -65,13 +72,38 @@ class MzSettingItem extends StatelessWidget {
     this.tipText,
     this.rightTextAlign = TextAlign.end,
     this.containBottomDivider = true,
-    this.rightWidget});
+    this.rightWidget,
+    this.onLongTap,
+    this.longTapSecond = 10});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
+      onTapDown: (e) {
+        if (onLongTap == null) return;
+        if (tapTimer != null) {
+          tapTimer?.cancel();
+          timerCnt = 0;
+          tapTimer = null;
+        }
+        tapTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          timerCnt++;
+          if (timerCnt >= longTapSecond) {
+            tapTimer?.cancel();
+            timerCnt = 0;
+            tapTimer = null;
+            onLongTap?.call();
+          }
+        });
+      },
+      onTapUp: (e) {
+        if (onLongTap == null) return;
+        tapTimer?.cancel();
+        timerCnt = 0;
+        tapTimer = null;
+      },
       child: Column(
         children: [
           Padding(

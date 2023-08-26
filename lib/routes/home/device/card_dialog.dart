@@ -6,6 +6,7 @@ import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
 import '../../../common/global.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../widgets/card/main/middle_device.dart';
 
 class CardDialog extends StatefulWidget {
@@ -138,15 +139,19 @@ class _CardDialogState extends State<CardDialog> {
                             child: Transform.translate(
                               offset: const Offset(-45, 0),
                               child: Transform.scale(
-                                  scale: 0.75,
-                                  child: buildMap[_getDeviceEntityType(
-                                          widget.type,
-                                          widget.modelNumber)]![CardType.Big]!(
-                                      DataInputCard(
-                                          name: widget.name,
-                                          applianceCode: widget.applianceCode,
-                                          roomName: widget.roomName,
-                                          isOnline: '1'))),
+                                scale: 0.75,
+                                child: buildMap[_getDeviceEntityType(
+                                    widget.type,
+                                    widget.modelNumber)]![CardType.Big]!(
+                                  DataInputCard(
+                                    name: widget.name,
+                                    applianceCode: widget.applianceCode,
+                                    roomName: widget.roomName,
+                                    isOnline: '1',
+                                    hasMore: false,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -221,6 +226,7 @@ class _CardDialogState extends State<CardDialog> {
   }
 
   DeviceEntityTypeInP4 _getDeviceEntityType(String type, String? modelNum) {
+    Log.i('当前对话', modelNum);
     for (var deviceType in DeviceEntityTypeInP4.values) {
       if (type == '0x21') {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {

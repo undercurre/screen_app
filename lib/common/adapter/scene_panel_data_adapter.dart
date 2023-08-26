@@ -49,7 +49,8 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       }
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        data = ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
+        data =
+            ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
       } else if (_homluxData != null) {
         data = ScenePanelData.fromHomlux(_homluxData!, data.sceneList);
       } else {
@@ -92,8 +93,8 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
   Future<NodeInfo<Endpoint<PanelEvent>>> fetchMeijuData() async {
     try {
       NodeInfo<Endpoint<PanelEvent>> nodeInfo =
-      await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
-          applianceCode, masterId, (json) => PanelEvent.fromJson(json));
+          await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
+              applianceCode, masterId, (json) => PanelEvent.fromJson(json));
       nodeId = nodeInfo.nodeId;
       return nodeInfo;
     } catch (e) {
@@ -116,7 +117,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   Future<HomluxDeviceEntity> fetchHomluxData() async {
     HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
-    await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
       return nodeInfo;
@@ -181,24 +182,25 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   Future<void> getSceneNameList() async {
     if (platform.inMeiju()) {
-      MeiJuResponseEntity sceneListRes = await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
+      MeiJuResponseEntity sceneListRes =
+          await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
       if (sceneListRes.isSuccess) {
         sceneListRes.data!["list"].forEach((e) {
           data.sceneList[e["endpoint"] - 1] = e["sceneId"].toString();
         });
       }
     } else {
-      HomluxResponseEntity<
-          List<HomluxPanelAssociateSceneEntity>> sceneListRes = await HomluxSceneApi
-          .querySceneListByPanel(applianceCode);
+      HomluxResponseEntity<List<HomluxPanelAssociateSceneEntity>> sceneListRes =
+          await HomluxSceneApi.querySceneListByPanel(applianceCode);
       if (sceneListRes.isSuccess) {
         List<Map<String, dynamic>> outputList = [];
 
         for (HomluxPanelAssociateSceneEntity item in sceneListRes.result!) {
           String deviceCode = item.deviceId!;
-          String endpoint = item.modelName!.substring(
-              item.modelName!.length - 1);
-          List<HomluxPanelAssociateSceneEntitySceneList> sceneList = item.sceneList!;
+          String endpoint =
+              item.modelName!.substring(item.modelName!.length - 1);
+          List<HomluxPanelAssociateSceneEntitySceneList> sceneList =
+              item.sceneList!;
 
           for (var scene in sceneList) {
             String sceneId = scene.sceneId!;
@@ -221,7 +223,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 // The rest of the code for ScenePanelData class remains the same as before
 class ScenePanelData {
   // 模式列表
-  List<String> modeList = ['0', '0', '0', '0'];
+  List<dynamic> modeList = ['0', '0', '0', '0'];
 
   // 绑定的场景列表
   List<dynamic> sceneList = ['场景1', '场景2', '场景3', '场景4'];
@@ -239,8 +241,8 @@ class ScenePanelData {
     required this.sceneList,
   });
 
-  ScenePanelData.fromMeiJu(
-      NodeInfo<Endpoint<PanelEvent>> data, String modelNumber, List<dynamic> sceneNet) {
+  ScenePanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data,
+      String modelNumber, List<dynamic> sceneNet) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
@@ -254,7 +256,6 @@ class ScenePanelData {
   }
 
   ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
-    Log.i('面板数据', data.mzgdPropertyDTOList);
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
       data.mzgdPropertyDTOList!.x1?.power == 1,
@@ -270,6 +271,8 @@ class ScenePanelData {
       data.mzgdPropertyDTOList!.x4?.buttonMode.toString() ?? '0'
     ];
 
+    Log.i('${data.deviceName}状态显示', data.mzgdPropertyDTOList);
+
     sceneList = sceneNet;
   }
 }
@@ -277,7 +280,7 @@ class ScenePanelData {
 class PanelEvent extends Event {
   dynamic onOff;
   dynamic startupOnOff; // 将 startupOnOff 变为可选属性
-  String buttonMode;
+  dynamic buttonMode;
 
   PanelEvent({
     required this.onOff,
@@ -286,15 +289,35 @@ class PanelEvent extends Event {
   });
 
   factory PanelEvent.fromJson(Map<String, dynamic> json) {
-    return PanelEvent(
-      onOff: json['OnOff'],
-      buttonMode: json['buttonMode'],
-      startupOnOff: json['StartUpOnOff'], // 可能不存在的键
-    );
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return PanelEvent(
+        onOff: json['OnOff'],
+        buttonMode: json['ButtonMode'],
+        startupOnOff: json['StartUpOnOff'], // 可能不存在的键
+      );
+    } else {
+      return PanelEvent(
+        onOff: json['OnOff'],
+        buttonMode: json['buttonMode'],
+        startupOnOff: json['StartUpOnOff'], // 可能不存在的键
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
-    return {'onOff': onOff, 'startupOnOff': startupOnOff, 'buttonMode': buttonMode};
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return {
+        'onOff': onOff,
+        'startupOnOff': startupOnOff,
+        'ButtonMode': buttonMode
+      };
+    } else {
+      return {
+        'onOff': onOff,
+        'startupOnOff': startupOnOff,
+        'buttonMode': buttonMode
+      };
+    }
   }
 }
 

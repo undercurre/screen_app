@@ -5,7 +5,11 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../../../common/gateway_platform.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../event_bus.dart';
 import '../../mz_dialog.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
@@ -53,10 +57,25 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   @override
   void initState() {
     super.initState();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == widget.adapter.nodeId) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    }
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+    }
   }
 
   void updateData() {
@@ -70,11 +89,13 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
-    super.didUpdateWidget(oldWidget);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(() {
+        updateData();
+      });
+      super.didUpdateWidget(oldWidget);
+    }
   }
 
   @override

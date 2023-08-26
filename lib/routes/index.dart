@@ -7,6 +7,7 @@ import 'package:screen_app/routes/plugins/0x21/0x21_485_floor/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
+import 'package:screen_app/routes/setting/engineering_mode.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
@@ -61,6 +62,7 @@ var routes = <String, WidgetBuilder>{
   "AccountSettingPage": (contest) => const AccountSettingPage(),
   "AdvancedSettingPage": (contest) => const AdvancedSettingPage(),
   "CurrentPlatformPage": (contest) => const CurrentPlatformPage(),
+  "EngineeringModePage": (contest) => const EngineeringModePage(),
 
 
   "0x13": (context) => const WifiLightPage(),

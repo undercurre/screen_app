@@ -85,12 +85,12 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeLightOnOff(
       String deviceId, String deviceType, String masterId, int onOff) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'OnOff': onOff}
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'power': onOff}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'lightControl',
+        method: 'lightControlNew',
         inputData: actions,
         extraMap: {'deviceType': deviceType});
   }
@@ -105,12 +105,12 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(
       String deviceId, String deviceType, String masterId, int delayTime) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'DelayClose': delayTime}
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'DelayClose': delayTime}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'lightControl',
+        method: 'lightControlNew',
         inputData: actions,
         extraMap: {'deviceType': deviceType});
   }
@@ -125,12 +125,12 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeBrightness(
       String deviceId, String deviceType, String masterId, int brightness) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'Level': brightness}
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'brightness': brightness}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'lightControl',
+        method: 'lightControlNew',
         inputData: actions,
         extraMap: {'deviceType': deviceType});
   }
@@ -145,12 +145,12 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlZigbeeColorTemp(
       String deviceId, String deviceType, String masterId, int colorTemp) {
     var actions = [
-      <String, dynamic>{'devId': deviceId, 'modelName': 1, 'ColorTemp': colorTemp}
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'colorTemperature': colorTemp}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'lightControl',
+        method: 'lightControlNew',
         inputData: actions,
         extraMap: {'deviceType': deviceType});
   }
@@ -172,15 +172,15 @@ class HomluxDeviceApi {
     var actions = [
       <String, dynamic>{
         'devId': deviceId,
-        'modelName': 1,
-        'ColorTemp': colorTemp,
-        'Level': brightness
+        'modelName': "light",
+        'colorTemperature': colorTemp,
+        'brightness': brightness
       }
     ];
     return _controlDevice(
         topic: '/subdevice/control',
         deviceId: masterId,
-        method: 'lightControl',
+        method: 'lightControlNew',
         inputData: actions,
         extraMap: {'deviceType': deviceType});
   }
@@ -232,7 +232,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiLightColorTemp(
       String deviceId, String deviceType, int colorTemp) {
     var actions = [
-      <String, dynamic>{'color_temperature': '$colorTemp'}
+      <String, dynamic>{'colorTemperature': '$colorTemp'}
     ];
     return _controlDevice(
         topic: '/subdevice/control',
@@ -345,7 +345,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlGroupLightOnOff(
       String groupId, int onOff) {
     var actions = [
-      <String, dynamic>{'OnOff': onOff}
+      <String, dynamic>{'power': onOff}
     ];
     return _controlGroupLight(groupId: groupId, action: actions);
   }
@@ -358,7 +358,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlGroupLightBrightness(
       String groupId, int brightness) {
     var actions = [
-      <String, dynamic>{'Level': brightness}
+      <String, dynamic>{'brightness': brightness}
     ];
     return _controlGroupLight(groupId: groupId, action: actions);
   }
@@ -371,7 +371,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlGroupLightColorTemp(
       String groupId, int colorTemp) {
     var actions = [
-      <String, dynamic>{'ColorTemp': colorTemp}
+      <String, dynamic>{'colorTemperature': colorTemp}
     ];
     return _controlGroupLight(groupId: groupId, action: actions);
   }

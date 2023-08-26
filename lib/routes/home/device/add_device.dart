@@ -132,7 +132,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
       Log.i("Scene Results2: $sceneRes");
     } catch (error) {
       Log.i("Error occurred: $error");
+      deviceRes = deviceCache;
+      sceneRes = sceneCache;
     }
+
     List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
     List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
@@ -364,7 +367,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   modelNumber: devices[index].modelNumber,
                                   masterId: devices[index].masterId,
                                   isOnline: devices[index].onlineStatus,
-                                  disabled: true
+                                  disabled: true,
                                 ),
                               );
                               Navigator.pop(context, resultData);
@@ -443,7 +446,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                     devices[index].masterId,
                                                 isOnline:
                                                     devices[index].onlineStatus,
-                                                disabled: true
+                                                disabled: true,
                                               ),
                                             );
                                             Navigator.pop(context, resultData);
@@ -497,6 +500,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       isFault: false,
                                       isNative: false,
                                       adapter: null,
+                                      hasMore: false,
                                     ),
                                   ),
                                 ),
@@ -550,7 +554,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         sceneId: scenes[index].sceneId,
                                         icon: scenes[index].image,
                                         isOnline: '',
-                                        disabled: true
+                                        disabled: true,
                                       ),
                                     );
                                     Navigator.pop(context, resultData);
