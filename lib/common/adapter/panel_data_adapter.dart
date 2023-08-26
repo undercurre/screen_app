@@ -35,6 +35,7 @@ class PanelDataAdapter extends MideaDataAdapter {
   Future<void> fetchData() async {
     try {
       dataState = DataState.LOADING;
+      updateUI();
 
       if (platform.inMeiju()) {
         _meijuData = await fetchMeijuData();

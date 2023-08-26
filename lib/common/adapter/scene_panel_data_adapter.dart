@@ -42,6 +42,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     try {
       await getSceneNameList();
       dataState = DataState.LOADING;
+      updateUI();
       if (platform.inMeiju()) {
         _meijuData = await fetchMeijuData();
       } else {
