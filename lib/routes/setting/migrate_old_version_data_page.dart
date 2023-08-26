@@ -38,7 +38,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     super.initState();
     _timer = Timer(const Duration(minutes: 2), () {
       if (!startMigrate) {
-        System.loginOut();
+        System.logout();
         Navigator.popAndPushNamed(context, 'Login');
         aboutSystemChannel
             .getAppVersion()
@@ -159,7 +159,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       logger.e(e);
       Setting.instant().saveVersionCompatibility(
           await aboutSystemChannel.getAppVersion());
-      System.loginOut();
+      System.logout();
       Future.delayed(Duration.zero)
           .then((value) => Navigator.popAndPushNamed(context, 'Login'));
     }

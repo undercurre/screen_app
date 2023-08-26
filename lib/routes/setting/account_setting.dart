@@ -126,7 +126,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                       onPressed: (_, index, context) {
                         if (index == 1) {
                           Push.dispose();
-                          System.loginOut();
+                          System.logout();
                           Navigator.pushNamedAndRemoveUntil(
                               context,
                               "Login",

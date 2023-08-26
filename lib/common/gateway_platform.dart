@@ -10,6 +10,7 @@ import 'package:screen_app/states/layout_notifier.dart';
 
 import 'adapter/ai_data_adapter.dart';
 import 'adapter/push_data_adapter.dart';
+import 'homlux/lan/homlux_lan_control_device_manager.dart';
 import 'logcat_helper.dart';
 
 /// 定义网关运行环境
@@ -98,6 +99,7 @@ class ChangePlatformHelper {
           System.initForHomlux();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+          HomluxLanControlDeviceManager.getInstant().init();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
@@ -113,6 +115,7 @@ class ChangePlatformHelper {
         System.initForHomlux();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+        HomluxLanControlDeviceManager.getInstant().init();
       } on Exception catch(e) {
         Log.file(e.toString());
       } finally {

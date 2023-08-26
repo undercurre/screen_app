@@ -30,6 +30,7 @@ const val CHANNEL_BUGLY = "com.midea.light/bugly"
 const val CHANNEL_ALI_PUSH = "com.midea.light/push"
 const val CHANNEL_MIGRATE = "com.midea.light/migrate"
 const val CHANNEL_LOCAL_485_CONTROL = "com.midea.light/local485Control"
+const val CHANNEL_LAN_DEVICE_CONTROL = "com.midea.light/lanDeviceControl";
 
 
 class Channels {
@@ -51,6 +52,7 @@ class Channels {
     lateinit var migrateChannel: MigrationDataChannel
 
     lateinit var local485DeviceControlChannel: Local485DeviceControlChannel
+    lateinit var lanDeviceControlChannel: LanDeviceControlChannel
 
 
     private var isInit = false
@@ -71,6 +73,7 @@ class Channels {
             buglyReportChannel = BuglyReportChannel.create(CHANNEL_BUGLY, binaryMessenger, context)
             migrateChannel = MigrationDataChannel.create(CHANNEL_MIGRATE, binaryMessenger, context)
             local485DeviceControlChannel=Local485DeviceControlChannel.create(CHANNEL_LOCAL_485_CONTROL, binaryMessenger, context)
+            lanDeviceControlChannel = LanDeviceControlChannel.create(CHANNEL_LAN_DEVICE_CONTROL, binaryMessenger, context)
             isInit = true
         }
     }

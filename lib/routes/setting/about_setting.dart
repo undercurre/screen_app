@@ -99,7 +99,7 @@ class AboutSettingProvider with ChangeNotifier {
       aboutSystemChannel
           .getAppVersion()
           .then((value) => Setting.instant().saveVersionCompatibility(value));
-      System.loginOut();
+      System.logout();
     });
     // 定时十秒
     Timer(const Duration(seconds: 10), () {
