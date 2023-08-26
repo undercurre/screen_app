@@ -9,10 +9,12 @@ import '../../../states/relay_change_notifier.dart';
 
 class LocalRelayWidget extends StatefulWidget {
   final int relayIndex;
+  final bool disabled;
 
   const LocalRelayWidget({
     super.key,
     required this.relayIndex,
+    this.disabled = true,
   });
 
   @override
@@ -35,10 +37,12 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
     final relayModel = Provider.of<RelayModel>(context);
     return GestureDetector(
       onTap: () {
-        if (widget.relayIndex == 1) {
-          relayModel.toggleRelay1();
-        } else {
-          relayModel.toggleRelay2();
+        if (!widget.disabled) {
+          if (widget.relayIndex == 1) {
+            relayModel.toggleRelay1();
+          } else {
+            relayModel.toggleRelay2();
+          }
         }
       },
       child: Container(

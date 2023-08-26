@@ -52,8 +52,8 @@ class PanelDataAdapter extends MideaDataAdapter {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
         data = PanelData(
-          nameList: [],
-          statusList: [],
+          nameList: ['按键1', '按键2', '按键3', '按键4'],
+          statusList: [false, false, false, false],
         );
         return;
       }
