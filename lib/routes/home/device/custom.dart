@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/api/api.dart';
 
 import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
@@ -213,7 +214,9 @@ class _CustomPageState extends State<CustomPage> {
                                   data: result.deviceId,
                                   // 拖拽时原位置的样子
                                   childWhenDragging: Opacity(
-                                    opacity: result.deviceId == dragingWidgetId ? 0.5 : 1,
+                                    opacity: result.deviceId == dragingWidgetId
+                                        ? 0.5
+                                        : 1,
                                     child: Container(
                                       child: cardWithIcon,
                                     ),
@@ -235,7 +238,71 @@ class _CustomPageState extends State<CustomPage> {
                                     // 计算出拖拽中卡片的位置
                                     dragSumX += details.delta.dx;
                                     dragSumY += details.delta.dy;
-                                    Log.i('锚点', details.localPosition);
+                                    Log.i('锚点', details.delta);
+                                    List<Layout> curScreenLayouts = layoutModel
+                                        .getLayoutsByPageIndex(curPageIndex);
+                                    // 填充
+                                    List<Layout> fillNullLayoutList =
+                                        layoutModel.fillNullLayoutList(
+                                            curScreenLayouts, curPageIndex);
+                                    // 排序
+                                    List<Layout> sortedLayoutList =
+                                        Layout.sortLayoutList(
+                                            fillNullLayoutList);
+                                    if (curLayout.grids ==
+                                        [5, 6, 7, 8, 9, 10, 11, 12]) {
+                                      if (dragSumY > 50) {
+                                        // 源
+                                        Layout source = sortedLayoutList
+                                            .firstWhere((item) =>
+                                                item.deviceId ==
+                                                dragingWidgetId);
+
+                                        // 目标
+                                        Layout target = Layout(
+                                          uuid.v4(),
+                                          DeviceEntityTypeInP4.Default,
+                                          CardType.Big,
+                                          curPageIndex,
+                                          [9, 10, 11, 12, 13, 14, 15, 16],
+                                          DataInputCard(
+                                              name: '',
+                                              applianceCode: '',
+                                              roomName: '',
+                                              isOnline: ''),
+                                        );
+
+                                        layoutModel.swapPosition(
+                                            source, target);
+                                      } else if (dragSumX < -50) {
+                                        // 源
+                                        Layout source = sortedLayoutList
+                                            .firstWhere((item) =>
+                                                item.deviceId ==
+                                                dragingWidgetId);
+
+                                        // 目标
+                                        Layout target = Layout(
+                                          uuid.v4(),
+                                          DeviceEntityTypeInP4.Default,
+                                          CardType.Big,
+                                          curPageIndex,
+                                          [1, 2, 3, 4, 5, 6, 7, 8],
+                                          DataInputCard(
+                                              name: '',
+                                              applianceCode: '',
+                                              roomName: '',
+                                              isOnline: ''),
+                                        );
+
+                                        layoutModel.swapPosition(
+                                            source, target);
+                                      }
+                                    } else if (curLayout.grids ==
+                                        [5, 6, 9, 10]) {
+                                    } else if (curLayout.grids ==
+                                        [3, 4, 11, 12]) {}
+                                    ;
                                   },
                                   onDragEnd: (detail) {
                                     Log.i('拖拽结束');
@@ -286,12 +353,20 @@ class _CustomPageState extends State<CustomPage> {
                                         List<Layout> sortedLayoutList =
                                             Layout.sortLayoutList(
                                                 fillNullLayoutList);
+                                        // 源
+                                        Layout source = sortedLayoutList
+                                            .firstWhere((item) =>
+                                                item.deviceId ==
+                                                dragingWidgetId);
+
+                                        // 目标
+                                        Layout target = sortedLayoutList
+                                            .firstWhere((item) =>
+                                                item.deviceId ==
+                                                result.deviceId);
+
                                         layoutModel.swapPosition(
-                                          sortedLayoutList.firstWhere((item) =>
-                                              item.deviceId == dragingWidgetId),
-                                          sortedLayoutList.firstWhere((item) =>
-                                              item.deviceId == result.deviceId),
-                                        );
+                                            source, target);
                                         return true;
                                       }
                                     },

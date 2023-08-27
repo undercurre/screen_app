@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../../../common/logcat_helper.dart';
 import '../../../states/relay_change_notifier.dart';
 
 class LocalRelayWidget extends StatefulWidget {
@@ -14,7 +15,7 @@ class LocalRelayWidget extends StatefulWidget {
   const LocalRelayWidget({
     super.key,
     required this.relayIndex,
-    this.disabled = true,
+    required this.disabled,
   });
 
   @override
@@ -37,6 +38,7 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
     final relayModel = Provider.of<RelayModel>(context);
     return GestureDetector(
       onTap: () {
+        Log.i('点击', widget.disabled);
         if (!widget.disabled) {
           if (widget.relayIndex == 1) {
             relayModel.toggleRelay1();
