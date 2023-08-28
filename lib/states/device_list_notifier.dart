@@ -133,7 +133,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.name = e.deviceName!;
         deviceObj.applianceCode = e.deviceId!;
         deviceObj.type = e.proType!;
-        deviceObj.modelNumber = 'homlux${e.switchInfoDTOList?.length}';
+        deviceObj.modelNumber = getModelNumber(e);
         deviceObj.roomName = e.roomName!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
@@ -293,12 +293,15 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.onLineStatus = int.parse(online!);
           deviceListHomlux.add(device);
         }
+
+
+
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e.deviceName!;
           deviceObj.applianceCode = e.deviceId!;
           deviceObj.type = e.proType!;
-          deviceObj.modelNumber = 'homlux${e.switchInfoDTOList?.length}';
+          deviceObj.modelNumber = getModelNumber(e);
           deviceObj.roomName = e.roomName!;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
@@ -330,4 +333,15 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
     return [];
   }
+}
+
+String getModelNumber(HomluxDeviceEntity e) {
+  List<int> ac485List = [3017, 3018, 3019];
+  if (e.proType == '0x21' && ac485List.contains(e.deviceType)) {
+    return e.deviceType.toString();
+  } else if (e.proType == '0x21') {
+    return 'homlux${e.switchInfoDTOList?.length}';
+  }
+
+  return e.deviceType.toString();
 }
