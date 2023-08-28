@@ -3,7 +3,8 @@ package com.midea.light.channel.method
 import android.content.Context
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.homeos.HomeOsClient
-import com.midea.light.homeos.HomeOsController
+import com.midea.light.homeos.HomeOsControllerCallback
+import com.midea.light.homeos.controller
 import com.midea.light.log.LogUtil
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -11,7 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
 
 // 局域网设备控制Channel通道
-class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel(context) , HomeOsController.ICallback {
+class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel(context) , HomeOsControllerCallback {
 
     companion object {
         fun create(
@@ -20,7 +21,7 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
             context: Context
         ): LanDeviceControlChannel {
             val methodChannel = LanDeviceControlChannel(context)
-            methodChannel.setup(binaryMessenger, channel);
+            methodChannel.setup(binaryMessenger, channel)
             return methodChannel
         }
     }
@@ -44,7 +45,7 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                 HomeOsClient.getOsController().setCallback(null)
             }
             "getDeviceInfo" -> {
-                if(HomeOsClient.getOsController().deviceList != 0) {
+                if(HomeOsClient.getOsController().deviceInfo != 0) {
                     LogUtil.tag("homeOs").msg("请求getDeviceInfo失败")
                 }
             }
