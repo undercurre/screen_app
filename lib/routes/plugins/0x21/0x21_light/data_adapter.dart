@@ -8,6 +8,7 @@ import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';
@@ -23,6 +24,7 @@ class DeviceDataEntity {
   String masterId = "";
   String nodeId = "";
   String modelNumber = "";
+
   //-------
   num brightness = 1; // 亮度
   num colorTemp = 0; // 色温
@@ -47,7 +49,6 @@ class DeviceDataEntity {
     power = detail.mzgdPropertyDTOList?.light?.power == 1;
     brightness = detail.mzgdPropertyDTOList?.light?.brightness as num;
     colorTemp = detail.mzgdPropertyDTOList?.light?.colorTemperature as num;
-
   }
 
   @override
@@ -62,7 +63,6 @@ class DeviceDataEntity {
       "delayClose": delayClose
     });
   }
-
 }
 
 class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
@@ -72,7 +72,8 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
 
   Timer? delayTimer;
 
-  ZigbeeLightDataAdapter(super.platform, this.context, String masterId, String nodeId) {
+  ZigbeeLightDataAdapter(
+      super.platform, this.context, String masterId, String nodeId) {
     device.masterId = masterId;
     device.nodeId = nodeId;
     type = AdapterType.zigbeeLight;
@@ -80,20 +81,19 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
 
   @override
   void init() {
-    if (device.masterId.isNotEmpty) {
-      if (platform.inMeiju()) {
-        device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
+    if (platform.inMeiju()) {
+      device.deviceEnt =
+          context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
 
-        var data = context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
-        if (data.isNotEmpty) {
-          device.deviceName = data["deviceName"] ?? "";
-          device.modelNumber = data["modelNumber"] ?? "";
-          device.setDetailMeiJu(data['detail']);
-        }
-      } else if (platform.inHomlux()) {
-
+      var data =
+          context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
+      if (data.isNotEmpty) {
+        device.deviceName = data["deviceName"] ?? "";
+        device.modelNumber = data["modelNumber"] ?? "";
+        device.setDetailMeiJu(data['detail']);
       }
-    }
+    } else if (platform.inHomlux()) {}
+    updateUI();
     _startPushListen();
     updateDetail();
   }
@@ -137,15 +137,19 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
         device.setDetailMeiJu(res);
         judgeModel();
         updateUI();
+
         /// 更新DeviceListModel
         if (device.deviceEnt != null) {
-          context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
+          context
+              .read<DeviceListModel>()
+              .setProviderDeviceInfo(device.deviceEnt!);
         }
       });
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.nodeId);
-      if(res.isSuccess) {
-        if(res.result == null) return;
+      var res =
+          await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.nodeId);
+      if (res.isSuccess) {
+        if (res.result == null) return;
         device.setDetailHomlux(res.result!);
         judgeModel();
         updateUI();
@@ -168,12 +172,14 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     device.power = !device.power;
     updateUI();
     if (platform.inMeiju()) {
-      var res = await ZigbeeLightApi.powerPDM(device.masterId, device.power, device.nodeId);
+      var res = await ZigbeeLightApi.powerPDM(
+          device.masterId, device.power, device.nodeId);
       if (!res.isSuccess) {
         _delay2UpdateDetail(2);
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlZigbeeLightOnOff(device.nodeId, "2", device.masterId, device.power ? 1 : 0);
+      var res = await HomluxDeviceApi.controlZigbeeLightOnOff(
+          device.nodeId, "2", device.masterId, device.power ? 1 : 0);
       if (!res.isSuccess) {
         _delay2UpdateDetail(2);
       }
@@ -190,10 +196,12 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     }
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.delayPDM(device.masterId, !(device.delayClose == 0), device.nodeId);
+      await ZigbeeLightApi.delayPDM(
+          device.masterId, !(device.delayClose == 0), device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeLightDelayOff(device.nodeId, "2", device.masterId, device.delayClose);
+      await HomluxDeviceApi.controlZigbeeLightDelayOff(
+          device.nodeId, "2", device.masterId, device.delayClose);
       _delay2UpdateDetail(2);
     }
   }
@@ -207,11 +215,8 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
         .toList()[0] as ZigbeeLightMode;
 
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(
-          device.masterId,
-          curMode.brightness,
-          curMode.colorTemperature,
-          device.nodeId);
+      await ZigbeeLightApi.adjustPDM(device.masterId, curMode.brightness,
+          curMode.colorTemperature, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       await HomluxDeviceApi.controlZigbeeColorTempAndBrightness(
@@ -219,8 +224,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
           "2",
           device.masterId,
           curMode.colorTemperature.toInt(),
-          curMode.brightness.toInt()
-      );
+          curMode.brightness.toInt());
       _delay2UpdateDetail(2);
     }
   }
@@ -232,15 +236,12 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     updateUI();
 
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(device.masterId, value, device.brightness, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(
+          device.masterId, value, device.brightness, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       await HomluxDeviceApi.controlZigbeeBrightness(
-          device.nodeId,
-          "2",
-          device.masterId,
-          device.brightness.toInt()
-      );
+          device.nodeId, "2", device.masterId, device.brightness.toInt());
       _delay2UpdateDetail(2);
     }
   }
@@ -251,15 +252,12 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     device.fakeModel = "";
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(device.masterId, device.colorTemp, value, device.nodeId);
+      await ZigbeeLightApi.adjustPDM(
+          device.masterId, device.colorTemp, value, device.nodeId);
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       await HomluxDeviceApi.controlZigbeeColorTemp(
-          device.nodeId,
-          "2",
-          device.masterId,
-          device.colorTemp.toInt()
-      );
+          device.nodeId, "2", device.masterId, device.colorTemp.toInt());
       _delay2UpdateDetail(2);
     }
   }
@@ -295,5 +293,4 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     super.destroy();
     _stopPushListen();
   }
-
 }

@@ -162,6 +162,8 @@ class _CustomPageState extends State<CustomPage> {
                                   result.grids = fillCells;
                                 }
                                 result.data.disabled = true;
+                                result.data.context = context;
+                                result.data.disableOnOff = false;
                                 Widget cardWidget =
                                     buildMap[result.type]![result.cardType]!(
                                         result.data);
@@ -415,10 +417,9 @@ class _CustomPageState extends State<CustomPage> {
                                 for (Layout layoutAfterSort
                                     in sortedLayoutList) {
                                   // 映射出对应的Card
-                                  logger.i('当前映射card', layoutAfterSort.type);
-                                  logger.i(
-                                      '当前映射card', layoutAfterSort.cardType);
                                   layoutAfterSort.data.disabled = true;
+                                  layoutAfterSort.data.disableOnOff = false;
+                                  layoutAfterSort.data.context = context;
                                   Widget cardWidget =
                                       buildMap[layoutAfterSort.type]![
                                           layoutAfterSort
@@ -460,10 +461,9 @@ class _CustomPageState extends State<CustomPage> {
                               List<int> fillCells = screenLayer
                                   .checkAvailability(result.cardType);
                               result.grids = fillCells;
-                              Log.i('cardInfo', result.type);
-                              Log.i('cardType', result.cardType);
-                              Log.i('cardData', result.data);
                               result.data.disabled = true;
+                              result.data.disableOnOff = false;
+                              result.data.context = context;
                               Widget cardWidget =
                                   buildMap[result.type]![result.cardType]!(
                                       result.data);
@@ -545,6 +545,8 @@ class _CustomPageState extends State<CustomPage> {
       // 映射成widget放进去
       for (Layout layout in sortedLayoutList) {
         layout.data.disabled = true;
+        layout.data.disableOnOff = false;
+        layout.data.context = context;
         // 映射出对应的Card
         Widget cardWidget =
             buildMap[layout.type]![layout.cardType]!(layout.data);
@@ -558,7 +560,6 @@ class _CustomPageState extends State<CustomPage> {
                   return cardWidget;
                 },
                 onWillAccept: (data) {
-                  Log.i('准备接招');
                   // 计算被移动多少格,滑动1格以上算滑动
                   double absX = dragSumX.abs();
                   double absY = dragSumY.abs();

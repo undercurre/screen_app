@@ -1,4 +1,5 @@
 import '../../../../channel/index.dart';
+import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
@@ -59,7 +60,6 @@ class CACDataAdapter extends MideaDataAdapter {
           _homluxData = await fetchHomluxData();
         }
         if (_meijuData != null) {
-          Log.i("fetch美居数据");
           data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
         } else if (_homluxData != null) {
           data = CAC485Data.fromHomlux(_homluxData, modelNumber);
@@ -78,8 +78,6 @@ class CACDataAdapter extends MideaDataAdapter {
         }
         // Data retrieval success
         dataState = DataState.SUCCESS;
-        String fengsu=data.windSpeed;
-        Log.i("刷新数据:$fengsu");
         updateUI();
       } catch (e) {
         // Error occurred while fetching data
@@ -225,7 +223,6 @@ class CACDataAdapter extends MideaDataAdapter {
     // Initialize the adapter and fetch data
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      var nid;
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
         // Log.i("收到推送:$nid"),
         // Log.i("设备的id:$nodeId"),
@@ -233,10 +230,10 @@ class CACDataAdapter extends MideaDataAdapter {
           });
       fetchData();
     } else {
+      deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
-
       ///homlux添加本地485空调设备
       if (deviceList != null) {
         for (int i = 0;
@@ -275,9 +272,23 @@ class CACDataAdapter extends MideaDataAdapter {
     }
   }
 
+  void _local485StateCallback(Local485DeviceState state) {
+    if(state.modelId=="zhonghong.cac.002"&&applianceCode==state.address){
+     data = CAC485Data(
+         name: name,
+         currTemp: state.temper.toString(),
+         targetTemp: state.temper.toString(),
+         operationMode: state.mode.toString(),
+         OnOff: state.onOff.toString(),
+         windSpeed: state.speed.toString());
+     updateUI();
+   }
+  }
+
   @override
   void destroy() {
     clearBindDataUpdateFunction();
+    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
   }
 
   Future<NodeInfo<Endpoint<CAC485Event>>> fetchMeijuData() async {

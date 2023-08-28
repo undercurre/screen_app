@@ -134,6 +134,7 @@ class _DevicePageState extends State<DevicePage> {
       for (Layout layoutAfterSort in sortedLayoutList) {
         // 映射出对应的Card
         layoutAfterSort.data.disabled = false;
+        layoutAfterSort.data.context = context;
         Widget cardWidget =
             buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
                 layoutAfterSort.data);

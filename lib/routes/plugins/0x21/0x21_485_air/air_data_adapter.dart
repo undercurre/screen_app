@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../../../channel/index.dart';
+import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
@@ -216,6 +217,7 @@ class AirDataAdapter extends MideaDataAdapter {
       });
       fetchData();
     }else{
+      deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
       isLocalDevice=true;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
       ///homlux添加本地485空调设备
@@ -242,9 +244,21 @@ class AirDataAdapter extends MideaDataAdapter {
     }
   }
 
+  void _local485StateCallback(Local485DeviceState state) {
+    if(state.modelId=="zhonghong.air.001"&&applianceCode==state.address){
+      data = Air485Data(
+          name: name,
+          operationMode: state.mode.toString(),
+          OnOff: state.onOff.toString(),
+          windSpeed: state.speed.toString());
+      updateUI();
+    }
+  }
+
   @override
   void destroy() {
     clearBindDataUpdateFunction();
+    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
   }
 
   Future<NodeInfo<Endpoint<Air485Event>>> fetchMeijuData() async {
