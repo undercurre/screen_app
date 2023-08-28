@@ -41,14 +41,17 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
       _Middle485CACDeviceCardWidgetState();
 }
 
-class _Middle485CACDeviceCardWidgetState
-    extends State<Middle485CACDeviceCardWidget> {
+class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWidget> {
+
+  String temper="26";
+
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       widget.adapter?.init();
       widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      temper=widget.adapter!.data.targetTemp;
       widget.adapter!.bindDataUpdateFunction(() {
         updateData();
       });
@@ -62,6 +65,7 @@ class _Middle485CACDeviceCardWidgetState
       setState(() {
         widget.adapter?.data = widget.adapter!.data;
         widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        temper=widget.adapter!.data.targetTemp;
       });
     }
   }
@@ -221,7 +225,7 @@ class _Middle485CACDeviceCardWidgetState
     if (!widget.online) {
       return '离线';
     }
-    return widget.characteristic;
+    return "$temper℃";
   }
 
   BoxDecoration _getBoxDecoration() {

@@ -48,11 +48,15 @@ class Small485FloorDeviceCardWidget extends StatefulWidget {
 }
 
 class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget> {
+
+  String temper="30";
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       widget.adapter?.init();
       widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      temper=widget.adapter!.data.targetTemp;
       widget.adapter!.bindDataUpdateFunction(() {
         updateData();
       });
@@ -66,6 +70,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
       setState(() {
         widget.adapter?.data = widget.adapter!.data;
         widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        temper=widget.adapter!.data.targetTemp;
       });
     }
   }
@@ -187,7 +192,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
     if (widget.online == "0") {
       return '离线';
     }
-    return widget.characteristic;
+    return "$temper℃";
   }
 
   BoxDecoration _getBoxDecoration() {

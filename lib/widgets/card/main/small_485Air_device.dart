@@ -1,10 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/logcat_helper.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 
@@ -47,11 +43,15 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
 }
 
 class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
+
+  String speed="1";
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       widget.adapter?.init();
       widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      speed =widget.adapter!.data.windSpeed;
       widget.adapter!.bindDataUpdateFunction(() {
         updateData();
       });
@@ -65,6 +65,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
       setState(() {
         widget.adapter?.data = widget.adapter!.data;
         widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        speed =widget.adapter!.data.windSpeed;
       });
     }
   }
@@ -186,7 +187,17 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     if (widget.online == "0") {
       return '离线';
     }
-    return widget.characteristic;
+    int windSpeed = 1;
+    if (speed == "1") {
+      windSpeed = 3;
+    } else if (speed == "2") {
+      windSpeed = 2;
+    } else if (speed == "4") {
+      windSpeed = 1;
+    } else {
+      windSpeed = 3;
+    }
+    return "$windSpeed档";
   }
 
   BoxDecoration _getBoxDecoration() {

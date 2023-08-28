@@ -42,13 +42,16 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
       _Middle485AirDeviceCardWidgetState();
 }
 
-class _Middle485AirDeviceCardWidgetState
-    extends State<Middle485AirDeviceCardWidget> {
+class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWidget> {
+
+  String speed="1";
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       widget.adapter?.init();
       widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      speed =widget.adapter!.data.windSpeed;
       widget.adapter!.bindDataUpdateFunction(() {
         updateData();
       });
@@ -62,6 +65,7 @@ class _Middle485AirDeviceCardWidgetState
       setState(() {
         widget.adapter?.data = widget.adapter!.data;
         widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        speed =widget.adapter!.data.windSpeed;
       });
     }
   }
@@ -215,7 +219,18 @@ class _Middle485AirDeviceCardWidgetState
     if (!widget.online) {
       return '离线';
     }
-    return widget.characteristic;
+    int windSpeed = 1;
+    if (speed == "1") {
+      windSpeed = 3;
+    } else if (speed == "2") {
+      windSpeed = 2;
+    } else if (speed == "4") {
+      windSpeed = 1;
+    } else {
+      windSpeed = 3;
+    }
+    return "$windSpeed档";
+
   }
 
   BoxDecoration _getBoxDecoration() {
