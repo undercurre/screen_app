@@ -136,8 +136,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
       sceneRes = sceneCache;
     }
 
-    List<List<DeviceEntity>> compareDevice = compareData<DeviceEntity>(deviceCache, deviceRes);
-    List<List<SceneInfoEntity>> compareScene = compareData<SceneInfoEntity>(sceneCache, sceneRes);
+    List<List<DeviceEntity>> compareDevice =
+        compareData<DeviceEntity>(deviceCache, deviceRes);
+    List<List<SceneInfoEntity>> compareScene =
+        compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
     Log.i('场景删除了${compareScene[1].length}, 增加${compareScene[0].length}');
@@ -186,7 +188,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
         CardType.Other,
         -1,
         [],
-        DataInputCard(name: '', applianceCode: '', roomName: '', isOnline: '', disabled: true));
+        DataInputCard(
+            name: '',
+            applianceCode: '',
+            roomName: '',
+            isOnline: '',
+            disabled: true));
     return Stack(
       children: [
         Container(
@@ -327,111 +334,111 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         ),
                         itemCount: devices.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {
-                              if (layoutModel.hasLayoutWithDeviceId(
-                                  devices[index].applianceCode)) {
-                                MzDialog(
-                                    title: '该设备已添加',
-                                    titleSize: 28,
-                                    maxWidth: 432,
-                                    backgroundColor: const Color(0xFF494E59),
-                                    contentPadding: const EdgeInsets.fromLTRB(
-                                        33, 24, 33, 0),
-                                    contentSlot: const Text("如需更换卡片，请先删除再添加",
-                                        textAlign: TextAlign.center,
-                                        maxLines: 3,
-                                        style: TextStyle(
-                                          color: Color(0xFFB6B8BC),
-                                          fontSize: 24,
-                                          height: 1.6,
-                                          fontFamily: "MideaType",
-                                          decoration: TextDecoration.none,
-                                        )),
-                                    btns: ['确定'],
-                                    onPressed: (_, position, context) {
-                                      Navigator.pop(context);
-                                    }).show(context);
-                              }
-                              resultData = Layout(
-                                devices[index].applianceCode,
-                                getDeviceEntityType(devices[index].type,
-                                    devices[index].modelNumber),
-                                CardType.Small,
-                                -1,
-                                [],
-                                DataInputCard(
-                                  name: devices[index].name,
-                                  applianceCode: devices[index].applianceCode,
-                                  roomName: devices[index].roomName!,
-                                  modelNumber: devices[index].modelNumber,
-                                  masterId: devices[index].masterId,
-                                  isOnline: devices[index].onlineStatus,
-                                  disabled: true,
+                          return Stack(
+                            children: [
+                              Center(
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: SmallDeviceCardWidget(
+                                    name: devices[index].name,
+                                    icon: Image(
+                                      image: AssetImage(_getIconUrl(
+                                          devices[index].type,
+                                          devices[index].modelNumber)),
+                                    ),
+                                    roomName: devices[index].roomName!,
+                                    online: true,
+                                    isFault: false,
+                                    isNative: false,
+                                    adapter: null,
+                                    hasMore: false,
+                                  ),
                                 ),
-                              );
-                              Navigator.pop(context, resultData);
-                            },
-                            child: Stack(
-                              children: [
-                                Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: SmallDeviceCardWidget(
-                                      name: devices[index].name,
-                                      icon: Image(
-                                        image: AssetImage(_getIconUrl(
-                                            devices[index].type,
-                                            devices[index].modelNumber)),
-                                      ),
-                                      //onOff: false,
-                                      roomName: devices[index].roomName!,
-                                      //characteristic: '',
-                                      onTap: () {
-                                        if (layoutModel.hasLayoutWithDeviceId(
-                                            devices[index].applianceCode)) {
-                                          MzDialog(
-                                              title: '该设备已添加',
-                                              titleSize: 28,
-                                              maxWidth: 432,
-                                              backgroundColor:
-                                                  const Color(0xFF494E59),
-                                              contentPadding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      33, 24, 33, 0),
-                                              contentSlot: const Text(
-                                                  "如需更换卡片，请先删除再添加",
-                                                  textAlign: TextAlign.center,
-                                                  maxLines: 3,
-                                                  style: TextStyle(
-                                                    color: Color(0xFFB6B8BC),
-                                                    fontSize: 24,
-                                                    height: 1.6,
-                                                    fontFamily: "MideaType",
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  )),
-                                              btns: ['确定'],
-                                              onPressed:
-                                                  (_, position, context) {
-                                                Navigator.pop(context);
-                                              }).show(context);
-                                        } else {
-                                          DeviceEntityTypeInP4 curDeviceEntity =
-                                              getDeviceEntityType(
-                                                  devices[index].type,
-                                                  devices[index].modelNumber);
-                                          if (_isPanel(
-                                              devices[index].modelNumber,
-                                              devices[index].type)) {
-                                            CardType curCardType =
-                                                _getPanelCardType(
-                                                    devices[index].modelNumber,
-                                                    devices[index].type);
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (layoutModel.hasLayoutWithDeviceId(
+                                        devices[index].applianceCode)) {
+                                      MzDialog(
+                                          title: '该设备已添加',
+                                          titleSize: 28,
+                                          maxWidth: 432,
+                                          backgroundColor:
+                                              const Color(0xFF494E59),
+                                          contentPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  33, 24, 33, 0),
+                                          contentSlot: const Text(
+                                              "如需更换卡片，请先删除再添加",
+                                              textAlign: TextAlign.center,
+                                              maxLines: 3,
+                                              style: TextStyle(
+                                                color: Color(0xFFB6B8BC),
+                                                fontSize: 24,
+                                                height: 1.6,
+                                                fontFamily: "MideaType",
+                                                decoration: TextDecoration.none,
+                                              )),
+                                          btns: ['确定'],
+                                          onPressed: (_, position, context) {
+                                            Navigator.pop(context);
+                                          }).show(context);
+                                    } else {
+                                      DeviceEntityTypeInP4 curDeviceEntity =
+                                          getDeviceEntityType(
+                                              devices[index].type,
+                                              devices[index].modelNumber);
+                                      if (_isPanel(devices[index].modelNumber,
+                                          devices[index].type)) {
+                                        CardType curCardType =
+                                            _getPanelCardType(
+                                                devices[index].modelNumber,
+                                                devices[index].type);
+                                        resultData = Layout(
+                                          devices[index].applianceCode,
+                                          curDeviceEntity,
+                                          curCardType,
+                                          -1,
+                                          [],
+                                          DataInputCard(
+                                            name: devices[index].name,
+                                            applianceCode:
+                                                devices[index].applianceCode,
+                                            roomName: devices[index].roomName!,
+                                            modelNumber:
+                                                devices[index].modelNumber,
+                                            masterId: devices[index].masterId,
+                                            isOnline:
+                                                devices[index].onlineStatus,
+                                            disabled: true,
+                                          ),
+                                        );
+                                        Navigator.pop(context, resultData);
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return CardDialog(
+                                              name: devices[index].name,
+                                              type: devices[index].type,
+                                              applianceCode:
+                                                  devices[index].applianceCode,
+                                              modelNumber:
+                                                  devices[index].modelNumber,
+                                              roomName:
+                                                  devices[index].roomName!,
+                                              masterId: devices[index].masterId,
+                                            );
+                                          },
+                                        ).then(
+                                          (value) {
                                             resultData = Layout(
                                               devices[index].applianceCode,
                                               curDeviceEntity,
-                                              curCardType,
+                                              value,
                                               -1,
                                               [],
                                               DataInputCard(
@@ -450,64 +457,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               ),
                                             );
                                             Navigator.pop(context, resultData);
-                                          } else {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return CardDialog(
-                                                  name: devices[index].name,
-                                                  type: devices[index].type,
-                                                  applianceCode: devices[index]
-                                                      .applianceCode,
-                                                  modelNumber: devices[index]
-                                                      .modelNumber,
-                                                  roomName:
-                                                      devices[index].roomName!,
-                                                  masterId: devices[index].masterId,
-                                                );
-                                              },
-                                            ).then(
-                                              (value) {
-                                                resultData = Layout(
-                                                  devices[index].applianceCode,
-                                                  curDeviceEntity,
-                                                  value,
-                                                  -1,
-                                                  [],
-                                                  DataInputCard(
-                                                    name: devices[index].name,
-                                                    applianceCode:
-                                                        devices[index]
-                                                            .applianceCode,
-                                                    roomName: devices[index]
-                                                        .roomName!,
-                                                    modelNumber: devices[index]
-                                                        .modelNumber,
-                                                    masterId:
-                                                        devices[index].masterId,
-                                                    isOnline: devices[index]
-                                                        .onlineStatus,
-                                                    disabled: true,
-                                                  ),
-                                                );
-                                                Navigator.pop(
-                                                    context, resultData);
-                                              },
-                                            );
-                                          }
-                                        }
-                                      },
-                                      online: true,
-                                      isFault: false,
-                                      isNative: false,
-                                      adapter: null,
-                                      hasMore: false,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
+                                          },
+                                        );
+                                      }
+                                    }
+                                  },
                                   child: Container(
                                     width: 32,
                                     height: 32,
@@ -521,8 +475,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -541,25 +495,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       AllowMultipleGestureRecognizer>(
                                 () => AllowMultipleGestureRecognizer(),
                                 (AllowMultipleGestureRecognizer instance) {
-                                  instance.onTap = () {
-                                    resultData = Layout(
-                                      scenes[index].sceneId,
-                                      DeviceEntityTypeInP4.Scene,
-                                      CardType.Small,
-                                      -1,
-                                      [],
-                                      DataInputCard(
-                                        name: scenes[index].name,
-                                        applianceCode: uuid.v4(),
-                                        roomName: '',
-                                        sceneId: scenes[index].sceneId,
-                                        icon: scenes[index].image,
-                                        isOnline: '',
-                                        disabled: true,
-                                      ),
-                                    );
-                                    Navigator.pop(context, resultData);
-                                  };
+                                  instance.onTap = () {};
                                 },
                               )
                             },
@@ -580,16 +516,37 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 Positioned(
                                   right: 0,
                                   top: 0,
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFF6B6D73),
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: Colors.white,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      resultData = Layout(
+                                        scenes[index].sceneId,
+                                        DeviceEntityTypeInP4.Scene,
+                                        CardType.Small,
+                                        -1,
+                                        [],
+                                        DataInputCard(
+                                          name: scenes[index].name,
+                                          applianceCode: uuid.v4(),
+                                          roomName: '',
+                                          sceneId: scenes[index].sceneId,
+                                          icon: scenes[index].image,
+                                          isOnline: '',
+                                          disabled: true,
+                                        ),
+                                      );
+                                      Navigator.pop(context, resultData);
+                                    },
+                                    child: Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xFF6B6D73),
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -607,23 +564,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         itemCount: others.length, // 网格项的总数
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
-                            onTap: () {
-                              resultData = Layout(
-                                uuid.v4(),
-                                others[index].type,
-                                CardType.Other,
-                                -1,
-                                [],
-                                DataInputCard(
-                                  name: '',
-                                  applianceCode: uuid.v4(),
-                                  roomName: '',
-                                  isOnline: '',
-                                  disabled: true
-                                ),
-                              );
-                              Navigator.pop(context, resultData);
-                            },
+                            onTap: () {},
                             child: Stack(
                               children: [
                                 Center(
@@ -686,16 +627,34 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 Positioned(
                                   right: 0,
                                   top: 0,
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFF6B6D73),
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: Colors.white,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      resultData = Layout(
+                                        uuid.v4(),
+                                        others[index].type,
+                                        CardType.Other,
+                                        -1,
+                                        [],
+                                        DataInputCard(
+                                            name: '',
+                                            applianceCode: uuid.v4(),
+                                            roomName: '',
+                                            isOnline: '',
+                                            disabled: true),
+                                      );
+                                      Navigator.pop(context, resultData);
+                                    },
+                                    child: Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xFF6B6D73),
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),

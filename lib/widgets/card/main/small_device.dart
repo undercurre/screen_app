@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -9,7 +10,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
-  final bool? disableOnOff;
+  final bool disableOnOff;
   final bool disabled;
   final bool hasMore;
   final Function? onTap; // 整卡点击事件
@@ -25,7 +26,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
       required this.isFault,
       required this.isNative,
       this.hasMore = true,
-      this.disableOnOff = false,
+      this.disableOnOff = true,
       this.disabled = false,
       this.adapter,
       this.onTap});
@@ -63,8 +64,11 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        widget.onTap?.call();
-        widget.adapter?.power(!onOff);
+        Log.i('disabled: ${widget.disabled}');
+        if (!widget.disabled) {
+          widget.onTap?.call();
+          widget.adapter?.power(!onOff);
+        }
       },
       child: Container(
         width: 210,
@@ -81,88 +85,96 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
               child: widget.icon,
             ),
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    SizedBox(
-                      width: 120,
-                      child: Text(
-                        widget.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    if (widget.isNative)
-                      Container(
-                        margin: const EdgeInsets.only(left: 14),
-                        width: 36,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: const Color.fromRGBO(255, 255, 255, 0.32),
-                            width: 0.6,
-                          ),
-                        ),
-                        child: Center(
+                child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        SizedBox(
+                          width: 102,
                           child: Text(
-                            '本地',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.64),
+                            widget.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
-                      )
-                  ]),
-                  if (widget.roomName != '' || _getRightText() != '')
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.64),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400),
-                      ),
-                    )
-                ],
-              ),
-            ),
-            if (widget.adapter?.type != AdapterType.panel)
-              GestureDetector(
-                onTap: () {
-                  if (widget.adapter?.type == AdapterType.wifiLight) {
-                    Navigator.pushNamed(context, '0x13', arguments: {
-                      "name": widget.name,
-                      "adapter": widget.adapter
-                    });
-                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                    Navigator.pushNamed(context, '0x21_light_colorful',
-                        arguments: {
+                        if (widget.isNative)
+                          Container(
+                            margin: const EdgeInsets.only(left: 14),
+                            width: 36,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color:
+                                    const Color.fromRGBO(255, 255, 255, 0.32),
+                                width: 0.6,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '本地',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white.withOpacity(0.64),
+                                ),
+                              ),
+                            ),
+                          )
+                      ]),
+                      if (widget.roomName != '' || _getRightText() != '')
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                            style: TextStyle(
+                                color: Colors.white.withOpacity(0.64),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+                if (widget.adapter?.type != AdapterType.panel)
+                  GestureDetector(
+                    onTap: () {
+                      if (widget.adapter?.type == AdapterType.wifiLight) {
+                        Navigator.pushNamed(context, '0x13', arguments: {
                           "name": widget.name,
                           "adapter": widget.adapter
                         });
-                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                    Navigator.pushNamed(context, 'lightGroup', arguments: {
-                      "name": widget.name,
-                      "adapter": widget.adapter
-                    });
-                  }
-                },
-                child: widget.hasMore
-                    ? const Image(
-                        width: 24,
-                        image: AssetImage('assets/newUI/to_plugin.png'),
-                      )
-                    : Container(),
-              )
+                      } else if (widget.adapter?.type ==
+                          AdapterType.zigbeeLight) {
+                        Navigator.pushNamed(context, '0x21_light_colorful',
+                            arguments: {
+                              "name": widget.name,
+                              "adapter": widget.adapter
+                            });
+                      } else if (widget.adapter?.type ==
+                          AdapterType.lightGroup) {
+                        Navigator.pushNamed(context, 'lightGroup', arguments: {
+                          "name": widget.name,
+                          "adapter": widget.adapter
+                        });
+                      }
+                    },
+                    child: widget.hasMore
+                        ? const Image(
+                      width: 24,
+                      image: AssetImage('assets/newUI/to_plugin.png'),
+                    )
+                        : Container(),
+                  ),
+              ],
+            )),
           ],
         ),
       ),
@@ -181,7 +193,8 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
   BoxDecoration _getBoxDecoration() {
     if (widget.disabled) {
-      if (widget.disableOnOff ?? false) {
+      Log.i('widget:${widget.disableOnOff}');
+      if (widget.disableOnOff) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: const LinearGradient(
