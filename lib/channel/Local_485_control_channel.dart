@@ -9,24 +9,49 @@ import 'dart:developer';
 
 import '../common/homlux/homlux_global.dart';
 import '../common/logcat_helper.dart';
+import 'models/local_485_device_state.dart';
 import 'models/manager_devic.dart';
 
 
 class DeviceLocal485ControlChannel extends AbstractChannel {
 
   DeviceLocal485ControlChannel.fromName(super.channelName) : super.fromName();
+  late final local485ChangeCallbacks = <void Function(Local485DeviceState)>[];
 
   @override
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
     super.onMethodCallHandler(call);
     final method = call.method;
+    final args = call.arguments;
     switch (method) {
-      case "Local485AirConditionUpdate":
+      case "Local485DeviceUpdate":
+        Log.i("Channel收到设备变化:$args");
+        Local485DeviceState deviceState = Local485DeviceState.fromJson(args);
+        transmitDataLocal485ChangeCallBack(deviceState);
         break;
-      case "Local485AirFreshUpdate":
-        break;
-      case "Local485FloorHeatUpdate":
-        break;
+    }
+  }
+
+  void transmitDataLocal485ChangeCallBack(Local485DeviceState state) {
+    for (var callback in local485ChangeCallbacks) {
+      callback.call(state);
+    }
+  }
+
+  // 注册回调
+  void registerLocal485CallBack(
+      void Function(Local485DeviceState) action) {
+    if (!local485ChangeCallbacks.contains(action)) {
+      local485ChangeCallbacks.add(action);
+    }
+  }
+
+  // 注销回调
+  void unregisterLocal485CallBack(
+      void Function(Local485DeviceState) action) {
+    final position = local485ChangeCallbacks.indexOf(action);
+    if (position != -1) {
+      local485ChangeCallbacks.remove(action);
     }
   }
 

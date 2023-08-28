@@ -12,12 +12,19 @@ import org.json.JSONObject
 
 class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(context) {
 
+    lateinit var cMethodChannel: MethodChannel
+
     companion object {
         fun create(channelName: String, binaryMessenger: BinaryMessenger, context: Context): Local485DeviceControlChannel {
             val channel = Local485DeviceControlChannel(context)
             channel.setup(binaryMessenger, channelName)
             return channel
         }
+    }
+
+    override fun setup(binaryMessenger: BinaryMessenger, channel: String) {
+        super.setup(binaryMessenger, channel)
+        cMethodChannel=mMethodChannel
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
