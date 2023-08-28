@@ -14,7 +14,7 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final String? modelNumber;
   final String? masterId;
   final Widget icon;
-  final bool onOff;
+  bool onOff;
   final String online;
   final bool isFault;
   final bool isNative;
@@ -49,23 +49,49 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
 class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
   @override
   void initState() {
-    widget.adapter?.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      widget.adapter?.init();
+      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      widget.adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        widget.adapter?.data = widget.adapter!.data;
+        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      });
+    }
+  }
+
+  void powerHandle(bool state) async {
+    if (widget.onOff == true) {
+      widget.adapter!.data.OnOff = "0";
+      widget.onOff=false;
+      setState(() {});
+      widget.adapter?.orderPower(0);
+    } else {
+      widget.adapter!.data.OnOff = "1";
+      widget.onOff=true;
+      setState(() {});
+      widget.adapter?.orderPower(1);
+    }
+  }
+
+  Future<void> updateDetail() async {
+    widget.adapter?.fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        if (widget.adapter!.data.OnOff == "0")
-          {widget.adapter?.orderPower(1), widget.adapter!.data.OnOff = "1"}
-        else
-          {widget.adapter?.orderPower(0), widget.adapter!.data.OnOff = "0"}
+        powerHandle(widget.onOff)
       },
       child: Container(
         width: 210,
@@ -180,6 +206,20 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
         border: Border.all(
           color: const Color.fromRGBO(255, 0, 0, 0.32),
           width: 0.6,
+        ),
+      );
+    }
+    if (widget.onOff && widget.online=="1") {
+      return const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            Color(0xFF818895),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
         ),
       );
     }

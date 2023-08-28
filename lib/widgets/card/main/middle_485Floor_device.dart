@@ -9,7 +9,7 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   final String? modelNumber;
   final String? masterId;
   final Widget icon;
-  final bool onOff;
+  bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
@@ -46,23 +46,49 @@ class _Middle485FloorDeviceCardWidgetState
     extends State<Middle485FloorDeviceCardWidget> {
   @override
   void initState() {
-    widget.adapter?.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      widget.adapter?.init();
+      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      widget.adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        widget.adapter?.data = widget.adapter!.data;
+        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      });
+    }
+  }
+
+  void powerHandle(bool state) async {
+    if (widget.onOff == true) {
+      widget.adapter!.data.OnOff = "0";
+      widget.onOff=false;
+      setState(() {});
+      widget.adapter?.orderPower(0);
+    } else {
+      widget.adapter!.data.OnOff = "1";
+      widget.onOff=true;
+      setState(() {});
+      widget.adapter?.orderPower(1);
+    }
+  }
+
+  Future<void> updateDetail() async {
+    widget.adapter?.fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        if (widget.adapter!.data.OnOff == "0")
-          {widget.adapter?.orderPower(1), widget.adapter!.data.OnOff = "1"}
-        else
-          {widget.adapter?.orderPower(0), widget.adapter!.data.OnOff = "0"}
+        powerHandle(widget.onOff)
       },
       child: Container(
         width: 210,
