@@ -247,80 +247,77 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     buildMap = {
   DeviceEntityTypeInP4.Zigbee_homlux1: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      disabled: params.disabled!,
-      adapter: ScenePanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          disabled: params.disabled!,
+          adapter: ScenePanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId ?? '',
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_homlux2: {
     CardType.Middle: (params) => MiddleScenePanelCardWidget(
-      disabled: params.disabled!,
-      name: params.name,
-      icon: const Image(
-        image: AssetImage('assets/newUI/device/0x21_1361.png'),
-      ),
-      roomName: params.roomName,
-      isOnline: params.isOnline,
-      adapter: ScenePanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-    ),
+          disabled: params.disabled!,
+          name: params.name,
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0x21_1361.png'),
+          ),
+          roomName: params.roomName,
+          isOnline: params.isOnline,
+          adapter: ScenePanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_homlux3: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
-      disabled: params.disabled!,
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: ScenePanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          disabled: params.disabled!,
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: ScenePanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.Zigbee_homlux4: {
     CardType.Big: (params) => BigScenePanelCardWidget(
-      disabled: params.disabled!,
-      name: params.name,
-      icon: Image(
-        image: AssetImage(
-            'assets/newUI/device/0x21_${params.modelNumber}.png'),
-      ),
-      roomName: params.roomName,
-      adapter: ScenePanelDataAdapter.create(
-        params.applianceCode,
-        params.masterId!,
-        params.modelNumber!,
-      ),
-      isOnline: params.isOnline,
-    ),
+          disabled: params.disabled!,
+          name: params.name,
+          icon: Image(
+            image: AssetImage(
+                'assets/newUI/device/0x21_${params.modelNumber}.png'),
+          ),
+          roomName: params.roomName,
+          adapter: ScenePanelDataAdapter.create(
+            params.applianceCode,
+            params.masterId!,
+            params.modelNumber!,
+          ),
+          isOnline: params.isOnline,
+        ),
   },
   DeviceEntityTypeInP4.DeviceEdit: {
     CardType.Edit: (params) => const EditCardWidget()
   },
   DeviceEntityTypeInP4.DeviceNull: {
-    CardType.Small: (params) => Container(
-          width: 210,
-          height: 88,
-          color: Colors.transparent
-        )
+    CardType.Small: (params) =>
+        Container(width: 210, height: 88, color: Colors.transparent)
   },
   DeviceEntityTypeInP4.Clock: {
     CardType.Other: (params) => DigitalClockWidget(),
@@ -331,18 +328,24 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   DeviceEntityTypeInP4.Scene: {
     CardType.Small: (params) {
       return SmallSceneCardWidget(
-          name: params.name,
-          icon: params.icon!,
-          sceneId: params.sceneId!,
-          disabled: params.disabled!,
+        name: params.name,
+        icon: params.icon!,
+        sceneId: params.sceneId!,
+        disabled: params.disabled!,
       );
     },
   },
   DeviceEntityTypeInP4.LocalPanel1: {
-    CardType.Small: (params) => const LocalRelayWidget(relayIndex: 1)
+    CardType.Small: (params) => LocalRelayWidget(
+          relayIndex: 1,
+          disabled: params.disabled!,
+        )
   },
   DeviceEntityTypeInP4.LocalPanel2: {
-    CardType.Small: (params) => const LocalRelayWidget(relayIndex: 2)
+    CardType.Small: (params) => LocalRelayWidget(
+          relayIndex: 2,
+          disabled: params.disabled!,
+        )
   },
   DeviceEntityTypeInP4.Device0xAC: {
     CardType.Small: (params) => SmallDeviceCardWidget(

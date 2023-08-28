@@ -122,14 +122,14 @@ class Screen {
           isCellOccupied(2, 0) ||
           isCellOccupied(2, 1)) {
       } else {
-        return [5, 6, 9, 10];
+        // return [5, 6, 9, 10];
       }
       if (isCellOccupied(1, 2) ||
           isCellOccupied(1, 3) ||
           isCellOccupied(2, 2) ||
           isCellOccupied(2, 3)) {
       } else {
-        return [7, 8, 11, 12];
+        // return [7, 8, 11, 12];
       }
       if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
@@ -168,7 +168,7 @@ class Screen {
           isCellOccupied(2, 2) ||
           isCellOccupied(2, 3)) {
       } else {
-        return [5, 6, 7, 8, 9, 10, 11, 12];
+        // return [5, 6, 7, 8, 9, 10, 11, 12];
       }
       if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||

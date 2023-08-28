@@ -151,6 +151,7 @@ class _CardDialogState extends State<CardDialog> {
                                     applianceCode: widget.applianceCode,
                                     roomName: widget.roomName,
                                     masterId: widget.masterId,
+                                    modelNumber: widget.modelNumber,
                                     isOnline: '1',
                                     hasMore: false,
                                   ),
