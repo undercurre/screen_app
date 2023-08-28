@@ -80,8 +80,8 @@ class _Big485FloorDeviceAirCardWidgetState
     super.dispose();
   }
 
-  Future<void> powerHandle() async {
-    if (widget.adapter!.data.OnOff == '1') {
+  void powerHandle(bool state) async {
+    if (widget.onOff == true) {
       widget.adapter!.data.OnOff = "0";
       widget.onOff=false;
       setState(() {});
@@ -113,7 +113,7 @@ class _Big485FloorDeviceAirCardWidgetState
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => powerHandle,
+              onTap: () => powerHandle(widget.onOff),
               child: Image(
                   width: 40,
                   height: 40,

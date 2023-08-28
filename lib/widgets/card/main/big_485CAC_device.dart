@@ -80,16 +80,13 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
     super.dispose();
   }
 
-  Future<void> powerHandle() async {
-    Log.i("开关");
+  void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      Log.i("开关关");
       widget.adapter!.data.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      Log.i("开关开");
       widget.adapter!.data.OnOff = "1";
       widget.onOff=true;
       setState(() {});
@@ -116,7 +113,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => powerHandle,
+              onTap: () => powerHandle(widget.onOff),
               child: Image(
                   width: 40,
                   height: 40,
