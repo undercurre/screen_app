@@ -87,7 +87,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                 children: [
                   Row(children: [
                     SizedBox(
-                      width: 120,
+                      width: 100,
                       child: Text(
                         widget.name,
                         overflow: TextOverflow.ellipsis,
