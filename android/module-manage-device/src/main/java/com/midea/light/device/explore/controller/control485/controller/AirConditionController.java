@@ -216,7 +216,7 @@ public class AirConditionController implements Data485Observer {
                      AirConditionList.get(j).setCurrTemperature(arrayData[10+(i*10)]);
                      AirConditionList.get(j).setErrorCode(arrayData[11+(i*10)]);
                      //有数据变化就发event
-                     Log.e("sky","数据有变化");
+                     Log.e("sky","空调数据有变化");
                      RxBus.getInstance().post(new AirConditionChangeEvent().setAirConditionModel(AirConditionList.get(j)));
                      ArrayList<Update485DeviceBean.PLC.AttributeUpdate> deviceList=new ArrayList<>();
                      Update485DeviceBean.PLC.AttributeUpdate Attribute=new Update485DeviceBean.PLC.AttributeUpdate();

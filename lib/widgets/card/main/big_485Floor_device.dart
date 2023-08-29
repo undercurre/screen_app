@@ -5,7 +5,7 @@ import '../../mz_slider.dart';
 
 class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  final bool onOff;
+  bool onOff;
   final bool online;
   final bool isFault;
   final bool isNative;
@@ -49,29 +49,55 @@ class _Big485FloorDeviceAirCardWidgetState
     extends State<Big485FloorDeviceAirCardWidget> {
   @override
   void initState() {
-    widget.adapter?.init();
-    widget.temperature=int.parse(widget.adapter!.data.targetTemp);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      widget.adapter?.init();
+      widget.temperature=int.parse(widget.adapter!.data.targetTemp);
+      widget.adapter!.bindDataUpdateFunction(() {
+        updateData();
+      });
+      updateDetail();
+    });
     super.initState();
+  }
+
+  void updateData() {
+    if (mounted) {
+      setState(() {
+        widget.adapter?.data = widget.adapter!.data;
+        widget.temperature = int.parse(widget.adapter!.data.targetTemp);
+        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+      });
+    }
+  }
+
+  Future<void> updateDetail() async {
+    widget.adapter?.fetchData();
   }
 
   @override
   void dispose() {
+    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
     super.dispose();
   }
 
-  Future<void> powerHandle() async {
-    if (widget.adapter!.data.OnOff == '1') {
-      widget.adapter?.orderPower(0);
+  void powerHandle(bool state) async {
+    if (widget.onOff == true) {
       widget.adapter!.data.OnOff = "0";
+      widget.onOff=false;
+      setState(() {});
+      widget.adapter?.orderPower(0);
     } else {
-      widget.adapter?.orderPower(1);
       widget.adapter!.data.OnOff = "1";
+      widget.onOff=true;
+      setState(() {});
+      widget.adapter?.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
+    setState(() {});
     widget.adapter!.data.targetTemp = value.toString();
   }
 
@@ -87,7 +113,7 @@ class _Big485FloorDeviceAirCardWidgetState
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => powerHandle,
+              onTap: () => powerHandle(widget.onOff),
               child: Image(
                   width: 40,
                   height: 40,

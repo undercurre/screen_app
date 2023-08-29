@@ -50,7 +50,7 @@ class DeviceListModel extends ProfileChangeNotifier {
   }
 
   List<DeviceEntity> _deviceListResource =
-      Global.profile.roomInfo!.applianceList;
+      Global.profile.roomInfo?.applianceList ?? [];
 
   List<DeviceEntity> vistualProducts = [];
 

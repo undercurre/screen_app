@@ -51,7 +51,6 @@ dependencies:
   reorderables: ^0.5.1
   platform_device_id: ^1.0.1
   chewie: ^1.3.5
-  video_player: ^2.4.8
   flutter_easyloading: ^3.0.5
   flutter_draggable_gridview: ^0.0.7
   date_format: ^2.0.7
@@ -116,7 +115,6 @@ flutter:
     - .sit.env
     - .prod.env
     - .dev.env
-    - assets/video/
     - assets/data/default_city_data.json
     - assets/data/iot_city.json
 

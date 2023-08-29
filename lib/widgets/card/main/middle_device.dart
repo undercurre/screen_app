@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 
 class MiddleDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -9,6 +10,9 @@ class MiddleDeviceCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
+  final bool disableOnOff;
+  final bool hasMore;
+  final bool disabled;
   final Function? onTap; // 整卡点击事件
 
   final DeviceCardDataAdapter? adapter;
@@ -21,6 +25,9 @@ class MiddleDeviceCardWidget extends StatefulWidget {
       required this.online,
       required this.isFault,
       required this.isNative,
+      this.disableOnOff = true,
+      this.hasMore = true,
+      this.disabled = false,
       this.adapter,
       this.onTap});
 
@@ -29,7 +36,7 @@ class MiddleDeviceCardWidget extends StatefulWidget {
 }
 
 class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
-  bool onOff = true;
+  bool onOff = false;
   String characteristic = "";
 
   @override
@@ -57,8 +64,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        widget.onTap?.call();
-        widget.adapter?.power(!onOff);
+        Log.i('disabled: ${widget.disabled}');
+        if (!widget.disabled) {
+          widget.onTap?.call();
+          widget.adapter?.power(!onOff);
+        }
       },
       child: Container(
         width: 210,
@@ -72,17 +82,29 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               child: GestureDetector(
                 onTap: () {
                   if (widget.adapter?.type == AdapterType.wifiLight) {
-                    Navigator.pushNamed(context, '0x13', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, '0x13', arguments: {
+                      "name": widget.name,
+                      "adapter": widget.adapter
+                    });
                   } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                    Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, '0x21_light_colorful',
+                        arguments: {
+                          "name": widget.name,
+                          "adapter": widget.adapter
+                        });
                   } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                    Navigator.pushNamed(context, 'lightGroup', arguments: {"name": widget.name, "adapter": widget.adapter});
+                    Navigator.pushNamed(context, 'lightGroup', arguments: {
+                      "name": widget.name,
+                      "adapter": widget.adapter
+                    });
                   }
                 },
-                child: const Image(
-                    width: 32,
-                    height: 32,
-                    image: AssetImage('assets/newUI/to_plugin.png')),
+                child: widget.hasMore
+                    ? const Image(
+                        width: 32,
+                        height: 32,
+                        image: AssetImage('assets/newUI/to_plugin.png'))
+                    : Container(),
               ),
             ),
             Positioned(
@@ -192,7 +214,8 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (onOff && widget.online) {
+    if ((onOff && widget.online && !widget.disabled) ||
+        (widget.disabled && widget.disableOnOff)) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -206,6 +229,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         ),
       );
     }
+
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
       gradient: const LinearGradient(
@@ -215,10 +239,6 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
           Color(0x33616A76),
           Color(0x33434852),
         ],
-      ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
       ),
     );
   }

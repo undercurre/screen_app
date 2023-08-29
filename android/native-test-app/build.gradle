@@ -97,6 +97,7 @@ dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
     implementation(project(":module-manage-device"))
+    implementation(project(":module-homeos"))
 
 
 

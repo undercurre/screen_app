@@ -219,7 +219,7 @@ public class FloorHotController implements Data485Observer {
                         FloorHotList.get(j).setFrostProtection(FLOOR_HOT_FANG_DONG_CLOSE.data);
                      }
                      //有数据变化就发event
-                     Log.e("sky","数据有变化");
+                     Log.e("sky","地暖数据有变化");
                      RxBus.getInstance().post(new FloorHotChangeEvent().setFloorHotModel(FloorHotList.get(j)));
                      ArrayList<Update485DeviceBean.PLC.AttributeUpdate> deviceList=new ArrayList<>();
                      Update485DeviceBean.PLC.AttributeUpdate Attribute=new Update485DeviceBean.PLC.AttributeUpdate();

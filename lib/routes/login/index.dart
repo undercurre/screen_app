@@ -133,7 +133,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       //导航到新路由
       if (mounted) {
         Navigator.popAndPushNamed(context, 'Home');
-        Push.sseInit();
+        System.login();
         stepNum = 2;
       }
     });

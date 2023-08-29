@@ -1,4 +1,5 @@
 import '../../../../channel/index.dart';
+import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
@@ -200,6 +201,8 @@ class FloorDataAdapter extends MideaDataAdapter {
           });
       fetchData();
     } else {
+      deviceLocal485ControlChannel
+          .registerLocal485CallBack(_local485StateCallback);
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
@@ -231,9 +234,23 @@ class FloorDataAdapter extends MideaDataAdapter {
     }
   }
 
+  void _local485StateCallback(Local485DeviceState state) {
+    if (state.modelId == "zhonghong.heat.001" &&
+        applianceCode == state.address) {
+      data = Floor485Data(
+        name: name,
+        targetTemp: state.mode.toString(),
+        OnOff: state.onOff.toString(),
+      );
+      updateUI();
+    }
+  }
+
   @override
   void destroy() {
     clearBindDataUpdateFunction();
+    deviceLocal485ControlChannel
+        .unregisterLocal485CallBack(_local485StateCallback);
   }
 
   Future<NodeInfo<Endpoint<Floor485Event>>> fetchMeijuData() async {

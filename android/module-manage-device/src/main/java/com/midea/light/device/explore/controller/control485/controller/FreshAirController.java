@@ -207,7 +207,7 @@ public class FreshAirController implements Data485Observer {
                      setWindSpeed(FreshAirList.get(j),arrayData[9+(i*10)]);
                      FreshAirList.get(j).setErrorCode(arrayData[11+(i*10)]);
                      //有数据变化就发event
-                     Log.e("sky","数据有变化");
+                     Log.e("sky","新风数据有变化");
                      RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirList.get(j)));
                      ArrayList<Update485DeviceBean.PLC.AttributeUpdate> deviceList=new ArrayList<>();
                      Update485DeviceBean.PLC.AttributeUpdate Attribute=new Update485DeviceBean.PLC.AttributeUpdate();
