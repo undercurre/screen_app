@@ -72,8 +72,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             child: GestureDetector(
               onTap: () {
                 Log.i('disabled: ${widget.disabled}');
-                if (widget.disabled) {
-                  Log.i('开关生效');
+
+                if (!widget.disabled) {
                   widget.adapter?.power(!onOff);
                 }
               },
@@ -291,10 +291,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Color(0x33616A76),
           Color(0x33434852),
         ],
-      ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
       ),
     );
   }

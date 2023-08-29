@@ -214,8 +214,6 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
-    Log.i(
-        'onOff: ${onOff}, online: ${widget.online}, disabled: ${widget.disabled}, disableOnoff: ${widget.disableOnOff}');
     if ((onOff && widget.online && !widget.disabled) ||
         (widget.disabled && widget.disableOnOff)) {
       return const BoxDecoration(
