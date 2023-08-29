@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/models/device_home_list_entity.dart';
 
 import '../../models/delete_device_result_entity.dart';
 import '../../models/index.dart';
+import '../meiju/meiju_global.dart';
 import 'api.dart';
 
 class DeviceApi {
@@ -23,7 +25,7 @@ class DeviceApi {
         },
         options: Options(
           method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
+          headers: {'accessToken': MeiJuGlobal.token?.accessToken},
         ));
 
     return res;
@@ -36,7 +38,7 @@ class DeviceApi {
         "/v1/category/midea/device/wifiControl",
         data: {
           "deviceId": applianceCode,
-          "userId": Global.user?.uid,
+          "userId": MeiJuGlobal.token?.uid,
           "command": command,
           "categoryCode": categoryCode,
           "systemSource": "SMART_SCREEN",
@@ -47,7 +49,7 @@ class DeviceApi {
         },
         options: Options(
           method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
+          headers: {'accessToken': MeiJuGlobal.token?.accessToken},
         ));
 
     return res;

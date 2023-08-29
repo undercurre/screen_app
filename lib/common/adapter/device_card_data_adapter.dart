@@ -10,7 +10,8 @@ enum AdapterType {
   air485,
   CRC485,
   floor485,
-  panel
+  panel,
+  wifiAir
 }
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
