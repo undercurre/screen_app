@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:uuid/uuid.dart';
 
@@ -179,14 +180,26 @@ class System {
     }
   }
 
+  static login() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      HomluxLanControlDeviceManager.getInstant().login();
+    } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+
+    } else {
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
+    }
+
+  }
+
   /// 退出登录
-  static loginOut() {
+  static logout() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogout();
+      HomluxLanControlDeviceManager.getInstant().logout();
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.setLogout();
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
   }
 

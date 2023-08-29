@@ -13,7 +13,7 @@ class _Boot extends State<Boot> {
 
     bus.on("logout", (arg) {
       PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
-      System.loginOut();
+      System.logout();
       Navigator.pushNamedAndRemoveUntil(
           context, 'Login', (route) => route.settings.name == "/");
     });
@@ -125,6 +125,13 @@ class _Boot extends State<Boot> {
         context,
         isFinishLogin ? 'Home' : 'Login',
       );
+
+      if(isFinishLogin) {
+        System.login();
+      } else {
+        System.logout();
+      }
+
     }
 
   }

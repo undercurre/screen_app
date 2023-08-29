@@ -61,7 +61,7 @@ class UserApi {
         ));
 
     if (res.code == 65012) {
-      System.loginOut();
+      System.logout();
     }
 
     if (!res.isSuccess) {

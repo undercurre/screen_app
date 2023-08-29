@@ -1,5 +1,7 @@
 import 'dart:core';
 
+import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.dart';
+
 import '../../logcat_helper.dart';
 import '../homlux_global.dart';
 import '../models/homlux_panel_associate_scene_entity.dart';
@@ -8,6 +10,9 @@ import '../models/homlux_response_entity.dart';
 import 'homlux_api.dart';
 
 class HomluxSceneApi {
+  /// 局域网控制器
+  static HomluxLanControlDeviceManager manager = HomluxLanControlDeviceManager.getInstant();
+
   /// 查询家庭下的场景
   static Future<HomluxResponseEntity<List<HomluxSceneEntity>>>
       getSceneList() async {
@@ -25,6 +30,12 @@ class HomluxSceneApi {
 
   /// 场景控制
   static Future<HomluxResponseEntity> execScene(String sceneId) async {
+    /// 局域网控制
+    HomluxResponseEntity lanEntity = await manager.executeScene(sceneId);
+    if(lanEntity.isSuccess) {
+      return lanEntity;
+    }
+    /// 网络控制
     var res = await HomluxApi.request('/v1/mzgd/scene/sceneControl',
         data: {"sceneId": sceneId});
     if (res.code == 0) {

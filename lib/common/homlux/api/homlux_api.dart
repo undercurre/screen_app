@@ -162,7 +162,7 @@ void _$refreshToken() async {
   } else if (entity.code == refreshExpireCode) {
     Log.file("refreshToken 过期 即将退出登录");
     // 真正退出逻辑
-    System.loginOut();
+    System.logout();
     bus.emit("logout");
   }
 }

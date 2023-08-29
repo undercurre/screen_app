@@ -80,7 +80,7 @@ class SnifferViewModel {
       if(!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();
-        System.loginOut();
+        System.logout();
         Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
       }
     }, () {
