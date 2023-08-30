@@ -2,15 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
-import '../../../../common/logcat_helper.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../models/device_entity.dart';
-import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
 import '../../../home/device/service.dart';
@@ -81,18 +79,18 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
 
   @override
   void init() {
-    if (platform.inMeiju()) {
-      device.deviceEnt =
-          context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
-
-      var data =
-          context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
-      if (data.isNotEmpty) {
-        device.deviceName = data["deviceName"] ?? "";
-        device.modelNumber = data["modelNumber"] ?? "";
-        device.setDetailMeiJu(data['detail']);
-      }
-    } else if (platform.inHomlux()) {}
+    // if (platform.inMeiju()) {
+    //   device.deviceEnt =
+    //       context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
+    //
+    //   var data =
+    //       context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
+    //   if (data.isNotEmpty) {
+    //     device.deviceName = data["deviceName"] ?? "";
+    //     device.modelNumber = data["modelNumber"] ?? "";
+    //     device.setDetailMeiJu(data['detail']);
+    //   }
+    // } else if (platform.inHomlux()) {}
     updateUI();
     _startPushListen();
     updateDetail();
@@ -139,11 +137,11 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
         updateUI();
 
         /// 更新DeviceListModel
-        if (device.deviceEnt != null) {
-          context
-              .read<DeviceListModel>()
-              .setProviderDeviceInfo(device.deviceEnt!);
-        }
+        // if (device.deviceEnt != null) {
+        //   context
+        //       .read<DeviceListModel>()
+        //       .setProviderDeviceInfo(device.deviceEnt!);
+        // }
       });
     } else if (platform.inHomlux()) {
       var res =
@@ -276,15 +274,25 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     }
   }
 
+  void statusChangePushMieJu(MeiJuSubDevicePropertyChangeEvent event) {
+    if (event.nodeId == device.nodeId) {
+      updateDetail();
+    }
+  }
+
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOn(statusChangePushMieJu);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOff(statusChangePushMieJu);
     }
   }
 

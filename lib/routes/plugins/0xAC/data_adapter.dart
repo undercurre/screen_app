@@ -5,6 +5,7 @@ import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../widgets/event_bus.dart';
 import 'api.dart';
 
@@ -149,15 +150,25 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter {
     }
   }
 
+  void statusChangePushMieJu(MeiJuWifiDevicePropertyChangeEvent event) {
+    if (event.deviceId == device.deviceID) {
+      updateDetail();
+    }
+  }
+
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOn(statusChangePushMieJu);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOff(statusChangePushMieJu);
     }
   }
 

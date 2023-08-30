@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../models/device_entity.dart';
-import '../../../../states/device_change_notifier.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/homlux/api/homlux_device_api.dart';
 import '../../../common/homlux/models/homlux_group_entity.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../widgets/event_bus.dart';
 import 'api.dart';
 
@@ -70,19 +69,19 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter {
 
   @override
   void init() {
-    if (device.deviceID.isNotEmpty) {
-      if (platform.inMeiju()) {
-        device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-        device.setIsColorFul();
-
-        var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-        if (data["detail"]["detail"] != null) {
-          device.setDetailMeiJu(data["detail"]["detail"]);
-        }
-      } else if (platform.inHomlux()) {
-
-      }
-    }
+    // if (device.deviceID.isNotEmpty) {
+    //   if (platform.inMeiju()) {
+    //     device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
+    //     device.setIsColorFul();
+    //
+    //     var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
+    //     if (data["detail"]["detail"] != null) {
+    //       device.setDetailMeiJu(data["detail"]["detail"]);
+    //     }
+    //   } else if (platform.inHomlux()) {
+    //
+    //   }
+    // }
     _startPushListen();
     updateDetail();
   }
@@ -126,9 +125,9 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter {
         device.setDetailMeiJu(res.result["result"]["group"]);
         updateUI();
         /// 更新DeviceListModel
-        if (device.deviceEnt != null) {
-          context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
-        }
+        // if (device.deviceEnt != null) {
+        //   context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
+        // }
       });
     } else if (platform.inHomlux()) {
       var res = await HomluxDeviceApi.queryGroupByGroupId(device.deviceID);
@@ -225,15 +224,25 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter {
     }
   }
 
+  void statusChangePushMieJu(MeiJuWifiDevicePropertyChangeEvent event) {
+    if (event.deviceId == device.deviceID) {
+      updateDetail();
+    }
+  }
+
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOn(statusChangePushMieJu);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
+    } else if(platform.inMeiju()) {
+      bus.typeOff(statusChangePushMieJu);
     }
   }
 

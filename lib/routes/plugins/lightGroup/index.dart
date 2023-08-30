@@ -20,8 +20,14 @@ class LightGroupPageState extends State<LightGroupPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      dataAdapter = args?['adapter'];
+      if (args == null) return;
+      if (args.containsKey("applianceCode")) {
+        dataAdapter = LightGroupDataAdapter(MideaRuntimePlatform.platform, context, args["applianceCode"]);
+      } else if (args.containsKey("adapter")) {
+        dataAdapter = args['adapter'];
+      }
       dataAdapter?.bindDataUpdateFunction(updateCallback);
+      dataAdapter?.init();
     });
   }
 
