@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
@@ -10,7 +9,6 @@ import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
-import '../../../../common/logcat_helper.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';

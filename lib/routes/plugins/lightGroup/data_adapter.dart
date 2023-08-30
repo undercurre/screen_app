@@ -2,102 +2,108 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/homlux/models/homlux_group_entity.dart';
 
-import '../../../../models/device_entity.dart';
-import '../../../common/adapter/device_card_data_adapter.dart';
-import '../../../common/homlux/api/homlux_device_api.dart';
-import '../../../common/homlux/models/homlux_group_entity.dart';
-import '../../../common/homlux/push/event/homlux_push_event.dart';
-import '../../../common/meiju/push/event/meiju_push_event.dart';
-import '../../../widgets/event_bus.dart';
+import '../../../../common/adapter/device_card_data_adapter.dart';
+import '../../../../common/adapter/midea_data_adapter.dart';
+import '../../../../common/gateway_platform.dart';
+import '../../../../common/homlux/api/homlux_device_api.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
+import '../../../../common/meiju/api/meiju_device_api.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../../common/models/node_info.dart';
+import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/plugins/mode_card.dart';
+import '../../../common/api/device_api.dart';
+import '../../../common/meiju/meiju_global.dart';
 import 'api.dart';
+import '../../../../common/models/endpoint.dart';
 
-class DeviceDataEntity {
-  DeviceEntity? deviceEnt;
-  String deviceID = "";
-  String deviceName = "灯光分组";
-  //-------
-  num brightness = 1; // 亮度
-  num colorTemp = 0; // 色温
-  var power = false; //开关
-  var isColorful = false;
+class GroupDataEntity {
+  int brightness = 1; // 亮度
+  int colorTemp = 0; // 色温
+  bool power = false; //开关
 
-  void setDetailMeiJu(Map<String, dynamic> detail) {
-    brightness = detail["brightness"];
-    colorTemp = detail["colorTemperature"];
-    power = detail["switchStatus"] == "1";
+  GroupDataEntity({
+    required brightness,
+    required colorTemp,
+    required power,
+  });
 
-    deviceEnt!.detail!["detail"] = detail;
+  GroupDataEntity.fromMeiJu(dynamic data) {
+    brightness = int.parse(data["brightness"]);
+    colorTemp = int.parse(data["colorTemperature"]);
+    power = data["switchStatus"] == '1';
   }
 
-  void setDetailHomlux(HomluxGroupEntity detail) {
-    brightness = detail.controlAction?[0].brightness as num;
-    colorTemp = detail.controlAction?[0].colorTemperature as num;
-    power = detail.controlAction?[0].power == 1;
+  GroupDataEntity.fromHomlux(HomluxGroupEntity data) {
+    brightness = data!.controlAction?[0].brightness as int;
+    colorTemp = data!.controlAction?[0].colorTemperature as int;
+    power = data!.controlAction?[0].power == 1;
   }
 
-  setIsColorFul() async {
-    var isColorfulRes = await LightGroupApi.isColorful(deviceEnt!);
-    isColorful = isColorfulRes;
+  Map<String, dynamic> toJson() {
+    return {
+      'brightness': brightness,
+      'colorTemp': colorTemp,
+      'power': power,
+    };
   }
-
-  @override
-  String toString() {
-    return jsonEncode({
-      "deviceEnt": deviceEnt?.toJson(),
-      "deviceID": deviceID,
-      "power": power,
-      "brightness": brightness,
-      "colorTemp": colorTemp,
-      "isColorful": isColorful
-    });
-  }
-
 }
 
-class LightGroupDataAdapter extends DeviceCardDataAdapter {
-  DeviceDataEntity device = DeviceDataEntity();
+class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
+  String deviceName = "灯光分组";
+  String masterId = "";
+  String applianceCode = "";
+  String modelNumber = "";
+  String nodeId = '';
+
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  dynamic _meijuData = null;
+  HomluxGroupEntity? _homluxData = null;
+
+  GroupDataEntity? data =
+      GroupDataEntity(brightness: 0, colorTemp: 0, power: false);
 
   final BuildContext context;
 
   Timer? delayTimer;
 
-  LightGroupDataAdapter(super.platform, this.context, String deviceId) {
-    device.deviceID = deviceId;
+  LightGroupDataAdapter(
+      super.platform, this.context, this.masterId, this.applianceCode) {
     type = AdapterType.lightGroup;
   }
 
   @override
   void init() {
-    // if (device.deviceID.isNotEmpty) {
-    //   if (platform.inMeiju()) {
-    //     device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-    //     device.setIsColorFul();
-    //
-    //     var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-    //     if (data["detail"]["detail"] != null) {
-    //       device.setDetailMeiJu(data["detail"]["detail"]);
-    //     }
-    //   } else if (platform.inHomlux()) {
-    //
-    //   }
-    // }
+    fetchData();
     _startPushListen();
-    updateDetail();
   }
 
   @override
   Map<String, dynamic>? getCardStatus() {
     return {
-      "power": device.power,
-      "brightness": device.brightness,
-      "colorTemp": device.colorTemp
+      "power": data!.power,
+      "brightness": data!.brightness,
+      "colorTemp": data!.colorTemp
     };
   }
 
   @override
-  String? getStatusDes() {
-    return "${device.brightness}%";
+  bool getPowerStatus() {
+    Log.i('获取开关状态', data!.power);
+    return data!.power;
+  }
+
+  @override
+  String? getCharacteristic() {
+    Log.i('获取特征状态', data!.brightness);
+    return "${data!.brightness}%";
   }
 
   @override
@@ -115,134 +121,207 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter {
     return controlColorTemperature(value as num, null);
   }
 
+  /// 防抖刷新
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
+
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
+      }
+
+      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+        Log.i('触发更新');
+        await fetchData();
+        _isFetching = false;
+      });
+    }
+  }
+
   /// 查询状态
-  Future<void> updateDetail() async {
-    if (platform.inMeiju()) {
-      if (device.deviceEnt == null) {
+  Future<void> fetchData() async {
+    try {
+      dataState = DataState.LOADING;
+      updateUI();
+      if (platform.inMeiju()) {
+        _meijuData = await fetchMeijuData();
+      } else if (platform.inHomlux()) {
+        _homluxData = await fetchHomluxData();
+      }
+      if (_meijuData != null) {
+        data = GroupDataEntity.fromMeiJu(_meijuData!);
+      } else if (_homluxData != null) {
+        data = GroupDataEntity.fromHomlux(_homluxData!);
+      } else {
+        // If both platforms return null data, consider it an error state
+        dataState = DataState.ERROR;
+        data = GroupDataEntity(brightness: 0, colorTemp: 0, power: false);
+        updateUI();
         return;
       }
-      LightGroupApi.getLightDetail(device.deviceEnt!).then((res) {
-        device.setDetailMeiJu(res.result["result"]["group"]);
-        updateUI();
-        /// 更新DeviceListModel
-        // if (device.deviceEnt != null) {
-        //   context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
-        // }
-      });
-    } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.queryGroupByGroupId(device.deviceID);
-      if (res.isSuccess) {
-        if (res.result == null) return;
-        device.setDetailHomlux(res.result!);
-        updateUI();
-      }
+      dataState = DataState.SUCCESS;
+      updateUI();
+    } catch (e) {
+      // Error occurred while fetching data
+      dataState = DataState.ERROR;
+      updateUI();
+      Log.i(e.toString());
+    }
+  }
+
+  Future<dynamic> fetchMeijuData() async {
+    try {
+      var res = await DeviceApi.groupRelated(
+          'findLampGroupDetails',
+          const JsonEncoder().convert({
+            "houseId": MeiJuGlobal.homeInfo?.homegroupId,
+            "groupId": applianceCode,
+            "modelId": "midea.light.003.001",
+            "uid": MeiJuGlobal.token?.uid,
+          }));
+      return res.result["result"]["group"];
+    } catch (e) {
+      Log.i('getNodeInfo Error', e);
+      dataState = DataState.ERROR;
+      updateUI();
+      return null;
+    }
+  }
+
+  Future<HomluxGroupEntity> fetchHomluxData() async {
+    HomluxResponseEntity<HomluxGroupEntity> nodeInfoRes =
+        await HomluxDeviceApi.queryGroupByGroupId(applianceCode);
+    HomluxGroupEntity? nodeInfo = nodeInfoRes.result;
+    if (nodeInfo != null) {
+      return nodeInfo;
+    } else {
+      return HomluxGroupEntity();
     }
   }
 
   /// 控制开关
   Future<void> controlPower() async {
-    device.power = !device.power;
+    data!.power = !data!.power;
     updateUI();
     if (platform.inMeiju()) {
-      var res = await LightGroupApi.powerPDM(device.deviceEnt!, device.power);
+      /// todo: 可以优化类型限制
+      var res = await DeviceApi.groupRelated(
+        'lampGroupControl',
+        const JsonEncoder().convert({
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
+          "groupId": applianceCode,
+          "modelId": "midea.light.003.001",
+          "lampAttribute": '0',
+          "lampAttributeValue": data!.power ? '1' : '0',
+          "transientTime": '0',
+          "uid": MeiJuGlobal.token?.uid,
+        }),
+      );
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.power = !device.power;
-        updateUI();
+        data!.power = !data!.power;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlGroupLightOnOff(device.deviceID, device.power ? 1 : 0);
+      var res = await HomluxDeviceApi.controlGroupLightOnOff(
+          applianceCode, data!.power ? 1 : 0);
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.power = !device.power;
-        updateUI();
+        data!.power = !data!.power;
       }
     }
+    updateUI();
   }
 
   /// 控制亮度
   Future<void> controlBrightness(num value, Color? activeColor) async {
-    var exValue = device.brightness;
-    device.brightness = value;
+    int lastBrightness = data!.brightness;
+    data!.brightness = value.toInt();
     updateUI();
+
     if (platform.inMeiju()) {
-      var res = await LightGroupApi.brightnessPDM(device.deviceEnt!, value);
+      var res = await DeviceApi.groupRelated(
+        'lampGroupControl',
+        const JsonEncoder().convert({
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
+          "groupId": applianceCode,
+          "modelId": "midea.light.003.001",
+          "lampAttribute": '1',
+          "lampAttributeValue": value.toString(),
+          "transientTime": '0',
+          "uid": MeiJuGlobal.token?.uid,
+        }),
+      );
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.brightness = exValue;
-        updateUI();
+        data!.brightness = lastBrightness;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlGroupLightBrightness(device.deviceID, value.toInt());
+      var res = await HomluxDeviceApi.controlZigbeeBrightness(
+          applianceCode, "2", masterId, data!.brightness.toInt());
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.brightness = exValue;
-        updateUI();
+        data!.brightness = lastBrightness;
       }
     }
   }
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color? activeColor) async {
-    var exValue = device.colorTemp;
-    device.colorTemp = value;
+    int lastColorTemp = data!.colorTemp;
+    data!.colorTemp = value.toInt();
     updateUI();
     if (platform.inMeiju()) {
-      var res = await LightGroupApi.colorTemperaturePDM(device.deviceEnt!, value);
+      var res = await DeviceApi.groupRelated(
+          'lampGroupControl',
+          const JsonEncoder().convert({
+            "houseId": MeiJuGlobal.homeInfo?.homegroupId,
+            "groupId": applianceCode,
+            "modelId": "midea.light.003.001",
+            "lampAttribute": '2',
+            "lampAttributeValue": value.toString(),
+            "transientTime": '0',
+            "uid": MeiJuGlobal.token?.uid,
+          }));
+
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.colorTemp = exValue;
-        updateUI();
+        data!.colorTemp = lastColorTemp;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlGroupLightColorTemp(device.deviceID, value.toInt());
+      var res = await HomluxDeviceApi.controlZigbeeColorTemp(
+          applianceCode, "2", masterId, data!.colorTemp.toInt());
       if (res.isSuccess) {
-        _delay2UpdateDetail(2);
       } else {
-        device.colorTemp = exValue;
-        updateUI();
+        data!.colorTemp = lastColorTemp;
       }
     }
-  }
-
-  void _delay2UpdateDetail(int? sec) {
-    delayTimer?.cancel();
-    delayTimer = Timer(Duration(seconds: sec ?? 2), () {
-      updateDetail();
-      delayTimer = null;
-    });
   }
 
   void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == device.deviceID) {
-      updateDetail();
-    }
-  }
-
-  void statusChangePushMieJu(MeiJuWifiDevicePropertyChangeEvent event) {
-    if (event.deviceId == device.deviceID) {
-      updateDetail();
+    if (event.deviceInfo.eventData?.deviceId == masterId) {
+      fetchData();
     }
   }
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
-      bus.typeOn(statusChangePushMieJu);
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == nodeId) {
+          _throttledFetchData();
+        }
+      });
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
-      bus.typeOff(statusChangePushMieJu);
     }
   }
 
@@ -251,5 +330,59 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter {
     super.destroy();
     _stopPushListen();
   }
+}
 
+class ZigbeeLightEvent extends Event {
+  String OnOff = '0';
+  String DelayClose = '0';
+  String Level = '0';
+  String ColorTemp = '0';
+  int duration = 3;
+
+  ZigbeeLightEvent(
+      {required this.OnOff,
+      required this.DelayClose,
+      required this.Level,
+      required this.ColorTemp,
+      required this.duration});
+
+  factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return ZigbeeLightEvent(
+        OnOff: json['OnOff'] as String,
+        DelayClose: json['DelayClose'] as String,
+        Level: json['Level'] as String,
+        ColorTemp: json['ColorTemp'] as String,
+        duration: json['duration'] as int, // 可能不存在的键
+      );
+    } else {
+      return ZigbeeLightEvent(
+        OnOff: json['OnOff'] as String,
+        DelayClose: json['DelayClose'] as String,
+        Level: json['Level'] as String,
+        ColorTemp: json['ColorTemp'] as String,
+        duration: json['duration'] as int, // 可能不存在的键
+      );
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return {
+        'OnOff': OnOff,
+        'DelayClose': DelayClose,
+        'Level': Level,
+        'ColorTemp': ColorTemp,
+        'duration': duration
+      };
+    } else {
+      return {
+        'OnOff': OnOff,
+        'DelayClose': DelayClose,
+        'Level': Level,
+        'ColorTemp': ColorTemp,
+        'duration': duration
+      };
+    }
+  }
 }

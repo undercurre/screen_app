@@ -20,14 +20,10 @@ class LightGroupPageState extends State<LightGroupPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (args == null) return;
-      if (args.containsKey("applianceCode")) {
-        dataAdapter = LightGroupDataAdapter(MideaRuntimePlatform.platform, context, args["applianceCode"]);
-      } else if (args.containsKey("adapter")) {
-        dataAdapter = args['adapter'];
-      }
+      setState(() {
+        dataAdapter = args?['adapter'];
+      });
       dataAdapter?.bindDataUpdateFunction(updateCallback);
-      dataAdapter?.init();
     });
   }
 
@@ -62,8 +58,8 @@ class LightGroupPageState extends State<LightGroupPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: dataAdapter?.device.brightness ?? 0,
-                colorTemperature: 100 - (dataAdapter?.device.colorTemp ?? 0),
+                brightness: dataAdapter?.data?.brightness ?? 0,
+                colorTemperature: 100 - (dataAdapter?.data?.colorTemp ?? 0),
               )),
           Flex(
             direction: Axis.vertical,
@@ -79,8 +75,8 @@ class LightGroupPageState extends State<LightGroupPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: dataAdapter?.controlPower,
-                    title: dataAdapter?.device.deviceName ?? "",
-                    power: dataAdapter?.device.power ?? false,
+                    title: dataAdapter?.deviceName ?? "",
+                    power: dataAdapter?.data?.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -103,7 +99,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () async {
-                        await dataAdapter?.updateDetail();
+                        await dataAdapter?.fetchData();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -124,11 +120,11 @@ class LightGroupPageState extends State<LightGroupPage> {
                                     Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
-                                        disabled: dataAdapter?.device.power ?? true ? false : true,
+                                        disabled: dataAdapter?.data?.power ?? true ? false : true,
                                         title: '亮度',
                                         minValue: 1,
                                         maxValue: 100,
-                                        value: dataAdapter?.device.brightness ?? 0,
+                                        value: dataAdapter?.data?.brightness ?? 0,
                                         activeColors: const [
                                           Color(0xFFFFD185),
                                           Color(0xFFFFD185)
@@ -137,12 +133,12 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         onChanging: dataAdapter?.controlBrightness,
                                       ),
                                     ),
-                                    if ((dataAdapter?.device.isColorful ?? false) || MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) Container(
+                                    Container(
                                       margin: const EdgeInsets.only(bottom: 16),
                                       child: ParamCard(
-                                        disabled: dataAdapter?.device.power ?? true ? false : true,
+                                        disabled: dataAdapter?.data?.power ?? true ? false : true,
                                         title: '色温',
-                                        value: dataAdapter?.device.colorTemp ?? 0,
+                                        value: dataAdapter?.data?.colorTemp ?? 0,
                                         activeColors: const [
                                           Color(0xFFFFD39F),
                                           Color(0xFF55A2FA)

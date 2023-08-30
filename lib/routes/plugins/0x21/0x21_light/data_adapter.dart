@@ -41,9 +41,9 @@ class DeviceDataEntity {
   }
 
   DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    brightness = 0;
-    colorTemp = 0;
-    power = data!.mzgdPropertyDTOList!.x1?.power == 1;
+    brightness = data!.mzgdPropertyDTOList?.light?.brightness as int;
+    colorTemp = data!.mzgdPropertyDTOList?.light?.colorTemperature as int;
+    power = data!.mzgdPropertyDTOList!.light?.power == 1;
     delayClose = 0;
   }
 

@@ -4,6 +4,7 @@ import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/logcat_helper.dart';
+import 'package:screen_app/routes/plugins/lightGroup/data_adapter.dart';
 import 'package:screen_app/widgets/card/main/big_device_air.dart';
 import 'package:screen_app/widgets/card/main/big_device_curtain.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
@@ -394,7 +395,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disabled: params.disabled ?? false,
           disableOnOff: params.disableOnOff ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
+          adapter: LightGroupDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
               params.masterId ?? '',
@@ -411,7 +412,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
+          adapter: LightGroupDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
               params.masterId ?? '',
@@ -425,7 +426,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
+          adapter: LightGroupDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
               params.masterId ?? '',
