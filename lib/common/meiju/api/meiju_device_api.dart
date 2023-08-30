@@ -6,6 +6,7 @@ import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_delete_device_result_entity.dart';
 
+import '../../logcat_helper.dart';
 import '../../models/endpoint.dart';
 import '../../models/node_info.dart';
 import '../models/meiju_device_info_entity.dart';

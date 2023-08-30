@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 
 class MiddleDeviceCardWidget extends StatefulWidget {
@@ -36,14 +37,19 @@ class MiddleDeviceCardWidget extends StatefulWidget {
 }
 
 class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
-  bool onOff = false;
-  String characteristic = "";
-
   @override
   void initState() {
     super.initState();
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
+  }
+
+  @override
+  void didUpdateWidget(covariant MiddleDeviceCardWidget oldWidget) {
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
@@ -53,10 +59,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   }
 
   void updateCallback() {
-    var status = widget.adapter?.getCardStatus();
     setState(() {
-      onOff = status?["power"] ?? false;
-      characteristic = widget.adapter?.getStatusDes() ?? "";
+      Log.i('中卡片状态更新');
+      setState(() {
+        widget.adapter?.data = widget.adapter?.data;
+      });
     });
   }
 
@@ -67,7 +74,9 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         Log.i('disabled: ${widget.disabled}');
         if (!widget.disabled) {
           widget.onTap?.call();
-          widget.adapter?.power(!onOff);
+          widget.adapter?.power(
+            widget.adapter?.getPowerStatus(),
+          );
         }
       },
       child: Container(
@@ -203,18 +212,36 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     );
   }
 
-  String _getRightText() {
+  String? _getRightText() {
     if (widget.isFault) {
       return '故障';
     }
     if (!widget.online) {
       return '离线';
     }
-    return characteristic;
+
+    if (widget.disabled) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.LOADING) {
+      return '加载中';
+    }
+
+    if (widget.adapter?.dataState == DataState.NONE) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.ERROR) {
+      return '加载失败';
+    }
+
+    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {
-    if ((onOff && widget.online && !widget.disabled) ||
+    bool curPower = widget.adapter?.getPowerStatus() ?? false;
+    if ((curPower && widget.online && !widget.disabled) ||
         (widget.disabled && widget.disableOnOff)) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),

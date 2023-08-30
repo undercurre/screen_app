@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 
@@ -36,9 +37,6 @@ class SmallDeviceCardWidget extends StatefulWidget {
 }
 
 class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
-  bool onOff = true;
-  String characteristic = "";
-
   @override
   void initState() {
     super.initState();
@@ -63,10 +61,9 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   }
 
   void updateCallback() {
-    var status = widget.adapter?.getCardStatus();
+    Log.i('小卡片状态更新');
     setState(() {
-      onOff = status?["power"] ?? false;
-      characteristic = widget.adapter?.getStatusDes() ?? "";
+      widget.adapter?.data = widget.adapter?.data;
     });
   }
 
@@ -77,7 +74,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         Log.i('disabled: ${widget.disabled}');
         if (!widget.disabled) {
           widget.onTap?.call();
-          widget.adapter?.power(!onOff);
+          widget.adapter?.power(widget.adapter?.getPowerStatus());
         }
       },
       child: Container(
@@ -90,7 +87,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 6),
               width: 40,
               child: widget.icon,
             ),
@@ -144,10 +141,13 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.64),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400),
+                              color: Colors.white.withOpacity(0.64),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         )
                     ],
@@ -178,9 +178,9 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                     },
                     child: widget.hasMore
                         ? const Image(
-                      width: 24,
-                      image: AssetImage('assets/newUI/to_plugin.png'),
-                    )
+                            width: 24,
+                            image: AssetImage('assets/newUI/to_plugin.png'),
+                          )
                         : Container(),
                   ),
               ],
@@ -191,17 +191,35 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     );
   }
 
-  String _getRightText() {
+  String? _getRightText() {
     if (widget.isFault) {
       return '故障';
     }
     if (!widget.online) {
       return '离线';
     }
-    return characteristic;
+
+    if (widget.disabled) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.LOADING) {
+      return '加载中';
+    }
+
+    if (widget.adapter?.dataState == DataState.NONE) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.ERROR) {
+      return '加载失败';
+    }
+
+    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {
+    bool curPower = widget.adapter?.getPowerStatus() ?? false;
     if (widget.disabled) {
       Log.i('widget:${widget.disableOnOff}');
       if (widget.disableOnOff) {
@@ -220,7 +238,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           ),
         );
       } else {
-        BoxDecoration(
+        return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -270,18 +288,35 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         ),
       );
     }
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-        stops: [0.06, 1.0],
-        transform: GradientRotation(213 * (3.1415926 / 360.0)),
-      ),
-    );
+    if (!curPower) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0x33616A76),
+            Color(0x33434852),
+          ],
+          stops: [0.06, 1.0],
+          transform: GradientRotation(213 * (3.1415926 / 360.0)),
+        ),
+      );
+    } else {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
   }
 }

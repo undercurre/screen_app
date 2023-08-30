@@ -1,115 +1,112 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
+import '../../../../common/adapter/midea_data_adapter.dart';
+import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../../common/logcat_helper.dart';
-import '../../../../models/device_entity.dart';
-import '../../../../states/device_change_notifier.dart';
+import '../../../../common/meiju/api/meiju_device_api.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../../common/models/node_info.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
-import '../../../home/device/service.dart';
 import 'api.dart';
 import 'mode_list.dart';
+import '../../../../common/models/endpoint.dart';
 
 class DeviceDataEntity {
-  DeviceEntity? deviceEnt;
-  String deviceName = "Zigbee智能灯";
+  int brightness = 1; // 亮度
+  int colorTemp = 0; // 色温
+  bool power = false; //开关
+  int delayClose = 0; //延时关
 
-  String masterId = "";
-  String nodeId = "";
-  String modelNumber = "";
+  DeviceDataEntity({
+    required brightness,
+    required colorTemp,
+    required power,
+    required delayClose,
+  });
 
-  //-------
-  num brightness = 1; // 亮度
-  num colorTemp = 0; // 色温
-  var power = false; //开关
-  var delayClose = 0; //延时关
-
-  var fakeModel = ''; //模式
-
-  void setDetailMeiJu(Map<String, dynamic> detail) {
-    brightness = detail["lightPanelDeviceList"][0]["brightness"] ?? 1;
-    colorTemp = detail["lightPanelDeviceList"][0]["colorTemperature"] ?? 0;
-    power = detail["lightPanelDeviceList"][0]["attribute"] == 1;
-    delayClose = detail["lightPanelDeviceList"][0]["delayClose"];
-
-    masterId = detail["deviceId"];
-    nodeId = detail["nodeId"];
-
-    deviceEnt?.detail = detail;
+  DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
+    brightness = int.parse(data!.endList[0].event.Level);
+    colorTemp = int.parse(data!.endList[0].event.ColorTemp);
+    power = data!.endList[0].event.OnOff == '1';
+    delayClose = int.parse(data!.endList[0].event.DelayClose);
   }
 
-  void setDetailHomlux(HomluxDeviceEntity detail) {
-    power = detail.mzgdPropertyDTOList?.light?.power == 1;
-    brightness = detail.mzgdPropertyDTOList?.light?.brightness as num;
-    colorTemp = detail.mzgdPropertyDTOList?.light?.colorTemperature as num;
+  DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
+    brightness = 0;
+    colorTemp = 0;
+    power = data!.mzgdPropertyDTOList!.x1?.power == 1;
+    delayClose = 0;
   }
 
-  @override
-  String toString() {
-    return jsonEncode({
-      "deviceEnt": deviceEnt?.toJson(),
-      "masterId": masterId,
-      "nodeId": nodeId,
-      "power": power,
-      "brightness": brightness,
-      "colorTemp": colorTemp,
-      "delayClose": delayClose
-    });
+  Map<String, dynamic> toJson() {
+    return {
+      'brightness': brightness,
+      'colorTemp': colorTemp,
+      'power': power,
+      'delayClose': delayClose,
+    };
   }
 }
 
-class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
-  DeviceDataEntity device = DeviceDataEntity();
+class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
+  String deviceName = "Zigbee智能灯";
+  String masterId = "";
+  String applianceCode = "";
+  String modelNumber = "";
+  String nodeId = '';
+
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  NodeInfo<Endpoint<ZigbeeLightEvent>>? _meijuData = null;
+  HomluxDeviceEntity? _homluxData = null;
+
+  DeviceDataEntity? data = DeviceDataEntity(
+      brightness: 0, colorTemp: 0, power: false, delayClose: 0);
 
   final BuildContext context;
 
   Timer? delayTimer;
 
   ZigbeeLightDataAdapter(
-      super.platform, this.context, String masterId, String nodeId) {
-    device.masterId = masterId;
-    device.nodeId = nodeId;
+      super.platform, this.context, this.masterId, this.applianceCode) {
     type = AdapterType.zigbeeLight;
   }
 
   @override
   void init() {
-    if (platform.inMeiju()) {
-      device.deviceEnt =
-          context.read<DeviceListModel>().getDeviceInfoById(device.masterId);
-
-      var data =
-          context.read<DeviceListModel>().getDeviceDetailById(device.masterId);
-      if (data.isNotEmpty) {
-        device.deviceName = data["deviceName"] ?? "";
-        device.modelNumber = data["modelNumber"] ?? "";
-        device.setDetailMeiJu(data['detail']);
-      }
-    } else if (platform.inHomlux()) {}
-    updateUI();
+    fetchData();
     _startPushListen();
-    updateDetail();
   }
 
   @override
   Map<String, dynamic>? getCardStatus() {
     return {
-      "power": device.power,
-      "brightness": device.brightness,
-      "colorTemp": device.colorTemp
+      "power": data!.power,
+      "brightness": data!.brightness,
+      "colorTemp": data!.colorTemp
     };
   }
 
   @override
-  String? getStatusDes() {
-    return "${device.brightness}%";
+  bool getPowerStatus() {
+    Log.i('获取开关状态', data!.power);
+    return data!.power;
+  }
+
+  @override
+  String? getCharacteristic() {
+    Log.i('获取特征状态', data!.brightness);
+    return "${data!.brightness}%";
   }
 
   @override
@@ -127,158 +124,289 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
     return controlColorTemperature(value as num, null);
   }
 
-  /// 查询状态
-  Future<void> updateDetail() async {
-    if (platform.inMeiju()) {
-      if (device.deviceEnt == null) {
-        return;
-      }
-      DeviceService.getDeviceDetail(device.deviceEnt!).then((res) {
-        device.setDetailMeiJu(res);
-        judgeModel();
-        updateUI();
+  /// 防抖刷新
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
 
-        /// 更新DeviceListModel
-        if (device.deviceEnt != null) {
-          context
-              .read<DeviceListModel>()
-              .setProviderDeviceInfo(device.deviceEnt!);
-        }
-      });
-    } else if (platform.inHomlux()) {
-      var res =
-          await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.nodeId);
-      if (res.isSuccess) {
-        if (res.result == null) return;
-        device.setDetailHomlux(res.result!);
-        judgeModel();
-        updateUI();
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
       }
+
+      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+        Log.i('触发更新');
+        await fetchData();
+        _isFetching = false;
+      });
     }
   }
 
-  judgeModel() {
-    for (var element in lightModes) {
-      var curMode = element as ZigbeeLightMode;
-      if (device.brightness == curMode.brightness &&
-          device.colorTemp == curMode.colorTemperature) {
-        device.fakeModel = curMode.key;
+  /// 查询状态
+  Future<void> fetchData() async {
+    try {
+      dataState = DataState.LOADING;
+      updateUI();
+      if (platform.inMeiju()) {
+        _meijuData = await fetchMeijuData();
+      } else if (platform.inHomlux()) {
+        _homluxData = await fetchHomluxData();
       }
+      if (_meijuData != null) {
+        data = DeviceDataEntity.fromMeiJu(_meijuData!);
+      } else if (_homluxData != null) {
+        data = DeviceDataEntity.fromHomlux(_homluxData!);
+      } else {
+        // If both platforms return null data, consider it an error state
+        dataState = DataState.ERROR;
+        data = DeviceDataEntity(
+            brightness: 0, colorTemp: 0, power: false, delayClose: 0);
+        updateUI();
+        return;
+      }
+      dataState = DataState.SUCCESS;
+      updateUI();
+    } catch (e) {
+      // Error occurred while fetching data
+      dataState = DataState.ERROR;
+      updateUI();
+      Log.i(e.toString());
+    }
+  }
+
+  Future<NodeInfo<Endpoint<ZigbeeLightEvent>>?> fetchMeijuData() async {
+    try {
+      NodeInfo<Endpoint<ZigbeeLightEvent>> nodeInfo =
+          await MeiJuDeviceApi.getGatewayInfo<ZigbeeLightEvent>(applianceCode,
+              masterId, (json) => ZigbeeLightEvent.fromJson(json));
+      nodeId = nodeInfo.nodeId;
+      return nodeInfo;
+    } catch (e) {
+      Log.i('getNodeInfo Error', e);
+      dataState = DataState.ERROR;
+      updateUI();
+      return null;
+    }
+  }
+
+  Future<HomluxDeviceEntity> fetchHomluxData() async {
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
+        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+    if (nodeInfo != null) {
+      return nodeInfo;
+    } else {
+      return HomluxDeviceEntity();
     }
   }
 
   /// 控制开关
   Future<void> controlPower() async {
-    device.power = !device.power;
+    data!.power = !data!.power;
     updateUI();
     if (platform.inMeiju()) {
-      var res = await ZigbeeLightApi.powerPDM(
-          device.masterId, device.power, device.nodeId);
-      if (!res.isSuccess) {
-        _delay2UpdateDetail(2);
+      /// todo: 可以优化类型限制
+      var command = {
+        "msgId": uuid.v4(),
+        "deviceId": masterId,
+        "nodeId": nodeId,
+        "deviceControlList": [
+          {"endPoint": 1, "attribute": data!.power ? 1 : 0}
+        ]
+      };
+      var res = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'subDeviceControl',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
+      } else {
+        data!.power = !data!.power;
       }
     } else if (platform.inHomlux()) {
       var res = await HomluxDeviceApi.controlZigbeeLightOnOff(
-          device.nodeId, "2", device.masterId, device.power ? 1 : 0);
-      if (!res.isSuccess) {
-        _delay2UpdateDetail(2);
+          applianceCode, "2", masterId, data!.power ? 1 : 0);
+      if (res.isSuccess) {
+      } else {
+        data!.power = !data!.power;
       }
     }
+    updateUI();
   }
 
   /// 控制延时关
   Future<void> controlDelay() async {
-    if (!device.power) return;
-    if (device.delayClose == 0) {
-      device.delayClose = 3;
+    int lastDelayClose = data!.delayClose;
+    if (!data!.power) return;
+    if (data!.delayClose == 0) {
+      data!.delayClose = 3;
     } else {
-      device.delayClose = 0;
+      data!.delayClose = 0;
     }
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.delayPDM(
-          device.masterId, !(device.delayClose == 0), device.nodeId);
-      _delay2UpdateDetail(2);
+      var command = {
+        "msgId": uuid.v4(),
+        "deviceControlList": [
+          {"endPoint": 1, "attribute": data!.delayClose}
+        ],
+        "deviceId": masterId,
+        "nodeId": nodeId
+      };
+      var res = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'lightDelayControl',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
+      } else {
+        data!.delayClose = lastDelayClose;
+      }
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeLightDelayOff(
-          device.nodeId, "2", device.masterId, device.delayClose);
-      _delay2UpdateDetail(2);
+      var res = await HomluxDeviceApi.controlZigbeeLightDelayOff(
+          applianceCode, "2", masterId, data!.delayClose);
+      if (res.isSuccess) {
+      } else {
+        data!.delayClose = lastDelayClose;
+      }
     }
   }
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
-    device.fakeModel = mode.key;
-    updateUI();
+    int lastBrightness = data!.brightness;
+    int lastColorTemp = data!.colorTemp;
     var curMode = lightModes
-        .where((element) => element.key == device.fakeModel)
+        .where((element) => element.key == mode.key)
         .toList()[0] as ZigbeeLightMode;
-
+    data!.brightness = curMode.brightness.toInt();
+    data!.colorTemp = curMode.colorTemperature.toInt();
+    updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(device.masterId, curMode.brightness,
-          curMode.colorTemperature, device.nodeId);
-      _delay2UpdateDetail(2);
+      var command = {
+        "brightness": data!.brightness,
+        "msgId": uuid.v4(),
+        "power": true,
+        "deviceId": masterId,
+        "nodeId": nodeId,
+        "colorTemperature": data!.colorTemp,
+      };
+      var res = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'lightControl',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
+      } else {
+        data!.brightness = lastBrightness;
+        data!.colorTemp = lastColorTemp;
+      }
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeColorTempAndBrightness(
-          device.nodeId,
+      var res = await HomluxDeviceApi.controlZigbeeColorTempAndBrightness(
+          applianceCode,
           "2",
-          device.masterId,
+          masterId,
           curMode.colorTemperature.toInt(),
           curMode.brightness.toInt());
-      _delay2UpdateDetail(2);
+
+      if (res.isSuccess) {
+      } else {
+        data!.brightness = lastBrightness;
+        data!.colorTemp = lastColorTemp;
+      }
     }
   }
 
   /// 控制亮度
   Future<void> controlBrightness(num value, Color? activeColor) async {
-    device.brightness = value;
-    device.fakeModel = "";
+    int lastBrightness = data!.brightness;
+    data!.brightness = value.toInt();
     updateUI();
 
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(
-          device.masterId, value, device.brightness, device.nodeId);
-      _delay2UpdateDetail(2);
+      var command = {
+        "brightness": data!.brightness,
+        "msgId": uuid.v4(),
+        "power": true,
+        "deviceId": masterId,
+        "nodeId": nodeId,
+        "colorTemperature": data!.colorTemp,
+      };
+      var res = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'lightControl',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
+      } else {
+        data!.brightness = lastBrightness;
+      }
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeBrightness(
-          device.nodeId, "2", device.masterId, device.brightness.toInt());
-      _delay2UpdateDetail(2);
+      var res = await HomluxDeviceApi.controlZigbeeBrightness(
+          applianceCode, "2", masterId, data!.brightness.toInt());
+      if (res.isSuccess) {
+      } else {
+        data!.brightness = lastBrightness;
+      }
     }
   }
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color? activeColor) async {
-    device.colorTemp = value;
-    device.fakeModel = "";
+    int lastColorTemp = data!.colorTemp;
+    data!.colorTemp = value.toInt();
     updateUI();
     if (platform.inMeiju()) {
-      await ZigbeeLightApi.adjustPDM(
-          device.masterId, device.colorTemp, value, device.nodeId);
-      _delay2UpdateDetail(2);
+      var command = {
+        "brightness": data!.brightness,
+        "msgId": uuid.v4(),
+        "power": true,
+        "deviceId": masterId,
+        "nodeId": nodeId,
+        "colorTemperature": data!.colorTemp,
+      };
+      var res = await MeiJuDeviceApi.sendPDMControlOrder(
+        categoryCode: '0x16',
+        uri: 'lightControl',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
+      } else {
+        data!.colorTemp = lastColorTemp;
+      }
     } else if (platform.inHomlux()) {
-      await HomluxDeviceApi.controlZigbeeColorTemp(
-          device.nodeId, "2", device.masterId, device.colorTemp.toInt());
-      _delay2UpdateDetail(2);
+      var res = await HomluxDeviceApi.controlZigbeeColorTemp(
+          applianceCode, "2", masterId, data!.colorTemp.toInt());
+      if (res.isSuccess) {
+      } else {
+        data!.colorTemp = lastColorTemp;
+      }
     }
   }
 
-  void _delay2UpdateDetail(int? sec) {
-    delayTimer?.cancel();
-    delayTimer = Timer(Duration(seconds: sec ?? 2), () {
-      updateDetail();
-      delayTimer = null;
-    });
-  }
-
   void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == device.masterId) {
-      updateDetail();
+    if (event.deviceInfo.eventData?.deviceId == masterId) {
+      fetchData();
     }
   }
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn(statusChangePushHomlux);
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
+        if (args.nodeId == nodeId) {
+          _throttledFetchData();
+        }
+      });
     }
   }
 
@@ -292,5 +420,60 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
   void destroy() {
     super.destroy();
     _stopPushListen();
+  }
+}
+
+class ZigbeeLightEvent extends Event {
+  String OnOff = '0';
+  String DelayClose = '0';
+  String Level = '0';
+  String ColorTemp = '0';
+  int duration = 3;
+
+  ZigbeeLightEvent(
+      {required this.OnOff,
+      required this.DelayClose,
+      required this.Level,
+      required this.ColorTemp,
+      required this.duration});
+
+  factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return ZigbeeLightEvent(
+        OnOff: json['OnOff'] as String,
+        DelayClose: json['DelayClose'] as String,
+        Level: json['Level'] as String,
+        ColorTemp: json['ColorTemp'] as String,
+        duration: json['duration'] as int, // 可能不存在的键
+      );
+    } else {
+      return ZigbeeLightEvent(
+        OnOff: json['OnOff'] as String,
+        DelayClose: json['DelayClose'] as String,
+        Level: json['Level'] as String,
+        ColorTemp: json['ColorTemp'] as String,
+        duration: json['duration'] as int, // 可能不存在的键
+      );
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return {
+        'OnOff': OnOff,
+        'DelayClose': DelayClose,
+        'Level': Level,
+        'ColorTemp': ColorTemp,
+        'duration': duration
+      };
+    } else {
+      return {
+        'OnOff': OnOff,
+        'DelayClose': DelayClose,
+        'Level': Level,
+        'ColorTemp': ColorTemp,
+        'duration': duration
+      };
+    }
   }
 }

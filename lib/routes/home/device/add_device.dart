@@ -351,6 +351,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     isFault: false,
                                     isNative: false,
                                     adapter: null,
+                                    disabled: true,
+                                    disableOnOff: false,
                                     hasMore: false,
                                   ),
                                 ),

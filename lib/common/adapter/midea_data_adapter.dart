@@ -18,6 +18,8 @@ abstract class MideaDataAdapter {
   String? key;
   /// 网关运行的环境
   GatewayPlatform platform;
+  /// 数据加载状态
+  DataState dataState = DataState.NONE;
 
   MideaDataAdapter(this.platform);
 

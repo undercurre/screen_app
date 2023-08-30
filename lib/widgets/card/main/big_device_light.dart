@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../mz_slider.dart';
 
@@ -9,6 +10,7 @@ class BigDeviceLightCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
+  final bool disableOnOff;
   final bool hasMore;
   final bool disabled;
 
@@ -23,7 +25,8 @@ class BigDeviceLightCardWidget extends StatefulWidget {
       required this.isNative,
       this.hasMore = true,
       this.disabled = false,
-      this.adapter});
+      this.adapter,
+      this.disableOnOff = true});
 
   @override
   _BigDeviceLightCardWidgetState createState() =>
@@ -31,16 +34,19 @@ class BigDeviceLightCardWidget extends StatefulWidget {
 }
 
 class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
-  bool onOff = true;
-  int brightness = 100; // 亮度
-  int colorPercent = 100; // 色温滑条百分比
-  int colorTemp = 6500;
-
   @override
   void initState() {
     super.initState();
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
+  }
+
+  @override
+  void didUpdateWidget(covariant BigDeviceLightCardWidget oldWidget) {
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
@@ -50,11 +56,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   }
 
   void updateCallback() {
-    var status = widget.adapter?.getCardStatus();
     setState(() {
-      onOff = status?["power"] ?? false;
-      brightness = status?["brightness"];
-      colorPercent = status?["colorTemp"];
+      Log.i('大卡片状态更新');
+      setState(() {
+        widget.adapter?.data = widget.adapter?.data;
+      });
     });
   }
 
@@ -72,15 +78,16 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             child: GestureDetector(
               onTap: () {
                 Log.i('disabled: ${widget.disabled}');
-
                 if (!widget.disabled) {
-                  widget.adapter?.power(!onOff);
+                  widget.adapter?.power(
+                    widget.adapter?.getPowerStatus(),
+                  );
                 }
               },
               child: Image(
                   width: 40,
                   height: 40,
-                  image: AssetImage(onOff
+                  image: AssetImage(widget.adapter?.getPowerStatus() ?? false
                       ? 'assets/newUI/card_power_on.png'
                       : 'assets/newUI/card_power_off.png')),
             ),
@@ -190,7 +197,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Positioned(
             top: 62,
             left: 25,
-            child: Text("亮度 | $brightness%",
+            child: Text(
+                "亮度 | ${widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -204,12 +212,13 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 80,
             left: 4,
             child: MzSlider(
-              value: brightness,
+              value: widget.adapter?.getCardStatus()?['brightness'] ?? '',
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !onOff || widget.disabled,
+              disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                  widget.disabled,
               activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
               onChanging: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
@@ -222,7 +231,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Positioned(
             top: 124,
             left: 25,
-            child: Text("色温 | ${colorTemp}K",
+            child: Text(
+                "色温 | ${((widget.adapter?.getCardStatus()?['colorTemp'] as int) / 100 * (6500 - 2700) + 2700).toInt() ?? ''}K",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -236,12 +246,13 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 140,
             left: 4,
             child: MzSlider(
-              value: colorPercent,
+              value: widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !onOff || widget.disabled,
+              disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                  widget.disabled,
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
               isBarColorKeepFull: true,
               onChanging: (val, color) {
@@ -257,18 +268,37 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     );
   }
 
-  String _getRightText() {
+  String? _getRightText() {
     if (widget.isFault) {
       return '故障';
     }
     if (!widget.online) {
       return '离线';
     }
-    return '在线';
+
+    if (widget.disabled) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.LOADING) {
+      return '加载中';
+    }
+
+    if (widget.adapter?.dataState == DataState.NONE) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.ERROR) {
+      return '加载失败';
+    }
+
+    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (onOff && widget.online) {
+    bool curPower = widget.adapter?.getPowerStatus() ?? false;
+    if ((curPower && widget.online && !widget.disabled) ||
+        (widget.disabled && widget.disableOnOff)) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

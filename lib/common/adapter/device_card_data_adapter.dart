@@ -14,14 +14,24 @@ enum AdapterType {
 }
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
-abstract class DeviceCardDataAdapter extends MideaDataAdapter {
+abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   AdapterType type = AdapterType.unKnow;
 
   DeviceCardDataAdapter(super.platform);
 
+  T? data;
+
   /// 返回特定的状态属性，用于大卡片
   /// 例：return {"power": true, ... };
   Map<String, dynamic>? getCardStatus() {
+    return null;
+  }
+
+  bool? getPowerStatus() {
+    return null;
+  }
+
+  String? getCharacteristic() {
     return null;
   }
 

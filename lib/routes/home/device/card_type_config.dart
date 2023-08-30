@@ -562,6 +562,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -615,6 +616,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -668,6 +670,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -722,6 +725,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
+          disableOnOff: params.disableOnOff ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
@@ -775,6 +779,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
+          disableOnOff: params.disableOnOff ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
@@ -827,6 +832,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -881,6 +887,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
+          disableOnOff: params.disableOnOff ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
@@ -933,6 +940,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -987,6 +995,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
+          disableOnOff: params.disableOnOff ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
               params.context!,
@@ -1039,6 +1048,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -1092,6 +1102,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,
@@ -1145,6 +1156,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isFault: params.isFault ?? false,
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
+          disableOnOff: params.disableOnOff ?? true,
           hasMore: params.hasMore ?? true,
           adapter: ZigbeeLightDataAdapter(
               MideaRuntimePlatform.platform,

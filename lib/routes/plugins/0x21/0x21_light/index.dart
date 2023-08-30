@@ -19,10 +19,10 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    var key = dataAdapter?.device.fakeModel ?? "";
-    if (key.isNotEmpty) {
-      selectKeys[key] = true;
-    }
+    // var key = dataAdapter?.data!.fakeModel ?? "";
+    // if (key.isNotEmpty) {
+    //   selectKeys[key] = true;
+    // }
     return selectKeys;
   }
 
@@ -31,7 +31,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      dataAdapter = args?['adapter'];
+      setState(() {
+        dataAdapter = args?['adapter'];
+      });
       dataAdapter?.bindDataUpdateFunction(updateCallback);
     });
   }
@@ -55,9 +57,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           child: ParamCard(
             minValue: 1,
             maxValue: 100,
-            disabled: dataAdapter?.device.power ?? true ? false : true,
+            disabled: dataAdapter?.data!.power ?? true ? false : true,
             title: '亮度',
-            value: dataAdapter?.device.brightness ?? 1,
+            value: dataAdapter?.data!.brightness ?? 1,
             activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
             onChanged: dataAdapter?.controlBrightness,
             onChanging: dataAdapter?.controlBrightness,
@@ -66,9 +68,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
-            disabled: dataAdapter?.device.power ?? true ? false : true,
+            disabled: dataAdapter?.data!.power ?? true ? false : true,
             title: '色温',
-            value: dataAdapter?.device.colorTemp ?? 1,
+            value: dataAdapter?.data!.colorTemp ?? 1,
             activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
             onChanged: dataAdapter?.controlColorTemperature,
             onChanging: dataAdapter?.controlColorTemperature,
@@ -81,14 +83,14 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
             onTap: dataAdapter?.controlMode,
-            disabled: dataAdapter?.device.power ?? true ? false : true,
+            disabled: dataAdapter?.data!.power ?? true ? false : true,
           ),
         ),
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',
-            subTitle: dataAdapter?.device.delayClose == 0 ? '未设置' : '${dataAdapter?.device.delayClose}分钟后关灯',
+            subTitle: dataAdapter?.data!.delayClose == 0 ? '未设置' : '${dataAdapter?.data!.delayClose}分钟后关灯',
             child: Listener(
               onPointerDown: (e) {
                 dataAdapter?.controlDelay();
@@ -100,7 +102,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                   gradient: LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
-                    colors: dataAdapter?.device.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                    colors: dataAdapter?.data!.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
                     [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -122,9 +124,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           child: ParamCard(
             minValue: 1,
             maxValue: 100,
-            disabled: dataAdapter?.device.power ?? true ? false : true,
+            disabled: dataAdapter?.data!.power ?? true ? false : true,
             title: '亮度',
-            value: dataAdapter?.device.brightness ?? 1,
+            value: dataAdapter?.data!.brightness ?? 1,
             activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
             onChanged: dataAdapter?.controlBrightness,
             onChanging: dataAdapter?.controlBrightness,
@@ -134,7 +136,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',
-            subTitle: dataAdapter?.device.delayClose == 0 ? '未设置' : '${dataAdapter?.device.delayClose}分钟后关灯',
+            subTitle: dataAdapter?.data!.delayClose == 0 ? '未设置' : '${dataAdapter?.data!.delayClose}分钟后关灯',
             child: Listener(
               onPointerDown: (e) {
                 dataAdapter?.controlDelay();
@@ -146,7 +148,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                   gradient: LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
-                    colors: dataAdapter?.device.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                    colors: dataAdapter?.data!.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
                     [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -186,8 +188,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: dataAdapter?.device.brightness ?? 0,
-                colorTemperature: 100 - (dataAdapter?.device.colorTemp ?? 1),
+                brightness: dataAdapter?.data!.brightness ?? 0,
+                colorTemperature: 100 - (dataAdapter?.data!.colorTemp ?? 1),
               )),
           Flex(
             direction: Axis.vertical,
@@ -202,8 +204,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: dataAdapter?.controlPower,
-                    title: dataAdapter?.device.deviceName ?? "",
-                    power: dataAdapter?.device.power ?? false,
+                    title: dataAdapter?.deviceName ?? "",
+                    power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -229,7 +231,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () async {
-                        await dataAdapter?.updateDetail();
+                        await dataAdapter?.fetchData();
                       },
                       child: SingleChildScrollView(
                         child: Container(
@@ -252,10 +254,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                                   child: ScrollConfiguration(
                                       behavior: ScrollConfiguration.of(context)
                                           .copyWith(scrollbars: false),
-                                      child: zigbeeControllerList[dataAdapter?.device.modelNumber] == '0x21_light_colorful'
-                                        || MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX
-                                          ? colorful
-                                          : noColor),
+                                      child: colorful),
                                 ),
                               ),
                             ],
