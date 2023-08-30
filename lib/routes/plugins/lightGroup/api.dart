@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../models/mz_response_entity.dart';
 import '../../../common/global.dart';
+import '../../../common/meiju/meiju_global.dart';
 
 const uuid = Uuid();
 
@@ -68,10 +69,10 @@ class LightGroupApi {
     var res = await DeviceApi.groupRelated(
         'findLampGroupDetails',
         const JsonEncoder().convert({
-          "houseId": Global.profile.homeInfo?.homegroupId,
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
           "groupId": deviceInfo.detail!["groupId"],
           "modelId": "midea.light.003.001",
-          "uid": Global.profile.user?.uid,
+          "uid": MeiJuGlobal.token?.uid,
         }));
     return res;
   }
@@ -81,13 +82,13 @@ class LightGroupApi {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
-          "houseId": Global.profile.homeInfo?.homegroupId,
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
           "groupId": deviceInfo.detail?["groupId"] ?? deviceInfo.detail?["detail"]["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '0',
           "lampAttributeValue": power ? '1' : '0',
           "transientTime": '0',
-          "uid": Global.profile.user?.uid,
+          "uid": MeiJuGlobal.token?.uid,
         }));
 
     return res;
@@ -127,13 +128,13 @@ class LightGroupApi {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
-          "houseId": Global.profile.homeInfo?.homegroupId,
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
           "groupId": deviceInfo.detail!["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '1',
           "lampAttributeValue": value.toString(),
           "transientTime": '0',
-          "uid": Global.profile.user?.uid,
+          "uid": MeiJuGlobal.token?.uid,
         }));
 
     return res;
@@ -145,13 +146,13 @@ class LightGroupApi {
     var res = await DeviceApi.groupRelated(
         'lampGroupControl',
         const JsonEncoder().convert({
-          "houseId": Global.profile.homeInfo?.homegroupId,
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
           "groupId": deviceInfo.detail?["groupId"],
           "modelId": "midea.light.003.001",
           "lampAttribute": '2',
           "lampAttributeValue": value.toString(),
           "transientTime": '0',
-          "uid": Global.profile.user?.uid,
+          "uid": MeiJuGlobal.token?.uid,
         }));
 
     return res;
