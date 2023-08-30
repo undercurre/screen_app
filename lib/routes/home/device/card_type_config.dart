@@ -269,10 +269,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     buildMap = {
   // 其他组件
   DeviceEntityTypeInP4.Clock: {
-    CardType.Other: (params) => DigitalClockWidget(),
+    CardType.Other: (params) => DigitalClockWidget(
+      disabled: params.disabled ?? false,
+    ),
   },
   DeviceEntityTypeInP4.Weather: {
-    CardType.Other: (params) => DigitalWeatherWidget(),
+    CardType.Other: (params) => DigitalWeatherWidget(
+      disabled: params.disabled ?? false,
+    ),
   },
   // homlux面板
   DeviceEntityTypeInP4.Zigbee_homlux1: {

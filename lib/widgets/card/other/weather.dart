@@ -7,6 +7,12 @@ import 'package:screen_app/states/weather_change_notifier.dart';
 import '../../../common/models/district.dart';
 
 class DigitalWeatherWidget extends StatefulWidget {
+  final bool disabled;
+
+  DigitalWeatherWidget({
+    this.disabled = false,
+  });
+
   @override
   _DigitalWeatherWidgetState createState() => _DigitalWeatherWidgetState();
 }
@@ -93,7 +99,9 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, 'SelectAreaPage');
+                    if (!widget.disabled) {
+                      Navigator.pushNamed(context, 'SelectAreaPage');
+                    }
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

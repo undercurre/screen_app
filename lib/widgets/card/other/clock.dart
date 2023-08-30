@@ -3,6 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class DigitalClockWidget extends StatefulWidget {
+  final bool disabled;
+
+  DigitalClockWidget({
+    this.disabled = false,
+  });
+
   @override
   _DigitalClockWidgetState createState() => _DigitalClockWidgetState();
 }

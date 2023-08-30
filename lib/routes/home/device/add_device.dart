@@ -596,11 +596,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                   3.1415927 /
                                                   180), // 设置渐变色的旋转角度
                                         ),
-                                        border: Border.all(
-                                          color: const Color.fromRGBO(255, 255,
-                                              255, 0.32), // 设置边框颜色和透明度
-                                          width: 0.6, // 设置边框宽度
-                                        ),
                                         borderRadius:
                                             BorderRadius.circular(24), // 设置边框圆角
                                       ),
