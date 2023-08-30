@@ -40,17 +40,6 @@ class LayoutModel extends ChangeNotifier {
         await Future.delayed(const Duration(seconds: 2));
         _loadLayouts();
       }
-      // 安全过滤
-      for (int i = 0; i < layouts.length; i ++) {
-        // 找到数组中的最小值
-        int minValue = layouts[i].grids.reduce((min, current) => min < current ? min : current);
-
-        // 计算最小值与1的差距
-        int difference = 1 - minValue;
-
-        // 将最小值变为1，其他的值增加相同的差距
-        layouts[i].grids = layouts[i].grids.map((number) => number + difference).toList();
-      }
     } else {
       // 初次使用,展示默认布局
       setLayouts([
