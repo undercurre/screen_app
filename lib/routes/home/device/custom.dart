@@ -168,47 +168,54 @@ class _CustomPageState extends State<CustomPage> {
                                     buildMap[result.type]![result.cardType]!(
                                         result.data);
                                 // 映射图标
-                                Widget cardWithIcon = GestureDetector(
-                                  onTap: () {
-                                    Layout deleteBackup = layoutModel
-                                        .getLayoutsByDevice(result.deviceId);
-                                    layoutModel.deleteLayout(
-                                        result.deviceId, result.pageIndex);
-                                    layoutModel.handleNullPage();
-                                    // 取出当前布局的grids
-                                    for (int gridsIndex = 0;
-                                        gridsIndex < deleteBackup.grids.length;
-                                        gridsIndex++) {
-                                      // 把已经布局的数据在布局器中占位
-                                      int grid = deleteBackup.grids[gridsIndex];
-                                      int row = (grid - 1) ~/ 4;
-                                      int col = (grid - 1) % 4;
-                                      screenLayer.setCellOccupied(
-                                          row, col, false);
-                                    }
-                                  },
-                                  child: Stack(children: [
+                                Widget cardWithIcon = Stack(
+                                  children: [
                                     Padding(
-                                        padding: const EdgeInsets.only(
-                                            right: 20, top: 20),
-                                        child: cardWidget),
+                                      padding: const EdgeInsets.only(
+                                          right: 20, top: 20),
+                                      child: cardWidget,
+                                    ),
                                     Positioned(
                                       right: 8,
                                       top: 8,
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xFF6B6D73),
-                                        ),
-                                        child: const Icon(
-                                          Icons.remove,
-                                          color: Colors.white,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Layout deleteBackup =
+                                              layoutModel.getLayoutsByDevice(
+                                                  result.deviceId);
+                                          layoutModel.deleteLayout(
+                                              result.deviceId,
+                                              result.pageIndex);
+                                          layoutModel.handleNullPage();
+                                          // 取出当前布局的grids
+                                          for (int gridsIndex = 0;
+                                              gridsIndex <
+                                                  deleteBackup.grids.length;
+                                              gridsIndex++) {
+                                            // 把已经布局的数据在布局器中占位
+                                            int grid =
+                                                deleteBackup.grids[gridsIndex];
+                                            int row = (grid - 1) ~/ 4;
+                                            int col = (grid - 1) % 4;
+                                            screenLayer.setCellOccupied(
+                                                row, col, false);
+                                          }
+                                        },
+                                        child: Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Color(0xFF6B6D73),
+                                          ),
+                                          child: const Icon(
+                                            Icons.remove,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ]),
+                                  ],
                                 );
                                 // 映射拖拽
                                 Widget cardWithDrag =
@@ -589,31 +596,34 @@ class _CustomPageState extends State<CustomPage> {
           curScreenWidgets.add(cardWithPosition);
         } else {
           // 映射图标
-          Widget cardWithIcon = GestureDetector(
-            onTap: () {
-              layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
-            },
-            child: Stack(children: [
+          Widget cardWithIcon = Stack(
+            children: [
               Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 20),
-                  child: cardWidget),
+                padding: const EdgeInsets.only(right: 20, top: 20),
+                child: cardWidget,
+              ),
               Positioned(
                 right: 8,
                 top: 8,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFF6B6D73),
-                  ),
-                  child: const Icon(
-                    Icons.remove,
-                    color: Colors.white,
+                child: GestureDetector(
+                  onTap: () {
+                    layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
+                  },
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF6B6D73),
+                    ),
+                    child: const Icon(
+                      Icons.remove,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ]),
+              )
+            ],
           );
           // 映射拖拽
           Widget cardWithDrag = LongPressDraggable<String>(
