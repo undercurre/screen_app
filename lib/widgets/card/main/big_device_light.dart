@@ -198,7 +198,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 62,
             left: 25,
             child: Text(
-                "亮度 | ${widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
+                "亮度 | ${widget.disabled ? '0' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -212,7 +212,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 80,
             left: 4,
             child: MzSlider(
-              value: widget.adapter?.getCardStatus()?['brightness'] ?? '',
+              value: widget.disabled ? 0 : widget.adapter?.getCardStatus()?['brightness'] ?? '',
               width: 390,
               height: 16,
               min: 0,
@@ -232,7 +232,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 124,
             left: 25,
             child: Text(
-                "色温 | ${((widget.adapter?.getCardStatus()?['colorTemp'] as int) / 100 * (6500 - 2700) + 2700).toInt() ?? ''}K",
+                "色温 | ${widget.disabled ? '0' : ((widget.adapter?.getCardStatus()?['colorTemp'] as int) / 100 * (6500 - 2700) + 2700).toInt() ?? ''}K",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -246,7 +246,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 140,
             left: 4,
             child: MzSlider(
-              value: widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
+              value: widget.disabled ? 0 : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
               width: 390,
               height: 16,
               min: 0,
