@@ -71,12 +71,12 @@ class DeviceApi {
           "msgId": uuid.v4(),
           "uri": '/$uri/$applianceCode',
           "deviceId": applianceCode,
-          "userId": Global.user?.uid,
+          "userId": MeiJuGlobal.token?.uid,
           "timestamp": DateFormat('yyyyMMddHHmmss').format(DateTime.now())
         },
         options: Options(
           method: 'POST',
-          headers: {'accessToken': Global.user?.accessToken},
+          headers: {'accessToken': MeiJuGlobal.token?.accessToken},
         ));
 
     return res;
@@ -142,18 +142,18 @@ class DeviceApi {
             data: {
               "systemSource": "SMART_SCREEN",
               "frontendType": "ANDRIOD",
-              "userId": Global.user?.uid,
+              "userId": MeiJuGlobal.token?.uid,
               "handleType": handleType,
               "data": commond,
               "reqId": uuid.v4(),
               "version": "1.0",
-              "uid": Global.profile.user?.uid,
+              "uid": MeiJuGlobal.token?.uid,
               "timestamp":
                   DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
             },
             options: Options(
               method: 'POST',
-              headers: {'accessToken': Global.user?.accessToken},
+              headers: {'accessToken': MeiJuGlobal.token?.accessToken},
             ));
 
     return res;
