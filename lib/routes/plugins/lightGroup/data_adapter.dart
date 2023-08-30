@@ -256,8 +256,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
         data!.brightness = lastBrightness;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlZigbeeBrightness(
-          applianceCode, "2", masterId, data!.brightness.toInt());
+      var res = await HomluxDeviceApi.controlGroupLightBrightness(applianceCode, value.toInt());
       if (res.isSuccess) {
       } else {
         data!.brightness = lastBrightness;
@@ -288,8 +287,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
         data!.colorTemp = lastColorTemp;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlZigbeeColorTemp(
-          applianceCode, "2", masterId, data!.colorTemp.toInt());
+      var res = await HomluxDeviceApi.controlGroupLightColorTemp(applianceCode, value.toInt());
       if (res.isSuccess) {
       } else {
         data!.colorTemp = lastColorTemp;
