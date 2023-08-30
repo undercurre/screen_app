@@ -53,7 +53,7 @@ class _BigScenePanelCardWidgetThreeState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(const Duration(milliseconds: 1000), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
@@ -264,7 +264,6 @@ class _BigScenePanelCardWidgetThreeState
                 });
               } else {
                 await widget.adapter.fetchOrderPower(index + 1);
-                _throttledFetchData();
               }
             }
           }

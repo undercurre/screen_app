@@ -50,7 +50,7 @@ class _MiddleScenePanelCardWidgetState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(const Duration(milliseconds: 1000), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
@@ -234,7 +234,6 @@ class _MiddleScenePanelCardWidgetState
                       });
                     } else {
                       await widget.adapter.fetchOrderPower(1);
-                      _throttledFetchData();
                     }
                   }
                 }
@@ -312,7 +311,6 @@ class _MiddleScenePanelCardWidgetState
                       });
                     } else {
                       await widget.adapter.fetchOrderPower(2);
-                      _throttledFetchData();
                     }
                   }
                 }
