@@ -248,6 +248,8 @@ public class AppCommonConfig {
     // 设备模块保存的路径
     public static final String DEVICE_DIR = STORAGE_CACHE + "/device";
 
+    public static final String HOMLUX_DIR = STORAGE_CACHE + "/homlux";
+
     // Glide保存缓存图片的保存到SD卡路径
     public static final String STORAGE_IMAGE_CACHE = SDCardUtil.existSDCard() ? STORAGE_FILE : APP_FILE + "/image_cache";
     // Glide缓存到本地文件的最高缓存大小

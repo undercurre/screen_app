@@ -263,7 +263,6 @@ public class AirConditionController implements Data485Observer {
    }
 
    private void controlDataCombination(AirConditionModel device ,String commandCode,String data){
-//      ControlManager.getInstance().stopFresh();
       StringBuffer sb = new StringBuffer();
       sb.append("01");
       sb.append(" ");
@@ -279,7 +278,5 @@ public class AirConditionController implements Data485Observer {
       sb.append(" ");
       sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().write(sb.toString());
-//      ControlManager.getInstance().startFresh();
-
    }
 }

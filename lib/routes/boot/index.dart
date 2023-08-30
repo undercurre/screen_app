@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/widgets/event_bus.dart';
+import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
 import '../../common/logcat_helper.dart';
+import '../../common/setting.dart';
 
 class _Boot extends State<Boot> {
   @override
@@ -25,8 +27,7 @@ class _Boot extends State<Boot> {
         ChangePlatformHelper.changeToMeiju();
       }
       Navigator.pushNamedAndRemoveUntil(
-          context,
-          "Login", (route) => route.settings.name == "/");
+          context, "Login", (route) => route.settings.name == "/");
     });
 
     () async {
@@ -59,20 +60,22 @@ class _Boot extends State<Boot> {
 
     // () async {
     //   /// 数据迁移逻辑
-    //   String flavor = await aboutSystemChannel.queryFlavor();
     //   String version = await aboutSystemChannel.getAppVersion();
-    //   if (flavor == 'LD' || flavor == 'JH') {
-    //     if (version == '0120' &&
-    //         !Setting.instant().checkVersionCompatibility(version)) {
-    //       if (!System.isLogin()) {
+    //   if (version == '0120' &&
+    //       !Setting.instant().checkVersionCompatibility(version)) {
+    //     if (!System.isLogin()) {
+    //       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
     //         Future.delayed(Duration.zero).then((_) {
-    //           Navigator.pushNamed(context, 'MigrationOldVersionDataPage');
+    //           Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
     //         });
-    //         return;
+    //       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+    //         Future.delayed(Duration.zero).then((_) {
+    //           Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
+    //         });
     //       }
+    //       return;
     //     }
     //   }
-    //
     //   /// 正常的跳转逻辑
     //   checkLogin();
     // }.call();
@@ -112,8 +115,7 @@ class _Boot extends State<Boot> {
       bool familyInfo = System.familyInfo != null;
       bool roomInfo = System.roomInfo != null;
 
-      Log.i(
-          'isLogin = $isLogin '
+      Log.i('isLogin = $isLogin '
           'familyInfo = $familyInfo '
           'roomInfo = $roomInfo');
 
@@ -133,7 +135,6 @@ class _Boot extends State<Boot> {
       }
 
     }
-
   }
 }
 

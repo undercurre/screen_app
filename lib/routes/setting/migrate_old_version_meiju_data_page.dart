@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
-import 'package:screen_app/common/api/gateway_api.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/setting.dart';
 import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
-import '../../models/device_home_list_entity.dart';
+import '../../common/meiju/api/meiju_user_api.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/meiju/models/meiju_login_home_entity.dart';
+import '../../common/meiju/models/meiju_room_entity.dart';
+import '../../common/meiju/models/meiju_user_entity.dart';
 
 /// 定义同步失败异常
 class SyncError extends Error {
@@ -21,14 +24,14 @@ class SyncError extends Error {
 }
 
 /// 数据迁移页
-class MigrationOldVersionDataPage extends StatefulWidget {
-  const MigrationOldVersionDataPage({super.key});
+class MigrationOldVersionMeiJuDataPage extends StatefulWidget {
+  const MigrationOldVersionMeiJuDataPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => MigrationOldVersionDataState();
+  State<StatefulWidget> createState() => MigrationOldVersionMeiJuDataState();
 }
 
-class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
+class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDataPage>
     with WidgetNetState {
   late Timer _timer;
   bool startMigrate = false;
@@ -55,14 +58,14 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       child: Stack(
         children: [
           Center(child: Image.asset('assets/imgs/setting/ig_app_bg.png')),
-          Align(
+          const Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 60),
+              padding: EdgeInsets.only(bottom: 60),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
+                children: [
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: CupertinoActivityIndicator(),
@@ -142,8 +145,6 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
           userData['room']['name'],
           userData['room']['roomId']);
 
-      /// 同步网关信息
-      await migrateGateway(null, 3);
 
       /// 网络请求同步数据
       await migrateHomeFromCloud(userData['home']['homegroupId']);
@@ -170,11 +171,11 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
 
     for (int i = 0; i < 3; i++) {
       try {
-        var res = await UserApi.getHomeListFromMidea();
+        var res = await MeiJuUserApi.getHomeListFromMidea();
         if (res.isSuccess) {
-          for (var element in res.data.homeList) {
+          for (var element in res.data!.homeList!) {
             if (element.homegroupId == homeId) {
-              Global.profile.homeInfo = element;
+              MeiJuGlobal.homeInfo=element;
               refreshHomeInfo = true;
               break;
             }
@@ -196,12 +197,12 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
 
     for (int i = 0; i < 3; i++) {
       try {
-        var res = await UserApi.getHomeListWithDeviceList(homegroupId: homeId);
+        var res = await MeiJuUserApi.getHomeDetail(homegroupId: homeId);
         if (res.isSuccess) {
-          for (var element in res.data.homeList) {
+          for (var element in res.data!.homeList!) {
             element.roomList?.forEach((element) {
-              if (element.roomId == Global.profile.roomInfo?.roomId) {
-                Global.profile.roomInfo = element;
+              if (element.roomId == MeiJuGlobal.roomInfo?.roomId) {
+                MeiJuGlobal.roomInfo = element;
                 refershRoom = true;
               }
             });
@@ -221,43 +222,6 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     return true;
   }
 
-  Future<bool> migrateGateway([String? gatewaySn, int retryCount = 0]) async {
-    if (gatewaySn == null) {
-      gatewaySn = await aboutSystemChannel.getGatewaySn(false);
-      if (gatewaySn == null) {
-        throw SyncError("迁移网关失败");
-      }
-    }
-
-    try {
-      if (retryCount > 0) {
-        final res = await GatewayApi.queryHomeList();
-        if (res.isSuccess) {
-          DeviceHomeListHomeListRoomListApplianceList? appliance;
-          res.result.homeList?[0].roomList?.forEach((element1) {
-            element1.applianceList?.forEach((element2) {
-              if (element2.sn == gatewaySn) {
-                appliance = element2;
-              }
-            });
-          });
-
-          if (appliance != null) {
-            Global.profile.deviceSn = gatewaySn;
-            Global.profile.applianceCode = appliance!.applianceCode;
-            return true;
-          }
-        } else {
-          return migrateGateway(gatewaySn, --retryCount);
-        }
-      }
-    } catch (e) {
-      logger.e(e);
-    }
-
-    throw SyncError("迁移网关失败");
-  }
-
   Future<bool> migrateHome(
       String homegroupId,
       String number,
@@ -275,7 +239,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       int roomCount,
       int applianceCount,
       int memberCount) async {
-    HomeEntity entity = HomeEntity();
+    MeiJuLoginHomeEntity entity = MeiJuLoginHomeEntity();
     entity.homegroupId = homegroupId;
     entity.number = number;
     entity.roleId = roleId;
@@ -292,20 +256,19 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     entity.address = address;
     entity.profilePicUrl = profilePicUrl;
     entity.coordinate = coordinate;
-    Global.profile.homeInfo = entity;
-
+    MeiJuGlobal.homeInfo=entity;
     return true;
   }
 
   Future<bool> migrateRoom(String des, String icon, String isDefault,
       String name, String roomId) async {
-    RoomEntity entity = RoomEntity();
+    MeiJuRoomEntity entity = MeiJuRoomEntity();
     entity.roomId = roomId;
     entity.name = name;
     entity.des = des;
     entity.isDefault = isDefault;
     entity.icon = icon;
-    Global.profile.roomInfo = entity;
+    MeiJuGlobal.roomInfo=entity;
     return true;
   }
 
@@ -320,7 +283,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
       String deviceId) async {
 
     Global.user = null;
-    UserEntity userEntity = UserEntity();
+    MeiJuTokenEntity userEntity = MeiJuTokenEntity();
     userEntity.accessToken = token;
     userEntity.tokenPwd = tokenPwd;
     userEntity.expired = expired;
@@ -354,8 +317,7 @@ class MigrationOldVersionDataState extends State<MigrationOldVersionDataPage>
     if (userEntity.mzAccessToken == null) {
       throw SyncError('迁移Token失败');
     }
-
-    Global.user = userEntity;
+    MeiJuGlobal.token=userEntity;
     Global.profile.deviceId = deviceId;
 
     return true;

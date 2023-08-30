@@ -3,10 +3,7 @@ package com.midea.light.channel.method
 import android.content.Context
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
-import com.midea.light.migration.MigrateDeviceIdUtil
-import com.midea.light.migration.MigrateTokenCache
-import com.midea.light.migration.MigrateUserDataCache
-import com.midea.light.migration.MigrateWiFiRecordCache
+import com.midea.light.migration.*
 import com.midea.light.utils.CollectionUtil
 import com.midea.smart.open.common.util.StringUtils
 import io.flutter.plugin.common.BinaryMessenger
@@ -85,6 +82,59 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(userInfo))
+                }
+            }
+
+            //homlux数据迁移
+            "syncHomluxToken" -> {
+                val token = MigrateHomluxCache.getInstance().token
+                if(StringUtils.isEmpty(token)) {
+                    result.safeError()
+                } else {
+                    val json = JSONObject()
+                    json.put("token", JSONObject(token))
+                    LogUtil.tag("migrate").msg(json.toString())
+                    result.safeSuccess(json)
+                }
+            }
+
+            "syncHomluxUserData" -> {
+                val userData = MigrateHomluxCache.getInstance().userData
+                LogUtil.tag("migrate").msg(userData)
+                if(StringUtils.isEmpty(userData)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(userData))
+                }
+            }
+
+            "syncHomluxFamily" -> {
+                val family = MigrateHomluxCache.getInstance().family
+                LogUtil.tag("migrate").msg(family)
+                if(StringUtils.isEmpty(family)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(family))
+                }
+            }
+
+            "syncHomluxRoom" -> {
+                val room = MigrateHomluxCache.getInstance().room
+                LogUtil.tag("migrate").msg(room)
+                if(StringUtils.isEmpty(room)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(room))
+                }
+            }
+
+            "syncGatewayApplianceCode" -> {
+                val bindGatewayInfo = MigrateHomluxCache.getInstance().bindGatewayInfo
+                LogUtil.tag("migrate").msg(bindGatewayInfo)
+                if(StringUtils.isEmpty(bindGatewayInfo)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(bindGatewayInfo))
                 }
             }
         }
