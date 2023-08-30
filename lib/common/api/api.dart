@@ -12,6 +12,7 @@ import 'package:screen_app/widgets/event_bus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../global.dart';
+import '../meiju/meiju_global.dart';
 
 const uuid = Uuid();
 
@@ -457,17 +458,17 @@ class Api {
       'frontendType': 'ANDROID',
     });
 
-    if (Global.isLogin) {
+    if (MeiJuGlobal.isLogin) {
       headers.addAll({
-        'deviceId': Global.user?.deviceId,
+        'deviceId': MeiJuGlobal.token?.deviceId,
       });
 
-      params['userId'] = Global.user?.uid;
+      params['userId'] = MeiJuGlobal.token?.uid;
     }
 
-    if (StrUtils.isNotNullAndEmpty(Global.user?.mzAccessToken)) {
+    if (StrUtils.isNotNullAndEmpty(MeiJuGlobal.token?.mzAccessToken)) {
       headers.addAll({
-        'Authorization': 'Bearer ${Global.user?.mzAccessToken}',
+        'Authorization': 'Bearer ${MeiJuGlobal.token?.mzAccessToken}',
       });
     }
 
