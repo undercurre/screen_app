@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../mz_slider.dart';
@@ -9,23 +8,31 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
+  final bool disabled;
+  final bool hasMore;
+
   //----
   final DeviceCardDataAdapter? adapter;
 
-  const BigDeviceCurtainCardWidget(
-      {super.key,
-        required this.name,
-        required this.roomName,
-        required this.online,
-        required this.isFault,
-        required this.isNative,
-        this.adapter});
+  const BigDeviceCurtainCardWidget({
+    super.key,
+    required this.name,
+    required this.roomName,
+    required this.online,
+    required this.isFault,
+    required this.isNative,
+    this.adapter,
+    this.hasMore = true,
+    this.disabled = false,
+  });
 
   @override
-  _BigDeviceCurtainCardWidgetState createState() => _BigDeviceCurtainCardWidgetState();
+  _BigDeviceCurtainCardWidgetState createState() =>
+      _BigDeviceCurtainCardWidgetState();
 }
 
-class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget> {
+class _BigDeviceCurtainCardWidgetState
+    extends State<BigDeviceCurtainCardWidget> {
   bool onOff = true;
   int? index = 0; // 三个操作选项index=0|1|2，都不选传null
   int percent = 0; // 开合百分比
@@ -36,6 +43,15 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }
+
+  @override
+  void didUpdateWidget(covariant BigDeviceCurtainCardWidget oldWidget) {
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
+  }
+
 
   @override
   void dispose() {
@@ -65,91 +81,83 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
             child: Image(
                 width: 40,
                 height: 40,
-                image: AssetImage('assets/newUI/device/0x14.png')
-            ),
+                image: AssetImage('assets/newUI/device/0x14.png')),
           ),
-
           Positioned(
             top: 16,
             right: 16,
             child: GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '0x14', arguments: {"name": widget.name, "adapter": widget.adapter});
+                Navigator.pushNamed(context, '0x14', arguments: {
+                  "name": widget.name,
+                  "adapter": widget.adapter
+                });
               },
               child: const Image(
                   width: 32,
                   height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')
-              ),
+                  image: AssetImage('assets/newUI/to_plugin.png')),
             ),
           ),
-
           Positioned(
-              top: 10,
-              left: 88,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+            top: 10,
+            left: 88,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
+                    child: Text(widget.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 22,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 90),
+                  child: Text(widget.roomName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XA3FFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none)),
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 90),
+                  child: Text(" | ${_getRightText()}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Color(0XA3FFFFFF),
+                          fontSize: 16,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none)),
+                ),
+                if (widget.isNative)
                   Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                          maxWidth: widget.isNative ? 100 : 140
-                      ),
-                      child: Text(widget.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: Color(0XFFFFFFFF),
-                              fontSize: 22,
-                              fontFamily: "MideaType",
-                              fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none)
-                      ),
-                    ),
-                  ),
-
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        maxWidth: 90
-                    ),
-                    child: Text(widget.roomName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XA3FFFFFF),
-                            fontSize: 16,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)
-                    ),
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        maxWidth: 90
-                    ),
-                    child: Text(" | ${_getRightText()}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XA3FFFFFF),
-                            fontSize: 16,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)
-                    ),
-                  ),
-
-                  if(widget.isNative) Container(
                     alignment: Alignment.center,
                     width: 48,
                     height: 24,
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
+                      border:
+                          Border.all(color: const Color(0xFFFFFFFF), width: 1),
                     ),
                     margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                    child: const Text("本地",
+                    child: const Text(
+                      "本地",
                       style: TextStyle(
                           height: 1.6,
                           color: Color(0XFFFFFFFF),
@@ -159,45 +167,45 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                           decoration: TextDecoration.none),
                     ),
                   )
-                ],
-              ),
+              ],
+            ),
           ),
-
           Positioned(
             top: 44,
             left: 32,
-            child: Text("${percent == 0 ? '全关' : percent == 100 ? '全开' : percent}",
+            child: Text(
+                "${percent == 0 ? '全关' : percent == 100 ? '全开' : percent}",
                 style: const TextStyle(
                     color: Color(0XFFFFFFFF),
                     fontSize: 60,
                     fontFamily: "MideaType",
                     fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none)
-            ),
+                    decoration: TextDecoration.none)),
           ),
-          if(percent > 0 && percent < 100) const Positioned(
-            top: 66,
-            left: 114,
-            child: Text("%",
-                style: TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 18,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none)
+          if (percent > 0 && percent < 100)
+            const Positioned(
+              top: 66,
+              left: 114,
+              child: Text("%",
+                  style: TextStyle(
+                      color: Color(0XFFFFFFFF),
+                      fontSize: 18,
+                      fontFamily: "MideaType",
+                      fontWeight: FontWeight.normal,
+                      decoration: TextDecoration.none)),
             ),
-          ),
-
           Positioned(
             top: 74,
             left: 174,
             child: CupertinoSlidingSegmentedControl(
-              backgroundColor: onOff ? const Color(0xFF767D87) : const Color(0xFF4C525E),
+              backgroundColor:
+                  onOff ? const Color(0xFF767D87) : const Color(0xFF4C525E),
               thumbColor: const Color(0xC1B7C4CF),
               padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
               children: {
                 0: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                   child: const Text('全开',
                       style: TextStyle(
                           color: Color(0XFFFFFFFF),
@@ -207,7 +215,8 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                           decoration: TextDecoration.none)),
                 ),
                 1: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                   child: const Text('暂停',
                       style: TextStyle(
                           color: Color(0XFFFFFFFF),
@@ -217,7 +226,8 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                           decoration: TextDecoration.none)),
                 ),
                 2: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                   child: const Text('全关',
                       style: TextStyle(
                           color: Color(0XFFFFFFFF),
@@ -233,7 +243,6 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
               },
             ),
           ),
-
           Positioned(
             top: 140,
             left: 4,
@@ -259,8 +268,8 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
   }
 
   int? _getGroupIndex() {
-    if(index == null) return null;
-    if(index! < 0 || index! > 2) return null;
+    if (index == null) return null;
+    if (index! < 0 || index! > 2) return null;
     return index;
   }
 
@@ -305,5 +314,4 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
       ),
     );
   }
-
 }

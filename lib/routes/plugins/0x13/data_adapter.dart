@@ -289,7 +289,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     if (platform.inMeiju()) {
       var res;
       if (sn8 == '79009833') {
-        var command = {"dimTime": 0, "screenModel": mode};
+        var command = {"dimTime": 0, "screenModel": mode.key};
         res = await MeiJuDeviceApi.sendPDMControlOrder(
           categoryCode: '0x13',
           uri: 'controlScreenModel',
@@ -297,7 +297,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
           command: command,
         );
       } else {
-        var command = {"scene_light": mode};
+        var command = {"scene_light": mode.key};
         res = await MeiJuDeviceApi.sendLuaOrder(
           categoryCode: '0x13',
           applianceCode: applianceCode,

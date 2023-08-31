@@ -1,104 +1,104 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
-import '../../../common/adapter/device_card_data_adapter.dart';
-import '../../../common/homlux/api/homlux_device_api.dart';
-import '../../../common/homlux/models/homlux_device_entity.dart';
-import '../../../common/homlux/push/event/homlux_push_event.dart';
-import '../../../common/meiju/push/event/meiju_push_event.dart';
-import '../../../models/device_entity.dart';
-import '../../../widgets/event_bus.dart';
-import '../../../widgets/plugins/mode_card.dart';
-import '../../home/device/service.dart';
-import 'api.dart';
-import 'mode_list.dart';
+import '../../../../common/adapter/device_card_data_adapter.dart';
+import '../../../../common/adapter/midea_data_adapter.dart';
+import '../../../../common/gateway_platform.dart';
+import '../../../../common/homlux/api/homlux_device_api.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
+import '../../../../common/meiju/api/meiju_device_api.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/plugins/mode_card.dart';
+import '../0x21/0x21_curtain/mode_list.dart';
 
-class DeviceDataEntity {
-  DeviceEntity? deviceEnt;
-  String deviceID = "";
-  String deviceName = "智能窗帘";
-  String deviceType = '0x14';
-  //-------
+class CurtainDataEntity {
   int curtainPosition = 0;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
 
-  void setDetailMeiJu(Map<String, dynamic> detail) {
-    curtainPosition = int.parse(detail['curtain_position']);
-    curtainStatus = detail['curtain_status'];
-    curtainDirection = detail['curtain_direction'];
+  CurtainDataEntity({
+    required this.curtainPosition,
+    required this.curtainDirection,
+    required this.curtainStatus,
+  });
 
-    deviceEnt?.detail = detail;
+  CurtainDataEntity.fromMeiJu(dynamic data) {
+    curtainPosition = int.parse(data['curtain_position']);
+    curtainStatus = data['curtain_status'];
+    curtainDirection = data['curtain_direction'];
   }
 
-  void setDetailHomlux(HomluxDeviceEntity detail) {
-    curtainPosition = int.parse(detail.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
-    curtainStatus = detail.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
-    curtainDirection = detail.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
+  CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
+    curtainPosition =
+        int.parse(data.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
+    curtainStatus = data.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
+    curtainDirection =
+        data.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
   }
 
-  @override
-  String toString() {
-    return jsonEncode({
-      "deviceEnt": deviceEnt?.toJson(),
-      "deviceID": deviceID,
-      "curtainPosition": curtainPosition,
-      "curtainStatus": curtainStatus,
-      "curtainDirection": curtainDirection,
-    });
+  Map<String, dynamic> toJson() {
+    return {
+      'curtainPosition': curtainPosition,
+      'curtainStatus': curtainStatus,
+      'curtainDirection': curtainDirection,
+    };
   }
-  
 }
 
-class WIFICurtainDataAdapter extends DeviceCardDataAdapter {
-  DeviceDataEntity device = DeviceDataEntity();
+class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
+  String deviceName = "Wifi窗帘";
+  String applianceCode = "";
+
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  dynamic _meijuData = null;
+  HomluxDeviceEntity? _homluxData = null;
+
+  CurtainDataEntity? data = CurtainDataEntity(
+    curtainPosition: 0,
+    curtainStatus: 'stop',
+    curtainDirection: 'positive',
+  );
 
   final BuildContext context;
 
-  Timer? delayTimer;
-
-  WIFICurtainDataAdapter(super.platform, this.context, String deviceId) {
-    device.deviceID = deviceId;
+  WIFICurtainDataAdapter(super.platform, this.context, this.applianceCode) {
     type = AdapterType.wifiCurtain;
   }
 
   @override
   void init() {
-    // if (device.deviceID.isNotEmpty) {
-    //   if (platform.inMeiju()) {
-    //     device.deviceEnt = context.read<DeviceListModel>().getDeviceInfoById(device.deviceID);
-    //
-    //     var data = context.read<DeviceListModel>().getDeviceDetailById(device.deviceID);
-    //     if (data.isNotEmpty) {
-    //       device.deviceName = data["deviceName"];
-    //       device.setDetailMeiJu(data['detail']);
-    //     }
-    //   } else if (platform.inHomlux()) {
-    //
-    //   }
-    // }
+    fetchData();
     _startPushListen();
-    updateDetail();
   }
 
   @override
   Map<String, dynamic>? getCardStatus() {
     return {
-      "curtainPosition": device.curtainPosition,
-      "curtainStatus": device.curtainStatus,
-      "curtainDirection": device.curtainDirection,
-      "index": device.curtainStatus == "open"
-          ? 0 : device.curtainStatus == "stop"
-          ? 1 : device.curtainStatus == "close"
-          ? 2 : 0
+      'curtainPosition': data!.curtainPosition,
+      'curtainStatus': data!.curtainStatus,
+      'curtainDirection': data!.curtainDirection,
     };
   }
 
   @override
-  String? getStatusDes() {
-    return "${device.curtainPosition}%";
+  bool getPowerStatus() {
+    Log.i('获取开关状态', data!.curtainPosition > 0);
+    return data!.curtainPosition > 0;
+  }
+
+  @override
+  String? getCharacteristic() {
+    Log.i('获取特征状态', data!.curtainPosition);
+    return "${data!.curtainPosition}%";
   }
 
   @override
@@ -114,94 +114,181 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter {
     return controlCurtain(value as num);
   }
 
+  /// 防抖刷新
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
+
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
+      }
+
+      _debounceTimer = Timer(Duration(milliseconds: 2000), () async {
+        Log.i('触发更新');
+        await fetchData();
+        _isFetching = false;
+      });
+    }
+  }
+
   /// 查询状态
-  Future<void> updateDetail() async {
-    if (platform.inMeiju()) {
-      if (device.deviceEnt == null) {
+  Future<void> fetchData() async {
+    try {
+      dataState = DataState.LOADING;
+      updateUI();
+      if (platform.inMeiju()) {
+        _meijuData = await fetchMeijuData();
+      } else if (platform.inHomlux()) {
+        _homluxData = await fetchHomluxData();
+      }
+      if (_meijuData != null) {
+        data = CurtainDataEntity.fromMeiJu(_meijuData!);
+      } else if (_homluxData != null) {
+        data = CurtainDataEntity.fromHomlux(_homluxData!);
+      } else {
+        dataState = DataState.ERROR;
+        data = CurtainDataEntity(
+          curtainPosition: 0,
+          curtainStatus: 'stop',
+          curtainDirection: 'positive',
+        );
+        updateUI();
         return;
       }
-      DeviceService.getDeviceDetail(device.deviceEnt!).then((res) {
-        device.setDetailMeiJu(res);
-        updateUI();
-        /// 更新DeviceListModel
-        // if (device.deviceEnt != null) {
-        //   context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
-        // }
-      });
-    } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
-      if (res.isSuccess) {
-        if (res.result == null) return;
-        device.setDetailHomlux(res.result!);
-        updateUI();
-      }
+      dataState = DataState.SUCCESS;
+      updateUI();
+    } catch (e) {
+      // Error occurred while fetching data
+      dataState = DataState.ERROR;
+      updateUI();
+      Log.i(e.toString());
+    }
+  }
+
+  Future<dynamic> fetchMeijuData() async {
+    try {
+      var nodeInfo =
+          await MeiJuDeviceApi.getDeviceDetail('0x14', applianceCode);
+      return nodeInfo.data;
+    } catch (e) {
+      Log.i('getNodeInfo Error', e);
+      dataState = DataState.ERROR;
+      updateUI();
+      return null;
+    }
+  }
+
+  Future<HomluxDeviceEntity> fetchHomluxData() async {
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
+        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+    if (nodeInfo != null) {
+      return nodeInfo;
+    } else {
+      return HomluxDeviceEntity();
     }
   }
 
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
-    device.curtainStatus = mode.key;
+    String lastModel = data!.curtainStatus;
+    data!.curtainStatus = mode.key;
     if (mode.key == 'open') {
-      device.curtainPosition = 100;
+      data!.curtainPosition = 100;
     } else if (mode.key == 'close') {
-      device.curtainPosition = 0;
+      data!.curtainPosition = 0;
     }
     updateUI();
     if (platform.inMeiju()) {
-      CurtainApi.setMode(device.deviceID, mode.key, device.curtainDirection);
-    } else if(platform.inHomlux()) {
-      if (mode.key == "stop") {
-        HomluxDeviceApi.controlWifiCurtainStop(device.deviceID, "3");
+      var command = {
+        "curtain_status": data!.curtainStatus,
+        'curtain_direction': data!.curtainDirection
+      };
+      var res = await MeiJuDeviceApi.sendLuaOrder(
+        categoryCode: '0x14',
+        applianceCode: applianceCode,
+        command: command,
+      );
+      if (res.isSuccess) {
       } else {
-        HomluxDeviceApi.controlWifiCurtainOnOff(device.deviceID, "3", mode.key == 'open' ? 1 : 0);
+        data!.curtainStatus = lastModel;
+        if (mode.key == 'open') {
+          data!.curtainPosition = 0;
+        } else if (mode.key == 'close') {
+          data!.curtainPosition = 100;
+        }
+      }
+    } else if (platform.inHomlux()) {
+      var res;
+      if (mode.key == "stop") {
+        res = await HomluxDeviceApi.controlWifiCurtainStop(applianceCode, "3");
+      } else {
+        res = await HomluxDeviceApi.controlWifiCurtainOnOff(
+            applianceCode, "3", mode.key == 'open' ? 1 : 0);
+      }
+      if (res.isSuccess) {
+      } else {
+        data!.curtainStatus = lastModel;
+        if (mode.key == 'open') {
+          data!.curtainPosition = 0;
+        } else if (mode.key == 'close') {
+          data!.curtainPosition = 100;
+        }
       }
     }
   }
 
   /// 控制位置
   Future<void> controlCurtain(num value) async {
-    device.curtainPosition = value.toInt();
+    int lastPosition = data!.curtainPosition;
+    data!.curtainPosition = value.toInt();
     updateUI();
     if (platform.inMeiju()) {
-      CurtainApi.changePosition(device.deviceID, value, device.curtainPosition.toString());
+      var command = {
+        {"curtain_position": value, 'curtain_direction': data!.curtainDirection}
+      };
+      var res = await MeiJuDeviceApi.sendLuaOrder(
+          categoryCode: '0x14', applianceCode: applianceCode, command: command);
+
+      if (res.isSuccess) {
+      } else {
+        data!.curtainPosition = lastPosition;
+      }
     } else if (platform.inHomlux()) {
-      HomluxDeviceApi.controlWifiCurtainPosition(device.deviceID, "3", value.toInt());
+      var res = await HomluxDeviceApi.controlWifiCurtainPosition(
+          applianceCode, "3", value.toInt());
+      if (res.isSuccess) {
+      } else {
+        data!.curtainPosition = lastPosition;
+      }
     }
   }
 
-  void _delay2UpdateDetail(int? sec) {
-    delayTimer?.cancel();
-    delayTimer = Timer(Duration(seconds: sec ?? 2), () {
-      updateDetail();
-      delayTimer = null;
-    });
-  }
-
-  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == device.deviceID) {
-      updateDetail();
+  void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {
+    if (args.deviceId == applianceCode) {
+      _throttledFetchData();
     }
   }
 
-  void statusChangePushMieJu(MeiJuWifiDevicePropertyChangeEvent event) {
-    if (event.deviceId == device.deviceID) {
-      updateDetail();
+  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
+    if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+      _throttledFetchData();
     }
   }
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
-      bus.typeOn(statusChangePushMieJu);
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOn<MeiJuWifiDevicePropertyChangeEvent>(meijuPush);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOff(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
-      bus.typeOff(statusChangePushMieJu);
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOff<MeiJuWifiDevicePropertyChangeEvent>(meijuPush);
     }
   }
 
@@ -210,5 +297,4 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter {
     super.destroy();
     _stopPushListen();
   }
-
 }

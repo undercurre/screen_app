@@ -484,7 +484,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => SmallDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+            image: AssetImage('assets/newUI/device/0x14.png'),
           ),
           roomName: params.roomName,
           onTap: () => params.onTap,
@@ -500,7 +500,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_55.png'),
+            image: AssetImage('assets/newUI/device/0x14.png'),
           ),
           roomName: params.roomName,
           online: params.isOnline == '1',
@@ -511,7 +511,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           adapter: WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
               params.context!, params.applianceCode ?? ''),
         ),
-    CardType.Big: (params) => BigDeviceLightCardWidget(
+    CardType.Big: (params) => BigDeviceCurtainCardWidget(
           name: params.name,
           roomName: params.roomName,
           online: params.isOnline == '1',

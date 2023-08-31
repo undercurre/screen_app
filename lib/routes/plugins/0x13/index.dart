@@ -167,7 +167,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onChanging: dataAdapter?.controlColorTemperature,
                                         ),
                                       ),
-                                      if (dataAdapter?.sn8 == '79009833') Container(
+                                      Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
@@ -177,7 +177,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onTap: dataAdapter?.controlMode,
                                         ),
                                       ),
-                                      if (dataAdapter?.sn8 == '79009833') Container(
+                                      Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
