@@ -158,6 +158,7 @@ class _CardDialogState extends State<CardDialog> {
                                     masterId: widget.masterId,
                                     disabled: true,
                                     modelNumber: widget.modelNumber,
+                                    disableOnOff: true,
                                     isOnline: '1',
                                     hasMore: false,
                                     context: context
@@ -238,7 +239,7 @@ class _CardDialogState extends State<CardDialog> {
   }
 
   DeviceEntityTypeInP4 _getDeviceEntityType(String type, String? modelNum) {
-    Log.i('当前对话', modelNum);
+    Log.i('设备信息$modelNum', type);
     for (var deviceType in DeviceEntityTypeInP4.values) {
       if (type == '0x21') {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {

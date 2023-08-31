@@ -94,10 +94,12 @@ class _BigDeviceCurtainCardWidgetState
                   "adapter": widget.adapter
                 });
               },
-              child: const Image(
+              child: widget.hasMore
+                  ? const Image(
                   width: 32,
                   height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')),
+                  image: AssetImage('assets/newUI/to_plugin.png'))
+                  : Container(),
             ),
           ),
           Positioned(

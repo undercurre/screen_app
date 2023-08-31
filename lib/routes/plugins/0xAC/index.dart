@@ -18,7 +18,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[dataAdapter?.device.mode ?? "auto"] = true;
+    selectKeys[dataAdapter?.data!.mode ?? "auto"] = true;
     return selectKeys;
   }
 
@@ -28,14 +28,10 @@ class AirConditionPageState extends State<AirConditionPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (args == null) return;
-      if (args.containsKey("applianceCode")) {
-        dataAdapter = WIFIAirDataAdapter(args["applianceCode"]);
-      } else if (args.containsKey("adapter")) {
-        dataAdapter = args['adapter'];
-      }
+      setState(() {
+        dataAdapter = args?['adapter'];
+      });
       dataAdapter?.bindDataUpdateFunction(updateCallback);
-      dataAdapter?.init();
     });
   }
 
@@ -79,7 +75,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Map<String, String> getCurModeConfig() {
     Map<String, String> curMode =
-        btnList.where((element) => element["key"] == (dataAdapter?.device.mode ?? "auto")).toList()[0];
+        btnList.where((element) => element["key"] == (dataAdapter?.data!.mode ?? "auto")).toList()[0];
     return curMode;
   }
 
@@ -104,9 +100,9 @@ class AirConditionPageState extends State<AirConditionPage> {
               left: 0,
               top: 0,
               child: AirCondition(
-                temperature: dataAdapter?.device.temperature,
-                windSpeed: dataAdapter?.device.wind,
-                mode: dataAdapter?.device.mode,
+                temperature: dataAdapter?.data!.temperature,
+                windSpeed: dataAdapter?.data!.wind,
+                mode: dataAdapter?.data!.mode,
               )
           ),
           Flex(
@@ -125,8 +121,8 @@ class AirConditionPageState extends State<AirConditionPage> {
                     onRightBtnTap: () {
                       dataAdapter?.controlPower();
                     },
-                    title: dataAdapter?.device.deviceName ?? "空调",
-                    power: dataAdapter?.device.power ?? false,
+                    title: dataAdapter?.deviceName ?? "空调",
+                    power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -149,7 +145,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () async {
-                        dataAdapter?.updateDetail();
+                        dataAdapter?.fetchData();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -171,7 +167,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                     child: FunctionCard(
                                       title: '模式',
                                       child: ui.DropdownMenu(
-                                        disabled: dataAdapter?.device.power == false,
+                                        disabled: dataAdapter?.data!.power == false,
                                         menu: btnList.map(
                                           (item) {
                                             return PopupMenuItem<String>(
@@ -184,7 +180,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                     height: 50,
                                                     margin: const EdgeInsets.symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: dataAdapter?.device.mode== item['key']
+                                                      color: dataAdapter?.data!.mode== item['key']
                                                           ? const Color(
                                                               0x26101010)
                                                           : Colors.transparent,
@@ -248,22 +244,22 @@ class AirConditionPageState extends State<AirConditionPage> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: dataAdapter?.device.power == false ||
-                                          dataAdapter?.device.mode == 'fan',
+                                      disabled: dataAdapter?.data!.power == false ||
+                                          dataAdapter?.data!.mode == 'fan',
                                       min: 17,
                                       max: 30,
                                       step: 0.5,
-                                      value: (dataAdapter?.device.temperature ?? 17) + (dataAdapter?.device.smallTemperature ?? 0),
+                                      value: (dataAdapter?.data!.temperature ?? 17) + (dataAdapter?.data!.smallTemperature ?? 0),
                                       onChanged: dataAdapter?.controlTemperature,
                                     ),
                                   ),
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      disabled: dataAdapter?.device.power == false ||
-                                          dataAdapter?.device.mode == 'auto' ||
-                                          dataAdapter?.device.mode == 'dry',
-                                      value: ((dataAdapter?.device.wind ?? 0) / 20).truncate() + 1,
+                                      disabled: dataAdapter?.data!.power == false ||
+                                          dataAdapter?.data!.mode == 'auto' ||
+                                          dataAdapter?.data!.mode == 'dry',
+                                      value: ((dataAdapter?.data!.wind ?? 0) / 20).truncate() + 1,
                                       onChanged: dataAdapter?.controlGear,
                                     ),
                                   ),
