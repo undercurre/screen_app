@@ -33,6 +33,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.applianceCode = e.applianceCode!;
         deviceObj.type = e.type!;
         deviceObj.modelNumber = e.modelNumber!;
+        deviceObj.sn8 = e.sn8;
         deviceObj.roomName = e.roomName!;
         deviceObj.masterId = e.masterId!;
         deviceObj.onlineStatus = e.onlineStatus!;
@@ -182,6 +183,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.applianceCode = e.applianceCode!;
           deviceObj.type = e.type!;
           deviceObj.modelNumber = e.modelNumber!;
+          deviceObj.sn8 = e.sn8;
           deviceObj.roomName = e.roomName!;
           deviceObj.masterId = e.masterId!;
           deviceObj.onlineStatus = e.onlineStatus!;

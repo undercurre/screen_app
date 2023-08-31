@@ -181,6 +181,7 @@ class DataInputCard {
   String applianceCode;
   String isOnline;
   BuildContext? context;
+  String? sn8;
   String? masterId;
   String? modelNumber;
   String? icon;
@@ -201,6 +202,7 @@ class DataInputCard {
     this.hasMore,
     this.isFault,
     this.isNative,
+    this.sn8,
     this.disableOnOff,
     required this.applianceCode,
     required this.roomName,
@@ -449,7 +451,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           hasMore: params.hasMore ?? true,
           adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+              params.context!,params.sn8 ?? '', params.applianceCode ?? ''),
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           name: params.name,
@@ -463,7 +465,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
           adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+              params.context!,params.sn8 ?? '', params.applianceCode ?? ''),
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           name: params.name,
@@ -474,7 +476,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disabled: params.disabled ?? false,
           hasMore: params.hasMore ?? true,
           adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+              params.context!,params.sn8 ?? '', params.applianceCode ?? ''),
         ),
   },
   // WIFI窗帘

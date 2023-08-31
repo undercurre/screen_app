@@ -21,7 +21,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[dataAdapter?.device.screenModel ?? 'manual'] = true;
+    selectKeys[dataAdapter?.data!.screenModel ?? 'manual'] = true;
     return selectKeys;
   }
 
@@ -32,14 +32,10 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (args == null) return;
-      if (args.containsKey("applianceCode")) {
-        dataAdapter = WIFILightDataAdapter(MideaRuntimePlatform.platform, context, args["applianceCode"]);
-      } else if (args.containsKey("adapter")) {
-        dataAdapter = args['adapter'];
-      }
+      setState(() {
+        dataAdapter = args?['adapter'];
+      });
       dataAdapter?.bindDataUpdateFunction(updateCallback);
-      dataAdapter?.init();
     });
   }
 
@@ -74,8 +70,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
               left: 0,
               top: 0,
               child: LightBall(
-                brightness: formatValue(dataAdapter?.device.brightness ?? 1),
-                colorTemperature: 100 - formatValue(dataAdapter?.device.colorTemp ?? 0),
+                brightness: formatValue(dataAdapter?.data!.brightness ?? 1),
+                colorTemperature: 100 - formatValue(dataAdapter?.data!.colorTemp ?? 0),
               )),
           Flex(
             direction: Axis.vertical,
@@ -93,8 +89,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                     onRightBtnTap: () {
                       dataAdapter?.controlPower();
                     },
-                    title: dataAdapter?.device.deviceName ?? '',
-                    power: dataAdapter?.device.power ?? false,
+                    title: dataAdapter?.deviceName ?? '',
+                    power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -117,7 +113,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () {
-                        dataAdapter?.updateDetail();
+                        dataAdapter?.fetchData();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -146,8 +142,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           minValue: 1,
                                           maxValue: 100,
                                           title: '亮度',
-                                          disabled: dataAdapter?.device.power ?? true ? false : true,
-                                          value: max(1, dataAdapter?.device.brightness ?? 1),
+                                          disabled: dataAdapter?.data!.power ?? true ? false : true,
+                                          value: max(1, dataAdapter?.data!.brightness ?? 1),
                                           activeColors: const [
                                             Color(0xFFFFD185),
                                             Color(0xFFFFD185)
@@ -161,8 +157,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
                                           title: '色温',
-                                          disabled: dataAdapter?.device.power ?? true ? false : true,
-                                          value: dataAdapter?.device.colorTemp ?? 0,
+                                          disabled: dataAdapter?.data!.power ?? true ? false : true,
+                                          value: dataAdapter?.data!.colorTemp ?? 0,
                                           activeColors: const [
                                             Color(0xFFFFD39F),
                                             Color(0xFF55A2FA)
@@ -171,24 +167,24 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onChanging: dataAdapter?.controlColorTemperature,
                                         ),
                                       ),
-                                      if (dataAdapter?.device.deviceEnt?.sn8 == '79009833') Container(
+                                      if (dataAdapter?.sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
-                                          disabled: dataAdapter?.device.power ?? true ? false : true,
+                                          disabled: dataAdapter?.data!.power ?? true ? false : true,
                                           modeList: lightModes,
                                           selectedKeys: getSelectedKeys(),
                                           onTap: dataAdapter?.controlMode,
                                         ),
                                       ),
-                                      if (dataAdapter?.device.deviceEnt?.sn8 == '79009833') Container(
+                                      if (dataAdapter?.sn8 == '79009833') Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
                                           title: '延时关灯',
-                                          subTitle: dataAdapter?.device.timeOff == 0
+                                          subTitle: dataAdapter?.data!.timeOff == 0
                                               ? '未设置'
-                                              : '${dataAdapter?.device.timeOff}分钟后关灯',
+                                              : '${dataAdapter?.data!.timeOff}分钟后关灯',
                                           child: Listener(
                                             onPointerDown: (e) {
                                               dataAdapter?.controlDelay();
@@ -200,7 +196,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                                 gradient: LinearGradient(
                                                   begin: Alignment.topRight,
                                                   end: Alignment.bottomLeft,
-                                                  colors: dataAdapter?.device.timeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                                                  colors: dataAdapter?.data!.timeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
                                                     [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
                                                 ),
                                                 borderRadius:

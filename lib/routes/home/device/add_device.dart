@@ -413,6 +413,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             modelNumber:
                                                 devices[index].modelNumber,
                                             masterId: devices[index].masterId,
+                                            sn8: devices[index].sn8,
                                             isOnline:
                                                 devices[index].onlineStatus,
                                             disabled: true,
@@ -455,6 +456,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                                     devices[index].masterId,
                                                 isOnline:
                                                     devices[index].onlineStatus,
+                                                sn8: devices[index].sn8,
                                                 disabled: true,
                                               ),
                                             );

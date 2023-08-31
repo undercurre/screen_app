@@ -36,3 +36,21 @@ meiju支持设备删除，设备添加，设备解绑，设备属性变化等事
 查看所有的事件类型路径如下：
 > /lib/common/meiju/push/event/meiju_push_event.dart
 
+
+// 反例
+```
+if (platform.inHomlux()) {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
+        if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    } else {
+      bus.typeOn<MeiJuWifiDevicePropertyChangeEvent>((args) {
+        Log.i('${args.deviceId}');
+        if (args.deviceId == applianceCode) {
+          _throttledFetchData();
+        }
+      });
+    }
+```

@@ -128,7 +128,7 @@ class MeiJuPushManager {
                   bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId));
                 }
               }
-            } else if (type == 'appliance/status.report') {
+            } else if (type == 'appliance/status/report') {
               if(msgMap.containsKey('applianceId')) {
                 String deviceId = msgMap['applianceId'];
                 bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId));
