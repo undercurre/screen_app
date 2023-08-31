@@ -8,7 +8,8 @@ import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/engineering_mode.dart';
-import 'package:screen_app/routes/setting/migrate_old_version_data_page.dart';
+import 'package:screen_app/routes/setting/migrate_old_version_homlux_data_page.dart';
+import 'package:screen_app/routes/setting/migrate_old_version_meiju_data_page.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
 import 'package:screen_app/routes/setting/standby_style_select.dart';
@@ -58,7 +59,8 @@ var routes = <String, WidgetBuilder>{
   "DropDownPage": (context) => const DropDownPage(),
   "SelectTimeDurationPage": (context) => const SelectTimeDurationPage(),
   "SelectStandbyStylePage": (contest) => const SelectStandbyStylePage(),
-  "MigrationOldVersionDataPage": (contest) => const MigrationOldVersionDataPage(),
+  "MigrationOldVersionMeiJuDataPage": (contest) => const MigrationOldVersionMeiJuDataPage(),
+  "MigrationOldVersionHomLuxDataPage": (contest) => const MigrationOldVersionHomLuxDataPage(),
   "AccountSettingPage": (contest) => const AccountSettingPage(),
   "AdvancedSettingPage": (contest) => const AdvancedSettingPage(),
   "CurrentPlatformPage": (contest) => const CurrentPlatformPage(),
