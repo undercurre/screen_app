@@ -26,6 +26,9 @@ class GroupDataEntity {
   int brightness = 1; // 亮度
   int colorTemp = 0; // 色温
   bool power = false; //开关
+  int maxColorTemp = 2700;
+  int minColorTemp = 6500;
+
 
   GroupDataEntity({
     required brightness,
@@ -90,7 +93,9 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
     return {
       "power": data!.power,
       "brightness": data!.brightness,
-      "colorTemp": data!.colorTemp
+      "colorTemp": data!.colorTemp,
+      "maxColorTemp": data!.maxColorTemp,
+      "minColorTemp": data!.minColorTemp
     };
   }
 

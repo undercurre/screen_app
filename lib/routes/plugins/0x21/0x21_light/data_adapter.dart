@@ -25,6 +25,8 @@ class DeviceDataEntity {
   int colorTemp = 0; // 色温
   bool power = false; //开关
   int delayClose = 0; //延时关
+  int maxColorTemp = 2700;
+  int minColorTemp = 6500;
 
   DeviceDataEntity({
     required brightness,
@@ -93,7 +95,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     return {
       "power": data!.power,
       "brightness": data!.brightness,
-      "colorTemp": data!.colorTemp
+      "colorTemp": data!.colorTemp,
+      "maxColorTemp": data!.maxColorTemp,
+      "minColorTemp": data!.minColorTemp
     };
   }
 

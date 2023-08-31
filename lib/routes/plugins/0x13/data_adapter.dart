@@ -23,6 +23,8 @@ class LightDataEntity {
   bool power = false; //开关
   String screenModel = 'manual'; //模式
   int timeOff = 0; //延时关
+  int maxColorTemp = 2700;
+  int minColorTemp = 6500;
 
   LightDataEntity({
     required brightness,
@@ -45,6 +47,8 @@ class LightDataEntity {
       power = data["power"] == 'on';
       screenModel = data["scene_light"] ?? 'manual';
       timeOff = int.parse(data["delay_light_off"]);
+      maxColorTemp = int.parse(data["temperature_max"]);
+      minColorTemp = int.parse(data["temperature_min"]);
     }
   }
 
@@ -101,7 +105,9 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     return {
       "power": data!.power,
       "brightness": data!.brightness,
-      "colorTemp": data!.colorTemp
+      "colorTemp": data!.colorTemp,
+      "maxColorTemp": data!.maxColorTemp,
+      "minColorTemp": data!.minColorTemp
     };
   }
 
