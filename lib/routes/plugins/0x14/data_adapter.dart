@@ -90,6 +90,26 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   }
 
   @override
+  Future<void> power(bool? onOff) async {
+    var openMode = Mode(
+        'open',
+        '全开',
+        'assets/imgs/plugins/0x14/all-open-on.png',
+        'assets/imgs/plugins/0x14/all-open-off.png');
+    var closeMode = Mode(
+        'close',
+        '全关',
+        'assets/imgs/plugins/0x14/all-close-on.png',
+        'assets/imgs/plugins/0x14/all-close-off.png');
+    if (data!.curtainPosition > 0) {
+      // 关
+      return controlMode(closeMode);
+    }
+    // 开
+    return controlMode(openMode);
+  }
+
+  @override
   bool getPowerStatus() {
     Log.i('获取开关状态', data!.curtainPosition > 0);
     return data!.curtainPosition > 0;
@@ -245,7 +265,8 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     updateUI();
     if (platform.inMeiju()) {
       var command = {
-        {"curtain_position": value, 'curtain_direction': data!.curtainDirection}
+        "curtain_position": value,
+        'curtain_direction': data!.curtainDirection
       };
       var res = await MeiJuDeviceApi.sendLuaOrder(
           categoryCode: '0x14', applianceCode: applianceCode, command: command);

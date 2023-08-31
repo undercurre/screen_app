@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {
@@ -10,21 +12,22 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final String roomName;
   final bool disabled;
   final bool hasMore;
+  final bool disableOnOff;
 
   //----
   final DeviceCardDataAdapter? adapter;
 
-  const BigDeviceCurtainCardWidget({
-    super.key,
-    required this.name,
-    required this.roomName,
-    required this.online,
-    required this.isFault,
-    required this.isNative,
-    this.adapter,
-    this.hasMore = true,
-    this.disabled = false,
-  });
+  const BigDeviceCurtainCardWidget(
+      {super.key,
+      required this.name,
+      required this.roomName,
+      required this.online,
+      required this.isFault,
+      required this.isNative,
+      this.adapter,
+      this.hasMore = true,
+      this.disabled = false,
+      this.disableOnOff = true});
 
   @override
   _BigDeviceCurtainCardWidgetState createState() =>
@@ -33,15 +36,13 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
 
 class _BigDeviceCurtainCardWidgetState
     extends State<BigDeviceCurtainCardWidget> {
-  bool onOff = true;
-  int? index = 0; // 三个操作选项index=0|1|2，都不选传null
-  int percent = 0; // 开合百分比
-
   @override
   void initState() {
     super.initState();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
@@ -52,7 +53,6 @@ class _BigDeviceCurtainCardWidgetState
     }
   }
 
-
   @override
   void dispose() {
     super.dispose();
@@ -60,10 +60,11 @@ class _BigDeviceCurtainCardWidgetState
   }
 
   void updateCallback() {
-    var status = widget.adapter?.getCardStatus();
     setState(() {
-      percent = status?["curtainPosition"] ?? 0;
-      index = status?["index"] ?? 0;
+      Log.i('大卡片状态更新');
+      setState(() {
+        widget.adapter?.data = widget.adapter?.data;
+      });
     });
   }
 
@@ -174,7 +175,7 @@ class _BigDeviceCurtainCardWidgetState
             top: 44,
             left: 32,
             child: Text(
-                "${percent == 0 ? '全关' : percent == 100 ? '全开' : percent}",
+                "${widget.adapter!.getCardStatus()?['curtainPosition'] == 0 ? '全关' : widget.adapter!.getCardStatus()?['curtainPosition'] == 100 ? '全开' : widget.adapter!.getCardStatus()?['curtainPosition']}",
                 style: const TextStyle(
                     color: Color(0XFFFFFFFF),
                     fontSize: 60,
@@ -182,7 +183,8 @@ class _BigDeviceCurtainCardWidgetState
                     fontWeight: FontWeight.normal,
                     decoration: TextDecoration.none)),
           ),
-          if (percent > 0 && percent < 100)
+          if (widget.adapter!.getCardStatus()?['curtainPosition'] > 0 &&
+              widget.adapter!.getCardStatus()?['curtainPosition'] < 100)
             const Positioned(
               top: 66,
               left: 114,
@@ -198,8 +200,9 @@ class _BigDeviceCurtainCardWidgetState
             top: 74,
             left: 174,
             child: CupertinoSlidingSegmentedControl(
-              backgroundColor:
-                  onOff ? const Color(0xFF767D87) : const Color(0xFF4C525E),
+              backgroundColor: (widget.adapter?.getPowerStatus() ?? false)
+                  ? const Color(0xFF767D87)
+                  : const Color(0xFF4C525E),
               thumbColor: const Color(0xC1B7C4CF),
               padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
               children: {
@@ -239,7 +242,9 @@ class _BigDeviceCurtainCardWidgetState
               },
               groupValue: _getGroupIndex(),
               onValueChanged: (int? value) {
-                widget.adapter?.tabTo(value);
+                if (widget.adapter?.getPowerStatus() ?? false) {
+                  widget.adapter?.tabTo(value);
+                }
               },
             ),
           ),
@@ -247,12 +252,12 @@ class _BigDeviceCurtainCardWidgetState
             top: 140,
             left: 4,
             child: MzSlider(
-              value: percent,
+              value: widget.adapter!.getCardStatus()?['curtainPosition'],
               width: 390,
               height: 16,
               min: 0,
               max: 100,
-              disabled: !onOff,
+              disabled: !(widget.adapter?.getPowerStatus() ?? false),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
@@ -268,23 +273,53 @@ class _BigDeviceCurtainCardWidgetState
   }
 
   int? _getGroupIndex() {
-    if (index == null) return null;
-    if (index! < 0 || index! > 2) return null;
-    return index;
+    if (widget.adapter == null) {
+      return 2;
+    }
+    ;
+    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'close') {
+      return 2;
+    }
+    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'stop') {
+      return 1;
+    }
+    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'open') {
+      return 0;
+    }
+    return 2;
   }
 
-  String _getRightText() {
+  String? _getRightText() {
     if (widget.isFault) {
       return '故障';
     }
     if (!widget.online) {
       return '离线';
     }
-    return '在线';
+
+    if (widget.disabled) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.LOADING) {
+      return '加载中';
+    }
+
+    if (widget.adapter?.dataState == DataState.NONE) {
+      return '未加载';
+    }
+
+    if (widget.adapter?.dataState == DataState.ERROR) {
+      return '加载失败';
+    }
+
+    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (onOff && widget.online) {
+    bool curPower = widget.adapter?.getPowerStatus() ?? false;
+    if ((curPower && widget.online && !widget.disabled) ||
+        (widget.disabled && widget.disableOnOff)) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -307,10 +342,6 @@ class _BigDeviceCurtainCardWidgetState
           Color(0x33616A76),
           Color(0x33434852),
         ],
-      ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
       ),
     );
   }
