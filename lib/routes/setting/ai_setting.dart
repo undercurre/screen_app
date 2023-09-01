@@ -117,7 +117,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                       ),
                       Container(
                           width: 432,
-                          height: 145,
                           margin: const EdgeInsets.symmetric(vertical: 24),
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           decoration: const BoxDecoration(
@@ -154,13 +153,13 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                   ],
                                 ),
                               ),
-                              Container(
+                              if(MideaRuntimePlatform.platform.inMeiju()) Container(
                                 width: 392,
                                 height: 1,
                                 color:
                                     const Color.fromRGBO(255, 255, 255, 0.05),
                               ),
-                              SizedBox(
+                              if(MideaRuntimePlatform.platform.inMeiju()) SizedBox(
                                 width: 432,
                                 height: 72,
                                 child: Row(
@@ -207,7 +206,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           )),
                       Container(
                           width: 432,
-                          height: 265,
                           margin: const EdgeInsets.only(bottom: 24),
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           decoration: const BoxDecoration(
