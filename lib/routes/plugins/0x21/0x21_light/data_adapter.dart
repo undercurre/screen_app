@@ -220,7 +220,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'subDeviceControl',
-        applianceCode: applianceCode,
+        applianceCode: masterId,
         command: command,
       );
       if (res.isSuccess) {
@@ -260,7 +260,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'lightDelayControl',
-        applianceCode: applianceCode,
+        applianceCode: masterId,
         command: command,
       );
       if (res.isSuccess) {
@@ -299,7 +299,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'lightControl',
-        applianceCode: applianceCode,
+        applianceCode: masterId,
         command: command,
       );
       if (res.isSuccess) {
@@ -341,7 +341,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'lightControl',
-        applianceCode: applianceCode,
+        applianceCode: masterId,
         command: command,
       );
       if (res.isSuccess) {
@@ -375,7 +375,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
         categoryCode: '0x16',
         uri: 'lightControl',
-        applianceCode: applianceCode,
+        applianceCode: masterId,
         command: command,
       );
       if (res.isSuccess) {
