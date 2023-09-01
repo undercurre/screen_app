@@ -28,6 +28,18 @@ class Setting {
   /// 待机时间持久化存储key
   final String _standbyTimeKey = 'standby_time_key';
 
+  /// AI语音使能
+  late bool _aiEnable;
+
+  /// 屏幕亮度
+  late int _screenBrightness;
+
+  /// 音量
+  late int _volume;
+
+  /// 工程模式使能
+  late bool _engineeringModeEnable;
+
   void init() async {
     _prefs = await SharedPreferences.getInstance();
     int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
@@ -36,6 +48,11 @@ class Setting {
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
+
+    _aiEnable = _prefs.getBool('setting_ai_enable') ?? false;
+    _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? 50;
+    _volume = _prefs.getInt('setting_screen_volume') ?? 50;
+    _engineeringModeEnable = _prefs.getBool('setting_engineering_mode') ?? false;
   }
 
   /// 标识当前版本已经处理版本升级兼容
@@ -126,5 +143,41 @@ class Setting {
     final end = duration.value2;
     debugPrint('start = $start end = $end index = $index');
     return index >= start && index < end;
+  }
+
+  /// 获取AI使能
+  bool get aiEnable => _aiEnable;
+
+  /// 设置AI使能
+  set aiEnable(bool enable) {
+    _prefs.setBool('setting_ai_enable', enable);
+    _aiEnable = enable;
+  }
+
+  /// 获取屏幕亮度
+  int get screenBrightness => _screenBrightness;
+
+  /// 设置屏幕亮度
+  set screenBrightness(int val) {
+    _prefs.setInt('setting_screen_brightness', val);
+    _screenBrightness = val;
+  }
+
+  /// 获取屏幕亮度
+  int get volume => _volume;
+
+  /// 设置屏幕亮度
+  set volume(int val) {
+    _prefs.setInt('setting_screen_volume', val);
+    _volume = val;
+  }
+
+  /// 获取屏幕亮度
+  bool get engineeringModeEnable => _engineeringModeEnable;
+
+  /// 设置屏幕亮度
+  set engineeringModeEnable(bool enable) {
+    _prefs.setBool('setting_engineering_mode', enable);
+    _engineeringModeEnable = enable;
   }
 }
