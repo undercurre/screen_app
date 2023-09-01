@@ -1,13 +1,13 @@
 class Endpoint<T extends Event> {
   int endpoint;
-  String? icon;
-  String name;
+  dynamic icon;
+  dynamic name;
   T event;
 
   Endpoint({
     required this.endpoint,
     this.icon,
-    required this.name,
+    this.name,
     required this.event,
   });
 

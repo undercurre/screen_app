@@ -8,7 +8,7 @@ class NodeInfo<T extends Endpoint> {
   String idType;
   String modelId;
   List<T> endList;
-  int guard;
+  int? guard;
   String isAlarmDevice;
   String nodeId;
   // 多功能面板是stirng，其他是int
@@ -22,7 +22,7 @@ class NodeInfo<T extends Endpoint> {
     required this.idType,
     required this.modelId,
     required this.endList,
-    required this.guard,
+    this.guard,
     required this.isAlarmDevice,
     required this.nodeId,
     required this.status,
