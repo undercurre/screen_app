@@ -178,7 +178,7 @@ class PanelData {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.map((e) => e.name).toList();
+      nameList = data.endList.map((e) => e.name.toString()).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }

@@ -432,14 +432,14 @@ class ZigbeeLightEvent extends Event {
   String DelayClose = '0';
   String Level = '0';
   String ColorTemp = '0';
-  int duration = 3;
+  dynamic duration = 3;
 
   ZigbeeLightEvent(
       {required this.OnOff,
       required this.DelayClose,
       required this.Level,
       required this.ColorTemp,
-      required this.duration});
+      this.duration});
 
   factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
@@ -448,7 +448,7 @@ class ZigbeeLightEvent extends Event {
         DelayClose: json['DelayClose'] as String,
         Level: json['Level'] as String,
         ColorTemp: json['ColorTemp'] as String,
-        duration: json['duration'] as int, // 可能不存在的键
+        duration: json['duration'], // 可能不存在的键
       );
     } else {
       return ZigbeeLightEvent(
@@ -456,7 +456,7 @@ class ZigbeeLightEvent extends Event {
         DelayClose: json['DelayClose'] as String,
         Level: json['Level'] as String,
         ColorTemp: json['ColorTemp'] as String,
-        duration: json['duration'] as int, // 可能不存在的键
+        duration: json['duration'], // 可能不存在的键
       );
     }
   }
