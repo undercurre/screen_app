@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
-import '../../common/global.dart';
+import '../../common/setting.dart';
 import '../../common/utils.dart';
 import '../../widgets/mz_vslider.dart';
 
@@ -19,8 +19,8 @@ class _DropDownPageState extends State<DropDownPage>
 
   late final AnimationController controller;
   late final Animation<double> animation;
-  num lightValue = Global.lightValue;
-  num soundValue = Global.soundValue;
+  num lightValue = Setting.instant().screenBrightness;
+  num soundValue = Setting.instant().volume;
   var soundName = "暂无歌曲";
   var singer = "暂无歌手";
   var musicIconUrl = "";
@@ -62,8 +62,8 @@ class _DropDownPageState extends State<DropDownPage>
       curve: Curves.linear,
     );
     controller.stop();
-    lightValue = Global.lightValue;
-    soundValue = Global.soundValue;
+    lightValue = Setting.instant().screenBrightness;
+    soundValue = Setting.instant().volume;
     if (soundValue > 7) {
       soundLogo = "assets/imgs/dropDown/sound-black.png";
     } else {
@@ -145,7 +145,7 @@ class _DropDownPageState extends State<DropDownPage>
                 child: GestureDetector(
                   onTap: () => {
                     //手动开启语音
-                    if (Global.profile.aiEnable) {
+                    if (Setting.instant().aiEnable) {
                         Navigator.pop(context),
                         aiMethodChannel.wakeUpAi(),
                     } else {
@@ -248,7 +248,7 @@ class _DropDownPageState extends State<DropDownPage>
                           await settingMethodChannel
                               .setSystemVoice(newValue.toInt()),
                           soundValue = newValue,
-                          Global.soundValue = newValue,
+                          //Setting.instant().volume = newValue.toInt(),
                           if (newValue > 7) {
                               soundLogo = "assets/imgs/dropDown/sound-black.png"
                           } else {
@@ -260,7 +260,7 @@ class _DropDownPageState extends State<DropDownPage>
                           await settingMethodChannel
                               .setSystemVoice(newValue.toInt()),
                           soundValue = newValue,
-                          Global.soundValue = newValue,
+                          Setting.instant().volume = newValue.toInt(),
                           if (newValue > 7) {
                               soundLogo = "assets/imgs/dropDown/sound-black.png"
                           } else {
@@ -306,7 +306,7 @@ class _DropDownPageState extends State<DropDownPage>
                           await settingMethodChannel
                               .setSystemLight(newValue.toInt()),
                           lightValue = newValue,
-                          Global.lightValue = lightValue,
+                          Setting.instant().screenBrightness = lightValue.toInt(),
                           if (newValue > 128) {
                               lightLogo = "assets/imgs/dropDown/light-black.png"
                           } else {
@@ -318,7 +318,7 @@ class _DropDownPageState extends State<DropDownPage>
                           await settingMethodChannel
                               .setSystemLight(newValue.toInt()),
                           lightValue = newValue,
-                          Global.lightValue = lightValue,
+                          //Setting.instant().screenBrightness = lightValue.toInt(),
                           if (newValue > 128) {
                               lightLogo = "assets/imgs/dropDown/light-black.png"
                           } else {

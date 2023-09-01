@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../channel/index.dart';
-import '../../common/api/ai_author_api.dart';
-import '../../common/global.dart';
+import '../../common/gateway_platform.dart';
+import '../../common/meiju/api/meiju_ai_author_api.dart';
+import '../../common/setting.dart';
 import '../../common/utils.dart';
 
 class AiSettingPage extends StatefulWidget {
@@ -16,7 +18,7 @@ class AiSettingPage extends StatefulWidget {
 
 class _AiSettingPageState extends State<AiSettingPage> {
   late double po;
-  bool AiEnable = Global.profile.aiEnable;
+  bool AiEnable = Setting.instant().aiEnable;
 
   @override
   void initState() {
@@ -104,9 +106,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                             MzSwitch(
                               value: AiEnable,
                               onTap: (bool value) {
-                                aiMethodChannel.enableAi(value);
-                                Global.profile.aiEnable = value;
-                                Global.saveProfile();
+                                Setting.instant().aiEnable = value;
                                 setState(() {
                                   AiEnable = value;
                                 });
@@ -117,7 +117,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                       ),
                       Container(
                           width: 432,
-                          height: 145,
                           margin: const EdgeInsets.symmetric(vertical: 24),
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           decoration: const BoxDecoration(
@@ -154,13 +153,13 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                   ],
                                 ),
                               ),
-                              Container(
+                              if(MideaRuntimePlatform.platform.inMeiju()) Container(
                                 width: 392,
                                 height: 1,
                                 color:
                                     const Color.fromRGBO(255, 255, 255, 0.05),
                               ),
-                              SizedBox(
+                              if(MideaRuntimePlatform.platform.inMeiju()) SizedBox(
                                 width: 432,
                                 height: 72,
                                 child: Row(
@@ -207,7 +206,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           )),
                       Container(
                           width: 432,
-                          height: 265,
                           margin: const EdgeInsets.only(bottom: 24),
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           decoration: const BoxDecoration(
@@ -216,7 +214,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           ),
                           child: Column(
                             children: [
-                              const SizedBox(
+                              if (MideaRuntimePlatform.platform.inMeiju()) const SizedBox(
                                 width: 432,
                                 height: 132,
                                 child: Row(
@@ -306,8 +304,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                       value: AiEnable,
                                       onTap: (bool value) {
                                         aiMethodChannel.enableAi(value);
-                                        Global.profile.aiEnable = value;
-                                        Global.saveProfile();
+                                        Setting.instant().aiEnable = value;
                                         setState(() {
                                           AiEnable = value;
                                         });
@@ -331,7 +328,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
 
   Future<void> AiAuthor() async {
     var Res =
-        await AiAuthorApi.AiAuthor(deviceId: Global.profile.applianceCode);
+        await MeiJuAiAuthorApi.AiAuthor(deviceId: MeiJuGlobal.gatewayApplianceCode);
     if (Res.isSuccess) {
       TipsUtils.toast(content: "授权成功");
     }

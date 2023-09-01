@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
+import '../../common/gateway_platform.dart';
 import '../../widgets/mz_cell.dart';
 
 export 'about_setting.dart';
@@ -150,7 +151,6 @@ class _SettingPageState extends State<SettingPage> {
 
                       Container(
                         width: 432,
-                        height: 360,
                         margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                         decoration: const BoxDecoration(
                             color: Color(0x0DFFFFFF),
@@ -164,7 +164,7 @@ class _SettingPageState extends State<SettingPage> {
                                 'NetSettingPage',
                               )
                             }, true),
-                            settingCell("assets/newUI/add_device.png", "发现设备", () => {
+                            if (MideaRuntimePlatform.platform.inMeiju()) settingCell("assets/newUI/add_device.png", "发现设备", () => {
                               Navigator.pop(context),
                               Navigator.pushNamed(
                                 context,
