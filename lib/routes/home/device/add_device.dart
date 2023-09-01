@@ -718,7 +718,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
         return DeviceEntityTypeInP4.LocalPanel1;
       } else if (value.contains('localPanel2')) {
         return DeviceEntityTypeInP4.LocalPanel2;
-      } else {
+      } else if (value  == '0x13' && modelNum == 'homluxZigbeeLight') {
+        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
+      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
+        return DeviceEntityTypeInP4.homlux_lightGroup;
+      }  else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
           return deviceType;
         }

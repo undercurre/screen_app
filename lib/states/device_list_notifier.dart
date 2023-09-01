@@ -345,5 +345,13 @@ String getModelNumber(HomluxDeviceEntity e) {
     return 'homlux${e.switchInfoDTOList?.length}';
   }
 
+  if (e.proType == '0x13' && e.deviceType == 2) {
+    return 'homluxZigbeeLight';
+  }
+
+  if (e.proType == '0x13' && e.deviceType == 4) {
+    return 'homluxLightGroup';
+  }
+
   return e.deviceType.toString();
 }

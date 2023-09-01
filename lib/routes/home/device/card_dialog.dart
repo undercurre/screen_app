@@ -24,8 +24,7 @@ class CardDialog extends StatefulWidget {
       required this.roomName,
       required this.modelNumber,
       required this.applianceCode,
-      required this.masterId
-      });
+      required this.masterId});
 
   @override
   _CardDialogState createState() => _CardDialogState();
@@ -152,17 +151,16 @@ class _CardDialogState extends State<CardDialog> {
                                     widget.type,
                                     widget.modelNumber)]![CardType.Big]!(
                                   DataInputCard(
-                                    name: widget.name,
-                                    applianceCode: widget.applianceCode,
-                                    roomName: widget.roomName,
-                                    masterId: widget.masterId,
-                                    disabled: true,
-                                    modelNumber: widget.modelNumber,
-                                    disableOnOff: true,
-                                    isOnline: '1',
-                                    hasMore: false,
-                                    context: context
-                                  ),
+                                      name: widget.name,
+                                      applianceCode: widget.applianceCode,
+                                      roomName: widget.roomName,
+                                      masterId: widget.masterId,
+                                      disabled: true,
+                                      modelNumber: widget.modelNumber,
+                                      disableOnOff: true,
+                                      isOnline: '1',
+                                      hasMore: false,
+                                      context: context),
                                 ),
                               ),
                             ),
@@ -249,6 +247,10 @@ class _CardDialogState extends State<CardDialog> {
         return DeviceEntityTypeInP4.LocalPanel1;
       } else if (type.contains('localPanel2')) {
         return DeviceEntityTypeInP4.LocalPanel2;
+      } else if (type == '0x13' && modelNum == 'homluxZigbeeLight') {
+        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
+      } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
+        return DeviceEntityTypeInP4.homlux_lightGroup;
       } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;

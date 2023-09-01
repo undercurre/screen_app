@@ -181,7 +181,7 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 		homluxDeviceMzgdPropertyDTOList.x4 = x4;
 	}
 	final HomluxDeviceMzgdPropertyDTOListLight? light = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListLight>(json['light']);
-	if (x4 != null) {
+	if (light != null) {
 		homluxDeviceMzgdPropertyDTOList.light = light;
 	}
 	return homluxDeviceMzgdPropertyDTOList;

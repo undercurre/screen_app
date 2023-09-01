@@ -173,7 +173,11 @@ enum DeviceEntityTypeInP4 {
   Zigbee_homlux1,
   Zigbee_homlux2,
   Zigbee_homlux3,
-  Zigbee_homlux4
+  Zigbee_homlux4,
+  // homluxZigbee灯
+  Zigbee_homluxZigbeeLight,
+  // homlux灯组
+  homlux_lightGroup
 }
 
 class DataInputCard {
@@ -349,6 +353,116 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           isOnline: params.isOnline,
         ),
+  },
+  // homluxZigbee灯
+  DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+      name: params.name,
+      icon: const Image(
+        image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+      ),
+      roomName: params.roomName,
+      onTap: () => params.onTap,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? false,
+      hasMore: params.hasMore ?? true,
+      adapter: ZigbeeLightDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+      name: params.name,
+      icon: const Image(
+        image: AssetImage('assets/newUI/device/0x21_54.png'),
+      ),
+      roomName: params.roomName,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? true,
+      hasMore: params.hasMore ?? true,
+      adapter: ZigbeeLightDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
+    CardType.Big: (params) => BigDeviceLightCardWidget(
+      name: params.name,
+      roomName: params.roomName,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? true,
+      hasMore: params.hasMore ?? true,
+      adapter: ZigbeeLightDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
+  },
+  // homlux灯组
+  DeviceEntityTypeInP4.homlux_lightGroup: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+      name: params.name,
+      icon: const Image(
+        image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+      ),
+      roomName: params.roomName,
+      onTap: () => params.onTap,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? false,
+      hasMore: params.hasMore ?? true,
+      adapter: LightGroupDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+      name: params.name,
+      icon: const Image(
+        image: AssetImage('assets/newUI/device/0x21_55.png'),
+      ),
+      roomName: params.roomName,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? false,
+      hasMore: params.hasMore ?? true,
+      adapter: LightGroupDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
+    CardType.Big: (params) => BigDeviceLightCardWidget(
+      name: params.name,
+      roomName: params.roomName,
+      online: params.isOnline == '1',
+      isFault: params.isFault ?? false,
+      isNative: params.isNative ?? false,
+      disabled: params.disabled ?? false,
+      disableOnOff: params.disableOnOff ?? false,
+      hasMore: params.hasMore ?? true,
+      adapter: LightGroupDataAdapter(
+          MideaRuntimePlatform.platform,
+          params.context!,
+          params.masterId ?? '',
+          params.applianceCode ?? ''),
+    ),
   },
   // 编辑条
   DeviceEntityTypeInP4.DeviceEdit: {

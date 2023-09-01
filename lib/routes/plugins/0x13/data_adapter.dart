@@ -53,10 +53,13 @@ class LightDataEntity {
   }
 
   LightDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    brightness = data!.mzgdPropertyDTOList?.light?.brightness as int;
-    colorTemp = data!.mzgdPropertyDTOList?.light?.colorTemperature as int;
-    power = data!.mzgdPropertyDTOList!.light?.power == 1;
-    timeOff = 0;
+    Log.i('解析数据${data.mzgdPropertyDTOList}');
+    brightness = data.mzgdPropertyDTOList?.light?.brightness ?? 0;
+    colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
+    power = data.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
+        || data.mzgdPropertyDTOList?.light?.power == 1;
+    screenModel = data.mzgdPropertyDTOList?.light?.wifiLightScene ?? "manual";
+    timeOff = int.parse(data.mzgdPropertyDTOList?.light?.wifiLightDelayOff ?? "0");
   }
 
   Map<String, dynamic> toJson() {
@@ -236,6 +239,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
       if (res.isSuccess) {
       } else {
         data!.power = !data!.power;
+        updateUI();
       }
     }
     updateUI();

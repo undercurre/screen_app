@@ -19,6 +19,7 @@ class DeviceDataEntity {
   DeviceEntity? deviceEnt;
   String deviceID = "";
   String deviceName = "吸顶灯";
+
   //-------
   num brightness = 1; // 亮度
   var colorTemp = 0; // 色温
@@ -28,13 +29,16 @@ class DeviceDataEntity {
 
   void setDetailMeiJu(Map<String, dynamic> detail) {
     if (deviceEnt?.sn8 == "79009833") {
-      brightness = formatValue(detail["brightValue"] < 1 ? 1 : detail["brightValue"]);
+      brightness =
+          formatValue(detail["brightValue"] < 1 ? 1 : detail["brightValue"]);
       colorTemp = formatValue(detail["colorTemperatureValue"]);
       power = detail["power"];
       screenModel = detail["screenModel"];
       timeOff = detail["timeOff"];
     } else {
-      brightness = formatValue(int.parse(detail["brightness"]) < 1 ? 1 : int.parse(detail["brightness"]));
+      brightness = formatValue(int.parse(detail["brightness"]) < 1
+          ? 1
+          : int.parse(detail["brightness"]));
       colorTemp = formatValue(int.parse(detail["color_temperature"]));
       power = detail["power"] == 'on';
       screenModel = detail["scene_light"] ?? 'manual';
@@ -46,10 +50,11 @@ class DeviceDataEntity {
   void setDetailHomlux(HomluxDeviceEntity detail) {
     brightness = detail.mzgdPropertyDTOList?.light?.brightness ?? 0;
     colorTemp = detail.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
-    power = detail.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
-        || detail.mzgdPropertyDTOList?.light?.power == 1;
+    power = detail.mzgdPropertyDTOList?.light?.wifiLightPower == "on" ||
+        detail.mzgdPropertyDTOList?.light?.power == 1;
     screenModel = detail.mzgdPropertyDTOList?.light?.wifiLightScene ?? "manual";
-    timeOff = int.parse(detail.mzgdPropertyDTOList?.light?.wifiLightDelayOff ?? "0");
+    timeOff =
+        int.parse(detail.mzgdPropertyDTOList?.light?.wifiLightDelayOff ?? "0");
   }
 
   @override
@@ -139,13 +144,15 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       DeviceService.getDeviceDetail(device.deviceEnt!).then((res) {
         device.setDetailMeiJu(res);
         updateUI();
+
         /// 更新DeviceListModel
         // if (device.deviceEnt != null) {
         //   context.read<DeviceListModel>().setProviderDeviceInfo(device.deviceEnt!);
         // }
       });
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
+      var res =
+          await HomluxDeviceApi.queryDeviceStatusByDeviceId(device.deviceID);
       if (res.isSuccess) {
         if (res.result == null) return;
         device.setDetailHomlux(res.result!);
@@ -167,7 +174,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightOnOff(device.deviceID, "3", device.power ? 1 : 0);
+      var res = await HomluxDeviceApi.controlWifiLightOnOff(
+          device.deviceID, "3", device.power ? 1 : 0);
       if (!res.isSuccess) {
         device.power = !device.power;
         updateUI();
@@ -206,13 +214,15 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
       if (device.timeOff == 0) {
-        var res = await HomluxDeviceApi.controlWifiLightDelayOff(device.deviceID, "3", 3);
+        var res = await HomluxDeviceApi.controlWifiLightDelayOff(
+            device.deviceID, "3", 3);
         if (res.isSuccess) {
           device.timeOff = 3;
           updateUI();
         }
       } else {
-        var res = await HomluxDeviceApi.controlWifiLightDelayOff(device.deviceID, "3", 0);
+        var res = await HomluxDeviceApi.controlWifiLightDelayOff(
+            device.deviceID, "3", 0);
         if (res.isSuccess) {
           device.timeOff = 0;
           updateUI();
@@ -239,7 +249,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightMode(device.deviceID, "3", mode.key);
+      var res = await HomluxDeviceApi.controlWifiLightMode(
+          device.deviceID, "3", mode.key);
       if (res.isSuccess) {
         device.screenModel = mode.key;
         updateUI();
@@ -261,7 +272,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      HomluxDeviceApi.controlWifiLightBrightness(device.deviceID, "3", value.toInt());
+      HomluxDeviceApi.controlWifiLightBrightness(
+          device.deviceID, "3", value.toInt());
     }
   }
 
@@ -278,7 +290,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
       }
       _delay2UpdateDetail(2);
     } else if (platform.inHomlux()) {
-      HomluxDeviceApi.controlWifiLightColorTemp(device.deviceID, "3", value.toInt());
+      HomluxDeviceApi.controlWifiLightColorTemp(
+          device.deviceID, "3", value.toInt());
     }
   }
 
@@ -305,7 +318,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
+    } else if (platform.inMeiju()) {
       bus.typeOn(statusChangePushMieJu);
     }
   }
@@ -313,7 +326,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
-    } else if(platform.inMeiju()) {
+    } else if (platform.inMeiju()) {
       bus.typeOff(statusChangePushMieJu);
     }
   }
@@ -323,5 +336,4 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter {
     super.destroy();
     _stopPushListen();
   }
-
 }
