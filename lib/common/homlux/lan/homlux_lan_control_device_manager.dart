@@ -1,11 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/homlux/api/homlux_lan_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/homlux/lan/hang_up.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
+import '../../../widgets/util/net_utils.dart';
 import '../../logcat_helper.dart';
 import '../api/homlux_device_api.dart';
 import '../models/homlux_device_entity.dart';
@@ -98,6 +103,7 @@ bool _mapContain(Map<String, dynamic> value1, Map<String, dynamic> value2) {
 // 将collection2 融合到 collection1 上
 Map<dynamic, dynamic> _mapDeepMerge(
     Map<dynamic, dynamic> collection1, Map<dynamic, dynamic> collection2) {
+
   collection2.forEach((key2, value2) {
     if (collection1.containsKey(key2)) {
       var value1 = collection1[key2];
@@ -110,16 +116,17 @@ Map<dynamic, dynamic> _mapDeepMerge(
       collection1[key2] = value2;
     }
   });
+
   return collection1;
 }
 
 /// 请求成功
-HomluxResponseEntity _successResponseEntity = HomluxResponseEntity()
+final _successResponseEntity = HomluxResponseEntity()
   ..code = 0
   ..msg = '请求成功';
 
 /// 请求失败
-HomluxResponseEntity _errorResponseEntity = HomluxResponseEntity()
+final _errorResponseEntity = HomluxResponseEntity()
   ..code = -1
   ..msg = '请求失败';
 
@@ -133,16 +140,22 @@ class HomluxLanControlDeviceManager {
     return _instant;
   }
 
+  final uuid = const Uuid();
+
   String? key;
 
   /// 是否成功订阅
   bool sucSubscribe = false;
+  /// 是否连接
+  bool connectOk = false;
+
+  /// 初始化加锁
+  Completer<void>? _lock;
 
   /// 用于存储本地设备
   /// key为设备ID
   /// value为设备局域网列表
   /// value中新增'status'字段，用于保存设备状态信息[Map<String, dynamic>]
-  /// value中新增 ‘status_version’字段用于标识设备状态信息的版本[int]
   /// {
   ///               "roomId":"1",
   ///               "gatewayId":"11111",
@@ -167,7 +180,6 @@ class HomluxLanControlDeviceManager {
   ///                             "gatewayId": "1",
   ///                             "productId": "model.light.001.003",
   ///                         }]
-  ///              “status_version”: 123
   ///  }
   Map<String, Map<String, dynamic>> deviceMap = {};
 
@@ -199,22 +211,27 @@ class HomluxLanControlDeviceManager {
       /// 设备列表
       if ('/local/getDeviceInfo/ack' == topic) {
         var houseId = data['houseId'] as String;
-        var deviceList = data['deviceList'] as List<Map<String, dynamic>>;
+        var deviceList = data['deviceList'] as List<dynamic>;
         if (houseId == curHouseId) {
           deviceMap.clear();
           for (var device in deviceList) {
             var devId = device['devId'] as String;
             deviceMap[devId] = device;
           }
-
-          /// 获取全设备列表状态
-          lanDeviceControlChannel.getDeviceStatus(null);
         }
+        if(deviceMap.values.isNotEmpty) {
+          Log.i('homlux 局域网 设备列表数据处理成功 第一个数据为 ${deviceMap.values.first}');
+        } else {
+          Log.i('homlux 局域网 设备列表数据处理成功 数据为空');
+        }
+
+        /// 获取设备列表中的设备状态
+        lanDeviceControlChannel.getDeviceStatus(uuid.v4(), null);
       }
 
       /// 子设备删除通知
       if ('/local/subdevice/del/report' == topic) {
-        var deviceList = data['deviceList'] as List<Map<String, dynamic>>;
+        var deviceList = data['deviceList'] as List<dynamic>;
         for (var device in deviceList) {
           var devId = device['devId'] as String;
           if (deviceMap.containsKey(devId)) {
@@ -226,107 +243,145 @@ class HomluxLanControlDeviceManager {
       /// 子设备增加
       if ('/local/subdevice/add/report' == topic) {
         var houseId = data['houseId'] as String;
-        var deviceList = data['deviceList'] as List<Map<String, dynamic>>;
+        var deviceList = data['deviceList'] as List<dynamic>;
         for (var device in deviceList) {
           deviceMap[device['devId'] as String] = device;
         }
       }
 
       /// 设备状态信息
-      if ('/local/getDeviceStatus' == topic) {
+      if ('/local/getDeviceStatus/ack' == topic) {
+
         var houseId = data['houseId'] as String;
         var deviceStatusInfoList =
-            data['deviceStatusInfoList'] as List<Map<String, dynamic>>;
+            data['deviceStatusInfoList'] as List<dynamic>;
         if (houseId == curHouseId) {
+
           for (var statu in deviceStatusInfoList) {
             var devId = statu['devId'];
             if (deviceMap.containsKey(devId)) {
               var device = deviceMap[devId] as Map<String, dynamic>;
-              int version = device['statusVersion'] as int? ?? 0;
-              var status = device['status'] as List<Map<String, dynamic>>? ??
-                  <Map<String, dynamic>>[];
+              var status = device['status'] as List<Map<String, dynamic>>? ?? <Map<String, dynamic>>[];
               if (status.isEmpty) {
                 status.add(statu);
               } else {
-                status.removeWhere(
-                    (element) => element['modelName'] == statu['modelName']);
+                status.removeWhere((element) => element['modelName'] == statu['modelName']);
                 status.add(statu);
               }
-              device['statusVersion'] = version + 1;
+              device['status'] = status;
             }
-            // if(containedStatus) {
-            //   Map<String, dynamic> oldStatus = deviceMap['devId']!['status'];
-            //   int version = deviceMap['devId']!['statusVersion'];
-            //   bool equalResult = _equal(oldStatus, status);
-            //   if(equalResult) continue;
-            //   deviceMap['devId']!['status'] = status;
-            //   deviceMap['devId']!['statusVersion'] = version++;
-            // } else {
-            //   deviceMap['devId']!['status'] = status;
-            //   deviceMap['devId']!['statusVersion'] = 1;
-            // }
+          }
+
+          var hangUpTask = findTask(reqId!);
+          if(hangUpTask != null) {
+            var status = deviceMap[hangUpTask.handle.data as String]?['status'];
+            if(status == null) {
+              hangUpTask.handle.suc(_errorResponseEntity);
+            } else {
+              HomluxResponseEntity entity = HomluxResponseEntity();
+              entity.code = 0;
+              entity.msg = '请求成功';
+              entity.result = status;
+              hangUpTask.handle.suc(entity);
+            }
           }
         }
       }
 
       /// 设备状态更新
-      if ('/local/deviceStatusUpdate/report' == topic) {
+      if ('/local/subDeviceStatus' == topic) {
         var houseId = data['houseId'] as String;
         var deviceStatusInfoList =
-            data['deviceStatusInfoList'] as List<Map<String, dynamic>>;
+            data['deviceStatusInfoList'] as List<dynamic>;
         bool needQueryDeviceList = false;
-        for (var status in deviceStatusInfoList) {
-          var devId = status['devId'] as String;
+        for (var rStatu in deviceStatusInfoList) {
+          var devId = rStatu['devId'] as String;
+
           if (deviceMap.containsKey(devId)) {
-            if (deviceMap['devId']!.containsKey('status')) {
-              var curStatus = deviceMap[devId]!['status'] as List<Map<String, dynamic>>;
-              var curVersion = deviceMap[devId]!['statusVersion'] as int;
+            if (deviceMap[devId]!.containsKey('status')) {
+              var curStatus = deviceMap[devId]!['status'] as List<dynamic>;
+
               for (var i = 0; i < curStatus.length; i++) {
-                var statu = curStatus[i];
-                curStatus[i] = _mapDeepMerge(statu, status) as Map<String, dynamic>;
+                var cStatu = curStatus[i];
+                if(cStatu['modelName'] == rStatu['modelName']) {
+                  curStatus[i] = _mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
+                }
               }
 
+              deviceMap[devId]!['status'] = curStatus;
+              Log.i('本地设备数量 ${HomluxDeviceApi.devices.values.length}');
               HomluxDeviceEntity? entity = HomluxDeviceApi.devices[devId];
               if (entity != null) {
                 HomluxPushResultEntity pushResult = HomluxPushResultEntity();
                 HomluxEventDataEntity eventData = HomluxEventDataEntity();
-                eventData.modelName = status['modelName'];
-                eventData.deviceId = status['devId'];
-                eventData.event = status['deviceProperty'];
+                eventData.modelName = rStatu['modelName'];
+                eventData.deviceId = rStatu['devId'];
+                eventData.event = rStatu['deviceProperty'];
                 pushResult.eventType = TypeDeviceProperty;
                 pushResult.eventData = eventData;
                 bus.typeEmit(HomluxDevicePropertyChangeEvent.of(pushResult));
-                Log.file('homlux 局域网 设备$devId状态发生变化 ${status['deviceProperty']}');
+                Log.file('homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
               }
+
             } else {
-              lanDeviceControlChannel.getDeviceStatus(devId);
+              lanDeviceControlChannel.getDeviceStatus(uuid.v4(), devId);
             }
           } else {
             needQueryDeviceList = true;
           }
         }
         if (needQueryDeviceList) {
-          lanDeviceControlChannel.getDeviceInfo();
+          lanDeviceControlChannel.getDeviceInfo(uuid.v4());
         }
       }
 
       /// 场景列表
+      /// {
+      //     "data":{
+      //         "houseId":"5beb2c644c854a18a1cd87664e4b4d35",
+      //         "sceneList":[
+      //             {
+      //                 "sceneId":"df3d96cd0b25450c962a3a0c199ffa57",
+      //                 "sceneName":"全开",
+      //                 "sceneType":1
+      //             }
+      //         ]
+      //     }
+      // }
       if ('/local/getSceneInfo/ack' == topic) {
         var houseId = data['houseId'] as String;
-        var scenes = data['sceneList'] as List<Map<String, dynamic>>;
+        var scenes = data['sceneList'] as List<dynamic>;
         if (houseId == curHouseId) {
           sceneMap.clear();
           for (var scene in scenes) {
             var sceneId = scene['sceneId'] as String;
             sceneMap[sceneId] = scene;
           }
+          if(sceneMap.values.isNotEmpty) {
+            Log.i('homeos 场景列表数据处理成功 第一个数据为 ${sceneMap.values.first}');
+          } else {
+            Log.i('homeos 场景列表数据处理成功 数据为空');
+          }
         }
       }
 
       /// 场景删除
+      /// {
+      //     "data":{
+      //         "houseId":"5beb2c644c854a18a1cd87664e4b4d35",
+      //         "sceneList":[
+      //             {
+      //                 "sceneId":"893dca7961804487ac96606bd1b72b55"
+      //             }
+      //         ]
+      //     },
+      //     "topic":"/local/scene/del/report",
+      //     "reqId":"b9c69f9ef34648fc80e58ef1b6b1fec0",
+      //     "ts":"1693376544074"
+      // }
       if ('/local/scene/del/report' == topic) {
         var houseId = data['houseId'] as String;
-        var scenes = data['sceneList'] as List<Map<String, dynamic>>;
+        var scenes = data['sceneList'] as List<dynamic>;
         if (houseId == curHouseId) {
           var sceneIds = scenes.map((e) => e['sceneId'] as String).toList();
           sceneMap.removeWhere((key, value) => sceneIds.contains(key));
@@ -334,9 +389,24 @@ class HomluxLanControlDeviceManager {
       }
 
       /// 场景新增
+      /// {
+      //     "data":{
+      //         "houseId":"5beb2c644c854a18a1cd87664e4b4d35",
+      //         "sceneList":[
+      //             {
+      //                 "sceneId":"2e4c476b7e634f91a51ba40f99d317fa",
+      //                 "sceneName":"止不住",
+      //                 "sceneType":3
+      //             }
+      //         ]
+      //     },
+      //     "topic":"/local/scene/add/report",
+      //     "reqId":"b9c69f9ef34648fc80e58ef1b6b1fec0",
+      //     "ts":"1693383181289"
+      // }
       if ('/local/scene/add/report' == topic) {
         var houseId = data['houseId'] as String;
-        var scenes = data['sceneList'] as List<Map<String, dynamic>>;
+        var scenes = data['sceneList'] as List<dynamic>;
         if (houseId == curHouseId) {
           for (var scene in scenes) {
             var sceneId = scene['sceneId'] as String;
@@ -345,57 +415,83 @@ class HomluxLanControlDeviceManager {
         }
       }
 
+      /// 场景执行
+      /// {
+      //     "data":{
+      //         "sceneId":"df3d96cd0b25450c962a3a0c199ffa57",
+      //         "errorCode":"success"
+      //     },
+      //     "topic":"/local/sceneExcute/ack",
+      //     "reqId":"a2d6787d325941e8bee20ca10264da4a",
+      //     "ts":"1693377362930"
+      // }
+      if ('/local/sceneExcute/ack' == topic) {
+        var task = findTask(reqId!);
+        task?.handle.suc(_successResponseEntity);
+      }
+
       /// 灯组列表
+      /// {
+      //     "reqId":"随机数",
+      //     "ts":"时间戳",
+      //     "topic":"/local/getGroupInfo/ack",
+      //     "data":{
+      //         "houseId":"111111",
+      //         "groupList":[
+      //            {
+      //               "webGroupId":"11111",
+      //               "groupStatus":1 //0无匹配  1部分匹配 2全匹配  hjl更新2023/8/31
+      //            },
+      //            {
+      //               "webGroupId":"11111",
+      //               "groupStatus":2
+      //            }
+      //         ]
+      //     }
+      // }
       if ('/local/getGroupInfo/ack' == topic) {
         var houseId = data['houseId'] as String;
-        var groupList = data['groupList'] as List<Map<String, dynamic>>;
+        var groupList = data['groupList'] as List<dynamic>;
         if (houseId == curHouseId) {
           groupMap.clear();
           for (var group in groupList) {
             var groupId = group['webGroupId'] as String;
             groupMap[groupId] = group;
           }
+          Log.i('局域网 灯组列表数据处理成功 第一个数据为 ${groupMap.values.first}');
         }
       }
 
       /// 灯组删除
       if ('/local/group/del/report' == topic) {
-        var houseId = data['houseId'] as String;
-        var groupList = data['groupList'] as List<Map<String, dynamic>>;
+        var groupList = data['groupList'] as List<dynamic>;
         bool needRefreshGroupList = false;
-        for (var group in groupList) {
-          String groupId = group['webGroupId'] as String;
-          List<String> devIds = group['devIds'] as List<String>;
-          if (groupMap.containsKey(groupId)) {
-            (groupMap[groupId]![devIds] as List<String>)
-                .removeWhere((element) => devIds.contains(element));
-            if ((groupMap[groupId]![devIds] as List<String>).isEmpty) {
-              groupMap.remove(groupId);
-            }
+        for (var groupID in groupList) {
+          if (groupMap.containsKey(groupID)) {
+            groupMap.remove(groupID);
           } else {
             needRefreshGroupList = true;
           }
         }
         if (needRefreshGroupList) {
-          lanDeviceControlChannel.getGroupInfo();
+          lanDeviceControlChannel.getGroupInfo(uuid.v4());
         }
       }
 
       /// 灯组增加
       if ('/local/group/add/report' == topic) {
-        var houseId = data['houseId'] as String;
-        var groupList = data['groupList'] as List<Map<String, dynamic>>;
+        var groupList = data['groupList'] as List<dynamic>;
+        bool needRefreshGroupList = false;
         for (var group in groupList) {
           String groupId = group['webGroupId'] as String;
-          List<String> devIds = group['devIds'] as List<String>;
-          if (groupMap.containsKey(groupId)) {
-            Set<String> idsSet =
-                (groupMap[groupId]!['devIds'] as List<String>).toSet();
-            idsSet.addAll(devIds);
-            groupMap[groupId]!['devIds'] = idsSet.toList();
-          } else {
+          if (!groupMap.containsKey(groupId)) {
             groupMap[groupId] = group;
+          } else {
+            needRefreshGroupList = true;
           }
+        }
+        if (needRefreshGroupList) {
+          lanDeviceControlChannel.getGroupInfo(uuid.v4());
         }
       }
     } catch (e, stack) {
@@ -404,10 +500,13 @@ class HomluxLanControlDeviceManager {
   }
 
   void init() {
+    Log.file('homeos init()');
     lanDeviceControlChannel.init();
   }
 
   void logout() {
+    Log.file('homeos logout()');
+    NetUtils.unregisterListenerNetState(listenerNetState);
     lanDeviceControlChannel.logout();
     sucSubscribe = false;
     lanDeviceControlChannel.logCallback = null;
@@ -418,68 +517,118 @@ class HomluxLanControlDeviceManager {
     HomluxDeviceApi.devices.clear();
   }
 
+  listenerNetState(NetState? state) {
+    if (System.inHomluxPlatform() &&
+        System.isLogin() &&
+        (state?.wifiState == 2 || state?.ethernetState == 2)) {
+      Log.file('订阅网络已经连接');
+      login();
+    }
+  }
+
   void login() async {
-    String? houseId = HomluxGlobal.homluxHomeInfo?.houseId;
-    if (houseId == null) {
-      Log.e('houseId 为空，请确保已经登录');
-      sucSubscribe = false;
+    if (_lock != null && !_lock!.isCompleted) {
+      _lock!.future.then((value) => login());
       return;
     }
-    String? _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
-    if (_key == null) {
-      Log.e('请求到的key为空');
-      sucSubscribe = false;
-      return;
-    }
-    if (_key != key) {
-      key = _key;
-      lanDeviceControlChannel.login(houseId, key!);
-      sucSubscribe = true;
-    }
-
-    lanDeviceControlChannel.logCallback = (args) {
-      if (args == 'aesKeyMayBeExpire') {
-        /// key过期
-        if (System.inHomluxPlatform() && System.isLogin()) {
-          login();
+    try {
+      if (sucSubscribe) {
+        Log.file('已经订阅成功，无须再login');
+        return;
+      }
+      _lock = Completer();
+      NetUtils.registerListenerNetState(listenerNetState);
+      String? houseId = HomluxGlobal.homluxHomeInfo?.houseId;
+      if (houseId == null) {
+        Log.e('houseId 为空，请确保已经登录');
+        sucSubscribe = false;
+        return;
+      }
+      String? _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+      if (_key == null) {
+        Log.e('请求到的key为空');
+        sucSubscribe = false;
+        return;
+      }
+      if (_key != key) {
+        key = _key;
+        Log.file('homeos login(houseId=$houseId, key=$key)');
+        sucSubscribe = true;
+        lanDeviceControlChannel.login(houseId, key!);
+      }
+      lanDeviceControlChannel.logCallback = (args) async {
+        if (args == 'aesKeyMayBeExpire') {
+          /// key过期
+          if (System.inHomluxPlatform() && System.isLogin()) {
+            sucSubscribe = false;
+            String? _newKey = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+            if(_newKey != key) {
+              login();
+            }
+          }
+        } else if (args == 'connectOk') {
+          connectOk = true;
+          Log.file('homeos getDeviceInfo()');
+          lanDeviceControlChannel.getDeviceInfo(uuid.v4());
+          Log.file('homeos getSceneInfo()');
+          lanDeviceControlChannel.getSceneInfo(uuid.v4());
+          Log.file('homeos getGroupInfo()');
+          lanDeviceControlChannel.getGroupInfo(uuid.v4());
+        } else if(args == 'connectLost') {
+          connectOk = false;
         }
-      }
-    };
-    lanDeviceControlChannel.mqttCallback = (topic, msg) {
-      if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
-        _handleMqttMsg(topic, msg);
-      }
-    };
-
-    lanDeviceControlChannel.getDeviceInfo();
-    lanDeviceControlChannel.getSceneInfo();
-    lanDeviceControlChannel.getGroupInfo();
+      };
+      lanDeviceControlChannel.mqttCallback = (topic, msg) {
+        if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
+          _handleMqttMsg(topic, msg);
+        }
+      };
+    } finally {
+      _lock?.complete();
+      _lock = null;
+    }
   }
 
   Future<HomluxResponseEntity> executeDevice(
       String deviceID, List<Map<String, dynamic>> actions) async {
-    if (sucSubscribe) {
+    if (sucSubscribe && connectOk) {
       if (deviceMap.containsKey(deviceID)) {
-        for (var action in actions) {
-          lanDeviceControlChannel.deviceControl(deviceID, action);
-        }
+        Log.file('homlux 局域网控制 deviceControl(deviceID=$deviceID, actions=$actions)');
+        lanDeviceControlChannel.deviceControl(uuid.v4(), deviceID, actions);
         Log.file('homlux 局域网控制 设备 \n ${deviceMap[deviceID]}');
         return _successResponseEntity;
+      } else {
+        Log.file('homlux 局域网控制 本地设备列表不包含此设备 $deviceID');
       }
     } else {
+      login();
       Log.file('homlux 局域网控制 设备 \n 异常 连接还未订阅成功');
     }
     return _errorResponseEntity;
   }
 
   Future<HomluxResponseEntity> executeScene(String sceneID) async {
-    if (sucSubscribe) {
+    if (sucSubscribe && connectOk) {
       if (sceneMap.containsKey(sceneID)) {
-        lanDeviceControlChannel.sceneExcute(sceneID);
-        Log.file('homlux 局域网控制 场景 \n ${sceneMap[sceneID]}');
-        return _successResponseEntity;
+        // 1. 查询本地场景能否控制
+        dynamic scene = sceneMap[sceneID];
+        if(scene['sceneStatus'] != 2) { // 局域网能控制的设备
+          return _errorResponseEntity;
+        }
+        // 2.去执行本地场景
+        Log.file('homeos sceneExcute(scene = ${sceneMap[sceneID]})');
+        final requestId = uuid.v4();
+        lanDeviceControlChannel.sceneExcute(requestId, sceneID);
+        // 3.等待执行结果并返回
+        HomluxResponseEntity entity =  await hangUp(HangUpTask<HomluxResponseEntity>.create(
+            id: requestId,
+            handle: HangUpHandle(),
+            timeoutComputation: () => _errorResponseEntity));
+        Log.file('homlux 局域网控制 场景 \n ${sceneMap[sceneID]} ${entity.isSuccess? '控制成功': '控制失败'}');
+        return entity;
       }
     } else {
+      login();
       Log.file('homlux 局域网控制 场景 \n 异常 连接还未订阅成功');
     }
     return _errorResponseEntity;
@@ -487,21 +636,59 @@ class HomluxLanControlDeviceManager {
 
   Future<HomluxResponseEntity> executeGroup(
       String groupID, List<Map<String, dynamic>> actions) async {
-    if (sucSubscribe) {
+    if (sucSubscribe && connectOk) {
       if (groupMap.containsKey(groupID)) {
-        for (var action in actions) {
-          lanDeviceControlChannel.groupControl(int.parse(groupID), action);
+        // 1. 查询本地灯组能否控制
+        dynamic group = groupMap[groupID];
+        if(group['sceneStatus'] != 2) { // 局域网能控制的设备
+          Log.file('homlux 局域网控制 灯组 \n 异常 此灯组不可用');
+          return _errorResponseEntity;
         }
+
+        // 2. 控制灯组状态
+        for (var action in actions) {
+          Log.file('homeos groupControl(groupID=$groupID)');
+          lanDeviceControlChannel.groupControl(uuid.v4(), groupID, action);
+        }
+
+        // 3.返回控制结果
         Log.file('homlux 局域网控制 灯组 \n ${groupMap[groupID]}');
         return _successResponseEntity;
+      } else {
+        Log.file('homlux 局域网控制 灯组 \n 异常 不存在此设备');
       }
     } else {
+      login();
       Log.file('homlux 局域网控制 灯组 \n 异常 连接还未订阅成功');
     }
     return _errorResponseEntity;
   }
 
-  void getDeviceStatus(String devId) {
-    lanDeviceControlChannel.getDeviceStatus(devId);
+  Future<HomluxResponseEntity> getDeviceStatus(String devId) async {
+    Log.file('局域网 getDeviceStatus(devId=$devId)');
+    if (sucSubscribe && connectOk) {
+
+      // 1.查询设备是否存在本地
+      if(!deviceMap.containsKey(devId)) {
+        return _errorResponseEntity;
+      }
+
+      // 2.去获取状态
+      final requestId = uuid.v4();
+      lanDeviceControlChannel.getDeviceStatus(requestId, devId);
+
+      // 3.等待执行结果并返回
+      HomluxResponseEntity entity =  await hangUp(HangUpTask<HomluxResponseEntity>.create(
+          id: requestId,
+          handle: HangUpHandle(devId),
+          timeoutComputation: () => _errorResponseEntity));
+      return entity;
+
+    } else {
+      login();
+      Log.file('homlux 局域网控制 设备控制 \n 异常 连接还未订阅成功');
+    }
+    return _errorResponseEntity;
   }
+
 }

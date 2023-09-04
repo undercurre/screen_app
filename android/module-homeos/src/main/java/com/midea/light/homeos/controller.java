@@ -61,40 +61,40 @@ public class controller {
     /**
      * 获取Homlux 局域网中的家庭列表
      */
-    public native int getDeviceInfo();
+    public native int getDeviceInfo(String requestId);
 
     /**
      * 获取Homlux 局域网中设备详情
      */
-    public native int getDeviceStatus(String deviceId);
+    public native int getDeviceStatus(String requestId, String deviceId);
 
     /**
      * Homlux 局域网控制设备
      */
-    public native int deviceControl(String deviceId, String action);
+    public native int deviceControl(String requestId, String deviceId, String action);
 
     /**
      * Homlux 局域网获取灯分组信息
      */
-    public native int getGroupInfo();
+    public native int getGroupInfo(String requestId);
 
     /**
      * Homlux 局域网灯组控制
      */
-    public native int groupControl(int deviceId, String action);
+    public native int groupControl(String requestId, String deviceId, String action);
 
     /**
      * Homlux 局域网获取场景列表
      * @return
      */
-    public native int getSceneInfo();
+    public native int getSceneInfo(String requestId);
 
     /**
      * Homlux 局域网场景控制
      * @param sceneId
      * @return
      */
-    public native int sceneExcute(String sceneId);
+    public native int sceneExcute(String requestId, String sceneId);
 
     static {
         System.loadLibrary("controller");

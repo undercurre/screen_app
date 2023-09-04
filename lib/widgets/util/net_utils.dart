@@ -74,6 +74,15 @@ class NetUtils {
     return netMethodChannel.checkConnectedWiFiRecord();
   }
 
+  // 监听网络状态
+  static void registerListenerNetState(void Function(NetState? state) method) {
+    netMethodChannel.registerNetChangeCallBack(method);
+  }
+
+  static void unregisterListenerNetState(void Function(NetState? state) method) {
+    netMethodChannel.unregisterNetChangeCallBack(method);
+  }
+
   /// 获取原始的网络连接类型
   static NetState getRawNetState() => netMethodChannel.currentNetState;
 
