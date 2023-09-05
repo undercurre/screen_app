@@ -16,6 +16,8 @@ import '../meiju_global.dart';
 
 const uuid = Uuid();
 
+bool refreshTokenActive = false;
+
 class MeiJuApi {
   // 单例实例
   static final MeiJuApi _instance = MeiJuApi._internal();
@@ -43,8 +45,8 @@ class MeiJuApi {
   final Dio _dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: 20000,
-    receiveTimeout: 20000,
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
   ));
 
   static void init() {
@@ -257,15 +259,14 @@ class MeiJuApi {
     return true;
   }
 
-  static final _lock = Lock();
-
   static tryToRefreshToken() async {
-    try {
-      _lock.lock();
-      // 一定要前面请求成功之后，后面的才允许接着请求
-      await iotAutoLogin() || await mzAutoLogin();
-    } finally {
-      _lock.unlock();
+    if(!refreshTokenActive) {
+      try {
+        refreshTokenActive = true;
+        await iotAutoLogin() || await mzAutoLogin();
+      } finally {
+        refreshTokenActive = false;
+      }
     }
   }
 

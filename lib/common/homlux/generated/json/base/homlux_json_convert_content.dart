@@ -56,6 +56,8 @@ class HomluxJsonConvert {
     (Homlux485DeviceListNameValuePairsFloorHotList).toString(): Homlux485DeviceListNameValuePairsFloorHotList.fromJson,
     (HomluxPanelAssociateSceneEntity).toString(): HomluxPanelAssociateSceneEntity.fromJson,
     (HomluxPanelAssociateSceneEntitySceneList).toString(): HomluxPanelAssociateSceneEntitySceneList.fromJson,
+    (HomluxDeviceConditions).toString(): HomluxDeviceConditions.fromJson,
+    (HomluxEffectiveTime).toString(): HomluxEffectiveTime.fromJson,
 
   };
 
@@ -101,6 +103,9 @@ class HomluxJsonConvert {
     }
     if(<HomluxDeviceConditions>[] is M) {
       return data.map<HomluxDeviceConditions>((e) => HomluxDeviceConditions.fromJson(e)).toList() as M;
+    }
+    if(<HomluxEffectiveTime>[] is M) {
+      return data.map<HomluxEffectiveTime>((e) => HomluxEffectiveTime.fromJson(e)).toList() as M;
     }
     if(<HomluxDeviceEntity>[] is M) {
       return data.map<HomluxDeviceEntity>((e) => HomluxDeviceEntity.fromJson(e)).toList() as M;

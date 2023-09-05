@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,14 +14,13 @@ import '../models/homlux_response_entity.dart';
 
 const uuid = Uuid();
 
+bool refreshTokenActive = false;
+
 /// token过期错误码
 const tokenExpireCode = 9984;
 
 /// refreshToken过期错误码
 const refreshExpireCode = 9861;
-
-/// 刷新token阻塞锁
-final _lock = Lock();
 
 class HomluxApi {
   // 单例实例
@@ -36,8 +35,8 @@ class HomluxApi {
   final Dio _dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: 20000,
-    receiveTimeout: 20000,
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
   ));
 
   static void init() {
@@ -53,8 +52,8 @@ class HomluxApi {
               'queryParameters: ${options.queryParameters}  \n');
           return handler.next(options);
         }, onResponse: (response, handler) {
-          Log.file('${response.requestOptions.path} \n '
-              'onResponse: $response.');
+          Log.file('${response.requestOptions.path} \n ''onResponse: $response.');
+
           return handler.next(response);
         }, onError: (e, handler) {
           Log.file('onError:\n'
@@ -84,12 +83,7 @@ class HomluxApi {
 
   /// 对外提供刷新Token的方法
   static void refreshToken() {
-    try {
-      _lock.lock();
-      _$refreshToken();
-    } finally {
-      _lock.unlock();
-    }
+    _$refreshToken();
   }
 }
 
@@ -100,11 +94,6 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress}) async {
-  //// 锁自旋, 等待Token刷新成功
-  while (_lock.locked) {
-    Log.e("----> 等待Token刷新返回");
-    sleep(const Duration(milliseconds: 20));
-  }
 
   options ??= Options();
   options.headers ??= {};
@@ -129,41 +118,41 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
 
   /// 重新刷新token, refreshToken
   if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
-    try {
-      _lock.lock();
-      if (response.code == tokenExpireCode && HomluxGlobal.isLogin) {
-        _$refreshToken();
-      }
-    } finally {
-      _lock.unlock();
-    }
+    _$refreshToken();
   }
+
   return response;
 }
 
 /// 刷新refreshToken
 void _$refreshToken() async {
-  var refreshToken = await HomluxApi()._dio.request(
-      '${dotenv.get('HOMLUX_URL')}/mzaio/v1/mzgdApi/mzgdUserRefreshToken',
-      options: Options(method: 'POST'),
-      data: {
-        ...$commonBodyData(),
-        "refreshToken": HomluxGlobal.homluxQrCodeAuthEntity?.refreshToken
-      });
-  var entity = HomluxResponseEntity<HomluxRefreshTokenEntity>.fromJson(
-      refreshToken.data);
-  if (entity.isSuccess) {
-    HomluxGlobal.homluxQrCodeAuthEntity = HomluxQrCodeAuthEntity(
-        authorizeStatus: 1,
-        refreshToken: entity.result?.refreshToken,
-        token: entity.result?.token);
-    Log.file(
-        "refreshToken 成功 ${HomluxGlobal.homluxQrCodeAuthEntity?.toJson()}");
-  } else if (entity.code == refreshExpireCode) {
-    Log.file("refreshToken 过期 即将退出登录");
-    // 真正退出逻辑
-    System.logout();
-    bus.emit("logout");
+  if (!refreshTokenActive) {
+    try {
+      refreshTokenActive = true;
+      var refreshToken = await HomluxApi()._dio.request(
+          '${dotenv.get('HOMLUX_URL')}/mzaio/v1/mzgdApi/mzgdUserRefreshToken',
+          options: Options(method: 'POST'),
+          data: {
+            ...$commonBodyData(),
+            "refreshToken": HomluxGlobal.homluxQrCodeAuthEntity?.refreshToken
+          });
+      var entity = HomluxResponseEntity<HomluxRefreshTokenEntity>.fromJson(
+          refreshToken.data);
+      if (entity.isSuccess) {
+        HomluxGlobal.homluxQrCodeAuthEntity = HomluxQrCodeAuthEntity(
+            authorizeStatus: 1,
+            refreshToken: entity.result?.refreshToken,
+            token: entity.result?.token);
+        Log.file("refreshToken 成功 ${HomluxGlobal.homluxQrCodeAuthEntity?.toJson()}");
+      } else if (entity.code == refreshExpireCode) {
+        Log.file("refreshToken 过期 即将退出登录");
+        // 真正退出逻辑
+        System.logout();
+        bus.emit("logout");
+      }
+    } finally {
+      refreshTokenActive = false;
+    }
   }
 }
 
