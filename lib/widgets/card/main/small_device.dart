@@ -127,7 +127,9 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     String getDeviceName() {
       if (widget.disabled) {
-        return widget.name;
+        return deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        );
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
