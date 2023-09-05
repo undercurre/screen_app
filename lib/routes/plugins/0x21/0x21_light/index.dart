@@ -1,9 +1,11 @@
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../../common/gateway_platform.dart';
+import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../home/device/register_controller.dart';
 import 'data_adapter.dart';
@@ -50,6 +52,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
     var colorful = Column(
       children: [
         Container(
@@ -204,7 +208,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: dataAdapter?.controlPower,
-                    title: dataAdapter?.deviceName ?? "",
+                    title: deviceListModel.getDeviceName(
+                      deviceId: dataAdapter?.getDeviceId()),
                     power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),

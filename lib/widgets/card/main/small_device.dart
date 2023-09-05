@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../states/device_list_notifier.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -69,6 +71,180 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String? _getRightText() {
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      if (widget.disabled) {
+        if (widget.online) {
+          return '在线';
+        } else {
+          return '离线';
+        }
+      }
+
+      if (widget.isFault) {
+        return '故障';
+      }
+
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.getDeviceId())) {
+        return '离线';
+      }
+
+      if (widget.adapter?.dataState == DataState.LOADING) {
+        return '加载中';
+      }
+
+      if (widget.adapter?.dataState == DataState.NONE) {
+        return '未加载';
+      }
+
+      if (widget.adapter?.dataState == DataState.ERROR) {
+        return '加载失败';
+      }
+
+      return widget.adapter?.getCharacteristic();
+    }
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
+    }
+
+    String getDeviceName() {
+      if (widget.disabled) {
+        return widget.name;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+    }
+
+    BoxDecoration _getBoxDecoration() {
+      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool online = deviceListModel.getOnlineStatus(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+      Log.i('在线状态', online);
+      if (widget.disabled) {
+        Log.i('widget:${widget.disableOnOff}');
+        if (widget.disableOnOff) {
+          return BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF767B86),
+                Color(0xFF88909F),
+                Color(0xFF516375),
+              ],
+              stops: [0, 0.24, 1],
+              transform: GradientRotation(194 * (3.1415926 / 360.0)),
+            ),
+          );
+        } else {
+          return BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0x33616A76),
+                Color(0x33434852),
+              ],
+              stops: [0.06, 1.0],
+              transform: GradientRotation(213 * (3.1415926 / 360.0)),
+            ),
+          );
+        }
+      }
+      if (widget.isFault) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x77AE4C5E),
+              Color.fromRGBO(167, 78, 97, 0.32),
+            ],
+            stops: [0, 1],
+            transform: GradientRotation(222 * (3.1415926 / 360.0)),
+          ),
+          border: Border.all(
+            color: const Color.fromRGBO(255, 0, 0, 0.32),
+            width: 0.6,
+          ),
+        );
+      }
+      if (!online) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      if (!curPower) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      } else {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF767B86),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+            stops: [0, 0.24, 1],
+            transform: GradientRotation(194 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         Log.i('disabled: ${widget.disabled}');
@@ -103,7 +279,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                         SizedBox(
                           width: 102,
                           child: Text(
-                            widget.name,
+                            getDeviceName(),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
@@ -136,19 +312,54 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                             ),
                           )
                       ]),
-                      if (widget.roomName != '' || _getRightText() != '')
+                      if (getRoomName() != '' || _getRightText() != '')
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.64),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                          padding: const EdgeInsets.only(bottom: 3),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 50
+                                  ),
+                                  child: Text(
+                                    '${getRoomName()}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontFamily: 'MideaType',
+                                      color: Colors.white.withOpacity(0.64),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 3),
+                                  child: Text(
+                                    '|',
+                                    style: TextStyle(
+                                      fontFamily: 'MideaType',
+                                      color: Colors.white.withOpacity(0.64),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '${_getRightText()}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontFamily: 'MideaType',
+                                    color: Colors.white.withOpacity(0.64),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ]),
                         )
                     ],
                   ),
@@ -189,134 +400,5 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         ),
       ),
     );
-  }
-
-  String? _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-
-    if (widget.disabled) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.LOADING) {
-      return '加载中';
-    }
-
-    if (widget.adapter?.dataState == DataState.NONE) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.ERROR) {
-      return '加载失败';
-    }
-
-    return widget.adapter?.getCharacteristic();
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    bool curPower = widget.adapter?.getPowerStatus() ?? false;
-    if (widget.disabled) {
-      Log.i('widget:${widget.disableOnOff}');
-      if (widget.disableOnOff) {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF767B86),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-            stops: [0, 0.24, 1],
-            transform: GradientRotation(194 * (3.1415926 / 360.0)),
-          ),
-        );
-      } else {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
-        );
-      }
-    }
-    if (widget.isFault) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x77AE4C5E),
-            Color.fromRGBO(167, 78, 97, 0.32),
-          ],
-          stops: [0, 1],
-          transform: GradientRotation(222 * (3.1415926 / 360.0)),
-        ),
-        border: Border.all(
-          color: const Color.fromRGBO(255, 0, 0, 0.32),
-          width: 0.6,
-        ),
-      );
-    }
-    if (!widget.online) {
-      BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    if (!curPower) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x33616A76),
-            Color(0x33434852),
-          ],
-          stops: [0.06, 1.0],
-          transform: GradientRotation(213 * (3.1415926 / 360.0)),
-        ),
-      );
-    } else {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
   }
 }

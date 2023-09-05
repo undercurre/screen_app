@@ -2,9 +2,9 @@ import 'endpoint.dart';
 
 class NodeInfo<T extends Endpoint> {
   String devId;
-  List<String> registerUsers;
+  List<String>? registerUsers;
   int masterId;
-  String nodeName;
+  String? nodeName;
   String idType;
   String modelId;
   List<T> endList;
@@ -16,9 +16,9 @@ class NodeInfo<T extends Endpoint> {
 
   NodeInfo({
     required this.devId,
-    required this.registerUsers,
+    this.registerUsers,
     required this.masterId,
-    required this.nodeName,
+    this.nodeName,
     required this.idType,
     required this.modelId,
     required this.endList,

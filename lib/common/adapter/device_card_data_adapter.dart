@@ -41,6 +41,10 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
     return null;
   }
 
+  String? getDeviceId() {
+    return null;
+  }
+
   /// 设备主开关
   Future<dynamic> power(bool? onOff) async {}
 

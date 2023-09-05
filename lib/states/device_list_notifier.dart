@@ -22,6 +22,7 @@ class DeviceInfoListModel extends ChangeNotifier {
   List<DeviceEntity> MeijuGroup = [];
 
   DeviceListModel() {
+    Log.i('deviceModel加载');
     getDeviceList();
   }
 
@@ -176,6 +177,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           await MeiJuDeviceApi.getGroupList();
       if (MeijuRes.isSuccess && MeijuGroups.isSuccess) {
         deviceListMeiju = MeijuRes.data!;
+        notifyListeners();
 
         List<DeviceEntity> tempList = deviceListMeiju.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -190,14 +192,16 @@ class DeviceInfoListModel extends ChangeNotifier {
           return deviceObj;
         }).toList();
 
-        MeijuGroup = (MeijuGroups.data!["applianceGroupList"] as List<dynamic>).map<DeviceEntity>((e) {
+        MeijuGroup = (MeijuGroups.data!["applianceGroupList"] as List<dynamic>)
+            .map<DeviceEntity>((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e["name"];
           deviceObj.applianceCode = e["groupId"].toString();
           deviceObj.type = "0x21";
           deviceObj.modelNumber = "lightGroup";
           deviceObj.roomName = e["roomName"];
-          deviceObj.masterId = e["applianceList"][0]["parentApplianceCode"].toString();
+          deviceObj.masterId =
+              e["applianceList"][0]["parentApplianceCode"].toString();
           deviceObj.onlineStatus = "1";
           return deviceObj;
         }).toList();
@@ -234,6 +238,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo!.familyId);
       if (HomluxRes.isSuccess) {
         deviceListHomlux = HomluxRes.data!;
+        notifyListeners();
 
         ///homlux添加本地485设备
         Homlux485DeviceListEntity? deviceList =
@@ -296,8 +301,6 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceListHomlux.add(device);
         }
 
-
-
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e.deviceName!;
@@ -334,6 +337,78 @@ class DeviceInfoListModel extends ChangeNotifier {
       }
     }
     return [];
+  }
+
+  String getDeviceName({String? deviceId}) {
+    if (deviceId != null) {
+      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
+            .where((element) => element.applianceCode == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].name ?? '未知设备';
+        } else {
+          return '未知设备';
+        }
+      } else {
+        List<HomluxDeviceEntity> curOne = deviceListHomlux
+            .where((element) => element.deviceId == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].deviceName ?? '未知设备';
+        } else {
+          return '未知设备';
+        }
+      }
+    } else {
+      return '未知id';
+    }
+  }
+
+  String getDeviceRoomName({String? deviceId}) {
+    if (deviceId != null) {
+      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
+            .where((element) => element.applianceCode == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].roomName ?? '未知区域';
+        } else {
+          return '未知区域';
+        }
+      } else {
+        List<HomluxDeviceEntity> curOne = deviceListHomlux
+            .where((element) => element.deviceId == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].roomName ?? '未知区域';
+        } else {
+          return '未知区域';
+        }
+      }
+    } else {
+      return '未知id';
+    }
+  }
+
+  bool getOnlineStatus({String? deviceId}) {
+    if (deviceId != null) {
+      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
+            .where((element) => element.applianceCode == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].onlineStatus == '1';
+        } else {
+          return false;
+        }
+      } else {
+        List<HomluxDeviceEntity> curOne = deviceListHomlux
+            .where((element) => element.deviceId == deviceId).toList();
+        if (curOne.isNotEmpty) {
+          return curOne[0].onLineStatus == 1;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
   }
 }
 
