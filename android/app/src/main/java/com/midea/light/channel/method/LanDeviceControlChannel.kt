@@ -2,17 +2,20 @@ package com.midea.light.channel.method
 
 import android.content.Context
 import com.midea.light.channel.AbsMZMethodChannel
+import com.midea.light.common.thread.MainThread
 import com.midea.light.homeos.HomeOsClient
 import com.midea.light.homeos.HomeOsControllerCallback
-import com.midea.light.homeos.controller
 import com.midea.light.log.LogUtil
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import org.json.JSONArray
 import org.json.JSONObject
 
 // 局域网设备控制Channel通道
 class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel(context) , HomeOsControllerCallback {
+
+    var hasInit = false
 
     companion object {
         fun create(
@@ -30,7 +33,11 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
         val methodName = call.method
         when(methodName) {
             "init" -> {
-                HomeOsClient.getOsController().init()
+                if(!hasInit) {
+                    HomeOsClient.getOsController().init()
+                    hasInit = false
+                    LogUtil.tag("homeOs").msg("请求init")
+                }
             }
             "login" -> {
                 val homeId = call.argument<String?>("homeId")
@@ -39,28 +46,37 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                     HomeOsClient.getOsController().login(homeId, key)
                 }
                 HomeOsClient.getOsController().setCallback(this)
+                LogUtil.tag("homeOs").msg("请求login")
             }
             "logout" -> {
                 HomeOsClient.getOsController().logout()
                 HomeOsClient.getOsController().setCallback(null)
+                LogUtil.tag("homeOs").msg("请求logout")
             }
             "getDeviceInfo" -> {
-                if(HomeOsClient.getOsController().deviceInfo != 0) {
+                val requestId = call.argument<String>("requestId")
+                LogUtil.tag("homeOs").msg("请求getDeviceInfo")
+                if(HomeOsClient.getOsController().getDeviceInfo(requestId) != 0) {
                     LogUtil.tag("homeOs").msg("请求getDeviceInfo失败")
                 }
             }
             "getDeviceStatus" -> {
                 val deviceId = call.argument<String?>("deviceId")
-                if (HomeOsClient.getOsController().getDeviceStatus(deviceId) != 0) {
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求getDeviceStatus")
+                if (HomeOsClient.getOsController().getDeviceStatus(requestId, deviceId) != 0) {
                     LogUtil.tag("homeOs").msg("请求getDeviceInfo失败")
                 }
             }
             "deviceControl" -> {
-                val action = call.argument<Map<String, Any>?>("action")
+                val actions = call.argument<JSONArray?>("actions")
                 val deviceId = call.argument<String?>("deviceId")
-                if(deviceId != null && action != null) {
-                    if (HomeOsClient.getOsController().deviceControl(deviceId,
-                            JSONObject.wrap(action)?.toString() ?: "") != 0) {
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求deviceControl")
+                if(deviceId != null && actions != null) {
+                    val jsonObject = JSONObject()
+                    jsonObject.put("actions", actions)
+                    if (HomeOsClient.getOsController().deviceControl(requestId, deviceId, jsonObject.toString()) != 0) {
                         LogUtil.tag("homeOs").msg("请求getDeviceInfo失败")
                     }
                 } else {
@@ -68,16 +84,21 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                 }
             }
             "getGroupInfo" -> {
-                if(HomeOsClient.getOsController().groupInfo != 0) {
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求getGroupInfo")
+                if(HomeOsClient.getOsController().getGroupInfo(requestId) != 0) {
                     LogUtil.tag("homeOs").msg("请求getGroupInfo失败")
                 }
             }
             "groupControl" -> {
-                val action = call.argument<Map<String, Any>?>("action")
-                val deviceId = call.argument<Int?>("deviceId")
+                val action = call.argument<JSONObject?>("action")
+                val deviceId = call.argument<String?>("deviceId")
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求groupControl")
                 if(action != null && deviceId != null) {
-                    if(HomeOsClient.getOsController().groupControl(deviceId,
-                            JSONObject.wrap(action)?.toString() ?: "") != 0) {
+                    val actions = JSONObject()
+                    actions.put("actions", action)
+                    if(HomeOsClient.getOsController().groupControl(requestId, deviceId, actions.toString()) != 0) {
                         LogUtil.tag("homeOs").msg("请求groupControl失败")
                     }
                 } else {
@@ -85,14 +106,18 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                 }
             }
             "getSceneInfo" -> {
-                if (HomeOsClient.getOsController().sceneInfo != 0) {
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求getSceneInfo")
+                if (HomeOsClient.getOsController().getSceneInfo(requestId) != 0) {
                     LogUtil.tag("homeOs").msg("请求getSceneInfo失败")
                 }
             }
             "sceneExcute" -> {
                 val sceneId = call.argument<String?>("sceneId")
+                val requestId = call.argument<String?>("requestId")
+                LogUtil.tag("homeOs").msg("请求sceneExcute")
                 if(sceneId != null) {
-                    if(HomeOsClient.getOsController().sceneExcute(sceneId) != 0) {
+                    if(HomeOsClient.getOsController().sceneExcute(requestId, sceneId) != 0) {
                         LogUtil.tag("homeOs").msg("请求sceneExcute失败")
                     }
                 } else {
@@ -103,16 +128,22 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
     }
 
     override fun msg(topic: String?, msg: String?) {
-        mMethodChannel.invokeMethod("mqttHandler", mapOf(
-            "topic" to topic,
-            "msg" to msg
-        ))
+        MainThread.run {
+            LogUtil.tag("homeOs").msg("topic = $topic msg = $msg")
+            mMethodChannel.invokeMethod("mqttHandler", mapOf(
+                "topic" to topic,
+                "msg" to msg
+            ))
+        }
     }
 
     override fun log(msg: String?) {
-        mMethodChannel.invokeMethod("log", mapOf(
-            "msg" to msg
-        ))
+        MainThread.run {
+            LogUtil.tag("homeOs").msg("log = msg")
+            mMethodChannel.invokeMethod("log", mapOf(
+                "msg" to msg
+            ))
+        }
     }
 
 }

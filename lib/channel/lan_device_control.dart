@@ -32,7 +32,7 @@ class LanDeviceControlChannel extends AbstractChannel {
         Map<String, dynamic>? map = call.arguments as Map<String, dynamic>?;
         String? topic = map?['topic'];
         String? msg = map?['msg'];
-        Log.file('HomeOs 接收到mqtt数据 topic= $topic \n msg= $msg');
+        Log.file('局域网 接收到mqtt数据 topic= $topic \n msg= $msg');
         if(StrUtils.isNotNullAndEmpty(topic) && StrUtils.isNotNullAndEmpty(msg)) {
           mqttCallback?.call(topic!, msg!);
         }
@@ -75,41 +75,48 @@ class LanDeviceControlChannel extends AbstractChannel {
   /// ******************
   /// 请求获取设备列表
   /// *******************
-  void getDeviceInfo() {
-    methodChannel.invokeMethod('getDeviceInfo');
+  void getDeviceInfo(String requestId) {
+    methodChannel.invokeMethod('getDeviceInfo', {
+      'requestId': requestId
+    });
   }
 
   /// ******************
   /// 请求获取具体的设备状态
   /// *******************
-  void getDeviceStatus(String? deviceId) {
+  void getDeviceStatus(String requestId, String? deviceId) {
     methodChannel.invokeMethod('getDeviceStatus', {
-      'deviceId': deviceId
+      'requestId': requestId,
+      'deviceId': deviceId ?? '',
     });
   }
 
   /// ******************
   /// 行局域网设备控制
   /// *******************
-  void deviceControl(String deviceId, Map<String, dynamic> action) {
+  void deviceControl(String requestId, String deviceId, List<Map<String, dynamic>> action) {
     methodChannel.invokeMethod('deviceControl', {
+      'requestId': requestId,
       'deviceId': deviceId,
-      'action': action
+      'actions': action
     });
   }
 
   /// ******************
   /// 获取灯组信息
   /// *******************
-  void getGroupInfo() {
-    methodChannel.invokeMethod('getGroupInfo');
+  void getGroupInfo(String requestId) {
+    methodChannel.invokeMethod('getGroupInfo', {
+      'requestId': requestId
+    });
   }
 
   /// ******************
   /// 灯组控制
   /// *******************
-  void groupControl(int deviceId, Map<String, dynamic> action) {
+  void groupControl(String requestId, String deviceId, Map<String, dynamic> action) {
     methodChannel.invokeMethod('groupControl', {
+        'requestId': requestId,
         'deviceId': deviceId,
         'action': action
     });
@@ -118,15 +125,18 @@ class LanDeviceControlChannel extends AbstractChannel {
   /// ******************
   /// 获取场景列表
   /// *******************
-  void getSceneInfo() {
-    methodChannel.invokeMethod('getSceneInfo');
+  void getSceneInfo(String requestId) {
+    methodChannel.invokeMethod('getSceneInfo', {
+      'requestId': requestId,
+    });
   }
 
   /// ******************
   /// 场景执行
   /// *******************
-  void sceneExcute(String sceneId) {
+  void sceneExcute(String requestId, String sceneId) {
     methodChannel.invokeMethod('sceneExcute', {
+      'requestId': requestId,
       'sceneId': sceneId
     });
   }

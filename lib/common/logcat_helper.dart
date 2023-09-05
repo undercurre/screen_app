@@ -27,20 +27,21 @@ class FileOutput extends LogOutput {
     randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
     if(randomAccessFile!.lengthSync() > _maxFileOutputLength) {
       randomAccessFile!.setPositionSync(0);
-    } else {
-      randomAccessFile!.setPositionSync(randomAccessFile!.lengthSync());
     }
   }
 
   @override
   void output(OutputEvent event) {
     if(randomAccessFile == null) return;
-    if(randomAccessFile!.lengthSync() > _maxFileOutputLength) {
-      randomAccessFile!.setPositionSync(0);
-    }
+
     for (var element in event.lines) {
       randomAccessFile!.writeStringSync('$element\n');
     }
+
+    if(randomAccessFile!.positionSync() > _maxFileOutputLength) {
+      randomAccessFile!.setPositionSync(0);
+    }
+
     randomAccessFile!.flushSync();
   }
 

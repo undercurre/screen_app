@@ -28,7 +28,7 @@ import com.midea.light.utils.ProcessUtil;
 import com.tencent.bugly.crashreport.CrashReport;
 
 public class MainApplication extends BaseApplication {
-    public static final Boolean DEBUG = BuildConfig.DEBUG;
+    public static final Boolean DEBUG = true;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
     public static MainActivity mMainActivity;
     public static boolean standbyState=false;

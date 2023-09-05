@@ -6,6 +6,8 @@ import 'package:screen_app/routes/develop/screen_on_off.dart';
 import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/develop/zigbee_manager.dart';
 
+import 'homeos_helper_page.dart';
+
 class DeveloperHelperPage extends StatelessWidget {
   const DeveloperHelperPage({super.key});
 
@@ -30,6 +32,8 @@ class DeveloperHelperPage extends StatelessWidget {
                 .push(context, MaterialPageRoute(builder: (context) => const ScreenOnOffPage()))),
             item("继电器测试", () => Navigator
                 .push(context, MaterialPageRoute(builder: (context) => const RelayPage()))),
+            item("HomeOs测试页面", () => Navigator
+                .push(context, MaterialPageRoute(builder: (context) => const HomeOsHelperPage()))),
           ]),
     );
   }

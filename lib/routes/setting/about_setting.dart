@@ -375,18 +375,13 @@ class AboutSettingPage extends StatelessWidget {
                                 '',
                           ),
                         ),
-                        MultiClick(
-                          count: 5,
-                          duration: 3000,
-                          clickListener: () =>
-                              Navigator.of(context).pushNamed("developer"),
-                          child: MzSettingItem(
-                            leftText: 'MAC地址',
-                            rightText: context
-                                    .watch<AboutSettingProvider>()
-                                    .macAddress ??
-                                '',
-                          ),
+                        MzSettingItem(
+                          onTap: () => Navigator.of(context).pushNamed("developer"),
+                          leftText: 'MAC地址',
+                          rightText: context
+                                  .watch<AboutSettingProvider>()
+                                  .macAddress ??
+                              '',
                         ),
                         MzSettingItem(
                           leftText: 'IP地址',
