@@ -127,7 +127,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
 
     String getDeviceName() {
       if (widget.disabled) {
-        return deviceListModel.getDeviceName(
+        return (deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        ) == '未知id' || deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        ) == '未知设备') ? widget.name : deviceListModel.getDeviceName(
           deviceId: widget.adapter?.getDeviceId(),
         );
       }
