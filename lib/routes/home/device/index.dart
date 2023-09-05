@@ -1,18 +1,39 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/api/api.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
 
 class DevicePage extends StatefulWidget {
-  const DevicePage({Key? key}) : super(key: key);
+  DevicePage({Key? key}) : super(key: key);
+
+  // 创建一个全局的定时器
+  Timer? _timer;
+
+  // 启动定时器
+  void startPolling(BuildContext context) {
+    const oneMinute = Duration(minutes: 5);
+
+    // 使用周期性定时器，每分钟触发一次
+    _timer = Timer.periodic(oneMinute, (Timer timer) {
+      context.read<DeviceInfoListModel>().getDeviceList();
+    });
+  }
+
+
+  void stopPolling() {
+    _timer?.cancel();
+  }
 
   @override
   State<StatefulWidget> createState() => _DevicePageState();
@@ -25,11 +46,18 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void initState() {
     super.initState();
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
+    deviceListModel.getDeviceList();
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      widget.startPolling(context);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.stopPolling();
   }
 
   @override
@@ -66,7 +94,6 @@ class _DevicePageState extends State<DevicePage> {
     }
 
     for (; pageCount <= hadPageCount; pageCount++) {
-
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
       List<Layout> layoutsInCurPage =
@@ -105,7 +132,8 @@ class _DevicePageState extends State<DevicePage> {
         curScreenLayouts.forEach((element) {
           sumGrid.addAll(element.grids);
         });
-        if (editCardFillCells.isNotEmpty && editCardFillCells[0] > sumGrid.reduce(max)) {
+        if (editCardFillCells.isNotEmpty &&
+            editCardFillCells[0] > sumGrid.reduce(max)) {
           curScreenLayouts.add(
             Layout(
               uuid.v4(),

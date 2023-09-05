@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/states/device_list_notifier.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
@@ -38,7 +40,7 @@ class DeviceDataEntity {
   DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
     brightness = int.parse(data!.endList[0].event.Level);
     colorTemp = int.parse(data!.endList[0].event.ColorTemp);
-    power = data!.endList[0].event.OnOff == '1';
+    power = data!.endList[0].event.OnOff == '1' || data!.endList[0].event.OnOff == 1;
     delayClose = int.parse(data!.endList[0].event.DelayClose);
   }
 
@@ -102,6 +104,11 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   }
 
   @override
+  String? getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   bool getPowerStatus() {
     Log.i('获取开关状态', data!.power);
     return data!.power;
@@ -109,7 +116,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   @override
   String? getCharacteristic() {
-    Log.i('获取特征状态', data!.brightness);
+    Log.i('获取$applianceCode特征状态', data!.brightness);
     return "${data!.brightness}%";
   }
 
@@ -392,31 +399,66 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     }
   }
 
-  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == masterId) {
-      fetchData();
+  void homluxPush(HomluxDevicePropertyChangeEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
+      _throttledFetchData();
+    }
+  }
+
+  void homluxNamePush(HomluxEditSubEvent event) {
+    if (event != null) {
+      context.read<DeviceInfoListModel>().getDeviceList();
+    }
+  }
+
+  void homluxMovePush(HomluxMovSubDeviceEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
+      context.read<DeviceInfoListModel>().getDeviceList();
+    }
+  }
+
+  void homluxOfflinePush(HomluxDeviceOnlineStatusChangeEvent event) {
+    if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
+      Log.i('离线推送', event);
+      context.read<DeviceInfoListModel>().getDeviceList();
+    }
+  }
+
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    Log.i('美居的push', args.nodeId);
+    if (args.nodeId == nodeId) {
+      _throttledFetchData();
+    }
+  }
+
+  void meijuPushOnline(MeiJuDeviceOnlineStatusChangeEvent args) {
+    Log.i('美居的在离线push', args.deviceId);
+    if (args.deviceId == masterId) {
+      context.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
-          _throttledFetchData();
-        }
-      });
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+      bus.typeOn<HomluxEditSubEvent>(homluxNamePush);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxMovePush);
+      bus.typeOn<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush);
     } else {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
-        if (args.nodeId == nodeId) {
-          _throttledFetchData();
-        }
-      });
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+      bus.typeOn<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOff(statusChangePushHomlux);
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+      bus.typeOff<HomluxEditSubEvent>(homluxNamePush);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxMovePush);
+      bus.typeOff<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush);
+    } else {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+      bus.typeOff<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline);
     }
   }
 
@@ -428,10 +470,10 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 }
 
 class ZigbeeLightEvent extends Event {
-  String OnOff = '0';
-  String DelayClose = '0';
-  String Level = '0';
-  String ColorTemp = '0';
+  dynamic OnOff = '0';
+  dynamic DelayClose = '0';
+  dynamic Level = '0';
+  dynamic ColorTemp = '0';
   dynamic duration = 3;
 
   ZigbeeLightEvent(
@@ -444,18 +486,18 @@ class ZigbeeLightEvent extends Event {
   factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return ZigbeeLightEvent(
-        OnOff: json['OnOff'] as String,
-        DelayClose: json['DelayClose'] as String,
-        Level: json['Level'] as String,
-        ColorTemp: json['ColorTemp'] as String,
+        OnOff: json['OnOff'],
+        DelayClose: json['DelayClose'],
+        Level: json['Level'],
+        ColorTemp: json['ColorTemp'],
         duration: json['duration'], // 可能不存在的键
       );
     } else {
       return ZigbeeLightEvent(
-        OnOff: json['OnOff'] as String,
-        DelayClose: json['DelayClose'] as String,
-        Level: json['Level'] as String,
-        ColorTemp: json['ColorTemp'] as String,
+        OnOff: json['OnOff'],
+        DelayClose: json['DelayClose'],
+        Level: json['Level'],
+        ColorTemp: json['ColorTemp'],
         duration: json['duration'], // 可能不存在的键
       );
     }
