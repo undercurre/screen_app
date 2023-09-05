@@ -32,8 +32,8 @@ class Api {
   static Dio dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: 20000,
-    receiveTimeout: 20000,
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
   ));
 
   /// 私有的命名构造函数
@@ -310,24 +310,16 @@ class Api {
   }
 
   static var forceRefresh = true;
-  static final _lock = Lock();
 
   static tryToRefresh() async {
-    try {
-      _lock.lock();
-      if(Global.isLogin) {
-        if(forceRefresh) {
-          forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
-          Global.saveProfile();
-        } else if(isWillLoginExpire) {
-          !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
-        }
+    if(Global.isLogin) {
+      if(forceRefresh) {
+        forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
+        Global.saveProfile();
+      } else if(isWillLoginExpire) {
+        !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
       }
-    } finally{
-      _lock.unlock();
     }
-
-
   }
 
   /// IOT接口发起公共接口
