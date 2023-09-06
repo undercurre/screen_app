@@ -61,8 +61,7 @@ class _Boot extends State<Boot> {
     // () async {
     //   /// 数据迁移逻辑
     //   String version = await aboutSystemChannel.getAppVersion();
-    //   if (version == '0120' &&
-    //       !Setting.instant().checkVersionCompatibility(version)) {
+    //   if (version == '0120' &&!Setting.instant().checkVersionCompatibility(version)) {
     //     if (!System.isLogin()) {
     //       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
     //         Future.delayed(Duration.zero).then((_) {
@@ -79,6 +78,24 @@ class _Boot extends State<Boot> {
     //   /// 正常的跳转逻辑
     //   checkLogin();
     // }.call();
+
+    () async {
+      /// 数据迁移逻辑
+      if (!System.isLogin()) {
+        if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+          Future.delayed(Duration.zero).then((_) {
+            Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
+          });
+        } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+          Future.delayed(Duration.zero).then((_) {
+            Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
+          });
+        }
+        return;
+      }
+      /// 正常的跳转逻辑
+      checkLogin();
+    }.call();
   }
 
   @override
@@ -128,12 +145,11 @@ class _Boot extends State<Boot> {
         isFinishLogin ? 'Home' : 'Login',
       );
 
-      if(isFinishLogin) {
+      if (isFinishLogin) {
         System.login();
       } else {
         System.logout();
       }
-
     }
   }
 }
