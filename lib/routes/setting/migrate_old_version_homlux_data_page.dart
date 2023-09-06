@@ -113,15 +113,15 @@ class MigrationOldVersionHomLuxDataState
       }
 
       /// 迁移token
-      await migrateToken(token['refreshToken'], token['token']);
+      await migrateToken(token['token']['refreshToken'], token['token']['token']);
 
       /// 迁移用户信息
       await migrateUserData(
           userData['headImageUrl'],
           userData['mobilePhone'],
-          userData['name'],
-          userData['nickName'],
-          userData['sex'],
+          userData['name'] ?? "",
+          userData['nickName']?? "",
+          userData['sex']?? 1,
           userData['userId'],
           userData['wxId']);
 

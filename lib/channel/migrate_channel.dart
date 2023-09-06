@@ -55,4 +55,28 @@ class MigrateChannel extends AbstractChannel {
     return res;
   }
 
+  Future<Map<String, dynamic>?> meiJuIsMigrate() async {
+    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('meiJuIsMigrate');
+    logger.i(res);
+    return res;
+  }
+
+  Future<Map<String, dynamic>?> setMeiJuIsMigrate() async {
+    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('setMeiJuIsMigrate');
+    logger.i(res);
+    return res;
+  }
+
+  Future<Map<String, dynamic>?> homluxIsMigrate() async {
+    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('homluxIsMigrate');
+    logger.i(res);
+    return res;
+  }
+
+  Future<Map<String, dynamic>?> setHomluxIsMigrate() async {
+    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('setHomluxIsMigrate');
+    logger.i(res);
+    return res;
+  }
+
 }

@@ -150,7 +150,7 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
       await migrateHomeFromCloud(userData['home']['homegroupId']);
 
       /// 保存当前的数据
-      Global.saveProfile();
+      // Global.saveProfile();
       Setting.instant().saveVersionCompatibility(
           await aboutSystemChannel.getAppVersion());
       Future.delayed(Duration.zero).then((value) {

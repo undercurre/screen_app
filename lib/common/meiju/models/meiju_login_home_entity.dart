@@ -24,7 +24,7 @@ class MeiJuLoginHomeEntity {
   String? applianceCount;
   String? memberCount;
   dynamic members;
-  late int unread;
+  int unread=1;
   List<RoomEntity>? roomList;
 
   MeiJuLoginHomeEntity();

@@ -79,23 +79,6 @@ class _Boot extends State<Boot> {
     //   checkLogin();
     // }.call();
 
-    () async {
-      /// 数据迁移逻辑
-      if (!System.isLogin()) {
-        if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-          Future.delayed(Duration.zero).then((_) {
-            Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
-          });
-        } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-          Future.delayed(Duration.zero).then((_) {
-            Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
-          });
-        }
-        return;
-      }
-      /// 正常的跳转逻辑
-      checkLogin();
-    }.call();
   }
 
   @override
@@ -122,6 +105,26 @@ class _Boot extends State<Boot> {
   /// 启动完成
   void bootFinish() {
     debugPrint('bootFinish trigger');
+
+    /// 数据迁移逻辑
+    () async {
+      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+        Future.delayed(Duration.zero).then((_) {
+          Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
+        });
+      } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+        Future.delayed(Duration.zero).then((_) {
+          Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
+        });
+      }else{
+        Navigator.pushNamed(
+          context,
+          'Login',
+        );
+      }
+      return;
+    }.call();
+
     if (MideaRuntimePlatform.platform == GatewayPlatform.NONE) {
       Navigator.pushNamed(
         context,
