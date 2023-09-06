@@ -40,7 +40,7 @@ class NetSettingPage extends StatelessWidget {
                           "assets/newUI/back.png",
                         ),
                       ),
-                      const Text("网络设置",
+                      const Text("无线局域网",
                           style: TextStyle(
                               color: Color(0XD8FFFFFF),
                               fontSize: 28,

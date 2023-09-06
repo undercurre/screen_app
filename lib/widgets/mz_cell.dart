@@ -173,7 +173,7 @@ class _CellState extends State<MzCell> {
 
       // 插入中间列，middleCell || titleSlot
       Expanded(
-          flex: 3,
+          flex: 1,
           child: widget.titleSlot == null
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -188,17 +188,20 @@ class _CellState extends State<MzCell> {
       // rightText
       if (StrUtils.isNotNullAndEmpty(widget.rightText))
         Expanded(
-          flex: 1,
-          child: Text(
-            widget.rightText!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: "MideaType",
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.none,
-              color: widget.rightTextColor,
+          flex: 2,
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: Text(
+              widget.rightText!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 20,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w400,
+                decoration: TextDecoration.none,
+                color: widget.rightTextColor,
+              ),
             ),
           ),
         ),

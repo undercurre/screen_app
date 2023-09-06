@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../channel/index.dart';
-import '../../common/global.dart';
+import '../../common/setting.dart';
 
 class SoundSettingPage extends StatefulWidget {
   const SoundSettingPage({Key? key});
@@ -12,8 +14,8 @@ class SoundSettingPage extends StatefulWidget {
 }
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
-  late double po;
-  num soundValue = Global.soundValue;
+  late num soundValue;
+  Timer? sliderTimer;
 
   @override
   void initState() {
@@ -24,16 +26,15 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   }
 
   initial() async {
-    soundValue = Global.soundValue;
+    soundValue = Setting.instant().volume;
     aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
-
   }
 
   void _aiSetVoiceCallback(int voice) {
     setState(() {
-      Global.soundValue=voice;
-      soundValue = Global.soundValue;
+      soundValue = voice;
     });
+    Setting.instant().volume = voice;
   }
 
   @override
@@ -104,7 +105,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     Positioned(
                       left: 20,
                       top: 12,
-                      child: Text("声音 | ${(soundValue / 255 * 100).toInt()}%",
+                      child: Text("声音 | ${(soundValue / 15 * 100).toInt()}%",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 24,
@@ -140,18 +141,19 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                                 thumbShape: CustomThumbShape2(12, Colors.white),
                               ),
                               child: Slider(
-                                  min: 0,
-                                  max: 255,
-                                  value: soundValue.toDouble(),
-                                  onChanged: (value) {
-                                    num val = value.toInt();
-                                    settingMethodChannel.setSystemLight(val);
-                                    setState(() {
-                                        settingMethodChannel.setSystemVoice(value);
-                                        soundValue = value;
-                                        Global.soundValue = soundValue;
-                                    });
-                                  }),
+                                min: 0,
+                                max: 15,
+                                value: soundValue.toDouble(),
+                                onChanged: (value) {
+                                  setState(() {
+                                      soundValue = value;
+                                  });
+                                  sliderToSetVol();
+                                },
+                                onChangeEnd: (value) {
+                                  sliderToSetVolEnd();
+                                },
+                              ),
                             )
                         )
                     )
@@ -164,6 +166,23 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
         ),
       ),
     );
+  }
+
+  void sliderToSetVol() {
+    sliderTimer ??= Timer.periodic(const Duration(milliseconds: 500) , (timer) {
+      settingMethodChannel.setSystemVoice(soundValue.toInt());
+    });
+  }
+
+  void sliderToSetVolEnd() {
+    if (sliderTimer != null) {
+      if (sliderTimer!.isActive) {
+        sliderTimer!.cancel();
+      }
+      sliderTimer = null;
+    }
+    settingMethodChannel.setSystemVoice(soundValue.toInt());
+    Setting.instant().volume = soundValue.toInt();
   }
 
   @override

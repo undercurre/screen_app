@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
@@ -28,6 +30,9 @@ class _DropDownPageState extends State<DropDownPage>
   var musicStartIcon = "assets/imgs/dropDown/pause-icon.png";
   var lightLogo = "assets/imgs/dropDown/light-black.png";
   var soundLogo = "assets/imgs/dropDown/sound-black.png";
+
+  Timer? sliderTimer1;
+  Timer? sliderTimer2;
 
   initial() async {
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
@@ -253,29 +258,25 @@ class _DropDownPageState extends State<DropDownPage>
                             Color(0xFFFFFFFF)
                           ],
                           radius: 24,
-                          onChanging: (newValue, actieColor) async => {
-                            await settingMethodChannel
-                                .setSystemVoice(newValue.toInt()),
-                            soundValue = newValue,
-                            //Setting.instant().volume = newValue.toInt(),
+                          onChanging: (newValue, actieColor) {
+                            soundValue = newValue;
                             if (newValue > 7) {
-                              soundLogo = "assets/imgs/dropDown/sound-black.png"
+                              soundLogo = "assets/imgs/dropDown/sound-black.png";
                             } else {
-                              soundLogo = "assets/imgs/dropDown/sound-white.png"
-                            },
-                            setState(() {})
+                              soundLogo = "assets/imgs/dropDown/sound-white.png";
+                            }
+                            setState(() {});
+                            sliderToSetVol();
                           },
-                          onChanged: (newValue, actieColor) async => {
-                            await settingMethodChannel
-                                .setSystemVoice(newValue.toInt()),
-                            soundValue = newValue,
-                            Setting.instant().volume = newValue.toInt(),
+                          onChanged: (newValue, actieColor) {
+                            soundValue = newValue;
                             if (newValue > 7) {
-                              soundLogo = "assets/imgs/dropDown/sound-black.png"
+                              soundLogo = "assets/imgs/dropDown/sound-black.png";
                             } else {
-                              soundLogo = "assets/imgs/dropDown/sound-white.png"
-                            },
-                            setState(() {})
+                              soundLogo = "assets/imgs/dropDown/sound-white.png";
+                            }
+                            setState(() {});
+                            sliderToSetVolEnd();
                           },
                         ),
                       ),
@@ -311,29 +312,25 @@ class _DropDownPageState extends State<DropDownPage>
                             Color(0xFFFFFFFF),
                             Color(0xFFFFFFFF)
                           ],
-                          onChanged: (newValue, actieColor) async => {
-                            await settingMethodChannel
-                                .setSystemLight(newValue.toInt()),
-                            lightValue = newValue,
-                            Setting.instant().screenBrightness = lightValue.toInt(),
+                          onChanged: (newValue, actieColor) {
+                            lightValue = newValue;
                             if (newValue > 128) {
-                              lightLogo = "assets/imgs/dropDown/light-black.png"
+                              lightLogo = "assets/imgs/dropDown/light-black.png";
                             } else {
-                              lightLogo = "assets/imgs/dropDown/light-white.png"
-                            },
-                            setState(() {})
+                              lightLogo = "assets/imgs/dropDown/light-white.png";
+                            }
+                            setState(() {});
+                            sliderToSetLight();
                           },
-                          onChanging: (newValue, actieColor) async => {
-                            await settingMethodChannel
-                                .setSystemLight(newValue.toInt()),
-                            lightValue = newValue,
-                            //Setting.instant().screenBrightness = lightValue.toInt(),
+                          onChanging: (newValue, actieColor) {
+                            lightValue = newValue;
                             if (newValue > 128) {
-                              lightLogo = "assets/imgs/dropDown/light-black.png"
+                              lightLogo = "assets/imgs/dropDown/light-black.png";
                             } else {
-                              lightLogo = "assets/imgs/dropDown/light-white.png"
-                            },
-                            setState(() {})
+                              lightLogo = "assets/imgs/dropDown/light-white.png";
+                            }
+                            setState(() {});
+                            sliderToSetLightEnd();
                           },
                         ),
                       ),
@@ -369,6 +366,40 @@ class _DropDownPageState extends State<DropDownPage>
       ),
     );
 
+  }
+
+  void sliderToSetVol() {
+    sliderTimer1 ??= Timer.periodic(const Duration(milliseconds: 500) , (timer) {
+      settingMethodChannel.setSystemVoice(soundValue.toInt());
+    });
+  }
+
+  void sliderToSetVolEnd() {
+    if (sliderTimer1 != null) {
+      if (sliderTimer1!.isActive) {
+        sliderTimer1!.cancel();
+      }
+      sliderTimer1 = null;
+    }
+    settingMethodChannel.setSystemVoice(soundValue.toInt());
+    Setting.instant().volume = soundValue.toInt();
+  }
+
+  void sliderToSetLight() {
+    sliderTimer2 ??= Timer.periodic(const Duration(milliseconds: 500) , (timer) {
+      settingMethodChannel.setSystemLight(lightValue.toInt());
+    });
+  }
+
+  void sliderToSetLightEnd() {
+    if (sliderTimer2 != null) {
+      if (sliderTimer2!.isActive) {
+        sliderTimer2!.cancel();
+      }
+      sliderTimer2 = null;
+    }
+    settingMethodChannel.setSystemLight(lightValue.toInt());
+    Setting.instant().screenBrightness = lightValue.toInt();
   }
 
   @override

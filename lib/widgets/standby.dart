@@ -42,10 +42,15 @@ class ShowStandby {
           settingMethodChannel.noticeNativeStandbySate(true);
         }
       } else {
-        /// 普通待机模式
-        standbyNotifier.standbyPageActive = true;
-        navigatorKey.currentState?.pushNamed("ScreenSaver");
-        settingMethodChannel.noticeNativeStandbySate(true);
+        if(Setting.instant().screenSaverReplaceToOff) {
+          /// 待机改为直接熄屏
+          settingMethodChannel.setScreenClose(true);
+        } else {
+          /// 普通待机模式
+          standbyNotifier.standbyPageActive = true;
+          navigatorKey.currentState?.pushNamed("ScreenSaver");
+          settingMethodChannel.noticeNativeStandbySate(true);
+        }
         debugPrint('StandbyPage pushed');
       }
 

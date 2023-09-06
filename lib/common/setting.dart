@@ -16,6 +16,11 @@ class Setting {
   /// 息屏时间段
   /// Pair.value1 为起始时间 Pair.value2 为结束时间
   late Pair<int , int> _screedDuration;
+  /// 夜间模式使能
+  late bool _nightModeEnable;
+  /// 是否屏保改为直接熄屏
+  late bool _screenSaverReplaceToOff;
+
   late SharedPreferences _prefs;
 
   /// 待机时间选择序号
@@ -40,19 +45,29 @@ class Setting {
   /// 工程模式使能
   late bool _engineeringModeEnable;
 
+  /// 屏幕自动亮度使能
+  late bool _screenAutoEnable;
+
+  /// 靠近唤醒使能
+  late bool _nearWakeupEnable;
+
   void init() async {
     _prefs = await SharedPreferences.getInstance();
     int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
     int screedEndTime = _prefs.getInt("setting_screed_end_time") ?? -1;
     _screedDuration = Pair.of(screedStartTime, screedEndTime);
+    _nightModeEnable = _prefs.getBool('setting_night_mode_enable') ?? false;
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
 
     _aiEnable = _prefs.getBool('setting_ai_enable') ?? false;
-    _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? 50;
-    _volume = _prefs.getInt('setting_screen_volume') ?? 50;
+    _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? 204;
+    _volume = _prefs.getInt('setting_system_volume') ?? 50;
     _engineeringModeEnable = _prefs.getBool('setting_engineering_mode') ?? false;
+    _screenAutoEnable = _prefs.getBool('setting_screen_auto') ?? false;
+    _nearWakeupEnable = _prefs.getBool('setting_near_wakeup') ?? false;
+    _screenSaverReplaceToOff = _prefs.getBool('setting_screen_replace_off') ?? false;
   }
 
   /// 标识当前版本已经处理版本升级兼容
@@ -163,12 +178,12 @@ class Setting {
     _screenBrightness = val;
   }
 
-  /// 获取屏幕亮度
+  /// 获取系统音量
   int get volume => _volume;
 
-  /// 设置屏幕亮度
+  /// 设置系统音量
   set volume(int val) {
-    _prefs.setInt('setting_screen_volume', val);
+    _prefs.setInt('setting_system_volume', val);
     _volume = val;
   }
 
@@ -179,5 +194,41 @@ class Setting {
   set engineeringModeEnable(bool enable) {
     _prefs.setBool('setting_engineering_mode', enable);
     _engineeringModeEnable = enable;
+  }
+
+  /// 获取屏幕自动亮度使能
+  bool get screenAutoEnable => _screenAutoEnable;
+
+  /// 设置屏幕自动亮度使能
+  set screenAutoEnable(bool val) {
+    _prefs.setBool('setting_screen_auto', val);
+    _screenAutoEnable = val;
+  }
+
+  /// 获取靠近唤醒使能
+  bool get nearWakeupEnable => _nearWakeupEnable;
+
+  /// 设置靠近唤醒使能
+  set nearWakeupEnable(bool val) {
+    _prefs.setBool('setting_near_wakeup', val);
+    _nearWakeupEnable = val;
+  }
+
+  /// 获取夜间模式使能
+  bool get nightModeEnable => _nightModeEnable;
+
+  /// 设置夜间模式使能
+  set nightModeEnable(bool val) {
+    _prefs.setBool('setting_night_mode_enable', val);
+    _nightModeEnable = val;
+  }
+
+  /// 获取是否屏保直接熄屏
+  bool get screenSaverReplaceToOff => _screenSaverReplaceToOff;
+
+  /// 设置是否屏保直接熄屏
+  set screenSaverReplaceToOff(bool val) {
+    _prefs.setBool('setting_screen_replace_off', val);
+    _screenSaverReplaceToOff = val;
   }
 }

@@ -39,15 +39,12 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
   /// 持有_ShowNextState实例对象
   GlobalKey<_ShowNextState> globalKey = GlobalKey();
 
-  bool isValidTime = true;
-
   @override
   void initState() {
     super.initState();
     Pair<int, int> startTime = Setting.instant().getScreedDetailTime(Setting.instant().getScreedDuration().value1);
     Pair<int, int> endTime = Setting.instant().getScreedDetailTime(Setting.instant().getScreedDuration().value2);
     if(startTime.value1 < 0 || startTime.value2 < 0 || endTime.value1 < 0 || endTime.value2 < 0){
-      isValidTime = false;
       return;
     }
 
@@ -85,7 +82,6 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
               Container(
                 width: 480,
                 height: 70,
-                padding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -106,14 +102,15 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                             fontWeight: FontWeight.normal,
                             decoration: TextDecoration.none)
                     ),
-                    MzSwitch(
-                      value: isValidTime,
-                      onTap: (e) {
-                        setState(() {
-                          isValidTime = e;
-                        });
+                    IconButton(
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                       },
-                    )
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back_home.png",
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -180,20 +177,13 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                             color: Colors.white.withOpacity(0.1),
                             child: GestureDetector(
                               onTap: () {
-                                if (!isValidTime) {
-                                  Navigator.of(context).pop(
-                                      Pair.of(-1, -1)
-                                  );
-                                  return;
-                                }
                                 final startTime = generateTime(startHour, startMinute, 0);
                                 final endTime = generateTime(endHour, endMinute, _showNextDay ? 24 * 60 : 0);
                                 if(startTime >= endTime) {
                                   TipsUtils.toast(content: "请选择正确的时间段");
                                 } else {
-                                  Navigator.of(context).pop(
-                                      Pair.of(startTime, endTime)
-                                  );
+                                  Setting.instant().setScreedDuration(Pair.of(startTime, endTime));
+                                  Navigator.pop(context);
                                 }
                               },
                               child: Container(

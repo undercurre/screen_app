@@ -10,9 +10,11 @@ import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/engineering_mode.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_homlux_data_page.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_meiju_data_page.dart';
+import 'package:screen_app/routes/setting/night_mode.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 import 'package:screen_app/routes/setting/select_time_duration.dart';
 import 'package:screen_app/routes/setting/standby_style_select.dart';
+import 'package:screen_app/routes/setting/standyby_setting.dart';
 import 'package:screen_app/widgets/business/area_selector.dart';
 
 import 'boot/index.dart';
@@ -65,6 +67,8 @@ var routes = <String, WidgetBuilder>{
   "AdvancedSettingPage": (contest) => const AdvancedSettingPage(),
   "CurrentPlatformPage": (contest) => const CurrentPlatformPage(),
   "EngineeringModePage": (contest) => const EngineeringModePage(),
+  "NightModePage": (contest) => const NightModePage(),
+  "StandbySettingPage": (contest) => const StandbySettingPage(),
 
 
   "0x13": (context) => const WifiLightPage(),
