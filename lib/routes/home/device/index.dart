@@ -8,6 +8,7 @@ import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/api/api.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import 'card_type_config.dart';
@@ -163,6 +164,7 @@ class _DevicePageState extends State<DevicePage> {
         // 映射出对应的Card
         layoutAfterSort.data.disabled = false;
         layoutAfterSort.data.context = context;
+        Log.i('布局数据', layoutAfterSort.data.applianceCode);
         Widget cardWidget =
             buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
                 layoutAfterSort.data);

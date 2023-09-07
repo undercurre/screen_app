@@ -53,6 +53,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     if (!widget.disabled) {
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
+      Log.i('初始化后', widget.adapter?.getDeviceId());
     }
   }
 

@@ -175,9 +175,9 @@ class MigrationOldVersionMeiJuDataState
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
-      layoutData.forEach((element) {
-        context.read<LayoutModel>().setLayouts(layoutData);
-      });
+
+      await context.read<LayoutModel>().setLayouts(layoutData);
+
 
       Log.i('房间数据', layoutData.map((e) => e.grids));
 

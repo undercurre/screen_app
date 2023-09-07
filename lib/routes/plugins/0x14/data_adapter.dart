@@ -90,6 +90,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   }
 
   @override
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   Future<void> power(bool? onOff) async {
     var openMode = Mode(
         'open',

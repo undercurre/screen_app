@@ -103,6 +103,11 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   }
 
   @override
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   String? getCharacteristic() {
     return "${data!.temperature + data!.smallTemperature}℃";
   }

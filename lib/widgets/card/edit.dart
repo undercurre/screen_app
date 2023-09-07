@@ -14,13 +14,9 @@ class EditCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         /// 跳到编辑页去
-        // final callback = await Navigator.pushNamed(
-        //   context,
-        //   'Custom',
-        // );
-        Navigator.pushNamed(
+        final callback = await Navigator.pushNamed(
           context,
-          'MigrationOldVersionMeiJuDataPage',
+          'Custom',
         );
         layoutModel.refresh();
       },

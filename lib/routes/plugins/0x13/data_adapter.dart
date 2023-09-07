@@ -115,6 +115,11 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   }
 
   @override
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   bool getPowerStatus() {
     Log.i('获取开关状态', data!.power);
     return data!.power;

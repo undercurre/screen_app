@@ -18,9 +18,9 @@ class LayoutModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setLayouts(List<Layout> newLayouts) {
+  Future<void> setLayouts(List<Layout> newLayouts) async {
     layouts = newLayouts;
-    _saveLayouts();
+    await _saveLayouts();
     notifyListeners();
   }
 
