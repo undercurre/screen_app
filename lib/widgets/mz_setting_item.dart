@@ -137,15 +137,20 @@ class MzSettingItem extends StatelessWidget {
                 if (rightText != null)
                   Expanded(
                     flex: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(rightText!,
-                          textAlign: rightTextAlign,
-                          style: TextStyle(
-                            fontSize: rightTextSize,
-                            color: Colors.white54,
-                            fontFamily: 'MideaType',
-                          )),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: 240,
+                          child: Text(rightText!,
+                              textAlign: rightTextAlign,
+                              style: TextStyle(
+                                fontSize: rightTextSize,
+                                color: Colors.white54,
+                                fontFamily: 'MideaType',
+                              )),
+                        )
+                      ],
                     ),
                   ),
               ],
