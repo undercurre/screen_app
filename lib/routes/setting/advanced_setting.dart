@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
-import '../../common/api/device_api.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/homlux/api/homlux_user_api.dart';
 import '../../common/homlux/models/homlux_response_entity.dart';
@@ -13,8 +12,6 @@ import '../../common/meiju/models/meiju_response_entity.dart';
 import '../../common/setting.dart';
 import '../../common/system.dart';
 import '../../common/utils.dart';
-import '../../models/delete_device_result_entity.dart';
-import '../../models/midea_response_entity.dart';
 import '../../widgets/mz_cell.dart';
 import '../../widgets/mz_dialog.dart';
 import '../../widgets/util/net_utils.dart';
@@ -75,9 +72,14 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
                             fontWeight: FontWeight.normal,
                             decoration: TextDecoration.none)
                     ),
-                    const SizedBox(
-                      width: 64,
-                      height: 64,
+                    IconButton(
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back_home.png",
+                      ),
                     ),
                   ],
                 ),
@@ -90,7 +92,6 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
                     children: [
                       Container(
                         width: 432,
-                        height: 216,
                         margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                         decoration: const BoxDecoration(
                             color: Color(0x0DFFFFFF),
@@ -98,9 +99,11 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
                         ),
                         child: Column(
                           children: [
-                            settingCell("清除用户数据", null, true, false, null, clearButton()),
-                            settingCell("重启系统", null, true, false, null, rebootButton()),
-                            settingCell("当前平台", () => {
+                            if(!Setting.instant().engineeringModeEnable) settingCell("清除用户数据", null, true, false, null, clearButton()),
+
+                            settingCell("重启系统", null, !Setting.instant().engineeringModeEnable, false, null, rebootButton()),
+
+                            if(!Setting.instant().engineeringModeEnable) settingCell("当前平台", () => {
                               Navigator.pushNamed(
                                 context,
                                 'CurrentPlatformPage',

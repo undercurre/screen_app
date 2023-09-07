@@ -15,6 +15,7 @@ import '../../../models/homlux_qr_code_entity.dart';
 import '../../../models/homlux_refresh_token_entity.dart';
 import '../../../models/homlux_room_list_entity.dart';
 import '../../../models/homlux_scene_entity.dart';
+import '../../../models/homlux_user_config_info.dart';
 import '../../../models/homlux_user_info_entity.dart';
 import '../../../models/homlux_weather_entity.dart';
 
@@ -58,6 +59,7 @@ class HomluxJsonConvert {
     (HomluxPanelAssociateSceneEntitySceneList).toString(): HomluxPanelAssociateSceneEntitySceneList.fromJson,
     (HomluxDeviceConditions).toString(): HomluxDeviceConditions.fromJson,
     (HomluxEffectiveTime).toString(): HomluxEffectiveTime.fromJson,
+    (HomluxUserConfigInfo).toString(): HomluxUserConfigInfo.fromJson,
 
   };
 

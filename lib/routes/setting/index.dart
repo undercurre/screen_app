@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
 import '../../common/gateway_platform.dart';
+import '../../common/homlux/api/homlux_user_config_api.dart';
+import '../../common/setting.dart';
 import '../../widgets/mz_cell.dart';
 
 export 'about_setting.dart';
@@ -25,7 +27,7 @@ class _SettingPageState extends State<SettingPage> {
   void initState() {
     super.initState();
     //初始化状态
-    print("initState");
+    getEngineeringModeEnable();
   }
 
   @override
@@ -164,7 +166,9 @@ class _SettingPageState extends State<SettingPage> {
                                 'NetSettingPage',
                               )
                             }, true),
-                            if (MideaRuntimePlatform.platform.inMeiju()) settingCell("assets/newUI/add_device.png", "发现设备", () => {
+                            if (MideaRuntimePlatform.platform.inMeiju()
+                             && !Setting.instant().engineeringModeEnable)
+                              settingCell("assets/newUI/add_device.png", "发现设备", () => {
                               Navigator.pop(context),
                               Navigator.pushNamed(
                                 context,
@@ -251,33 +255,42 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Future<void> getEngineeringModeEnable() async {
+    if (MideaRuntimePlatform.platform.inHomlux()) {
+      var res = await HomluxUserConfigApi.queryEngineeringMode();
+      if(res.isSuccess) {
+        if (res.data?.businessValue == "0") {
+          Setting.instant().engineeringModeEnable = false;
+        } else if(res.data?.businessValue == "1") {
+          Setting.instant().engineeringModeEnable = true;
+        }
+        setState(() {});
+      }
+    }
+  }
+
   @override
   void didUpdateWidget(SettingPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print("didUpdateWidget ");
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    print("deactivate");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    print("reassemble");
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies");
   }
 }

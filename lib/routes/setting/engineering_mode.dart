@@ -1,6 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/setting.dart';
 
+import '../../common/gateway_platform.dart';
+import '../../common/homlux/api/homlux_user_config_api.dart';
+import '../../common/utils.dart';
 import '../../widgets/mz_switch.dart';
 
 class EngineeringModePage extends StatefulWidget {
@@ -11,11 +15,12 @@ class EngineeringModePage extends StatefulWidget {
 }
 
 class EngineeringModePageState extends State<EngineeringModePage> {
-  bool isModeOn = false;
+  late bool isModeOn;
 
   @override
   void initState() {
     super.initState();
+    isModeOn = Setting.instant().engineeringModeEnable;
   }
 
   @override
@@ -109,8 +114,9 @@ class EngineeringModePageState extends State<EngineeringModePage> {
                             value: isModeOn,
                             onTap: (e) {
                               setState(() {
-                                isModeOn = !isModeOn;
+                                isModeOn = e;
                               });
+                              updateModeConfig(e);
                             },
                           ),
                         ],
@@ -153,6 +159,22 @@ class EngineeringModePageState extends State<EngineeringModePage> {
         ),
       ),
     );
+  }
+
+  Future<void> updateModeConfig(bool isEnable) async {
+    bool exVal = Setting.instant().engineeringModeEnable;
+    Setting.instant().engineeringModeEnable = isEnable;
+
+    if (MideaRuntimePlatform.platform.inHomlux()) {
+      var res = await HomluxUserConfigApi.updateEngineeringMode(isEnable);
+      if (!res.isSuccess) {
+        Setting.instant().engineeringModeEnable = exVal;
+        TipsUtils.toast(content: '设置失败');
+        setState(() {
+          isModeOn = exVal;
+        });
+      }
+    }
   }
 
   @override

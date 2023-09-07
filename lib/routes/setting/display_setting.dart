@@ -200,39 +200,39 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                       ),
                     ),
 
-                    Container(
-                      width: 432,
-                      height: 72,
-                      margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                      decoration: const BoxDecoration(
-                          color: Color(0x0DFFFFFF),
-                          borderRadius: BorderRadius.all(Radius.circular(16))
-                      ),
-                      child: Stack(
-                        children: [
-                          const Positioned(
-                            left: 20,
-                            top: 12,
-                            child: Text("靠近唤醒",
-                                style: TextStyle(
-                                    color: Color(0XFFFFFFFF),
-                                    fontSize: 24,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none)
-                            ),
-                          ),
-                          Positioned(
-                            right: 20,
-                            top: 20,
-                            child: MzSwitch(
-                              value: nearWakeup,
-                              onTap: (e) => onNearWakeupClick(!nearWakeup),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Container(
+                    //   width: 432,
+                    //   height: 72,
+                    //   margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    //   decoration: const BoxDecoration(
+                    //       color: Color(0x0DFFFFFF),
+                    //       borderRadius: BorderRadius.all(Radius.circular(16))
+                    //   ),
+                    //   child: Stack(
+                    //     children: [
+                    //       const Positioned(
+                    //         left: 20,
+                    //         top: 12,
+                    //         child: Text("靠近唤醒",
+                    //             style: TextStyle(
+                    //                 color: Color(0XFFFFFFFF),
+                    //                 fontSize: 24,
+                    //                 fontFamily: "MideaType",
+                    //                 fontWeight: FontWeight.normal,
+                    //                 decoration: TextDecoration.none)
+                    //         ),
+                    //       ),
+                    //       Positioned(
+                    //         right: 20,
+                    //         top: 20,
+                    //         child: MzSwitch(
+                    //           value: nearWakeup,
+                    //           onTap: (e) => onNearWakeupClick(!nearWakeup),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
 
                     Container(
                       width: 432,
