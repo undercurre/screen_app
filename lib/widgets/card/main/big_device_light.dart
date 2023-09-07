@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
@@ -66,6 +68,191 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String? _getRightText() {
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      if (widget.disabled) {
+        if (widget.online) {
+          return '在线';
+        } else {
+          return '离线';
+        }
+      }
+
+      if (widget.isFault) {
+        return '故障';
+      }
+
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.getDeviceId())) {
+        return '离线';
+      }
+
+      if (widget.adapter?.dataState == DataState.LOADING) {
+        return '加载中';
+      }
+
+      if (widget.adapter?.dataState == DataState.NONE) {
+        return '未加载';
+      }
+
+      if (widget.adapter?.dataState == DataState.ERROR) {
+        return '加载失败';
+      }
+
+      return widget.adapter?.getCharacteristic();
+    }
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
+    }
+
+    String getDeviceName() {
+      if (widget.disabled) {
+        return (deviceListModel.getDeviceName(
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知id' ||
+                deviceListModel.getDeviceName(
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知设备')
+            ? getDeviceName()
+            : deviceListModel.getDeviceName(
+                deviceId: widget.adapter?.getDeviceId(),
+              );
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+    }
+
+    BoxDecoration _getBoxDecoration() {
+      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool online = deviceListModel.getOnlineStatus(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+      Log.i('在线状态', online);
+      if (widget.disabled) {
+        Log.i('widget:${widget.disableOnOff}');
+        if (widget.disableOnOff) {
+          return BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF767B86),
+                Color(0xFF88909F),
+                Color(0xFF516375),
+              ],
+              stops: [0, 0.24, 1],
+              transform: GradientRotation(194 * (3.1415926 / 360.0)),
+            ),
+          );
+        } else {
+          return BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0x33616A76),
+                Color(0x33434852),
+              ],
+              stops: [0.06, 1.0],
+              transform: GradientRotation(213 * (3.1415926 / 360.0)),
+            ),
+          );
+        }
+      }
+      if (widget.isFault) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x77AE4C5E),
+              Color.fromRGBO(167, 78, 97, 0.32),
+            ],
+            stops: [0, 1],
+            transform: GradientRotation(222 * (3.1415926 / 360.0)),
+          ),
+          border: Border.all(
+            color: const Color.fromRGBO(255, 0, 0, 0.32),
+            width: 0.6,
+          ),
+        );
+      }
+      if (!online) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      if (!curPower) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      } else {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF767B86),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+            stops: [0, 0.24, 1],
+            transform: GradientRotation(194 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -97,22 +284,24 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             right: 16,
             child: GestureDetector(
               onTap: () {
-                if (widget.adapter?.type == AdapterType.wifiLight) {
-                  Navigator.pushNamed(context, '0x13', arguments: {
-                    "name": widget.name,
-                    "adapter": widget.adapter
-                  });
-                } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                  Navigator.pushNamed(context, '0x21_light_colorful',
-                      arguments: {
-                        "name": widget.name,
-                        "adapter": widget.adapter
-                      });
-                } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                  Navigator.pushNamed(context, 'lightGroup', arguments: {
-                    "name": widget.name,
-                    "adapter": widget.adapter
-                  });
+                if (!widget.disabled) {
+                  if (widget.adapter?.type == AdapterType.wifiLight) {
+                    Navigator.pushNamed(context, '0x13', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    });
+                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
+                    Navigator.pushNamed(context, '0x21_light_colorful',
+                        arguments: {
+                          "name": getDeviceName(),
+                          "adapter": widget.adapter
+                        });
+                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
+                    Navigator.pushNamed(context, 'lightGroup', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    });
+                  }
                 }
               },
               child: widget.hasMore
@@ -134,7 +323,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                     child: ConstrainedBox(
                       constraints:
                           BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                      child: Text(widget.name,
+                      child: Text(getDeviceName(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -233,8 +422,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           Positioned(
             top: 124,
             left: 25,
-            child: Text(
-                "色温 | ${_getColorK()}K",
+            child: Text("色温 | ${_getColorK()}K",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -272,63 +460,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     );
   }
 
-  String? _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-
-    if (widget.disabled) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.LOADING) {
-      return '加载中';
-    }
-
-    if (widget.adapter?.dataState == DataState.NONE) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.ERROR) {
-      return '加载失败';
-    }
-
-    return widget.adapter?.getCharacteristic();
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    bool curPower = widget.adapter?.getPowerStatus() ?? false;
-    if ((curPower && widget.online && !widget.disabled) ||
-        (widget.disabled && widget.disableOnOff)) {
-      return const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
-      );
-    }
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
-    );
-  }
-
   int _getColorK() {
     if (widget.disabled) {
       return 0;
@@ -336,10 +467,20 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     if (widget.adapter != null) {
       if (widget.adapter!.getCardStatus()?['maxColorTemp'] != null) {
-        return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) / 100 * ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) - (widget.adapter?.getCardStatus()?['minColorTemp'] as int)) + (widget.adapter?.getCardStatus()?['minColorTemp'] as int)).toInt();
+        return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+                    100 *
+                    ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -
+                        (widget.adapter?.getCardStatus()?['minColorTemp']
+                            as int)) +
+                (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
+            .toInt();
       }
     }
 
-    return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) / 100 * (6500 - 2700) + 2700).toInt();
+    return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+                100 *
+                (6500 - 2700) +
+            2700)
+        .toInt();
   }
 }

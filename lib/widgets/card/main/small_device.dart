@@ -373,24 +373,27 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                 if (widget.adapter?.type != AdapterType.panel)
                   GestureDetector(
                     onTap: () {
-                      if (widget.adapter?.type == AdapterType.wifiLight) {
-                        Navigator.pushNamed(context, '0x13', arguments: {
-                          "name": widget.name,
-                          "adapter": widget.adapter
-                        });
-                      } else if (widget.adapter?.type ==
-                          AdapterType.zigbeeLight) {
-                        Navigator.pushNamed(context, '0x21_light_colorful',
-                            arguments: {
-                              "name": widget.name,
-                              "adapter": widget.adapter
-                            });
-                      } else if (widget.adapter?.type ==
-                          AdapterType.lightGroup) {
-                        Navigator.pushNamed(context, 'lightGroup', arguments: {
-                          "name": widget.name,
-                          "adapter": widget.adapter
-                        });
+                      if (!widget.disabled) {
+                        if (widget.adapter?.type == AdapterType.wifiLight) {
+                          Navigator.pushNamed(context, '0x13', arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.zigbeeLight) {
+                          Navigator.pushNamed(context, '0x21_light_colorful',
+                              arguments: {
+                                "name": widget.name,
+                                "adapter": widget.adapter
+                              });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.lightGroup) {
+                          Navigator.pushNamed(
+                              context, 'lightGroup', arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                        }
                       }
                     },
                     child: widget.hasMore

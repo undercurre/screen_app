@@ -1,20 +1,29 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
+import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:screen_app/common/setting.dart';
 import 'package:screen_app/models/index.dart';
+import 'package:screen_app/states/device_change_notifier.dart';
+import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/meiju/api/meiju_user_api.dart';
 import '../../common/meiju/meiju_global.dart';
 import '../../common/meiju/models/meiju_login_home_entity.dart';
 import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../common/meiju/models/meiju_user_entity.dart';
+import '../../states/device_list_notifier.dart';
+import '../home/device/layout_data.dart';
 
 /// 定义同步失败异常
 class SyncError extends Error {
   String message;
+
   SyncError(this.message);
 
   @override
@@ -31,8 +40,8 @@ class MigrationOldVersionMeiJuDataPage extends StatefulWidget {
   State<StatefulWidget> createState() => MigrationOldVersionMeiJuDataState();
 }
 
-class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDataPage>
-    with WidgetNetState {
+class MigrationOldVersionMeiJuDataState
+    extends State<MigrationOldVersionMeiJuDataPage> with WidgetNetState {
   late Timer _timer;
   bool startMigrate = false;
 
@@ -85,8 +94,7 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
     /// 有网络连接的时候，开始迁移网关
     if (state != null && !startMigrate) {
       startMigrate = true;
-      Future
-          .delayed(const Duration(seconds: 15))
+      Future.delayed(const Duration(seconds: 15))
           .then((value) => migrationData());
     }
   }
@@ -105,7 +113,6 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
       if (token == null || userData == null) {
         throw SyncError('token或者user为空');
       }
-
 
       /// 迁移token
       await migrateToken(
@@ -145,24 +152,53 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
           userData['room']['name'],
           userData['room']['roomId']);
 
-
       /// 网络请求同步数据
       await migrateHomeFromCloud(userData['home']['homegroupId']);
 
+      /// 获取当前房间的设备数据
+      var rooms = userData["room"];
+      List<dynamic> devices =  rooms["applianceList"];
+      List<DeviceEntity> devicesReal = [];
+
+      devices.forEach((e) {
+        DeviceEntity deviceObj = DeviceEntity();
+        deviceObj.name = e["name"];
+        deviceObj.applianceCode = e["applianceCode"];
+        deviceObj.type = e["type"];
+        deviceObj.modelNumber = e["modelNumber"];
+        deviceObj.sn8 = e["sn8"];
+        deviceObj.roomName = e["roomName"];
+        deviceObj.masterId = e["masterId"];
+        deviceObj.onlineStatus = e["onlineStatus"];
+        devicesReal.add(deviceObj);
+      });
+
+      List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
+
+      layoutData.forEach((element) {
+        context.read<LayoutModel>().setLayouts(layoutData);
+      });
+
+      Log.i('房间数据', layoutData.map((e) => e.grids));
+
       /// 保存当前的数据
       // Global.saveProfile();
-      Setting.instant().saveVersionCompatibility(
-          await aboutSystemChannel.getAppVersion());
+      Setting.instant()
+          .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       Future.delayed(Duration.zero).then((value) {
         Navigator.popAndPushNamed(context, 'Home');
       });
     } catch (e) {
       logger.e(e);
-      Setting.instant().saveVersionCompatibility(
-          await aboutSystemChannel.getAppVersion());
+      Setting.instant()
+          .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       System.logout();
-      Future.delayed(Duration.zero)
-          .then((value) => Navigator.popAndPushNamed(context, 'Login'));
+      Future.delayed(Duration.zero).then(
+        (value) {
+          Navigator.popAndPushNamed(context, 'Login');
+          Log.i('报错', e);
+        }
+      );
     }
   }
 
@@ -175,13 +211,13 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
         if (res.isSuccess) {
           for (var element in res.data!.homeList!) {
             if (element.homegroupId == homeId) {
-              MeiJuGlobal.homeInfo=element;
+              MeiJuGlobal.homeInfo = element;
               refreshHomeInfo = true;
               break;
             }
           }
         }
-        if(refreshHomeInfo) {
+        if (refreshHomeInfo) {
           break;
         }
       } catch (e) {
@@ -256,7 +292,7 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
     entity.address = address;
     entity.profilePicUrl = profilePicUrl;
     entity.coordinate = coordinate;
-    MeiJuGlobal.homeInfo=entity;
+    MeiJuGlobal.homeInfo = entity;
     return true;
   }
 
@@ -268,7 +304,7 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
     entity.des = des;
     entity.isDefault = isDefault;
     entity.icon = icon;
-    MeiJuGlobal.roomInfo=entity;
+    MeiJuGlobal.roomInfo = entity;
     return true;
   }
 
@@ -281,7 +317,6 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
       String tokenPwd,
       int expired,
       String deviceId) async {
-
     Global.user = null;
     MeiJuTokenEntity userEntity = MeiJuTokenEntity();
     userEntity.accessToken = token;
@@ -303,7 +338,8 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
 
     while (count > 0) {
       try {
-        MzResponseEntity mzEntity = await UserApi.authTokenWithParams(deviceId, token, userId);
+        MzResponseEntity mzEntity =
+            await UserApi.authTokenWithParams(deviceId, token, userId);
         if (mzEntity.isSuccess) {
           userEntity.mzAccessToken = mzEntity.result['accessToken'];
           break;
@@ -317,7 +353,7 @@ class MigrationOldVersionMeiJuDataState extends State<MigrationOldVersionMeiJuDa
     if (userEntity.mzAccessToken == null) {
       throw SyncError('迁移Token失败');
     }
-    MeiJuGlobal.token=userEntity;
+    MeiJuGlobal.token = userEntity;
     Global.profile.deviceId = deviceId;
 
     return true;
