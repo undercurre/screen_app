@@ -119,9 +119,9 @@ class WeatherModel extends ChangeNotifier {
 
   String getWeatherType() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      return curWeatherInMeiJu.weatherCode ?? '01';
+      return curWeatherInMeiJu.weatherCode ?? 'default';
     } else {
-      if (curWeatherInHomlux.condition == null) return '01';
+      if (curWeatherInHomlux.condition == null) return '02';
       if (curWeatherInHomlux.condition!.contains('雨')) {
         return '03';
       } else if (curWeatherInHomlux.condition!.contains('雪')) {
@@ -139,16 +139,16 @@ class WeatherModel extends ChangeNotifier {
       } else if (curWeatherInHomlux.condition!.contains('雷')) {
         return '04';
       } else {
-        return '01';
+        return 'default';
       }
     }
   }
 
   int getTemperature() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      return int.parse(curWeatherInMeiJu.grade ?? '0');
+      return int.parse(curWeatherInMeiJu.grade ?? '-');
     } else {
-      return int.parse(curWeatherInHomlux.temperature ?? '0');
+      return int.parse(curWeatherInHomlux.temperature ?? '-');
     }
   }
 }
