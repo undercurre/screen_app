@@ -45,10 +45,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
   @override
   void didUpdateWidget(covariant BigDeviceLightCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
@@ -153,39 +151,37 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       bool online = deviceListModel.getOnlineStatus(
         deviceId: widget.adapter?.getDeviceId(),
       );
-      Log.i('在线状态', online);
       if (widget.disabled) {
-        Log.i('widget:${widget.disableOnOff}');
-        if (widget.disableOnOff) {
-          return BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF767B86),
-                Color(0xFF88909F),
-                Color(0xFF516375),
-              ],
-              stops: [0, 0.24, 1],
-              transform: GradientRotation(194 * (3.1415926 / 360.0)),
-            ),
-          );
-        } else {
-          return BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0x33616A76),
-                Color(0x33434852),
-              ],
-              stops: [0.06, 1.0],
-              transform: GradientRotation(213 * (3.1415926 / 360.0)),
-            ),
-          );
-        }
+        // if (widget.disableOnOff) {
+        //   return BoxDecoration(
+        //     borderRadius: BorderRadius.circular(24),
+        //     gradient: const LinearGradient(
+        //       begin: Alignment.topLeft,
+        //       end: Alignment.bottomRight,
+        //       colors: [
+        //         Color(0xFF767B86),
+        //         Color(0xFF88909F),
+        //         Color(0xFF516375),
+        //       ],
+        //       stops: [0, 0.24, 1],
+        //       transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        //     ),
+        //   );
+        // } else {
+        //   return BoxDecoration(
+        //     borderRadius: BorderRadius.circular(24),
+        //     gradient: const LinearGradient(
+        //       begin: Alignment.topLeft,
+        //       end: Alignment.bottomRight,
+        //       colors: [
+        //         Color(0x33616A76),
+        //         Color(0x33434852),
+        //       ],
+        //       stops: [0.06, 1.0],
+        //       transform: GradientRotation(213 * (3.1415926 / 360.0)),
+        //     ),
+        //   );
+        // }
       }
       if (widget.isFault) {
         return BoxDecoration(

@@ -39,18 +39,14 @@ class _BigDeviceCurtainCardWidgetState
   @override
   void initState() {
     super.initState();
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void didUpdateWidget(covariant BigDeviceCurtainCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
@@ -96,9 +92,9 @@ class _BigDeviceCurtainCardWidgetState
               },
               child: widget.hasMore
                   ? const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png'))
+                      width: 32,
+                      height: 32,
+                      image: AssetImage('assets/newUI/to_plugin.png'))
                   : Container(),
             ),
           ),
@@ -320,8 +316,10 @@ class _BigDeviceCurtainCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     bool curPower = widget.adapter?.getPowerStatus() ?? false;
-    if ((curPower && widget.online && !widget.disabled) ||
-        (widget.disabled && widget.disableOnOff)) {
+    // if ((curPower && widget.online && !widget.disabled) ||
+    //     (widget.disabled && widget.disableOnOff)) {
+
+    if ((curPower && widget.online && !widget.disabled) || widget.disabled) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -335,9 +333,9 @@ class _BigDeviceCurtainCardWidgetState
         ),
       );
     }
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
+    return const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(24)),
+      gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [

@@ -163,6 +163,11 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     }
   }
 
+  @override
+  Future<void> tryOnce() async {
+    controlPower();
+  }
+
   /// 查询状态
   Future<void> fetchData() async {
     try {

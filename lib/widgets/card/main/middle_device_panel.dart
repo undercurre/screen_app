@@ -16,6 +16,7 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  final bool disableOnOff;
   PanelDataAdapter adapter; // 数据适配器
 
   MiddleDevicePanelCardWidget({
@@ -23,6 +24,7 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
     required this.icon,
     required this.adapter,
     required this.roomName,
+    this.disableOnOff = true,
     required this.isOnline,
     required this.name,
     required this.disabled,
@@ -65,17 +67,16 @@ class _MiddleDevicePanelCardWidgetState
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+        if (arg.deviceInfo.eventData?.deviceId ==
+            widget.adapter.applianceCode) {
           _throttledFetchData();
         }
       });
     }
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
   }
 
   void updateData() {
@@ -89,12 +90,11 @@ class _MiddleDevicePanelCardWidgetState
 
   @override
   void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -119,15 +119,15 @@ class _MiddleDevicePanelCardWidgetState
             left: 16,
             child: widget.adapter.dataState == DataState.ERROR
                 ? GestureDetector(
-              onTap: () {
-                _throttledFetchData();
-              },
-              child: const Image(
-                width: 40,
-                height: 40,
-                image: AssetImage('assets/newUI/refresh.png'),
-              ),
-            )
+                    onTap: () {
+                      _throttledFetchData();
+                    },
+                    child: const Image(
+                      width: 40,
+                      height: 40,
+                      image: AssetImage('assets/newUI/refresh.png'),
+                    ),
+                  )
                 : widget.icon,
           ),
           Positioned(
@@ -218,9 +218,10 @@ class _MiddleDevicePanelCardWidgetState
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.adapter.data.statusList[0] && !widget.disabled
-                          ? 'assets/newUI/panel_btn_on.png'
-                          : 'assets/newUI/panel_btn_off.png'),
+                      image: ExactAssetImage(
+                          widget.adapter.data.statusList[0] && !widget.disabled
+                              ? 'assets/newUI/panel_btn_on.png'
+                              : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
                 child: SizedBox(
@@ -248,7 +249,8 @@ class _MiddleDevicePanelCardWidgetState
             child: GestureDetector(
               onTap: () async {
                 Log.i('disabled', widget.disabled);
-                if (!widget.disabled  && widget.adapter.dataState == DataState.SUCCESS) {
+                if (!widget.disabled &&
+                    widget.adapter.dataState == DataState.SUCCESS) {
                   if (widget.isOnline == '0') {
                     MzDialog(
                         title: '该设备已离线',
@@ -282,9 +284,10 @@ class _MiddleDevicePanelCardWidgetState
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(widget.adapter.data.statusList[1] && !widget.disabled
-                          ? 'assets/newUI/panel_btn_on.png'
-                          : 'assets/newUI/panel_btn_off.png'),
+                      image: ExactAssetImage(
+                          widget.adapter.data.statusList[1] && !widget.disabled
+                              ? 'assets/newUI/panel_btn_on.png'
+                              : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
                 child: SizedBox(
@@ -315,7 +318,8 @@ class _MiddleDevicePanelCardWidgetState
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING  || widget.adapter.dataState == DataState.NONE) {
+    if (widget.adapter.dataState == DataState.LOADING ||
+        widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {
@@ -332,6 +336,22 @@ class _MiddleDevicePanelCardWidgetState
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

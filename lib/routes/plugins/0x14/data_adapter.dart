@@ -115,6 +115,26 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   }
 
   @override
+  Future<void> tryOnce() async {
+    var openMode = Mode(
+        'open',
+        '全开',
+        'assets/imgs/plugins/0x14/all-open-on.png',
+        'assets/imgs/plugins/0x14/all-open-off.png');
+    var closeMode = Mode(
+        'close',
+        '全关',
+        'assets/imgs/plugins/0x14/all-close-on.png',
+        'assets/imgs/plugins/0x14/all-close-off.png');
+    if (data!.curtainPosition > 0) {
+      // 关
+      return controlMode(closeMode);
+    }
+    // 开
+    return controlMode(openMode);
+  }
+
+  @override
   bool getPowerStatus() {
     Log.i('获取开关状态', data!.curtainPosition > 0);
     return data!.curtainPosition > 0;

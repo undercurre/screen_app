@@ -366,119 +366,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     top: 0,
                                     child: GestureDetector(
                                       onTap: () {
-                                        if (layoutModel.hasLayoutWithDeviceId(
-                                            devices[index].applianceCode)) {
-                                          MzDialog(
-                                              title: '该设备已添加',
-                                              titleSize: 28,
-                                              maxWidth: 432,
-                                              backgroundColor:
-                                                  const Color(0xFF494E59),
-                                              contentPadding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      33, 24, 33, 0),
-                                              contentSlot: const Text(
-                                                  "如需更换卡片，请先删除再添加",
-                                                  textAlign: TextAlign.center,
-                                                  maxLines: 3,
-                                                  style: TextStyle(
-                                                    color: Color(0xFFB6B8BC),
-                                                    fontSize: 24,
-                                                    height: 1.6,
-                                                    fontFamily: "MideaType",
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  )),
-                                              btns: ['确定'],
-                                              onPressed:
-                                                  (_, position, context) {
-                                                Navigator.pop(context);
-                                              }).show(context);
-                                        } else {
-                                          DeviceEntityTypeInP4 curDeviceEntity =
-                                              getDeviceEntityType(
-                                                  devices[index].type,
-                                                  devices[index].modelNumber);
-                                          if (_isPanel(
-                                              devices[index].modelNumber,
-                                              devices[index].type)) {
-                                            CardType curCardType =
-                                                _getPanelCardType(
-                                                    devices[index].modelNumber,
-                                                    devices[index].type);
-                                            resultData = Layout(
-                                              devices[index].applianceCode,
-                                              curDeviceEntity,
-                                              curCardType,
-                                              -1,
-                                              [],
-                                              DataInputCard(
-                                                name: devices[index].name,
-                                                applianceCode: devices[index]
-                                                    .applianceCode,
-                                                roomName:
-                                                    devices[index].roomName!,
-                                                modelNumber:
-                                                    devices[index].modelNumber,
-                                                masterId:
-                                                    devices[index].masterId,
-                                                sn8: devices[index].sn8,
-                                                isOnline:
-                                                    devices[index].onlineStatus,
-                                                disabled: true,
-                                              ),
-                                            );
-                                            Navigator.pop(context, resultData);
-                                          } else {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return CardDialog(
-                                                    name: devices[index].name,
-                                                    type: devices[index].type,
-                                                    applianceCode:
-                                                        devices[index]
-                                                            .applianceCode,
-                                                    modelNumber: devices[index]
-                                                        .modelNumber,
-                                                    roomName: devices[index]
-                                                        .roomName!,
-                                                    masterId:
-                                                        devices[index].masterId,
-                                                    onlineStatus: devices[index]
-                                                        .onlineStatus);
-                                              },
-                                            ).then(
-                                              (value) {
-                                                resultData = Layout(
-                                                  devices[index].applianceCode,
-                                                  curDeviceEntity,
-                                                  value,
-                                                  -1,
-                                                  [],
-                                                  DataInputCard(
-                                                    name: devices[index].name,
-                                                    applianceCode:
-                                                        devices[index]
-                                                            .applianceCode,
-                                                    roomName: devices[index]
-                                                        .roomName!,
-                                                    modelNumber: devices[index]
-                                                        .modelNumber,
-                                                    masterId:
-                                                        devices[index].masterId,
-                                                    isOnline: devices[index]
-                                                        .onlineStatus,
-                                                    sn8: devices[index].sn8,
-                                                    disabled: true,
-                                                  ),
-                                                );
-                                                Navigator.pop(
-                                                    context, resultData);
-                                              },
-                                            );
-                                          }
-                                        }
+                                        _getDeviceDialog(index, resultData);
                                       },
                                       child: Container(
                                         width: 32,
@@ -513,7 +401,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                           AllowMultipleGestureRecognizer>(
                                     () => AllowMultipleGestureRecognizer(),
                                     (AllowMultipleGestureRecognizer instance) {
-                                      instance.onTap = () {};
+                                      instance.onTap = () {
+
+                                      };
                                     },
                                   )
                                 },
@@ -718,6 +608,59 @@ class _AddDevicePageState extends State<AddDevicePage> {
     );
   }
 
+  _getDeviceDialog(index, Layout resultData) {
+    DeviceEntityTypeInP4 curDeviceEntity =
+    getDeviceEntityType(
+        devices[index].type,
+        devices[index].modelNumber);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CardDialog(
+            name: devices[index].name,
+            type: devices[index].type,
+            applianceCode: devices[index]
+                .applianceCode,
+            modelNumber: devices[index]
+                .modelNumber,
+            roomName:
+            devices[index].roomName!,
+            masterId:
+            devices[index].masterId,
+            onlineStatus: devices[index]
+                .onlineStatus);
+      },
+    ).then(
+          (value) {
+        resultData = Layout(
+          devices[index].applianceCode,
+          curDeviceEntity,
+          value,
+          -1,
+          [],
+          DataInputCard(
+            name: devices[index].name,
+            applianceCode: devices[index]
+                .applianceCode,
+            roomName:
+            devices[index].roomName!,
+            modelNumber: devices[index]
+                .modelNumber,
+            masterId:
+            devices[index].masterId,
+            isOnline: devices[index]
+                .onlineStatus,
+            sn8: devices[index].sn8,
+            disabled: true,
+          ),
+        );
+        Navigator.pop(
+            context, resultData);
+      },
+    );
+  }
+
   _getIconUrl(String type, String modelNum) {
     if (type == '0x21') {
       return 'assets/newUI/device/${type}_$modelNum.png';
@@ -754,14 +697,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
       return CardType.Small;
     }
     return panelList[modelNum] ?? CardType.Small;
-  }
-
-  bool _isPanel(String modelNum, String? type) {
-    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
-      return true;
-    }
-
-    return panelList.containsKey(modelNum);
   }
 }
 

@@ -37,6 +37,10 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       GatewayPlatform platform)
       : super(platform);
 
+  Future<void> tryOnce() async {
+    fetchOrderPower(1);
+  }
+
   // Method to retrieve data from both platforms and construct ScenePanelData object
   Future<void> fetchData() async {
     try {

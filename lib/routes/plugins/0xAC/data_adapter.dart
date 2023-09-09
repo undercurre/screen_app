@@ -118,6 +118,11 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   }
 
   @override
+  Future<void> tryOnce() async {
+    controlPower();
+  }
+
+  @override
   Future<dynamic> slider1To(int? value) async {
     return controlTemperature(value as num);
   }
