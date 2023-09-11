@@ -184,17 +184,23 @@ class _AddDevicePageState extends State<AddDevicePage> {
   Widget build(BuildContext context) {
     final layoutModel = Provider.of<LayoutModel>(context);
     Layout resultData = Layout(
-        uuid.v4(),
-        DeviceEntityTypeInP4.Clock,
-        CardType.Other,
-        -1,
-        [],
-        DataInputCard(
-            name: '',
-            applianceCode: '',
-            roomName: '',
-            isOnline: '',
-            disabled: true));
+      uuid.v4(),
+      DeviceEntityTypeInP4.Clock,
+      CardType.Other,
+      -1,
+      [],
+      DataInputCard(
+        name: '',
+        applianceCode: '',
+        roomName: '',
+        isOnline: '',
+        disabled: true,
+        type: '',
+        masterId: '',
+        modelNumber: '',
+        onlineStatus: '1',
+      ),
+    );
     return Stack(
       children: [
         Container(
@@ -401,9 +407,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                           AllowMultipleGestureRecognizer>(
                                     () => AllowMultipleGestureRecognizer(),
                                     (AllowMultipleGestureRecognizer instance) {
-                                      instance.onTap = () {
-
-                                      };
+                                      instance.onTap = () {};
                                     },
                                   )
                                 },
@@ -440,6 +444,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               icon: scenes[index].image,
                                               isOnline: '',
                                               disabled: true,
+                                              type: '',
+                                              masterId: '',
+                                              modelNumber: '',
+                                              onlineStatus: '1',
                                             ),
                                           );
                                           Navigator.pop(context, resultData);
@@ -540,11 +548,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             -1,
                                             [],
                                             DataInputCard(
-                                                name: '',
-                                                applianceCode: uuid.v4(),
-                                                roomName: '',
-                                                isOnline: '',
-                                                disabled: true),
+                                              name: '',
+                                              applianceCode: uuid.v4(),
+                                              roomName: '',
+                                              isOnline: '',
+                                              disabled: true,
+                                              type: '',
+                                              masterId: '',
+                                              modelNumber: '',
+                                              onlineStatus: '1',
+                                            ),
                                           );
                                           Navigator.pop(context, resultData);
                                         },
@@ -610,29 +623,23 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   _getDeviceDialog(index, Layout resultData) {
     DeviceEntityTypeInP4 curDeviceEntity =
-    getDeviceEntityType(
-        devices[index].type,
-        devices[index].modelNumber);
+        getDeviceEntityType(devices[index].type, devices[index].modelNumber);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CardDialog(
-            name: devices[index].name,
-            type: devices[index].type,
-            applianceCode: devices[index]
-                .applianceCode,
-            modelNumber: devices[index]
-                .modelNumber,
-            roomName:
-            devices[index].roomName!,
-            masterId:
-            devices[index].masterId,
-            onlineStatus: devices[index]
-                .onlineStatus);
+          name: devices[index].name,
+          type: devices[index].type,
+          applianceCode: devices[index].applianceCode,
+          modelNumber: devices[index].modelNumber,
+          roomName: devices[index].roomName!,
+          masterId: devices[index].masterId,
+          onlineStatus: devices[index].onlineStatus,
+        );
       },
     ).then(
-          (value) {
+      (value) {
         resultData = Layout(
           devices[index].applianceCode,
           curDeviceEntity,
@@ -641,22 +648,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
           [],
           DataInputCard(
             name: devices[index].name,
-            applianceCode: devices[index]
-                .applianceCode,
-            roomName:
-            devices[index].roomName!,
-            modelNumber: devices[index]
-                .modelNumber,
-            masterId:
-            devices[index].masterId,
-            isOnline: devices[index]
-                .onlineStatus,
+            applianceCode: devices[index].applianceCode,
+            roomName: devices[index].roomName!,
+            modelNumber: devices[index].modelNumber,
+            masterId: devices[index].masterId,
+            isOnline: devices[index].onlineStatus,
             sn8: devices[index].sn8,
             disabled: true,
+            type: devices[index].type,
+            onlineStatus: devices[index].onlineStatus,
           ),
         );
-        Navigator.pop(
-            context, resultData);
+        Navigator.pop(context, resultData);
       },
     );
   }

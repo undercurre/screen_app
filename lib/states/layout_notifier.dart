@@ -53,7 +53,11 @@ class LayoutModel extends ChangeNotifier {
                 name: '时钟',
                 applianceCode: uuid.v4(),
                 roomName: '屏内',
-                isOnline: '')),
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.Weather,
@@ -64,7 +68,11 @@ class LayoutModel extends ChangeNotifier {
                 name: '天气',
                 applianceCode: uuid.v4(),
                 roomName: '屏内',
-                isOnline: '')),
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel1,
@@ -75,7 +83,11 @@ class LayoutModel extends ChangeNotifier {
                 name: '继电器1',
                 applianceCode: uuid.v4(),
                 roomName: '屏内',
-                isOnline: '')),
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
         Layout(
             uuid.v4(),
             DeviceEntityTypeInP4.LocalPanel2,
@@ -86,7 +98,11 @@ class LayoutModel extends ChangeNotifier {
                 name: '继电器2',
                 applianceCode: uuid.v4(),
                 roomName: '屏内',
-                isOnline: '')),
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
       ]);
       _saveLayouts();
     }
@@ -217,7 +233,6 @@ class LayoutModel extends ChangeNotifier {
   }
 
   List<Layout> fillNullLayoutList(List<Layout> layoutList, int pageIndex) {
-
     // 深复制一份
     List<Layout> cloneList = deepCopy(layoutList);
     if (isFillPage(pageIndex)) {
@@ -242,14 +257,25 @@ class LayoutModel extends ChangeNotifier {
         }
         if (fillCells.isNotEmpty) {
           // 有合适的位置
-          cloneList.add(Layout(
+          cloneList.add(
+            Layout(
               uuid.v4(),
               DeviceEntityTypeInP4.DeviceNull,
               CardType.Small,
               pageIndex,
               fillCells,
               DataInputCard(
-                  name: '', applianceCode: '', roomName: '', isOnline: '')));
+                name: '',
+                applianceCode: '',
+                roomName: '',
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1',
+              ),
+            ),
+          );
         }
       }
       screenLayer.resetGrid();
@@ -265,7 +291,8 @@ class LayoutModel extends ChangeNotifier {
     // 避免越界
 
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
-    List<Layout> fillNulls = fillNullLayoutList(curPageLayoutList, source.pageIndex);
+    List<Layout> fillNulls =
+        fillNullLayoutList(curPageLayoutList, source.pageIndex);
     List<int> targetIndexes = [];
 
     if (isOver(source.cardType, target)) {
@@ -287,7 +314,9 @@ class LayoutModel extends ChangeNotifier {
     for (int i = 0; i < fillNulls.length; i++) {
       List<int> grids = fillNulls[i].grids;
       if (target.any((element) => grids.contains(element))) {
-        if (i < curPageLayoutList.length && curPageLayoutList.any((element) => element.deviceId == fillNulls[i].deviceId)) {
+        if (i < curPageLayoutList.length &&
+            curPageLayoutList
+                .any((element) => element.deviceId == fillNulls[i].deviceId)) {
           targetIndexes.add(i);
         }
         lengthSum += grids.length;
@@ -332,9 +361,84 @@ class LayoutModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // 卡片大小替换
+  void swapCardType(Layout layout, CardType targetType) {
+    layout.cardType = targetType;
+    // 更换grid
+    // 准备screenLayer
+    Screen screenLayer = Screen();
+    // 拿到当前页的布局, 并做好新占位前的screenLayer占位
+    List<Layout> curLayouts = getLayoutsByPageIndex(layout.pageIndex);
+    if (curLayouts.isNotEmpty) {
+      for (int layoutInCurPageIndex = 0;
+          layoutInCurPageIndex < curLayouts.length;
+          layoutInCurPageIndex++) {
+        if (curLayouts[layoutInCurPageIndex].deviceId != layout.deviceId) {
+          // 取出当前布局的grids
+          for (int gridsIndex = 0;
+              gridsIndex < curLayouts[layoutInCurPageIndex].grids.length;
+              gridsIndex++) {
+            // 把已经布局的数据在布局器中占位
+            int grid = curLayouts[layoutInCurPageIndex].grids[gridsIndex];
+            int row = (grid - 1) ~/ 4;
+            int col = (grid - 1) % 4;
+            screenLayer.setCellOccupied(row, col, true);
+          }
+        }
+      }
+    }
+    // 尝试新占位
+    List<int> fillCells = screenLayer.checkAvailability(targetType);
+    if (fillCells.isEmpty) {
+      // 新占位成功
+      layout.grids = fillCells;
+    } else {
+      // 新占位失败，转到最后一页
+      screenLayer.resetGrid();
+      // 取最大页数
+      int maxPage = getMaxPageIndex();
+      // 最大页数重复
+      List<Layout> maxLayouts = getLayoutsByPageIndex(maxPage);
+      if (maxLayouts.isNotEmpty) {
+        for (int layoutInMaxPageIndex = 0;
+            layoutInMaxPageIndex < maxLayouts.length;
+            layoutInMaxPageIndex++) {
+          if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId) {
+            // 取出当前布局的grids
+            for (int gridsIndexInMaxPage = 0;
+                gridsIndexInMaxPage < curLayouts[layoutInMaxPageIndex].grids.length;
+                gridsIndexInMaxPage ++) {
+              // 把已经布局的数据在布局器中占位
+              int grid = maxLayouts[layoutInMaxPageIndex].grids[gridsIndexInMaxPage];
+              int row = (grid - 1) ~/ 4;
+              int col = (grid - 1) % 4;
+              screenLayer.setCellOccupied(row, col, true);
+            }
+          }
+        }
+      }
+      List<int> fillCellsInMaxPage = screenLayer.checkAvailability(targetType);
+      if (fillCellsInMaxPage.isEmpty) {
+        // 新占位成功
+        layout.pageIndex = maxPage;
+        layout.grids = fillCells;
+      } else {
+        // 最后一页也没有空间了，开一页新的
+        screenLayer.resetGrid();
+        deleteLayout(layout.deviceId, layout.pageIndex);
+        List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
+        Layout newLayout = Layout(layout.deviceId, layout.type, targetType,
+            maxPage + 1, fillCellsNew, layout.data);
+        addLayout(newLayout);
+      }
+    }
+    _saveLayouts();
+    notifyListeners();
+  }
+
   void handleNullPage() {
     List<int> pagesList = layouts.map((e) => e.pageIndex).toList();
-    for (int i = 0; i < pagesList.length; i ++) {
+    for (int i = 0; i < pagesList.length; i++) {
       for (var element in layouts) {
         if (element.pageIndex == pagesList[i]) {
           element.pageIndex = i;
@@ -390,14 +494,14 @@ bool isTargetInValidList(List<List<int>> valid, List<int> target) {
 bool isOver(CardType cardType, List<int> target) {
   if (cardType == CardType.Small) {
     List<List<int>> valid = [
-      [1,2],
-      [3,4],
-      [5,6],
-      [7,8],
-      [9,10],
-      [11,12],
-      [13,14],
-      [15,16]
+      [1, 2],
+      [3, 4],
+      [5, 6],
+      [7, 8],
+      [9, 10],
+      [11, 12],
+      [13, 14],
+      [15, 16]
     ];
     if (!isTargetInValidList(valid, target)) {
       return true;
@@ -406,12 +510,12 @@ bool isOver(CardType cardType, List<int> target) {
 
   if (cardType == CardType.Middle || cardType == CardType.Other) {
     List<List<int>> valid = [
-      [1,2,5,6],
-      [3,4,7,8],
-      [5,6,9,10],
-      [7,8,11,12],
-      [9,10,13,14],
-      [11,12,15,16]
+      [1, 2, 5, 6],
+      [3, 4, 7, 8],
+      [5, 6, 9, 10],
+      [7, 8, 11, 12],
+      [9, 10, 13, 14],
+      [11, 12, 15, 16]
     ];
     if (!isTargetInValidList(valid, target)) {
       return true;

@@ -9,6 +9,7 @@ import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
+import 'card_dialog.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
@@ -286,10 +287,15 @@ class _CustomPageState extends State<CustomPage> {
                                             curPageIndex,
                                             [9, 10, 11, 12, 13, 14, 15, 16],
                                             DataInputCard(
-                                                name: '',
-                                                applianceCode: '',
-                                                roomName: '',
-                                                isOnline: ''),
+                                              name: '',
+                                              applianceCode: '',
+                                              roomName: '',
+                                              isOnline: '',
+                                              type: '',
+                                              masterId: '',
+                                              modelNumber: '',
+                                              onlineStatus: '1',
+                                            ),
                                           );
 
                                           layoutModel.swapPosition(
@@ -309,10 +315,15 @@ class _CustomPageState extends State<CustomPage> {
                                             curPageIndex,
                                             [1, 2, 3, 4, 5, 6, 7, 8],
                                             DataInputCard(
-                                                name: '',
-                                                applianceCode: '',
-                                                roomName: '',
-                                                isOnline: ''),
+                                              name: '',
+                                              applianceCode: '',
+                                              roomName: '',
+                                              isOnline: '',
+                                              type: '',
+                                              masterId: '',
+                                              modelNumber: '',
+                                              onlineStatus: '1',
+                                            ),
                                           );
 
                                           layoutModel.swapPosition(
@@ -610,12 +621,19 @@ class _CustomPageState extends State<CustomPage> {
           );
           curScreenWidgets.add(cardWithPosition);
         } else {
+          // 映射点击（用于置换）
+          Widget cardWithSwap = GestureDetector(
+            onTap: () {
+              _getDeviceDialog(context, layout);
+            },
+            child: AbsorbPointer(absorbing: true, child: cardWidget),
+          );
           // 映射图标
           Widget cardWithIcon = Stack(
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 20, top: 20),
-                child: cardWidget,
+                child: cardWithSwap,
               ),
               Positioned(
                 right: 8,
@@ -653,7 +671,6 @@ class _CustomPageState extends State<CustomPage> {
             // 拖拽时的样子
             feedback: cardWidget,
             onDragStarted: () {
-              Log.i('触发拖拽开始');
               setState(() {
                 dragingWidgetId = layout.deviceId;
                 curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);
@@ -738,4 +755,34 @@ class _CustomPageState extends State<CustomPage> {
     // 布局结束，抛出屏幕列表
     return screenList;
   }
+}
+
+_getDeviceDialog(BuildContext context, Layout layout) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CardDialog(
+        name: layout.data.name,
+        type: layout.data.type,
+        applianceCode: layout.data.applianceCode,
+        modelNumber: layout.data.modelNumber,
+        roomName: layout.data.roomName,
+        masterId: layout.data.masterId,
+        onlineStatus: layout.data.onlineStatus,
+      );
+    },
+  ).then(
+    (value) {
+      context.read<LayoutModel>().swapCardType(layout, value);
+    },
+  );
+}
+
+DeviceEntityTypeInP4 getDeviceEntityType(String value) {
+  for (var deviceType in DeviceEntityTypeInP4.values) {
+    if (deviceType.toString() == value) {
+      return deviceType;
+    }
+  }
+  return DeviceEntityTypeInP4.Default;
 }

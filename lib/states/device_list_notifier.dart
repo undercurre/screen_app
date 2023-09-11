@@ -460,6 +460,8 @@ class DeviceInfoListModel extends ChangeNotifier {
             sn8: devices[i].sn8,
             isOnline: devices[i].onlineStatus,
             disabled: false,
+            type: devices[i].type,
+            onlineStatus: devices[i].onlineStatus,
           ),
         );
         // 当前没有页
@@ -478,8 +480,8 @@ class DeviceInfoListModel extends ChangeNotifier {
           // 遍历每一页已有的进行补充
           for (int k = 0; k <= maxPage; k++) {
             // 找到当前页的布局数据并填充布局器
-            List<Layout> curPageLayoutList = getLayoutsByPageIndex(
-                k, transformList);
+            List<Layout> curPageLayoutList =
+                getLayoutsByPageIndex(k, transformList);
             Log.i('找到当前页的已有布局', curPageLayoutList);
             for (int j = 0; j < curPageLayoutList.length; j++) {
               List<int> grids = curPageLayoutList[j].grids;
@@ -498,8 +500,8 @@ class DeviceInfoListModel extends ChangeNotifier {
               if (k == maxPage) {
                 screenLayer.resetGrid();
                 curDevice.pageIndex = maxPage + 1;
-                List<int> fillCellsAgain = screenLayer.checkAvailability(
-                    curCardType);
+                List<int> fillCellsAgain =
+                    screenLayer.checkAvailability(curCardType);
                 curDevice.grids = fillCellsAgain;
               }
             } else {

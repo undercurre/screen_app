@@ -31,7 +31,6 @@ class DevicePage extends StatefulWidget {
     });
   }
 
-
   void stopPolling() {
     _timer?.cancel();
   }
@@ -147,6 +146,10 @@ class _DevicePageState extends State<DevicePage> {
                 applianceCode: '',
                 roomName: '',
                 isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1',
               ),
             ),
           );
