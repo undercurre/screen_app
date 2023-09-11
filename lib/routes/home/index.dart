@@ -37,7 +37,6 @@ class HomeState extends State<Home>
     with DeviceManagerSDKInitialize, LifeCycleState, Ota {
   late double po;
   var children = <Widget>[];
-  late PageController _pageController;
   String pressPath = "assets/imgs/icon/button_press.png";
   String unPressPath = "assets/imgs/icon/button_normal.png";
   String selectDevice = "assets/imgs/icon/button_normal.png";
@@ -48,10 +47,6 @@ class HomeState extends State<Home>
   void initState() {
     super.initState();
     //初始化状态
-    _pageController = PageController(initialPage: 0);
-    // children.add(const KeepAliveWrapper(child: ScenePage(text: "场景页")));
-    // children.add(const KeepAliveWrapper(child: CenterControlPage(text: '中控页')));
-    // children.add(const KeepAliveWrapper(child: DevicePage(text: "设备页")));
     initial();
 
     ShowStandby.startTimer();
@@ -68,6 +63,8 @@ class HomeState extends State<Home>
       num soundValue = await settingMethodChannel.getSystemVoice();
       bool autoLight = await settingMethodChannel.getAutoLight();
       bool nearWakeup = await settingMethodChannel.getNearWakeup();
+      String macAddr = await aboutSystemChannel.getMacAddress();
+      System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
 
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;

@@ -40,6 +40,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.modelNumber = e.modelNumber!;
         deviceObj.sn8 = e.sn8;
         deviceObj.roomName = e.roomName!;
+        deviceObj.roomId=e.roomId!;
         deviceObj.masterId = e.masterId!;
         deviceObj.onlineStatus = e.onlineStatus!;
         return deviceObj;
@@ -87,6 +88,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         device.proType = "0x21";
         device.deviceType = 3017;
         device.roomName = System.roomInfo?.name;
+        device.roomId=System.roomInfo?.id;
         device.gatewayId = HomluxGlobal.gatewayApplianceCode;
         String? online =
             deviceList!.nameValuePairs!.airConditionList![i].onlineState;
@@ -107,6 +109,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         device.proType = "0x21";
         device.deviceType = 3018;
         device.roomName = System.roomInfo?.name;
+        device.roomId=System.roomInfo?.id;
         device.gatewayId = HomluxGlobal.gatewayApplianceCode;
         String? online =
             deviceList!.nameValuePairs!.freshAirList![i].onlineState;
@@ -127,6 +130,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         device.proType = "0x21";
         device.deviceType = 3019;
         device.roomName = System.roomInfo?.name;
+        device.roomId=System.roomInfo?.id;
         device.gatewayId = HomluxGlobal.gatewayApplianceCode;
         String? online =
             deviceList!.nameValuePairs!.floorHotList![i].onlineState;
@@ -141,6 +145,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.type = e.proType!;
         deviceObj.modelNumber = getModelNumber(e);
         deviceObj.roomName = e.roomName!;
+        deviceObj.roomId=e.roomId!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
         return deviceObj;
@@ -191,6 +196,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.modelNumber = e.modelNumber!;
           deviceObj.sn8 = e.sn8;
           deviceObj.roomName = e.roomName!;
+          deviceObj.roomId=e.roomId!;
           deviceObj.masterId = e.masterId!;
           deviceObj.onlineStatus = e.onlineStatus!;
           return deviceObj;
@@ -204,6 +210,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = "0x21";
           deviceObj.modelNumber = "lightGroup";
           deviceObj.roomName = e["roomName"];
+          deviceObj.roomId=e["roomId"];
           deviceObj.masterId =
               e["applianceList"][0]["parentApplianceCode"].toString();
           deviceObj.onlineStatus = "1";
@@ -260,6 +267,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.proType = "0x21";
           device.deviceType = 3017;
           device.roomName = System.roomInfo?.name;
+          device.roomId = System.roomInfo?.id;
           device.gatewayId = HomluxGlobal.gatewayApplianceCode;
           String? online =
               deviceList!.nameValuePairs!.airConditionList![i].onlineState;
@@ -279,6 +287,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.proType = "0x21";
           device.deviceType = 3018;
           device.roomName = System.roomInfo?.name;
+          device.roomId = System.roomInfo?.id;
           device.gatewayId = HomluxGlobal.gatewayApplianceCode;
           String? online =
               deviceList!.nameValuePairs!.freshAirList![i].onlineState;
@@ -298,6 +307,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.proType = "0x21";
           device.deviceType = 3019;
           device.roomName = System.roomInfo?.name;
+          device.roomId= System.roomInfo?.id;
           device.gatewayId = HomluxGlobal.gatewayApplianceCode;
           String? online =
               deviceList!.nameValuePairs!.floorHotList![i].onlineState;
@@ -312,6 +322,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.proType!;
           deviceObj.modelNumber = getModelNumber(e);
           deviceObj.roomName = e.roomName!;
+          deviceObj.roomId= System.roomInfo?.id;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
           return deviceObj;

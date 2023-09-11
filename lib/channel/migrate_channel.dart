@@ -9,7 +9,7 @@ class MigrateChannel extends AbstractChannel {
 
   Future<List<Map<String, dynamic>>> syncWiFi() async {
     List<Map<String, dynamic>> wifis = await methodChannel.invokeMethod('syncWiFi') as List<Map<String, dynamic>>;
-    logger.i(wifis);
+    // logger.i(wifis);
     return wifis;
   }
 
@@ -55,26 +55,26 @@ class MigrateChannel extends AbstractChannel {
     return res;
   }
 
-  Future<Map<String, dynamic>?> meiJuIsMigrate() async {
-    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('meiJuIsMigrate');
+  Future<String?> meiJuIsMigrate() async {
+    String? res = await methodChannel.invokeMethod<String>('meiJuIsMigrate');
     logger.i(res);
     return res;
   }
 
-  Future<Map<String, dynamic>?> setMeiJuIsMigrate() async {
-    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('setMeiJuIsMigrate');
+  Future<String?> setMeiJuIsMigrate() async {
+    String? res = await methodChannel.invokeMethod<String>('setMeiJuIsMigrate');
     logger.i(res);
     return res;
   }
 
-  Future<Map<String, dynamic>?> homluxIsMigrate() async {
-    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('homluxIsMigrate');
+  Future<String?> homluxIsMigrate() async {
+    String? res = await methodChannel.invokeMethod<String?>('homluxIsMigrate');
     logger.i(res);
     return res;
   }
 
-  Future<Map<String, dynamic>?> setHomluxIsMigrate() async {
-    Map<String, dynamic>? res = await methodChannel.invokeMethod<Map<String, dynamic>>('setHomluxIsMigrate');
+  Future<String?> setHomluxIsMigrate() async {
+    String? res = await methodChannel.invokeMethod<String?>('setHomluxIsMigrate');
     logger.i(res);
     return res;
   }

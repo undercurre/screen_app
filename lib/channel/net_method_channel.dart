@@ -30,7 +30,7 @@ class NetMethodChannel extends AbstractChannel {
 
   // 接收原生请求
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
-    debugPrint('Method= ${call.method} arguments= ${call.arguments}');
+    // debugPrint('Method= ${call.method} arguments= ${call.arguments}');
     final method = call.method;
     final args = call.arguments;
     switch (method) {

@@ -35,15 +35,15 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val method = call.method;
-        when(method) {
+        when (method) {
             "syncWiFi" -> {
                 val wifis = MigrateWiFiRecordCache.getInstance().alreadyLoginWiFis
                 LogUtil.tag("migrate").array(wifis)
-                if(CollectionUtil.isEmpty(wifis)) {
+                if (CollectionUtil.isEmpty(wifis)) {
                     result.safeError()
                 } else {
                     val jsonArray = JSONArray(wifis)
-                    if(jsonArray.length() <= 0) {
+                    if (jsonArray.length() <= 0) {
                         result.safeError()
                     } else {
                         result.safeSuccess(jsonArray)
@@ -57,11 +57,12 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                 val dataDecodeKey = MigrateTokenCache.getInstance().dataDecodeKey
                 val dataEncodeKey = MigrateTokenCache.getInstance().dataEncodeKey
                 val deviceId = MigrateDeviceIdUtil.getDeviceId(context)
-                if(StringUtils.isEmpty(token)
+                if (StringUtils.isEmpty(token)
                     || StringUtils.isEmpty(userid)
                     || StringUtils.isEmpty(iotUserId)
                     || StringUtils.isEmpty(dataDecodeKey)
-                    || StringUtils.isEmpty(dataEncodeKey)) {
+                    || StringUtils.isEmpty(dataEncodeKey)
+                ) {
                     result.safeError()
                 } else {
                     val json = JSONObject()
@@ -78,17 +79,32 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncUserData" -> {
                 val userInfo = MigrateUserDataCache.create().userInfo
                 LogUtil.tag("migrate").msg(userInfo)
-                if(StringUtils.isEmpty(userInfo)) {
+                if (StringUtils.isEmpty(userInfo)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(userInfo))
                 }
             }
 
+            "meiJuIsMigrate" -> {
+                val meiJuIsMigrate = MigrateUserDataCache.create().meiJuIsMigrate
+                LogUtil.tag("migrate").msg(meiJuIsMigrate)
+                if (StringUtils.isEmpty(meiJuIsMigrate)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(meiJuIsMigrate)
+                }
+            }
+
+            "setMeiJuIsMigrate" -> {
+                MigrateUserDataCache.create().setMeiJuIsMigrate()
+                result.safeSuccess("1")
+            }
+
             //homlux数据迁移
             "syncHomluxToken" -> {
                 val token = MigrateHomluxCache.getInstance().token
-                if(StringUtils.isEmpty(token)) {
+                if (StringUtils.isEmpty(token)) {
                     result.safeError()
                 } else {
                     val json = JSONObject()
@@ -101,7 +117,7 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncHomluxUserData" -> {
                 val userData = MigrateHomluxCache.getInstance().userData
                 LogUtil.tag("migrate").msg(userData)
-                if(StringUtils.isEmpty(userData)) {
+                if (StringUtils.isEmpty(userData)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(userData))
@@ -111,7 +127,7 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncHomluxFamily" -> {
                 val family = MigrateHomluxCache.getInstance().family
                 LogUtil.tag("migrate").msg(family)
-                if(StringUtils.isEmpty(family)) {
+                if (StringUtils.isEmpty(family)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(family))
@@ -121,7 +137,7 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncHomluxRoom" -> {
                 val room = MigrateHomluxCache.getInstance().room
                 LogUtil.tag("migrate").msg(room)
-                if(StringUtils.isEmpty(room)) {
+                if (StringUtils.isEmpty(room)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(room))
@@ -131,11 +147,26 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncGatewayApplianceCode" -> {
                 val bindGatewayInfo = MigrateHomluxCache.getInstance().bindGatewayInfo
                 LogUtil.tag("migrate").msg(bindGatewayInfo)
-                if(StringUtils.isEmpty(bindGatewayInfo)) {
+                if (StringUtils.isEmpty(bindGatewayInfo)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(bindGatewayInfo))
                 }
+            }
+
+            "homluxIsMigrate" -> {
+                val homluxIsMigrate = MigrateHomluxCache.getInstance().homluxIsMigrate
+                LogUtil.tag("migrate").msg(homluxIsMigrate)
+                if (StringUtils.isEmpty(homluxIsMigrate)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(homluxIsMigrate)
+                }
+            }
+
+            "setHomluxIsMigrate" -> {
+                MigrateHomluxCache.getInstance().setHomluxIsMigrate()
+                result.safeSuccess("1")
             }
         }
 

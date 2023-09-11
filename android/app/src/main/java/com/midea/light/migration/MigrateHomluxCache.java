@@ -17,6 +17,7 @@ public class MigrateHomluxCache extends AbstractMMKVSetting {
 
     private static final String KEY_TOKEN = "key_token";
     private static final String KEY_FAMILY = "key_family";
+    private static final String HOMLUX_IS_MIGRATE = "homlux_is_migrate";
     private static final String KEY_ROOM = "key_room";
     private static final String KEY_USER = "key_user";
     private static final String KEY_BIND_GATEWAY_INFO = "key_bind_gateway_info";
@@ -50,6 +51,16 @@ public class MigrateHomluxCache extends AbstractMMKVSetting {
         Object json =  get(KEY_BIND_GATEWAY_INFO, Object.class);
         if(json == null) return "";
         return GsonUtils.stringify(json);
+    }
+
+    public String getHomluxIsMigrate() {
+        String json =  get(HOMLUX_IS_MIGRATE, String.class);
+        if(json == null) return "0";
+        return "1";
+    }
+
+    public void setHomluxIsMigrate() {
+        save(HOMLUX_IS_MIGRATE,"1");
     }
 
     @Override

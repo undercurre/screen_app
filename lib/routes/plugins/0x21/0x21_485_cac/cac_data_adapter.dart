@@ -11,6 +11,7 @@ import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../common/system.dart';
 import '../../../../widgets/event_bus.dart';
 
 class CACDataAdapter extends MideaDataAdapter {
@@ -44,6 +45,8 @@ class CACDataAdapter extends MideaDataAdapter {
       windSpeed: "1");
 
   DataState dataState = DataState.NONE;
+
+  String localDeviceCode="";
 
   CACDataAdapter(this.name, this.applianceCode, this.masterId, this.modelNumber,
       GatewayPlatform platform)
@@ -95,46 +98,90 @@ class CACDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> orderPower(int onOff) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderPowerMeiju(onOff);
-      } else {}
-    } else {
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirConditionPower(
+            onOff.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderPowerMeiju(onOff);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirConditionPower(
+              onOff.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
       deviceLocal485ControlChannel.controlLocal485AirConditionPower(
           onOff.toString(), applianceCode);
     }
   }
 
   Future<void> orderMode(int mode) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderModeMeiju(mode);
-      } else {}
-    } else {
-      Log.i("控制空调模式:$mode");
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirConditionModel(
+            mode.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderModeMeiju(mode);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirConditionModel(
+              mode.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
       deviceLocal485ControlChannel.controlLocal485AirConditionModel(
           mode.toString(), applianceCode);
     }
+
   }
 
   Future<void> orderTemp(int temp) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderTempMeiju(temp);
-      } else {}
-    } else {
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
+            temp.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderTempMeiju(temp);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
+              temp.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
       deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
           temp.toString(), applianceCode);
     }
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderSpeedMeiju(speed);
-      } else {}
-    } else {
-      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
+            speed.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderSpeedMeiju(speed);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
+              speed.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
+      deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
           speed.toString(), applianceCode);
     }
   }
@@ -221,6 +268,7 @@ class CACDataAdapter extends MideaDataAdapter {
   @override
   void init() {
     // Initialize the adapter and fetch data
+    deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
@@ -230,7 +278,6 @@ class CACDataAdapter extends MideaDataAdapter {
           });
       fetchData();
     } else {
-      deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
@@ -296,6 +343,7 @@ class CACDataAdapter extends MideaDataAdapter {
       NodeInfo<Endpoint<CAC485Event>> nodeInfo = await MeiJuDeviceApi.getGatewayInfo<CAC485Event>(
               applianceCode, masterId, (json) => CAC485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
+      localDeviceCode = nodeId.split('-')[1];
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);

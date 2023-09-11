@@ -13,6 +13,7 @@ import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../common/system.dart';
 import '../../../../widgets/event_bus.dart';
 
 class AirDataAdapter extends MideaDataAdapter {
@@ -45,6 +46,9 @@ class AirDataAdapter extends MideaDataAdapter {
       windSpeed: "1");
 
   DataState dataState = DataState.NONE;
+
+  String localDeviceCode="";
+
 
   AirDataAdapter(this.name,this.applianceCode, this.masterId, this.modelNumber,
       GatewayPlatform platform)
@@ -98,24 +102,48 @@ class AirDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> orderPower(int onOff) async {
-    if(isLocalDevice==false){
-      if (platform.inMeiju()) {
-        fetchOrderPowerMeiju(onOff);
-      } else {}
-    }else{
-      Log.i("控制新风开关:$onOff");
-      deviceLocal485ControlChannel.controlLocal485AirFreshPower(onOff.toString(),applianceCode);
+
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirFreshPower(
+            onOff.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderPowerMeiju(onOff);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirFreshPower(
+              onOff.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
+      deviceLocal485ControlChannel.controlLocal485AirFreshPower(
+          onOff.toString(), applianceCode);
     }
+
   }
 
   Future<void> orderSpeed(int speed) async {
-    if(isLocalDevice==false){
-      if (platform.inMeiju()) {
-        fetchOrderSpeedMeiju(speed);
-      } else {}
-    }else{
-      Log.i("控制新风风速:$speed");
-      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(speed.toString(),applianceCode);
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
+            speed.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderSpeedMeiju(speed);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
+              speed.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
+      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
+          speed.toString(), applianceCode);
     }
   }
 
@@ -202,22 +230,16 @@ class AirDataAdapter extends MideaDataAdapter {
 
   @override
   void init() {
-    // Initialize the adapter and fetch data
-    Log.i("初始化空调adapter");
+    deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if(applianceCode.length!=4){
       isLocalDevice=false;
-      var nid;
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-        nid=args.nodeId,
-        Log.i("收到推送:$nid"),
-        Log.i("设备的id:$nodeId"),
         if(nodeId==args.nodeId){
           fetchData()
         }
       });
       fetchData();
     }else{
-      deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
       isLocalDevice=true;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
       ///homlux添加本地485空调设备
@@ -267,6 +289,7 @@ class AirDataAdapter extends MideaDataAdapter {
           await MeiJuDeviceApi.getGatewayInfo<Air485Event>(
               applianceCode, masterId, (json) => Air485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
+      localDeviceCode = nodeId.split('-')[1];
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);

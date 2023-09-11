@@ -78,7 +78,6 @@ class _Boot extends State<Boot> {
     //   /// 正常的跳转逻辑
     //   checkLogin();
     // }.call();
-
   }
 
   @override
@@ -109,14 +108,58 @@ class _Boot extends State<Boot> {
     /// 数据迁移逻辑
     () async {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-        Future.delayed(Duration.zero).then((_) {
-          Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
-        });
+        String? isMigrate = await migrateChannel.meiJuIsMigrate();
+        if (isMigrate == "0") {
+          Future.delayed(Duration.zero).then((_) {
+            Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
+          });
+        } else {
+          bool isLogin = System.isLogin();
+          bool familyInfo = System.familyInfo != null;
+          bool roomInfo = System.roomInfo != null;
+          Log.i('isLogin = $isLogin '
+              'familyInfo = $familyInfo '
+              'roomInfo = $roomInfo');
+          var isFinishLogin = System.isLogin() &&
+              System.familyInfo != null &&
+              System.roomInfo != null;
+          Navigator.pushNamed(
+            context,
+            isFinishLogin ? 'Home' : 'Login',
+          );
+          if (isFinishLogin) {
+            System.login();
+          } else {
+            System.logout();
+          }
+        }
       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-        Future.delayed(Duration.zero).then((_) {
-          Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
-        });
-      }else{
+        String? isMigrate = await migrateChannel.homluxIsMigrate();
+        if(isMigrate == "0"){
+          Future.delayed(Duration.zero).then((_) {
+            Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
+          });
+        }else{
+          bool isLogin = System.isLogin();
+          bool familyInfo = System.familyInfo != null;
+          bool roomInfo = System.roomInfo != null;
+          Log.i('isLogin = $isLogin '
+              'familyInfo = $familyInfo '
+              'roomInfo = $roomInfo');
+          var isFinishLogin = System.isLogin() &&
+              System.familyInfo != null &&
+              System.roomInfo != null;
+          Navigator.pushNamed(
+            context,
+            isFinishLogin ? 'Home' : 'Login',
+          );
+          if (isFinishLogin) {
+            System.login();
+          } else {
+            System.logout();
+          }
+        }
+      } else {
         Navigator.pushNamed(
           context,
           'Login',
@@ -124,36 +167,6 @@ class _Boot extends State<Boot> {
       }
       return;
     }.call();
-
-    if (MideaRuntimePlatform.platform == GatewayPlatform.NONE) {
-      Navigator.pushNamed(
-        context,
-        'Login',
-      );
-    } else {
-      bool isLogin = System.isLogin();
-      bool familyInfo = System.familyInfo != null;
-      bool roomInfo = System.roomInfo != null;
-
-      Log.i('isLogin = $isLogin '
-          'familyInfo = $familyInfo '
-          'roomInfo = $roomInfo');
-
-      var isFinishLogin = System.isLogin() &&
-          System.familyInfo != null &&
-          System.roomInfo != null;
-
-      Navigator.pushNamed(
-        context,
-        isFinishLogin ? 'Home' : 'Login',
-      );
-
-      if (isFinishLogin) {
-        System.login();
-      } else {
-        System.logout();
-      }
-    }
   }
 }
 

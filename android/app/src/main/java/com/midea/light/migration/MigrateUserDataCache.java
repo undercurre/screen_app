@@ -25,6 +25,8 @@ public class MigrateUserDataCache extends AbstractMMKVSetting {
      * 业务逻辑 -- keys
      */
     private static final String USER_INFO = "user_info";
+    private static final String MEI_JU_IS_MIGRATE = "meiju_is_migrate";
+
     private static final String USER_ROOM_ORDER = "user_room_%s_order";
     private static final String USER_SCENE_ORDER = "user_scene_order";
 
@@ -40,6 +42,16 @@ public class MigrateUserDataCache extends AbstractMMKVSetting {
         Object json =  get(USER_INFO, Object.class);
         if(json == null) return "";
         return GsonUtils.stringify(json);
+    }
+
+    public String getMeiJuIsMigrate() {
+        String json =  get(MEI_JU_IS_MIGRATE, String.class);
+        if(json == null) return "0";
+        return "1";
+    }
+
+    public void setMeiJuIsMigrate() {
+        save(MEI_JU_IS_MIGRATE,"1");
     }
 
     @Override
