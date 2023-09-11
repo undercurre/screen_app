@@ -64,6 +64,11 @@ class NetSettingPage extends StatelessWidget {
                 const Expanded(
                   child: LinkNetwork(isNeedWifiSwitch: true),
                 ),
+
+                const SizedBox(
+                  height: 16,
+                  width: 480,
+                )
               ],
             ),
           )),
