@@ -172,22 +172,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     var stepList = [
       Step(
           '连接网络',
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(40, 16, 0, 13),
-              child: const Text(
-                '请选择链接网络',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w400,
-                  color: Color.fromRGBO(255, 255, 255, 0.85),
-                  letterSpacing: 0,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ),
-            const Expanded(child: LinkNetwork())
-          ])
+          Container(
+            width: 480,
+            height: 300,
+            alignment: AlignmentDirectional.centerStart,
+            child: const LinkNetwork(isNeedWifiSwitch: true),
+          )
       ),
       Step(
           '扫码登录',
@@ -258,13 +248,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                         ],
                       )
                     : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           LoginHeader(
                               stepSum: stepList.length,
                               stepNum: stepNum,
-                              title: stepItem?.title ?? ''),
-                          Expanded(flex: 1, child: stepItem?.view ?? const SizedBox()),
+                              title: stepItem?.title ?? ''
+                          ),
+
+                          if(stepItem?.view != null) Container(
+                            child: stepItem?.view,
+                          ),
                         ],
                       ))),
         if (stepNum == 1 && !isNeedChoosePlatform)

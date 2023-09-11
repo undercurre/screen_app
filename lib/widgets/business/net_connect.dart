@@ -30,17 +30,20 @@ class _LinkNetworkData {
 // _LinkNetwork 界面的 业务逻辑层
 class _LinkNetworkModel with ChangeNotifier {
   late _LinkNetworkData _data;
+  DateTime? lastTime;
 
   List<dynamic> get pageData => <dynamic>[
-    'headerTag',
+    //'headerTag',
+    if (_data.currentConnect != null) _data.currentConnect?.data,
     if (_data.supportWiFi && _data.isWiFiOn) ...?_data.wifiList
   ];
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
-    Timer(const Duration(milliseconds: 250), () async {
-      init();
-    });
+    init();
+    // Timer(const Duration(milliseconds: 250), () async {
+    //   init();
+    // });
   }
 
   void init() async {
@@ -90,7 +93,7 @@ class _LinkNetworkModel with ChangeNotifier {
     int wifiState = state.wifiState;
     if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
-      _data.wifiList?.removeWhere((element) => element == state.wiFiScanResult);
+      _data.wifiList?.removeWhere((element) => element.bssid == state.wiFiScanResult?.bssid);
     } else {
       _data.currentConnect = null;
     }
@@ -98,11 +101,16 @@ class _LinkNetworkModel with ChangeNotifier {
   }
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
+    if (lastTime != null) {
+      if(DateTime.now().millisecondsSinceEpoch - lastTime!.millisecondsSinceEpoch < 5000) {
+        return;
+      }
+    }
+    lastTime = DateTime.now();
+    if (_data.currentConnect != null && _data.currentConnect?.type == UpdateType.SUCCESS) {
+      list.removeWhere((element) => element.bssid == _data.currentConnect?.data.bssid);
+    }
     _data.wifiList = list.toSet();
-    // if (_data.currentConnect?.type == UpdateType.SUCCESS) {
-    //   _data.wifiList
-    //       ?.removeWhere((element) => element == _data.currentConnect?.data);
-    // }
     notifyListeners();
   }
 
@@ -111,7 +119,7 @@ class _LinkNetworkModel with ChangeNotifier {
       await netMethodChannel.enableWiFi(wifiOpen);
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
-      _data.currentConnect = wifiOpen ? _data.currentConnect : null;
+      _data.currentConnect = wifiOpen?_data.currentConnect : null;
       if (wifiOpen) {
         netMethodChannel.scanNearbyWiFi();
       } else {
@@ -192,7 +200,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                   if (widget.isNeedWifiSwitch) Container(
                     width: 432,
                     height: model._data.currentConnect?.type == UpdateType.LONGING ? 144 : 71,
-                    margin: const EdgeInsets.fromLTRB(0, 12, 0, 10),
+                    margin: const EdgeInsets.fromLTRB(0, 12, 0, 5),
                     decoration: const BoxDecoration(
                         color: Color(0x0DFFFFFF),
                         borderRadius: BorderRadius.all(Radius.circular(16))
@@ -286,94 +294,89 @@ class _LinkNetwork extends State<LinkNetwork> {
                           child: ListView.builder(
                               itemCount: model.pageData.length,
                               itemBuilder: (BuildContext context, int index) {
-                                if (index == model.pageData.length) {
-                                  // 最后一项，显示新增的内容
-                                  return Container(
-                                    width: 432,
-                                    height: 72,
-                                    color: Colors.white.withOpacity(0.05),
-                                    child: const Center(
-                                        child: Text(
-                                          '已经到底了！',
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w400,
-                                              color: Color.fromRGBO(
-                                                  255, 255, 255, 0.85)),
-                                        )),
-                                  );
-                                } else {
-                                  // 有线网络
-                                  if (model.pageData[index] == 'headerTag') {
-                                    return Container();
-                                  }
-                                  WiFiScanResult item =
-                                  model.pageData[index] as WiFiScanResult;
-                                  // wifi的子Item
-                                  return MzCell(
-                                      avatarIcon: null,
-                                      rightIcon: Row(
-                                        children: [
-                                          if (item.auth == 'encryption') const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 12.0),
-                                            child: Image(
-                                              height: 32,
-                                              width: 32,
-                                              image: AssetImage('assets/newUI/lock.png'),
+                                // 有线网络
+                                // if (model.pageData[index] == 'headerTag') {
+                                //   return Container();
+                                // }
+                                WiFiScanResult item = model.pageData[index] as WiFiScanResult;
+                                // wifi的子Item
+                                return Column(
+                                  children: [
+                                        MzCell(
+                                        avatarIcon: null,
+                                        rightIcon: Row(
+                                          children: [
+                                            if (item.auth == 'encryption') const Padding(
+                                              padding: EdgeInsets.only(right: 12.0),
+                                              child: Image(
+                                                height: 32,
+                                                width: 32,
+                                                image: AssetImage('assets/newUI/lock.png'),
+                                              ),
                                             ),
-                                          ),
-                                          MzWiFiImage(
-                                              level: item.level.toInt(),
-                                              size: const Size.square(28)),
-                                        ],
-                                      ),
-                                      title: item.ssid,
-                                      titleMaxLines: 1,
-                                      titleSize: 18.0,
-                                      tag: item.bssid == model._data.currentConnect?.data.bssid ? "已连接" : null,
-                                      hasTopBorder: false,
-                                      hasBottomBorder:
-                                      index + 1 != model.pageData.length,
-                                      bgColor: const Color.fromRGBO(
-                                          255, 255, 255, 0.05),
-                                      onTap: () {
-                                        if (item.bssid == model._data.currentConnect?.data.bssid) {
-                                          return;
+                                            MzWiFiImage(
+                                                level: item.level.toInt(),
+                                                size: const Size.square(28)),
+                                          ],
+                                        ),
+                                        title: item.ssid,
+                                        titleMaxLines: 1,
+                                        titleSize: 18.0,
+                                        tag: item.bssid == model._data.currentConnect?.data.bssid ? "已连接" : null,
+                                        hasTopBorder: false,
+                                        hasBottomBorder: true,
+                                        bgColor: const Color.fromRGBO(255, 255, 255, 0.05),
+                                        onTap: () {
+                                          if (item.bssid == model._data.currentConnect?.data.bssid) {
+                                            return;
+                                          }
+                                          if (item.auth == 'open') {
+                                            // 尝试连接开放型WiFi
+                                            model.connectWiFi(result: item, password: null, callback: (result) {});
+                                          } else if (item.alreadyConnected) {
+                                            // 尝试连接曾经的WiFi
+                                            model.connectWiFi(
+                                                result: item,
+                                                password: null,
+                                                callback: (result) {
+                                                  if (!result) {
+                                                    showInputPasswordDialog(item, model);
+                                                  }
+                                                });
+                                          } else {
+                                            // 连接新WiFi
+                                            showInputPasswordDialog(item, model);
+                                          }
+                                        },
+                                        onLongPress: () {
+                                          if(item.bssid != model._data.currentConnect?.data.bssid) {
+                                            return;
+                                          }
+                                          if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
+                                            showIgnoreDialog(model._data.currentConnect!.data);
+                                          }
                                         }
-                                        if (item.auth == 'open') {
-                                          // 尝试连接开放型WiFi
-                                          model.connectWiFi(
-                                              result: item,
-                                              password: null,
-                                              callback: (result) {});
-                                        } else if (item.alreadyConnected) {
-                                          // 尝试连接曾经的WiFi
-                                          model.connectWiFi(
-                                              result: item,
-                                              password: null,
-                                              callback: (result) {
-                                                if (!result) {
-                                                  showInputPasswordDialog(
-                                                      item, model);
-                                                }
-                                              });
-                                        } else {
-                                          // 连接新WiFi
-                                          showInputPasswordDialog(item, model);
-                                        }
-                                      },
-                                      onLongPress: () {
-                                        if (model._data.currentConnect?.type ==
-                                            UpdateType.SUCCESS) {
-                                          showIgnoreDialog(
-                                              model._data.currentConnect!.data);
-                                        }
-                                      });
-                                }
+                                    ),
+                                    if(index == model.pageData.length - 1) Container(
+                                      width: 432,
+                                      color: const Color.fromRGBO(255, 255, 255, 0.05),
+                                      height: 44,
+                                      child: const Center(
+                                          child: Text(
+                                            '已经到底了！',
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w400,
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.85)),
+                                          )),
+                                    ),
+                                  ],
+                                );
                               })
                       )
                   ),
+
                 ],
               ));
         }));
@@ -384,9 +387,9 @@ class _LinkNetwork extends State<LinkNetwork> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(left: 16.0, bottom: 13.0),
+          margin: const EdgeInsets.only(left: 16.0, bottom: 5),
           child: const Text(
-            '其他网络',
+            '请选择链接网络',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.w400,
@@ -396,39 +399,6 @@ class _LinkNetwork extends State<LinkNetwork> {
             ),
           ),
         ),
-        // Visibility(
-        //     visible: model._data.currentConnect != null &&
-        //         model._data.currentConnect!.type != UpdateType.ERROR,
-        //     child: MzCell(
-        //       avatarIcon: MzWiFiImage(
-        //           level: model._data.currentConnect?.data.level.toInt() ?? 0,
-        //           size: const Size.square(24)),
-        //       rightIcon: model._data.currentConnect?.data.auth == 'encryption'
-        //           ? const Icon(Icons.lock_outline_sharp,
-        //               color: Color.fromRGBO(255, 255, 255, 0.85))
-        //           : null,
-        //       rightText: model.connectedState(model._data.currentConnect),
-        //       title: model._data.currentConnect?.data.ssid,
-        //       titleSize: 18.0,
-        //       hasTopBorder: true,
-        //       onLongPress: () {
-        //         if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
-        //           showIgnoreDialog(model._data.currentConnect!.data);
-        //         }
-        //       },
-        //       bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-        //     )),
-        // DecoratedBox(
-        //   decoration: const BoxDecoration(
-        //     border: Border(
-        //         top: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.3))),
-        //   ),
-        //   child: Padding(
-        //       padding: const EdgeInsets.fromLTRB(36, 4, 36, 4),
-        //       child: Row(
-        //           mainAxisAlignment: MainAxisAlignment.start,
-        //           children: const [])),
-        // )
       ],
     );
   }

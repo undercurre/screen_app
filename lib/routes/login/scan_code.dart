@@ -38,7 +38,7 @@ class _ScanCode extends State<ScanCode> {
       alignment: Alignment.center,
       child: Stack(
         children: [
-          const Positioned(
+          if (StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
             right: 14,
             bottom: 11,
             child: Image(
