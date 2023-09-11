@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/gateway_platform.dart';
+import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 
 import '../../../common/api/api.dart';
@@ -64,6 +65,7 @@ class _DevicePageState extends State<DevicePage> {
   Widget build(BuildContext context) {
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
+    final pageModel = Provider.of<PageCounter>(context);
     if (mounted) {
       _screens = getScreenList(layoutModel);
     }
@@ -71,7 +73,9 @@ class _DevicePageState extends State<DevicePage> {
     return PageView(
       controller: _pageController,
       scrollDirection: Axis.horizontal,
-      onPageChanged: (index) {},
+      onPageChanged: (index) {
+        pageModel.currentPage = index;
+      },
       children: _screens,
     );
   }
