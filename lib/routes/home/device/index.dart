@@ -70,13 +70,44 @@ class _DevicePageState extends State<DevicePage> {
       _screens = getScreenList(layoutModel);
     }
     // logger.i('屏幕页面数量', _screens.length);
-    return PageView(
-      controller: _pageController,
-      scrollDirection: Axis.horizontal,
-      onPageChanged: (index) {
-        pageModel.currentPage = index;
-      },
-      children: _screens,
+    return Stack(
+      children: [
+        PageView(
+          controller: _pageController,
+          scrollDirection: Axis.horizontal,
+          onPageChanged: (index) {
+            pageModel.currentPage = index;
+          },
+          children: _screens,
+        ),
+        Positioned(
+            left: 215,
+            bottom: 12,
+            child: Stack(
+              children: [
+                Positioned(
+                  left: pageModel.currentPage / (_screens.length - 1) * 25,
+                  bottom: 0,
+                  child: Container(
+                    width: 26,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8), // 背景颜色
+                      borderRadius: BorderRadius.circular(10.0), // 圆角半径
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 51,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1), // 背景颜色
+                    borderRadius: BorderRadius.circular(10.0), // 圆角半径
+                  ),
+                ),
+              ],
+            )),
+      ],
     );
   }
 
