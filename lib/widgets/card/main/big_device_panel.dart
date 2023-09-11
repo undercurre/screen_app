@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
@@ -108,6 +110,35 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      if (widget.disabled) {
+        return (deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        ) ==
+            '未知id' ||
+            deviceListModel.getDeviceName(
+              deviceId: widget.adapter?.getDeviceId(),
+            ) ==
+                '未知设备')
+            ? widget.name
+            : deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        );
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+    }
+
+
     return Container(
       width: 440,
       height: 196,
@@ -140,8 +171,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 140),
-                    child: Text(widget.name,
+                    constraints: const BoxConstraints(maxWidth: 244),
+                    child: Text(getDeviceName(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

@@ -264,7 +264,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       child: Container(
         width: 210,
         height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
         decoration: _getBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -286,14 +286,38 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                       Row(children: [
                         SizedBox(
                           width: 102,
-                          child: Text(
-                            getDeviceName(),
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 76,
+                                ),
+                                child: Text(
+                                  getDeviceName()
+                                      .substring(0, getDeviceName().length - 1),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontFamily: 'MideaType',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                getDeviceName().substring(
+                                    getDeviceName().length - 1,
+                                    getDeviceName().length),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (widget.isNative)

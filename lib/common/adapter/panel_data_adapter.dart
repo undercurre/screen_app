@@ -31,6 +31,10 @@ class PanelDataAdapter extends MideaDataAdapter {
       GatewayPlatform platform)
       : super(platform);
 
+  String getDeviceId() {
+    return applianceCode;
+  }
+
   Future<void> tryOnce() async {
     fetchOrderPower(1);
   }
