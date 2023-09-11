@@ -8,6 +8,7 @@ import 'package:screen_app/widgets/card/main/small_device.dart';
 import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../widgets/card/main/middle_device.dart';
+import '../../../widgets/card/main/panelNum.dart';
 
 class CardDialog extends StatefulWidget {
   final String type;
@@ -58,7 +59,7 @@ class _CardDialogState extends State<CardDialog> {
         backgroundColor: Colors.transparent,
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-          height: 265,
+          height: 300,
           decoration: const BoxDecoration(
             color: Color(0xFF494E59),
             borderRadius: BorderRadius.all(
@@ -80,131 +81,170 @@ class _CardDialogState extends State<CardDialog> {
                     child: const Icon(Icons.close_rounded, size: 32),
                   ),
                   Text(
-                    _getTitle(),
+                    widget.name,
                     style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pop(_getCardType());
+                      Navigator.of(context)
+                          .pop(_getCardType(widget.modelNumber, widget.type));
                     },
                     child: const Icon(Icons.check_rounded, size: 32),
                   ),
                 ],
               ),
               Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    UnconstrainedBox(
-                      child: SmallDeviceCardWidget(
-                        name: widget.name,
-                        icon: Image(
-                          image: AssetImage(
-                              '${_getIconUrl(widget.type, widget.modelNumber)}'),
-                        ),
-                        //onOff: true,
-                        roomName: widget.roomName,
-                        //characteristic: '',
-                        online: widget.onlineStatus == '1',
-                        isFault: false,
-                        isNative: false,
-                        disabled: true,
-                        hasMore: false,
-                        adapter: null,
-                      ),
+                child: Column(children: [
+                  Text(
+                    '点击卡片可找一找设备',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 16,
                     ),
-                    Transform.scale(
-                      scale: 0.75,
-                      child: UnconstrainedBox(
-                        child: MiddleDeviceCardWidget(
-                          name: widget.name,
-                          icon: Image(
-                            image: AssetImage(
-                                '${_getIconUrl(widget.type, widget.modelNumber)}'),
+                  ),
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        if (buildMap[_getDeviceEntityType(widget.type,
+                                widget.modelNumber)]![CardType.Small] !=
+                            null)
+                          UnconstrainedBox(
+                            child: buildMap[_getDeviceEntityType(widget.type,
+                                widget.modelNumber)]![CardType.Small]!(
+                              DataInputCard(
+                                  name: widget.name,
+                                  applianceCode: widget.applianceCode,
+                                  roomName: widget.roomName,
+                                  masterId: widget.masterId,
+                                  disabled: true,
+                                  modelNumber: widget.modelNumber,
+                                  disableOnOff: true,
+                                  isOnline: widget.onlineStatus,
+                                  hasMore: false,
+                                  context: context,
+                                  type: '',
+                                  onlineStatus: '1'),
+                            ),
                           ),
-                          //onOff: true,
-                          roomName: widget.roomName,
-                          //characteristic: '',
-                          online: widget.onlineStatus == '1',
-                          isFault: false,
-                          isNative: false,
-                          disabled: true,
-                          hasMore: false,
-                          adapter: null,
-                        ),
-                      ),
-                    ),
-                    if (buildMap[_getDeviceEntityType(
-                            widget.type, widget.modelNumber)]![CardType.Big] !=
-                        null)
-                      Stack(
-                        children: [
-                          Positioned(
-                            left: 0,
-                            top: 0,
-                            child: Transform.translate(
-                              offset: const Offset(-45, 0),
-                              child: Transform.scale(
-                                scale: 0.75,
-                                child: buildMap[_getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Big]!(
-                                  DataInputCard(
-                                      name: widget.name,
-                                      applianceCode: widget.applianceCode,
-                                      roomName: widget.roomName,
-                                      masterId: widget.masterId,
-                                      disabled: true,
-                                      modelNumber: widget.modelNumber,
-                                      disableOnOff: true,
-                                      isOnline: widget.onlineStatus,
-                                      hasMore: false,
-                                      context: context),
+                        if (buildMap[_getDeviceEntityType(widget.type,
+                                widget.modelNumber)]![CardType.Middle] !=
+                            null)
+                          Transform.scale(
+                            scale: 0.75,
+                            child: UnconstrainedBox(
+                              child: buildMap[_getDeviceEntityType(widget.type,
+                                  widget.modelNumber)]![CardType.Middle]!(
+                                DataInputCard(
+                                  name: widget.name,
+                                  applianceCode: widget.applianceCode,
+                                  roomName: widget.roomName,
+                                  masterId: widget.masterId,
+                                  disabled: true,
+                                  modelNumber: widget.modelNumber,
+                                  disableOnOff: true,
+                                  isOnline: widget.onlineStatus,
+                                  hasMore: false,
+                                  context: context,
+                                  type: '',
+                                  onlineStatus: '1',
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                  ],
-                  onPageChanged: (index) {
-                    _handlePageChange(index);
-                  },
-                ),
+                        if (buildMap[_getDeviceEntityType(widget.type,
+                                widget.modelNumber)]![CardType.Big] !=
+                            null)
+                          Stack(
+                            children: [
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                child: Transform.translate(
+                                  offset: const Offset(-45, 0),
+                                  child: Transform.scale(
+                                    scale: 0.75,
+                                    child: buildMap[_getDeviceEntityType(
+                                        widget.type,
+                                        widget.modelNumber)]![CardType.Big]!(
+                                      DataInputCard(
+                                        name: widget.name,
+                                        applianceCode: widget.applianceCode,
+                                        roomName: widget.roomName,
+                                        masterId: widget.masterId,
+                                        disabled: true,
+                                        modelNumber: widget.modelNumber,
+                                        disableOnOff: true,
+                                        isOnline: widget.onlineStatus,
+                                        hasMore: false,
+                                        context: context,
+                                        type: '',
+                                        onlineStatus: '1',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                      onPageChanged: (index) {
+                        _handlePageChange(index);
+                      },
+                    ),
+                  ),
+                ]),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: _currentIndex == 0 ? 22 : 14,
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      color: _currentIndex == 0
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.6),
+                  if (buildMap[_getDeviceEntityType(
+                          widget.type, widget.modelNumber)]![CardType.Small] !=
+                      null)
+                    Container(
+                      width: _getCardType(widget.modelNumber, widget.type) ==
+                              CardType.Small
+                          ? 22
+                          : 14,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(4)),
+                        color: _currentIndex == 0
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.6),
+                      ),
                     ),
-                  ),
-                  Container(
-                    width: _currentIndex == 1 ? 22 : 14,
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      color: _currentIndex == 1
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.6),
+                  if (buildMap[_getDeviceEntityType(
+                          widget.type, widget.modelNumber)]![CardType.Middle] !=
+                      null)
+                    Container(
+                      width: _getCardType(widget.modelNumber, widget.type) ==
+                              CardType.Middle
+                          ? 22
+                          : 14,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(4)),
+                        color: _currentIndex == 1
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.6),
+                      ),
                     ),
-                  ),
                   if (buildMap[_getDeviceEntityType(
                           widget.type, widget.modelNumber)]![CardType.Big] !=
                       null)
                     Container(
-                      width: _currentIndex == 2 ? 22 : 14,
+                      width: _getCardType(widget.modelNumber, widget.type) ==
+                              CardType.Big
+                          ? 22
+                          : 14,
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
@@ -224,18 +264,41 @@ class _CardDialogState extends State<CardDialog> {
     );
   }
 
-  String _getTitle() {
-    Map<int, String> titleMap = {0: '小卡片', 1: '中卡片', 2: '大卡片'};
-    return titleMap[_currentIndex] ?? '卡片';
+  String _getTitle(CardType cardType) {
+    Map<CardType, String> titleMap = {
+      CardType.Small: '小卡片',
+      CardType.Middle: '中卡片',
+      CardType.Big: '大卡片'
+    };
+    return titleMap[cardType] ?? '卡片';
   }
 
-  CardType _getCardType() {
+  CardType _getCardType(String modelNum, String? type) {
+    if (_isPanel(modelNum, type)) {
+      CardType curCardType = _getPanelCardType(modelNum, type);
+      return curCardType;
+    }
     Map<int, CardType> cardTypeMap = {
       0: CardType.Small,
       1: CardType.Middle,
       2: CardType.Big
     };
     return cardTypeMap[_currentIndex] ?? CardType.Small;
+  }
+
+  CardType _getPanelCardType(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return CardType.Small;
+    }
+    return panelList[modelNum] ?? CardType.Small;
+  }
+
+  bool _isPanel(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return true;
+    }
+
+    return panelList.containsKey(modelNum);
   }
 
   DeviceEntityTypeInP4 _getDeviceEntityType(String type, String? modelNum) {

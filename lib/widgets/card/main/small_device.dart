@@ -42,18 +42,14 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   void initState() {
     super.initState();
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void didUpdateWidget(covariant SmallDeviceCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
@@ -128,12 +124,17 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     String getDeviceName() {
       if (widget.disabled) {
         return (deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        ) == '未知id' || deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        ) == '未知设备') ? widget.name : deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        );
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知id' ||
+                deviceListModel.getDeviceName(
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知设备')
+            ? widget.name
+            : deviceListModel.getDeviceName(
+                deviceId: widget.adapter?.getDeviceId(),
+              );
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -151,40 +152,39 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       bool online = deviceListModel.getOnlineStatus(
         deviceId: widget.adapter?.getDeviceId(),
       );
-      Log.i('在线状态', online);
-      if (widget.disabled) {
-        Log.i('widget:${widget.disableOnOff}');
-        if (widget.disableOnOff) {
-          return BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF767B86),
-                Color(0xFF88909F),
-                Color(0xFF516375),
-              ],
-              stops: [0, 0.24, 1],
-              transform: GradientRotation(194 * (3.1415926 / 360.0)),
-            ),
-          );
-        } else {
-          return BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0x33616A76),
-                Color(0x33434852),
-              ],
-              stops: [0.06, 1.0],
-              transform: GradientRotation(213 * (3.1415926 / 360.0)),
-            ),
-          );
-        }
-      }
+      // if (widget.disabled) {
+      //   Log.i('widget:${widget.disableOnOff}');
+      //   if (widget.disableOnOff) {
+      //     return BoxDecoration(
+      //       borderRadius: BorderRadius.circular(24),
+      //       gradient: const LinearGradient(
+      //         begin: Alignment.topLeft,
+      //         end: Alignment.bottomRight,
+      //         colors: [
+      //           Color(0xFF767B86),
+      //           Color(0xFF88909F),
+      //           Color(0xFF516375),
+      //         ],
+      //         stops: [0, 0.24, 1],
+      //         transform: GradientRotation(194 * (3.1415926 / 360.0)),
+      //       ),
+      //     );
+      //   } else {
+      //     return BoxDecoration(
+      //       borderRadius: BorderRadius.circular(24),
+      //       gradient: const LinearGradient(
+      //         begin: Alignment.topLeft,
+      //         end: Alignment.bottomRight,
+      //         colors: [
+      //           Color(0x33616A76),
+      //           Color(0x33434852),
+      //         ],
+      //         stops: [0.06, 1.0],
+      //         transform: GradientRotation(213 * (3.1415926 / 360.0)),
+      //       ),
+      //     );
+      //   }
+      // }
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -257,12 +257,14 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         if (!widget.disabled) {
           widget.onTap?.call();
           widget.adapter?.power(widget.adapter?.getPowerStatus());
+        } else {
+          widget.adapter?.tryOnce();
         }
       },
       child: Container(
         width: 210,
         height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
         decoration: _getBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,14 +286,38 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                       Row(children: [
                         SizedBox(
                           width: 102,
-                          child: Text(
-                            getDeviceName(),
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 76,
+                                ),
+                                child: Text(
+                                  getDeviceName()
+                                      .substring(0, getDeviceName().length - 1),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontFamily: 'MideaType',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                getDeviceName().substring(
+                                    getDeviceName().length - 1,
+                                    getDeviceName().length),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (widget.isNative)
@@ -326,9 +352,8 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    maxWidth: 50
-                                  ),
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 50),
                                   child: Text(
                                     '${getRoomName()}',
                                     overflow: TextOverflow.ellipsis,
@@ -373,24 +398,27 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                 if (widget.adapter?.type != AdapterType.panel)
                   GestureDetector(
                     onTap: () {
-                      if (widget.adapter?.type == AdapterType.wifiLight) {
-                        Navigator.pushNamed(context, '0x13', arguments: {
-                          "name": widget.name,
-                          "adapter": widget.adapter
-                        });
-                      } else if (widget.adapter?.type ==
-                          AdapterType.zigbeeLight) {
-                        Navigator.pushNamed(context, '0x21_light_colorful',
-                            arguments: {
-                              "name": widget.name,
-                              "adapter": widget.adapter
-                            });
-                      } else if (widget.adapter?.type ==
-                          AdapterType.lightGroup) {
-                        Navigator.pushNamed(context, 'lightGroup', arguments: {
-                          "name": widget.name,
-                          "adapter": widget.adapter
-                        });
+                      if (!widget.disabled) {
+                        if (widget.adapter?.type == AdapterType.wifiLight) {
+                          Navigator.pushNamed(context, '0x13', arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.zigbeeLight) {
+                          Navigator.pushNamed(context, '0x21_light_colorful',
+                              arguments: {
+                                "name": widget.name,
+                                "adapter": widget.adapter
+                              });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.lightGroup) {
+                          Navigator.pushNamed(context, 'lightGroup',
+                              arguments: {
+                                "name": widget.name,
+                                "adapter": widget.adapter
+                              });
+                        }
                       }
                     },
                     child: widget.hasMore

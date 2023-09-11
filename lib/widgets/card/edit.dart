@@ -14,12 +14,10 @@ class EditCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         /// 跳到编辑页去
-        Log.i('custom');
         final callback = await Navigator.pushNamed(
           context,
           'Custom',
         );
-        Log.i('自定义返回', callback);
         layoutModel.refresh();
       },
       child: SizedBox(
@@ -42,7 +40,8 @@ class EditCardWidget extends StatelessWidget {
               children: [
                 Container(
                   margin: const EdgeInsets.only(right: 10),
-                  child: Icon(Icons.add, size: 24, color: Colors.white.withOpacity(0.72)),
+                  child: Icon(Icons.add,
+                      size: 24, color: Colors.white.withOpacity(0.72)),
                 ),
                 Text(
                   '自定义',

@@ -22,6 +22,7 @@ class BigScenePanelCardWidget extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  final bool disableOnOff;
   List<bool> sceneOnOff = [false, false, false, false];
   ScenePanelDataAdapter adapter; // 数据适配器
 
@@ -32,6 +33,7 @@ class BigScenePanelCardWidget extends StatefulWidget {
     required this.roomName,
     required this.isOnline,
     required this.name,
+    this.disableOnOff = true,
     required this.disabled,
   });
 
@@ -77,12 +79,10 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
         }
       });
     }
-    if (!widget.disabled) {
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-      widget.adapter.init();
-    }
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+    widget.adapter.init();
   }
 
   void updateData() {
@@ -98,12 +98,11 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant BigScenePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -230,7 +229,8 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
       child: GestureDetector(
         onTap: () async {
           Log.i('disabled', widget.disabled);
-          if (!widget.disabled  && widget.adapter.dataState == DataState.SUCCESS) {
+          if (!widget.disabled &&
+              widget.adapter.dataState == DataState.SUCCESS) {
             if (widget.isOnline == '0') {
               MzDialog(
                   title: '该设备已离线',
@@ -371,6 +371,22 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return const BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
       gradient: LinearGradient(

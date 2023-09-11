@@ -37,18 +37,14 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   void initState() {
     super.initState();
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
   void didUpdateWidget(covariant BigDeviceAirCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
+    widget.adapter?.bindDataUpdateFunction(updateCallback);
+    widget.adapter?.init();
   }
 
   @override
@@ -106,9 +102,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               },
               child: widget.hasMore
                   ? const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png'))
+                      width: 32,
+                      height: 32,
+                      image: AssetImage('assets/newUI/to_plugin.png'))
                   : Container(),
             ),
           ),
@@ -196,13 +192,22 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                   GestureDetector(
                     onTap: () {
                       if (!widget.disabled) {
-                        double value = widget.adapter!.getCardStatus()?["temperature"] + widget.adapter!.getCardStatus()?["smallTemperature"] - 0.5;
+                        double value =
+                            widget.adapter!.getCardStatus()?["temperature"] +
+                                widget.adapter!
+                                    .getCardStatus()?["smallTemperature"] -
+                                0.5;
                         widget.adapter?.reduceTo(value.toInt());
                       }
                     },
                     child: Image(
                         color: Color.fromRGBO(
-                            255, 255, 255, (widget.adapter?.getPowerStatus() ?? false) ? 1 : 0.7),
+                            255,
+                            255,
+                            255,
+                            (widget.adapter?.getPowerStatus() ?? false)
+                                ? 1
+                                : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/sub.png')),
@@ -220,13 +225,22 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                   GestureDetector(
                     onTap: () {
                       if (!widget.disabled) {
-                        double value = widget.adapter!.getCardStatus()?["temperature"] + widget.adapter!.getCardStatus()?["smallTemperature"] + 0.5;
+                        double value =
+                            widget.adapter!.getCardStatus()?["temperature"] +
+                                widget.adapter!
+                                    .getCardStatus()?["smallTemperature"] +
+                                0.5;
                         widget.adapter?.increaseTo(value.toInt());
                       }
                     },
                     child: Image(
                         color: Color.fromRGBO(
-                            255, 255, 255, (widget.adapter?.getPowerStatus() ?? false) ? 1 : 0.7),
+                            255,
+                            255,
+                            255,
+                            (widget.adapter?.getPowerStatus() ?? false)
+                                ? 1
+                                : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/add.png')),
@@ -247,8 +261,10 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               max: 30,
               disabled: !(widget.adapter?.getPowerStatus() ?? false),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              onChanging: (val, color) => {widget.adapter?.slider1To(val.toInt())},
-              onChanged: (val, color) => {widget.adapter?.slider1To(val.toInt())},
+              onChanging: (val, color) =>
+                  {widget.adapter?.slider1To(val.toInt())},
+              onChanged: (val, color) =>
+                  {widget.adapter?.slider1To(val.toInt())},
             ),
           ),
         ],
@@ -260,7 +276,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     if (widget.adapter == null) {
       return 0;
     }
-    return widget.adapter!.getCardStatus()?["temperature"] + widget.adapter!.getCardStatus()?["smallTemperature"];
+    return widget.adapter!.getCardStatus()?["temperature"] +
+        widget.adapter!.getCardStatus()?["smallTemperature"];
   }
 
   String? _getRightText() {
@@ -292,8 +309,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
   BoxDecoration _getBoxDecoration() {
     bool curPower = widget.adapter?.getPowerStatus() ?? false;
-    if ((curPower && widget.online && !widget.disabled) ||
-        (widget.disabled && widget.disableOnOff)) {
+    // if ((curPower && widget.online && !widget.disabled) ||
+    //     (widget.disabled && widget.disableOnOff)) {
+    if ((curPower && widget.online && !widget.disabled) || widget.disabled) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -307,9 +325,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         ),
       );
     }
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
+    return const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(24)),
+      gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [

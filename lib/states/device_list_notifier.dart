@@ -15,6 +15,10 @@ import '../common/meiju/models/meiju_device_info_entity.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
 import '../common/system.dart';
 import '../models/device_entity.dart';
+import '../routes/home/device/card_type_config.dart';
+import '../routes/home/device/layout_data.dart';
+import '../routes/home/device/grid_container.dart';
+import '../widgets/card/main/panelNum.dart';
 
 class DeviceInfoListModel extends ChangeNotifier {
   List<MeiJuDeviceInfoEntity> deviceListMeiju = [];
@@ -343,7 +347,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     if (deviceId != null) {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId).toList();
+            .where((element) => element.applianceCode == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].name ?? '未知设备';
         } else {
@@ -351,7 +356,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
       } else {
         List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId).toList();
+            .where((element) => element.deviceId == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].deviceName ?? '未知设备';
         } else {
@@ -367,7 +373,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     if (deviceId != null) {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId).toList();
+            .where((element) => element.applianceCode == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].roomName ?? '未知区域';
         } else {
@@ -375,7 +382,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
       } else {
         List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId).toList();
+            .where((element) => element.deviceId == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].roomName ?? '未知区域';
         } else {
@@ -391,7 +399,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     if (deviceId != null) {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId).toList();
+            .where((element) => element.applianceCode == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].onlineStatus == '1';
         } else {
@@ -399,7 +408,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
       } else {
         List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId).toList();
+            .where((element) => element.deviceId == deviceId)
+            .toList();
         if (curOne.isNotEmpty) {
           return curOne[0].onLineStatus == 1;
         } else {
@@ -409,6 +419,155 @@ class DeviceInfoListModel extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  List<Layout> transformLayoutFromDeviceList(List<DeviceEntity> devices) {
+    List<Layout> transformList = [];
+    // 初始化布局占位器
+    Screen screenLayer = Screen();
+    // 页数
+    int page = 0;
+    Log.i('遍历了${devices.length}个设备');
+    for (int i = 0; i < devices.length; i++) {
+      // 当前设备的映射type
+      DeviceEntityTypeInP4 curDeviceEntity =
+          getDeviceEntityType(devices[i].type, devices[i].modelNumber);
+      // 检查当前设备是否是面板的标志
+      bool isPanel = _isPanel(devices[i].modelNumber, devices[i].type);
+      // 当前容器集中的最大页数
+      int maxPage = getMaxPageIndex(transformList);
+      // 当前设备构造Layout模型的cardType
+      CardType curCardType = CardType.Small;
+      if (isPanel) {
+        curCardType =
+            _getPanelCardType(devices[i].modelNumber, devices[i].type);
+      }
+      // 构造当前设备的Layout模型
+      if (curDeviceEntity != DeviceEntityTypeInP4.Default) {
+        Log.i('能进入布局的设备', devices[i].name);
+        Layout curDevice = Layout(
+          devices[i].applianceCode,
+          curDeviceEntity,
+          curCardType,
+          page,
+          [],
+          DataInputCard(
+            name: devices[i].name,
+            applianceCode: devices[i].applianceCode,
+            roomName: devices[i].roomName ?? '未知区域',
+            modelNumber: devices[i].modelNumber,
+            masterId: devices[i].masterId,
+            sn8: devices[i].sn8,
+            isOnline: devices[i].onlineStatus,
+            disabled: false,
+            type: devices[i].type,
+            onlineStatus: devices[i].onlineStatus,
+          ),
+        );
+        // 当前没有页
+        if (maxPage == -1) {
+          // 直接占位
+          List<int> fillCells = screenLayer.checkAvailability(curCardType);
+          Log.i('占位', fillCells);
+          if (fillCells.isEmpty) {
+            curDevice.pageIndex = 1;
+            screenLayer.resetGrid();
+            curDevice.grids = screenLayer.checkAvailability(curCardType);
+          } else {
+            curDevice.grids = fillCells;
+          }
+        } else {
+          // 遍历每一页已有的进行补充
+          for (int k = 0; k <= maxPage; k++) {
+            // 找到当前页的布局数据并填充布局器
+            List<Layout> curPageLayoutList =
+                getLayoutsByPageIndex(k, transformList);
+            Log.i('找到当前页的已有布局', curPageLayoutList);
+            for (int j = 0; j < curPageLayoutList.length; j++) {
+              List<int> grids = curPageLayoutList[j].grids;
+              for (int l = 0; l < grids.length; l++) {
+                int grid = grids[l];
+                int row = (grid - 1) ~/ 4;
+                int col = (grid - 1) % 4;
+                screenLayer.setCellOccupied(row, col, true);
+              }
+            }
+            // 尝试占位
+            List<int> fillCells = screenLayer.checkAvailability(curCardType);
+            if (fillCells.isEmpty) {
+              // 占位没有成功，说明这一页已经没有适合的位置了
+              // 如果最后一页也没有合适的位置就新增一页
+              if (k == maxPage) {
+                screenLayer.resetGrid();
+                curDevice.pageIndex = maxPage + 1;
+                List<int> fillCellsAgain =
+                    screenLayer.checkAvailability(curCardType);
+                curDevice.grids = fillCellsAgain;
+              }
+            } else {
+              // 占位成功
+              curDevice.grids = fillCells;
+            }
+          }
+        }
+        transformList.add(curDevice);
+      }
+    }
+
+    return transformList;
+  }
+
+  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
+    for (var deviceType in DeviceEntityTypeInP4.values) {
+      if (value == '0x21') {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
+          return deviceType;
+        }
+      } else if (value.contains('localPanel1')) {
+        return DeviceEntityTypeInP4.LocalPanel1;
+      } else if (value.contains('localPanel2')) {
+        return DeviceEntityTypeInP4.LocalPanel2;
+      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
+        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
+      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
+        return DeviceEntityTypeInP4.homlux_lightGroup;
+      } else {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
+          return deviceType;
+        }
+      }
+    }
+    return DeviceEntityTypeInP4.Default;
+  }
+
+  CardType _getPanelCardType(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return CardType.Small;
+    }
+    return panelList[modelNum] ?? CardType.Small;
+  }
+
+  bool _isPanel(String modelNum, String? type) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return true;
+    }
+
+    return panelList.containsKey(modelNum);
+  }
+
+  int getMaxPageIndex(List<Layout> layouts) {
+    int maxPageIndex = -1;
+    for (Layout layout in layouts) {
+      if (layout.pageIndex > maxPageIndex) {
+        maxPageIndex = layout.pageIndex;
+      }
+    }
+    return maxPageIndex;
+  }
+
+  // 用于根据页面索引获取相关的布局对象列表
+  List<Layout> getLayoutsByPageIndex(int pageIndex, List<Layout> layouts) {
+    return layouts.where((item) => item.pageIndex == pageIndex).toList();
   }
 }
 

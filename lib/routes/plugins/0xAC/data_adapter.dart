@@ -103,6 +103,11 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   }
 
   @override
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   String? getCharacteristic() {
     return "${data!.temperature + data!.smallTemperature}℃";
   }
@@ -110,6 +115,11 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   @override
   Future<void> power(bool? onOff) async {
     return controlPower();
+  }
+
+  @override
+  Future<void> tryOnce() async {
+    controlPower();
   }
 
   @override

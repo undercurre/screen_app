@@ -36,76 +36,76 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 210,
-        height: 196,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: const LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF767B86),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-            stops: [0, 0.24, 1],
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ValueListenableBuilder<DateTime>(
-              valueListenable: _currentTimeNotifier,
-              builder: (BuildContext context, DateTime value, Widget? child) {
-                String hour = value.hour.toString().padLeft(2, '0');
-                String minute = value.minute.toString().padLeft(2, '0');
-                String second = value.second.toString().padLeft(2, '0');
-                return Text(
-                  '$hour:$minute',
-                  style: const TextStyle(fontSize: 65),
-                );
-              },
-            ),
-            ValueListenableBuilder<DateTime>(
-              valueListenable: _currentTimeNotifier,
-              builder: (BuildContext context, DateTime value, Widget? child) {
-                String formattedDate = _getFormattedDate(value);
-                String weekday = _getWeekday(value.weekday);
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                          letterSpacing: 4.0,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18,
-                          fontFamily: 'MideaType',
-                          color: const Color.fromRGBO(255, 255, 255, 0.80)
-                              .withOpacity(0.79)),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                      height: 30,
-                    ),
-                    Text(
-                      weekday,
-                      style: TextStyle(
-                          letterSpacing: 4.0,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18,
-                          color: const Color.fromRGBO(255, 255, 255, 0.80)
-                              .withOpacity(0.79)),
-                    ),
-                  ],
-                );
-              },
-            ),
+      width: 210,
+      height: 196,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0x33616A76),
+            Color(0x33434852),
           ],
+          stops: [0.06, 1.0],
+          transform: GradientRotation(213 * (3.1415926 / 360.0)),
         ),
-      );
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          ValueListenableBuilder<DateTime>(
+            valueListenable: _currentTimeNotifier,
+            builder: (BuildContext context, DateTime value, Widget? child) {
+              String hour = value.hour.toString().padLeft(2, '0');
+              String minute = value.minute.toString().padLeft(2, '0');
+              String second = value.second.toString().padLeft(2, '0');
+              return Text(
+                '$hour:$minute',
+                style: const TextStyle(fontSize: 65),
+              );
+            },
+          ),
+          ValueListenableBuilder<DateTime>(
+            valueListenable: _currentTimeNotifier,
+            builder: (BuildContext context, DateTime value, Widget? child) {
+              String formattedDate = _getFormattedDate(value);
+              String weekday = _getWeekday(value.weekday);
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                        letterSpacing: 4.0,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18,
+                        fontFamily: 'MideaType',
+                        color: const Color.fromRGBO(255, 255, 255, 0.80)
+                            .withOpacity(0.79)),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                    height: 30,
+                  ),
+                  Text(
+                    weekday,
+                    style: TextStyle(
+                        letterSpacing: 4.0,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18,
+                        color: const Color.fromRGBO(255, 255, 255, 0.80)
+                            .withOpacity(0.79)),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   String _getFormattedDate(DateTime dateTime) {

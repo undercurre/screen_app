@@ -63,13 +63,13 @@ class ChangePlatformHelper {
           await System.initForMeiju();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+          await LayoutModel().removeLayouts();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
           MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
         }
       }
-      LayoutModel().removeLayouts();
       return suc;
     } else {
       try {
@@ -100,13 +100,13 @@ class ChangePlatformHelper {
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
           HomluxLanControlDeviceManager.getInstant().init();
+          await LayoutModel().removeLayouts();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
           MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
         }
       }
-      LayoutModel().removeLayouts();
       return suc;
     } else {
       try {

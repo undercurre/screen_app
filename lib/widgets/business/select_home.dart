@@ -12,6 +12,7 @@ class SelectHomeState extends State<SelectHome> {
 
   @override
   Widget build(BuildContext context) {
+
     var listView = <Widget>[];
 
     var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
@@ -46,32 +47,58 @@ class SelectHomeState extends State<SelectHome> {
       );
     }
 
-    listView.add(Container(
-      width: 432,
-      height: 44,
-      color: Colors.white.withOpacity(0.05),
-      child: const Center(
-          child: Text(
-            '已经到底了！',
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Color.fromRGBO(
-                    255, 255, 255, 0.85)),
-          )),
-    ));
-
-    var homeListView = ListView(children: listView);
+    if(len > 0) {
+      listView.add(const SizedBox(
+        width: 432,
+        height: 44,
+        child: Center(
+            child: Text(
+              '已经到底了！',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromRGBO(
+                      255, 255, 255, 0.85)),
+            )),
+      ));
+    }
 
     return Container(
-        margin: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Color.fromRGBO(255, 255, 255, 0.05),
-          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-        ),
-        child: Column(children: [
-          Expanded(child: homeListView),
-        ]));
+      width: 480,
+      height: 340,
+      alignment: Alignment.center,
+      child: Stack(
+        children: [
+          if(len == 0) Positioned(
+            left: 0,
+            top: 0,
+            child: Container(
+              width: 480,
+              height: 260,
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator(),
+            ),
+          ),
+
+          if(len > 0) SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              width: 432,
+              margin: const EdgeInsets.fromLTRB(24, 10, 24, 50),
+              decoration: const BoxDecoration(
+                  color: Color(0xFF303441),
+                  borderRadius: BorderRadius.all(Radius.circular(16))
+              ),
+              child: Column(
+                  children: listView.toList()
+              ),
+            )
+          ),
+
+        ],
+      ),
+    );
+
   }
 
   @override

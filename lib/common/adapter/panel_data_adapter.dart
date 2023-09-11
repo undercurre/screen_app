@@ -31,6 +31,14 @@ class PanelDataAdapter extends MideaDataAdapter {
       GatewayPlatform platform)
       : super(platform);
 
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  Future<void> tryOnce() async {
+    fetchOrderPower(1);
+  }
+
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
     try {
@@ -66,11 +74,6 @@ class PanelDataAdapter extends MideaDataAdapter {
       updateUI();
       Log.i(e.toString());
     }
-  }
-
-  Future<void> orderPower() async {
-    if (platform.inMeiju()) {
-    } else {}
   }
 
   @override

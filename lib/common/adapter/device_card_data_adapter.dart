@@ -63,4 +63,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   /// tab选择，窗帘选择动作
   Future<dynamic> tabTo(int? index) async {}
+
+  /// 找一找
+  Future<dynamic> tryOnce() async {}
 }

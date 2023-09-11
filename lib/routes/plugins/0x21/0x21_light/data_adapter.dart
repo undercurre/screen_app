@@ -126,6 +126,11 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   }
 
   @override
+  Future<void> tryOnce() async {
+    controlPower();
+  }
+
+  @override
   Future<dynamic> slider1To(int? value) async {
     return controlBrightness(value as num, null);
   }

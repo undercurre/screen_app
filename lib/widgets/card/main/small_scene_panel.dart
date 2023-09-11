@@ -20,6 +20,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
   final String name;
   final String roomName;
+  final bool disableOnOff;
   final String isOnline;
   final bool disabled;
   bool sceneOnOff = false;
@@ -33,6 +34,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
     required this.isOnline,
     required this.name,
     required this.disabled,
+    this.disableOnOff = true,
   });
 
   @override
@@ -77,12 +79,11 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         }
       });
     }
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
   }
 
   void updateData() {
@@ -98,12 +99,11 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -255,6 +255,22 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     if (_getOnOff()) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),

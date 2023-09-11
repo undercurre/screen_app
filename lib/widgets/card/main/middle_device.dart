@@ -128,12 +128,17 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     String getDeviceName() {
       if (widget.disabled) {
         return (deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        ) == '未知id' || deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        ) == '未知设备') ? widget.name : deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        );
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知id' ||
+                deviceListModel.getDeviceName(
+                      deviceId: widget.adapter?.getDeviceId(),
+                    ) ==
+                    '未知设备')
+            ? widget.name
+            : deviceListModel.getDeviceName(
+                deviceId: widget.adapter?.getDeviceId(),
+              );
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -272,22 +277,25 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
-                  if (widget.adapter?.type == AdapterType.wifiLight) {
-                    Navigator.pushNamed(context, '0x13', arguments: {
-                      "name": widget.name,
-                      "adapter": widget.adapter
-                    });
-                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                    Navigator.pushNamed(context, '0x21_light_colorful',
-                        arguments: {
-                          "name": widget.name,
-                          "adapter": widget.adapter
-                        });
-                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                    Navigator.pushNamed(context, 'lightGroup', arguments: {
-                      "name": widget.name,
-                      "adapter": widget.adapter
-                    });
+                  if (!widget.disabled) {
+                    if (widget.adapter?.type == AdapterType.wifiLight) {
+                      Navigator.pushNamed(context, '0x13', arguments: {
+                        "name": widget.name,
+                        "adapter": widget.adapter
+                      });
+                    } else if (widget.adapter?.type ==
+                        AdapterType.zigbeeLight) {
+                      Navigator.pushNamed(context, '0x21_light_colorful',
+                          arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                    } else if (widget.adapter?.type == AdapterType.lightGroup) {
+                      Navigator.pushNamed(context, 'lightGroup', arguments: {
+                        "name": widget.name,
+                        "adapter": widget.adapter
+                      });
+                    }
                   }
                 },
                 child: widget.hasMore

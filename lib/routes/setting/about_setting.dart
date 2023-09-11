@@ -30,6 +30,7 @@ class AboutSettingProvider with ChangeNotifier {
   String? snCode;
   bool? isLogin;
   bool? debug;
+  bool? isEngineeringEnable;
 
   AboutSettingProvider() {
     // 初始化页面数据
@@ -47,8 +48,14 @@ class AboutSettingProvider with ChangeNotifier {
       // 可能获取时间比较长
       snCode = await aboutSystemChannel.getGatewaySn();
       isLogin = System.isLogin();
+      isEngineeringEnable = Setting.instant().engineeringModeEnable;
       notifyListeners();
     });
+  }
+
+  void updateEngineeringEnable() {
+    isEngineeringEnable = Setting.instant().engineeringModeEnable;
+    notifyListeners();
   }
 
   void checkDirectUpgrade() {
@@ -331,10 +338,9 @@ class AboutSettingPage extends StatelessWidget {
                       children: [
                         MzSettingItem(
                           onLongTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              'EngineeringModePage',
-                            );
+                            Navigator.pushNamed(context, 'EngineeringModePage').then((value) {
+                              context.read<AboutSettingProvider>().updateEngineeringEnable();
+                            });
                           },
                           leftText: '设备名称',
                           rightText: context
@@ -363,6 +369,9 @@ class AboutSettingPage extends StatelessWidget {
                           duration: 3000,
                           count: 5,
                           clickListener: () {
+                            if(context.read<AboutSettingProvider>().isEngineeringEnable == true) {
+                              return;
+                            }
                             context
                                 .read<AboutSettingProvider>()
                                 .checkDirectUpgrade();
@@ -391,13 +400,13 @@ class AboutSettingPage extends StatelessWidget {
                         ),
                         MzSettingItem(
                           leftText: 'SN码',
-                          rightTextSize: 16.0,
-                          rightTextAlign: TextAlign.left,
+                          rightTextSize: 18,
+                          rightTextAlign: TextAlign.right,
                           rightText:
                               context.watch<AboutSettingProvider>().snCode ??
                                   "获取失败",
                         ),
-                        MzSettingItem(
+                        if(context.watch<AboutSettingProvider>().isEngineeringEnable == false) MzSettingItem(
                           onTap: () {
                             context.read<AboutSettingProvider>().checkUpgrade();
                           },
@@ -407,7 +416,8 @@ class AboutSettingPage extends StatelessWidget {
                           ),
                           tipText: otaChannel.hasNewVersion ? 'New' : null,
                         ),
-                        if (context.read<AboutSettingProvider>().debug == true)
+                        if (context.read<AboutSettingProvider>().debug == true
+                            && context.watch<AboutSettingProvider>().isEngineeringEnable == false)
                           MzSettingItem(
                             onTap: () {
                               showLogoutDialog(context);

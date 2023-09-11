@@ -45,16 +45,16 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
       height: 196,
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
+            Color(0x33616A76),
+            Color(0x33434852),
           ],
-          stops: [0, 0.24, 1],
+          stops: [0.06, 1.0],
+          transform: GradientRotation(213 * (3.1415926 / 360.0)),
         ),
       ),
       child: Column(
@@ -138,6 +138,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
 
   // 天气编码转换为天气图片的名称
   final Map<String, String> codeToImage = {
+    'default': 'overcast',
     '00': 'sunny',
     '01': 'cloudy',
     '02': 'overcast',
@@ -184,6 +185,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
 
   // 天气编码转换为天气的名称
   final Map<String, String> codeToName = {
+    'default': "-",
     '00': '晴天',
     '01': '阴天',
     '02': '多云',
@@ -240,6 +242,6 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
   }
 
   String _getWeatherName(String weatherCode) {
-    return codeToName[weatherCode] ?? '未知天气';
+    return codeToName[weatherCode] ?? '—';
   }
 }

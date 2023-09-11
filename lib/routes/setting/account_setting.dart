@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/push.dart';
+import '../../common/setting.dart';
 import '../../common/system.dart';
 import '../../widgets/mz_dialog.dart';
 
@@ -107,7 +108,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                 ),
               ),
 
-              GestureDetector(
+              if(!Setting.instant().engineeringModeEnable) GestureDetector(
                 onTap: () {
                   MzDialog(
                       contentSlot: const Text(

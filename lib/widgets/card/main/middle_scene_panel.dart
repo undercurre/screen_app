@@ -18,6 +18,7 @@ class MiddleScenePanelCardWidget extends StatefulWidget {
   final String name;
   final String roomName;
   final String isOnline;
+  final bool disableOnOff;
   final bool disabled;
   List<bool> sceneOnOff = [false, false];
   ScenePanelDataAdapter adapter; // 数据适配器
@@ -29,6 +30,7 @@ class MiddleScenePanelCardWidget extends StatefulWidget {
     required this.roomName,
     required this.isOnline,
     required this.name,
+    this.disableOnOff = true,
     required this.disabled,
   });
 
@@ -69,17 +71,16 @@ class _MiddleScenePanelCardWidgetState
       });
     } else {
       bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+        if (arg.deviceInfo.eventData?.deviceId ==
+            widget.adapter.applianceCode) {
           _throttledFetchData();
         }
       });
     }
-    if (!widget.disabled) {
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-      widget.adapter.init();
-    }
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+    widget.adapter.init();
   }
 
   void updateData() {
@@ -95,12 +96,11 @@ class _MiddleScenePanelCardWidgetState
 
   @override
   void didUpdateWidget(covariant MiddleScenePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -133,15 +133,15 @@ class _MiddleScenePanelCardWidgetState
             left: 16,
             child: widget.adapter.dataState == DataState.ERROR
                 ? GestureDetector(
-              onTap: () {
-                _throttledFetchData();
-              },
-              child: const Image(
-                width: 40,
-                height: 40,
-                image: AssetImage('assets/newUI/refresh.png'),
-              ),
-            )
+                    onTap: () {
+                      _throttledFetchData();
+                    },
+                    child: const Image(
+                      width: 40,
+                      height: 40,
+                      image: AssetImage('assets/newUI/refresh.png'),
+                    ),
+                  )
                 : widget.icon,
           ),
           Positioned(
@@ -198,7 +198,8 @@ class _MiddleScenePanelCardWidgetState
             child: GestureDetector(
               onTap: () async {
                 Log.i('disabled', widget.disabled);
-                if (!widget.disabled  && widget.adapter.dataState == DataState.SUCCESS) {
+                if (!widget.disabled &&
+                    widget.adapter.dataState == DataState.SUCCESS) {
                   if (widget.isOnline == '0') {
                     MzDialog(
                         title: '该设备已离线',
@@ -206,7 +207,7 @@ class _MiddleScenePanelCardWidgetState
                         maxWidth: 432,
                         backgroundColor: const Color(0xFF494E59),
                         contentPadding:
-                        const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                            const EdgeInsets.fromLTRB(33, 24, 33, 0),
                         contentSlot: const Text("设备离线，请检查网络是否正常",
                             textAlign: TextAlign.center,
                             maxLines: 3,
@@ -253,8 +254,9 @@ class _MiddleScenePanelCardWidgetState
                   width: 84,
                   child: Center(
                     child: Text(
-                      widget.adapter.data.modeList[0] == '2' ? _getSceneName(
-                          0, sceneListCache) : widget.adapter.data.nameList[0],
+                      widget.adapter.data.modeList[0] == '2'
+                          ? _getSceneName(0, sceneListCache)
+                          : widget.adapter.data.nameList[0],
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -283,7 +285,7 @@ class _MiddleScenePanelCardWidgetState
                         maxWidth: 432,
                         backgroundColor: const Color(0xFF494E59),
                         contentPadding:
-                        const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                            const EdgeInsets.fromLTRB(33, 24, 33, 0),
                         contentSlot: const Text("设备离线，请检查网络是否正常",
                             textAlign: TextAlign.center,
                             maxLines: 3,
@@ -321,18 +323,18 @@ class _MiddleScenePanelCardWidgetState
                 height: 120,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: ExactAssetImage(
-                          _getIconOnOff(1)
-                              ? 'assets/newUI/panel_btn_on.png'
-                              : 'assets/newUI/panel_btn_off.png'),
+                      image: ExactAssetImage(_getIconOnOff(1)
+                          ? 'assets/newUI/panel_btn_on.png'
+                          : 'assets/newUI/panel_btn_off.png'),
                       fit: BoxFit.contain),
                 ),
                 child: SizedBox(
                   width: 84,
                   child: Center(
                     child: Text(
-                      widget.adapter.data.modeList[1] == '2' ? _getSceneName(
-                          1, sceneListCache) : widget.adapter.data.nameList[1],
+                      widget.adapter.data.modeList[1] == '2'
+                          ? _getSceneName(1, sceneListCache)
+                          : widget.adapter.data.nameList[1],
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -356,7 +358,8 @@ class _MiddleScenePanelCardWidgetState
     if (widget.disabled) {
       return '未加载';
     }
-    if (widget.adapter.dataState == DataState.LOADING  || widget.adapter.dataState == DataState.NONE) {
+    if (widget.adapter.dataState == DataState.LOADING ||
+        widget.adapter.dataState == DataState.NONE) {
       return '加载中';
     }
     if (widget.isOnline == '0') {
@@ -373,6 +376,22 @@ class _MiddleScenePanelCardWidgetState
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

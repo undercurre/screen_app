@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
@@ -18,6 +20,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   final String roomName;
   final String isOnline;
   final bool disabled;
+  final bool disableOnOff;
   PanelDataAdapter adapter; // 数据适配器
 
   BigDevicePanelCardWidget({
@@ -25,6 +28,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
     required this.icon,
     required this.adapter,
     required this.roomName,
+    this.disableOnOff = true,
     required this.isOnline,
     required this.name,
     required this.disabled,
@@ -72,12 +76,10 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
         }
       });
     }
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
   }
 
   void updateData() {
@@ -91,12 +93,10 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(() {
-        updateData();
-      });
-    }
+    widget.adapter.init();
+    widget.adapter.bindDataUpdateFunction(() {
+      updateData();
+    });
     super.didUpdateWidget(oldWidget);
   }
 
@@ -110,6 +110,35 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      if (widget.disabled) {
+        return (deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        ) ==
+            '未知id' ||
+            deviceListModel.getDeviceName(
+              deviceId: widget.adapter?.getDeviceId(),
+            ) ==
+                '未知设备')
+            ? widget.name
+            : deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        );
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+    }
+
+
     return Container(
       width: 440,
       height: 196,
@@ -142,8 +171,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 140),
-                    child: Text(widget.name,
+                    constraints: const BoxConstraints(maxWidth: 244),
+                    child: Text(getDeviceName(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -210,7 +239,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       child: GestureDetector(
         onTap: () async {
           Log.i('disabled', widget.disabled);
-          if (!widget.disabled  && widget.adapter.dataState == DataState.SUCCESS) {
+          if (!widget.disabled &&
+              widget.adapter.dataState == DataState.SUCCESS) {
             if (widget.isOnline == '0') {
               MzDialog(
                   title: '该设备已离线',
@@ -310,6 +340,22 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   }
 
   BoxDecoration _getBoxDecoration() {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF767B86),
+            Color(0xFF88909F),
+            Color(0xFF516375),
+          ],
+          stops: [0, 0.24, 1],
+          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return const BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
       gradient: LinearGradient(
