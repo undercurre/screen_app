@@ -117,8 +117,7 @@ class HomluxPushManager {
           cancelOnError: false);
 
       // 4.发送心跳包
-      // TODO 临时去除心跳机制，后台还没上
-      // _sendHearPacket(reconnectFunction);
+      _sendHearPacket(reconnectFunction);
 
       _isConnect = true;
     } catch(e) {
