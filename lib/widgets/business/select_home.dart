@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/adapter/select_family_data_adapter.dart';
@@ -65,8 +66,8 @@ class SelectHomeState extends State<SelectHome> {
 
     return Container(
       width: 480,
-      height: 340,
-      alignment: Alignment.center,
+      height: 310,
+      alignment: Alignment.topCenter,
       child: Stack(
         children: [
           if(len == 0) Positioned(
@@ -76,7 +77,7 @@ class SelectHomeState extends State<SelectHome> {
               width: 480,
               height: 260,
               alignment: Alignment.center,
-              child: const CircularProgressIndicator(),
+              child: const CupertinoActivityIndicator(radius: 25),
             ),
           ),
 

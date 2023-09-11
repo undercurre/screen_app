@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -91,7 +92,7 @@ class _ScanCode extends State<ScanCode> {
               width: 480,
               height: 260,
               alignment: Alignment.center,
-              child: const CircularProgressIndicator(),
+              child: const CupertinoActivityIndicator(radius: 25),
             ),
           )
         ],

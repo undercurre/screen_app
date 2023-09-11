@@ -144,8 +144,8 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
                       end: Alignment.topCenter,
                       colors: widget.disabled ? disableColor : activeColor),
                   borderRadius: widget.rounded
-                      ? BorderRadius.circular(widget.width / 2)
-                      : BorderRadius.circular(widget.radius),
+                      ? BorderRadius.only(bottomLeft: Radius.circular(widget.radius / 2), bottomRight: Radius.circular(widget.radius / 2))
+                      : BorderRadius.only(bottomLeft: Radius.circular(widget.radius), bottomRight: Radius.circular(widget.radius))
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
