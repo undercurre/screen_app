@@ -21,7 +21,9 @@ abstract class MideaDataAdapter {
   /// 数据加载状态
   DataState dataState = DataState.NONE;
 
-  MideaDataAdapter(this.platform);
+  MideaDataAdapter(this.platform) {
+    Log.i('当前DataAdapter $this 处在的平台为：$platform');
+  }
 
 
 

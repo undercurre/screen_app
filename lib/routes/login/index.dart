@@ -96,7 +96,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 运行在其他平台上
         showBindingDialog(true);
         // 判断是否绑定网关
-        bindGatewayAd ??= BindGatewayAdapter(MideaRuntimePlatform.platform);
+        bindGatewayAd?.destroy();
+        bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
         bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
           if (!isBind) {
             // 绑定网关

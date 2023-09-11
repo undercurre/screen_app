@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../common/adapter/qr_code_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/logcat_helper.dart';
 
 class _ScanCode extends State<ScanCode> {
   QRCodeDataAdapter? qrDataAd;
