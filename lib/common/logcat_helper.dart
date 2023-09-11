@@ -52,12 +52,27 @@ class FileOutput extends LogOutput {
 
 }
 
+class MPrettyPrinter extends PrettyPrinter {
+
+  MPrettyPrinter(): super(printTime: true);
+
+  @override
+  String getTime(DateTime time) {
+    String twoDigits(int n) {
+      if (n >= 10) return '$n';
+      return '0$n';
+    }
+    return '${twoDigits(time.month)}/${twoDigits(time.day)} ${super.getTime(time)}';
+  }
+
+}
+
 class Log {
 
   /// 日志台日志打印
   static final _consoleLogger = Logger(
       filter: ProductionFilter(),
-      printer: PrettyPrinter(printTime: true),
+      printer: MPrettyPrinter(),
       output: MultiOutput([
         ConsoleOutput(),
       ]),
@@ -66,7 +81,7 @@ class Log {
   /// 文件打印
   static final _fileLogger = Logger(
     filter: ProductionFilter(),
-    printer: PrettyPrinter(printTime: true),
+    printer: MPrettyPrinter(),
     output: MultiOutput([
       ConsoleOutput(),
       FileOutput(
