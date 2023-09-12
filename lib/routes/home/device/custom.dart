@@ -6,8 +6,11 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 
+import '../../../common/adapter/select_room_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
 import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/system.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
 import 'card_dialog.dart';
@@ -37,7 +40,8 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void initState() {
     super.initState();
-
+    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    roomDataAd?.queryRoomList(System.familyInfo!);
     // 在小部件初始化后等待一帧再执行回调
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       var initPage = context.read<PageCounter>().currentPage;

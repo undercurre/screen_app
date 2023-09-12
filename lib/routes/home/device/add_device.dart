@@ -68,21 +68,19 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   initCache() async {
-    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-    roomDataAd?.queryRoomList(System.familyInfo!);
     if (System.inMeiJuPlatform()) {
-      if(MeiJuGlobal.selectRoomId!=null){
-        roomID=MeiJuGlobal.selectRoomId!;
+      if (MeiJuGlobal.selectRoomId != null) {
+        roomID = MeiJuGlobal.selectRoomId!;
       }
       for (MeiJuRoomEntity room in System.meijuRoomList!) {
-        btnList.add({'text': room!.name!, 'key': room!.roomId!});
+        btnList.add({'text': room.name!, 'key': room.roomId});
       }
-    }else {
+    } else {
       if(HomluxGlobal.selectRoomId!=null){
-        roomID=HomluxGlobal.selectRoomId!;
+        roomID = HomluxGlobal.selectRoomId!;
       }
       for (HomluxRoomInfo room in System.homluxRoomList!) {
-        btnList.add({'text': room!.roomName!, 'key': room!.roomId!});
+        btnList.add({'text': room.roomName!, 'key': room.roomId!});
       }
     }
 
@@ -92,40 +90,30 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
     List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
     if (deviceRes.length > 8) {
-      setState(() {
-        devices = deviceRes
-            .sublist(0, 8)
-            .where((e) =>
-                getDeviceEntityType(e.type, e.modelNumber) !=
-                DeviceEntityTypeInP4.Default)
-            .toList();
-      });
+      devicesAll = deviceRes
+          .sublist(0, 8)
+          .where((e) =>
+              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
+          .toList();
     } else {
-      setState(() {
-        devices = deviceRes
-            .where((e) =>
-                getDeviceEntityType(e.type, e.modelNumber) !=
-                DeviceEntityTypeInP4.Default)
-            .toList();
-      });
+      devicesAll = deviceRes
+          .where((e) =>
+              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
+          .toList();
     }
     if (sceneRes.length > 8) {
-      setState(() {
-        scenes = sceneRes.sublist(0, 8);
-      });
+      scenes = sceneRes.sublist(0, 8);
     } else {
-      setState(() {
-        scenes = sceneRes;
-      });
+      scenes = sceneRes;
     }
     await Future.delayed(Duration(milliseconds: 500));
     if (sceneRes.length > 8) {
-      setState(() {
-        scenes.addAll(sceneRes.sublist(8));
-      });
+      scenes.addAll(sceneRes.sublist(8));
     }
     if (deviceRes.length > 8) {
-      devices.addAll(deviceRes
+      devicesAll.addAll(deviceRes
           .sublist(8)
           .where((e) =>
               getDeviceEntityType(e.type, e.modelNumber) !=
@@ -181,36 +169,33 @@ class _AddDevicePageState extends State<AddDevicePage> {
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
     Log.i('场景删除了${compareScene[1].length}, 增加${compareScene[0].length}');
 
-    setState(() {
-      devices.removeWhere((element) => compareDevice[1].contains(element));
-      scenes.removeWhere((element) => compareScene[1].contains(element));
+    devicesAll.removeWhere((element) => compareDevice[1].contains(element));
+    scenes.removeWhere((element) => compareScene[1].contains(element));
 
-      for (DeviceEntity item in compareDevice[0]) {
-        int index = deviceRes.indexOf(item);
-        if (index >= 0 && index <= devices.length) {
-          devices.insert(index, item);
-        } else {
-          devices.add(item);
-        }
+    for (DeviceEntity item in compareDevice[0]) {
+      int index = deviceRes.indexOf(item);
+      if (index >= 0 && index <= devicesAll.length) {
+        devicesAll.insert(index, item);
+      } else {
+        devicesAll.add(item);
       }
-      for (SceneInfoEntity item in compareScene[0]) {
-        int index = sceneRes.indexOf(item);
-        if (index >= 0 && index <= scenes.length) {
-          scenes.insert(index, item);
-        } else {
-          scenes.add(item);
-        }
+    }
+    for (SceneInfoEntity item in compareScene[0]) {
+      int index = sceneRes.indexOf(item);
+      if (index >= 0 && index <= scenes.length) {
+        scenes.insert(index, item);
+      } else {
+        scenes.add(item);
       }
-    });
-    devicesAll.addAll(devices);
+    }
     selectRoom(roomID);
   }
 
-  void selectRoom(String roomID) {
+  void selectRoom(String roomID) async{
     if (System.inMeiJuPlatform()) {
-      MeiJuGlobal.selectRoomId=roomID;
-    }else {
-      HomluxGlobal.selectRoomId=roomID;
+      MeiJuGlobal.selectRoomId = roomID;
+    } else {
+      HomluxGlobal.selectRoomId = roomID;
     }
     devices = devicesAll.where((element) => element.roomId == roomID).toList();
     deleteDevices.clear();
