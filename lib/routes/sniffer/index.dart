@@ -4,17 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/channel/models/net_state.dart';
-import 'package:screen_app/common/api/gateway_api.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/push.dart';
+import 'package:screen_app/common/adapter/bind_gateway_data_adapter.dart';
+import 'package:screen_app/common/adapter/select_family_data_adapter.dart';
+import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/utils.dart';
-import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
-import '../../common/api/user_api.dart';
+import '../../common/logcat_helper.dart';
+import '../../common/meiju/api/meiju_user_api.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../common/system.dart';
 import 'device_item.dart';
 
@@ -29,13 +31,19 @@ class SnifferViewModel {
   List<SelectDeviceModel> combineList = <SelectDeviceModel>[];
 
   /// 获取指定家庭信息
-  Future<List<RoomEntity>?> getHomeData() async {
-    var res = await UserApi.getHomeListWithDeviceList(
-        homegroupId: Global.profile.homeInfo?.homegroupId);
+  Future<List<MeiJuRoomEntity>?> getHomeData() async {
+
+    if(MeiJuGlobal.homeInfo?.homegroupId == null) {
+      throw Exception("查询房间列表，家庭ID为空");
+    }
+
+    var res = await MeiJuUserApi.getHomeDetail(homegroupId: MeiJuGlobal.homeInfo?.homegroupId);
 
     if (res.isSuccess) {
-      return res.data.homeList[0].roomList;
+      return res.data?.homeList?[0].roomList;
     }
+
+    return null;
   }
 
   SnifferViewModel(this._state);
@@ -43,8 +51,8 @@ class SnifferViewModel {
   /// 当页面在前台时，自动进行扫描
   void onStateResume(BuildContext context) {
     debugPrint('开始扫描设备');
-    if(Global.user?.accessToken != null) {
-      deviceManagerChannel.updateToken(Global.user!.accessToken);
+    if(MeiJuGlobal.token?.accessToken != null) {
+      deviceManagerChannel.updateToken(MeiJuGlobal.token!.accessToken);
     }
 
     // _state.setSafeState(() {
@@ -75,17 +83,15 @@ class SnifferViewModel {
       });
       return;
     }
-    /// 判定当前网关是否已经绑定
-    GatewayApi.check((bind,code) {
-      if(!bind) {
-        TipsUtils.toast(content: '智慧屏已删除，请重新登录');
-        Push.dispose();
-        System.logout("检查网关未绑定，并退出登录");
-        Navigator.pushNamedAndRemoveUntil(context, "Login", (route) => route.settings.name == "/");
-      }
-    }, () {
-      //接口请求报错
-    });
+
+    BindGatewayAdapter(MideaRuntimePlatform.platform)
+        .checkGatewayBindState(SelectFamilyItem.fromMeiJu(MeiJuGlobal.homeInfo!),
+            (bind, _) {
+              if(!bind) {
+                TipsUtils.toast(content: '智慧屏已删除，请重新登录');
+                System.logout("检查网关未绑定，并退出登录");
+              }
+            }, () {});
 
     /// 探测zigbee类型设备
     _snifferZigbee();
@@ -115,6 +121,8 @@ class SnifferViewModel {
           } else {
             TipsUtils.toast(content: '获取房间失败');
           }
+        }, onError: (e) {
+          TipsUtils.toast(content: '获取房间失败');
         });
 
       }
@@ -140,14 +148,14 @@ class SnifferViewModel {
     });
 
     deviceManagerChannel.findZigbee(
-        Global.profile.homeInfo?.homegroupId ?? "",
-        Global.profile.applianceCode ?? ""
+        MeiJuGlobal.homeInfo?.homegroupId ?? "",
+        MeiJuGlobal.gatewayApplianceCode ?? ""
     );
 
   }
 
   void _stopSnifferZigbee() {
-    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+    deviceManagerChannel.stopFindZigbee(MeiJuGlobal.homeInfo?.homegroupId ?? "", MeiJuGlobal.gatewayApplianceCode ?? "");
     deviceManagerChannel.setFindZigbeeListener(null);
   }
 
@@ -226,7 +234,7 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
         maxWidth: 425,
         contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
         onPressed: (String item, int index, dialogContext) {
-          logger.i('$index: $item');
+          Log.i('$index: $item');
           if(index == 0) {
             Navigator.pop(dialogContext);
             Navigator.pop(context);
@@ -247,9 +255,9 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
     MzDialog mzDialog = MzDialog(
         title: '提示',
         btns: ['取消', '确认'],
-        contentSlot: Column(
+        contentSlot: const Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Text('请重新连接WiFi',
                 style: TextStyle(
                     color: Colors.white,

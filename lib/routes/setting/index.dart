@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/homlux/api/homlux_user_config_api.dart';
 import '../../common/setting.dart';
@@ -169,11 +170,15 @@ class _SettingPageState extends State<SettingPage> {
                             if (MideaRuntimePlatform.platform.inMeiju()
                              && !Setting.instant().engineeringModeEnable)
                               settingCell("assets/newUI/add_device.png", "发现设备", () => {
-                              Navigator.pop(context),
-                              Navigator.pushNamed(
-                                context,
-                                'SnifferPage',
-                              )
+                                if(MeiJuGlobal.isLogin) {
+                                  Navigator.pop(context),
+                                  Navigator.pushNamed(
+                                    context,
+                                    'SnifferPage',
+                                  )
+                                } else {
+                                  TipsUtils.toast(content: '请先登录')
+                                }
                             }, true),
                             settingCell("assets/newUI/display_setting.png", "显示设置", () => {
                               Navigator.pushNamed(

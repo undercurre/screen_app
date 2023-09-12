@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
-import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 
 import '../../channel/index.dart';
 import '../../channel/models/manager_devic.dart';
-import '../../common/global.dart';
+import '../../common/logcat_helper.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/util/net_utils.dart';
 
@@ -20,7 +21,7 @@ class DeviceConnectViewModel {
   /// 还待添加的设备
   List<IFindDeviceResult> toBeAddedList = [];
   /// 房间列表
-  List<RoomEntity> rooms = [];
+  List<MeiJuRoomEntity> rooms = [];
 
   bool startBinding = false;
 
@@ -34,7 +35,7 @@ class DeviceConnectViewModel {
           bindResult.roomName = roomName;
           _state.setSafeState(() { });
         });
-        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId!, bindResult.applianceCode);
+        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId, bindResult.applianceCode);
         break;
       }
     }
@@ -102,7 +103,7 @@ class DeviceConnectViewModel {
     NetUtils.checkConnectedWiFiRecord().then((value) {
       if(value == null) throw Exception('当前的wifi密码保存失败');
       deviceManagerChannel.setBindWiFiCallback((result) {
-        logger.i('wifi设备绑定结果: $result');
+        Log.file('wifi设备绑定结果: $result');
         if(toBeAddedList.contains(result.findResult)) {
           if(result.code != 0) {
             TipsUtils.toast(content: '绑定${result.findResult.name}失败');
@@ -118,8 +119,8 @@ class DeviceConnectViewModel {
           value.bssid,
           value.password,
           value.encryptType,
-          Global.profile.homeInfo?.homegroupId ?? "",
-          Global.profile.roomInfo?.roomId ?? "",
+          MeiJuGlobal.homeInfo?.homegroupId ?? "",
+          MeiJuGlobal.roomInfo?.roomId ?? "",
           findResult // 指定需要绑定的wifi设备
       );
     });
@@ -132,7 +133,7 @@ class DeviceConnectViewModel {
 
   void bindZigbee(List<FindZigbeeResult> findResult)  {
     deviceManagerChannel.setBindZigbeeListener((result) {
-      logger.i('zigbee设备绑定结果: $result');
+      Log.i('zigbee设备绑定结果: $result');
       if(toBeAddedList.contains(result.findResult)) {
         if(result.code != 0) {
           TipsUtils.toast(content: '绑定${result.findResult.name}失败');
@@ -144,14 +145,14 @@ class DeviceConnectViewModel {
       }
     });
     deviceManagerChannel.bindZigbee(
-        Global.profile.homeInfo?.homegroupId ?? "",
-        Global.profile.roomInfo?.roomId ?? "",
+        MeiJuGlobal.homeInfo?.homegroupId ?? "",
+        MeiJuGlobal.roomInfo?.roomId ?? "",
         findResult // 指定需要绑定的zigbee设备
     );
   }
 
   void stopBindZigbee() {
-    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+    deviceManagerChannel.stopFindZigbee(MeiJuGlobal.homeInfo?.homegroupId ?? "", MeiJuGlobal.gatewayApplianceCode ?? "");
     deviceManagerChannel.setBindZigbeeListener(null);
   }
 
@@ -183,7 +184,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                   Container(
                     width: 100,
                     alignment: Alignment.center,
-                    child: Text(item.name,
+                    child: Text(item.name ?? '未知房间名',
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 24,
@@ -194,7 +195,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               alignment: AlignmentDirectional.topCenter,
               items: viewModel.rooms
-                  .map<DropdownMenuItem<String>>((RoomEntity item) {
+                  .map<DropdownMenuItem<String>>((MeiJuRoomEntity item) {
                 return DropdownMenuItem<String>(
                   alignment: Alignment.center,
                   value: item.name,
@@ -209,7 +210,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                     // padding: const EdgeInsets.symmetric(horizontal: 5),
                     width: 120,
                     alignment: Alignment.center,
-                    child: Text(item.name,
+                    child: Text(item.name ?? '未知房间名',
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 24,
@@ -228,7 +229,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                 viewModel.changeRoom(
                     d.bindResult!,
                     data!,
-                    Global.profile.homeInfo!.homegroupId
+                    MeiJuGlobal.homeInfo!.homegroupId
                 );
               }
             )),

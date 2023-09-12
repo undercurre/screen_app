@@ -3,7 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/channel/models/manager_devic.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
-import '../../common/global.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/system.dart';
 
 final List<FindZigbeeResult> list = <FindZigbeeResult>[];
 
@@ -26,12 +27,12 @@ class ZigbeeDeviceManager extends StatelessWidget {
                 onPressed: () {
                   deviceManagerChannel.init(
                       dotenv.get("IOT_URL"),
-                      Global.user?.accessToken ?? "",
+                      MeiJuGlobal.token?.accessToken ?? "",
                       dotenv.get("HTTP_SIGN_SECRET"),
-                      Global.user?.seed ?? "",
-                      Global.user?.key ?? "",
-                      Global.profile.deviceId ?? "",
-                      Global.user?.uid ?? "",
+                      MeiJuGlobal.token?.seed ?? "",
+                      MeiJuGlobal.token?.key ?? "",
+                      System.deviceId ?? "",
+                      MeiJuGlobal.token?.uid ?? "",
                       dotenv.get("IOT_APP_COUNT"),
                       dotenv.get("IOT_SECRET"),
                       dotenv.get("IOT_REQUEST_HEADER_DATA_KEY")
@@ -60,7 +61,9 @@ class ZigbeeDeviceManager extends StatelessWidget {
                         print(result);
                         list.addAll(result);
                       });
-                      deviceManagerChannel.findZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+                      deviceManagerChannel.findZigbee(
+                          MeiJuGlobal.homeInfo?.homegroupId ?? "",
+                          MeiJuGlobal.gatewayApplianceCode ?? "");
                     } else {
                       print("请连接网络再来尝试");
                     }
@@ -72,7 +75,9 @@ class ZigbeeDeviceManager extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(
                 onPressed: () {
-                  deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+                  deviceManagerChannel.stopFindZigbee(
+                      MeiJuGlobal.homeInfo?.homegroupId ?? "",
+                      MeiJuGlobal.gatewayApplianceCode ?? "");
                   deviceManagerChannel.setFindZigbeeListener(null);
                 },
                 child: const Text("停止扫描Zigbee设备"),
@@ -83,8 +88,8 @@ class ZigbeeDeviceManager extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   deviceManagerChannel.bindZigbee(
-                      Global.profile.homeInfo?.homegroupId ?? "",
-                      Global.profile.roomInfo?.roomId ?? "",
+                      MeiJuGlobal.homeInfo?.homegroupId ?? "",
+                      MeiJuGlobal.roomInfo?.roomId ?? "",
                       list // 指定需要绑定的zigbee设备
                   );
                 },
