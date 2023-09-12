@@ -44,11 +44,11 @@ class MeiJuGlobal {
 
   MeiJuGlobal._();
 
-  static String get selectRoomId => _selectRoomId!;
+  static String? get selectRoomId => _selectRoomId;
 
-  static set selectRoomId(String value) {
+  static set selectRoomId(String? value) {
     _selectRoomId = value;
-    LocalStorage.setItem(MEIJU_SELECT_ROOM_ID,value);
+    LocalStorage.setItem(MEIJU_SELECT_ROOM_ID,_selectRoomId!);
   }
 
   static Future<void> init() async {

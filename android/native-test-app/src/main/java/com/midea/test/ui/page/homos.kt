@@ -36,7 +36,4 @@ fun initHomos() {
     HomeOsClient.getOsController().init()
     HomeOsClient.getOsController().login("123", "456")
     HomeOsClient.getOsController().logout()
-    HomeOsClient.getOsController().deviceInfo
-    HomeOsClient.getOsController().groupInfo
-    HomeOsClient.getOsController().sceneInfo
 }
