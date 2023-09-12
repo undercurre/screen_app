@@ -201,6 +201,7 @@ class MigrationOldVersionHomLuxDataState
       /// 保存当前的数据
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
+      await migrateChannel.setHomluxIsMigrate();
       Future.delayed(Duration.zero).then((value) {
         Navigator.popAndPushNamed(context, 'Home');
       });

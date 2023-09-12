@@ -4,6 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
+import 'package:screen_app/common/system.dart';
 import 'package:screen_app/routes/home/device/card_dialog.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
@@ -11,8 +14,13 @@ import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 
+import '../../../common/adapter/select_room_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
+import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/models/meiju_room_entity.dart';
 import '../../../models/device_entity.dart';
+import '../../../models/room_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
@@ -20,6 +28,7 @@ import '../../../widgets/card/main/panelNum.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/mz_buttion.dart';
 import '../../../widgets/mz_dialog.dart';
+import '../../../../widgets/business/dropdown_menu.dart' as ui;
 
 class AddDevicePage extends StatefulWidget {
   const AddDevicePage({Key? key}) : super(key: key);
@@ -31,12 +40,21 @@ class AddDevicePage extends StatefulWidget {
 class _AddDevicePageState extends State<AddDevicePage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  String roomID = System.inMeiJuPlatform()
+      ? MeiJuGlobal.roomInfo?.roomId
+      : HomluxGlobal.homluxRoomInfo?.roomId;
+  bool menuVisible = false;
+  late LayoutModel layoutModel;
   List<DeviceEntity> devices = [];
+  List<DeviceEntity> deleteDevices = [];
+  List<DeviceEntity> devicesAll = [];
   List<SceneInfoEntity> scenes = [];
   List<OtherEntity> others = [
     OtherEntity('时间组件', DeviceEntityTypeInP4.Clock),
     OtherEntity('天气组件', DeviceEntityTypeInP4.Weather)
   ];
+
+  List<Map<String, String>> btnList = [];
 
   @override
   void initState() {
@@ -50,6 +68,24 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   initCache() async {
+    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    roomDataAd?.queryRoomList(System.familyInfo!);
+    if (System.inMeiJuPlatform()) {
+      if(MeiJuGlobal.selectRoomId!=null){
+        roomID=MeiJuGlobal.selectRoomId!;
+      }
+      for (MeiJuRoomEntity room in System.meijuRoomList!) {
+        btnList.add({'text': room!.name!, 'key': room!.roomId!});
+      }
+    }else {
+      if(HomluxGlobal.selectRoomId!=null){
+        roomID=HomluxGlobal.selectRoomId!;
+      }
+      for (HomluxRoomInfo room in System.homluxRoomList!) {
+        btnList.add({'text': room!.roomName!, 'key': room!.roomId!});
+      }
+    }
+
     final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
@@ -166,7 +202,49 @@ class _AddDevicePageState extends State<AddDevicePage> {
         }
       }
     });
+    devicesAll.addAll(devices);
+    selectRoom(roomID);
   }
+
+  void selectRoom(String roomID) {
+    if (System.inMeiJuPlatform()) {
+      MeiJuGlobal.selectRoomId=roomID;
+    }else {
+      HomluxGlobal.selectRoomId=roomID;
+    }
+    devices = devicesAll.where((element) => element.roomId == roomID).toList();
+    deleteDevices.clear();
+    for (DeviceEntity device in devices) {
+      if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
+        deleteDevices.add(device);
+      }
+    }
+    devices.removeWhere((i) => deleteDevices.contains(i));
+    setState(() {});
+  }
+
+  Map<String, String> getCurRoomConfig() {
+    if (btnList.isNotEmpty) {
+      Map<String, String> curRoom =
+          btnList.where((element) => element["key"] == roomID).toList()[0];
+      return curRoom;
+    } else {
+      return <String, String>{};
+    }
+  }
+
+  Map<String, bool?> getSelectedKeys() {
+    final selectKeys = <String, bool?>{};
+    selectKeys[roomID] = true;
+    return selectKeys;
+  }
+
+  Future<void> roomHandle(String roomID) async {
+    this.roomID = roomID;
+    selectRoom(roomID);
+  }
+
+  void sortList() {}
 
   @override
   void dispose() {
@@ -182,7 +260,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    final layoutModel = Provider.of<LayoutModel>(context);
+    layoutModel = Provider.of<LayoutModel>(context);
     Layout resultData = Layout(
       uuid.v4(),
       DeviceEntityTypeInP4.Clock,
@@ -215,115 +293,193 @@ class _AddDevicePageState extends State<AddDevicePage> {
               BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           height: MediaQuery.of(context).size.height,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 13, 10, 25),
+            padding: const EdgeInsets.fromLTRB(0, 13, 10, 25),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back.png",
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 0, 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              _pageController.animateToPage(
-                                0,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease,
-                              );
-                              setState(() {
-                                _currentIndex = 0;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                '设备',
-                                style: TextStyle(
-                                  fontFamily: 'PingFangSC-Regular',
-                                  // 设置字体
-                                  fontSize: _currentIndex == 0 ? 24 : 20,
-                                  // 设置字体大小
-                                  color: _currentIndex == 0
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.37),
-                                  // 设置字体颜色
-                                  letterSpacing: 0,
-                                  // 设置字间距
-                                  fontWeight: FontWeight.w400, // 设置字重
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _pageController.animateToPage(
+                                    0,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.ease,
+                                  );
+                                  setState(() {
+                                    _currentIndex = 0;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    '设备',
+                                    style: TextStyle(
+                                      fontFamily: 'PingFangSC-Regular',
+                                      // 设置字体
+                                      fontSize: _currentIndex == 0 ? 24 : 20,
+                                      // 设置字体大小
+                                      color: _currentIndex == 0
+                                          ? Colors.white
+                                          : Colors.white.withOpacity(0.37),
+                                      // 设置字体颜色
+                                      letterSpacing: 0,
+                                      // 设置字间距
+                                      fontWeight: FontWeight.w400, // 设置字重
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              _pageController.animateToPage(
-                                1,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease,
-                              );
-                              setState(() {
-                                _currentIndex = 1;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                '场景',
-                                style: TextStyle(
-                                  fontFamily: 'PingFangSC-Regular',
-                                  // 设置字体
-                                  fontSize: _currentIndex == 1 ? 24 : 20,
-                                  // 设置字体大小
-                                  color: _currentIndex == 1
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.37),
-                                  // 设置字体颜色
-                                  letterSpacing: 0,
-                                  // 设置字间距
-                                  fontWeight: FontWeight.w400, // 设置字重
+                              GestureDetector(
+                                onTap: () {
+                                  _pageController.animateToPage(
+                                    1,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.ease,
+                                  );
+                                  setState(() {
+                                    _currentIndex = 1;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    '场景',
+                                    style: TextStyle(
+                                      fontFamily: 'PingFangSC-Regular',
+                                      // 设置字体
+                                      fontSize: _currentIndex == 1 ? 24 : 20,
+                                      // 设置字体大小
+                                      color: _currentIndex == 1
+                                          ? Colors.white
+                                          : Colors.white.withOpacity(0.37),
+                                      // 设置字体颜色
+                                      letterSpacing: 0,
+                                      // 设置字间距
+                                      fontWeight: FontWeight.w400, // 设置字重
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              _pageController.animateToPage(
-                                2,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease,
-                              );
-                              setState(() {
-                                _currentIndex = 2;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                '其他',
-                                style: TextStyle(
-                                  fontFamily: 'PingFangSC-Regular',
-                                  // 设置字体
-                                  fontSize: _currentIndex == 2 ? 24 : 20,
-                                  // 设置字体大小
-                                  color: _currentIndex == 2
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.37),
-                                  // 设置字体颜色
-                                  letterSpacing: 0,
-                                  // 设置字间距
-                                  fontWeight: FontWeight.w400, // 设置字重
+                              GestureDetector(
+                                onTap: () {
+                                  _pageController.animateToPage(
+                                    2,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.ease,
+                                  );
+                                  setState(() {
+                                    _currentIndex = 2;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    '其他',
+                                    style: TextStyle(
+                                      fontFamily: 'PingFangSC-Regular',
+                                      // 设置字体
+                                      fontSize: _currentIndex == 2 ? 24 : 20,
+                                      // 设置字体大小
+                                      color: _currentIndex == 2
+                                          ? Colors.white
+                                          : Colors.white.withOpacity(0.37),
+                                      // 设置字体颜色
+                                      letterSpacing: 0,
+                                      // 设置字间距
+                                      fontWeight: FontWeight.w400, // 设置字重
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    ui.DropdownMenu(
+                      disabled: false,
+                      menu: btnList.map(
+                        (item) {
+                          return PopupMenuItem<String>(
+                            padding: EdgeInsets.zero,
+                            value: item['key'],
+                            child: MouseRegion(
+                              child: Center(
+                                child: Container(
+                                  width: 130,
+                                  height: 50,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x26101010),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: SizedBox(
+                                      width: 100, // 设置最大宽度为 50
+                                      child: Text(
+                                        textAlign: TextAlign.center,
+                                        item['text']!,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.w200,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                      trigger: SizedBox(
+                        width: 60, // 设置最大宽度为 60
+                        child: Text(
+                          textAlign: TextAlign.right,
+                          getCurRoomConfig()["text"] ?? '卧室',
+                          style: const TextStyle(
+                            color: Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.w200,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      onVisibleChange: (visible) {
+                        setState(() {
+                          menuVisible = visible;
+                        });
+                      },
+                      onSelected: (dynamic roomID) {
+                        if (roomID != null && roomID != getSelectedKeys()) {
+                          roomHandle(roomID);
+                        }
+                      },
+                    ),
+                  ],
                 ),
                 Expanded(
                   child: Column(children: [
@@ -583,37 +739,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         ],
                       ),
                     ),
-                    Container(height: 48)
                   ]),
                 ),
               ],
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.white.withOpacity(0.05),
-                width: MediaQuery.of(context).size.width,
-                height: 72,
-                child: Center(
-                  child: MzButton(
-                    width: 240,
-                    height: 56,
-                    borderRadius: 29,
-                    backgroundColor: const Color(0xFF818C98),
-                    borderColor: Colors.transparent,
-                    borderWidth: 1,
-                    text: '返回',
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ),
             ),
           ),
         ),

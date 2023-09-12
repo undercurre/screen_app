@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/states/page_change_notifier.dart';
 
 import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
@@ -36,6 +37,18 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void initState() {
     super.initState();
+
+    // 在小部件初始化后等待一帧再执行回调
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      var initPage = context.read<PageCounter>().currentPage;
+      if (initPage > _screens.length - 1) {
+        initPage = _screens.length - 1;
+      }
+      _pageController.animateToPage(initPage,
+          duration:
+          const Duration(milliseconds: 300),
+          curve: Curves.ease);
+    });
   }
 
   @override
@@ -45,6 +58,7 @@ class _CustomPageState extends State<CustomPage> {
 
   @override
   Widget build(BuildContext context) {
+
     final layoutModel = Provider.of<LayoutModel>(context);
     // 获取屏幕信息
     MediaQueryData mediaQuery = MediaQuery.of(context);

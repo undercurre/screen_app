@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/adapter/select_room_data_adapter.dart';
@@ -71,7 +72,7 @@ class _SelectRoom extends State<SelectRoom> {
               width: 480,
               height: 260,
               alignment: Alignment.center,
-              child: const CircularProgressIndicator(),
+              child: const CupertinoActivityIndicator(radius: 25),
             ),
           ),
 

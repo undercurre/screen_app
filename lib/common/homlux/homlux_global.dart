@@ -40,6 +40,9 @@ class HomluxGlobal {
   /// 485设备列表信息
   static const HOMLUX_485_DEVICE_LIST = 'homlux_485_device_list';
 
+  static const HOMLUX_SELECT_ROOM_ID= 'homlux_select_room_id';
+
+
   static HomluxFamilyEntity? _homluxHomeInfo;
   static HomluxRoomInfo? _homluxRoomInfo;
   static HomluxQrCodeAuthEntity? _homluxQrCodeAuthEntity;
@@ -48,6 +51,15 @@ class HomluxGlobal {
   static String? _gatewaySn;  // 屏下网关的sn
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
   static HomluxUserInfoEntity? _homluxUserInfo;
+  static String? _selectRoomId="";
+
+
+  static String get selectRoomId => _selectRoomId!;
+
+  static set selectRoomId(String value) {
+    _selectRoomId = value;
+    LocalStorage.setItem(HOMLUX_SELECT_ROOM_ID,value);
+  }
 
   HomluxGlobal._();
 
@@ -62,6 +74,7 @@ class HomluxGlobal {
     _aiToken = await _$parseToJsonByCache(HOMLUX_AI_TOKEN);
     _gatewaySn = await LocalStorage.getItem(HOMLUX_GATEWAY_SN);
     _gatewayApplianceCode = await LocalStorage.getItem(HOMLUX_GATEWAY_DEVICE_ID);
+    _selectRoomId =await LocalStorage.getItem(HOMLUX_SELECT_ROOM_ID);
   }
 
   static HomluxUserInfoEntity? get homluxUserInfo => _homluxUserInfo;

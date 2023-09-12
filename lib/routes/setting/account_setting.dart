@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../common/push.dart';
 import '../../common/setting.dart';
 import '../../common/system.dart';
 import '../../widgets/mz_dialog.dart';
@@ -126,7 +125,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                           vertical: 30, horizontal: 50),
                       onPressed: (_, index, context) {
                         if (index == 1) {
-                          Push.dispose();
                           System.logout();
                           Navigator.pushNamedAndRemoveUntil(
                               context,

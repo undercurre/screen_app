@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
+import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/states/relay_change_notifier.dart';
 import 'package:screen_app/states/weather_change_notifier.dart';
 import 'package:screen_app/widgets/event_bus.dart';
@@ -77,6 +78,7 @@ class _App extends State<App> {
         ChangeNotifierProvider(create: (_) => RelayModel()),
         ChangeNotifierProvider(create: (_) => SceneListModel()),
         ChangeNotifierProvider(create: (_) => DeviceInfoListModel()),
+        ChangeNotifierProvider(create: (_) => PageCounter()),
       ],
       child: PointerDownListener(
           child: MaterialApp(

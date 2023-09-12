@@ -11,8 +11,10 @@ import 'package:uuid/uuid.dart';
 
 import 'adapter/select_family_data_adapter.dart';
 import 'adapter/select_room_data_adapter.dart';
+import 'homlux/models/homlux_room_list_entity.dart';
 import 'index.dart';
 import 'logcat_helper.dart';
+import 'meiju/models/meiju_room_entity.dart';
 
 class System {
   /// 产品编码
@@ -20,7 +22,10 @@ class System {
 
   /// 设备Id 存储的key
   static const String DEVICE_ID = "device_id";
-  static String? deviceId;
+  static String? deviceId,macAddress;
+
+  static List<MeiJuRoomEntity>? meijuRoomList;
+  static List<HomluxRoomInfo>? homluxRoomList;
 
   System._();
 

@@ -144,11 +144,11 @@ class WeatherModel extends ChangeNotifier {
     }
   }
 
-  int getTemperature() {
+  String getTemperature() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      return int.parse(curWeatherInMeiJu.grade ?? '-');
+      return curWeatherInMeiJu.grade ?? '—';
     } else {
-      return int.parse(curWeatherInHomlux.temperature ?? '-');
+      return curWeatherInHomlux.temperature ?? '—';
     }
   }
 }

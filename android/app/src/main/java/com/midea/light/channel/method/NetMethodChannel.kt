@@ -67,7 +67,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
 
     override fun setup(binaryMessenger: BinaryMessenger, channel: String) {
         super.setup(binaryMessenger, channel)
-        LogUtil.tag(TAG).msg("ScanNearbyWiFiHandler Register")
+//        LogUtil.tag(TAG).msg("ScanNearbyWiFiHandler Register")
         ScanNearbyWiFiHandler.register(this)
         ConnectStateHandler.register(this)
     }
@@ -80,7 +80,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         var reply: Boolean = false
-        LogUtil.tag(TAG).msg("flutter -> method: ${call.method}")
+//        LogUtil.tag(TAG).msg("flutter -> method: ${call.method}")
         when (call.method) {
             "scanNearbyWiFi" -> {
                 ScanNearbyWiFiHandler.start(context)
@@ -212,7 +212,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
                 wifiList?.put(scanResult.SSID, scanResult)
             }
         }
-        LogUtil.tag(TAG).array(result)
+//        LogUtil.tag(TAG).array(result)
         onReplyNearbyWiFi(result)
     }
 

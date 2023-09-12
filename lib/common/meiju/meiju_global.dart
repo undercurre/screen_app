@@ -30,6 +30,11 @@ class MeiJuGlobal {
   /// 网关SN
   static const MEIJU_GATEWAY_SN = 'meiju_gateway_sn';
 
+  static const MEIJU_SELECT_ROOM_ID= 'meiju_select_room_id';
+
+
+  static String? _selectRoomId;
+
   static MeiJuTokenEntity? _token;
   static MeiJuLoginHomeEntity? _homeEntity;
   static MeiJuRoomEntity? _roomEntity;
@@ -38,6 +43,12 @@ class MeiJuGlobal {
 
   MeiJuGlobal._();
 
+  static String get selectRoomId => _selectRoomId!;
+
+  static set selectRoomId(String value) {
+    _selectRoomId = value;
+    LocalStorage.setItem(MEIJU_SELECT_ROOM_ID,value);
+  }
 
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +57,8 @@ class MeiJuGlobal {
     _token = await _$parseToJsonByCache(MEIJU_TOKEN);
     _gatewayApplianceCode = await LocalStorage.getItem(MEIJU_GATEWAY_DEVICE_ID);
     _gatewaySn = await LocalStorage.getItem(MEIJU_GATEWAY_SN);
+    _selectRoomId =await LocalStorage.getItem(MEIJU_SELECT_ROOM_ID);
+
   }
 
   static String? get gatewayApplianceCode =>  _gatewayApplianceCode;

@@ -424,20 +424,17 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   void homluxOfflinePush(HomluxDeviceOnlineStatusChangeEvent event) {
     if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
-      Log.i('离线推送', event);
       context.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
-    Log.i('美居的push', args.nodeId);
     if (args.nodeId == nodeId) {
       _throttledFetchData();
     }
   }
 
   void meijuPushOnline(MeiJuDeviceOnlineStatusChangeEvent args) {
-    Log.i('美居的在离线push', args.deviceId);
     if (args.deviceId == masterId) {
       context.read<DeviceInfoListModel>().getDeviceList();
     }

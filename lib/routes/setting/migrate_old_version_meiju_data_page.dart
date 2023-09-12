@@ -114,6 +114,8 @@ class MigrationOldVersionMeiJuDataState
         throw SyncError('token或者user为空');
       }
 
+      logger.i("迁移前token:$token");
+
       /// 迁移token
       await migrateToken(
           token['userid'],
@@ -170,6 +172,7 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.roomName = e["roomName"];
         deviceObj.masterId = e["masterId"];
         deviceObj.onlineStatus = e["onlineStatus"];
+        Log.i("设备名称:${deviceObj.name}");
         devicesReal.add(deviceObj);
       });
 
@@ -179,12 +182,13 @@ class MigrationOldVersionMeiJuDataState
       await context.read<LayoutModel>().setLayouts(layoutData);
 
 
-      Log.i('房间数据', layoutData.map((e) => e.grids));
+      Log.i('房间${userData['room']['name']}数据', layoutData.map((e) => e.grids));
 
       /// 保存当前的数据
       // Global.saveProfile();
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
+      await migrateChannel.setMeiJuIsMigrate();
       Future.delayed(Duration.zero).then((value) {
         Navigator.popAndPushNamed(context, 'Home');
       });

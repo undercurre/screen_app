@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/push.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
@@ -527,9 +527,9 @@ class BindingDialog extends StatelessWidget {
                 child: Container(
                     alignment: Alignment.center,
                     child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Image(image: AssetImage('assets/newUI/loading.png')),
+                          CupertinoActivityIndicator(radius: 25),
                           Text(
                             '正在绑定中，请稍后',
                             style: TextStyle(

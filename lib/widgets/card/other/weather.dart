@@ -185,7 +185,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
 
   // 天气编码转换为天气的名称
   final Map<String, String> codeToName = {
-    'default': "-",
+    'default': "——",
     '00': '晴天',
     '01': '阴天',
     '02': '多云',
@@ -242,6 +242,6 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
   }
 
   String _getWeatherName(String weatherCode) {
-    return codeToName[weatherCode] ?? '—';
+    return codeToName[weatherCode] ?? '——';
   }
 }

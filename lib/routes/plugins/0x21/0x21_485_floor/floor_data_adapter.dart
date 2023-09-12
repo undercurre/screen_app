@@ -11,6 +11,7 @@ import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../common/system.dart';
 import '../../../../widgets/event_bus.dart';
 
 class FloorDataAdapter extends MideaDataAdapter {
@@ -42,6 +43,8 @@ class FloorDataAdapter extends MideaDataAdapter {
   );
 
   DataState dataState = DataState.NONE;
+
+  String localDeviceCode="";
 
   FloorDataAdapter(this.name, this.applianceCode, this.masterId,
       this.modelNumber, GatewayPlatform platform)
@@ -87,22 +90,46 @@ class FloorDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> orderPower(int onOff) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderPowerMeiju(onOff);
-      } else {}
-    } else {
+
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
+            onOff.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderPowerMeiju(onOff);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
+              onOff.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
       deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
           onOff.toString(), applianceCode);
     }
+
   }
 
   Future<void> orderTemp(int temp) async {
-    if (isLocalDevice == false) {
-      if (platform.inMeiju()) {
-        fetchOrderTempMeiju(temp);
-      } else {}
-    } else {
+    if(nodeId!=null){
+      if(nodeId.split('-')[0]==System.macAddress){
+        localDeviceCode = nodeId.split('-')[1];
+        deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
+            temp.toString(), localDeviceCode);
+      }else{
+        if (isLocalDevice == false) {
+          if (platform.inMeiju()) {
+            fetchOrderTempMeiju(temp);
+          }
+        } else {
+          deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
+              temp.toString(), applianceCode);
+        }
+      }
+    }else if(applianceCode.length==4){
       deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
           temp.toString(), applianceCode);
     }
@@ -190,9 +217,9 @@ class FloorDataAdapter extends MideaDataAdapter {
   @override
   void init() {
     // Initialize the adapter and fetch data
+    deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      var nid;
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
             // nid = args.nodeId,
             // Log.i("收到推送:$nid"),
@@ -201,12 +228,9 @@ class FloorDataAdapter extends MideaDataAdapter {
           });
       fetchData();
     } else {
-      deviceLocal485ControlChannel
-          .registerLocal485CallBack(_local485StateCallback);
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
-
       ///homlux添加本地485空调设备
       if (deviceList != null) {
         for (int i = 0;
@@ -259,6 +283,7 @@ class FloorDataAdapter extends MideaDataAdapter {
           await MeiJuDeviceApi.getGatewayInfo<Floor485Event>(
               applianceCode, masterId, (json) => Floor485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
+      localDeviceCode = nodeId.split('-')[1];
       Log.i('拿到的nodeid:$nodeId');
       return nodeInfo;
     } catch (e) {

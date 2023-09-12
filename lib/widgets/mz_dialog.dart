@@ -100,7 +100,7 @@ class MzDialog {
       for (int i = 0; i < btns!.length; i++) {
         bool isLast = btns!.length - 1 == i;
         btnList.add(SizedBox(
-            width: btns!.length > 1 ? 168 : 240,
+            width: btns!.length > 1 ? 154 : 240,
             height: 56,
             child: TextButton(
               style: isLast && lastBtnOn ? buttonStyleOn : buttonStyle,
