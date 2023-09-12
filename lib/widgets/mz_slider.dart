@@ -207,8 +207,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
 
   // 获取当前圆点的滑动条颜色
   List<Color> get disableColor {
-    Color leftColor = const Color(0xFF708090);
-    Color rightColor = const Color(0xFF708090);
+    Color leftColor = const Color(0xFF515151);
+    Color rightColor = const Color(0xFF515151);
     int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
             leftColor.red)
         .round();
@@ -225,7 +225,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 leftColor.alpha)
             .round();
     return [
-      const Color(0xFF708090),
+      const Color(0xFF515151),
       Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
     ];
   }

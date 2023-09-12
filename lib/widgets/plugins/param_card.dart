@@ -15,6 +15,8 @@ class ParamCard extends StatefulWidget {
   final Duration throttle; // 节流控制onChanging触发
   final bool disabled;
   final Duration? duration;
+  final num customMin;
+  final num customMax;
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
 
@@ -31,6 +33,8 @@ class ParamCard extends StatefulWidget {
     this.minValue = 0,
     this.throttle = const Duration(milliseconds: 800),
     this.duration,
+    this.customMin = 0,
+    this.customMax = 0,
   });
 
   @override
@@ -96,7 +100,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
                         ),
                       ),
                       Text(
-                        '$localValue$unit',
+                        '${customValue(localValue)}$unit',
                         style: const TextStyle(
                           fontFamily: "MideaType",
                           fontSize: 18,
@@ -127,7 +131,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
             left: 21,
             bottom: 11,
             child: Text(
-              '${widget.minValue}%',
+              '${widget.customMin < widget.customMax ? widget.customMin : widget.minValue}$unit',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -141,7 +145,7 @@ class _ParamCardState extends State<ParamCard> with Throttle {
             right: 21,
             bottom: 11,
             child: Text(
-              '${widget.maxValue}%',
+              '${widget.customMin < widget.customMax ? widget.customMax : widget.maxValue}$unit',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -155,6 +159,15 @@ class _ParamCardState extends State<ParamCard> with Throttle {
       ),
     );
   }
+
+  num customValue(num val) {
+    if(widget.customMin < widget.customMax) {
+      num diff = widget.customMax - widget.customMin;
+      return diff * (val / 100) + widget.customMin;
+    }
+    return val;
+  }
+
   void onChanged(num value, Color activeColor) {
     setState(() {
       localValue = value;

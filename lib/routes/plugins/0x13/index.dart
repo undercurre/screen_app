@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
@@ -13,6 +14,7 @@ import 'data_adapter.dart';
 
 class WifiLightPageState extends State<WifiLightPage> with Throttle {
   WIFILightDataAdapter? dataAdapter;
+  Mode? modeTap;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -21,7 +23,11 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[dataAdapter?.data!.screenModel ?? 'manual'] = true;
+    if (modeTap != null) {
+      selectKeys[modeTap!.key] = true;
+    } else {
+      selectKeys[dataAdapter?.data!.screenModel ?? 'manual'] = true;
+    }
     return selectKeys;
   }
 
@@ -157,6 +163,9 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                             const EdgeInsets.only(bottom: 16),
                                         child: ParamCard(
                                           title: '色温',
+                                          unit: "K",
+                                          customMin: 2700,
+                                          customMax: 6500,
                                           disabled: dataAdapter?.data!.power ?? true ? false : true,
                                           value: dataAdapter?.data!.colorTemp ?? 0,
                                           activeColors: const [
@@ -174,7 +183,17 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           disabled: dataAdapter?.data!.power ?? true ? false : true,
                                           modeList: lightModes,
                                           selectedKeys: getSelectedKeys(),
-                                          onTap: dataAdapter?.controlMode,
+                                          onTap: (mode) {
+                                            setState(() {
+                                              modeTap = mode;
+                                            });
+                                            Timer(const Duration(milliseconds: 500), () {
+                                              setState(() {
+                                                modeTap = null;
+                                              });
+                                            });
+                                            dataAdapter?.controlMode(mode);
+                                          },
                                         ),
                                       ),
                                       Container(

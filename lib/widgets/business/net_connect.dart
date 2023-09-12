@@ -3,6 +3,7 @@
 // _LinkNetwork页面的 dataclass
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
@@ -274,11 +275,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                                 const Positioned(
                                   top: 20,
                                   right: 20,
-                                  child: Image(
-                                    width: 32,
-                                    height: 32,
-                                    image: AssetImage('assets/newUI/加载@1x.png'),
-                                  ),
+                                  child: CupertinoActivityIndicator(radius: 16),
                                 )
                               ],
                             ),

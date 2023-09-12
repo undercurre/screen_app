@@ -210,7 +210,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = "0x21";
           deviceObj.modelNumber = "lightGroup";
           deviceObj.roomName = e["roomName"];
-          deviceObj.roomId=e["roomId"];
+          deviceObj.roomId=e["roomId"].toString();
           deviceObj.masterId =
               e["applianceList"][0]["parentApplianceCode"].toString();
           deviceObj.onlineStatus = "1";
