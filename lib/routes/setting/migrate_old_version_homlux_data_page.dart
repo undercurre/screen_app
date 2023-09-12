@@ -207,6 +207,7 @@ class MigrationOldVersionHomLuxDataState
       });
     } catch (e) {
       logger.e(e);
+      await migrateChannel.setHomluxIsMigrate();
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       System.logout();
