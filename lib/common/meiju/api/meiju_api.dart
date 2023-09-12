@@ -146,8 +146,7 @@ class MeiJuApi {
     var entity = MeiJuResponseEntity.fromJson(res.data);
 
     if (isMZLogoutCode(entity.code)) {
-      MeiJuGlobal.setLogout();
-      bus.emit('logout');
+      MeiJuGlobal.setLogout("美智平台刷新Token 失败, 提示要退出登录");
       Log.file("美智平台刷新Token 失败, 提示要退出登录");
       throw DioError(
           requestOptions: res.requestOptions,
@@ -222,8 +221,7 @@ class MeiJuApi {
 
     MeiJuResponseEntity entity = MeiJuResponseEntity.fromJson(res.data);
     if (isIOTLogoutCode(entity.code)) {
-      MeiJuGlobal.setLogout();
-      bus.emit('logout');
+      System.logout("IOT Token 刷新失败，即将退出登录");
       Log.file('iot token 失效,即将退出登录 ${entity.toJson()}');
       throw DioError(
           requestOptions: res.requestOptions,

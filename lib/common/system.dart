@@ -9,6 +9,7 @@ import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.d
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:uuid/uuid.dart';
 
+import '../widgets/event_bus.dart';
 import 'adapter/select_family_data_adapter.dart';
 import 'adapter/select_room_data_adapter.dart';
 import 'homlux/models/homlux_room_list_entity.dart';
@@ -197,12 +198,14 @@ class System {
   }
 
   /// 退出登录
-  static logout() {
+  static logout(String reason) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      HomluxGlobal.setLogout();
+      HomluxGlobal.setLogout(reason);
       HomluxLanControlDeviceManager.getInstant().logout();
+      bus.emit('logout');
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      MeiJuGlobal.setLogout();
+      MeiJuGlobal.setLogout(reason);
+      bus.emit('logout');
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }

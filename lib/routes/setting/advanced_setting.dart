@@ -208,7 +208,7 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
       aboutSystemChannel
           .getAppVersion()
           .then((value) => Setting.instant().saveVersionCompatibility(value));
-      System.logout();
+      System.logout("清除缓存，导致退出登录");
     });
     // 定时十秒
     Timer(const Duration(seconds: 10), () {

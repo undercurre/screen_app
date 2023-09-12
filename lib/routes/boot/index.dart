@@ -15,7 +15,6 @@ class _Boot extends State<Boot> {
 
     bus.on("logout", (arg) {
       PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
-      System.logout();
       Navigator.pushNamedAndRemoveUntil(
           context, 'Login', (route) => route.settings.name == "/");
     });
@@ -130,7 +129,7 @@ class _Boot extends State<Boot> {
           if (isFinishLogin) {
             System.login();
           } else {
-            System.logout();
+            System.logout("数据迁移失败");
           }
         }
       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
@@ -156,7 +155,7 @@ class _Boot extends State<Boot> {
           if (isFinishLogin) {
             System.login();
           } else {
-            System.logout();
+            System.logout("数据迁移失败");
           }
         }
       } else {

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
+import '../logcat_helper.dart';
 import '../utils.dart';
 import 'models/meiju_login_home_entity.dart';
 import 'models/meiju_room_entity.dart';
@@ -110,7 +111,8 @@ class MeiJuGlobal {
   static get isLogin => _token != null;
 
   /// 设置退出登录
-  static void setLogout() {
+  static void setLogout(String reason) {
+    Log.file(">>>>>>> 美居登出，原因：$reason");
     token = null;
     homeInfo = null;
     roomInfo = null;

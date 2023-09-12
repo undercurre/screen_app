@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 
 import '../global.dart';
 import '../meiju/meiju_global.dart';
+import '../system.dart';
 
 const uuid = Uuid();
 
@@ -172,7 +173,7 @@ class Api {
         entity.code == TOKEN_INVALID ||
         entity.code == TOKEN_EXPIRED ||
         entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
+      System.logout("过期api请求，退出登录 2222");
       throw DioError(
           requestOptions: res.requestOptions,
           response: res
@@ -266,7 +267,7 @@ class Api {
         entity.code == TOKEN_INVALID ||
         entity.code == TOKEN_EXPIRED ||
         entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
+      System.logout("api过期，退出登录 333");
       throw DioError(
           requestOptions: res.requestOptions,
           response: res

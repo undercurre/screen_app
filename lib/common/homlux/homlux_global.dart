@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 
 import '../../channel/index.dart';
+import '../logcat_helper.dart';
 import '../utils.dart';
 import 'generated/json/base/homlux_json_convert_content.dart' as json;
 import 'models/homlux_485_device_list_entity.dart';
@@ -161,7 +162,8 @@ class HomluxGlobal {
   static bool get isLogin => _homluxQrCodeAuthEntity != null;
 
   /// 设置退出登录
-  static void setLogout() {
+  static void setLogout(String reason) {
+    Log.file(">>>>>>> Homlux登出，原因：$reason");
     homluxHomeInfo = null;
     homluxRoomInfo = null;
     homluxQrCodeAuthEntity = null;

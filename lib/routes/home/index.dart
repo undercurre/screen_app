@@ -97,7 +97,7 @@ class HomeState extends State<Home>
       if (!bind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();
-        System.logout();
+        System.logout("语音控制设备失败，进行");
         Navigator.pushNamedAndRemoveUntil(
             context, "Login", (route) => route.settings.name == "/");
       }

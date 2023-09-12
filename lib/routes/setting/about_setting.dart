@@ -106,7 +106,7 @@ class AboutSettingProvider with ChangeNotifier {
       aboutSystemChannel
           .getAppVersion()
           .then((value) => Setting.instant().saveVersionCompatibility(value));
-      System.logout();
+      System.logout("清除所有缓存，导致退出登录");
     });
     // 定时十秒
     Timer(const Duration(seconds: 10), () {
@@ -236,7 +236,7 @@ class AboutSettingPage extends StatelessWidget {
             const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
         onPressed: (_, index, context) {
           if (index == 1) {
-            bus.emit('logout');
+            System.logout("手动退出登录");
           } else {
             Navigator.pop(context);
           }

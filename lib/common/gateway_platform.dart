@@ -58,7 +58,7 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
         try {
-          HomluxGlobal.setLogout();
+          HomluxGlobal.setLogout("从Homlux切换到美居平台");
           MeiJuApi.init();
           await System.initForMeiju();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
@@ -73,7 +73,7 @@ class ChangePlatformHelper {
       return suc;
     } else {
       try {
-        HomluxGlobal.setLogout();
+        HomluxGlobal.setLogout("从Homlux切换到美居平台");
         MeiJuApi.init();
         await System.initForMeiju();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
@@ -94,7 +94,7 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {
         try {
-          MeiJuGlobal.setLogout();
+          MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
           HomluxApi.init();
           System.initForHomlux();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
@@ -110,7 +110,7 @@ class ChangePlatformHelper {
       return suc;
     } else {
       try {
-        MeiJuGlobal.setLogout();
+        MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
         HomluxApi.init();
         System.initForHomlux();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();

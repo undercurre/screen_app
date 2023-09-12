@@ -61,7 +61,7 @@ class UserApi {
         ));
 
     if (res.code == 65012) {
-      System.logout();
+      System.logout("已废弃api调用退出登录  111");
     }
 
     if (!res.isSuccess) {
