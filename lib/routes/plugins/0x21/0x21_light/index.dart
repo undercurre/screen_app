@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,7 @@ import 'mode_list.dart';
 
 class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   ZigbeeLightDataAdapter? dataAdapter;
+  Mode? modeTap;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -21,6 +24,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
+    if (modeTap != null) {
+      selectKeys[modeTap!.key] = true;
+    }
     // var key = dataAdapter?.data!.fakeModel ?? "";
     // if (key.isNotEmpty) {
     //   selectKeys[key] = true;
@@ -74,6 +80,9 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
           child: ParamCard(
             disabled: dataAdapter?.data!.power ?? true ? false : true,
             title: '色温',
+            unit: "K",
+            customMin: 2700,
+            customMax: 6500,
             value: dataAdapter?.data!.colorTemp ?? 1,
             activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
             onChanged: dataAdapter?.controlColorTemperature,
@@ -86,7 +95,17 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             hasHeightlight: true,
             modeList: lightModes,
             selectedKeys: getSelectedKeys(),
-            onTap: dataAdapter?.controlMode,
+            onTap: (mode) {
+              setState(() {
+                modeTap = mode;
+              });
+              Timer(const Duration(milliseconds: 500), () {
+                setState(() {
+                  modeTap = null;
+                });
+              });
+              dataAdapter?.controlMode(mode);
+            },
             disabled: dataAdapter?.data!.power ?? true ? false : true,
           ),
         ),

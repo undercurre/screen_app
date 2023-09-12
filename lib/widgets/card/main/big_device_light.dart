@@ -442,7 +442,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
                   widget.disabled,
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
-              isBarColorKeepFull: true,
+              isBarColorKeepFull: false,
               onChanging: (val, color) {
                 widget.adapter?.slider2To(val.toInt());
               },
