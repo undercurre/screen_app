@@ -193,6 +193,7 @@ class MigrationOldVersionMeiJuDataState
         Navigator.popAndPushNamed(context, 'Home');
       });
     } catch (e) {
+      await migrateChannel.setMeiJuIsMigrate();
       logger.e(e);
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());

@@ -7,10 +7,10 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
+import '../../common/adapter/bind_gateway_data_adapter.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
-import '../../common/api/gateway_api.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/global.dart';
 import '../../common/system.dart';
@@ -42,6 +42,7 @@ class HomeState extends State<Home>
   String selectDevice = "assets/imgs/icon/button_normal.png";
   String selectCenter = "assets/imgs/icon/button_press.png";
   String selectScene = "assets/imgs/icon/button_normal.png";
+  BindGatewayAdapter? bindGatewayAd;
 
   @override
   void initState() {
@@ -72,13 +73,13 @@ class HomeState extends State<Home>
       Global.nearWakeup = nearWakeup;
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
-      aiMethodChannel
-          .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       if (System.isLogin()) {
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
       }
       if(MideaRuntimePlatform.platform==GatewayPlatform.HOMLUX){
          deviceLocal485ControlChannel.find485Device();
+      }else{
+        aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       }
       // 初始化推送
       PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
@@ -93,8 +94,10 @@ class HomeState extends State<Home>
 
   void _aiControlDeviceError() {
     /// 判定当前网关是否已经绑定
-    GatewayApi.check((bind, code) {
-      if (!bind) {
+    bindGatewayAd?.destroy();
+    bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
+    bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
+      if (!isBind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();
         System.logout("语音控制设备失败，进行");
@@ -102,7 +105,6 @@ class HomeState extends State<Home>
             context, "Login", (route) => route.settings.name == "/");
       }
     }, () {
-      //接口请求报错
     });
   }
 
@@ -188,6 +190,8 @@ class HomeState extends State<Home>
   @override
   void dispose() {
     super.dispose();
+    bindGatewayAd?.destroy();
+    bindGatewayAd = null;
     aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
     aiMethodChannel
         .unregisterAiControlDeviceErrorCallBack(_aiControlDeviceError);
