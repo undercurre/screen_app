@@ -1,8 +1,7 @@
 package com.midea.test.ui.page
 
 import android.content.Context
-import android.media.MediaPlayer
-import android.net.Uri
+import android.media.AudioManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -12,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import java.io.IOException
+import com.midea.light.common.utils.SoundPoolManager
 
 
 /**
@@ -61,12 +60,17 @@ fun Home(modifier: Modifier = Modifier) {
 }
 
 fun loadRingtone(context: Context) {
-
 }
 
-fun playRingtone(context: Context) {}
+fun playRingtone(context: Context) {
+    SoundPoolManager.getInstance().play(com.midea.test.R.raw.argon, 1.0f, AudioManager.STREAM_NOTIFICATION, 0, 1.0f);
+}
 
-fun stopRingtone(context: Context) {}
+fun stopRingtone(context: Context) {
+    SoundPoolManager.getInstance().play(com.midea.test.R.raw.bollywood, 1.0f, AudioManager.STREAM_MUSIC, 0, 1.0f)
+}
 
-fun loop5PlayRingtone(context: Context) {}
+fun loop5PlayRingtone(context: Context) {
+    SoundPoolManager.getInstance().stop()
+}
 
