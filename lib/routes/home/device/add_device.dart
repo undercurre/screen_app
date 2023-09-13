@@ -197,15 +197,47 @@ class _AddDevicePageState extends State<AddDevicePage> {
     } else {
       HomluxGlobal.selectRoomId = roomID;
     }
-    devices = devicesAll.where((element) => element.roomId == roomID).toList();
+    List<DeviceEntity> devicesTemp = devicesAll.where((element) => element.roomId == roomID).toList();
     deleteDevices.clear();
-    for (DeviceEntity device in devices) {
+    for (DeviceEntity device in devicesTemp) {
       if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
         deleteDevices.add(device);
       }
     }
-    devices.removeWhere((i) => deleteDevices.contains(i));
+    devicesTemp.removeWhere((i) => deleteDevices.contains(i));
+    List<DeviceEntity> devicesLightGroup=[];
+    List<DeviceEntity> devicesPanel=[];
+    for (DeviceEntity device in devicesTemp) {
+      if (isLightGroup(device.type,device.modelNumber)) {
+        devicesLightGroup.add(device);
+      }
+    }
+    for (DeviceEntity device in devicesTemp) {
+      if (isPanel(device.type,device.modelNumber)) {
+        devicesPanel.add(device);
+      }
+    }
+    devicesTemp.removeWhere((i) => devicesLightGroup.contains(i));
+    devicesTemp.removeWhere((i) => devicesPanel.contains(i));
+    devices.addAll(devicesLightGroup);
+    devices.addAll(devicesPanel);
+    devices.addAll(devicesTemp);
     setState(() {});
+  }
+
+  bool isLightGroup(String? type,String modelNum){
+    if(type=="0x21"&&modelNum=="lightGroup"){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  bool isPanel(String? type,String modelNum) {
+    if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
+      return true;
+    }
+    return panelList.containsKey(modelNum);
   }
 
   Map<String, String> getCurRoomConfig() {
