@@ -94,6 +94,9 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   Future<void> temperatureHandle(num value) async {
+    if(!widget.onOff){
+      return;
+    }
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});

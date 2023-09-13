@@ -229,7 +229,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: GearCard(
-                      disabled: false,
+                      disabled: !widget.onOff,
                       value: setWinSpeed(int.parse(widget.adapter!.data.windSpeed)),
                       maxGear: 3,
                       minGear: 1,
