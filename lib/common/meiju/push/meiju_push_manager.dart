@@ -13,7 +13,9 @@ import 'package:screen_app/common/meiju/push/event/meiju_push_event.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
+import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
+import '../../../widgets/util/net_utils.dart';
 import '../../helper.dart';
 import '../../logcat_helper.dart';
 import '../../system.dart';
@@ -25,7 +27,7 @@ const int delayPush = 10 * 1000;
 class MeiJuPushManager {
 
   static IOWebSocketChannel? _channel;
-  static bool _isConnect = false;
+  static int _isConnect = 0;
 
   static Timer? _globalTimer;
   static int? _sendHearTimerInterval;
@@ -33,7 +35,7 @@ class MeiJuPushManager {
   static Map<String, Pair<int, void Function()>> pushRecord = {};
 
   static bool isConnect() {
-    return _isConnect;
+    return _isConnect == 2;
   }
 
   static void _operateDevice(String deviceId) {
@@ -43,9 +45,30 @@ class MeiJuPushManager {
     }
   }
 
+  static void _netConnectState(NetState? state) {
+    if(state?.wifiState == 2 || state?.ethernetState == 2) {
+      Log.file('meiju ws 检测到已连接网络');
+      if(_isConnect == 0) {
+        _startConnect('检测到网络已连接');
+      }
+    } else {
+      _stopConnect('检测到未连接网络');
+    }
+  }
+
   static void stopConnect() {
-    if(_isConnect) {
-      _isConnect = false;
+    NetUtils.unregisterListenerNetState(_netConnectState);
+    _stopConnect("切换平台，关闭连接");
+  }
+
+  static void startConnect() {
+    NetUtils.registerListenerNetState(_netConnectState);
+  }
+
+  static void _stopConnect(String reason) {
+    if(_isConnect == 2) {
+      Log.file('meiju ws 关闭连接，原因：$reason');
+      _isConnect = 0;
       _sendHearTimerInterval = null;
 
       if (_globalTimer?.isActive ?? false) {
@@ -63,9 +86,21 @@ class MeiJuPushManager {
     }
   }
 
-  static Future<void> startConnect() async {
+  static void _startConnect(String reason) async {
 
-    if (MeiJuGlobal.isLogin && !_isConnect) {
+    if (MeiJuGlobal.isLogin) {
+      Log.file('meiju ws 即将建立连接, 原因$reason');
+
+      _isConnect = 1;
+
+      _sendHearTimerInterval = null;
+      _globalTimer?.cancel();
+      _globalTimer = null;
+      pushRecord.clear();
+      _channel?.sink.close();
+      _aliPushUnBind();
+      bus.off('operateDevice');
+
       _aliPushBind();
       _updatePushToken();
 
@@ -87,39 +122,41 @@ class MeiJuPushManager {
       _channel = IOWebSocketChannel.connect(host + query,pingInterval:const Duration(seconds: 10),connectTimeout:const Duration(seconds: 8));
       _channel?.stream.listen(_onData,onError:_onError,onDone: _onDone);
 
-      _isConnect = true;
+      _isConnect = 2;
 
       if(!(_globalTimer?.isActive ?? false)) {
         var lastSubscriptionTime = DateTime.now().millisecondsSinceEpoch;
         var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
 
         _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          if(_isConnect) {
+          if(_isConnect == 2) {
             if(MeiJuGlobal.isLogin) {
 
               /// 发送订阅任务
               var currTimer = DateTime.now();
               if(currTimer.millisecondsSinceEpoch - lastSubscriptionTime > 60 * 1000) {
                 _subscriptionSet();
+                lastSubscriptionTime = currTimer.millisecondsSinceEpoch;
               }
 
               /// 发送心跳业务
               if(_sendHearTimerInterval != null &&
                   (currTimer.millisecondsSinceEpoch - lastBeatHearTime >= _sendHearTimerInterval!)) {
                 _sendBeatHeart();
+                lastBeatHearTime = currTimer.millisecondsSinceEpoch;
               }
 
               /// 执行延迟消息推送队列任务
-              for (var element in pushRecord.values) {
+              pushRecord.removeWhere((key, element) {
                 int exeTime = element.value1;
                 if(currTimer.millisecondsSinceEpoch >= exeTime) {
                   element.value2.call();
                 }
-              }
+                return currTimer.millisecondsSinceEpoch >= exeTime;
+              });
 
             } else {
-              Log.e('检测到退出登录，即将断开推送连接');
-              stopConnect();
+              _stopConnect('检测到退出登录，即将断开推送连接');
             }
           } else {
             timer.cancel();
@@ -144,7 +181,7 @@ class MeiJuPushManager {
 
   static void _onData(event) {
     Map<String,dynamic> eventMap = json.decode(event);
-    Log.file('美居 接收到的Push消息: $eventMap');
+    Log.file('meiju ws 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
         Log.file('meiju see recv beat heart');
@@ -153,7 +190,7 @@ class MeiJuPushManager {
         String data = eventMap['data'];
         Map<String,dynamic> dataMap = json.decode(data);
         _sendHearTimerInterval = dataMap['heatbeat_interval'];
-        Log.i('接收到心跳发送间隔时间: $_sendHearTimerInterval');
+        Log.i('meiju ws 接收到心跳发送间隔时间: $_sendHearTimerInterval');
         break;
       case 2:
         String data = eventMap['data'];
@@ -217,7 +254,7 @@ class MeiJuPushManager {
   }
   // ALI 推送通知
   static notifyPushMessage(String title) {
-    Log.file('美居 ali推送 $title');
+    Log.file('meiju ws  ali推送 $title');
     if(title == '添加设备') {
       bus.typeEmit(MeiJuDeviceAddEvent());
     } else if(title == '删除设备') {
@@ -228,13 +265,17 @@ class MeiJuPushManager {
   }
 
   static void _onError(err) {
-    Log.file('美居 push hjl $err');
+    Log.file('meiju ws hjl $err');
   }
 
   static void _onDone() {
-    stopConnect();
     if (MeiJuGlobal.isLogin) {
-      startConnect();
+      var state = NetUtils.getNetState();
+      if(state != null) {
+        _startConnect('');
+      } else {
+        _stopConnect('接收到done事件，断开连接');
+      }
     }
   }
 
