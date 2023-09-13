@@ -31,6 +31,7 @@ import com.midea.homlux.ai.services.DDSService;
 import com.midea.homlux.ai.services.MideaAiService;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.setting.wifi.ConnectStateHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class AiManager {
     private int mAuthCount = 0;// 授权次数,用来记录自动授权
     private boolean ddsIntial = false;
     private boolean isAiEnable = true;
+    private boolean isIntial = false;
     Activity context;
     WakUpStateCallBack mWakUpStateCallBack;
     AISetVoiceCallBack mAISetVoiceCallBack;
@@ -64,20 +66,20 @@ public class AiManager {
         mWakUpStateCallBack = mCallBack;
         mAISetVoiceCallBack = VoiceCallBack;
         isAiEnable = aiEnable;
-        new Thread() {
-            public void run() {
-                while (true) {
-                    if (checkNet()) {
-                        context.runOnUiThread(() -> {
+        ConnectStateHandler.INSTANCE.register((ethernet, wifi, wifiInfo) -> {
+            if (wifi == 2 && isIntial == false) {
+                if (checkNet()) {
+                    context.runOnUiThread(() -> {
+                        isIntial = true;
 //                            Log.e("sky","参数uid:"+uid+"---参数token:"+token+"---参数refreshToken:"+refreshToken+"---参数ExpiresTime:"+ExpiresTime);
-                            DialogUtil.showLoadingMessage(context, "同步家庭数据中");
-                            AccountLogin(uid, token, refreshToken, ExpiresTime);
-                        });
-                        break;
-                    }
+                        DialogUtil.showLoadingMessage(context, "同步家庭数据中");
+                        AccountLogin(uid, token, refreshToken, ExpiresTime);
+                    });
                 }
             }
-        }.start();
+        });
+        ConnectStateHandler.INSTANCE.queryConnectState();
+
     }
 
     /**

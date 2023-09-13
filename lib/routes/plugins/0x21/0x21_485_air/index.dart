@@ -34,6 +34,9 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   }
 
   Future<void> gearHandle(num value) async {
+    if(OnOff == '0'){
+      return;
+    }
     if (value == 1) {
       value = 4;
     } else if (value == 3) {
@@ -163,7 +166,7 @@ class FreshAir485PageState extends State<FreshAir485Page> {
                             child: GearCard(
                               maxGear: 3,
                               minGear: 1,
-                              disabled: false,
+                              disabled: OnOff == '0',
                               value: setWinSpeed(localWind),
                               onChanged: gearHandle,
                             ),

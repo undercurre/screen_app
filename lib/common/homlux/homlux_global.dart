@@ -52,7 +52,7 @@ class HomluxGlobal {
   static String? _gatewaySn;  // 屏下网关的sn
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
   static HomluxUserInfoEntity? _homluxUserInfo;
-  static String? _selectRoomId="";
+  static String? _selectRoomId;
 
 
   static String? get selectRoomId => _selectRoomId;

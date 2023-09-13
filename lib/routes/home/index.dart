@@ -8,6 +8,7 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
+import '../../common/adapter/select_room_data_adapter.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
@@ -37,11 +38,6 @@ class HomeState extends State<Home>
     with DeviceManagerSDKInitialize, LifeCycleState, Ota {
   late double po;
   var children = <Widget>[];
-  String pressPath = "assets/imgs/icon/button_press.png";
-  String unPressPath = "assets/imgs/icon/button_normal.png";
-  String selectDevice = "assets/imgs/icon/button_normal.png";
-  String selectCenter = "assets/imgs/icon/button_press.png";
-  String selectScene = "assets/imgs/icon/button_normal.png";
   BindGatewayAdapter? bindGatewayAd;
 
   @override
@@ -71,6 +67,8 @@ class HomeState extends State<Home>
       Global.lightValue = lightValue;
       Global.autoLight = autoLight;
       Global.nearWakeup = nearWakeup;
+      SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+      roomDataAd?.queryRoomList(System.familyInfo!);
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
       if (System.isLogin()) {

@@ -18,7 +18,7 @@ class _ScanCode extends State<ScanCode> {
     qrDataAd = QRCodeDataAdapter(MideaRuntimePlatform.platform);
     /// 授权成功回调
     qrDataAd?.setAuthQrCodeSucCallback(() {
-      TipsUtils.toast(content: '授权成功');
+      TipsUtils.toast(content: '授权成功', duration: 1000);
       widget.onSuccess!();
     });
     /// 更新二维码数据回调

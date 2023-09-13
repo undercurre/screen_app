@@ -56,27 +56,6 @@ class _Boot extends State<Boot> {
       }
       checkLogin();
     }.call();
-
-    // () async {
-    //   /// 数据迁移逻辑
-    //   String version = await aboutSystemChannel.getAppVersion();
-    //   if (version == '0120' &&!Setting.instant().checkVersionCompatibility(version)) {
-    //     if (!System.isLogin()) {
-    //       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-    //         Future.delayed(Duration.zero).then((_) {
-    //           Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
-    //         });
-    //       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-    //         Future.delayed(Duration.zero).then((_) {
-    //           Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
-    //         });
-    //       }
-    //       return;
-    //     }
-    //   }
-    //   /// 正常的跳转逻辑
-    //   checkLogin();
-    // }.call();
   }
 
   @override
@@ -108,7 +87,7 @@ class _Boot extends State<Boot> {
     () async {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         String? isMigrate = await migrateChannel.meiJuIsMigrate();
-        if (isMigrate == "0") {
+        if (isMigrate == "0"&&!System.isLogin()) {
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
           });
@@ -134,7 +113,7 @@ class _Boot extends State<Boot> {
         }
       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
         String? isMigrate = await migrateChannel.homluxIsMigrate();
-        if(isMigrate == "0"){
+        if(isMigrate == "0"&&!System.isLogin()){
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
           });

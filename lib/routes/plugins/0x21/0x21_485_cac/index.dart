@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/business/dropdown_menu.dart' as ui;
+import '../../../../widgets/plugins/air_485_condition.dart';
 import 'cac_data_adapter.dart';
 
 class AirCondition485PageState extends State<AirCondition485Page> {
@@ -170,11 +171,11 @@ class AirCondition485PageState extends State<AirCondition485Page> {
       ),
       child: Stack(
         children: [
-          const Positioned(
+           Positioned(
               left: 0,
               top: 0,
-              child: AirCondition(
-                temperature: 26,
+              child: AirCondition485(
+                temperature: currentTemp.toString(),
                 windSpeed: 2,
                 mode: "cool",
               )),
@@ -334,7 +335,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: false,
+                                      disabled: OnOff == '0',
                                       min: 16,
                                       max: 30,
                                       step: 1,
@@ -345,7 +346,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      disabled: false,
+                                      disabled: OnOff == '0',
                                       value: setWinSpeed(windSpeed),
                                       maxGear: 3,
                                       minGear: 1,

@@ -34,6 +34,9 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   }
 
   Future<void> temperatureHandle(num value) async {
+    if(OnOff == '0'){
+      return;
+    }
     adapter?.orderTemp(value.toInt());
     targetTemp = value.toString();
     adapter!.data.targetTemp = targetTemp;
