@@ -22,6 +22,7 @@ HomluxSceneEntity _$HomluxSceneEntityFromJson(Map<String, dynamic> json) {
       entity.sceneIcon = homluxJsonConvert.convert(json['sceneIcon']);
       entity.sceneId = homluxJsonConvert.convert(json['sceneId']);
       entity.sceneName = homluxJsonConvert.convert(json['sceneName']);
+      entity.updateStamp = homluxJsonConvert.convert(json['updateStamp']);
       entity.timeConditions = homluxJsonConvert.convertListNotNull<HomluxTimeConditions>(json['timeConditions']);
       return entity;
 }
@@ -44,6 +45,7 @@ Map<String, dynamic> _$HomluxSceneEntityToJson(HomluxSceneEntity instance) =>
       'sceneIcon': instance.sceneIcon,
       'sceneId': instance.sceneId,
       'sceneName': instance.sceneName,
+      'updateStamp': instance.updateStamp,
       'timeConditions':
           instance.timeConditions?.map((e) => e.toJson()).toList(),
     };

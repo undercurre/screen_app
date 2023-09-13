@@ -17,6 +17,7 @@ class HomluxGroupEntity {
   final ColorTempRangeMap? colorTempRangeMap;
   final int? onLineStatus;
   final String? houseId;
+  final int? updateStamp;
 
   const HomluxGroupEntity({
     this.groupName,
@@ -32,6 +33,7 @@ class HomluxGroupEntity {
     this.colorTempRangeMap,
     this.onLineStatus,
     this.houseId,
+    this.updateStamp
   });
 
   factory HomluxGroupEntity.fromJson(Map<String, dynamic> json) =>

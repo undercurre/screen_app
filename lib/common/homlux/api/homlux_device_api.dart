@@ -15,6 +15,8 @@ class HomluxDeviceApi {
   static HomluxLanControlDeviceManager lanManager = HomluxLanControlDeviceManager.getInstant();
   // 设备状态存储内存存储器
   static Map<String, HomluxDeviceEntity> devices = {};
+  // 灯组状态存储内存存储器
+  static Map<String, HomluxGroupEntity> groups = {};
 
   /// ******************
   /// 房间设备列表接口
@@ -107,12 +109,20 @@ class HomluxDeviceApi {
   /// ****************
   static Future<HomluxResponseEntity<HomluxGroupEntity>> queryGroupByGroupId(
       String groupId,
-      {CancelToken? cancelToken}) {
-    return HomluxApi.request<HomluxGroupEntity>(
+      {CancelToken? cancelToken}) async {
+
+    var res = await HomluxApi.request<HomluxGroupEntity>(
         '/v1/mzgd/scene/queryGroupByGroupId',
         cancelToken: cancelToken,
         options: Options(method: 'POST'),
         data: {'groupId': groupId});
+
+    if(res.success && res.data != null) {
+      groups['groupId'] = res.data!;
+      LocalStorage.setItem('homlux_lan_group_save_$groupId', jsonEncode(res.data!.toJson()));
+    }
+
+    return res;
   }
 
   /// ******************
@@ -678,9 +688,19 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> _controlGroupLight(
       {required String groupId,
       required List<Map<String, dynamic>> action}) async {
+
+    if(!groups.containsKey(groupId)) {
+      var json = await LocalStorage.getItem('homlux_lan_group_save_$groupId');
+      if(StrUtils.isNotNullAndEmpty(json)) {
+        groups[groupId] = HomluxGroupEntity.fromJson(jsonDecode(json!));
+      }
+    }
+
+    int? updateStamp = groups[groupId]?.updateStamp;
+
     /// 局域网控制灯组
     HomluxResponseEntity lanEntity =
-        await lanManager.executeGroup(groupId, action);
+        await lanManager.executeGroup(groupId, updateStamp ?? 0, action);
 
     if (lanEntity.isSuccess) {
       return lanEntity;

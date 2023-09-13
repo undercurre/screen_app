@@ -55,11 +55,15 @@ class HomluxGlobal {
   static String? _selectRoomId="";
 
 
-  static String? get selectRoomId => _selectRoomId!;
+  static String? get selectRoomId => _selectRoomId;
 
   static set selectRoomId(String? value) {
     _selectRoomId = value;
-    LocalStorage.setItem(HOMLUX_SELECT_ROOM_ID,_selectRoomId!);
+    if(value == null) {
+      LocalStorage.removeItem(HOMLUX_SELECT_ROOM_ID);
+    } else {
+      LocalStorage.setItem(HOMLUX_SELECT_ROOM_ID, value);
+    }
   }
 
   HomluxGlobal._();

@@ -18,6 +18,7 @@ class HomluxSceneEntity {
   String? sceneIcon;
   String? sceneId;
   String? sceneName;
+  int? updateStamp;
   List<HomluxTimeConditions>? timeConditions;
 
   HomluxSceneEntity();

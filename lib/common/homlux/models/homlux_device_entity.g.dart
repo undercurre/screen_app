@@ -44,6 +44,10 @@ HomluxDeviceEntity $HomluxDeviceEntityFromJson(Map<String, dynamic> json) {
 	if (proType != null) {
 		homluxDeviceEntity.proType = proType;
 	}
+	final int? updateStamp = homluxJsonConvert.convert<int>(json['updateStamp']);
+	if (proType != null) {
+		homluxDeviceEntity.updateStamp = updateStamp;
+	}
 	final List<HomluxDeviceSwitchInfoDTOList>? switchInfoDTOList = homluxJsonConvert.convertListNotNull<HomluxDeviceSwitchInfoDTOList>(json['switchInfoDTOList']);
 	if (switchInfoDTOList != null) {
 		homluxDeviceEntity.switchInfoDTOList = switchInfoDTOList;
@@ -99,6 +103,7 @@ Map<String, dynamic> $HomluxDeviceEntityToJson(HomluxDeviceEntity entity) {
 	data['sn'] = entity.sn;
 	data['lightRelId'] = entity.lightRelId;
 	data['productId'] = entity.productId;
+	data['updateStamp'] = entity.updateStamp;
 	return data;
 }
 
