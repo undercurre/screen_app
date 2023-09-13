@@ -6,7 +6,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/push/homlux_push_message_model.dart';
 import 'package:screen_app/common/logcat_helper.dart';
+import 'package:screen_app/widgets/util/net_utils.dart';
 
+import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
 import '../../system.dart';
 import 'event/homlux_push_event.dart';
@@ -50,17 +52,38 @@ class HomluxPushManager {
   static WebSocket? webSocket;
   static Timer? retryConnectTimer;
   static Timer? hearPacketTimeoutTimer;
-  static bool _isConnect = false;
+  static int _isConnect = 0;  // 0.未连接 1.连接中 2.已连接
   static bool heartBeatReply = false;
+  
+  static void _netConnectState(NetState? state) {
+    if(state?.wifiState == 2 || state?.ethernetState == 2) {
+      Log.file('homlux ws 检测到已连接网络');
+      if(_isConnect == 0) {
+        _startConnect();
+      }
+    } else {
+      _stopConnect('检测到未连接网络');
+    }
+  }
+
+  static startConnect([int retrySeconds = 2]) async {
+    NetUtils.registerListenerNetState(_netConnectState);
+  }
 
   static bool isConnect() {
-    return _isConnect;
+    return _isConnect == 2;
   }
 
   static void stopConnect() async {
-    if(_isConnect) {
+    NetUtils.unregisterListenerNetState(_netConnectState);
+    _stopConnect('切换平台断开连接');
+  }
+
+  static Future _stopConnect(String reason) async {
+    if(_isConnect > 0) {
+      Log.file('homlux ws 关闭连接, 关闭原因：$reason');
       // 1. 关闭旧连接, 定时器
-      _isConnect = false;
+      _isConnect = 0;
       retryConnectTimer?.cancel();
       hearPacketTimeoutTimer?.cancel();
       webSocket?.close();
@@ -68,18 +91,21 @@ class HomluxPushManager {
     }
   }
 
-  static startConnect([int retrySeconds = 2]) async {
 
-    _isConnect = false;
+  static _startConnect([int retrySeconds = 2]) async {
+
+    _isConnect = 1;
 
     // 重连函数
     void reconnectFunction() {
-      Log.file('即将重新连接');
-      retryConnectTimer?.cancel();
-      retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
-        startConnect(retrySeconds * 2);
-        retryConnectTimer = null;
-      });
+      if(_isConnect != 1) {
+        Log.file('homlux ws 即将重新连接');
+        retryConnectTimer?.cancel();
+        retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
+          startConnect(retrySeconds * 2);
+          retryConnectTimer = null;
+        });
+      }
     }
 
     try {
@@ -119,7 +145,7 @@ class HomluxPushManager {
       // 4.发送心跳包
       _sendHearPacket(reconnectFunction);
 
-      _isConnect = true;
+      _isConnect = 2;
     } catch(e) {
       Log.file('执行异常，尝试重连 $e');
       reconnectFunction();
@@ -130,16 +156,20 @@ class HomluxPushManager {
   static _message(dynamic event, void Function() reconnectFunction) {
     Log.file('homlux ws message $event');
     try {
-      // 1.取消心跳计时器
-      hearPacketTimeoutTimer?.cancel();
-      hearPacketTimeoutTimer = null;
-      // 2.处理业务逻辑
+
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
       var eventType = jsonMap['result']?['eventType'] as String?;
       if (TypeConnectSuc == eventType) {
         Log.file('websocket 建立连接成功');
         return;
       }
+
+      var topic = jsonMap['result']?['topic'] as String?;
+      if(topic == 'heartbeatTopic') {
+        heartBeatReply = true;
+        return;
+      }
+
       HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
       if(entity.result?.eventType == TypeDeviceProperty) {
         bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity.result!));
@@ -185,16 +215,8 @@ class HomluxPushManager {
       } else if(TypeDeleteHouseUser == eventType) {
         bus.typeEmit(HomluxDeleteHouseUser());
       } else {
-        if(entity.topic == 'heartbeatTopic') {
-          /// 心跳包回复
-          heartBeatReply = true;
-        } else {
-          Log.file('此消息类型无法处理：$event');
-        }
+        Log.file('此消息类型无法处理：$event');
       }
-
-      // 3.重新启动心跳计时器
-      // _sendHearPacket(reconnectFunction);
     } catch(e) {
       Log.file('homlux ws message error ->  $event $e');
     }
@@ -212,7 +234,12 @@ class HomluxPushManager {
   static _done(void Function() reconnectFunction) {
     Log.file('homlux ws done');
     try {
-      reconnectFunction();
+      var state = NetUtils.getNetState();
+      if(state != null) {
+        reconnectFunction();
+      } else {
+        _stopConnect('网络状态失效');
+      }
     } catch(e) {
       Log.file('homlux ws done error $e');
     }
