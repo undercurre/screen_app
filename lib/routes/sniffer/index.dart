@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
@@ -18,6 +19,7 @@ import '../../common/meiju/api/meiju_user_api.dart';
 import '../../common/meiju/meiju_global.dart';
 import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../common/system.dart';
+import '../../widgets/mz_buttion.dart';
 import 'device_item.dart';
 
 class SnifferViewModel {
@@ -72,6 +74,20 @@ class SnifferViewModel {
 
   /// 是否存在已经选中的Model
   bool hasSelected() => combineList.any((e) => e.selected);
+
+  num selectCnt() {
+    num cnt = 0;
+    for (var element in combineList) {
+      if(element.selected) cnt++;
+    }
+    return cnt;
+  }
+
+  void allSelect() {
+    for (var element in combineList) {
+      element.selected = true;
+    }
+  }
 
   /// 开始探测设备
   void sniffer(BuildContext context) {
@@ -333,14 +349,6 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
 
   @override
   Widget saveBuild(BuildContext context) {
-    ButtonStyle buttonStyle = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
-    ButtonStyle buttonStyleOn = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -357,6 +365,26 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
           MzNavigationBar(
             onLeftBtnTap: () => Navigator.pop(context),
             title: '发现设备',
+            sideBtnWidth: 100,
+            rightSlot: GestureDetector(
+              onTap: () {
+                setState(() {
+                  viewModel.allSelect();
+                });
+              },
+              child: Container(
+                alignment: Alignment.center,
+                width: 120,
+                child: const Text("全选",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ),
           ),
 
           // 扫描动画
@@ -400,21 +428,33 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
 
           if (viewModel.combineList.isNotEmpty)
             Positioned(
-                left: 0,
-                bottom: 0,
-                width: MediaQuery.of(context).size.width,
-                child: Row(children: [
-                  Expanded(
-                    child: TextButton(
-                        style: viewModel.hasSelected() ? buttonStyleOn : buttonStyle,
-                        onPressed: () => viewModel.toDeviceConnect(context),
-                        child: Text(viewModel.hasSelected() ? '添加设备' : '选择设备',
-                            style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.white,
-                                fontFamily: 'MideaType'))),
+              left: 0,
+              bottom: 0,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 72,
+                    color: const Color(0x19FFFFFF),
+                    alignment: Alignment.center,
+                    child: MzButton(
+                      width: 240,
+                      height: 56,
+                      borderRadius: 29,
+                      backgroundColor: viewModel.selectCnt() > 0 ? const Color(0xFF267AFF) : const Color(0xFF4E77BD),
+                      borderColor: Colors.transparent,
+                      borderWidth: 0,
+                      text: viewModel.selectCnt() > 0 ? "确认选择(${viewModel.selectCnt()})" : "选择设备",
+                      onPressed: () {
+                        viewModel.toDeviceConnect(context);
+                      },
+                    ),
                   ),
-                ])),
+                ),
+              ),
+            ),
+
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
@@ -11,6 +12,7 @@ import '../../common/logcat_helper.dart';
 import '../../common/meiju/meiju_global.dart';
 import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../widgets/event_bus.dart';
+import '../../widgets/mz_buttion.dart';
 import '../../widgets/util/net_utils.dart';
 
 class DeviceConnectViewModel {
@@ -259,14 +261,6 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
 
   @override
   Widget saveBuild(BuildContext context) {
-    ButtonStyle buttonStyle = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
-    ButtonStyle buttonStyleOn = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -292,17 +286,33 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
               child: ListView(children: _listView())),
 
           Positioned(
-              left: 0,
-              bottom: 0,
-              width: MediaQuery.of(context).size.width,
-              child: TextButton(
-                  style: viewModel.toBeAddedList.isEmpty ? buttonStyleOn : buttonStyle,
-                  onPressed: () => viewModel.goBack(context),
-                  child: Text(viewModel.toBeAddedList.isEmpty ? '完成添加' : '停止添加',
-                      style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontFamily: 'MideaType')))),
+            left: 0,
+            bottom: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 72,
+                  color: const Color(0x19FFFFFF),
+                  alignment: Alignment.center,
+                  child: MzButton(
+                    width: 240,
+                    height: 56,
+                    borderRadius: 29,
+                    backgroundColor: viewModel.toBeAddedList.isEmpty ? const Color(0xFF267AFF) : const Color(0xFF4E77BD),
+                    borderColor: Colors.transparent,
+                    borderWidth: 0,
+                    text: viewModel.toBeAddedList.isEmpty ? "完成添加" : "停止添加",
+                    onPressed: () {
+                      viewModel.goBack(context);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+
         ],
       ),
     );
