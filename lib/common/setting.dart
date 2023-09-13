@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../channel/index.dart';
 import 'helper.dart';
 
 /// 系统设置的配置
@@ -51,6 +52,11 @@ class Setting {
   /// 靠近唤醒使能
   late bool _nearWakeupEnable;
 
+  /// 默认音量 0～15
+  final int _defaultVolume = 12;
+  /// 默认亮度 0～255
+  final int _defaultBrightness = 255;
+
   void init() async {
     _prefs = await SharedPreferences.getInstance();
     int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
@@ -62,12 +68,31 @@ class Setting {
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
 
     _aiEnable = _prefs.getBool('setting_ai_enable') ?? false;
-    _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? 204;
-    _volume = _prefs.getInt('setting_system_volume') ?? 50;
+    _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? _defaultBrightness;
+    _volume = _prefs.getInt('setting_system_volume') ?? _defaultVolume;
     _engineeringModeEnable = _prefs.getBool('setting_engineering_mode') ?? false;
     _screenAutoEnable = _prefs.getBool('setting_screen_auto') ?? false;
     _nearWakeupEnable = _prefs.getBool('setting_near_wakeup') ?? false;
     _screenSaverReplaceToOff = _prefs.getBool('setting_screen_replace_off') ?? false;
+
+    initDeviceDefaultConfig();
+  }
+
+  /// 设置设备默认音量和亮度
+  void initDeviceDefaultConfig() {
+    bool isSetBefore = _prefs.getBool('setting_volume_brightness_before') ?? false;
+    if(!isSetBefore) {
+      settingMethodChannel.setSystemVoice(_defaultVolume);
+      settingMethodChannel.setSystemLight(_defaultBrightness);
+
+      _volume = _defaultVolume;
+      _prefs.setInt('setting_system_volume', _defaultVolume);
+
+      _screenBrightness = _defaultBrightness;
+      _prefs.setInt('setting_screen_brightness', _defaultBrightness);
+
+      _prefs.setBool('setting_volume_brightness_before', true);
+    }
   }
 
   /// 标识当前版本已经处理版本升级兼容
@@ -187,10 +212,10 @@ class Setting {
     _volume = val;
   }
 
-  /// 获取屏幕亮度
+  /// 获取工程模式
   bool get engineeringModeEnable => _engineeringModeEnable;
 
-  /// 设置屏幕亮度
+  /// 设置工程模式
   set engineeringModeEnable(bool enable) {
     _prefs.setBool('setting_engineering_mode', enable);
     _engineeringModeEnable = enable;
