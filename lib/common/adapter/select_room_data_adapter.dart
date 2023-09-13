@@ -8,6 +8,7 @@ import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 import '../homlux/generated/json/base/homlux_json_convert_content.dart';
 import '../homlux/models/homlux_family_entity.dart';
 import '../homlux/models/homlux_room_list_entity.dart';
+import '../logcat_helper.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
 import '../meiju/models/meiju_login_home_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
@@ -145,6 +146,7 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
         familyListEntity =
             SelectRoomListEntity.fromHomlux(res.data?.roomInfoWrap ?? []);
         System.homluxRoomList = familyListEntity?._homluxData;
+        Log.i("homlux房间列表${System.homluxRoomList}");
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;
