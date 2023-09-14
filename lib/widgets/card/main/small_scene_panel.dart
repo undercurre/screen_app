@@ -23,6 +23,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
   final bool disableOnOff;
   final String isOnline;
   final bool disabled;
+  final bool discriminative;
   bool sceneOnOff = false;
   ScenePanelDataAdapter adapter; // 数据适配器
 
@@ -35,6 +36,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.disableOnOff = true,
+    this.discriminative = false,
   });
 
   @override
@@ -65,25 +67,9 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   void initState() {
     super.initState();
-    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
-        if (args.nodeId == widget.adapter.nodeId) {
-          _throttledFetchData();
-        }
-      });
-    } else {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId ==
-            widget.adapter.applianceCode) {
-          _throttledFetchData();
-        }
-      });
-    }
-
+    _startPushListen();
     widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
+    widget.adapter.bindDataUpdateFunction(updateData);
   }
 
   void updateData() {
@@ -100,18 +86,14 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
     widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
-
+    widget.adapter.bindDataUpdateFunction(updateData);
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    widget.adapter.unBindDataUpdateFunction(() {
-      updateData();
-    });
+    _stopPushListen();
+    widget.adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
@@ -289,15 +271,15 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     }
     return BoxDecoration(
       borderRadius: BorderRadius.circular(24),
-      gradient: const LinearGradient(
+      gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
         ],
-        stops: [0.06, 1.0],
-        transform: GradientRotation(213 * (3.1415926 / 360.0)),
+        stops: const [0.06, 1.0],
+        transform: const GradientRotation(213 * (3.1415926 / 360.0)),
       ),
     );
   }
@@ -339,6 +321,34 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       return curScene.name;
     } else {
       return '加载中';
+    }
+  }
+
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (args.nodeId == widget.adapter.nodeId) {
+      _throttledFetchData();
+    }
+  }
+
+  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
+    if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+      _throttledFetchData();
+    }
+  }
+
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
     }
   }
 }

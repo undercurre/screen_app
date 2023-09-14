@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
@@ -17,6 +18,7 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
   final String isOnline;
   final bool disabled;
   final bool disableOnOff;
+  final bool discriminative;
   PanelDataAdapter adapter; // 数据适配器
 
   MiddleDevicePanelCardWidget({
@@ -28,6 +30,7 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
     required this.isOnline,
     required this.name,
     required this.disabled,
+    this.discriminative = false,
   });
 
   @override
@@ -59,24 +62,11 @@ class _MiddleDevicePanelCardWidgetState
   @override
   void initState() {
     super.initState();
-    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
-        if (args.nodeId == widget.adapter.nodeId) {
-          _throttledFetchData();
-        }
-      });
-    } else {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId ==
-            widget.adapter.applianceCode) {
-          _throttledFetchData();
-        }
-      });
+    if (!widget.disabled) {
+      _startPushListen();
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
     }
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
   }
 
   void updateData() {
@@ -90,19 +80,17 @@ class _MiddleDevicePanelCardWidgetState
 
   @override
   void didUpdateWidget(covariant MiddleDevicePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(() {
-      updateData();
-    });
-
-    super.didUpdateWidget(oldWidget);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+      super.didUpdateWidget(oldWidget);
+    }
   }
 
   @override
   void dispose() {
-    widget.adapter.unBindDataUpdateFunction(() {
-      updateData();
-    });
+    _stopPushListen();
+    widget.adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
@@ -336,31 +324,48 @@ class _MiddleDevicePanelCardWidgetState
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.disabled) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
+    return BoxDecoration(
+      borderRadius: const BorderRadius.all(Radius.circular(24)),
+      gradient: LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
+        ],
+      ),
+    );
+  }
+
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (args.nodeId == widget.adapter.nodeId) {
+      _throttledFetchData();
     }
-    return const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0x33616A76),
-            Color(0x33434852),
-          ],
-        ));
+  }
+
+  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
+    if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
+      _throttledFetchData();
+    }
+  }
+
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
   }
 }

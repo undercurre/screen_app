@@ -40,7 +40,8 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void initState() {
     super.initState();
-    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    SelectRoomDataAdapter roomDataAd =
+        SelectRoomDataAdapter(MideaRuntimePlatform.platform);
     roomDataAd?.queryRoomList(System.familyInfo!);
     // 在小部件初始化后等待一帧再执行回调
     WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -49,9 +50,7 @@ class _CustomPageState extends State<CustomPage> {
         initPage = _screens.length - 1;
       }
       _pageController.animateToPage(initPage,
-          duration:
-          const Duration(milliseconds: 300),
-          curve: Curves.ease);
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
     });
   }
 
@@ -62,7 +61,6 @@ class _CustomPageState extends State<CustomPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final layoutModel = Provider.of<LayoutModel>(context);
     // 获取屏幕信息
     MediaQueryData mediaQuery = MediaQuery.of(context);
@@ -177,6 +175,10 @@ class _CustomPageState extends State<CustomPage> {
                                     result.grids = proFlexiblePage.grids;
                                     Log.i('找到了合适的位置',
                                         '${result.pageIndex}页${result.grids}');
+                                    WidgetsBinding.instance?.addPostFrameCallback((_) {
+                                      _pageController.animateToPage(result.pageIndex,
+                                          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                                    });
                                   } else {
                                     // 放到最后一页
                                     // 清空布局器
@@ -447,10 +449,12 @@ class _CustomPageState extends State<CustomPage> {
                                     ),
                                   );
                                   // 跳到最后一页
-                                  _pageController.animateToPage(maxPage + 1,
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.ease);
+                                  WidgetsBinding.instance?.addPostFrameCallback((_) {
+                                    _pageController.animateToPage(maxPage + 1,
+                                        duration:
+                                        const Duration(milliseconds: 300),
+                                        curve: Curves.ease);
+                                  });
                                 } else {
                                   // 屏幕没占满又放的下,重构该页
                                   // 拿到当前页的layout
