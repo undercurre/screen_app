@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
@@ -30,8 +29,8 @@ class _DropDownPageState extends State<DropDownPage>
   var lightLogo = "assets/imgs/dropDown/light-black.png";
   var soundLogo = "assets/imgs/dropDown/sound-black.png";
 
-  Timer? sliderTimer1;
-  Timer? sliderTimer2;
+  int lastTimeSetVolume = 0;
+  int lastTimeSetBrightness = 0;
 
   initial() async {
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
@@ -320,7 +319,7 @@ class _DropDownPageState extends State<DropDownPage>
                             lightLogo = "assets/imgs/dropDown/light-white.png";
                           }
                           setState(() {});
-                          sliderToSetLight();
+                          sliderToSetLightEnd();
                         },
                         onChanging: (newValue, actieColor) {
                           lightValue = newValue;
@@ -330,7 +329,7 @@ class _DropDownPageState extends State<DropDownPage>
                             lightLogo = "assets/imgs/dropDown/light-white.png";
                           }
                           setState(() {});
-                          sliderToSetLightEnd();
+                          sliderToSetLight();
                         },
                       ),
                     ),
@@ -365,35 +364,31 @@ class _DropDownPageState extends State<DropDownPage>
   }
 
   void sliderToSetVol() {
-    sliderTimer1 ??= Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - lastTimeSetVolume > 500) {
+      lastTimeSetVolume = now;
       settingMethodChannel.setSystemVoice(soundValue.toInt());
-    });
+      Setting.instant().volume = soundValue.toInt();
+    }
   }
 
   void sliderToSetVolEnd() {
-    if (sliderTimer1 != null) {
-      if (sliderTimer1!.isActive) {
-        sliderTimer1!.cancel();
-      }
-      sliderTimer1 = null;
-    }
+    lastTimeSetVolume = DateTime.now().millisecondsSinceEpoch;
     settingMethodChannel.setSystemVoice(soundValue.toInt());
     Setting.instant().volume = soundValue.toInt();
   }
 
   void sliderToSetLight() {
-    sliderTimer2 ??= Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - lastTimeSetBrightness > 500) {
+      lastTimeSetBrightness = now;
       settingMethodChannel.setSystemLight(lightValue.toInt());
-    });
+      Setting.instant().screenBrightness = lightValue.toInt();
+    }
   }
 
   void sliderToSetLightEnd() {
-    if (sliderTimer2 != null) {
-      if (sliderTimer2!.isActive) {
-        sliderTimer2!.cancel();
-      }
-      sliderTimer2 = null;
-    }
+    lastTimeSetBrightness = DateTime.now().millisecondsSinceEpoch;
     settingMethodChannel.setSystemLight(lightValue.toInt());
     Setting.instant().screenBrightness = lightValue.toInt();
   }

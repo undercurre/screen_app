@@ -11,11 +11,13 @@ import '../../../states/relay_change_notifier.dart';
 class LocalRelayWidget extends StatefulWidget {
   final int relayIndex;
   final bool disabled;
+  final bool discriminative;
 
   const LocalRelayWidget({
     super.key,
     required this.relayIndex,
     required this.disabled,
+    this.discriminative = false,
   });
 
   @override
@@ -38,14 +40,11 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
     final relayModel = Provider.of<RelayModel>(context);
     return GestureDetector(
       onTap: () {
-        Log.i('点击', widget.disabled);
-        if (!widget.disabled) {
           if (widget.relayIndex == 1) {
             relayModel.toggleRelay1();
           } else {
             relayModel.toggleRelay2();
           }
-        }
       },
       child: Container(
         width: 210,
@@ -91,6 +90,21 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
   }
 
   BoxDecoration _getBoxDecoration(bool value) {
+    if (widget.disabled) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          ],
+          stops: [0.06, 1.0],
+          transform: GradientRotation(213 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
     return !value
         ? BoxDecoration(
       borderRadius: BorderRadius.circular(24),
@@ -108,12 +122,12 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
     )
         : BoxDecoration(
       borderRadius: BorderRadius.circular(24),
-      gradient: const LinearGradient(
+      gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
         ],
         stops: [0.06, 1.0],
         transform: GradientRotation(213 * (3.1415926 / 360.0)),

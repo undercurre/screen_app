@@ -80,10 +80,39 @@ class _CardDialogState extends State<CardDialog> {
                     },
                     child: const Icon(Icons.close_rounded, size: 32),
                   ),
-                  Text(
-                    widget.name,
-                    style: const TextStyle(
-                      fontSize: 20,
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 180,
+                          ),
+                          child: Text(
+                            widget.name.substring(0, widget.name.length - 1),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontFamily: 'MideaType',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          widget.name.substring(
+                            widget.name.length - 1,
+                            widget.name.length,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontFamily: 'MideaType',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   GestureDetector(
@@ -97,13 +126,15 @@ class _CardDialogState extends State<CardDialog> {
               ),
               Expanded(
                 child: Column(children: [
-                  Text(
-                    '点击卡片可找一找设备',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 16,
+                  if (_getCardType(widget.modelNumber, widget.type) !=
+                      CardType.Other)
+                    Text(
+                      '点击卡片可找一找设备',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.5),
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
@@ -120,7 +151,8 @@ class _CardDialogState extends State<CardDialog> {
                                   applianceCode: widget.applianceCode,
                                   roomName: widget.roomName,
                                   masterId: widget.masterId,
-                                  disabled: true,
+                                  disabled: false,
+                                  discriminative: true,
                                   modelNumber: widget.modelNumber,
                                   disableOnOff: true,
                                   isOnline: widget.onlineStatus,
@@ -143,7 +175,34 @@ class _CardDialogState extends State<CardDialog> {
                                   applianceCode: widget.applianceCode,
                                   roomName: widget.roomName,
                                   masterId: widget.masterId,
-                                  disabled: true,
+                                  disabled: false,
+                                  discriminative: true,
+                                  modelNumber: widget.modelNumber,
+                                  disableOnOff: true,
+                                  isOnline: widget.onlineStatus,
+                                  hasMore: false,
+                                  context: context,
+                                  type: '',
+                                  onlineStatus: '1',
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (buildMap[_getDeviceEntityType(widget.type,
+                                widget.modelNumber)]![CardType.Other] !=
+                            null)
+                          Transform.scale(
+                            scale: 0.75,
+                            child: UnconstrainedBox(
+                              child: buildMap[_getDeviceEntityType(widget.type,
+                                  widget.modelNumber)]![CardType.Other]!(
+                                DataInputCard(
+                                  name: widget.name,
+                                  applianceCode: widget.applianceCode,
+                                  roomName: widget.roomName,
+                                  masterId: widget.masterId,
+                                  disabled: false,
+                                  discriminative: true,
                                   modelNumber: widget.modelNumber,
                                   disableOnOff: true,
                                   isOnline: widget.onlineStatus,
@@ -175,7 +234,8 @@ class _CardDialogState extends State<CardDialog> {
                                         applianceCode: widget.applianceCode,
                                         roomName: widget.roomName,
                                         masterId: widget.masterId,
-                                        disabled: true,
+                                        disabled: false,
+                                        discriminative: true,
                                         modelNumber: widget.modelNumber,
                                         disableOnOff: true,
                                         isOnline: widget.onlineStatus,
@@ -238,6 +298,24 @@ class _CardDialogState extends State<CardDialog> {
                       ),
                     ),
                   if (buildMap[_getDeviceEntityType(
+                          widget.type, widget.modelNumber)]![CardType.Other] !=
+                      null)
+                    Container(
+                      width: _getCardType(widget.modelNumber, widget.type) ==
+                              CardType.Other
+                          ? 22
+                          : 14,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(4)),
+                        color: _currentIndex == 1
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.6),
+                      ),
+                    ),
+                  if (buildMap[_getDeviceEntityType(
                           widget.type, widget.modelNumber)]![CardType.Big] !=
                       null)
                     Container(
@@ -278,6 +356,10 @@ class _CardDialogState extends State<CardDialog> {
       CardType curCardType = _getPanelCardType(modelNum, type);
       return curCardType;
     }
+    if (type == 'weather' || type == 'clock') {
+      return CardType.Other;
+    }
+    ;
     Map<int, CardType> cardTypeMap = {
       0: CardType.Small,
       1: CardType.Middle,
@@ -302,7 +384,7 @@ class _CardDialogState extends State<CardDialog> {
   }
 
   DeviceEntityTypeInP4 _getDeviceEntityType(String type, String? modelNum) {
-    Log.i('设备信息$modelNum', type);
+    Log.i('getDeviceEntityType', type);
     for (var deviceType in DeviceEntityTypeInP4.values) {
       if (type == '0x21') {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
@@ -316,6 +398,10 @@ class _CardDialogState extends State<CardDialog> {
         return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
       } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
         return DeviceEntityTypeInP4.homlux_lightGroup;
+      } else if (type == 'clock') {
+        return DeviceEntityTypeInP4.Clock;
+      } else if (type == 'weather') {
+        return DeviceEntityTypeInP4.Weather;
       } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;

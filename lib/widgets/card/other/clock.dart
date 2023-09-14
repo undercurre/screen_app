@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 class DigitalClockWidget extends StatefulWidget {
   final bool disabled;
+  final bool discriminative;
 
   DigitalClockWidget({
     this.disabled = false,
+    this.discriminative = false,
   });
 
   @override
@@ -40,12 +42,16 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
       height: 196,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0x33616A76),
-            Color(0x33434852),
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33616A76),
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33434852),
           ],
           stops: [0.06, 1.0],
           transform: GradientRotation(213 * (3.1415926 / 360.0)),

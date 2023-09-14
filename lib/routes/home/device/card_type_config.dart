@@ -198,28 +198,29 @@ class DataInputCard {
   bool? isFault;
   bool? isNative;
   bool? disableOnOff;
+  bool? discriminative;
   Function? onTap;
 
-  DataInputCard({
-    required this.name,
-    required this.type,
-    required this.applianceCode,
-    required this.roomName,
-    required this.masterId,
-    required this.modelNumber,
-    required this.isOnline,
-    required this.onlineStatus,
-    this.context,
-    this.icon,
-    this.sceneId,
-    this.disabled,
-    this.hasMore,
-    this.isFault,
-    this.isNative,
-    this.sn8,
-    this.disableOnOff,
-    this.onTap,
-  });
+  DataInputCard(
+      {required this.name,
+      required this.type,
+      required this.applianceCode,
+      required this.roomName,
+      required this.masterId,
+      required this.modelNumber,
+      required this.isOnline,
+      required this.onlineStatus,
+      this.context,
+      this.icon,
+      this.sceneId,
+      this.disabled,
+      this.hasMore,
+      this.isFault,
+      this.isNative,
+      this.sn8,
+      this.disableOnOff,
+      this.onTap,
+      this.discriminative});
 
   factory DataInputCard.fromJson(Map<String, dynamic> json) {
     return DataInputCard(
@@ -285,11 +286,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   DeviceEntityTypeInP4.Clock: {
     CardType.Other: (params) => DigitalClockWidget(
           disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Weather: {
     CardType.Other: (params) => DigitalWeatherWidget(
           disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
         ),
   },
   // homlux面板
@@ -494,13 +497,15 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   DeviceEntityTypeInP4.LocalPanel1: {
     CardType.Small: (params) => LocalRelayWidget(
           relayIndex: 1,
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
         )
   },
   DeviceEntityTypeInP4.LocalPanel2: {
     CardType.Small: (params) => LocalRelayWidget(
           relayIndex: 2,
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
         )
   },
   // 灯组
@@ -1718,7 +1723,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 二路面板
   DeviceEntityTypeInP4.Zigbee_1340: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1734,7 +1740,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1102: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1750,7 +1757,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1083: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1766,7 +1774,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1101: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1782,7 +1791,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_70: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1798,7 +1808,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_71: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1814,7 +1825,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_72: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1830,7 +1842,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_42: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1846,7 +1859,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_35: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -1862,7 +1876,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_18: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2046,6 +2061,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1106: {
@@ -2063,6 +2079,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1087: {
@@ -2080,6 +2097,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1105: {
@@ -2097,6 +2115,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_75: {
@@ -2114,6 +2133,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_76: {
@@ -2131,6 +2151,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_37: {
@@ -2148,6 +2169,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_16: {
@@ -2165,12 +2187,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             params.modelNumber!,
           ),
           isOnline: params.isOnline,
+          discriminative: params.discriminative ?? false,
         ),
   },
   // 水电面板
   DeviceEntityTypeInP4.Zigbee_1344: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2186,7 +2210,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1112: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2202,7 +2227,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1111: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2218,7 +2244,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_80: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2234,7 +2261,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_81: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2250,7 +2278,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_22: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2524,7 +2553,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_31: {
     CardType.Small: (params) => SmallPanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: Image(
             image: AssetImage(
@@ -2542,7 +2572,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 二路窗帘面板
   DeviceEntityTypeInP4.Zigbee_1346: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2558,7 +2589,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1110: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2574,7 +2606,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1109: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2590,7 +2623,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_86: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2606,7 +2640,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_87: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2622,7 +2657,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_40: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
@@ -2638,7 +2674,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_32: {
     CardType.Middle: (params) => MiddleDevicePanelCardWidget(
-          disabled: params.disabled!,
+          disabled: params.disabled ?? false,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: const Image(
             image: AssetImage('assets/newUI/device/0x21_1361.png'),
