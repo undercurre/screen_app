@@ -32,6 +32,7 @@ void main() async {
     /// 初始化Native配置
     buildChannel();
     configChannel.initNativeConfig(const String.fromEnvironment('env'));
+    netMethodChannel.checkNetState();
     /// 初始化设置配置
     Setting.instant().init();
     /// 增加全局异常捕获机制

@@ -16,6 +16,7 @@ HomluxGroupEntity _$HomluxGroupEntityFromJson(Map<String, dynamic> json) =>
       deviceType: json['deviceType'] as int?,
       proType: json['proType'] as String?,
       orderNum: json['orderNum'] as int?,
+      updateStamp: json['updateStamp'] as int?,
       groupDeviceList: (json['groupDeviceList'] as List<dynamic>?)
           ?.map((e) => GroupDeviceList.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -37,12 +38,13 @@ Map<String, dynamic> _$HomluxGroupEntityToJson(HomluxGroupEntity instance) =>
       'groupId': instance.groupId,
       'roomName': instance.roomName,
       'roomId': instance.roomId,
+      'updateStamp': instance.updateStamp,
       'deviceType': instance.deviceType,
       'proType': instance.proType,
       'orderNum': instance.orderNum,
-      'groupDeviceList': instance.groupDeviceList,
-      'controlAction': instance.controlAction,
-      'colorTempRangeMap': instance.colorTempRangeMap,
+      'groupDeviceList': instance.groupDeviceList?.map((e) => e.toJson()).toList(),
+      'controlAction': instance.controlAction?.map((e) => e.toJson()).toList(),
+      'colorTempRangeMap': instance.colorTempRangeMap?.toJson(),
       'onLineStatus': instance.onLineStatus,
       'houseId': instance.houseId,
     };

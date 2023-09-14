@@ -4,10 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.AudioManager
 import android.os.PowerManager
 import com.midea.light.MainApplication
+import com.midea.light.R
 import com.midea.light.common.config.AppCommonConfig
 import com.midea.light.channel.AbsMZMethodChannel
+import com.midea.light.common.utils.SoundPoolManager
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
 import io.flutter.plugin.common.BinaryMessenger
@@ -84,6 +87,7 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             "SettingMediaVoiceValue" -> {
                 SystemUtil.setSystemAudio(call.arguments as Int)
                 result.success(SystemUtil.getSystemAudio())
+                SoundPoolManager.getInstance().play(R.raw.argon, 1.0f, AudioManager.STREAM_MUSIC, 0, 1.0f);
             }
             "GettingMediaVoiceValue" -> {
                 result.success(SystemUtil.getSystemAudio())

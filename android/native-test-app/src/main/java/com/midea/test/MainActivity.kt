@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 fun MyAppNavHost(modifier: Modifier = Modifier,
                  navController: NavHostController = rememberNavController(),
                  startDestination: String = "profile") {
-    NavHost(modifier = modifier, navController = navController, startDestination = "homos") {
+    NavHost(modifier = modifier, navController = navController, startDestination = "/") {
         composable("/") { Home() }
         composable("homos") { Homos() }
     }

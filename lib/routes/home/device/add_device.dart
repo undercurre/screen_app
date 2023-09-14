@@ -472,8 +472,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         },
                       ).toList(),
                       trigger: SizedBox(
-                        width: 60, // 设置最大宽度为 60
+                        width: 80, // 设置最大宽度为 60
                         child: Text(
+                          maxLines: 1,
                           textAlign: TextAlign.right,
                           getCurRoomConfig()["text"] ?? '卧室',
                           style: const TextStyle(

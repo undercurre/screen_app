@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/homlux/api/homlux_lan_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
@@ -208,6 +209,24 @@ class HomluxLanControlDeviceManager {
       var topic = json['topic'] as String?;
       var data = json['data'];
 
+      /// host被解绑
+      if('/local/host/leave' == topic) {
+        logout();
+        Future.delayed(const Duration(seconds: 3), () {
+          login();
+        });
+      }
+
+      /// host通知control重新获取数据
+      if('/homeos/controller/home/$curHouseId' == topic) {
+        Log.file('homeos getDeviceInfo()');
+        lanDeviceControlChannel.getDeviceInfo(uuid.v4());
+        Log.file('homeos getSceneInfo()');
+        lanDeviceControlChannel.getSceneInfo(uuid.v4());
+        Log.file('homeos getGroupInfo()');
+        lanDeviceControlChannel.getGroupInfo(uuid.v4());
+      }
+
       /// 设备列表
       if ('/local/getDeviceInfo/ack' == topic) {
         var houseId = data['houseId'] as String;
@@ -291,48 +310,53 @@ class HomluxLanControlDeviceManager {
       /// 设备状态更新
       if ('/local/subDeviceStatus' == topic) {
         var houseId = data['houseId'] as String;
-        var deviceStatusInfoList =
-            data['deviceStatusInfoList'] as List<dynamic>;
-        bool needQueryDeviceList = false;
-        for (var rStatu in deviceStatusInfoList) {
-          var devId = rStatu['devId'] as String;
+        if(houseId == curHouseId) {
+          var deviceStatusInfoList =
+          data['deviceStatusInfoList'] as List<dynamic>;
+          bool needQueryDeviceList = false;
+          for (var rStatu in deviceStatusInfoList) {
+            var devId = rStatu['devId'] as String;
 
-          if (deviceMap.containsKey(devId)) {
-            if (deviceMap[devId]!.containsKey('status')) {
-              var curStatus = deviceMap[devId]!['status'] as List<dynamic>;
+            if (deviceMap.containsKey(devId)) {
+              if (deviceMap[devId]!.containsKey('status')) {
+                var curStatus = deviceMap[devId]!['status'] as List<dynamic>;
 
-              for (var i = 0; i < curStatus.length; i++) {
-                var cStatu = curStatus[i];
-                if(cStatu['modelName'] == rStatu['modelName']) {
-                  curStatus[i] = _mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
+                for (var i = 0; i < curStatus.length; i++) {
+                  var cStatu = curStatus[i];
+                  if(cStatu['modelName'] == rStatu['modelName']) {
+                    curStatus[i] = _mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
+                  }
                 }
-              }
 
-              deviceMap[devId]!['status'] = curStatus;
-              Log.i('本地设备数量 ${HomluxDeviceApi.devices.values.length}');
-              HomluxDeviceEntity? entity = HomluxDeviceApi.devices[devId];
-              if (entity != null) {
-                HomluxPushResultEntity pushResult = HomluxPushResultEntity();
-                HomluxEventDataEntity eventData = HomluxEventDataEntity();
-                eventData.modelName = rStatu['modelName'];
-                eventData.deviceId = rStatu['devId'];
-                eventData.event = rStatu['deviceProperty'];
-                pushResult.eventType = TypeDeviceProperty;
-                pushResult.eventData = eventData;
-                bus.typeEmit(HomluxDevicePropertyChangeEvent.of(pushResult));
-                Log.file('homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
-              }
+                deviceMap[devId]!['status'] = curStatus;
+                Log.i('本地设备数量 ${HomluxDeviceApi.devices.values.length}');
+                HomluxDeviceEntity? entity = HomluxDeviceApi.devices[devId];
+                if (entity != null) {
+                  HomluxPushResultEntity pushResult = HomluxPushResultEntity();
+                  HomluxEventDataEntity eventData = HomluxEventDataEntity();
+                  eventData.modelName = rStatu['modelName'];
+                  eventData.deviceId = rStatu['devId'];
+                  eventData.event = rStatu['deviceProperty'];
+                  pushResult.eventType = TypeDeviceProperty;
+                  pushResult.eventData = eventData;
+                  bus.typeEmit(HomluxDevicePropertyChangeEvent.of(pushResult));
+                  Log.file('homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
+                }
 
+              } else {
+                lanDeviceControlChannel.getDeviceStatus(uuid.v4(), devId);
+              }
             } else {
-              lanDeviceControlChannel.getDeviceStatus(uuid.v4(), devId);
+              needQueryDeviceList = true;
             }
-          } else {
-            needQueryDeviceList = true;
           }
+
+          if (needQueryDeviceList) {
+            lanDeviceControlChannel.getDeviceInfo(uuid.v4());
+          }
+
         }
-        if (needQueryDeviceList) {
-          lanDeviceControlChannel.getDeviceInfo(uuid.v4());
-        }
+
       }
 
       /// 场景列表
@@ -396,7 +420,8 @@ class HomluxLanControlDeviceManager {
       //             {
       //                 "sceneId":"2e4c476b7e634f91a51ba40f99d317fa",
       //                 "sceneName":"止不住",
-      //                 "sceneType":3
+      //                 "sceneType":3,
+      //                 "updateStamp":"1111111111"
       //             }
       //         ]
       //     },
@@ -415,6 +440,31 @@ class HomluxLanControlDeviceManager {
         }
       }
 
+      /// 场景时间搓发生变化
+      /// "data":{
+      //         "houseId":"111111",
+      //         "sceneList":[
+      //            {
+      //               "sceneId":"1",
+      //               "updateStamp":"1111111111"    hjl更新2023/9/11
+      //
+      //            },
+      //            {
+      //               "sceneId":"2",
+      //               "updateStamp":"1111111111"    hjl更新2023/9/11
+      //            }
+      //         ]
+      //     }
+      if('/local/scene/update/stamp' == topic) {
+        var houseId = data['houseId'] as String;
+        var scenes = data['sceneList'] as List<dynamic>;
+        if(houseId == curHouseId) {
+          for(var scene in scenes) {
+            var sceneId = scene['sceneId'] as String;
+            sceneMap[sceneId] = scene;
+          }
+        }
+      }
       /// 场景执行
       /// {
       //     "data":{
@@ -440,7 +490,7 @@ class HomluxLanControlDeviceManager {
       //         "groupList":[
       //            {
       //               "webGroupId":"11111",
-      //               "groupStatus":1 //0无匹配  1部分匹配 2全匹配  hjl更新2023/8/31
+      //                "updateStamp":"1111111111"
       //            },
       //            {
       //               "webGroupId":"11111",
@@ -459,6 +509,18 @@ class HomluxLanControlDeviceManager {
             groupMap[groupId] = group;
           }
           Log.i('局域网 灯组列表数据处理成功 第一个数据为 ${groupMap.values.first}');
+        }
+      }
+
+      /// 灯组状态更新
+      if('/local/group/update/stamp' == topic) {
+        var houseId = data['houseId'] as String;
+        if(houseId == curHouseId) {
+          var groupList = data['groupList'] as List<dynamic>;
+          for(var group in groupList) {
+            var groupId = group['webGroupId'] as String;
+            groupMap[groupId] = group;
+          }
         }
       }
 
@@ -607,13 +669,14 @@ class HomluxLanControlDeviceManager {
     return _errorResponseEntity;
   }
 
-  Future<HomluxResponseEntity> executeScene(String sceneID) async {
+  Future<HomluxResponseEntity> executeScene(String sceneID, int updateStamp) async {
     if (sucSubscribe && connectOk) {
       if (sceneMap.containsKey(sceneID)) {
         // 1. 查询本地场景能否控制
         dynamic scene = sceneMap[sceneID];
-        if(scene['sceneStatus'] != 2) { // 局域网能控制的设备
-          return _errorResponseEntity;
+        if(scene['updateStamp'] == null || int.parse(scene['updateStamp']) < updateStamp) {
+          Log.i('homlux 局域网控制 \n 场景 ${scene['updateStamp']} 太小，跳出局域网控制');
+          return _errorResponseEntity; // 局域网能控制的设备
         }
         // 2.去执行本地场景
         Log.file('homeos sceneExcute(scene = ${sceneMap[sceneID]})');
@@ -635,14 +698,14 @@ class HomluxLanControlDeviceManager {
   }
 
   Future<HomluxResponseEntity> executeGroup(
-      String groupID, List<Map<String, dynamic>> actions) async {
+      String groupID, int updateStamp, List<Map<String, dynamic>> actions) async {
     if (sucSubscribe && connectOk) {
       if (groupMap.containsKey(groupID)) {
         // 1. 查询本地灯组能否控制
         dynamic group = groupMap[groupID];
-        if(group['sceneStatus'] != 2) { // 局域网能控制的设备
-          Log.file('homlux 局域网控制 灯组 \n 异常 此灯组不可用');
-          return _errorResponseEntity;
+        if(group['updateStamp'] == null || int.parse(group['updateStamp']) < updateStamp) {
+          Log.i('homlux 局域网控制 \n 灯组 ${group['updateStamp']} 太小，跳出局域网控制');
+          return _errorResponseEntity; // 局域网能控制的设备
         }
 
         // 2. 控制灯组状态

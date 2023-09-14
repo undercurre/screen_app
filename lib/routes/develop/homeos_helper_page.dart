@@ -47,7 +47,7 @@ class _HomeOsHelperPageState extends State<HomeOsHelperPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    HomluxLanControlDeviceManager.getInstant().executeScene('df3d96cd0b25450c962a3a0c199ffa57');
+                    HomluxLanControlDeviceManager.getInstant().executeScene('df3d96cd0b25450c962a3a0c199ffa57', 123);
                   },
                   child: const Card(
                     color: Colors.green,
@@ -79,7 +79,7 @@ class _HomeOsHelperPageState extends State<HomeOsHelperPage> {
                 GestureDetector(
                   onTap: () {
                     Log.i('控制灯组');
-                    HomluxLanControlDeviceManager.getInstant().executeGroup('78f95dd791ef4f39b7548823f822a308', [
+                    HomluxLanControlDeviceManager.getInstant().executeGroup('78f95dd791ef4f39b7548823f822a308', 123, [
                       {'power': 1}
                     ]);
                   },
