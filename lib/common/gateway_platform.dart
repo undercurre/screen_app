@@ -60,20 +60,24 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
         try {
-          if(HomluxGlobal.isLogin) { // 刪除Homlux设备
-            int count = 3;
-            while(count > 0) {
-              var result = await HomluxUserApi.deleteDevices([
-                {
-                  'deviceId': HomluxGlobal.gatewayApplianceCode ?? '',
-                  'deviceType': '1'
+          try {
+            if(HomluxGlobal.isLogin) { // 刪除Homlux设备
+              int count = 3;
+              while(count > 0) {
+                var result = await HomluxUserApi.deleteDevices([
+                  {
+                    'deviceId': HomluxGlobal.gatewayApplianceCode ?? '',
+                    'deviceType': '1'
+                  }
+                ]);
+                count --;
+                if(result.isSuccess) {
+                  break;
                 }
-              ]);
-              count --;
-              if(result.isSuccess) {
-                break;
               }
             }
+          } on Exception catch(e, trace) {
+            Log.file('删除屏失败', e, trace);
           }
           HomluxGlobal.setLogout("从Homlux切换到美居平台");
           MeiJuApi.init();
@@ -111,18 +115,23 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {
         try {
-          if(MeiJuGlobal.isLogin) { //删除屏设备
-            int count = 3;
-            while(count > 0) {
-              var result = await MeiJuDeviceApi.deleteDevices(
-                  [MeiJuGlobal.gatewayApplianceCode ?? ''],
-                  System.familyInfo?.familyId ?? '');
-              count --;
-              if(result.isSuccess){
-                break;
+          try {
+            if(MeiJuGlobal.isLogin) { //删除屏设备
+              int count = 3;
+              while(count > 0) {
+                var result = await MeiJuDeviceApi.deleteDevices(
+                    [MeiJuGlobal.gatewayApplianceCode ?? ''],
+                    System.familyInfo?.familyId ?? '');
+                count --;
+                if(result.isSuccess){
+                  break;
+                }
               }
             }
+          } on Exception catch(e, trace) {
+            Log.file('删除屏失败', e, trace);
           }
+
           MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
           HomluxApi.init();
           System.initForHomlux();
