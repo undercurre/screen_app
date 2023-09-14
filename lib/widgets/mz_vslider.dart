@@ -137,20 +137,28 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: widget.disabled ? disableColor : activeColor),
-                  borderRadius: widget.rounded
-                      ? BorderRadius.only(bottomLeft: Radius.circular(widget.radius / 2), bottomRight: Radius.circular(widget.radius / 2))
-                      : BorderRadius.only(bottomLeft: Radius.circular(widget.radius), bottomRight: Radius.circular(widget.radius))
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.tightFor(
-                    height: activeRailHeight,
-                    width: widget.width,
+              ClipRRect(
+                borderRadius: widget.rounded
+                    ? BorderRadius.circular(widget.width / 2)
+                    : BorderRadius.circular(widget.radius),
+                child: Container(
+                  color: const Color.fromRGBO(255, 255, 255, 0.1),
+                  height: widget.height,
+                  width: widget.width,
+                  alignment: Alignment.bottomCenter,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: widget.disabled ? disableColor : activeColor),
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints.tightFor(
+                        height: activeRailHeight,
+                        width: widget.width,
+                      ),
+                    ),
                   ),
                 ),
               ),
