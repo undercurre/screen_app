@@ -10,8 +10,10 @@ import 'package:screen_app/states/layout_notifier.dart';
 
 import 'adapter/ai_data_adapter.dart';
 import 'adapter/push_data_adapter.dart';
+import 'homlux/api/homlux_user_api.dart';
 import 'homlux/lan/homlux_lan_control_device_manager.dart';
 import 'logcat_helper.dart';
+import 'meiju/api/meiju_device_api.dart';
 
 /// 定义网关运行环境
 enum GatewayPlatform {
@@ -58,6 +60,21 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setMeijuPlatform();
       if(suc) {
         try {
+          if(HomluxGlobal.isLogin) { // 刪除Homlux设备
+            int count = 3;
+            while(count > 0) {
+              var result = await HomluxUserApi.deleteDevices([
+                {
+                  'deviceId': HomluxGlobal.gatewayApplianceCode ?? '',
+                  'deviceType': '1'
+                }
+              ]);
+              count --;
+              if(result.isSuccess) {
+                break;
+              }
+            }
+          }
           HomluxGlobal.setLogout("从Homlux切换到美居平台");
           MeiJuApi.init();
           await System.initForMeiju();
@@ -94,6 +111,18 @@ class ChangePlatformHelper {
       bool suc = await gatewayChannel.setHomluxPlatForm();
       if(suc) {
         try {
+          if(MeiJuGlobal.isLogin) { //删除屏设备
+            int count = 3;
+            while(count > 0) {
+              var result = await MeiJuDeviceApi.deleteDevices(
+                  [MeiJuGlobal.gatewayApplianceCode ?? ''],
+                  System.familyInfo?.familyId ?? '');
+              count --;
+              if(result.isSuccess){
+                break;
+              }
+            }
+          }
           MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
           HomluxApi.init();
           System.initForHomlux();
