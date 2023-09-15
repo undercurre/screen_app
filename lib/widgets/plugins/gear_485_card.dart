@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:screen_app/widgets/mz_metal_card.dart';
 import 'package:screen_app/widgets/mz_slider.dart';
 
 class Gear485Card extends StatefulWidget {
@@ -104,7 +103,7 @@ class _GearCardState extends State<Gear485Card> {
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.normal,
                             decoration: TextDecoration.none)),
-                    Padding( padding: const EdgeInsets.fromLTRB(20, 00, 0, 0),
+                    Padding( padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
                         child:Text("档",
                             style: TextStyle(
                                 height: 1.5,
