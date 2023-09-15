@@ -37,6 +37,7 @@ class LayoutModel extends ChangeNotifier {
       try {
         layouts = layoutList.map((json) => Layout.fromJson(json)).toList();
       } catch (e) {
+        Log.i('layout缓存加载失败', e);
         removeLayouts();
         await Future.delayed(const Duration(seconds: 2));
         _loadLayouts();
