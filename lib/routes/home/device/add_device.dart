@@ -455,6 +455,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     child: SizedBox(
                                       width: 100, // 设置最大宽度为 50
                                       child: Text(
+                                        maxLines: 1,
                                         textAlign: TextAlign.center,
                                         item['text']!,
                                         style: const TextStyle(
