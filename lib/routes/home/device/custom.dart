@@ -83,13 +83,22 @@ class _CustomPageState extends State<CustomPage> {
           constraints:
               BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           height: MediaQuery.of(context).size.height,
-          child: PageView(
+          child: PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.horizontal,
             onPageChanged: (index) {
               curPageIndex = index;
             },
-            children: _screens,
+            itemCount: _screens.length,
+            itemBuilder: (BuildContext context, int index) {
+              // 返回要显示的 Widget，这里可以根据 index 控制加载的页数
+              // 如果希望加载当前页及其相邻的前后页，可以使用类似以下逻辑：
+              if (index >= curPageIndex - 1 && index <= curPageIndex + 1) {
+                return _screens[index];
+              } else {
+                return const Placeholder(); // 或者返回一个空的占位 Widget
+              }
+            },
           ),
         ),
         Positioned(
@@ -788,6 +797,7 @@ _getDeviceDialog(BuildContext context, Layout layout) {
         type: layout.data.type,
         applianceCode: layout.data.applianceCode,
         modelNumber: layout.data.modelNumber,
+        icon: layout.data.icon,
         roomName: layout.data.roomName,
         masterId: layout.data.masterId,
         onlineStatus: layout.data.onlineStatus,
@@ -795,7 +805,9 @@ _getDeviceDialog(BuildContext context, Layout layout) {
     },
   ).then(
     (value) {
-      context.read<LayoutModel>().swapCardType(layout, value);
+      if (value != null) {
+        context.read<LayoutModel>().swapCardType(layout, value);
+      }
     },
   );
 }

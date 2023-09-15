@@ -4,6 +4,7 @@ import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
+import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_485_device_list_entity.dart';
@@ -40,7 +41,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.modelNumber = e.modelNumber!;
         deviceObj.sn8 = e.sn8;
         deviceObj.roomName = e.roomName!;
-        deviceObj.roomId=e.roomId!;
+        deviceObj.roomId = e.roomId!;
         deviceObj.masterId = e.masterId!;
         deviceObj.onlineStatus = e.onlineStatus!;
         return deviceObj;
@@ -70,7 +71,6 @@ class DeviceInfoListModel extends ChangeNotifier {
 
       return tempList;
     } else {
-
       List<DeviceEntity> tempList = deviceListHomlux.map((e) {
         DeviceEntity deviceObj = DeviceEntity();
         deviceObj.name = e.deviceName!;
@@ -78,7 +78,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceObj.type = e.proType!;
         deviceObj.modelNumber = getModelNumber(e);
         deviceObj.roomName = e.roomName!;
-        deviceObj.roomId=e.roomId!;
+        deviceObj.roomId = e.roomId!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
         return deviceObj;
@@ -129,7 +129,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.modelNumber = e.modelNumber!;
           deviceObj.sn8 = e.sn8;
           deviceObj.roomName = e.roomName!;
-          deviceObj.roomId=e.roomId!;
+          deviceObj.roomId = e.roomId!;
           deviceObj.masterId = e.masterId!;
           deviceObj.onlineStatus = e.onlineStatus!;
           return deviceObj;
@@ -143,7 +143,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = "0x21";
           deviceObj.modelNumber = "lightGroup";
           deviceObj.roomName = e["roomName"];
-          deviceObj.roomId=e["roomId"].toString();
+          deviceObj.roomId = e["roomId"].toString();
           deviceObj.masterId =
               e["applianceList"][0]["parentApplianceCode"].toString();
           deviceObj.onlineStatus = "1";
@@ -240,7 +240,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.proType = "0x21";
           device.deviceType = 3019;
           device.roomName = System.roomInfo?.name;
-          device.roomId= System.roomInfo?.id;
+          device.roomId = System.roomInfo?.id;
           device.gatewayId = HomluxGlobal.gatewayApplianceCode;
           String? online =
               deviceList!.nameValuePairs!.floorHotList![i].onlineState;
@@ -255,7 +255,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.proType!;
           deviceObj.modelNumber = getModelNumber(e);
           deviceObj.roomName = e.roomName!;
-          deviceObj.roomId= System.roomInfo?.id;
+          deviceObj.roomId = System.roomInfo?.id;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
           return deviceObj;
@@ -294,7 +294,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.applianceCode == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return curOne[0].name ?? '未知设备';
+          return NameFormatter.formatName(curOne[0].name!);
         } else {
           return '未知设备';
         }
@@ -303,7 +303,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.deviceId == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return curOne[0].deviceName ?? '未知设备';
+          return NameFormatter.formatName(curOne[0].deviceName!);
         } else {
           return '未知设备';
         }
@@ -320,7 +320,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.applianceCode == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return curOne[0].roomName ?? '未知区域';
+          return NameFormatter.formatName(curOne[0].roomName!);
         } else {
           return '未知区域';
         }
@@ -329,7 +329,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.deviceId == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return curOne[0].roomName ?? '未知区域';
+          return NameFormatter.formatName(curOne[0].roomName!);
         } else {
           return '未知区域';
         }

@@ -242,9 +242,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   Map<String, String> getCurRoomConfig() {
     if (btnList.isNotEmpty) {
-      Map<String, String> curRoom =
-          btnList.where((element) => element["key"] == roomID).toList()[0];
-      return curRoom;
+      List curRoom = btnList.where((element) => element["key"] == roomID).toList();
+      if (curRoom.isNotEmpty) {
+        return curRoom[0];
+      } else {
+        return <String, String>{};
+      }
     } else {
       return <String, String>{};
     }
@@ -619,7 +622,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               icon: scenes[index].image,
                                               isOnline: '',
                                               disabled: true,
-                                              type: '',
+                                              type: 'scene',
                                               masterId: '',
                                               modelNumber: '',
                                               onlineStatus: '1',

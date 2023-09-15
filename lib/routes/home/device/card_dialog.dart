@@ -4,6 +4,7 @@ import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
@@ -15,19 +16,19 @@ class CardDialog extends StatefulWidget {
   final String name;
   final String roomName;
   final String modelNumber;
+  final String? icon;
   final String applianceCode;
   final String masterId;
   final String onlineStatus;
 
-  const CardDialog(
-      {super.key,
-      required this.type,
-      required this.name,
-      required this.roomName,
-      required this.modelNumber,
-      required this.applianceCode,
-      required this.masterId,
-      required this.onlineStatus});
+  const CardDialog({super.key,
+    required this.type,
+    required this.name,
+    required this.roomName,
+    required this.modelNumber,
+    required this.applianceCode,
+    required this.masterId,
+    required this.onlineStatus, this.icon});
 
   @override
   _CardDialogState createState() => _CardDialogState();
@@ -80,39 +81,13 @@ class _CardDialogState extends State<CardDialog> {
                     },
                     child: const Icon(Icons.close_rounded, size: 32),
                   ),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: 180,
-                          ),
-                          child: Text(
-                            widget.name.substring(0, widget.name.length - 1),
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          widget.name.substring(
-                            widget.name.length - 1,
-                            widget.name.length,
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontFamily: 'MideaType',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    NameFormatter.formatName(widget.name),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontFamily: 'MideaType',
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   GestureDetector(
@@ -141,7 +116,7 @@ class _CardDialogState extends State<CardDialog> {
                       scrollDirection: Axis.horizontal,
                       children: [
                         if (buildMap[_getDeviceEntityType(widget.type,
-                                widget.modelNumber)]![CardType.Small] !=
+                            widget.modelNumber)]![CardType.Small] !=
                             null)
                           UnconstrainedBox(
                             child: buildMap[_getDeviceEntityType(widget.type,
@@ -151,6 +126,7 @@ class _CardDialogState extends State<CardDialog> {
                                   applianceCode: widget.applianceCode,
                                   roomName: widget.roomName,
                                   masterId: widget.masterId,
+                                  icon: widget.icon,
                                   disabled: false,
                                   discriminative: true,
                                   modelNumber: widget.modelNumber,
@@ -163,7 +139,7 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[_getDeviceEntityType(widget.type,
-                                widget.modelNumber)]![CardType.Middle] !=
+                            widget.modelNumber)]![CardType.Middle] !=
                             null)
                           Transform.scale(
                             scale: 0.75,
@@ -189,7 +165,7 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[_getDeviceEntityType(widget.type,
-                                widget.modelNumber)]![CardType.Other] !=
+                            widget.modelNumber)]![CardType.Other] !=
                             null)
                           Transform.scale(
                             scale: 0.75,
@@ -215,7 +191,7 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[_getDeviceEntityType(widget.type,
-                                widget.modelNumber)]![CardType.Big] !=
+                            widget.modelNumber)]![CardType.Big] !=
                             null)
                           Stack(
                             children: [
@@ -262,72 +238,72 @@ class _CardDialogState extends State<CardDialog> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (buildMap[_getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Small] !=
+                      widget.type, widget.modelNumber)]![CardType.Small] !=
                       null)
                     Container(
                       width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Small
+                          CardType.Small
                           ? 22
                           : 14,
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
+                        const BorderRadius.all(Radius.circular(4)),
                         color: _currentIndex == 0
                             ? Colors.white
                             : Colors.white.withOpacity(0.6),
                       ),
                     ),
                   if (buildMap[_getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Middle] !=
+                      widget.type, widget.modelNumber)]![CardType.Middle] !=
                       null)
                     Container(
                       width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Middle
+                          CardType.Middle
                           ? 22
                           : 14,
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
+                        const BorderRadius.all(Radius.circular(4)),
                         color: _currentIndex == 1
                             ? Colors.white
                             : Colors.white.withOpacity(0.6),
                       ),
                     ),
                   if (buildMap[_getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Other] !=
+                      widget.type, widget.modelNumber)]![CardType.Other] !=
                       null)
                     Container(
                       width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Other
+                          CardType.Other
                           ? 22
                           : 14,
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
+                        const BorderRadius.all(Radius.circular(4)),
                         color: _currentIndex == 1
                             ? Colors.white
                             : Colors.white.withOpacity(0.6),
                       ),
                     ),
                   if (buildMap[_getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Big] !=
+                      widget.type, widget.modelNumber)]![CardType.Big] !=
                       null)
                     Container(
                       width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Big
+                          CardType.Big
                           ? 22
                           : 14,
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
+                        const BorderRadius.all(Radius.circular(4)),
                         color: _currentIndex == 2
                             ? Colors.white
                             : Colors.white.withOpacity(0.6),
@@ -402,6 +378,8 @@ class _CardDialogState extends State<CardDialog> {
         return DeviceEntityTypeInP4.Clock;
       } else if (type == 'weather') {
         return DeviceEntityTypeInP4.Weather;
+      } else if (type == 'scene') {
+        return DeviceEntityTypeInP4.Scene;
       } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;

@@ -12,6 +12,7 @@ class SmallSceneCardWidget extends StatefulWidget {
   final String name;
   final String icon;
   final String sceneId;
+  final bool discriminative;
   final bool disabled;
 
   SmallSceneCardWidget({
@@ -21,6 +22,7 @@ class SmallSceneCardWidget extends StatefulWidget {
     required this.sceneId,
     required this.disabled,
     bool onOff = false,
+    this.discriminative = false,
   });
 
   @override
@@ -43,7 +45,6 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
     final sceneListModel = Provider.of<SceneListModel>(context);
     return GestureDetector(
       onTap: () {
-        Log.i('disabled', widget.disabled);
         if (!widget.disabled) {
           sceneListModel.sceneExec(widget.sceneId);
           setState(() {
@@ -79,15 +80,15 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
               )
             : BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0x33616A76),
-                    Color(0x33434852),
+                    widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+                    widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
                   ],
-                  stops: [0.06, 1.0],
-                  transform: GradientRotation(213 * (3.1415926 / 360.0)),
+                  stops: const [0.06, 1.0],
+                  transform: const GradientRotation(213 * (3.1415926 / 360.0)),
                 ),
               ),
         child: Row(
@@ -101,13 +102,38 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
             ),
             SizedBox(
               width: 100,
-              child: Text(
-                widget.name,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w400),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: 76,
+                    ),
+                    child: Text(
+                      widget.name.substring(0, widget.name.length - 1),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontFamily: 'MideaType',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.name.substring(
+                      widget.name.length - 1,
+                      widget.name.length,
+                    ),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontFamily: 'MideaType',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

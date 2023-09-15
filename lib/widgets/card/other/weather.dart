@@ -55,8 +55,8 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
             widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
             widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
           ],
-          stops: [0.06, 1.0],
-          transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          stops: const [0.06, 1.0],
+          transform: const GradientRotation(213 * (3.1415926 / 360.0)),
         ),
       ),
       child: Column(

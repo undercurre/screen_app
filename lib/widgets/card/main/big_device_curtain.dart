@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/util/nameFormatter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {
@@ -13,8 +17,8 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final bool disabled;
   final bool hasMore;
   final bool disableOnOff;
+  final bool discriminative;
 
-  //----
   final DeviceCardDataAdapter? adapter;
 
   const BigDeviceCurtainCardWidget(
@@ -27,7 +31,8 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       this.adapter,
       this.hasMore = true,
       this.disabled = false,
-      this.disableOnOff = true});
+      this.disableOnOff = true,
+      this.discriminative = false});
 
   @override
   _BigDeviceCurtainCardWidgetState createState() =>
@@ -36,36 +41,69 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
 
 class _BigDeviceCurtainCardWidgetState
     extends State<BigDeviceCurtainCardWidget> {
+
   @override
   void initState() {
     super.initState();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
   void didUpdateWidget(covariant BigDeviceCurtainCardWidget oldWidget) {
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.adapter?.destroy();
     widget.adapter?.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
-    setState(() {
-      Log.i('大卡片状态更新');
+    if (mounted) {
       setState(() {
         widget.adapter?.data = widget.adapter?.data;
       });
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      if (widget.disabled) {
+        return (deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        ) ==
+            '未知id' ||
+            deviceListModel.getDeviceName(
+              deviceId: widget.adapter?.getDeviceId(),
+            ) ==
+                '未知设备')
+            ? widget.name
+            : deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId(),
+        );
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -86,7 +124,7 @@ class _BigDeviceCurtainCardWidgetState
             child: GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '0x14', arguments: {
-                  "name": widget.name,
+                  "name": getDeviceName(),
                   "adapter": widget.adapter
                 });
               },
@@ -109,20 +147,47 @@ class _BigDeviceCurtainCardWidgetState
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: Text(widget.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 22,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)),
+                    child: SizedBox(
+                      width: 100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 76,
+                            ),
+                            child: Text(
+                              getDeviceName().substring(0, getDeviceName().length - 1),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontFamily: 'MideaType',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            getDeviceName().substring(
+                              getDeviceName().length - 1,
+                              getDeviceName().length,
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontFamily: 'MideaType',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
+                  child: Text(NameFormatter.formatName(widget.roomName),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -333,14 +398,18 @@ class _BigDeviceCurtainCardWidgetState
         ),
       );
     }
-    return const BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(24)),
+    return BoxDecoration(
+      borderRadius: const BorderRadius.all(Radius.circular(24)),
       gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
       ),
     );

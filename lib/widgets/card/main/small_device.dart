@@ -5,6 +5,7 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../util/nameFormatter.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -14,6 +15,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final bool isNative;
   final String roomName;
   final bool disableOnOff;
+  final bool discriminative;
   final bool disabled;
   final bool hasMore;
   final Function? onTap; // 整卡点击事件
@@ -30,6 +32,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
       required this.isNative,
       this.hasMore = true,
       this.disableOnOff = true,
+      this.discriminative = false,
       this.disabled = false,
       this.adapter,
       this.onTap});
@@ -108,43 +111,35 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     }
 
     String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
       if (widget.disabled) {
-        return widget.roomName;
+        return NameFormatter.formatName(widget.roomName);
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+      return nameInModel;
     }
 
     String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.getDeviceId());
       if (widget.disabled) {
-        return (deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知id' ||
-                deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知设备')
-            ? widget.name
-            : deviceListModel.getDeviceName(
-                deviceId: widget.adapter?.getDeviceId(),
-              );
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
+            ? NameFormatter.formatName(widget.name)
+            : nameInModel;
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
-      return deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
-      );
+      return nameInModel;
     }
 
     BoxDecoration _getBoxDecoration() {
@@ -207,12 +202,16 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -222,15 +221,19 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       if (!curPower) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+            stops: const [0.06, 1.0],
+            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
           ),
         );
       } else {
@@ -271,7 +274,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 6),
+              margin: const EdgeInsets.only(right: 16),
               width: 40,
               child: widget.icon,
             ),
@@ -284,40 +287,13 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        SizedBox(
-                          width: 102,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 76,
-                                ),
-                                child: Text(
-                                  getDeviceName()
-                                      .substring(0, getDeviceName().length - 1),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontFamily: 'MideaType',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                getDeviceName().substring(
-                                    getDeviceName().length - 1,
-                                    getDeviceName().length),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontFamily: 'MideaType',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          getDeviceName(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontFamily: 'MideaType',
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                         if (widget.isNative)
@@ -353,7 +329,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                               children: [
                                 ConstrainedBox(
                                   constraints:
-                                      const BoxConstraints(maxWidth: 50),
+                                      const BoxConstraints(maxWidth: 80),
                                   child: Text(
                                     '${getRoomName()}',
                                     overflow: TextOverflow.ellipsis,

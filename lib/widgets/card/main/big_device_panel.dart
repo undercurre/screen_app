@@ -22,6 +22,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   final bool disabled;
   final bool disableOnOff;
   final bool discriminative;
+
   PanelDataAdapter adapter; // 数据适配器
 
   BigDevicePanelCardWidget({
@@ -54,7 +55,6 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       }
 
       _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
-        Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
       });
@@ -64,9 +64,11 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   @override
   void initState() {
     super.initState();
-    _startPushListen();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      _startPushListen();
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
@@ -74,14 +76,15 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       setState(() {
         widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
-      // Log.i('更新数据', widget.adapter.data.nameList);
     }
   }
 
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -164,7 +167,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                             maxWidth: 76,
                           ),
                           child: Text(
-                            widget.name.substring(0, widget.name.length - 1),
+                            getDeviceName().substring(0, getDeviceName().length - 1),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
@@ -175,9 +178,9 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                           ),
                         ),
                         Text(
-                          widget.name.substring(
-                            widget.name.length - 1,
-                            widget.name.length,
+                          getDeviceName().substring(
+                            getDeviceName().length - 1,
+                            getDeviceName().length,
                           ),
                           style: const TextStyle(
                             color: Colors.white,
@@ -352,8 +355,12 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
       ),
     );
