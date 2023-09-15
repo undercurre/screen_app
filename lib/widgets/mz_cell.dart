@@ -7,6 +7,7 @@ class MzCell extends StatefulWidget {
   final double? height;
   final String? title; // 标题
   final Widget? titleSlot; // 标题插槽
+  final double titleMaxWidth;
   final Widget? rightSlot; // 右侧插槽
   final String? desc; // 描述
   final String? tag; // 标签、标注
@@ -26,6 +27,10 @@ class MzCell extends StatefulWidget {
   final Color borderColor; // 边框颜色
   final bool hasTopBorder; // 显示上边框
   final bool hasBottomBorder; // 显示下边框
+  final double topLeftRadius;
+  final double topRightRadius;
+  final double bottomLeftRadius;
+  final double bottomRightRadius;
   final EdgeInsetsGeometry padding; // 边距设置
   final ValueChanged<bool>? onSwitch; // switch emit
   final Function? onTap; // tap emit
@@ -59,6 +64,11 @@ class MzCell extends StatefulWidget {
     this.onSwitch,
     this.onTap,
     this.onLongPress,
+    this.titleMaxWidth = 280,
+    this.topLeftRadius = 0,
+    this.topRightRadius = 0,
+    this.bottomLeftRadius = 0,
+    this.bottomRightRadius = 0,
   });
 
   @override
@@ -97,8 +107,8 @@ class _CellState extends State<MzCell> {
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
         Container(
-          constraints: const BoxConstraints(
-            maxWidth: 280,
+          constraints: BoxConstraints(
+            maxWidth: widget.titleMaxWidth,
           ),
           child: Text(
             widget.title!,
@@ -239,12 +249,19 @@ class _CellState extends State<MzCell> {
 
     // 背景、边框设置
     BoxDecoration cellDecoration = BoxDecoration(
-        color: widget.bgColor,
-        border: Border(
-          top: widget.hasTopBorder
-              ? BorderSide(color: widget.borderColor)
-              : BorderSide.none,
-        ));
+      color: widget.bgColor,
+      border: Border(
+        top: widget.hasTopBorder
+            ? BorderSide(color: widget.borderColor)
+            : BorderSide.none,
+      ),
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(widget.topLeftRadius),
+          topRight: Radius.circular(widget.topRightRadius),
+          bottomLeft: Radius.circular(widget.bottomLeftRadius),
+          bottomRight: Radius.circular(widget.bottomRightRadius),
+      )
+    );
 
     return GestureDetector(
         child: Stack(children: [

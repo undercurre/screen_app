@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
+import '../../plugins/gear_485_card.dart';
 import '../../plugins/gear_card.dart';
 
 class Big485AirDeviceAirCardWidget extends StatefulWidget {
@@ -82,6 +83,9 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
   }
 
   Future<void> gearHandle(num value) async {
+    if(!widget.onOff){
+      return;
+    }
     if (value == 1) {
       value = 4;
     } else if (value == 3) {
@@ -220,23 +224,16 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
             top: 62,
             left: 20,
             child: SizedBox(
-              height: 114,
               width: 400,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: GearCard(
-                      disabled: !widget.onOff,
-                      value: setWinSpeed(int.parse(widget.adapter!.data.windSpeed)),
-                      maxGear: 3,
-                      minGear: 1,
-                      onChanged: gearHandle,
-                    ),
-                  ),
-                ],
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 0),
+                child: Gear485Card(
+                  disabled: !widget.onOff,
+                  value: setWinSpeed(int.parse(widget.adapter!.data.windSpeed)),
+                  maxGear: 3,
+                  minGear: 1,
+                  onChanged: gearHandle,
+                ),
               ),
             ),
           ),
