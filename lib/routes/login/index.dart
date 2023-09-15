@@ -235,7 +235,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '连接网络',
           Container(
             width: 480,
-            height: 300,
+            height: 340,
             alignment: AlignmentDirectional.centerStart,
             child: const LinkNetwork(isNeedWifiSwitch: true),
           )
