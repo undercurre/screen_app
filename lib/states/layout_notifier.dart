@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
+import 'package:screen_app/widgets/util/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/logcat_helper.dart';
@@ -287,7 +288,7 @@ class LayoutModel extends ChangeNotifier {
   void swapPosition(Layout source, Layout targetOne) {
     int distance = targetOne.grids[0] - source.grids[0];
     List<int> target = source.grids.map((e) => e + distance).toList();
-    Log.i('原位置${source.grids}到目标${targetOne.grids}', distance);
+    Log.i('原位置${source.grids}到目标${target}', distance);
     // 避免越界
 
     List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
@@ -313,19 +314,28 @@ class LayoutModel extends ChangeNotifier {
     // 找到目标
     for (int i = 0; i < fillNulls.length; i++) {
       List<int> grids = fillNulls[i].grids;
-      if (target.any((element) => grids.contains(element))) {
-        if (i < curPageLayoutList.length &&
-            curPageLayoutList
-                .any((element) => element.deviceId == fillNulls[i].deviceId)) {
-          targetIndexes.add(i);
+      if (grids != source.grids) {
+        if (target.any((element) => grids.contains(element))) {
+          if (i < curPageLayoutList.length &&
+              curPageLayoutList
+                  .any((element) =>
+              element.deviceId == fillNulls[i].deviceId)) {
+            targetIndexes.add(i);
+          }
+          lengthSum += grids.length;
         }
-        lengthSum += grids.length;
       }
+    }
+
+    // 如果元素移动到有自身的格子
+    if (findDuplicates(source.grids, target).isNotEmpty) {
+      lengthSum += findDuplicates(source.grids, target).length;
+      Log.i('元素移动到有自身的格子', findDuplicates(source.grids, target));
     }
 
     // 目标违规
     if (lengthSum != target.length && lengthSum != 0) {
-      Log.i('目标违规');
+      Log.i('目标违规', lengthSum);
       return;
     }
 

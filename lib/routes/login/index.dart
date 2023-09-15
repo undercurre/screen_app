@@ -5,6 +5,11 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
+import 'package:screen_app/common/meiju/api/meiju_api.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
@@ -12,11 +17,16 @@ import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../models/device_entity.dart';
+import '../../states/device_list_notifier.dart';
+import '../../states/layout_notifier.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/mz_dialog.dart';
 import '../../widgets/util/net_utils.dart';
+import '../home/device/layout_data.dart';
 import 'chose_platform.dart';
 import 'scan_code.dart';
 
@@ -95,6 +105,56 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
+        final deviceInfoListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+        final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+        if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+          var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
+          List<HomluxDeviceEntity>? devices = res.data;
+          if (devices != null) {
+            List<DeviceEntity> devicesReal = [];
+
+            devices.forEach((e) {
+              DeviceEntity deviceObj = DeviceEntity();
+              deviceObj.name = e.deviceName!;
+              deviceObj.applianceCode = e.deviceId!;
+              deviceObj.type = e.proType!;
+              deviceObj.modelNumber = getModelNumber(e);
+              deviceObj.roomName = e.roomName!;
+              deviceObj.roomId = System.roomInfo?.id;
+              deviceObj.masterId = e.gatewayId ?? '';
+              deviceObj.onlineStatus = e.onLineStatus.toString();
+              devicesReal.add(deviceObj);
+            });
+            if (devicesReal.isNotEmpty) {
+              List<Layout> layoutData = deviceInfoListModel
+                  .transformLayoutFromDeviceList(devicesReal);
+              await layoutModel.setLayouts(layoutData);
+            }
+          }
+        } else {
+          List<dynamic> devices = await MeiJuDeviceApi.queryDeviceListByRoomId(
+              MeiJuGlobal.token!.uid, System.familyInfo!.familyId,
+              System.roomInfo!.id!);
+          List<DeviceEntity> devicesReal = [];
+
+          devices.forEach((e) {
+            DeviceEntity deviceObj = DeviceEntity();
+            deviceObj.name = e["name"];
+            deviceObj.applianceCode = e["applianceCode"];
+            deviceObj.type = e["type"];
+            deviceObj.modelNumber = e["modelNumber"];
+            deviceObj.sn8 = e["sn8"];
+            deviceObj.roomName = e["roomName"];
+            deviceObj.masterId = e["masterId"];
+            deviceObj.onlineStatus = e["onlineStatus"];
+            devicesReal.add(deviceObj);
+          });
+          if (devicesReal.isNotEmpty) {
+            List<Layout> layoutData = deviceInfoListModel
+                .transformLayoutFromDeviceList(devicesReal);
+            await layoutModel.setLayouts(layoutData);
+          }
+        }
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);

@@ -70,11 +70,11 @@ class _AreaSelectorState extends State<AreaSelector> {
     logger.i('区', selectedDistrictIndex);
 
     await provinceController.animateToItem(selectedProvinceIndex,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 1), curve: Curves.easeInOut);
     await cityController.animateToItem(selectedCityIndex,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 2), curve: Curves.easeInOut);
     await districtController.animateToItem(selectedDistrictIndex,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 3), curve: Curves.easeInOut);
     isInit = true;
   }
 

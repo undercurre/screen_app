@@ -14,6 +14,7 @@ class MiddleDeviceCardWidget extends StatefulWidget {
   final bool isNative;
   final String roomName;
   final bool disableOnOff;
+  final bool discriminative;
   final bool hasMore;
   final bool disabled;
   final Function? onTap; // 整卡点击事件
@@ -31,6 +32,7 @@ class MiddleDeviceCardWidget extends StatefulWidget {
       this.disableOnOff = true,
       this.hasMore = true,
       this.disabled = false,
+      this.discriminative = false,
       this.adapter,
       this.onTap});
 
@@ -156,9 +158,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
       bool online = deviceListModel.getOnlineStatus(
         deviceId: widget.adapter?.getDeviceId(),
       );
-      Log.i('在线状态', online);
       if (widget.disabled) {
-        Log.i('widget:${widget.disableOnOff}');
         if (widget.disableOnOff) {
           return BoxDecoration(
             borderRadius: BorderRadius.circular(24),
@@ -177,15 +177,19 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         } else {
           return BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0x33616A76),
-                Color(0x33434852),
+                widget.discriminative
+                    ? Colors.white.withOpacity(0.12)
+                    : const Color(0x33616A76),
+                widget.discriminative
+                    ? Colors.white.withOpacity(0.12)
+                    : const Color(0x33434852),
               ],
-              stops: [0.06, 1.0],
-              transform: GradientRotation(213 * (3.1415926 / 360.0)),
+              stops: const [0.06, 1.0],
+              transform: const GradientRotation(213 * (3.1415926 / 360.0)),
             ),
           );
         }
@@ -212,30 +216,38 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+            stops: const [0.06, 1.0],
+            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
           ),
         );
       }
       if (!curPower) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+            stops: const [0.06, 1.0],
+            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
           ),
         );
       } else {

@@ -44,7 +44,7 @@ class MeiJuDeviceApi {
   }
 
   /// 获取某房间下所有的设备
-  static Future<MeiJuResponseEntity> queryDeviceListByRoomId(String uid,
+  static Future<List<dynamic>> queryDeviceListByRoomId(String uid,
       String homegroupId, String roomId) async {
     var res = await MeiJuApi.requestMideaIot(
         '/mas/v5/app/proxy?alias=/v1/appliance/home/list/get',
@@ -65,8 +65,7 @@ class MeiJuDeviceApi {
       }
     });
 
-    return MeiJuResponseEntity.fromJson(
-        {'code': 0, 'msg': '成功', 'data': applianceList});
+    return applianceList;
   }
 
   /// 获取设备详情（lua）
