@@ -210,26 +210,32 @@ class DataInputCard {
       required this.modelNumber,
       required this.isOnline,
       required this.onlineStatus,
+
       this.context,
       this.icon,
       this.sceneId,
       this.disabled,
       this.hasMore,
+
       this.isFault,
       this.isNative,
       this.sn8,
       this.disableOnOff,
       this.onTap,
+
       this.discriminative});
 
   factory DataInputCard.fromJson(Map<String, dynamic> json) {
     return DataInputCard(
       name: json['name'] as String,
+      type: json['type'] as String,
       isOnline: json['isOnline'] as String,
       roomName: json['roomName'] as String,
       applianceCode: json['applianceCode'] as String,
       masterId: json['masterId'] as String,
       modelNumber: json['modelNumber'] as String,
+      onlineStatus: json['onlineStatus'] as String,
+
       sceneId: json['sceneId'] as String?,
       icon: json['icon'] as String?,
       disabled: json['disabled'] as bool?,
@@ -237,24 +243,20 @@ class DataInputCard {
       isFault: json['isFault'] as bool?,
       isNative: json['isNative'] as bool?,
       disableOnOff: json['disableOnOff'] as bool?,
-      type: json['type'] as String,
-      onlineStatus: json['onlineStatus'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
       'name': name,
+      'type': type,
       'roomName': roomName,
       'applianceCode': applianceCode,
       'isOnline': isOnline,
+      'masterId': masterId,
+      'modelNumber': modelNumber,
+      'onlineStatus': onlineStatus,
     };
-    if (masterId != null) {
-      data['masterId'] = masterId;
-    }
-    if (modelNumber != null) {
-      data['modelNumber'] = modelNumber;
-    }
     if (sceneId != null) {
       data['sceneId'] = sceneId;
     }
