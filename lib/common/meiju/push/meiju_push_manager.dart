@@ -134,10 +134,11 @@ class MeiJuPushManager {
 
               /// 发送订阅任务
               var currTimer = DateTime.now();
-              if(currTimer.millisecondsSinceEpoch - lastSubscriptionTime > 60 * 1000) {
-                _subscriptionSet();
-                lastSubscriptionTime = currTimer.millisecondsSinceEpoch;
-              }
+              // 按云端要求，可以不用请求订阅接口
+              // if(currTimer.millisecondsSinceEpoch - lastSubscriptionTime > 60 * 1000) {
+              //   _subscriptionSet();
+              //   lastSubscriptionTime = currTimer.millisecondsSinceEpoch;
+              // }
 
               /// 发送心跳业务
               if(_sendHearTimerInterval != null &&

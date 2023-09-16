@@ -64,8 +64,8 @@ class OtaChannel extends AbstractChannel {
 
   /// 普通检查更新
   void checkNormalAndRom(bool isBackground) {
-    checkUpgrade(OtaUpgradeType.normal, () {
-      checkUpgrade(OtaUpgradeType.rom, () {
+    checkUpgrade(OtaUpgradeType.rom, () {
+      checkUpgrade(OtaUpgradeType.normal, () {
         if(!isBackground) {
           TipsUtils.toast(content: "已经是最新版本", position: EasyLoadingToastPosition.bottom);
         }
