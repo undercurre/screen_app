@@ -89,11 +89,12 @@ class _Boot extends State<Boot> {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         String? isMigrate = await migrateChannel.meiJuIsMigrate();
         if (isMigrate == "0"&&!System.isLogin()) {
-          Log.file("进入迁移界面$isMigrate----${System.isLogin()}");
+          // Log.file("进入迁移界面$isMigrate----${System.isLogin()}");
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
           });
         } else {
+          await migrateChannel.setHomluxIsMigrate();
           bool isLogin = System.isLogin();
           bool familyInfo = System.familyInfo != null;
           bool roomInfo = System.roomInfo != null;
@@ -103,6 +104,7 @@ class _Boot extends State<Boot> {
           var isFinishLogin = System.isLogin() &&
               System.familyInfo != null &&
               System.roomInfo != null;
+          await migrateChannel.setMeiJuIsMigrate();
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',
@@ -129,6 +131,7 @@ class _Boot extends State<Boot> {
           var isFinishLogin = System.isLogin() &&
               System.familyInfo != null &&
               System.roomInfo != null;
+          await migrateChannel.setHomluxIsMigrate();
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',
