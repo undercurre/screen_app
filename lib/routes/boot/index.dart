@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../channel/index.dart';
@@ -88,6 +89,7 @@ class _Boot extends State<Boot> {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         String? isMigrate = await migrateChannel.meiJuIsMigrate();
         if (isMigrate == "0"&&!System.isLogin()) {
+          Log.file("进入迁移界面$isMigrate----${System.isLogin()}");
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
           });
