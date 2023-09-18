@@ -31,8 +31,7 @@ class _Boot extends State<Boot> {
     });
 
     () async {
-      Future.delayed(const Duration(seconds: 20))
-          .then((value) => {checkGetWay()});
+      checkGetWay();
     }.call();
   }
 
