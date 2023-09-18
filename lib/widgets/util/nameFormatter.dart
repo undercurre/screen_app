@@ -1,8 +1,11 @@
+import '../../common/logcat_helper.dart';
+
 class NameFormatter {
-  static String formatName(String inputName) {
-    if (inputName.length > 4) {
+  static String formatName(String inputName, int fontCount) {
+    if (inputName.length > fontCount && fontCount > 2) {
       int strlen = inputName.length;
-      return '${inputName.substring(0, 2)}...${inputName.substring(strlen - 1, strlen)}';
+      int prelen = fontCount - 2;
+      return '${inputName.substring(0, prelen)}...${inputName.substring(strlen - 1, strlen)}';
     } else {
       return inputName;
     }

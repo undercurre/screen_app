@@ -17,6 +17,7 @@ import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/meiju/meiju_global.dart';
 import '../../models/device_entity.dart';
 import '../../states/device_list_notifier.dart';
@@ -26,6 +27,7 @@ import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/mz_dialog.dart';
 import '../../widgets/util/net_utils.dart';
+import '../home/device/card_type_config.dart';
 import '../home/device/layout_data.dart';
 import 'chose_platform.dart';
 import 'scan_code.dart';
@@ -123,12 +125,18 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               deviceObj.roomId = System.roomInfo?.id;
               deviceObj.masterId = e.gatewayId ?? '';
               deviceObj.onlineStatus = e.onLineStatus.toString();
-              devicesReal.add(deviceObj);
+              if (getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) !=
+                  DeviceEntityTypeInP4.Default) {
+                devicesReal.add(deviceObj);
+              }
             });
             if (devicesReal.isNotEmpty) {
               List<Layout> layoutData = deviceInfoListModel
                   .transformLayoutFromDeviceList(devicesReal);
               await layoutModel.setLayouts(layoutData);
+            } else {
+              await layoutModel.removeLayouts();
+              await layoutModel.loadLayouts();
             }
           }
         } else {
@@ -147,12 +155,18 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             deviceObj.roomName = e["roomName"];
             deviceObj.masterId = e["masterId"];
             deviceObj.onlineStatus = e["onlineStatus"];
-            devicesReal.add(deviceObj);
+            if (getDeviceEntityType(e["type"], e["modelNumber"]) !=
+                DeviceEntityTypeInP4.Default) {
+              devicesReal.add(deviceObj);
+            }
           });
           if (devicesReal.isNotEmpty) {
             List<Layout> layoutData = deviceInfoListModel
                 .transformLayoutFromDeviceList(devicesReal);
             await layoutModel.setLayouts(layoutData);
+          } else {
+            await layoutModel.removeLayouts();
+            await layoutModel.loadLayouts();
           }
         }
         // 判断是否绑定网关
@@ -179,6 +193,29 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     setState(() {
       ++stepNum;
     });
+  }
+
+  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
+    for (var deviceType in DeviceEntityTypeInP4.values) {
+      if (value == '0x21') {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
+          return deviceType;
+        }
+      } else if (value.contains('localPanel1')) {
+        return DeviceEntityTypeInP4.LocalPanel1;
+      } else if (value.contains('localPanel2')) {
+        return DeviceEntityTypeInP4.LocalPanel2;
+      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
+        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
+      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
+        return DeviceEntityTypeInP4.homlux_lightGroup;
+      } else {
+        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
+          return deviceType;
+        }
+      }
+    }
+    return DeviceEntityTypeInP4.Default;
   }
 
   void prepare2goHome() {
