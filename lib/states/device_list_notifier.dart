@@ -294,7 +294,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.applianceCode == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].name!);
+          return NameFormatter.formatName(curOne[0].name!, 4);
         } else {
           return '未知设备';
         }
@@ -303,7 +303,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.deviceId == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].deviceName!);
+          return NameFormatter.formatName(curOne[0].deviceName!, 4);
         } else {
           return '未知设备';
         }
@@ -320,7 +320,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.applianceCode == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].roomName!);
+          return NameFormatter.formatName(curOne[0].roomName!, 3);
         } else {
           return '未知区域';
         }
@@ -329,7 +329,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             .where((element) => element.deviceId == deviceId)
             .toList();
         if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].roomName!);
+          return NameFormatter.formatName(curOne[0].roomName!, 3);
         } else {
           return '未知区域';
         }

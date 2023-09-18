@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
+import 'package:screen_app/widgets/util/debouncer.dart';
 
 import '../../../common/api/api.dart';
 import '../../../common/logcat_helper.dart';
@@ -66,6 +67,7 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Debouncer debouncer = Debouncer(milliseconds: 2000);
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
     if (mounted) {
@@ -78,21 +80,17 @@ class _DevicePageState extends State<DevicePage> {
           controller: _pageController,
           scrollDirection: Axis.horizontal,
           onPageChanged: (index) {
-            setState(() {
-              widget.currentPage = index;
+            _pageController.animateToPage(index, duration: const Duration(milliseconds: 10), curve: Curves.ease);
+            debouncer.run(() {
+              setState(() {
+                widget.currentPage = index;
+              });
+              context.read<PageCounter>().currentPage = index;
             });
-            context.read<PageCounter>().currentPage = index;
           },
           itemCount: _screens.length,
-          itemBuilder: (BuildContext context, int index) {
-            // 返回要显示的 Widget，这里可以根据 index 控制加载的页数
-            // 如果希望加载当前页及其相邻的前后页，可以使用类似以下逻辑：
-            if (index >= widget.currentPage - 1 &&
-                index <= widget.currentPage + 1) {
-              return _screens[index];
-            } else {
-              return const Placeholder(); // 或者返回一个空的占位 Widget
-            }
+          itemBuilder: (context, index) {
+            return _screens[index];
           },
         ),
         Positioned(

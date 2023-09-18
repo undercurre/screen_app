@@ -187,7 +187,7 @@ class _BigDeviceCurtainCardWidgetState
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(NameFormatter.formatName(widget.roomName),
+                  child: Text(NameFormatter.formatName(widget.roomName, 3),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

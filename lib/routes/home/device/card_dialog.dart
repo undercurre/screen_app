@@ -82,7 +82,7 @@ class _CardDialogState extends State<CardDialog> {
                     child: const Icon(Icons.close_rounded, size: 32),
                   ),
                   Text(
-                    NameFormatter.formatName(widget.name),
+                    NameFormatter.formatName(widget.name, 4),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
