@@ -2,7 +2,6 @@ package com.midea.light;
 
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.multidex.MultiDex;
 
@@ -50,18 +49,6 @@ public class MainApplication extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        Thread thread =new Thread(){
-            public  void  run(){
-                try {
-                    Thread.sleep(18000);
-                    String re= executeCommand("sh /data/midea/bin/gwInit.sh");
-                    Log.e("sky","网关启动:"+re);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };thread.start();
-
         // 初始化日志库
         if(!ProcessUtil.isInMainProcess(this)) {
             AliPushChannel.aliPushInit(this);
