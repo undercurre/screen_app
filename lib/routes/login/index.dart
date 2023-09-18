@@ -109,6 +109,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         showBindingDialog(true);
         final deviceInfoListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+        await layoutModel.removeLayouts();
         if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
           var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
           List<HomluxDeviceEntity>? devices = res.data;
@@ -135,7 +136,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                   .transformLayoutFromDeviceList(devicesReal);
               await layoutModel.setLayouts(layoutData);
             } else {
-              await layoutModel.removeLayouts();
               await layoutModel.loadLayouts();
             }
           }
@@ -165,7 +165,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 .transformLayoutFromDeviceList(devicesReal);
             await layoutModel.setLayouts(layoutData);
           } else {
-            await layoutModel.removeLayouts();
             await layoutModel.loadLayouts();
           }
         }
