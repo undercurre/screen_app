@@ -80,12 +80,12 @@ class _DevicePageState extends State<DevicePage> {
           controller: _pageController,
           scrollDirection: Axis.horizontal,
           onPageChanged: (index) {
+            context.read<PageCounter>().currentPage = index;
             _pageController.animateToPage(index, duration: const Duration(milliseconds: 10), curve: Curves.ease);
             debouncer.run(() {
               setState(() {
                 widget.currentPage = index;
               });
-              context.read<PageCounter>().currentPage = index;
             });
           },
           itemCount: _screens.length,

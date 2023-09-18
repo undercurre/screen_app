@@ -27,10 +27,10 @@ class LayoutModel extends ChangeNotifier {
 
   // 初始化时从本地读取布局数据
   LayoutModel() {
-    _loadLayouts();
+    loadLayouts();
   }
 
-  Future<void> _loadLayouts() async {
+  Future<void> loadLayouts() async {
     final prefs = await SharedPreferences.getInstance();
     final layoutList = prefs.getStringList('layouts');
     if (layoutList != null) {
@@ -40,7 +40,7 @@ class LayoutModel extends ChangeNotifier {
         Log.i('layout缓存加载失败', e);
         removeLayouts();
         await Future.delayed(const Duration(seconds: 2));
-        _loadLayouts();
+        loadLayouts();
       }
     } else {
       // 初次使用,展示默认布局
