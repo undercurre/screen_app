@@ -122,6 +122,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                     SizedBox(
                       width: 100,
                       child: Text(
+                        maxLines: 1,
                         widget.name,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -158,6 +159,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
+                        maxLines: 1,
                         '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                         style: TextStyle(
                             color: Colors.white.withOpacity(0.64),

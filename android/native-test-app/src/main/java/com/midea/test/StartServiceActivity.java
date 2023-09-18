@@ -2,6 +2,7 @@ package com.midea.test;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -57,7 +58,14 @@ public class StartServiceActivity extends Activity {
         DeviceAdapter mAdapterFreshAir = new DeviceAdapter(this, mDataFreshAir);
         DeviceAdapter mAdapterFloor = new DeviceAdapter(this, mDataFloor);
 
-        send.setOnClickListener(v -> GetWayController.getInstance().findAllAirConditionOnlineState());
+        send.setOnClickListener(v ->{
+//            GetWayController.getInstance().findAllAirConditionOnlineState();
+            Intent serviceIntent = new Intent("android.rockchip.update.service");
+            serviceIntent.setPackage("android.rockchip.update.service");
+            serviceIntent.putExtra("command", 1);
+            serviceIntent.putExtra("delay", 0);
+            startService(serviceIntent);
+        });
         sendFreshAir.setOnClickListener(v -> GetWayController.getInstance().findAllFreshAirOnlineState());
         sendFloor.setOnClickListener(v -> GetWayController.getInstance().findAllFloorHotOnlineState());
 
@@ -174,6 +182,8 @@ public class StartServiceActivity extends Activity {
                 },throwable -> Log.e("sky","rxbus错误" ,throwable));
 
     }
+
+
 
 
 }
