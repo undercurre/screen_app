@@ -320,7 +320,7 @@ class CACDataAdapter extends MideaDataAdapter {
   }
 
   void _local485StateCallback(Local485DeviceState state) {
-    if(state.modelId=="zhonghong.cac.002"&&applianceCode==state.address){
+    if(state.modelId=="zhonghong.cac.002"&&localDeviceCode==state.address){
      data = CAC485Data(
          name: name,
          currTemp: state.temper.toString(),

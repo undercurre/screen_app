@@ -260,7 +260,7 @@ class FloorDataAdapter extends MideaDataAdapter {
 
   void _local485StateCallback(Local485DeviceState state) {
     if (state.modelId == "zhonghong.heat.001" &&
-        applianceCode == state.address) {
+        localDeviceCode == state.address) {
       data = Floor485Data(
         name: name,
         targetTemp: state.mode.toString(),
