@@ -388,12 +388,4 @@ class _CardDialogState extends State<CardDialog> {
     }
     return DeviceEntityTypeInP4.Default;
   }
-
-  _getIconUrl(String type, String modelNum) {
-    if (type == '0x21') {
-      return 'assets/newUI/device/${type}_${modelNum}.png';
-    } else {
-      return 'assets/newUI/device/${type}.png';
-    }
-  }
 }

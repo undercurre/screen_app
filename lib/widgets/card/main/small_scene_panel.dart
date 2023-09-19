@@ -12,9 +12,11 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/scene_info_entity.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../states/scene_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_dialog.dart';
+import '../../util/nameFormatter.dart';
 
 class SmallScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -100,11 +102,44 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
         sceneListCache = sceneModel.getCacheSceneList();
       });
+    }
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
+            ? NameFormatter.formatName(widget.name, 4)
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return NameFormatter.formatName(widget.roomName, 3);
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
     }
 
     return GestureDetector(
@@ -181,7 +216,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                     width: 120,
                     child: Text(
                       widget.adapter.data.modeList[0] == '0'
-                          ? widget.name
+                          ? getDeviceName()
                           : _getName(sceneListCache),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -194,7 +229,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                     ),
                   ),
                   Text(
-                    '${widget.roomName} | ${_getRightText()}',
+                    '${getRoomName()} | ${_getRightText()}',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.64),
                         fontSize: 16,
@@ -222,7 +257,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       return '离线';
     }
     if (widget.adapter.dataState == DataState.ERROR) {
-      return '加载失败';
+      return NameFormatter.formatName('失败', 3);
     }
     if (widget.adapter.data!.modeList[0] == '2') {
       // 场景模式

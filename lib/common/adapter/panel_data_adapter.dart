@@ -2,6 +2,7 @@ import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
+import '../../widgets/event_bus.dart';
 import '../gateway_platform.dart';
 import '../homlux/models/homlux_device_entity.dart';
 import '../homlux/models/homlux_response_entity.dart';
@@ -110,6 +111,7 @@ class PanelDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> fetchOrderPower(int PanelIndex) async {
+    bus.emit('operateDevice', nodeId);
     if (platform.inMeiju()) {
       fetchOrderPowerMeiju(PanelIndex);
     } else {
@@ -177,7 +179,7 @@ class PanelData {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.map((e) => e.name.toString()).toList();
+      nameList = data.endList.asMap().entries.map((e) => e.value != null ? e.value.toString() : nameList[e.key]).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }

@@ -13,6 +13,7 @@ import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
@@ -731,7 +732,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                               roomName: '',
                                               isOnline: '',
                                               disabled: true,
-                                              type: '',
+                                              type: DeviceEntityTypeInP4Handle.extractLowercaseEntityType(others[index].type.toString()),
                                               masterId: '',
                                               modelNumber: '',
                                               onlineStatus: '1',

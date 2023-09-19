@@ -374,6 +374,9 @@ class LayoutModel extends ChangeNotifier {
 
   // 卡片大小替换
   void swapCardType(Layout layout, CardType targetType) {
+    if (layout.cardType == targetType) {
+      return;
+    }
     layout.cardType = targetType;
     // 更换grid
     // 准备screenLayer

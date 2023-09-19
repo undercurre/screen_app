@@ -6,10 +6,10 @@ class NodeInfo<T extends Endpoint> {
   int masterId;
   String? nodeName;
   String idType;
-  String modelId;
+  String? modelId;
   List<T> endList;
   int? guard;
-  String isAlarmDevice;
+  String? isAlarmDevice;
   String nodeId;
   // 多功能面板是stirng，其他是int
   dynamic status;
@@ -23,7 +23,7 @@ class NodeInfo<T extends Endpoint> {
     required this.modelId,
     required this.endList,
     this.guard,
-    required this.isAlarmDevice,
+    this.isAlarmDevice,
     required this.nodeId,
     required this.status,
   });
@@ -31,7 +31,7 @@ class NodeInfo<T extends Endpoint> {
   factory NodeInfo.fromJson(Map<String, dynamic> json, Endpoint Function(Map<String, dynamic>) endpointFromJson) {
     return NodeInfo(
       devId: json['devId'],
-      registerUsers: List<String>.from(json['register_users']),
+      registerUsers: json['register_users'] != null ? List<String>.from(json['register_users']) : null,
       masterId: json['masterId'],
       nodeName: json['nodename'],
       idType: json['idType'],

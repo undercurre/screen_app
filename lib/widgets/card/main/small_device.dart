@@ -104,7 +104,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
-        return '加载失败';
+        return NameFormatter.formatName('失败', 3);
       }
 
       return widget.adapter?.getCharacteristic();

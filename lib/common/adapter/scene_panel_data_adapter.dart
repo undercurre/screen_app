@@ -4,6 +4,7 @@ import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
 import '../../models/scene_info_entity.dart';
+import '../../widgets/event_bus.dart';
 import '../gateway_platform.dart';
 import '../homlux/models/homlux_device_entity.dart';
 import '../homlux/models/homlux_panel_associate_scene_entity.dart';
@@ -124,6 +125,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> fetchOrderPower(int PanelIndex) async {
+    bus.emit('operateDevice', nodeId);
     if (platform.inMeiju()) {
       fetchOrderPowerMeiju(PanelIndex);
     } else {
@@ -243,7 +245,7 @@ class ScenePanelData {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.map((e) => e.name.toString()).toList();
+      nameList = data.endList.asMap().entries.map((e) => e.value.name != null ? e.value.name.toString() : nameList[e.key]).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
 

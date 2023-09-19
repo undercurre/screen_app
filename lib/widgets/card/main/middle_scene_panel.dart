@@ -10,9 +10,11 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/scene_info_entity.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../states/scene_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_dialog.dart';
+import '../../util/nameFormatter.dart';
 
 class MiddleScenePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -103,11 +105,44 @@ class _MiddleScenePanelCardWidgetState
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
         sceneListCache = sceneModel.getCacheSceneList();
       });
+    }
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
+            ? NameFormatter.formatName(widget.name, 4)
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return NameFormatter.formatName(widget.roomName, 3);
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
     }
 
     return Container(
@@ -137,7 +172,7 @@ class _MiddleScenePanelCardWidgetState
             left: 72,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 90),
-              child: Text(widget.name,
+              child: Text(getDeviceName(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -155,7 +190,7 @@ class _MiddleScenePanelCardWidgetState
               children: [
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 50),
-                  child: Text(widget.roomName,
+                  child: Text(getRoomName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
