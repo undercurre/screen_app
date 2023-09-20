@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
+import '../common/logcat_helper.dart';
 import '../common/meiju/api/meiju_weather_api.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
 import '../common/models/city.dart';
@@ -66,15 +67,15 @@ class WeatherModel extends ChangeNotifier {
 
   Future<void> _loadSelectedDistrict() async {
     final prefs = await SharedPreferences.getInstance();
-    final provinceJson = prefs.getString('selectedProvince');
-    final cityJson = prefs.getString('selectedCity');
-    final districtJson = prefs.getString('selectedDistrict');
+    final provinceJson = await prefs.getString('selectedProvince');
+    final cityJson = await prefs.getString('selectedCity');
+    final districtJson = await prefs.getString('selectedDistrict');
     if (districtJson != null && provinceJson != null && cityJson != null) {
       selectedDistrict = District.fromJson(jsonDecode(districtJson));
       selectedCity = City.fromJson(jsonDecode(cityJson));
       selectedProvince = Province.fromJson(jsonDecode(provinceJson));
     }
-    logger.i('weatherModel加载');
+    Log.i('weatherModel加载');
     startWeatherTimer();
   }
 

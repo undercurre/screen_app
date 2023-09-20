@@ -77,7 +77,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
         btnList.add({'text': room.name!, 'key': room.roomId});
       }
     } else {
-      if(HomluxGlobal.selectRoomId!=null){
+      if (HomluxGlobal.selectRoomId != null) {
         roomID = HomluxGlobal.selectRoomId!;
       }
       for (HomluxRoomInfo room in System.homluxRoomList!) {
@@ -121,6 +121,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
               DeviceEntityTypeInP4.Default)
           .toList());
     }
+    others = others
+        .where((element) => !layoutModel.layouts.map((e) => e.deviceId).contains(
+            DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
+                element.type.toString())))
+        .toList();
+
     initData();
   }
 
@@ -192,13 +198,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
     selectRoom(roomID);
   }
 
-  void selectRoom(String roomID) async{
+  void selectRoom(String roomID) async {
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
     } else {
       HomluxGlobal.selectRoomId = roomID;
     }
-    List<DeviceEntity> devicesTemp = devicesAll.where((element) => element.roomId == roomID).toList();
+    List<DeviceEntity> devicesTemp =
+        devicesAll.where((element) => element.roomId == roomID).toList();
     deleteDevices.clear();
     for (DeviceEntity device in devicesTemp) {
       if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
@@ -206,15 +213,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     devicesTemp.removeWhere((i) => deleteDevices.contains(i));
-    List<DeviceEntity> devicesLightGroup=[];
-    List<DeviceEntity> devicesPanel=[];
+    List<DeviceEntity> devicesLightGroup = [];
+    List<DeviceEntity> devicesPanel = [];
     for (DeviceEntity device in devicesTemp) {
-      if (isLightGroup(device.type,device.modelNumber)) {
+      if (isLightGroup(device.type, device.modelNumber)) {
         devicesLightGroup.add(device);
       }
     }
     for (DeviceEntity device in devicesTemp) {
-      if (isPanel(device.type,device.modelNumber)) {
+      if (isPanel(device.type, device.modelNumber)) {
         devicesPanel.add(device);
       }
     }
@@ -226,15 +233,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
     setState(() {});
   }
 
-  bool isLightGroup(String? type,String modelNum){
-    if(type=="0x21"&&modelNum=="lightGroup"){
+  bool isLightGroup(String? type, String modelNum) {
+    if (type == "0x21" && modelNum == "lightGroup") {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
 
-  bool isPanel(String? type,String modelNum) {
+  bool isPanel(String? type, String modelNum) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
@@ -243,7 +250,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   Map<String, String> getCurRoomConfig() {
     if (btnList.isNotEmpty) {
-      List curRoom = btnList.where((element) => element["key"] == roomID).toList();
+      List curRoom =
+          btnList.where((element) => element["key"] == roomID).toList();
       if (curRoom.isNotEmpty) {
         return curRoom[0];
       } else {
@@ -617,7 +625,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             [],
                                             DataInputCard(
                                               name: scenes[index].name,
-                                              applianceCode: uuid.v4(),
+                                              applianceCode:
+                                                  scenes[index].sceneId,
                                               roomName: '',
                                               sceneId: scenes[index].sceneId,
                                               icon: scenes[index].image,
@@ -721,18 +730,31 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: GestureDetector(
                                         onTap: () {
                                           resultData = Layout(
-                                            uuid.v4(),
+                                            DeviceEntityTypeInP4Handle
+                                                .extractLowercaseEntityType(
+                                                    others[index]
+                                                        .type
+                                                        .toString()),
                                             others[index].type,
                                             CardType.Other,
                                             -1,
                                             [],
                                             DataInputCard(
                                               name: '',
-                                              applianceCode: uuid.v4(),
+                                              applianceCode:
+                                                  DeviceEntityTypeInP4Handle
+                                                      .extractLowercaseEntityType(
+                                                          others[index]
+                                                              .type
+                                                              .toString()),
                                               roomName: '',
                                               isOnline: '',
                                               disabled: true,
-                                              type: DeviceEntityTypeInP4Handle.extractLowercaseEntityType(others[index].type.toString()),
+                                              type: DeviceEntityTypeInP4Handle
+                                                  .extractLowercaseEntityType(
+                                                      others[index]
+                                                          .type
+                                                          .toString()),
                                               masterId: '',
                                               modelNumber: '',
                                               onlineStatus: '1',
