@@ -46,6 +46,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
+  String roomBeforeLogin = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
 
   void showBindingDialog(bool show) async {
@@ -109,24 +110,55 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         showBindingDialog(true);
         final deviceInfoListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        await layoutModel.removeLayouts();
-        if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-          var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
-          List<HomluxDeviceEntity>? devices = res.data;
-          if (devices != null) {
+        if (roomBeforeLogin.isNotEmpty && roomBeforeLogin != System.roomInfo?.id) {
+          // 换房间，重新初始布局该房间
+          await layoutModel.removeLayouts();
+          if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+            var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
+            List<HomluxDeviceEntity>? devices = res.data;
+            if (devices != null) {
+              List<DeviceEntity> devicesReal = [];
+
+              devices.forEach((e) {
+                DeviceEntity deviceObj = DeviceEntity();
+                deviceObj.name = e.deviceName!;
+                deviceObj.applianceCode = e.deviceId!;
+                deviceObj.type = e.proType!;
+                deviceObj.modelNumber = getModelNumber(e);
+                deviceObj.roomName = e.roomName!;
+                deviceObj.roomId = System.roomInfo?.id;
+                deviceObj.masterId = e.gatewayId ?? '';
+                deviceObj.onlineStatus = e.onLineStatus.toString();
+                if (getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) !=
+                    DeviceEntityTypeInP4.Default) {
+                  devicesReal.add(deviceObj);
+                }
+              });
+              if (devicesReal.isNotEmpty) {
+                List<Layout> layoutData = deviceInfoListModel
+                    .transformLayoutFromDeviceList(devicesReal);
+                await layoutModel.setLayouts(layoutData);
+              } else {
+                await layoutModel.loadLayouts();
+              }
+            }
+          } else {
+            List<dynamic> devices = await MeiJuDeviceApi.queryDeviceListByRoomId(
+                MeiJuGlobal.token!.uid, System.familyInfo!.familyId,
+                System.roomInfo!.id!);
             List<DeviceEntity> devicesReal = [];
 
             devices.forEach((e) {
               DeviceEntity deviceObj = DeviceEntity();
-              deviceObj.name = e.deviceName!;
-              deviceObj.applianceCode = e.deviceId!;
-              deviceObj.type = e.proType!;
-              deviceObj.modelNumber = getModelNumber(e);
-              deviceObj.roomName = e.roomName!;
-              deviceObj.roomId = System.roomInfo?.id;
-              deviceObj.masterId = e.gatewayId ?? '';
-              deviceObj.onlineStatus = e.onLineStatus.toString();
-              if (getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) !=
+              deviceObj.name = e["name"];
+              deviceObj.applianceCode = e["applianceCode"];
+              deviceObj.type = e["type"];
+              deviceObj.modelNumber = e["modelNumber"];
+              deviceObj.sn8 = e["sn8"];
+              deviceObj.roomName = e["roomName"];
+              deviceObj.masterId = e["masterId"];
+              deviceObj.onlineStatus = e["onlineStatus"];
+              if (getDeviceEntityType(e["type"], e["modelNumber"]) !=
                   DeviceEntityTypeInP4.Default) {
                 devicesReal.add(deviceObj);
               }
@@ -138,34 +170,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             } else {
               await layoutModel.loadLayouts();
             }
-          }
-        } else {
-          List<dynamic> devices = await MeiJuDeviceApi.queryDeviceListByRoomId(
-              MeiJuGlobal.token!.uid, System.familyInfo!.familyId,
-              System.roomInfo!.id!);
-          List<DeviceEntity> devicesReal = [];
-
-          devices.forEach((e) {
-            DeviceEntity deviceObj = DeviceEntity();
-            deviceObj.name = e["name"];
-            deviceObj.applianceCode = e["applianceCode"];
-            deviceObj.type = e["type"];
-            deviceObj.modelNumber = e["modelNumber"];
-            deviceObj.sn8 = e["sn8"];
-            deviceObj.roomName = e["roomName"];
-            deviceObj.masterId = e["masterId"];
-            deviceObj.onlineStatus = e["onlineStatus"];
-            if (getDeviceEntityType(e["type"], e["modelNumber"]) !=
-                DeviceEntityTypeInP4.Default) {
-              devicesReal.add(deviceObj);
-            }
-          });
-          if (devicesReal.isNotEmpty) {
-            List<Layout> layoutData = deviceInfoListModel
-                .transformLayoutFromDeviceList(devicesReal);
-            await layoutModel.setLayouts(layoutData);
-          } else {
-            await layoutModel.loadLayouts();
           }
         }
         // 判断是否绑定网关
@@ -248,6 +252,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       }
       isNeedShowClearAlert = System.familyInfo != null;
     }
+
+    roomBeforeLogin = System.roomInfo?.id ?? "";
 
     isNeedChoosePlatform = System.inNonePlatform();
 

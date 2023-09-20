@@ -289,24 +289,13 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   String getDeviceName({String? deviceId}) {
     if (deviceId != null) {
-      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].name!, 4);
-        } else {
-          return '未知设备';
-        }
+      List<DeviceEntity> curOne = getCacheDeviceList()
+          .where((element) => element.applianceCode == deviceId)
+          .toList();
+      if (curOne.isNotEmpty) {
+        return NameFormatter.formatName(curOne[0].name!, 4);
       } else {
-        List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].deviceName!, 4);
-        } else {
-          return '未知设备';
-        }
+        return '未知设备';
       }
     } else {
       return '未知id';
@@ -315,24 +304,13 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   String getDeviceRoomName({String? deviceId}) {
     if (deviceId != null) {
-      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].roomName!, 3);
-        } else {
-          return '未知区域';
-        }
+      List<DeviceEntity> curOne = getCacheDeviceList()
+          .where((element) => element.applianceCode == deviceId)
+          .toList();
+      if (curOne.isNotEmpty) {
+        return NameFormatter.formatName(curOne[0].roomName!, 3);
       } else {
-        List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return NameFormatter.formatName(curOne[0].roomName!, 3);
-        } else {
-          return '未知区域';
-        }
+        return '未知区域';
       }
     } else {
       return '未知id';
@@ -341,24 +319,13 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   bool getOnlineStatus({String? deviceId}) {
     if (deviceId != null) {
-      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-        List<MeiJuDeviceInfoEntity> curOne = deviceListMeiju
-            .where((element) => element.applianceCode == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return curOne[0].onlineStatus == '1';
-        } else {
-          return false;
-        }
+      List<DeviceEntity> curOne = getCacheDeviceList()
+          .where((element) => element.applianceCode == deviceId)
+          .toList();
+      if (curOne.isNotEmpty) {
+        return curOne[0].onlineStatus == '1';
       } else {
-        List<HomluxDeviceEntity> curOne = deviceListHomlux
-            .where((element) => element.deviceId == deviceId)
-            .toList();
-        if (curOne.isNotEmpty) {
-          return curOne[0].onLineStatus == 1;
-        } else {
-          return false;
-        }
+        return false;
       }
     } else {
       return false;
