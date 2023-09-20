@@ -20,6 +20,7 @@ import '../routes/home/device/card_type_config.dart';
 import '../routes/home/device/layout_data.dart';
 import '../routes/home/device/grid_container.dart';
 import '../widgets/card/main/panelNum.dart';
+import '../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class DeviceInfoListModel extends ChangeNotifier {
   List<MeiJuDeviceInfoEntity> deviceListMeiju = [];
@@ -342,7 +343,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     for (int i = 0; i < devices.length; i++) {
       // 当前设备的映射type
       DeviceEntityTypeInP4 curDeviceEntity =
-          getDeviceEntityType(devices[i].type, devices[i].modelNumber);
+          DeviceEntityTypeInP4Handle.getDeviceEntityType(
+              devices[i].type, devices[i].modelNumber);
       // 检查当前设备是否是面板的标志
       bool isPanel = _isPanel(devices[i].modelNumber, devices[i].type);
       // 当前容器集中的最大页数
@@ -426,29 +428,6 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
 
     return transformList;
-  }
-
-  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
-    for (var deviceType in DeviceEntityTypeInP4.values) {
-      if (value == '0x21') {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
-          return deviceType;
-        }
-      } else if (value.contains('localPanel1')) {
-        return DeviceEntityTypeInP4.LocalPanel1;
-      } else if (value.contains('localPanel2')) {
-        return DeviceEntityTypeInP4.LocalPanel2;
-      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
-        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
-      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
-        return DeviceEntityTypeInP4.homlux_lightGroup;
-      } else {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
-          return deviceType;
-        }
-      }
-    }
-    return DeviceEntityTypeInP4.Default;
   }
 
   CardType _getPanelCardType(String modelNum, String? type) {

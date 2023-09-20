@@ -153,15 +153,10 @@ enum DeviceEntityTypeInP4 {
   Zigbee_1363,
   // 水电面板
   Zigbee_1344,
-  Zigbee_1114,
   Zigbee_1112,
-  Zigbee_1113,
   Zigbee_1111,
   Zigbee_80,
   Zigbee_81,
-  Zigbee_82,
-  Zigbee_83,
-  Zigbee_23,
   Zigbee_22,
   // 485空调
   Zigbee_3017,

@@ -76,23 +76,44 @@ class _DevicePageState extends State<DevicePage> {
     // logger.i('屏幕页面数量', _screens.length);
     return Stack(
       children: [
-        PageView.builder(
-          controller: _pageController,
-          scrollDirection: Axis.horizontal,
-          onPageChanged: (index) {
-            context.read<PageCounter>().currentPage = index;
-            _pageController.animateToPage(index, duration: const Duration(milliseconds: 10), curve: Curves.ease);
-            debouncer.run(() {
-              setState(() {
-                widget.currentPage = index;
+        if (layoutModel.layouts.isNotEmpty)
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.horizontal,
+            onPageChanged: (index) {
+              context.read<PageCounter>().currentPage = index;
+              _pageController.animateToPage(index,
+                  duration: const Duration(milliseconds: 10),
+                  curve: Curves.ease);
+              debouncer.run(() {
+                setState(() {
+                  widget.currentPage = index;
+                });
               });
-            });
-          },
-          itemCount: _screens.length,
-          itemBuilder: (context, index) {
-            return _screens[index];
-          },
-        ),
+            },
+            itemCount: _screens.length,
+            itemBuilder: (context, index) {
+              return _screens[index];
+            },
+          ),
+        if (layoutModel.layouts.isEmpty)
+          const SizedBox(
+            width: 480,
+            height: 480,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image(image: AssetImage('assets/newUI/empty.png')),
+                  Padding(
+                    padding: EdgeInsets.only(top: 21),
+                    child: EditCardWidget(),
+                  )
+                ],
+              ),
+            ),
+          ),
         Positioned(
             left: 215,
             bottom: 12,
