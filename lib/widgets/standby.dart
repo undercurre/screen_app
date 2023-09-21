@@ -11,6 +11,7 @@ class ShowStandby {
   static void startTimer() async {
     debugPrint('[ShowStandby]standbyTimer begin');
     settingMethodChannel.noticeNativeStandbySate(false);
+    settingMethodChannel.setNearWakeup(false);
     await Future.delayed(const Duration(seconds: 0));
 
     var standbyNotifier = Provider.of<StandbyChangeNotifier>(
@@ -25,7 +26,7 @@ class ShowStandby {
     }
 
     standbyNotifier.standbyTimer =
-        Timer(Duration(seconds: getStandbyTimeOpt(standbyNotifier)), () {
+        Timer.periodic(Duration(seconds: getStandbyTimeOpt(standbyNotifier)), (timer) {
 
           debugPrint('standbyPageActive = ${standbyNotifier.standbyPageActive}');
 

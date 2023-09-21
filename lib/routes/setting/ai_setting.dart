@@ -106,6 +106,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                             MzSwitch(
                               value: AiEnable,
                               onTap: (bool value) {
+                                aiMethodChannel.enableAi(value);
                                 Setting.instant().aiEnable = value;
                                 setState(() {
                                   AiEnable = value;
@@ -263,7 +264,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                 color:
                                     const Color.fromRGBO(255, 255, 255, 0.05),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 432,
                                 height: 132,
                                 child: Row(
@@ -271,7 +272,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Column(
+                                    Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
@@ -300,16 +301,11 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                         )
                                       ],
                                     ),
-                                    MzSwitch(
-                                      value: AiEnable,
-                                      onTap: (bool value) {
-                                        aiMethodChannel.enableAi(value);
-                                        Setting.instant().aiEnable = value;
-                                        setState(() {
-                                          AiEnable = value;
-                                        });
-                                      },
-                                    ),
+                                    // MzSwitch(
+                                    //   value: false,
+                                    //   onTap: (bool value) {
+                                    //   },
+                                    // ),
                                   ],
                                 ),
                               ),
