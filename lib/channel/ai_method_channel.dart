@@ -63,6 +63,11 @@ class AiMethodChannel {
     return result;
   }
 
+  Future<String> aes128Encode(String value,String seed) async {
+    String result =  await _AiMethodChannel.invokeMethod('Aes128Encode', {"data":value,"seed":seed});
+    return result;
+  }
+
   Future<String> musicStart() async {
     String result =  await _AiMethodChannel.invokeMethod('AiMusicStart');
     return result;

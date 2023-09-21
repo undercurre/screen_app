@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/meiju/api/meiju_ai_author_api.dart';
 import '../../common/setting.dart';
@@ -19,12 +18,15 @@ class AiSettingPage extends StatefulWidget {
 class _AiSettingPageState extends State<AiSettingPage> {
   late double po;
   bool AiEnable = Setting.instant().aiEnable;
+  bool AiCustomNameEnable = false;
+  bool AiOnlyOneWakeup = false;
 
   @override
   void initState() {
     super.initState();
     //初始化状态
     print("initState");
+    getAiState();
   }
 
   @override
@@ -70,7 +72,8 @@ class _AiSettingPageState extends State<AiSettingPage> {
                             decoration: TextDecoration.none)),
                     GestureDetector(
                       onTapDown: (e) {
-                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                        Navigator.popUntil(
+                            context, (route) => route.settings.name == 'Home');
                       },
                       child: Image.asset(
                         "assets/newUI/back_home.png",
@@ -153,55 +156,59 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                   ],
                                 ),
                               ),
-                              if(MideaRuntimePlatform.platform.inMeiju()) Container(
-                                width: 392,
-                                height: 1,
-                                color:
-                                    const Color.fromRGBO(255, 255, 255, 0.05),
-                              ),
-                              if(MideaRuntimePlatform.platform.inMeiju()) SizedBox(
-                                width: 432,
-                                height: 72,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text("小美语音授权",
-                                        style: TextStyle(
-                                          color: Color(0XFFFFFFFF),
-                                          fontSize: 24.0,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.none,
-                                        )),
-                                    GestureDetector(
-                                      onTap: () async => {AiAuthor()},
-                                      child: Container(
-                                        width: 88,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          color: const Color(0x330092DC),
-                                          border: Border.all(
-                                              color: const Color(0xFF0092DC)),
-                                        ),
-                                        child: const Center(
-                                          child: Text("授权",
-                                              style: TextStyle(
-                                                color: Color(0xFF0092DC),
-                                                fontSize: 20.0,
-                                                fontFamily: "MideaType",
-                                                fontWeight: FontWeight.normal,
-                                                decoration: TextDecoration.none,
-                                              )),
+                              if (MideaRuntimePlatform.platform.inMeiju())
+                                Container(
+                                  width: 392,
+                                  height: 1,
+                                  color:
+                                      const Color.fromRGBO(255, 255, 255, 0.05),
+                                ),
+                              if (MideaRuntimePlatform.platform.inMeiju())
+                                SizedBox(
+                                  width: 432,
+                                  height: 72,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Text("小美语音授权",
+                                          style: TextStyle(
+                                            color: Color(0XFFFFFFFF),
+                                            fontSize: 24.0,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.normal,
+                                            decoration: TextDecoration.none,
+                                          )),
+                                      GestureDetector(
+                                        onTap: () async => {AiAuthor()},
+                                        child: Container(
+                                          width: 88,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: const Color(0x330092DC),
+                                            border: Border.all(
+                                                color: const Color(0xFF0092DC)),
+                                          ),
+                                          child: const Center(
+                                            child: Text("授权",
+                                                style: TextStyle(
+                                                  color: Color(0xFF0092DC),
+                                                  fontSize: 20.0,
+                                                  fontFamily: "MideaType",
+                                                  fontWeight: FontWeight.normal,
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                )),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
                             ],
                           )),
                       Container(
@@ -214,49 +221,59 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           ),
                           child: Column(
                             children: [
-                              if (MideaRuntimePlatform.platform.inMeiju()) const SizedBox(
-                                width: 432,
-                                height: 132,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("自定义设备名",
-                                            style: TextStyle(
-                                              color: Color(0XFFFFFFFF),
-                                              fontSize: 24.0,
-                                              fontFamily: "MideaType",
-                                              fontWeight: FontWeight.normal,
-                                              decoration: TextDecoration.none,
-                                            )),
-                                        SizedBox(
-                                          width: 307,
-                                          child: Text(
-                                              "唤醒小美后说：“打开自定义设备名”，即可按照设备自定义的名称进行语音控制",
+                              if (MideaRuntimePlatform.platform.inMeiju())
+                                SizedBox(
+                                  width: 432,
+                                  height: 132,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("自定义设备名",
                                               style: TextStyle(
-                                                color: Color.fromRGBO(
-                                                    255, 255, 255, 0.60),
-                                                fontSize: 16.0,
+                                                color: Color(0XFFFFFFFF),
+                                                fontSize: 24.0,
                                                 fontFamily: "MideaType",
                                                 fontWeight: FontWeight.normal,
                                                 decoration: TextDecoration.none,
                                               )),
-                                        )
-                                      ],
-                                    ),
-                                    Image(
-                                        image: AssetImage(
-                                            'assets/newUI/arrow_right.png'))
-                                  ],
+                                          SizedBox(
+                                            width: 307,
+                                            child: Text(
+                                                "唤醒小美后说：“打开自定义设备名”，即可按照设备自定义的名称进行语音控制",
+                                                style: TextStyle(
+                                                  color: Color.fromRGBO(
+                                                      255, 255, 255, 0.60),
+                                                  fontSize: 16.0,
+                                                  fontFamily: "MideaType",
+                                                  fontWeight: FontWeight.normal,
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                )),
+                                          )
+                                        ],
+                                      ),
+                                      MzSwitch(
+                                        value: AiCustomNameEnable,
+                                        onTap: (bool value) {
+                                          MeiJuAiAuthorApi.aiCustomDeviceName(
+                                              value);
+                                          setState(() {
+                                            AiCustomNameEnable = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
                               Container(
                                 width: 392,
                                 height: 1,
@@ -301,12 +318,12 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                       ],
                                     ),
                                     MzSwitch(
-                                      value: AiEnable,
+                                      value: AiOnlyOneWakeup,
                                       onTap: (bool value) {
-                                        aiMethodChannel.enableAi(value);
-                                        Setting.instant().aiEnable = value;
+                                        MeiJuAiAuthorApi.aiOnlyOneWakeup(
+                                            value ? 1 : 0);
                                         setState(() {
-                                          AiEnable = value;
+                                          AiOnlyOneWakeup = value;
                                         });
                                       },
                                     ),
@@ -327,8 +344,8 @@ class _AiSettingPageState extends State<AiSettingPage> {
   }
 
   Future<void> AiAuthor() async {
-    var Res =
-        await MeiJuAiAuthorApi.AiAuthor(deviceId: MeiJuGlobal.gatewayApplianceCode);
+    var Res = await MeiJuAiAuthorApi.AiAuthor(
+        deviceId: MeiJuGlobal.gatewayApplianceCode);
     if (Res.isSuccess) {
       TipsUtils.toast(content: "授权成功");
     }
@@ -362,5 +379,23 @@ class _AiSettingPageState extends State<AiSettingPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     print("didChangeDependencies");
+  }
+
+  Future<void> getAiState() async {
+    var res = await MeiJuAiAuthorApi.isAiCustomDeviceName();
+    if (res.data.toString().contains("true")) {
+      AiCustomNameEnable=true;
+    }else{
+      AiCustomNameEnable=false;
+    }
+    var ress = await MeiJuAiAuthorApi.isAiOnlyOneWakeup();
+    if (ress.data.toString().contains("1")) {
+      AiOnlyOneWakeup=true;
+    }else{
+      AiOnlyOneWakeup=false;
+    }
+    setState(() {
+
+    });
   }
 }
