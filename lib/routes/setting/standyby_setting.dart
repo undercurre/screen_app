@@ -127,11 +127,11 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                       rightSlot: MzSwitch(
                         value: isEnable,
                         onTap: (e) {
+                          Setting.instant().screenSaverReplaceToOff = !e;
+                          Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = Setting.instant().standbyTimeOptNum;
                           setState(() {
                             isEnable = e;
                           });
-                          Setting.instant().screenSaverReplaceToOff = !e;
-                          Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = Setting.instant().standbyTimeOptNum;
                         },
                       ),
                     ),

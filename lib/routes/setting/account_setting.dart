@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../common/adapter/select_family_data_adapter.dart';
+import '../../common/gateway_platform.dart';
 import '../../common/setting.dart';
 import '../../common/system.dart';
 import '../../widgets/mz_dialog.dart';
@@ -13,10 +15,26 @@ class AccountSettingPage extends StatefulWidget {
 }
 
 class _AccountSettingPageState extends State<AccountSettingPage> {
+  SelectFamilyDataAdapter? familyDataAd;
 
   @override
   void initState() {
     super.initState();
+
+    familyDataAd = SelectFamilyDataAdapter(MideaRuntimePlatform.platform);
+    familyDataAd?.bindDataUpdateFunction(() {
+      setState(() {
+        var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
+        for (var i = 0; i < len; i++) {
+          var item = familyDataAd?.familyListEntity?.familyList[i];
+          if(System.familyInfo?.familyId == item?.familyId) {
+            System.familyInfo = item;
+            return;
+          }
+        }
+      });
+    });
+    familyDataAd?.queryFamilyList();
   }
 
   @override
@@ -181,6 +199,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   @override
   void dispose() {
     super.dispose();
+    familyDataAd?.destroy();
+    familyDataAd = null;
   }
 
   @override

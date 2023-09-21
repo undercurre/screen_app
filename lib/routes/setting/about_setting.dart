@@ -385,7 +385,10 @@ class AboutSettingPage extends StatelessWidget {
                           ),
                         ),
                         MzSettingItem(
-                          onTap: () => Navigator.of(context).pushNamed("developer"),
+                          onLongTap: () {
+                            Navigator.of(context).pushNamed("developer");
+                          },
+                          longTapSecond: 5,
                           leftText: 'MAC地址',
                           rightText: context
                                   .watch<AboutSettingProvider>()
