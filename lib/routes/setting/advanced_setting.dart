@@ -101,16 +101,19 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
                           children: [
                             if(!Setting.instant().engineeringModeEnable) settingCell("清除用户数据", null, true, false, null, clearButton()),
 
-                            settingCell("重启系统", null, !Setting.instant().engineeringModeEnable, false, null, rebootButton()),
+                            settingCell("重启系统", null, true, false, null, rebootButton()),
 
-                            if(!Setting.instant().engineeringModeEnable) settingCell("当前平台", () => {
-                              Navigator.pushNamed(
-                                context,
-                                'CurrentPlatformPage',
-                              )
-                            }, false, true,
+                            settingCell("当前平台", () {
+                                if (Setting.instant().engineeringModeEnable) {
+                                  return;
+                                }
+                                Navigator.pushNamed(context, 'CurrentPlatformPage');
+                              },
+                                false,
+                                !Setting.instant().engineeringModeEnable,
                                 MideaRuntimePlatform.platform == GatewayPlatform.MEIJU ? "美居" : "Homlux",
-                            null),
+                                null
+                            ),
                           ],
                         ),
                       ),
@@ -312,13 +315,13 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
         }).show(context);
   }
 
-  Widget settingCell(String name, Function? callback, bool? isLast, bool hasArrow, String? rightText, Widget? rightSlot) {
+  Widget settingCell(String name, Function? callback, bool? haveLine, bool hasArrow, String? rightText, Widget? rightSlot) {
     return MzCell(
       title: name,
       titleSize: 24,
       hasArrow: hasArrow,
       bgColor: Colors.transparent,
-      hasBottomBorder: isLast?? false,
+      hasBottomBorder: haveLine?? false,
       onTap: callback,
       rightText: rightText,
       rightTextColor: const Color(0x7FFFFFFF),

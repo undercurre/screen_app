@@ -339,7 +339,6 @@ class DeviceInfoListModel extends ChangeNotifier {
     Screen screenLayer = Screen();
     // 页数
     int page = 0;
-    Log.i('遍历了${devices.length}个设备');
     for (int i = 0; i < devices.length; i++) {
       // 当前设备的映射type
       DeviceEntityTypeInP4 curDeviceEntity =
@@ -357,7 +356,6 @@ class DeviceInfoListModel extends ChangeNotifier {
       }
       // 构造当前设备的Layout模型
       if (curDeviceEntity != DeviceEntityTypeInP4.Default) {
-        Log.i('能进入布局的设备', devices[i].name);
         Layout curDevice = Layout(
           devices[i].applianceCode,
           curDeviceEntity,
@@ -381,7 +379,6 @@ class DeviceInfoListModel extends ChangeNotifier {
         if (maxPage == -1) {
           // 直接占位
           List<int> fillCells = screenLayer.checkAvailability(curCardType);
-          Log.i('占位', fillCells);
           if (fillCells.isEmpty) {
             curDevice.pageIndex = 1;
             screenLayer.resetGrid();
@@ -393,9 +390,9 @@ class DeviceInfoListModel extends ChangeNotifier {
           // 遍历每一页已有的进行补充
           for (int k = 0; k <= maxPage; k++) {
             // 找到当前页的布局数据并填充布局器
+            screenLayer.resetGrid();
             List<Layout> curPageLayoutList =
                 getLayoutsByPageIndex(k, transformList);
-            Log.i('找到当前页的已有布局', curPageLayoutList);
             for (int j = 0; j < curPageLayoutList.length; j++) {
               List<int> grids = curPageLayoutList[j].grids;
               for (int l = 0; l < grids.length; l++) {
@@ -407,22 +404,26 @@ class DeviceInfoListModel extends ChangeNotifier {
             }
             // 尝试占位
             List<int> fillCells = screenLayer.checkAvailability(curCardType);
+            Log.i('尝试布局$k', fillCells);
             if (fillCells.isEmpty) {
               // 占位没有成功，说明这一页已经没有适合的位置了
               // 如果最后一页也没有合适的位置就新增一页
               if (k == maxPage) {
-                screenLayer.resetGrid();
                 curDevice.pageIndex = maxPage + 1;
+                screenLayer.resetGrid();
                 List<int> fillCellsAgain =
                     screenLayer.checkAvailability(curCardType);
                 curDevice.grids = fillCellsAgain;
               }
             } else {
               // 占位成功
+              curDevice.pageIndex = k;
               curDevice.grids = fillCells;
+              break;
             }
           }
         }
+        Log.i('生成布局${curDevice.pageIndex}', curDevice.grids);
         transformList.add(curDevice);
       }
     }

@@ -37,6 +37,15 @@ class Setting {
   /// AI语音使能
   late bool _aiEnable;
 
+  late bool _homluxAiEnable;
+
+  /// AI自定义设备名使能
+  late bool _aiCustomNameEnable;
+
+  /// AI唯一唤醒使能
+  late bool _aiOnlyOneWakeup;
+
+
   /// 屏幕亮度
   late int _screenBrightness;
 
@@ -67,7 +76,11 @@ class Setting {
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
 
-    _aiEnable = _prefs.getBool('setting_ai_enable') ?? false;
+    _aiEnable = _prefs.getBool('setting_ai_enable') ?? true;
+    _homluxAiEnable= _prefs.getBool('setting_homlux_ai_enable') ?? true;
+    _aiCustomNameEnable = _prefs.getBool('setting_ai_custom_name_enable') ?? false;
+    _aiOnlyOneWakeup = _prefs.getBool('setting_ai_only_one_wakeup') ?? false;
+
     _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? _defaultBrightness;
     _volume = _prefs.getInt('setting_system_volume') ?? _defaultVolume;
     _engineeringModeEnable = _prefs.getBool('setting_engineering_mode') ?? false;
@@ -193,6 +206,35 @@ class Setting {
     _prefs.setBool('setting_ai_enable', enable);
     _aiEnable = enable;
   }
+
+  /// 获取AI使能
+  bool get homluxAiEnable => _homluxAiEnable;
+
+  /// 设置AI使能
+  set homluxAiEnable(bool enable) {
+    _prefs.setBool('setting_homlux_ai_enable', enable);
+    _homluxAiEnable = enable;
+  }
+
+  /// 获取AI自定义设备名使能
+  bool get aiCustomNameEnable => _aiCustomNameEnable;
+
+  /// 设置AI自定义设备名使能
+  set aiCustomNameEnable(bool enable) {
+    _prefs.setBool('setting_ai_custom_name_enable', enable);
+    _aiCustomNameEnable = enable;
+  }
+
+  /// 获取AI唯一唤醒使能
+  bool get aiOnlyOneWakeup => _aiOnlyOneWakeup;
+
+  /// 设置AI唯一唤醒使能
+  set aiOnlyOneWakeup(bool enable) {
+    _prefs.setBool('setting_ai_only_one_wakeup', enable);
+    _aiOnlyOneWakeup = enable;
+  }
+
+
 
   /// 获取屏幕亮度
   int get screenBrightness => _screenBrightness;

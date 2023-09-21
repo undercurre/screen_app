@@ -8,6 +8,7 @@ import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/engineering_mode.dart';
+import 'package:screen_app/routes/setting/homlux_ai_setting.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_homlux_data_page.dart';
 import 'package:screen_app/routes/setting/migrate_old_version_meiju_data_page.dart';
 import 'package:screen_app/routes/setting/night_mode.dart';
@@ -53,6 +54,7 @@ var routes = <String, WidgetBuilder>{
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),
   "AiSettingPage": (context) => const AiSettingPage(),
+  "HomluxAiSettingPage": (context) => const HomluxAiSettingPage(),
   "DisplaySettingPage": (context) => const DisplaySettingPage(),
   "NetSettingPage": (context) => const NetSettingPage(),
   "AboutSettingPage": (context) => const AboutSettingPage(),

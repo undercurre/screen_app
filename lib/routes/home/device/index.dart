@@ -146,6 +146,7 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   List<Widget> getScreenList(LayoutModel layoutModel) {
+
     // 屏幕页面列表
     List<Widget> screenList = [];
     // 当前页面的widgets
@@ -236,14 +237,24 @@ class _DevicePageState extends State<DevicePage> {
         // 映射出对应的Card
         layoutAfterSort.data.disabled = false;
         layoutAfterSort.data.context = context;
-        Log.i('布局数据', layoutAfterSort.data.applianceCode);
         Widget cardWidget =
             buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
                 layoutAfterSort.data);
         // 映射布局占格
         Widget cardWithPosition = StaggeredGridTile.fit(
-            crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
-            child: UnconstrainedBox(child: cardWidget));
+          crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
+          child: UnconstrainedBox(
+            child: GestureDetector(
+              child: cardWidget,
+              onLongPress: () {
+                Navigator.pushNamed(
+                  context,
+                  'Custom',
+                );
+              },
+            ),
+          ),
+        );
         // 扔进页面里
         curScreenWidgetList.add(cardWithPosition);
       }

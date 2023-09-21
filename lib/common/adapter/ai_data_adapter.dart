@@ -9,6 +9,7 @@ import '../homlux/models/homlux_dui_token_entity.dart';
 import '../logcat_helper.dart';
 import '../meiju/api/meiju_ai_author_api.dart';
 import '../meiju/meiju_global.dart';
+import '../setting.dart';
 
 // 获取初始化语音需要的数据
 class AiDataAdapter extends MideaDataAdapter {
@@ -43,7 +44,7 @@ class AiDataAdapter extends MideaDataAdapter {
         'deviceSn': deviceSn,
         'deviceId': deviceId,
         'macAddress': macAddress,
-        'aiEnable': Global.profile.aiEnable
+        'aiEnable': Setting.instant().aiEnable
       });
     } else if (platform.inHomlux()) {
       Log.file('正在初始化美的照明AI语音');
@@ -52,7 +53,7 @@ class AiDataAdapter extends MideaDataAdapter {
           'platform': 2,
           'uid': HomluxGlobal.homluxUserInfo?.userId,
           'token': HomluxGlobal.homluxQrCodeAuthEntity?.token,
-          'aiEnable': Global.profile.aiEnable,
+          'aiEnable': Setting.instant().homluxAiEnable,
           'houseId': HomluxGlobal.homluxHomeInfo!.houseId,
           'aiClientId': dotenv.get('HOMLUX_AI_CLIENT_ID')
         });

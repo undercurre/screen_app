@@ -588,7 +588,6 @@ class _CustomPageState extends State<CustomPage> {
     double gridWidth = width / 4;
     double gridHeight = height / 4;
     // 最大页数
-    Log.i('布局数据', layoutModel.layouts.map((e) => e.type));
     int maxPage = layoutModel.getMaxPageIndex();
     for (int page = 0; page <= maxPage; page++) {
       // 收集当前page的widget
