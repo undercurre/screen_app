@@ -112,8 +112,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         final deviceInfoListModel =
             Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        if (roomBeforeLogin.isNotEmpty &&
-            roomBeforeLogin != System.roomInfo?.id) {
+        if (roomBeforeLogin != System.roomInfo?.id) {
           // 换房间，重新初始布局该房间
           await layoutModel.removeLayouts();
           if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
