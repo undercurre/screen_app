@@ -31,6 +31,7 @@ class AboutSettingProvider with ChangeNotifier {
   bool? isLogin;
   bool? debug;
   bool? isEngineeringEnable;
+  bool? hasNewVersion;
 
   AboutSettingProvider() {
     // 初始化页面数据
@@ -39,6 +40,10 @@ class AboutSettingProvider with ChangeNotifier {
   }
 
   void init() {
+    bus.on('ota-new-version-tip', (arg) {
+      hasNewVersion = arg as bool;
+      notifyListeners();
+    });
     Timer(const Duration(milliseconds: 250), () async {
       deviceName = "智慧屏P4";
       familyName = System.familyInfo?.familyName ?? "未登录";
@@ -49,8 +54,15 @@ class AboutSettingProvider with ChangeNotifier {
       snCode = await aboutSystemChannel.getGatewaySn();
       isLogin = System.isLogin();
       isEngineeringEnable = Setting.instant().engineeringModeEnable;
+      hasNewVersion = otaChannel.hasNewVersion;
       notifyListeners();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    bus.off('ota-new-version-tip');
   }
 
   void updateEngineeringEnable() {
@@ -162,9 +174,14 @@ class AboutSettingProvider with ChangeNotifier {
   }
 }
 
-class AboutSettingPage extends StatelessWidget {
+class AboutSettingPage extends StatefulWidget {
   const AboutSettingPage({super.key});
 
+  @override
+  State<AboutSettingPage> createState() => _AboutSettingPageState();
+}
+
+class _AboutSettingPageState extends State<AboutSettingPage> {
   void showRebootDialog(
       BuildContext context, AboutSettingProvider provider) async {
     MzDialog(
@@ -339,7 +356,8 @@ class AboutSettingPage extends StatelessWidget {
                         MzSettingItem(
                           onLongTap: () {
                             Navigator.pushNamed(context, 'EngineeringModePage').then((value) {
-                              context.read<AboutSettingProvider>().updateEngineeringEnable();
+                              context.read<AboutSettingProvider>()
+                                  .updateEngineeringEnable();
                             });
                           },
                           leftText: '设备名称',
@@ -352,10 +370,7 @@ class AboutSettingPage extends StatelessWidget {
                           leftText: '所在家庭',
                           rightWidget: Row(children: [
                             Text(
-                                context
-                                        .watch<AboutSettingProvider>()
-                                        .familyName ??
-                                    '',
+                                context.watch<AboutSettingProvider>().familyName ?? '',
                                 style: const TextStyle(
                                   color: Color(0X7fFFFFFF),
                                   fontSize: 20.0,
@@ -369,7 +384,7 @@ class AboutSettingPage extends StatelessWidget {
                           duration: 3000,
                           count: 5,
                           clickListener: () {
-                            if(context.read<AboutSettingProvider>().isEngineeringEnable == true) {
+                            if (context.read<AboutSettingProvider>().isEngineeringEnable == true) {
                               return;
                             }
                             context
@@ -377,11 +392,9 @@ class AboutSettingPage extends StatelessWidget {
                                 .checkDirectUpgrade();
                           },
                           child: MzSettingItem(
+                            gestureEnable: false,
                             leftText: '系统版本',
-                            rightText: context
-                                    .watch<AboutSettingProvider>()
-                                    .systemVersion ??
-                                '',
+                            rightText: context.watch<AboutSettingProvider>().systemVersion ?? '',
                           ),
                         ),
                         MzSettingItem(
@@ -390,10 +403,7 @@ class AboutSettingPage extends StatelessWidget {
                           },
                           longTapSecond: 5,
                           leftText: 'MAC地址',
-                          rightText: context
-                                  .watch<AboutSettingProvider>()
-                                  .macAddress ??
-                              '',
+                          rightText: context.watch<AboutSettingProvider>().macAddress ?? '',
                         ),
                         MzSettingItem(
                           leftText: 'IP地址',
@@ -409,18 +419,28 @@ class AboutSettingPage extends StatelessWidget {
                               context.watch<AboutSettingProvider>().snCode ??
                                   "获取失败",
                         ),
-                        if(context.watch<AboutSettingProvider>().isEngineeringEnable == false) MzSettingItem(
-                          onTap: () {
-                            context.read<AboutSettingProvider>().checkUpgrade();
-                          },
-                          leftText: '应用升级',
-                          rightWidget: MzSettingButton(
-                            text: otaChannel.hasNewVersion ? "立即更新" : "检查更新",
+                        if (context
+                                .watch<AboutSettingProvider>()
+                                .isEngineeringEnable ==
+                            false)
+                          MzSettingItem(
+                            onTap: () {
+                              context
+                                  .read<AboutSettingProvider>()
+                                  .checkUpgrade();
+                            },
+                            leftText: '应用升级',
+                            rightWidget: MzSettingButton(
+                              text: otaChannel.hasNewVersion ? "立即更新" : "检查更新",
+                            ),
+                            tipText: otaChannel.hasNewVersion ? 'New' : null,
                           ),
-                          tipText: otaChannel.hasNewVersion ? 'New' : null,
-                        ),
-                        if (context.read<AboutSettingProvider>().debug == true
-                            && context.watch<AboutSettingProvider>().isEngineeringEnable == false)
+                        if (context.read<AboutSettingProvider>().debug ==
+                                true &&
+                            context
+                                    .watch<AboutSettingProvider>()
+                                    .isEngineeringEnable ==
+                                false)
                           MzSettingItem(
                             onTap: () {
                               showLogoutDialog(context);
@@ -505,5 +525,11 @@ class AboutSettingPage extends StatelessWidget {
         ),
       )),
     );
+  }
+
+  @override
+  void dispose() {
+    context.read<AboutSettingProvider>().dispose();
+    super.dispose();
   }
 }

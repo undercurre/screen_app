@@ -60,9 +60,9 @@ class MzSettingItem extends StatelessWidget {
   TextAlign rightTextAlign;
   int longTapSecond;
   GestureTapCallback? onLongTap;
+  bool gestureEnable;
 
   Timer? tapTimer;
-  int timerCnt = 0;
 
   MzSettingItem({super.key,
     required this.leftText,
@@ -74,96 +74,90 @@ class MzSettingItem extends StatelessWidget {
     this.containBottomDivider = true,
     this.rightWidget,
     this.onLongTap,
+    this.gestureEnable = true,
     this.longTapSecond = 10});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      onTapDown: (e) {
-        if (onLongTap == null) return;
-        if (tapTimer != null) {
-          tapTimer?.cancel();
-          timerCnt = 0;
-          tapTimer = null;
-        }
-        tapTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          timerCnt++;
-          if (timerCnt >= longTapSecond) {
-            tapTimer?.cancel();
-            timerCnt = 0;
-            tapTimer = null;
-            onLongTap?.call();
-          }
-        });
-      },
-      onTapUp: (e) {
-        if (onLongTap == null) return;
-        tapTimer?.cancel();
-        timerCnt = 0;
-        tapTimer = null;
-      },
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 10),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      leftText,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.0,
-                          fontFamily: 'MideaType',
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none),
-                    ),
-                    if (tipText != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          tipText!,
-                          style: const TextStyle(color: Colors.blueAccent),
-                        ),
-                      )
-                  ],
-                ),
-                if (rightWidget != null) rightWidget!,
-                if (rightText != null)
-                  Expanded(
-                    flex: 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: 240,
-                          child: Text(rightText!,
-                              textAlign: rightTextAlign,
-                              style: TextStyle(
-                                fontSize: rightTextSize,
-                                color: Colors.white54,
-                                fontFamily: 'MideaType',
-                              )),
-                        )
-                      ],
-                    ),
+    var widget = Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    leftText,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24.0,
+                        fontFamily: 'MideaType',
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none),
                   ),
-              ],
-            ),
+                  if (tipText != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        tipText!,
+                        style: const TextStyle(color: Colors.blueAccent),
+                      ),
+                    )
+                ],
+              ),
+              if (rightWidget != null) rightWidget!,
+              if (rightText != null)
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: 240,
+                        child: Text(rightText!,
+                            textAlign: rightTextAlign,
+                            style: TextStyle(
+                              fontSize: rightTextSize,
+                              color: Colors.white54,
+                              fontFamily: 'MideaType',
+                            )),
+                      )
+                    ],
+                  ),
+                ),
+            ],
           ),
-          if (containBottomDivider)
-            const Divider(
-              height: 1,
-              color: Color.fromRGBO(255, 255, 255, 0.05),
-            )
-        ],
-      ),
+        ),
+        if (containBottomDivider)
+          const Divider(
+            height: 1,
+            color: Color.fromRGBO(255, 255, 255, 0.05),
+          )
+      ],
     );
+    if(gestureEnable) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        onTapDown: (e) {
+          if (onLongTap == null) return;
+          tapTimer?.cancel();
+          tapTimer = Timer(Duration(seconds: longTapSecond), () {
+            onLongTap?.call();
+          });
+        },
+        onTapUp: (e) {
+          if (onLongTap == null) return;
+          tapTimer?.cancel();
+        },
+        child: widget,
+      );
+    } else {
+      return widget;
+    }
   }
 
   Widget? getRightWidget() {

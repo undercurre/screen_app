@@ -103,16 +103,9 @@ class OtaChannel extends AbstractChannel {
     }
 
     String deviceId = System.deviceId ?? "";
-    String token;
-    String uid;
-    if(System.inMeiJuPlatform()) {
-      token = MeiJuGlobal.token?.mzAccessToken ?? "";
-      uid = MeiJuGlobal.token?.uid ?? "";
-    } else {
-      token = HomluxGlobal.homluxQrCodeAuthEntity?.token ?? "";
-      uid = "";
-    }
-    String sn = gatewaySn ?? (gatewaySn = await System.gatewaySn) ?? "";
+    String token = System.getToken() ?? '';
+    String uid = System.getUid() ?? '';
+    String sn = await System.gatewaySn ?? '';
 
     int numType;
     if(OtaUpgradeType.normal == type) {
@@ -169,6 +162,8 @@ class OtaChannel extends AbstractChannel {
     _hasNewVersion = true;
     String content = arguments;
     bus.emit('ota-new-version', content);
+    // 用于关于页的New提醒
+    bus.emit('ota-new-version-tip', true);
     Log.i('ota-new-version');
     _onUpgrade = null;
   }
@@ -177,6 +172,8 @@ class OtaChannel extends AbstractChannel {
     _hasNewVersion = false;
     _onUpgrade?.call();
     _onUpgrade = null;
+    // 用于关于页的New提醒
+    bus.emit('ota-new-version-tip', false);
     Log.i('ota-no-version');
   }
   // 下载安装包成功

@@ -163,6 +163,26 @@ class System {
     }
   }
 
+  /// 获取屏端的token
+  static String? getToken() {
+    if (inMeiJuPlatform()) {
+      return MeiJuGlobal.token?.mzAccessToken;
+    } else if (inHomluxPlatform()) {
+      return HomluxGlobal.homluxQrCodeAuthEntity?.token ?? "";
+    }
+    return null;
+  }
+
+  /// 获取屏端的uid
+  static String? getUid() {
+    if (inMeiJuPlatform()) {
+      return MeiJuGlobal.token?.uid;
+    } else if (inHomluxPlatform()) {
+      return HomluxGlobal.homluxUserInfo?.userId;
+    }
+    return null;
+  }
+
   /// 获取屏的云端id
   static Future<String?> get gatewayApplianceCode async {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
