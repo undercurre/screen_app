@@ -163,7 +163,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                   color:
                                       const Color.fromRGBO(255, 255, 255, 0.05),
                                 ),
-                              if (MideaRuntimePlatform.platform.inMeiju())
                                 SizedBox(
                                   width: 432,
                                   height: 72,
@@ -221,7 +220,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           ),
                           child: Column(
                             children: [
-                              if (MideaRuntimePlatform.platform.inMeiju())
                                 SizedBox(
                                   width: 432,
                                   height: 132,

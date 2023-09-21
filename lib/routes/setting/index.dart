@@ -193,10 +193,18 @@ class _SettingPageState extends State<SettingPage> {
                               )
                             }, true),
                             settingCell("assets/newUI/sound.png", "语音设置", () => {
-                              Navigator.pushNamed(
-                                context,
-                                'AiSettingPage',
-                              )
+                              if(System.inMeiJuPlatform()){
+                                Navigator.pushNamed(
+                                  context,
+                                  'AiSettingPage',
+                                )
+                              }else{
+                                Navigator.pushNamed(
+                                  context,
+                                  'HomluxAiSettingPage',
+                                )
+                              }
+
                             }, false),
                           ],
                         ),

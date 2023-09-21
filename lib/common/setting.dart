@@ -37,6 +37,8 @@ class Setting {
   /// AI语音使能
   late bool _aiEnable;
 
+  late bool _homluxAiEnable;
+
   /// AI自定义设备名使能
   late bool _aiCustomNameEnable;
 
@@ -75,6 +77,7 @@ class Setting {
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
 
     _aiEnable = _prefs.getBool('setting_ai_enable') ?? true;
+    _homluxAiEnable= _prefs.getBool('setting_homlux_ai_enable') ?? true;
     _aiCustomNameEnable = _prefs.getBool('setting_ai_custom_name_enable') ?? false;
     _aiOnlyOneWakeup = _prefs.getBool('setting_ai_only_one_wakeup') ?? false;
 
@@ -202,6 +205,15 @@ class Setting {
   set aiEnable(bool enable) {
     _prefs.setBool('setting_ai_enable', enable);
     _aiEnable = enable;
+  }
+
+  /// 获取AI使能
+  bool get homluxAiEnable => _homluxAiEnable;
+
+  /// 设置AI使能
+  set homluxAiEnable(bool enable) {
+    _prefs.setBool('setting_homlux_ai_enable', enable);
+    _homluxAiEnable = enable;
   }
 
   /// 获取AI自定义设备名使能
