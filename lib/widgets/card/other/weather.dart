@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/weather_change_notifier.dart';
-
-import '../../../common/logcat_helper.dart';
-import '../../../common/models/district.dart';
+import 'package:screen_app/widgets/util/nameFormatter.dart';
+import '../../../common/utils.dart';
+import '../../util/net_utils.dart';
 
 class DigitalWeatherWidget extends StatefulWidget {
   final bool disabled;
@@ -20,7 +20,7 @@ class DigitalWeatherWidget extends StatefulWidget {
   _DigitalWeatherWidgetState createState() => _DigitalWeatherWidgetState();
 }
 
-class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
+class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with WidgetNetState {
   late ValueNotifier<DateTime> _currentTimeNotifier;
 
   @override
@@ -102,6 +102,10 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                 ),
                 GestureDetector(
                   onTap: () {
+                    if (!isConnected()) {
+                      TipsUtils.toast(content: '请连接网络');
+                      return;
+                    }
                     if (!widget.disabled && !widget.discriminative) {
                       Navigator.pushNamed(context, 'SelectAreaPage');
                     }
@@ -120,11 +124,11 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                                 .withOpacity(0.79)),
                       ),
                       Text(
-                        weatherModel.selectedDistrict.cityName,
+                      weatherModel.getWeatherType() == 'default' ? '——' : NameFormatter.formatName(weatherModel.selectedDistrict.cityName, 5),
                         style: TextStyle(
                             letterSpacing: 1.33,
                             fontWeight: FontWeight.w400,
-                            fontSize: 13,
+                            fontSize: weatherModel.getWeatherType() == 'default' ? 16 : 13,
                             color: const Color.fromRGBO(255, 255, 255, 1)
                                 .withOpacity(0.64)),
                       ),
@@ -246,5 +250,10 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
 
   String _getWeatherName(String weatherCode) {
     return codeToName[weatherCode] ?? '——';
+  }
+
+  @override
+  void netChange(MZNetState? state) {
+    // TODO: implement netChange
   }
 }

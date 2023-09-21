@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
@@ -9,9 +10,11 @@ import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
+import '../../util/nameFormatter.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -92,6 +95,40 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
+            ? NameFormatter.formatName(widget.name, 4)
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter.applianceCode);
+      if (widget.disabled) {
+        return NameFormatter.formatName(widget.roomName, 3);
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return GestureDetector(
       onTap: () async {
         Log.i('disabled', widget.disabled);
@@ -153,7 +190,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.name,
+                      getDeviceName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -165,7 +202,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                     ),
                   ),
                   Text(
-                    '${widget.roomName} | ${_getRightText()}',
+                    '${getRoomName()} | ${_getRightText()}',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.64),
                         fontSize: 16,
@@ -195,11 +232,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
     if (widget.adapter.dataState == DataState.ERROR) {
       return '加载失败';
     }
-    if (widget.adapter.data!.statusList.isNotEmpty) {
-      return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
-    } else {
-      return '离线';
-    }
+    return '在线';
   }
 
   BoxDecoration _getBoxDecoration() {

@@ -259,16 +259,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     if (widget.adapter.dataState == DataState.ERROR) {
       return NameFormatter.formatName('失败', 3);
     }
-    if (widget.adapter.data!.modeList[0] == '2') {
-      // 场景模式
-      return '在线';
-    } else {
-      if (widget.adapter.data!.statusList.isNotEmpty) {
-        return widget.adapter.data!.statusList[0] ? '开启' : '关闭';
-      } else {
-        return '离线';
-      }
-    }
+    return '在线';
   }
 
   BoxDecoration _getBoxDecoration() {

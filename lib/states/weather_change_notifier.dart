@@ -75,7 +75,7 @@ class WeatherModel extends ChangeNotifier {
       selectedCity = City.fromJson(jsonDecode(cityJson));
       selectedProvince = Province.fromJson(jsonDecode(provinceJson));
     }
-    Log.i('weatherModel加载');
+    notifyListeners();
     startWeatherTimer();
   }
 
@@ -99,7 +99,7 @@ class WeatherModel extends ChangeNotifier {
   Future<void> updateSelectedProvince(Province province) async {
     selectedProvince = province;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('selectedDistrict', jsonEncode(province.toJson()));
+    prefs.setString('selectedProvince', jsonEncode(province.toJson()));
     notifyListeners();
   }
 
