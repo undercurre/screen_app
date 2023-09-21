@@ -94,13 +94,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devicesAll = deviceRes
           .sublist(0, 8)
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
     } else {
       devicesAll = deviceRes
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
     }
@@ -117,13 +119,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devicesAll.addAll(deviceRes
           .sublist(8)
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList());
     }
     others = others
-        .where((element) => !layoutModel.layouts.map((e) => e.deviceId).contains(
-            DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
+        .where((element) => !layoutModel.layouts
+            .map((e) => e.deviceId)
+            .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
                 element.type.toString())))
         .toList();
 
@@ -150,12 +154,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
       Log.i("Scene Results1: $sceneRes");
       deviceCache = deviceCache
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
       deviceRes = deviceRes
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
 
@@ -796,7 +802,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   _getDeviceDialog(index, Layout resultData) {
     DeviceEntityTypeInP4 curDeviceEntity =
-        getDeviceEntityType(devices[index].type, devices[index].modelNumber);
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            devices[index].type, devices[index].modelNumber);
 
     showDialog(
       context: context,
@@ -843,29 +850,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
     } else {
       return 'assets/newUI/device/$type.png';
     }
-  }
-
-  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
-    for (var deviceType in DeviceEntityTypeInP4.values) {
-      if (value == '0x21') {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
-          return deviceType;
-        }
-      } else if (value.contains('localPanel1')) {
-        return DeviceEntityTypeInP4.LocalPanel1;
-      } else if (value.contains('localPanel2')) {
-        return DeviceEntityTypeInP4.LocalPanel2;
-      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
-        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
-      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
-        return DeviceEntityTypeInP4.homlux_lightGroup;
-      } else {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
-          return deviceType;
-        }
-      }
-    }
-    return DeviceEntityTypeInP4.Default;
   }
 
   CardType _getPanelCardType(String modelNum, String? type) {

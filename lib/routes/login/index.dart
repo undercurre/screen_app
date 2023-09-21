@@ -26,6 +26,7 @@ import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
 import '../../widgets/mz_dialog.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import '../../widgets/util/net_utils.dart';
 import '../home/device/card_type_config.dart';
 import '../home/device/layout_data.dart';
@@ -46,6 +47,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
+  String roomBeforeLogin = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
 
   void showBindingDialog(bool show) async {
@@ -107,26 +109,64 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
-        final deviceInfoListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+        final deviceInfoListModel =
+            Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        await layoutModel.removeLayouts();
-        if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-          var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
-          List<HomluxDeviceEntity>? devices = res.data;
-          if (devices != null) {
+        if (roomBeforeLogin.isNotEmpty &&
+            roomBeforeLogin != System.roomInfo?.id) {
+          // 换房间，重新初始布局该房间
+          await layoutModel.removeLayouts();
+          if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+            var res = await HomluxDeviceApi.queryDeviceListByRoomId(
+                System.roomInfo!.id!);
+            List<HomluxDeviceEntity>? devices = res.data;
+            if (devices != null) {
+              List<DeviceEntity> devicesReal = [];
+
+              devices.forEach((e) {
+                DeviceEntity deviceObj = DeviceEntity();
+                deviceObj.name = e.deviceName!;
+                deviceObj.applianceCode = e.deviceId!;
+                deviceObj.type = e.proType!;
+                deviceObj.modelNumber = getModelNumber(e);
+                deviceObj.roomName = e.roomName!;
+                deviceObj.roomId = System.roomInfo?.id;
+                deviceObj.masterId = e.gatewayId ?? '';
+                deviceObj.onlineStatus = e.onLineStatus.toString();
+                if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                        deviceObj.type, deviceObj.modelNumber) !=
+                    DeviceEntityTypeInP4.Default) {
+                  devicesReal.add(deviceObj);
+                }
+              });
+              if (devicesReal.isNotEmpty) {
+                List<Layout> layoutData = deviceInfoListModel
+                    .transformLayoutFromDeviceList(devicesReal);
+                await layoutModel.setLayouts(layoutData);
+              } else {
+                await layoutModel.loadLayouts();
+              }
+            }
+          } else {
+            List<dynamic> devices =
+                await MeiJuDeviceApi.queryDeviceListByRoomId(
+                    MeiJuGlobal.token!.uid,
+                    System.familyInfo!.familyId,
+                    System.roomInfo!.id!);
             List<DeviceEntity> devicesReal = [];
 
             devices.forEach((e) {
               DeviceEntity deviceObj = DeviceEntity();
-              deviceObj.name = e.deviceName!;
-              deviceObj.applianceCode = e.deviceId!;
-              deviceObj.type = e.proType!;
-              deviceObj.modelNumber = getModelNumber(e);
-              deviceObj.roomName = e.roomName!;
-              deviceObj.roomId = System.roomInfo?.id;
-              deviceObj.masterId = e.gatewayId ?? '';
-              deviceObj.onlineStatus = e.onLineStatus.toString();
-              if (getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) !=
+              deviceObj.name = e["name"];
+              deviceObj.applianceCode = e["applianceCode"];
+              deviceObj.type = e["type"];
+              deviceObj.modelNumber = e["modelNumber"];
+              deviceObj.sn8 = e["sn8"];
+              deviceObj.roomName = e["roomName"];
+              deviceObj.masterId = e["masterId"];
+              deviceObj.onlineStatus = e["onlineStatus"];
+              if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                      e["type"], e["modelNumber"]) !=
                   DeviceEntityTypeInP4.Default) {
                 devicesReal.add(deviceObj);
               }
@@ -139,42 +179,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               await layoutModel.loadLayouts();
             }
           }
-        } else {
-          List<dynamic> devices = await MeiJuDeviceApi.queryDeviceListByRoomId(
-              MeiJuGlobal.token!.uid, System.familyInfo!.familyId,
-              System.roomInfo!.id!);
-          List<DeviceEntity> devicesReal = [];
-
-          devices.forEach((e) {
-            DeviceEntity deviceObj = DeviceEntity();
-            deviceObj.name = e["name"];
-            deviceObj.applianceCode = e["applianceCode"];
-            deviceObj.type = e["type"];
-            deviceObj.modelNumber = e["modelNumber"];
-            deviceObj.sn8 = e["sn8"];
-            deviceObj.roomName = e["roomName"];
-            deviceObj.masterId = e["masterId"];
-            deviceObj.onlineStatus = e["onlineStatus"];
-            if (getDeviceEntityType(e["type"], e["modelNumber"]) !=
-                DeviceEntityTypeInP4.Default) {
-              devicesReal.add(deviceObj);
-            }
-          });
-          if (devicesReal.isNotEmpty) {
-            List<Layout> layoutData = deviceInfoListModel
-                .transformLayoutFromDeviceList(devicesReal);
-            await layoutModel.setLayouts(layoutData);
-          } else {
-            await layoutModel.loadLayouts();
-          }
         }
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-        bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
+            (isBind, deviceID) {
           if (!isBind) {
             // 绑定网关
-            bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
+            bindGatewayAd
+                ?.bindGateway(System.familyInfo!, System.roomInfo!)
+                .then((isSuccess) {
               if (isSuccess) {
                 prepare2goHome();
               } else {
@@ -184,37 +199,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           } else {
             prepare2goHome();
           }
-        }, () {
-        });
+        }, () {});
       }
       return;
     }
     setState(() {
       ++stepNum;
     });
-  }
-
-  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
-    for (var deviceType in DeviceEntityTypeInP4.values) {
-      if (value == '0x21') {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
-          return deviceType;
-        }
-      } else if (value.contains('localPanel1')) {
-        return DeviceEntityTypeInP4.LocalPanel1;
-      } else if (value.contains('localPanel2')) {
-        return DeviceEntityTypeInP4.LocalPanel2;
-      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
-        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
-      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
-        return DeviceEntityTypeInP4.homlux_lightGroup;
-      } else {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
-          return deviceType;
-        }
-      }
-    }
-    return DeviceEntityTypeInP4.Default;
   }
 
   void prepare2goHome() {
@@ -240,7 +231,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   void initState() {
     super.initState();
     // 初始化
-    if(!System.inNonePlatform()) {
+    if (!System.inNonePlatform()) {
       if (System.isLogin()) {
         stepNum = 3;
       } else if (Platform.isAndroid && isConnected()) {
@@ -249,10 +240,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       isNeedShowClearAlert = System.familyInfo != null;
     }
 
+    roomBeforeLogin = System.roomInfo?.id ?? "";
+
     isNeedChoosePlatform = System.inNonePlatform();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
       if (args != null) {
         routeFrom = args["from"] ?? "";
         if (routeFrom == "changePlatform") {
@@ -274,16 +268,14 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             height: 340,
             alignment: AlignmentDirectional.centerStart,
             child: const LinkNetwork(isNeedWifiSwitch: true),
-          )
-      ),
+          )),
       Step(
           '扫码登录',
           Column(children: [
             Container(
                 margin: const EdgeInsets.only(top: 5),
                 child: ScanCode(onSuccess: nextStep)),
-          ])
-      ),
+          ])),
       Step(
           '选择家庭',
           SelectHome(
@@ -292,72 +284,67 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 debugPrint('Select: ${home?.toJson()}');
                 System.familyInfo = home;
                 nextStep();
-              })
-      ),
-      Step(
-          '选择房间',
-          SelectRoom(
-              onChange: (SelectRoomItem room) {
-                debugPrint('SelectRoom: ${room.toJson()}');
-                System.roomInfo = room;
-              })
-      ),
+              })),
+      Step('选择房间', SelectRoom(onChange: (SelectRoomItem room) {
+        debugPrint('SelectRoom: ${room.toJson()}');
+        System.roomInfo = room;
+      })),
     ];
 
     var stepItem = stepNum > stepList.length ? null : stepList[stepNum - 1];
 
     return Stack(
       children: [
-        if (isNeedChoosePlatform) ChosePlatform(
-          isChose: routeFrom == "changePlatform",
-          onFinished: () {
-            setState(() {
-              isNeedChoosePlatform = false;
-            });
-          },
-        ),
-
-        if (!isNeedChoosePlatform) DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF272F41), Color(0xFF080C14)],
+        if (isNeedChoosePlatform)
+          ChosePlatform(
+            isChose: routeFrom == "changePlatform",
+            onFinished: () {
+              setState(() {
+                isNeedChoosePlatform = false;
+              });
+            },
+          ),
+        if (!isNeedChoosePlatform)
+          DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF272F41), Color(0xFF080C14)],
+                ),
               ),
-            ),
-            child: Center(
-                child: stepNum == 5
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.check,
-                            size: 96,
-                            color: Colors.white,
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 50),
-                            child: const Text(
-                              '已成功绑定帐号',
-                              style: TextStyle(fontSize: 24),
+              child: Center(
+                  child: stepNum == 5
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check,
+                              size: 96,
+                              color: Colors.white,
                             ),
-                          )
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          LoginHeader(
-                              stepSum: stepList.length,
-                              stepNum: stepNum,
-                              title: stepItem?.title ?? ''
-                          ),
-
-                          if(stepItem?.view != null) Container(
-                            child: stepItem?.view,
-                          ),
-                        ],
-                      ))),
+                            Container(
+                              margin: const EdgeInsets.only(top: 50),
+                              child: const Text(
+                                '已成功绑定帐号',
+                                style: TextStyle(fontSize: 24),
+                              ),
+                            )
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            LoginHeader(
+                                stepSum: stepList.length,
+                                stepNum: stepNum,
+                                title: stepItem?.title ?? ''),
+                            if (stepItem?.view != null)
+                              Container(
+                                child: stepItem?.view,
+                              ),
+                          ],
+                        ))),
         if (stepNum == 1 && !isNeedChoosePlatform)
           Positioned(
               bottom: 0,
@@ -439,39 +426,34 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           height: 72,
                           child: Center(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                MzButton(
-                                  width: 168,
-                                  height: 56,
-                                  borderRadius: 29,
-                                  backgroundColor: const Color(0xFF949CA8),
-                                  borderColor: Colors.transparent,
-                                  borderWidth: 1,
-                                  text: '上一步',
-                                  onPressed: () {
-                                    prevStep();
-                                  },
-                                ),
-                                MzButton(
-                                  width: 168,
-                                  height: 56,
-                                  borderRadius: 29,
-                                  backgroundColor: const Color(0xFF267AFF),
-                                  borderColor: Colors.transparent,
-                                  borderWidth: 1,
-                                  text: stepNum == 4 ? '完成' : '下一步',
-                                  onPressed: () {
-                                    nextStep();
-                                  },
-                                )
-                              ],
-                            )
-                          )
-                      )
-                  )
-              )
-          )
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF949CA8),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: '上一步',
+                                onPressed: () {
+                                  prevStep();
+                                },
+                              ),
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF267AFF),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: stepNum == 4 ? '完成' : '下一步',
+                                onPressed: () {
+                                  nextStep();
+                                },
+                              )
+                            ],
+                          ))))))
       ],
     );
   }
@@ -494,8 +476,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               height: 1.6,
               fontFamily: "MideaType",
               decoration: TextDecoration.none,
-            )
-        ),
+            )),
         btns: ['取消', '确定'],
         onPressed: (_, position, context) {
           Navigator.pop(context);
@@ -544,7 +525,6 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     var titleView = Padding(
       padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
       child: Text(title,

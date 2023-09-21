@@ -811,12 +811,3 @@ _getDeviceDialog(BuildContext context, Layout layout) {
     },
   );
 }
-
-DeviceEntityTypeInP4 getDeviceEntityType(String value) {
-  for (var deviceType in DeviceEntityTypeInP4.values) {
-    if (deviceType.toString() == value) {
-      return deviceType;
-    }
-  }
-  return DeviceEntityTypeInP4.Default;
-}
