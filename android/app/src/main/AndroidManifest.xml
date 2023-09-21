@@ -50,6 +50,14 @@
             android:value="${BUGLY_APP_ID}" />
 
         <activity
+            android:name=".LocalResourceInstallActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:theme="@style/NormalTheme"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:exported="true"

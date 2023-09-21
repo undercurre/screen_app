@@ -46,6 +46,7 @@ import com.midea.light.issued.plc.PLCControlEvent;
 import com.midea.light.log.LogUtil;
 import com.midea.light.push.AliPushReceiver;
 import com.midea.light.setting.SystemUtil;
+import com.midea.light.setting.ota.OTAUpgradeHelper;
 
 import org.json.JSONObject;
 
@@ -115,6 +116,17 @@ public class MainActivity extends FlutterActivity {
         registerReceiver(receiver, filter);
         SLKClear();
         ZH485Device();
+        checkInstallResourceExitInLocal();
+    }
+
+    /**
+     * 检查本地是否存在安装资源，并进行安装
+     */
+    public void checkInstallResourceExitInLocal() {
+        if (OTAUpgradeHelper.checkInstallResourceExistLocally()) {
+            Intent intent = new Intent(this, LocalResourceInstallActivity.class);
+            this.startActivity(intent);
+        }
     }
 
     /**
@@ -263,66 +275,66 @@ public class MainActivity extends FlutterActivity {
 
                     }
                 }, throwable -> Log.e("sky", "rxBus错误", throwable));
-        Log.e("sky","RxBus注册");
+        Log.e("sky", "RxBus注册");
         //485空调数据有变化接收到数据后推送到flutter层
-        RxBus.getInstance().toObservableOnMain(this,AirConditionChangeEvent.class)
+        RxBus.getInstance().toObservableOnMain(this, AirConditionChangeEvent.class)
                 .subscribe(AirConditionChangeEvent -> {
-                    String modelId="zhonghong.cac.002";
+                    String modelId = "zhonghong.cac.002";
                     String address = AirConditionChangeEvent.getAirConditionModel().getOutSideAddress() + AirConditionChangeEvent.getAirConditionModel().getInSideAddress();
                     int mode = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getWorkModel(), 16);
                     int speed = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getWindSpeed(), 16);
                     int temper = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getTemperature(), 16);
-                    int onOff= Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnOff(), 16);
-                    int online= Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnlineState(), 16);
-                    JSONObject json=new JSONObject();
-                    json.put("modelId",modelId);
-                    json.put("address",address);
-                    json.put("mode",mode);
-                    json.put("speed",speed);
-                    json.put("temper",temper);
-                    json.put("onOff",onOff);
-                    json.put("online",online);
-                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate",json);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnlineState(), 16);
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", mode);
+                    json.put("speed", speed);
+                    json.put("temper", temper);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
 
         //485新风数据有变化接收到数据后推送到flutter层
-        RxBus.getInstance().toObservableOnMain(this,FreshAirChangeEvent.class)
+        RxBus.getInstance().toObservableOnMain(this, FreshAirChangeEvent.class)
                 .subscribe(AirConditionChangeEvent -> {
-                    String modelId="zhonghong.air.001";
+                    String modelId = "zhonghong.air.001";
                     String address = AirConditionChangeEvent.getFreshAirModel().getOutSideAddress() + AirConditionChangeEvent.getFreshAirModel().getInSideAddress();
                     int speed = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getWindSpeed(), 16);
-                    int onOff= Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnOff(), 16);
-                    int online= Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnlineState(), 16);
-                    JSONObject json=new JSONObject();
-                    json.put("modelId",modelId);
-                    json.put("address",address);
-                    json.put("mode",1);
-                    json.put("speed",speed);
-                    json.put("temper",26);
-                    json.put("onOff",onOff);
-                    json.put("online",online);
-                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate",json);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnlineState(), 16);
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", 1);
+                    json.put("speed", speed);
+                    json.put("temper", 26);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
 
         //485地暖数据有变化接收到数据后推送到flutter层
-        RxBus.getInstance().toObservableOnMain(this,FloorHotChangeEvent.class)
+        RxBus.getInstance().toObservableOnMain(this, FloorHotChangeEvent.class)
                 .subscribe(AirConditionChangeEvent -> {
-                    String modelId="zhonghong.heat.001";
+                    String modelId = "zhonghong.heat.001";
                     String address = AirConditionChangeEvent.getFloorHotModel().getOutSideAddress() + AirConditionChangeEvent.getFloorHotModel().getInSideAddress();
                     int temper = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getTemperature(), 16);
-                    int onOff= Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnOff(), 16);
-                    int online= Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnlineState(), 16);
-                    JSONObject json=new JSONObject();
-                    json.put("modelId",modelId);
-                    json.put("address",address);
-                    json.put("mode",1);
-                    json.put("speed",1);
-                    json.put("temper",temper);
-                    json.put("onOff",onOff);
-                    json.put("online",online);
-                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate",json);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnlineState(), 16);
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", 1);
+                    json.put("speed", 1);
+                    json.put("temper", temper);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
 

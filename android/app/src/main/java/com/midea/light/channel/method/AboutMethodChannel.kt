@@ -99,7 +99,8 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
     private fun onHandlerSystemVersion(result: MethodChannel.Result) {
         val appVersion = SystemUtil.getAppVersion(context)
         val gatewayVersion = SystemUtil.getGatewayVersion(MainApplication.gatewayPlatform)
-        onCallSuccess(result, "0000$appVersion$gatewayVersion")
+        val romVersion = SystemUtil.getRomVersion()
+        onCallSuccess(result, "$romVersion$appVersion$gatewayVersion")
     }
 
     private fun onHandlerIpAddress(result: MethodChannel.Result) {

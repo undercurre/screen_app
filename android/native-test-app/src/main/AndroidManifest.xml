@@ -33,6 +33,12 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <!--强制指定打包渠道-->
+        <meta-data
+            android:name="channel"
+            android:value="JH" />
+
     </application>
 
 </manifest>

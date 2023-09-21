@@ -22,6 +22,12 @@ public class GatewayVersionUtil {
                 getAppVersion(context) +
                 getGatewayVersion(gatewayPlatform);
     }
+
+    public static String getSystemVersionIgnorePrefix(Context context, GatewayPlatform gatewayPlatform) {
+        return getAppVersion(context) +
+                getGatewayVersion(gatewayPlatform);
+    }
+
     public static String getGatewayVersion(GatewayPlatform gatewayPlatform) {
         return com.midea.light.gateway.GatewayVersionUtil.getGatewayVersion(gatewayPlatform.rawPlatform());
     }

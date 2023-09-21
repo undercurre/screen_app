@@ -94,11 +94,13 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     implementation rootProject.ext.nexus.rxbus
+    implementation rootProject.ext.nexus.log
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
     implementation(project(":module-manage-device"))
     implementation(project(":module-homeos"))
-
+    implementation(project(":module-setting"))
+    implementation rootProject.ext.nexus.ota_upgrade
 
 
 

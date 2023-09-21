@@ -11,6 +11,7 @@ import com.midea.light.log.LogUtil;
 import com.midea.light.setting.SystemUtil;
 import com.midea.light.thread.MainThread;
 import com.midea.light.upgrade.Callback;
+import com.midea.light.upgrade.JHRoomV2UpgradeHandler;
 import com.midea.light.upgrade.UpgradeClient;
 import com.midea.light.upgrade.UpgradeConfig;
 import com.midea.light.upgrade.UpgradeType;
@@ -64,7 +65,8 @@ class RoomUtils {
                     }
                 }
             }
-        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                 IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -75,7 +77,20 @@ class RoomUtils {
         }
     }
 
+    public static String getVersionStr() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getRoomVersion());
+        // 小于四位前面补零
+        if (builder.length() < 4) {
+            for (int i = builder.length(); i < 4; i++) {
+                builder.insert(0, "0");
+            }
+        }
+        return builder.toString();
+    }
+
 }
+
 /**
  * @ClassName V2OTAUpgradeHelper
  * @Description
@@ -84,7 +99,8 @@ class RoomUtils {
  * @Version 1.0
  */
 public class OTAUpgradeHelper {
-    private OTAUpgradeHelper() {}
+    private OTAUpgradeHelper() {
+    }
 
     private final static ExecutorService executorService = new ThreadPoolExecutor(0, 3, 60, TimeUnit.MILLISECONDS, (BlockingQueue<Runnable>) new LinkedBlockingQueue<Runnable>(), Util.threadFactory("Upgrade", true));
     private static V2IOTCallback defaultCallback;
@@ -103,6 +119,30 @@ public class OTAUpgradeHelper {
     static String gatewaySn;
 
     static int gatewayPlatform;//1 美居 2 Homlux
+
+    public static boolean checkInstallResourceExistLocally() {
+        String channel = AppCommonConfig.getChannel();
+        if (Objects.equals("JH", channel)) {
+            return JHRoomV2UpgradeHandler.checkAppRecoverInRomUpgrade();
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean installResourceExitLocally() {
+        String channel = AppCommonConfig.getChannel();
+        if (Objects.equals("JH", channel)) {
+            return JHRoomV2UpgradeHandler.appRecoverInRomUpgrade();
+        }
+        return false;
+    }
+
+    public static void deleteInstallResource() {
+        String channel = AppCommonConfig.getChannel();
+        if (Objects.equals("JH", channel)) {
+             JHRoomV2UpgradeHandler.deleteAppInstallFile();
+        }
+    }
 
     public static void initUserConfig(String uid, String deviceId, String token, String gatewaySn, int platform) {
         OTAUpgradeHelper.uid = uid;
@@ -130,12 +170,18 @@ public class OTAUpgradeHelper {
 
 
     static void initRomOTAConfig(String channel) {
-        if(supportRomOTA) {
-            String roomCategoryCode = Objects.equals(channel, "JH") ? "JH-Q" : "LD-Q";
+        if (supportRomOTA && Objects.equals(channel, "JH")) {
+
             UpgradeConfig room = new UpgradeConfig()
                     .withOtaType(2)
                     .withVersion(unused -> RoomUtils.getRoomVersion())
-                    .withCategoryCode(roomCategoryCode)
+//                    .withVersion(unused -> {
+//                        String version = RoomUtils.getVersionStr() + SystemUtil.getSystemVersionIgnorePrefix(BaseApplication.getContext(),
+//                                gatewayPlatform == 1 ? GatewayPlatform.MEIJU: GatewayPlatform.HOMLUX);
+//                        LogUtil.i("查询到Rom版本 " + version);
+//                        return Integer.parseInt(version);
+//                    })
+                    .withCategoryCode("JH-Q-V2")
                     .withDebug(true)
 //                .withDebug(BuildConfig.DEBUG)
                     .withExecutorService(executorService)
@@ -143,39 +189,40 @@ public class OTAUpgradeHelper {
                     .withFilePath("/sdcard/")
                     .withFileCompressName("update.zip")
                     .withApiServiceFunction(debug -> {
-                        if(gatewayPlatform == 1) {
+                        if (gatewayPlatform == 1) {
                             NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
                             service1.setDebug(true);
                             return service1;
-                        } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
+                        } else if (gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token, uid);
                             return service2;
                         } else {
                             return null;
                         }
                     });
-            UpgradeClient.getInstant().putConfig(UpgradeType.ROOM, room);
+            UpgradeClient.getInstant().putConfig(UpgradeType.JH_ROOM_V2, room);
         }
     }
 
     public static void initDirectOTAConfig(String channel) {
-        if(supportDirectOTA) {
+        if (supportDirectOTA) {
             String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
 
             UpgradeConfig direct = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
+                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(),
+                            gatewayPlatform == 1 ? GatewayPlatform.MEIJU: GatewayPlatform.HOMLUX)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
-                    .withSn(_void-> gatewaySn)
+                    .withSn(_void -> gatewaySn)
                     .withExecutorService(executorService)
                     .withApiServiceFunction(debug -> {
-                        if(gatewayPlatform == 1) {
+                        if (gatewayPlatform == 1) {
                             NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
                             service1.setDebug(true);
                             return service1;
-                        } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
+                        } else if (gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token, uid);
                             return service2;
                         } else {
                             return null;
@@ -186,22 +233,23 @@ public class OTAUpgradeHelper {
     }
 
     public static void initNormalOTAConfig(String channel) {
-        if(supportNormalOTA) {
+        if (supportNormalOTA) {
             String appCategoryCode = Objects.equals(channel, "JH") ? "JH" : "LD";
 
             UpgradeConfig normal = new UpgradeConfig()
                     .withOtaType(4)
-                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(), GatewayPlatform.MEIJU)))
+                    .withVersion(unused -> Integer.parseInt(SystemUtil.getSystemVersion(BaseApplication.getContext(),
+                            gatewayPlatform == 1 ? GatewayPlatform.MEIJU: GatewayPlatform.HOMLUX)))
                     .withCategoryCode(appCategoryCode)
                     .withDebug(true)
                     .withExecutorService(executorService)
                     .withApiServiceFunction(debug -> {
-                        if(gatewayPlatform == 1) {
+                        if (gatewayPlatform == 1) {
                             NormalApiService service1 = new NormalApiService(AppCommonConfig.MZ_HOST, deviceId, token, AppCommonConfig.MZ_APP_SECRET, uid);
                             service1.setDebug(true);
                             return service1;
-                        } else if(gatewayPlatform == 2) {
-                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token);
+                        } else if (gatewayPlatform == 2) {
+                            HomluxApiService service2 = new HomluxApiService(AppCommonConfig.HOMLUX_HOST, deviceId, token, uid);
                             return service2;
                         } else {
                             return null;
@@ -226,6 +274,12 @@ public class OTAUpgradeHelper {
     }
 
     public static boolean queryUpgrade(UpgradeType type) {
+        if(UpgradeType.ROOM == type) { // 在JH上切换为JH_ROOM_V2类型
+            String channel = AppCommonConfig.getChannel();
+            if(Objects.equals(channel, "JH")) {
+                type = UpgradeType.JH_ROOM_V2;
+            }
+        }
         return queryUpgrade(type, defaultCallback);
     }
 
