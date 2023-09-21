@@ -13,6 +13,7 @@ import '../../../states/device_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
+import '../../util/nameFormatter.dart';
 
 class BigDevicePanelCardWidget extends StatefulWidget {
   final Widget icon;
@@ -125,6 +126,21 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       );
     }
 
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
+      if (widget.disabled) {
+        return NameFormatter.formatName(widget.roomName, 3);
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -195,7 +211,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
+                  child: Text(getRoomName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

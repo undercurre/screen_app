@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/weather_change_notifier.dart';
 
+import '../../../common/logcat_helper.dart';
 import '../../../common/models/district.dart';
 
 class DigitalWeatherWidget extends StatefulWidget {
@@ -101,7 +102,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    if (!widget.disabled) {
+                    if (!widget.disabled && !widget.discriminative) {
                       Navigator.pushNamed(context, 'SelectAreaPage');
                     }
                   },

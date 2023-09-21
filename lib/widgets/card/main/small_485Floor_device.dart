@@ -123,6 +123,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                       width: 100,
                       child: Text(
                         widget.name,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
@@ -158,6 +159,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
+                        maxLines: 1,
                         '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                         style: TextStyle(
                             color: Colors.white.withOpacity(0.64),

@@ -5,7 +5,6 @@ import android.content.Context;
 
 import androidx.multidex.MultiDex;
 
-import com.midea.light.basic.BuildConfig;
 import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
@@ -27,6 +26,11 @@ import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
 import com.tencent.bugly.crashreport.CrashReport;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = true;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
@@ -46,7 +50,6 @@ public class MainApplication extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化日志库
-
         if(!ProcessUtil.isInMainProcess(this)) {
             AliPushChannel.aliPushInit(this);
             return;
@@ -101,6 +104,28 @@ public class MainApplication extends BaseApplication {
         //bss flush
 //        CommandExecution.execCommand("wpa_cli bss_flush", true);
 
+    }
+
+    private String executeCommand(String command) {
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        InputStream inputStream = process.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder output = new StringBuilder();
+        String line;
+        while (true) {
+            try {
+                if (!((line = bufferedReader.readLine()) != null)) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            output.append(line).append("\n");
+        }
+        return output.toString();
     }
 
 }

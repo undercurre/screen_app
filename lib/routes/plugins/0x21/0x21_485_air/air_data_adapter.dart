@@ -267,7 +267,7 @@ class AirDataAdapter extends MideaDataAdapter {
   }
 
   void _local485StateCallback(Local485DeviceState state) {
-    if(state.modelId=="zhonghong.air.001"&&applianceCode==state.address){
+    if(state.modelId=="zhonghong.air.001"&&localDeviceCode==state.address){
       data = Air485Data(
           name: name,
           operationMode: state.mode.toString(),

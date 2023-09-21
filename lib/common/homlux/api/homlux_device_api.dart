@@ -677,7 +677,7 @@ class HomluxDeviceApi {
       'topic': topic,
       'deviceId': deviceId,
       'method': method,
-      'cloudInputData': cloudInputData
+      'inputData': cloudInputData
     });
 
   }

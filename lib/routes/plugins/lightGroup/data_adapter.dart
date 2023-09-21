@@ -106,6 +106,11 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   }
 
   @override
+  String getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   String? getCharacteristic() {
     Log.i('获取特征状态', data!.brightness);
     return "${data!.brightness}%";

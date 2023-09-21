@@ -13,6 +13,7 @@ import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
@@ -76,7 +77,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
         btnList.add({'text': room.name!, 'key': room.roomId});
       }
     } else {
-      if(HomluxGlobal.selectRoomId!=null){
+      if (HomluxGlobal.selectRoomId != null) {
         roomID = HomluxGlobal.selectRoomId!;
       }
       for (HomluxRoomInfo room in System.homluxRoomList!) {
@@ -93,13 +94,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devicesAll = deviceRes
           .sublist(0, 8)
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
     } else {
       devicesAll = deviceRes
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
     }
@@ -116,10 +119,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devicesAll.addAll(deviceRes
           .sublist(8)
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList());
     }
+    others = others
+        .where((element) => !layoutModel.layouts
+            .map((e) => e.deviceId)
+            .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
+                element.type.toString())))
+        .toList();
+
     initData();
   }
 
@@ -143,12 +154,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
       Log.i("Scene Results1: $sceneRes");
       deviceCache = deviceCache
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
       deviceRes = deviceRes
           .where((e) =>
-              getDeviceEntityType(e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
 
@@ -191,13 +204,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
     selectRoom(roomID);
   }
 
-  void selectRoom(String roomID) async{
+  void selectRoom(String roomID) async {
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
     } else {
       HomluxGlobal.selectRoomId = roomID;
     }
-    List<DeviceEntity> devicesTemp = devicesAll.where((element) => element.roomId == roomID).toList();
+    List<DeviceEntity> devicesTemp =
+        devicesAll.where((element) => element.roomId == roomID).toList();
     deleteDevices.clear();
     for (DeviceEntity device in devicesTemp) {
       if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
@@ -205,15 +219,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     devicesTemp.removeWhere((i) => deleteDevices.contains(i));
-    List<DeviceEntity> devicesLightGroup=[];
-    List<DeviceEntity> devicesPanel=[];
+    List<DeviceEntity> devicesLightGroup = [];
+    List<DeviceEntity> devicesPanel = [];
     for (DeviceEntity device in devicesTemp) {
-      if (isLightGroup(device.type,device.modelNumber)) {
+      if (isLightGroup(device.type, device.modelNumber)) {
         devicesLightGroup.add(device);
       }
     }
     for (DeviceEntity device in devicesTemp) {
-      if (isPanel(device.type,device.modelNumber)) {
+      if (isPanel(device.type, device.modelNumber)) {
         devicesPanel.add(device);
       }
     }
@@ -225,15 +239,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
     setState(() {});
   }
 
-  bool isLightGroup(String? type,String modelNum){
-    if(type=="0x21"&&modelNum=="lightGroup"){
+  bool isLightGroup(String? type, String modelNum) {
+    if (type == "0x21" && modelNum == "lightGroup") {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
 
-  bool isPanel(String? type,String modelNum) {
+  bool isPanel(String? type, String modelNum) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
@@ -242,7 +256,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   Map<String, String> getCurRoomConfig() {
     if (btnList.isNotEmpty) {
-      List curRoom = btnList.where((element) => element["key"] == roomID).toList();
+      List curRoom =
+          btnList.where((element) => element["key"] == roomID).toList();
       if (curRoom.isNotEmpty) {
         return curRoom[0];
       } else {
@@ -616,7 +631,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                             [],
                                             DataInputCard(
                                               name: scenes[index].name,
-                                              applianceCode: uuid.v4(),
+                                              applianceCode:
+                                                  scenes[index].sceneId,
                                               roomName: '',
                                               sceneId: scenes[index].sceneId,
                                               icon: scenes[index].image,
@@ -720,18 +736,31 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: GestureDetector(
                                         onTap: () {
                                           resultData = Layout(
-                                            uuid.v4(),
+                                            DeviceEntityTypeInP4Handle
+                                                .extractLowercaseEntityType(
+                                                    others[index]
+                                                        .type
+                                                        .toString()),
                                             others[index].type,
                                             CardType.Other,
                                             -1,
                                             [],
                                             DataInputCard(
                                               name: '',
-                                              applianceCode: uuid.v4(),
+                                              applianceCode:
+                                                  DeviceEntityTypeInP4Handle
+                                                      .extractLowercaseEntityType(
+                                                          others[index]
+                                                              .type
+                                                              .toString()),
                                               roomName: '',
                                               isOnline: '',
                                               disabled: true,
-                                              type: '',
+                                              type: DeviceEntityTypeInP4Handle
+                                                  .extractLowercaseEntityType(
+                                                      others[index]
+                                                          .type
+                                                          .toString()),
                                               masterId: '',
                                               modelNumber: '',
                                               onlineStatus: '1',
@@ -773,7 +802,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   _getDeviceDialog(index, Layout resultData) {
     DeviceEntityTypeInP4 curDeviceEntity =
-        getDeviceEntityType(devices[index].type, devices[index].modelNumber);
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            devices[index].type, devices[index].modelNumber);
 
     showDialog(
       context: context,
@@ -820,29 +850,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
     } else {
       return 'assets/newUI/device/$type.png';
     }
-  }
-
-  DeviceEntityTypeInP4 getDeviceEntityType(String value, String? modelNum) {
-    for (var deviceType in DeviceEntityTypeInP4.values) {
-      if (value == '0x21') {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
-          return deviceType;
-        }
-      } else if (value.contains('localPanel1')) {
-        return DeviceEntityTypeInP4.LocalPanel1;
-      } else if (value.contains('localPanel2')) {
-        return DeviceEntityTypeInP4.LocalPanel2;
-      } else if (value == '0x13' && modelNum == 'homluxZigbeeLight') {
-        return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
-      } else if (value == '0x13' && modelNum == 'homluxLightGroup') {
-        return DeviceEntityTypeInP4.homlux_lightGroup;
-      } else {
-        if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$value') {
-          return deviceType;
-        }
-      }
-    }
-    return DeviceEntityTypeInP4.Default;
   }
 
   CardType _getPanelCardType(String modelNum, String? type) {

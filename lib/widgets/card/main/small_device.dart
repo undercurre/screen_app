@@ -104,7 +104,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
-        return '加载失败';
+        return NameFormatter.formatName('失败', 3);
       }
 
       return widget.adapter?.getCharacteristic();
@@ -114,7 +114,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       String nameInModel = deviceListModel.getDeviceRoomName(
           deviceId: widget.adapter?.getDeviceId());
       if (widget.disabled) {
-        return NameFormatter.formatName(widget.roomName);
+        return NameFormatter.formatName(widget.roomName, 3);
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -130,7 +130,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           deviceId: widget.adapter?.getDeviceId());
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
-            ? NameFormatter.formatName(widget.name)
+            ? NameFormatter.formatName(widget.name, 4)
             : nameInModel;
       }
 
@@ -274,7 +274,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 12),
               width: 40,
               child: widget.icon,
             ),

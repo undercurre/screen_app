@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../channel/index.dart';
@@ -30,32 +31,36 @@ class _Boot extends State<Boot> {
     });
 
     () async {
-      var maxTryCount = 30;
-      while (maxTryCount > 0) {
-        // -1错误 0NONE 1MEIJU 2HOMLUX
-        Log.file('启动查询网关环境次数${maxTryCount - 29}');
-        try {
-          var platform = await ChangePlatformHelper.checkGatewayPlatform();
-          Log.file('查询到的运行平台为$platform');
-          if (platform != -1) {
-            if (platform == 1) {
-              await ChangePlatformHelper.changeToMeiju(false);
-              MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
-            } else if (platform == 2) {
-              await ChangePlatformHelper.changeToHomlux(false);
-              MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
-            } else {
-              MideaRuntimePlatform.platform = GatewayPlatform.NONE;
-            }
-            break;
-          }
-        } catch (e) {
-          Log.file('请求网关运行环境错误错误', e);
-        }
-        maxTryCount--;
-      }
-      checkLogin();
+      checkGetWay();
     }.call();
+  }
+
+  void checkGetWay() async {
+    var maxTryCount = 30;
+    while (maxTryCount > 0) {
+      // -1错误 0NONE 1MEIJU 2HOMLUX
+      Log.file('启动查询网关环境次数${maxTryCount - 29}');
+      try {
+        var platform = await ChangePlatformHelper.checkGatewayPlatform();
+        Log.file('查询到的运行平台为$platform');
+        if (platform != -1) {
+          if (platform == 1) {
+            await ChangePlatformHelper.changeToMeiju(false);
+            MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+          } else if (platform == 2) {
+            await ChangePlatformHelper.changeToHomlux(false);
+            MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+          } else {
+            MideaRuntimePlatform.platform = GatewayPlatform.NONE;
+          }
+          break;
+        }
+      } catch (e) {
+        Log.file('请求网关运行环境错误错误', e);
+      }
+      maxTryCount--;
+    }
+    checkLogin();
   }
 
   @override
@@ -87,11 +92,13 @@ class _Boot extends State<Boot> {
     () async {
       if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         String? isMigrate = await migrateChannel.meiJuIsMigrate();
-        if (isMigrate == "0"&&!System.isLogin()) {
+        if (isMigrate == "0" && !System.isLogin()) {
+          // Log.file("进入迁移界面$isMigrate----${System.isLogin()}");
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
           });
         } else {
+          await migrateChannel.setHomluxIsMigrate();
           bool isLogin = System.isLogin();
           bool familyInfo = System.familyInfo != null;
           bool roomInfo = System.roomInfo != null;
@@ -101,6 +108,7 @@ class _Boot extends State<Boot> {
           var isFinishLogin = System.isLogin() &&
               System.familyInfo != null &&
               System.roomInfo != null;
+          await migrateChannel.setMeiJuIsMigrate();
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',
@@ -113,11 +121,11 @@ class _Boot extends State<Boot> {
         }
       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
         String? isMigrate = await migrateChannel.homluxIsMigrate();
-        if(isMigrate == "0"&&!System.isLogin()){
+        if (isMigrate == "0" && !System.isLogin()) {
           Future.delayed(Duration.zero).then((_) {
             Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
           });
-        }else{
+        } else {
           bool isLogin = System.isLogin();
           bool familyInfo = System.familyInfo != null;
           bool roomInfo = System.roomInfo != null;
@@ -127,6 +135,7 @@ class _Boot extends State<Boot> {
           var isFinishLogin = System.isLogin() &&
               System.familyInfo != null &&
               System.roomInfo != null;
+          await migrateChannel.setHomluxIsMigrate();
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',

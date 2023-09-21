@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/global.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/models/city.dart';
 import '../../common/models/district.dart';
 import '../../common/models/province.dart';
@@ -168,12 +169,14 @@ class _AreaSelectorState extends State<AreaSelector> {
                             provinces.map((e) => e.province).toList(),
                             selectedProvinceIndex, (index) {
                           if (isInit) {
+                            selectedProvinceIndex = index;
+                            cities =
+                                provinces[selectedProvinceIndex].cityList;
+                            Log.i('城市列表', cities.map((e) => e.cityName));
+                            selectedCityIndex = 0;
+                            districts = cities[selectedCityIndex].areaList;
                             setState(() {
-                              selectedProvinceIndex = index;
-                              cities =
-                                  provinces[selectedProvinceIndex].cityList;
-                              districts = cities[selectedCityIndex].areaList;
-                              selectedCityIndex = 0;
+
                             });
                             cityController.animateToItem(0,
                                 duration: const Duration(milliseconds: 500),

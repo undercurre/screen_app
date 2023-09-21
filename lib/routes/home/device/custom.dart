@@ -91,13 +91,7 @@ class _CustomPageState extends State<CustomPage> {
             },
             itemCount: _screens.length,
             itemBuilder: (BuildContext context, int index) {
-              // 返回要显示的 Widget，这里可以根据 index 控制加载的页数
-              // 如果希望加载当前页及其相邻的前后页，可以使用类似以下逻辑：
-              if (index >= curPageIndex - 1 && index <= curPageIndex + 1) {
-                return _screens[index];
-              } else {
-                return const Placeholder(); // 或者返回一个空的占位 Widget
-              }
+              return _screens[index];
             },
           ),
         ),
@@ -124,12 +118,12 @@ class _CustomPageState extends State<CustomPage> {
                             : const Color(0xFF818C98),
                         borderColor: Colors.transparent,
                         borderWidth: 1,
-                        text: '添加(${layoutModel.layouts.length}/16)',
-                        textColor: layoutModel.layouts.length >= 16
+                        text: '添加(${layoutModel.layouts.length}/99)',
+                        textColor: layoutModel.layouts.length >= 99
                             ? Colors.white.withOpacity(0.6)
                             : Colors.white,
                         onPressed: () async {
-                          if (layoutModel.layouts.length <= 16) {
+                          if (layoutModel.layouts.length < 99) {
                             final result =
                                 await Navigator.pushNamed(context, 'AddDevice');
 
@@ -223,7 +217,9 @@ class _CustomPageState extends State<CustomPage> {
                                             layoutModel.deleteLayout(
                                                 result.deviceId,
                                                 result.pageIndex);
-                                            layoutModel.handleNullPage();
+                                            if (!layoutModel.layouts.map((e) => e.pageIndex).contains(result.pageIndex)) {
+                                              layoutModel.handleNullPage(result.pageIndex);
+                                            }
                                             // 取出当前布局的grids
                                             for (int gridsIndex = 0;
                                                 gridsIndex <
@@ -670,8 +666,12 @@ class _CustomPageState extends State<CustomPage> {
                 right: 8,
                 top: 8,
                 child: GestureDetector(
-                  onTap: () {
-                    layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
+                  onTap: () async {
+                    await layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
+                    // 看看是否删空
+                    if (!layoutModel.layouts.map((e) => e.pageIndex).contains(layout.pageIndex)) {
+                      layoutModel.handleNullPage(layout.pageIndex);
+                    }
                   },
                   child: Container(
                     width: 32,
@@ -810,13 +810,4 @@ _getDeviceDialog(BuildContext context, Layout layout) {
       }
     },
   );
-}
-
-DeviceEntityTypeInP4 getDeviceEntityType(String value) {
-  for (var deviceType in DeviceEntityTypeInP4.values) {
-    if (deviceType.toString() == value) {
-      return deviceType;
-    }
-  }
-  return DeviceEntityTypeInP4.Default;
 }

@@ -27,10 +27,10 @@ class LayoutModel extends ChangeNotifier {
 
   // 初始化时从本地读取布局数据
   LayoutModel() {
-    _loadLayouts();
+    loadLayouts();
   }
 
-  Future<void> _loadLayouts() async {
+  Future<void> loadLayouts() async {
     final prefs = await SharedPreferences.getInstance();
     final layoutList = prefs.getStringList('layouts');
     if (layoutList != null) {
@@ -40,7 +40,7 @@ class LayoutModel extends ChangeNotifier {
         Log.i('layout缓存加载失败', e);
         removeLayouts();
         await Future.delayed(const Duration(seconds: 2));
-        _loadLayouts();
+        loadLayouts();
       }
     } else {
       // 初次使用,展示默认布局
@@ -53,7 +53,7 @@ class LayoutModel extends ChangeNotifier {
             [1, 2, 5, 6],
             DataInputCard(
                 name: '时钟',
-                applianceCode: uuid.v4(),
+                applianceCode: 'clock',
                 roomName: '屏内',
                 isOnline: '',
                 type: 'clock',
@@ -68,7 +68,7 @@ class LayoutModel extends ChangeNotifier {
             [3, 4, 7, 8],
             DataInputCard(
                 name: '天气',
-                applianceCode: uuid.v4(),
+                applianceCode: 'weather',
                 roomName: '屏内',
                 isOnline: '',
                 type: 'weather',
@@ -83,7 +83,7 @@ class LayoutModel extends ChangeNotifier {
             [9, 10],
             DataInputCard(
                 name: '灯1',
-                applianceCode: uuid.v4(),
+                applianceCode: 'localPanel1',
                 roomName: '屏内',
                 isOnline: '',
                 type: 'localPanel1',
@@ -98,7 +98,7 @@ class LayoutModel extends ChangeNotifier {
             [11, 12],
             DataInputCard(
                 name: '灯2',
-                applianceCode: uuid.v4(),
+                applianceCode: 'localPanel2',
                 roomName: '屏内',
                 isOnline: '',
                 type: 'localPanel2',
@@ -147,7 +147,7 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 用于删除指定 deviceId 和 pageIndex 的布局对象。
-  void deleteLayout(String deviceId, int pageIndex) {
+  Future<void> deleteLayout(String deviceId, int pageIndex) async {
     layouts.removeWhere(
         (item) => item.deviceId == deviceId && item.pageIndex == pageIndex);
     _saveLayouts();
@@ -373,7 +373,10 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 卡片大小替换
-  void swapCardType(Layout layout, CardType targetType) {
+  Future<void> swapCardType(Layout layout, CardType targetType) async {
+    if (layout.cardType == targetType) {
+      return;
+    }
     layout.cardType = targetType;
     // 更换grid
     // 准备screenLayer
@@ -436,7 +439,7 @@ class LayoutModel extends ChangeNotifier {
       } else {
         // 最后一页也没有空间了，开一页新的
         screenLayer.resetGrid();
-        deleteLayout(layout.deviceId, layout.pageIndex);
+        await deleteLayout(layout.deviceId, layout.pageIndex);
         List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
         Layout newLayout = Layout(layout.deviceId, layout.type, targetType,
             maxPage + 1, fillCellsNew, layout.data);
@@ -447,15 +450,17 @@ class LayoutModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void handleNullPage() {
-    List<int> pagesList = layouts.map((e) => e.pageIndex).toList();
-    for (int i = 0; i < pagesList.length; i++) {
-      for (var element in layouts) {
-        if (element.pageIndex == pagesList[i]) {
-          element.pageIndex = i;
-        }
+  void handleNullPage(int nullPageIndex) {
+    if (layouts.isEmpty) {
+      setLayouts([]);
+    }
+
+    for (int i = 0; i < layouts.length; i++) {
+      if (layouts[i].pageIndex > nullPageIndex) {
+        layouts[i].pageIndex --;
       }
     }
+
     _saveLayouts();
     notifyListeners();
   }
