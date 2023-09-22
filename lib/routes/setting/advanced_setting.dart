@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/states/layout_notifier.dart';
+import 'package:screen_app/states/weather_change_notifier.dart';
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/homlux/api/homlux_user_api.dart';
@@ -177,6 +179,7 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
           Navigator.pop(context);
           if (position == 1) {
             TipsUtils.showLoading("正在清除中...");
+            context.read<WeatherModel>().clearData();
             // 此处执行清除数据的业务逻辑
             clearUserData().then((value) {
               /// 清除失败关闭弹窗

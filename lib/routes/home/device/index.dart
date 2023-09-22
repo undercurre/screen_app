@@ -71,7 +71,12 @@ class _DevicePageState extends State<DevicePage> {
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
     if (mounted) {
-      _screens = getScreenList(layoutModel);
+      try {
+        _screens = getScreenList(layoutModel);
+      } catch (e) {
+        Log.i('Error', e);
+        _screens = [];
+      }
     }
     // logger.i('屏幕页面数量', _screens.length);
     return Stack(
@@ -85,11 +90,11 @@ class _DevicePageState extends State<DevicePage> {
               _pageController.animateToPage(index,
                   duration: const Duration(milliseconds: 10),
                   curve: Curves.ease);
-              debouncer.run(() {
-                setState(() {
-                  widget.currentPage = index;
-                });
-              });
+              // debouncer.run(() {
+              //   setState(() {
+              //     widget.currentPage = index;
+              //   });
+              // });
             },
             itemCount: _screens.length,
             itemBuilder: (context, index) {
@@ -114,33 +119,33 @@ class _DevicePageState extends State<DevicePage> {
               ),
             ),
           ),
-        Positioned(
-            left: 215,
-            bottom: 12,
-            child: Stack(
-              children: [
-                Positioned(
-                  left: widget.currentPage / (_screens.length - 1) * 25,
-                  bottom: 0,
-                  child: Container(
-                    width: 26,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8), // 背景颜色
-                      borderRadius: BorderRadius.circular(10.0), // 圆角半径
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 51,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1), // 背景颜色
-                    borderRadius: BorderRadius.circular(10.0), // 圆角半径
-                  ),
-                ),
-              ],
-            )),
+        // Positioned(
+        //     left: 215,
+        //     bottom: 12,
+        //     child: Stack(
+        //       children: [
+        //         Positioned(
+        //           left: widget.currentPage / (_screens.length - 1) * 25,
+        //           bottom: 0,
+        //           child: Container(
+        //             width: 26,
+        //             height: 4,
+        //             decoration: BoxDecoration(
+        //               color: Colors.white.withOpacity(0.8), // 背景颜色
+        //               borderRadius: BorderRadius.circular(10.0), // 圆角半径
+        //             ),
+        //           ),
+        //         ),
+        //         Container(
+        //           width: 51,
+        //           height: 4,
+        //           decoration: BoxDecoration(
+        //             color: Colors.white.withOpacity(0.1), // 背景颜色
+        //             borderRadius: BorderRadius.circular(10.0), // 圆角半径
+        //           ),
+        //         ),
+        //       ],
+        //     )),
       ],
     );
   }

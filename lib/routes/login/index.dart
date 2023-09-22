@@ -47,7 +47,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   BindGatewayAdapter? bindGatewayAd;
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
-  String roomBeforeLogin = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
 
   void showBindingDialog(bool show) async {
@@ -112,7 +111,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         final deviceInfoListModel =
             Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        if (roomBeforeLogin != System.roomInfo?.id) {
+        if (true) {
           // 换房间，重新初始布局该房间
           await layoutModel.removeLayouts();
           if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
@@ -238,8 +237,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       }
       isNeedShowClearAlert = System.familyInfo != null;
     }
-
-    roomBeforeLogin = System.roomInfo?.id ?? "";
 
     isNeedChoosePlatform = System.inNonePlatform();
 

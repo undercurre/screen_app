@@ -118,6 +118,11 @@ class WeatherModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clearData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('layouts');
+  }
+
   String getWeatherType() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return curWeatherInMeiJu.weatherCode ?? 'default';

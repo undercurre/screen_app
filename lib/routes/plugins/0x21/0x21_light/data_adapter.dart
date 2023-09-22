@@ -24,22 +24,22 @@ import '../../../../common/models/endpoint.dart';
 
 class DeviceDataEntity {
   int brightness = 1; // 亮度
-  int colorTemp = 0; // 色温
+  int? colorTemp = 0; // 色温
   bool power = false; //开关
   int delayClose = 0; //延时关
-  int maxColorTemp = 2700;
-  int minColorTemp = 6500;
+  int? maxColorTemp = 2700;
+  int? minColorTemp = 6500;
 
   DeviceDataEntity({
     required brightness,
-    required colorTemp,
+    colorTemp,
     required power,
     required delayClose,
   });
 
   DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
     brightness = int.parse(data!.endList[0].event.Level);
-    colorTemp = int.parse(data!.endList[0].event.ColorTemp);
+    colorTemp = int.parse(data!.endList[0].event.ColorTemp ?? '0');
     power = data!.endList[0].event.OnOff == '1' || data!.endList[0].event.OnOff == 1;
     delayClose = int.parse(data!.endList[0].event.DelayClose);
   }
@@ -149,7 +149,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         Log.i('触发更新');
         await fetchData();
         _isFetching = false;
@@ -292,7 +292,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   /// 控制模式
   Future<void> controlMode(Mode mode) async {
     int lastBrightness = data!.brightness;
-    int lastColorTemp = data!.colorTemp;
+    int? lastColorTemp = data!.colorTemp;
     var curMode = lightModes
         .where((element) => element.key == mode.key)
         .toList()[0] as ZigbeeLightMode;
@@ -372,7 +372,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color? activeColor) async {
-    int lastColorTemp = data!.colorTemp;
+    int? lastColorTemp = data!.colorTemp;
     data!.colorTemp = value.toInt();
     updateUI();
     if (platform.inMeiju()) {
@@ -396,7 +396,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       }
     } else if (platform.inHomlux()) {
       var res = await HomluxDeviceApi.controlZigbeeColorTemp(
-          applianceCode, "2", masterId, data!.colorTemp.toInt());
+          applianceCode, "2", masterId, data!.colorTemp!.toInt());
       if (res.isSuccess) {
       } else {
         data!.colorTemp = lastColorTemp;
@@ -482,7 +482,7 @@ class ZigbeeLightEvent extends Event {
       {required this.OnOff,
       required this.DelayClose,
       required this.Level,
-      required this.ColorTemp,
+      this.ColorTemp,
       this.duration});
 
   factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {

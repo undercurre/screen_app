@@ -110,6 +110,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
       // 关
       return controlMode(closeMode);
     }
+    bus.emit('operateDevice', applianceCode);
     // 开
     return controlMode(openMode);
   }
@@ -151,11 +152,13 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     if (index == null) return;
     if (index < 0 || index > curtainModes.length - 1) return;
     Mode mode = curtainModes[index];
+    bus.emit('operateDevice', applianceCode);
     return controlMode(mode);
   }
 
   @override
   Future<dynamic> slider1To(int? value) async {
+    bus.emit('operateDevice', applianceCode);
     return controlCurtain(value as num);
   }
 

@@ -566,6 +566,7 @@ class _CustomPageState extends State<CustomPage> {
                         borderWidth: 1,
                         text: '完成',
                         onPressed: () {
+                          layoutModel.setLayouts(layoutModel.layouts);
                           Navigator.pop(context, '自定义返回');
                         },
                       )

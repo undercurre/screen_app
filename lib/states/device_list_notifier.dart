@@ -25,6 +25,7 @@ import '../widgets/util/deviceEntityTypeInP4Handle.dart';
 class DeviceInfoListModel extends ChangeNotifier {
   List<MeiJuDeviceInfoEntity> deviceListMeiju = [];
   List<HomluxDeviceEntity> deviceListHomlux = [];
+  List<DeviceEntity> deviceCacheList = [];
   List<DeviceEntity> MeijuGroup = [];
 
   DeviceListModel() {
@@ -70,6 +71,8 @@ class DeviceInfoListModel extends ChangeNotifier {
       vLocalPanel2.onlineStatus = '1';
       tempList.add(vLocalPanel2);
 
+      deviceCacheList = tempList;
+
       return tempList;
     } else {
       List<DeviceEntity> tempList = deviceListHomlux.map((e) {
@@ -104,6 +107,8 @@ class DeviceInfoListModel extends ChangeNotifier {
       vLocalPanel2.masterId = uuid.v4();
       vLocalPanel2.onlineStatus = '1';
       tempList.add(vLocalPanel2);
+
+      deviceCacheList = tempList;
 
       return tempList;
     }
@@ -290,7 +295,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   String getDeviceName({String? deviceId}) {
     if (deviceId != null) {
-      List<DeviceEntity> curOne = getCacheDeviceList()
+      List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
@@ -305,7 +310,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   String getDeviceRoomName({String? deviceId}) {
     if (deviceId != null) {
-      List<DeviceEntity> curOne = getCacheDeviceList()
+      List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
@@ -320,7 +325,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
   bool getOnlineStatus({String? deviceId}) {
     if (deviceId != null) {
-      List<DeviceEntity> curOne = getCacheDeviceList()
+      List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {

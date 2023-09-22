@@ -407,9 +407,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
                   widget.disabled,
               activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
-              onChanging: (val, color) {
-                widget.adapter?.slider1To(val.toInt());
-              },
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
               },
@@ -443,9 +440,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   widget.disabled,
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
               isBarColorKeepFull: false,
-              onChanging: (val, color) {
-                widget.adapter?.slider2To(val.toInt());
-              },
               onChanged: (val, color) {
                 widget.adapter?.slider2To(val.toInt());
               },

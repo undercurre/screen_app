@@ -34,12 +34,16 @@ class GroupDataEntity {
     required brightness,
     required colorTemp,
     required power,
+    required maxColorTemp,
+    required minColorTemp,
   });
 
   GroupDataEntity.fromMeiJu(dynamic data) {
     brightness = int.parse(data["brightness"]);
     colorTemp = int.parse(data["colorTemperature"]);
     power = data["switchStatus"] == '1';
+    maxColorTemp = data["maxColorTemp"];
+    minColorTemp = data["minColorTemp"];
   }
 
   GroupDataEntity.fromHomlux(HomluxGroupEntity data) {
@@ -71,7 +75,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   HomluxGroupEntity? _homluxData = null;
 
   GroupDataEntity? data =
-      GroupDataEntity(brightness: 0, colorTemp: 0, power: false);
+      GroupDataEntity(brightness: 0, colorTemp: 0, power: false, maxColorTemp: 6500, minColorTemp: 2700);
 
   final BuildContext context;
 
@@ -140,7 +144,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         Log.i('触发更新');
         await fetchData();
         _isFetching = false;
@@ -165,7 +169,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
       } else {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
-        data = GroupDataEntity(brightness: 0, colorTemp: 0, power: false);
+        data = GroupDataEntity(brightness: 0, colorTemp: 0, power: false, maxColorTemp: 6500, minColorTemp: 2700);
         updateUI();
         return;
       }
@@ -189,6 +193,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
             "modelId": "midea.light.003.001",
             "uid": MeiJuGlobal.token?.uid,
           }));
+      Log.i('灯组数据', res.result["result"]["group"]);
       return res.result["result"]["group"];
     } catch (e) {
       Log.i('getNodeInfo Error', e);

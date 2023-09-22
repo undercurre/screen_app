@@ -374,9 +374,17 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                 if (widget.adapter?.type != AdapterType.panel)
                   GestureDetector(
                     onTap: () {
+                      Log.i('点击进入插件', widget.adapter?.type);
+
                       if (!widget.disabled) {
                         if (widget.adapter?.type == AdapterType.wifiLight) {
                           Navigator.pushNamed(context, '0x13', arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.wifiCurtain) {
+                          Navigator.pushNamed(context, '0x14', arguments: {
                             "name": widget.name,
                             "adapter": widget.adapter
                           });

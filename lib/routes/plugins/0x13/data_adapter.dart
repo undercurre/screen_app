@@ -47,8 +47,8 @@ class LightDataEntity {
       power = data["power"] == 'on';
       screenModel = data["scene_light"] ?? 'manual';
       timeOff = int.parse(data["delay_light_off"]);
-      maxColorTemp = int.parse(data["temperature_max"]);
-      minColorTemp = int.parse(data["temperature_min"]);
+      maxColorTemp = int.parse(data["temperature_max"] ?? '5700');
+      minColorTemp = int.parse(data["temperature_min"] ?? '3000');
     }
   }
 
@@ -170,7 +170,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   /// 查询状态
   Future<void> fetchData() async {
-    try {
+    // try {
       dataState = DataState.LOADING;
       updateUI();
       if (platform.inMeiju()) {
@@ -195,12 +195,12 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
       }
       dataState = DataState.SUCCESS;
       updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      updateUI();
-      Log.i(e.toString());
-    }
+    // } catch (e) {
+    //   // Error occurred while fetching data
+    //   dataState = DataState.ERROR;
+    //   updateUI();
+    //   Log.i(e.toString());
+    // }
   }
 
   Future<dynamic> fetchMeijuData() async {
