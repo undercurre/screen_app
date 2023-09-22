@@ -14,11 +14,6 @@ import org.json.JSONObject;
  */
 public class VoiceIssuedMatch implements IIssuedMatch<VoiceIssuedHandler> {
 
-    public static void allowLink() {
-        VoiceIssuedHandler.allowCnt = 0;
-//        VoiceIssuedHandler.isStart = zigbeeScanEvent.isStart;
-    }
-
     public VoiceIssuedMatch() {}
 
     @Override

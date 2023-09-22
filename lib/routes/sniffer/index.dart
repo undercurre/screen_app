@@ -153,8 +153,6 @@ class SnifferViewModel {
   }
 
   void _snifferZigbee() {
-    /// 播报允许连入语音
-    gatewayChannel.broadcastAllowLink();
 
     deviceManagerChannel.setFindZigbeeListener((result) {
       debugPrint('zigbeeList: $result');
