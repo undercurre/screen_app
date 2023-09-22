@@ -105,7 +105,7 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
         ),
       );
     }
-    return !value
+    return value
         ? BoxDecoration(
       borderRadius: BorderRadius.circular(24),
       gradient: const LinearGradient(
