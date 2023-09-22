@@ -50,15 +50,15 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args =
-          ModalRoute.of(context)?.settings.arguments as Map?;
-      name = args?['name'] ?? "";
-      adapter = args?['adapter'];
-      targetTemp = adapter!.data.targetTemp;
-      OnOff = adapter!.data.OnOff;
-      adapter!.bindDataUpdateFunction(() {
-        updateData();
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      setState(() {
+        name = args?['name'] ?? "";
+        adapter = args?['adapter'];
+        targetTemp = adapter!.data.targetTemp;
+        OnOff = adapter!.data.OnOff;
+        adapter!.bindDataUpdateFunction(updateData);
       });
+
       updateDetail();
     });
   }
@@ -75,7 +75,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
 
   @override
   void dispose() {
-    adapter!.unBindDataUpdateFunction(() {updateData();});
+    adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 

@@ -75,10 +75,9 @@ class HomeState extends State<Home>
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
       }
       if(MideaRuntimePlatform.platform==GatewayPlatform.HOMLUX){
-         deviceLocal485ControlChannel.find485Device();
-      }else{
         aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       }
+      deviceLocal485ControlChannel.find485Device();
       // 初始化推送
       PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
     } catch (e) {

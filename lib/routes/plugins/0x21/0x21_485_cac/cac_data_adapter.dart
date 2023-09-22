@@ -334,7 +334,6 @@ class CACDataAdapter extends MideaDataAdapter {
 
   @override
   void destroy() {
-    clearBindDataUpdateFunction();
     deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
   }
 
