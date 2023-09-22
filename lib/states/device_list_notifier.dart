@@ -51,25 +51,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
       tempList.addAll(MeijuGroup);
 
-      DeviceEntity vLocalPanel1 = DeviceEntity();
-      vLocalPanel1.name = '灯1';
-      vLocalPanel1.applianceCode = 'localPanel1';
-      vLocalPanel1.type = 'localPanel1';
-      vLocalPanel1.modelNumber = 'xx';
-      vLocalPanel1.roomName = '本地';
-      vLocalPanel1.masterId = uuid.v4();
-      vLocalPanel1.onlineStatus = '1';
-      tempList.add(vLocalPanel1);
-
-      DeviceEntity vLocalPanel2 = DeviceEntity();
-      vLocalPanel2.name = '灯2';
-      vLocalPanel2.applianceCode = 'localPanel2';
-      vLocalPanel2.type = 'localPanel2';
-      vLocalPanel2.modelNumber = 'xx';
-      vLocalPanel2.roomName = '本地';
-      vLocalPanel2.masterId = uuid.v4();
-      vLocalPanel2.onlineStatus = '1';
-      tempList.add(vLocalPanel2);
+      tempList.addAll(getLocalPanelDevices());
 
       deviceCacheList = tempList;
 
@@ -88,30 +70,38 @@ class DeviceInfoListModel extends ChangeNotifier {
         return deviceObj;
       }).toList();
 
-      DeviceEntity vLocalPanel1 = DeviceEntity();
-      vLocalPanel1.name = '灯1';
-      vLocalPanel1.applianceCode = 'localPanel1';
-      vLocalPanel1.type = 'localPanel1';
-      vLocalPanel1.modelNumber = 'xx';
-      vLocalPanel1.roomName = '本地';
-      vLocalPanel1.masterId = uuid.v4();
-      vLocalPanel1.onlineStatus = '1';
-      tempList.add(vLocalPanel1);
-
-      DeviceEntity vLocalPanel2 = DeviceEntity();
-      vLocalPanel2.name = '灯2';
-      vLocalPanel2.applianceCode = 'localPanel2';
-      vLocalPanel2.type = 'localPanel2';
-      vLocalPanel2.modelNumber = 'xx';
-      vLocalPanel2.roomName = '本地';
-      vLocalPanel2.masterId = uuid.v4();
-      vLocalPanel2.onlineStatus = '1';
-      tempList.add(vLocalPanel2);
+      tempList.addAll(getLocalPanelDevices());
 
       deviceCacheList = tempList;
 
       return tempList;
     }
+  }
+
+  List<DeviceEntity> getLocalPanelDevices() {
+    String roomID = System.roomInfo?.id ?? '';
+    String roomName = System.roomInfo?.name ?? '';
+
+    DeviceEntity vLocalPanel1 = DeviceEntity();
+    vLocalPanel1.name = '灯1';
+    vLocalPanel1.applianceCode = 'localPanel1';
+    vLocalPanel1.type = 'localPanel1';
+    vLocalPanel1.modelNumber = 'xx';
+    vLocalPanel1.roomName = roomName;
+    vLocalPanel1.roomId = roomID;
+    vLocalPanel1.masterId = uuid.v4();
+    vLocalPanel1.onlineStatus = '1';
+
+    DeviceEntity vLocalPanel2 = DeviceEntity();
+    vLocalPanel2.name = '灯2';
+    vLocalPanel2.applianceCode = 'localPanel2';
+    vLocalPanel2.type = 'localPanel2';
+    vLocalPanel2.modelNumber = 'xx';
+    vLocalPanel2.roomName = roomName;
+    vLocalPanel2.roomId = roomID;
+    vLocalPanel2.masterId = uuid.v4();
+    vLocalPanel2.onlineStatus = '1';
+    return [vLocalPanel1, vLocalPanel2];
   }
 
   Future<List<DeviceEntity>> getDeviceList() async {
@@ -158,25 +148,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         tempList.addAll(MeijuGroup);
 
-        DeviceEntity vLocalPanel1 = DeviceEntity();
-        vLocalPanel1.name = '灯1';
-        vLocalPanel1.applianceCode = 'localPanel1';
-        vLocalPanel1.type = 'localPanel1';
-        vLocalPanel1.modelNumber = 'xx';
-        vLocalPanel1.roomName = '本地';
-        vLocalPanel1.masterId = uuid.v4();
-        vLocalPanel1.onlineStatus = '1';
-        tempList.add(vLocalPanel1);
-
-        DeviceEntity vLocalPanel2 = DeviceEntity();
-        vLocalPanel2.name = '灯2';
-        vLocalPanel2.applianceCode = 'localPanel2';
-        vLocalPanel2.type = 'localPanel2';
-        vLocalPanel2.modelNumber = 'xx';
-        vLocalPanel2.roomName = '本地';
-        vLocalPanel2.masterId = uuid.v4();
-        vLocalPanel2.onlineStatus = '1';
-        tempList.add(vLocalPanel2);
+        tempList.addAll(getLocalPanelDevices());
 
         Log.i('网表', tempList.map((e) => e.name).toList());
 
@@ -254,6 +226,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceListHomlux.add(device);
         }
 
+
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
           deviceObj.name = e.deviceName!;
@@ -267,25 +240,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           return deviceObj;
         }).toList();
 
-        DeviceEntity vLocalPanel1 = DeviceEntity();
-        vLocalPanel1.name = '灯1';
-        vLocalPanel1.applianceCode = 'localPanel1';
-        vLocalPanel1.type = 'localPanel1';
-        vLocalPanel1.modelNumber = 'xx';
-        vLocalPanel1.roomName = '本地';
-        vLocalPanel1.masterId = uuid.v4();
-        vLocalPanel1.onlineStatus = '1';
-        tempList.add(vLocalPanel1);
-
-        DeviceEntity vLocalPanel2 = DeviceEntity();
-        vLocalPanel2.name = '灯2';
-        vLocalPanel2.applianceCode = 'localPanel2';
-        vLocalPanel2.type = 'localPanel2';
-        vLocalPanel2.modelNumber = 'xx';
-        vLocalPanel2.roomName = '本地';
-        vLocalPanel2.masterId = uuid.v4();
-        vLocalPanel2.onlineStatus = '1';
-        tempList.add(vLocalPanel2);
+        tempList.addAll(getLocalPanelDevices());
 
         return tempList;
       }

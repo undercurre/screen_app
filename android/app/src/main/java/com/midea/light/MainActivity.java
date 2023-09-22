@@ -50,10 +50,6 @@ import com.midea.light.setting.ota.OTAUpgradeHelper;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
@@ -294,6 +290,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("temper", temper);
                     json.put("onOff", onOff);
                     json.put("online", online);
+                    Log.e("sky","通知flutter更新空调:"+json);
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
@@ -314,6 +311,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("temper", 26);
                     json.put("onOff", onOff);
                     json.put("online", online);
+                    Log.e("sky","通知flutter更新新风:"+json);
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
@@ -334,6 +332,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("temper", temper);
                     json.put("onOff", onOff);
                     json.put("online", online);
+                    Log.e("sky","通知flutter更新地暖:"+json);
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));

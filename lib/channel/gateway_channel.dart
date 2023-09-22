@@ -27,11 +27,6 @@ class GatewayChannel extends AbstractChannel {
   Future<bool> relay2IsOpen() async {
     return await methodChannel.invokeMethod("relay2IsOpen") as bool;
   }
-  /// 允许连入
-  Future<bool> broadcastAllowLink() async {
-    methodChannel.invokeMethod('allowLink');
-    return true;
-  }
   /// 重置本地网关
   Future<bool> resetGateway() async {
     methodChannel.invokeMethod('resetGateway');

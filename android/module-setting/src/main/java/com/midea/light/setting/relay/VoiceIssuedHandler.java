@@ -23,8 +23,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  */
 public class VoiceIssuedHandler implements IIssuedHandler, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
    private static ReentrantLock mLock = new ReentrantLock();
-   public static boolean isStart = false;
-   public static int allowCnt = 0;
 
    @Override
    public void onHandler(String data, IssuedWriteCallback callback) {
@@ -33,11 +31,7 @@ public class VoiceIssuedHandler implements IIssuedHandler, MediaPlayer.OnPrepare
          if(!root.has("audioBroadcast"))
             return;
          String broadcast = root.getString("audioBroadcast");
-         if(broadcast.equals("permit") && allowCnt == 0) {
-//            if (isStart) {
-//               allowCnt ++;
-//            }
-            allowCnt ++;
+         if(broadcast.equals("permit")) {
 
             Schedulers.io().scheduleDirect(new Runnable() {
                @Override
@@ -141,7 +135,7 @@ public class VoiceIssuedHandler implements IIssuedHandler, MediaPlayer.OnPrepare
 
    @Override
    public void onCompletion(MediaPlayer mediaPlayer) {
-
+      mediaPlayer.release();
    }
 
    public interface Predicate {

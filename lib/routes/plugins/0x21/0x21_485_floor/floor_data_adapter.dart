@@ -263,7 +263,7 @@ class FloorDataAdapter extends MideaDataAdapter {
         localDeviceCode == state.address) {
       data = Floor485Data(
         name: name,
-        targetTemp: state.mode.toString(),
+        targetTemp: state.temper.toString(),
         OnOff: state.onOff.toString(),
       );
       updateUI();
@@ -272,7 +272,6 @@ class FloorDataAdapter extends MideaDataAdapter {
 
   @override
   void destroy() {
-    clearBindDataUpdateFunction();
     deviceLocal485ControlChannel
         .unregisterLocal485CallBack(_local485StateCallback);
   }
