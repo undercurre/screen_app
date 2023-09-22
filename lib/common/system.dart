@@ -23,18 +23,21 @@ class System {
 
   /// 设备Id 存储的key
   static const String DEVICE_ID = "device_id";
-  static String? deviceId,macAddress;
+  static String? deviceId, macAddress;
 
   static List<MeiJuRoomEntity>? meijuRoomList;
   static List<HomluxRoomInfo>? homluxRoomList;
 
   System._();
 
-  static bool inMeiJuPlatform() => MideaRuntimePlatform.platform == GatewayPlatform.MEIJU;
+  static bool inMeiJuPlatform() =>
+      MideaRuntimePlatform.platform == GatewayPlatform.MEIJU;
 
-  static bool inHomluxPlatform() => MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX;
+  static bool inHomluxPlatform() =>
+      MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX;
 
-  static bool inNonePlatform() => MideaRuntimePlatform.platform == GatewayPlatform.NONE;
+  static bool inNonePlatform() =>
+      MideaRuntimePlatform.platform == GatewayPlatform.NONE;
 
   /// 全局初始化
   static Future globalInit([String? deviceId]) async {
@@ -194,7 +197,6 @@ class System {
     }
   }
 
-
   /// 是否已经登录
   static bool isLogin() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
@@ -210,11 +212,9 @@ class System {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxLanControlDeviceManager.getInstant().login();
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
-
   }
 
   /// 退出登录
@@ -230,6 +230,5 @@ class System {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
   }
-
 
 }

@@ -4,6 +4,7 @@ import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/common/push.dart';
+import 'package:screen_app/routes/login/check_gateway_bind.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
@@ -35,7 +36,7 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home>
-    with DeviceManagerSDKInitialize, LifeCycleState, Ota {
+    with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind {
   late double po;
   var children = <Widget>[];
   BindGatewayAdapter? bindGatewayAd;

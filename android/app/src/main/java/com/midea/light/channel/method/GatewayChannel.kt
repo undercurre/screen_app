@@ -79,9 +79,6 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
             "relay2IsOpen" -> {
                 result.safeSuccess(GatewayConfig.relayControl.isRelay2Open)
             }
-            "allowLink" -> {
-                VoiceIssuedMatch.allowLink()
-            }
             "resetGateway" -> {
                 GateWayUtils.resetGateway()
                 result.safeSuccess(true)
