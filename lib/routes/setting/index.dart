@@ -171,7 +171,6 @@ class _SettingPageState extends State<SettingPage> {
                              && !Setting.instant().engineeringModeEnable)
                               settingCell("assets/newUI/add_device.png", "发现设备", () => {
                                 if(MeiJuGlobal.isLogin) {
-                                  Navigator.pop(context),
                                   Navigator.pushNamed(
                                     context,
                                     'SnifferPage',
