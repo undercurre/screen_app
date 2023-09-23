@@ -160,12 +160,12 @@ class _ParamCardState extends State<ParamCard> with Throttle {
     );
   }
 
-  num customValue(num val) {
+  int customValue(num val) {
     if(widget.customMin < widget.customMax) {
       num diff = widget.customMax - widget.customMin;
-      return diff * (val / 100) + widget.customMin;
+      return (diff * (val / 100) + widget.customMin).toInt();
     }
-    return val;
+    return val.toInt();
   }
 
   void onChanged(num value, Color activeColor) {

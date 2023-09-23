@@ -365,7 +365,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => SmallDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+            image: AssetImage('assets/newUI/device/0x21_56.png'),
           ),
           roomName: params.roomName,
           onTap: () => params.onTap,
@@ -566,7 +566,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => SmallDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+            image: AssetImage('assets/newUI/device/0x21_56.png'),
           ),
           roomName: params.roomName,
           onTap: () => params.onTap,
@@ -707,7 +707,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => SmallDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+            image: AssetImage('assets/newUI/device/0x21_54.png'),
           ),
           roomName: params.roomName,
           onTap: () => params.onTap,
@@ -1139,7 +1139,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Small: (params) => SmallDeviceCardWidget(
           name: params.name,
           icon: const Image(
-            image: AssetImage('assets/newUI/device/0x21_lightGroup.png'),
+            image: AssetImage('assets/newUI/device/0x21_1351.png'),
           ),
           roomName: params.roomName,
           onTap: () => params.onTap,

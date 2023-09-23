@@ -141,6 +141,13 @@ class WeatherModel extends ChangeNotifier {
     );
   }
 
+  static Future<void> resetData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selectedProvince');
+    await prefs.remove('selectedCity');
+    await prefs.remove('selectedDistrict');
+  }
+
   String getWeatherType() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return curWeatherInMeiJu.weatherCode ?? 'default';
