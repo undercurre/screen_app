@@ -152,6 +152,8 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         Log.i('网表', tempList.map((e) => e.name).toList());
 
+        deviceCacheList = tempList;
+
         return tempList;
       }
     } else {
@@ -241,6 +243,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         }).toList();
 
         tempList.addAll(getLocalPanelDevices());
+
+        deviceCacheList = tempList;
 
         return tempList;
       }
