@@ -96,7 +96,7 @@ class _BigDeviceCurtainCardWidgetState
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return '加载中';
+        return '在线';
       }
 
       return deviceListModel.getDeviceName(
@@ -358,19 +358,19 @@ class _BigDeviceCurtainCardWidgetState
     }
 
     if (widget.disabled) {
-      return '未加载';
+      return '';
     }
 
     if (widget.adapter?.dataState == DataState.LOADING) {
-      return '加载中';
+      return '在线';
     }
 
     if (widget.adapter?.dataState == DataState.NONE) {
-      return '未加载';
+      return '离线';
     }
 
     if (widget.adapter?.dataState == DataState.ERROR) {
-      return '加载失败';
+      return '离线';
     }
 
     return widget.adapter?.getCharacteristic();

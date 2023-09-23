@@ -92,15 +92,15 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       }
 
       if (widget.adapter?.dataState == DataState.LOADING) {
-        return '加载中';
+        return '';
       }
 
       if (widget.adapter?.dataState == DataState.NONE) {
-        return '未加载';
+        return '离线';
       }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
-        return '加载失败';
+        return '离线';
       }
 
       return widget.adapter?.getCharacteristic();
@@ -138,7 +138,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
           deviceListModel.deviceListMeiju.length == 0) {
-        return '加载中';
+        return '在线';
       }
 
       return deviceListModel.getDeviceName(
