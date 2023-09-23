@@ -138,7 +138,7 @@ class EngineeringModePageState extends State<EngineeringModePage> {
                                 "2：关闭“清除用户数据”功能\n"
                                 "3：关闭“退出登录”功能\n"
                                 "4：关闭“添加设备”功能\n"
-                                "5：关闭切换平台",
+                                "5：关闭“切换平台”功能",
                                 style: TextStyle(
                                   height: 1.6,
                                   color: Color(0xFFDCDCDC),

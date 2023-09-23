@@ -57,7 +57,11 @@ class _ChosePlatform extends State<ChosePlatform> {
               "assets/newUI/login/meiju_logo.png",
               MideaRuntimePlatform.platform == GatewayPlatform.MEIJU, () {
                 if (MideaRuntimePlatform.platform != GatewayPlatform.MEIJU) {
-                  showClearUserDataDialog(context, 0);
+                  if (MideaRuntimePlatform.platform == GatewayPlatform.NONE) {
+                    changeTo(0);
+                  } else {
+                    showClearUserDataDialog(context, 0);
+                  }
                 } else {
                   setState(() {
                     isChose = true;
@@ -69,7 +73,11 @@ class _ChosePlatform extends State<ChosePlatform> {
               "assets/newUI/login/homlux_logo.png",
               MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX, () {
                 if (MideaRuntimePlatform.platform != GatewayPlatform.HOMLUX) {
-                  showClearUserDataDialog(context, 1);
+                  if (MideaRuntimePlatform.platform == GatewayPlatform.NONE) {
+                    changeTo(1);
+                  } else {
+                    showClearUserDataDialog(context, 1);
+                  }
                 } else {
                   setState(() {
                     isChose = true;
@@ -293,22 +301,26 @@ class _ChosePlatform extends State<ChosePlatform> {
         onPressed: (_, position, context) async {
           Navigator.pop(context);
           if (position == 1) {
-            bool isSuccess = false;
-            if (index == 0) {
-              isSuccess = await ChangePlatformHelper.changeToMeiju();
-            } else if (index == 1) {
-              isSuccess = await ChangePlatformHelper.changeToHomlux();
-            }
-            if (!isSuccess) {
-              TipsUtils.toast(content: '切换失败，请再次尝试', position: EasyLoadingToastPosition.bottom);
-              return;
-            }
-            setState(() {
-              isChose = true;
-            });
+            changeTo(index);
           }
         }
     ).show(context);
+  }
+
+  Future<void> changeTo(int index) async {
+    bool isSuccess = false;
+    if (index == 0) {
+      isSuccess = await ChangePlatformHelper.changeToMeiju();
+    } else if (index == 1) {
+      isSuccess = await ChangePlatformHelper.changeToHomlux();
+    }
+    if (!isSuccess) {
+      TipsUtils.toast(content: '切换失败，请再次尝试', position: EasyLoadingToastPosition.bottom);
+      return;
+    }
+    setState(() {
+      isChose = true;
+    });
   }
   
 }
