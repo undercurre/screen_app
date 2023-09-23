@@ -261,7 +261,7 @@ class _ChosePlatform extends State<ChosePlatform> {
                             fontWeight: FontWeight.w400)
                     ),
                   ),
-                  if (isLogin) const Text("已登入",
+                  if (isLogin) const Text("已选择",
                       style: TextStyle(
                           color: Color(0XA3FFFFFF),
                           fontSize: 20,
