@@ -137,7 +137,7 @@ class MeiJuApi {
     );
 
     if(res.statusCode != 200) {
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
@@ -148,7 +148,7 @@ class MeiJuApi {
     if (isMZLogoutCode(entity.code)) {
       MeiJuGlobal.setLogout("美智平台刷新Token 失败, 提示要退出登录");
       Log.file("美智平台刷新Token 失败, 提示要退出登录");
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
@@ -156,7 +156,7 @@ class MeiJuApi {
 
 
     if (!entity.isSuccess) {
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
@@ -176,6 +176,7 @@ class MeiJuApi {
     options.extra?['isShowLoading'] = false;
     options.extra?['isLog'] = true;
 
+    var reqId = uuid.v4();
     Map<String, dynamic> data = {
       'data': {
         'uid': MeiJuGlobal.token?.uid,
@@ -186,12 +187,8 @@ class MeiJuApi {
         'iotAppId':12002,
       },
       'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'reqId': uuid.v4(),
-      'openId': 'zhinengjiadian',
-      'uid': MeiJuGlobal.token?.uid
     };
 
-    var reqId = uuid.v4();
     var headers = options.headers as LinkedHashMap<String, dynamic>;
 
     // sign签名 start
@@ -213,7 +210,7 @@ class MeiJuApi {
     );
 
     if(res.statusCode != 200) {
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
@@ -223,14 +220,14 @@ class MeiJuApi {
     if (isIOTLogoutCode(entity.code)) {
       System.logout("IOT Token 刷新失败，即将退出登录");
       Log.file('iot token 失效,即将退出登录 ${entity.toJson()}');
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
     }
 
     if (!entity.isSuccess) {
-      throw DioError(
+      throw DioException(
           requestOptions: res.requestOptions,
           response: res
       );
@@ -261,7 +258,7 @@ class MeiJuApi {
     if(!refreshTokenActive) {
       try {
         refreshTokenActive = true;
-        await iotAutoLogin() || await mzAutoLogin();
+        await iotAutoLogin() && await mzAutoLogin();
       } finally {
         refreshTokenActive = false;
       }
@@ -335,11 +332,10 @@ class MeiJuApi {
     );
 
     if (res.statusCode != 200) {
-      throw DioError(requestOptions: res.requestOptions, response: res);
+      throw DioException(requestOptions: res.requestOptions, response: res);
     }
 
     var entity =  MeiJuResponseEntity<T>.fromJson(res.data);
-
     if(isIOTLogoutCode(entity.code)) {
       tryToRefreshToken();
     }
@@ -415,7 +411,7 @@ class MeiJuApi {
     );
 
     if (res.statusCode != 200) {
-      throw DioError(requestOptions: res.requestOptions, response: res);
+      throw DioException(requestOptions: res.requestOptions, response: res);
     }
 
     var entity = MeiJuResponseEntity<T>.fromJson(res.data);

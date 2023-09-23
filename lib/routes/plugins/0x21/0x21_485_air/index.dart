@@ -20,13 +20,13 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   }
 
   Future<void> powerHandle() async {
-    if (adapter!.data.OnOff == '1') {
-      adapter!.data.OnOff = "0";
+    if (adapter!.data!.OnOff == '1') {
+      adapter!.data!.OnOff = "0";
       OnOff = "0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
-      adapter!.data.OnOff = "1";
+      adapter!.data!.OnOff = "1";
       OnOff = "1";
       setState(() {});
       adapter?.orderPower(1);
@@ -44,7 +44,7 @@ class FreshAir485PageState extends State<FreshAir485Page> {
     }
     adapter?.orderSpeed(value.toInt());
     localWind = value.toInt();
-    adapter!.data.windSpeed = value.toString();
+    adapter!.data!.windSpeed = value.toString();
   }
 
   Future<void> updateDetail() async {
@@ -71,12 +71,12 @@ class FreshAir485PageState extends State<FreshAir485Page> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args =
           ModalRoute.of(context)?.settings.arguments as Map?;
-      name = args?['name'] ?? "";
-      adapter = args?['adapter'];
-      localWind = int.parse(adapter!.data.windSpeed);
-      OnOff = adapter!.data.OnOff;
-      adapter!.bindDataUpdateFunction(() {
-        updateData();
+      setState(() {
+        name = args?['name'] ?? "";
+        adapter = args?['adapter'];
+        localWind = int.parse(adapter!.data!.windSpeed);
+        OnOff = adapter!.data!.OnOff;
+        adapter!.bindDataUpdateFunction(updateData);
       });
       updateDetail();
     });
@@ -87,9 +87,9 @@ class FreshAir485PageState extends State<FreshAir485Page> {
     if (mounted) {
       Log.i("进来更新状态");
       setState(() {
-        adapter?.data = adapter!.data;
-        localWind = int.parse(adapter!.data.windSpeed);
-        OnOff = adapter!.data.OnOff;
+        adapter?.data = adapter!.data!;
+        localWind = int.parse(adapter!.data!.windSpeed);
+        OnOff = adapter!.data!.OnOff;
         Log.i("更新状态完成");
       });
     }
@@ -97,7 +97,7 @@ class FreshAir485PageState extends State<FreshAir485Page> {
 
   @override
   void dispose() {
-    adapter!.unBindDataUpdateFunction(() {updateData();});
+    adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 

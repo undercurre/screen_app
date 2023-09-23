@@ -4,6 +4,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../../common/global.dart';
 import '../../../../widgets/event_bus.dart';
 import 'floor_data_adapter.dart';
 
@@ -20,13 +21,13 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   }
 
   Future<void> powerHandle() async {
-    if (adapter!.data.OnOff == '1') {
-      adapter!.data.OnOff = "0";
+    if (adapter!.data!.OnOff == '1') {
+      adapter!.data!.OnOff = "0";
       OnOff="0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
-      adapter!.data.OnOff = "1";
+      adapter!.data!.OnOff = "1";
       OnOff="1";
       setState(() {});
       adapter?.orderPower(1);
@@ -39,7 +40,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
     }
     adapter?.orderTemp(value.toInt());
     targetTemp = value.toString();
-    adapter!.data.targetTemp = targetTemp;
+    adapter!.data!.targetTemp = targetTemp;
   }
 
   Future<void> updateDetail() async {
@@ -48,34 +49,37 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
       setState(() {
         name = args?['name'] ?? "";
         adapter = args?['adapter'];
-        targetTemp = adapter!.data.targetTemp;
-        OnOff = adapter!.data.OnOff;
-        adapter!.bindDataUpdateFunction(updateData);
+        targetTemp = adapter!.data!.targetTemp;
+        OnOff = adapter!.data!.OnOff;
+        adapter!.bindDataUpdateFunction(update485FloorDetialData);
+        logger.i("初始化地暖详情");
       });
 
       updateDetail();
     });
+    super.initState();
   }
 
-  void updateData() {
+  void update485FloorDetialData() {
     if (mounted) {
+      logger.i("详情地暖温度:${adapter!.data!.targetTemp}");
       setState(() {
         adapter?.data = adapter!.data;
-        targetTemp = adapter!.data.targetTemp;
-        OnOff = adapter!.data.OnOff;
+        targetTemp = adapter!.data!.targetTemp;
+        OnOff = adapter!.data!.OnOff;
       });
     }
   }
 
   @override
   void dispose() {
-    adapter!.unBindDataUpdateFunction(updateData);
+    logger.i("解绑数据更新");
+    adapter!.unBindDataUpdateFunction(update485FloorDetialData);
     super.dispose();
   }
 

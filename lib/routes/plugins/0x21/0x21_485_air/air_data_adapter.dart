@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
+import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/gateway_platform.dart';
@@ -16,7 +17,7 @@ import '../../../../common/models/node_info.dart';
 import '../../../../common/system.dart';
 import '../../../../widgets/event_bus.dart';
 
-class AirDataAdapter extends MideaDataAdapter {
+class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   NodeInfo<Endpoint<Air485Event>> _meijuData = NodeInfo(
     devId: '',
     registerUsers: [],
@@ -39,7 +40,7 @@ class AirDataAdapter extends MideaDataAdapter {
   bool isLocalDevice=false;
 
 
-  Air485Data data = Air485Data(
+  Air485Data? data = Air485Data(
       name: "",
       operationMode: "1",
       OnOff: "0",
@@ -50,9 +51,9 @@ class AirDataAdapter extends MideaDataAdapter {
   String localDeviceCode="";
 
 
-  AirDataAdapter(this.name,this.applianceCode, this.masterId, this.modelNumber,
-      GatewayPlatform platform)
-      : super(platform);
+  AirDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+    type = AdapterType.floor485;
+  }
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
@@ -83,8 +84,8 @@ class AirDataAdapter extends MideaDataAdapter {
 
         // Data retrieval success
         dataState = DataState.SUCCESS;
-        String wendu=data.windSpeed;
-        String kaiguan=data.OnOff;
+        String wendu=data!.windSpeed;
+        String kaiguan=data!.OnOff;
         Log.i("设定风速:$wendu");
         Log.i("设定开关:$kaiguan");
         updateUI();
@@ -319,11 +320,6 @@ class AirDataAdapter extends MideaDataAdapter {
     return HomluxRes;
   }
 
-  static AirDataAdapter create(
-      String name, String applianceCode, String masterId, String modelNumber) {
-    return AirDataAdapter(
-        name,applianceCode, masterId, modelNumber, MideaRuntimePlatform.platform);
-  }
 }
 
 // The rest of the code for PanelData class remains the same as before

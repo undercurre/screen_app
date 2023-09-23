@@ -205,19 +205,16 @@ class DataInputCard {
       required this.modelNumber,
       required this.isOnline,
       required this.onlineStatus,
-
       this.context,
       this.icon,
       this.sceneId,
       this.disabled,
       this.hasMore,
-
       this.isFault,
       this.isNative,
       this.sn8,
       this.disableOnOff,
       this.onTap,
-
       this.discriminative});
 
   factory DataInputCard.fromJson(Map<String, dynamic> json) {
@@ -230,7 +227,6 @@ class DataInputCard {
       masterId: json['masterId'] as String,
       modelNumber: json['modelNumber'] as String,
       onlineStatus: json['onlineStatus'] as String,
-
       sceneId: json['sceneId'] as String?,
       icon: json['icon'] as String?,
       disabled: json['disabled'] as bool?,
@@ -1371,7 +1367,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline,
           isFault: false,
           isNative: false,
-          adapter: CACDataAdapter.create(
+          adapter: CACDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1395,7 +1392,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: false,
-          adapter: CACDataAdapter.create(
+          adapter: CACDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1412,7 +1410,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           temperature: 26,
           min: 16,
           max: 30,
-          adapter: CACDataAdapter.create(
+          adapter: CACDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1438,7 +1437,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline,
           isFault: false,
           isNative: false,
-          adapter: AirDataAdapter.create(
+          adapter: AirDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1462,7 +1462,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: false,
-          adapter: AirDataAdapter.create(
+          adapter: AirDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1476,7 +1477,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: false,
-          adapter: AirDataAdapter.create(
+          adapter: AirDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,
@@ -1502,12 +1504,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline,
           isFault: false,
           isNative: false,
-          adapter: FloorDataAdapter.create(
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapter: FloorDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+              ),
         ),
     CardType.Middle: (params) => Middle485FloorDeviceCardWidget(
           name: params.name,
@@ -1526,12 +1529,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: false,
-          adapter: FloorDataAdapter.create(
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapter: FloorDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+              ),
         ),
     CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
           name: params.name,
@@ -1543,7 +1547,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           temperature: 30,
           min: 5,
           max: 90,
-          adapter: FloorDataAdapter.create(
+          adapter: FloorDataAdapter(
+            MideaRuntimePlatform.platform,
             params.name,
             params.applianceCode,
             params.masterId!,

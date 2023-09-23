@@ -45,26 +45,12 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
 }
 
 class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.temperature=int.parse(widget.adapter!.data.targetTemp);
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
-   super.initState();
-  }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.temperature = int.parse(widget.adapter!.data.targetTemp);
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
       });
     }
   }
@@ -74,19 +60,37 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   @override
+  void initState() {
+    super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
+  }
+
+  @override
+  void didUpdateWidget(covariant Big485CACDeviceAirCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature=oldWidget.temperature;
+      widget.onOff=oldWidget.onOff;
+    });
+  }
+
+  @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
+    widget.adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+      widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+      widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -100,7 +104,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
-    widget.adapter!.data.targetTemp = value.toString();
+    widget.adapter!.data!.targetTemp = value.toString();
   }
 
   @override

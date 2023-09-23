@@ -32,14 +32,14 @@ class RelayModel extends ChangeNotifier {
   // 控制Relay1
   void toggleRelay1() {
     localRelay1 = !localRelay1;
-    gatewayChannel.controlRelay1Open(!localRelay1);
+    gatewayChannel.controlRelay1Open(localRelay1);
     notifyListeners();
   }
 
   // 控制Relay2
   void toggleRelay2() {
     localRelay2 = !localRelay2;
-    gatewayChannel.controlRelay2Open(!localRelay2);
+    gatewayChannel.controlRelay2Open(localRelay2);
     notifyListeners();
   }
 }
