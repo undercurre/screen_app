@@ -91,23 +91,23 @@ class Log {
     ]),
   );
 
-  static void i(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.i(message, error, stackTrace);
   }
 
-  static void e(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.e(message, error, stackTrace);
   }
 
-  static void d(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.d(message, error, stackTrace);
   }
 
-  static void v(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.v(message, error, stackTrace);
   }
 
-  static void file(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _fileLogger.i(message, error, stackTrace);
   }
 }

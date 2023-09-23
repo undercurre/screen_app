@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/global.dart' as global;
 
+import '../logcat_helper.dart';
+
 class AndroidCrashReportHandler extends ReportHandler {
 
   @override
@@ -19,8 +21,8 @@ class AndroidCrashReportHandler extends ReportHandler {
 
   @override
   Future<bool> handle(Report error, BuildContext? context) {
-    if(error.error is DioError) {
-        global.logger.e(error.error);
+    if(error.error is DioException || error.error is DioError) {
+        Log.file(error.error);
     } else if(error.error is TimeoutException) {
 
     } else {
