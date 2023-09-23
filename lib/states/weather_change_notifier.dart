@@ -120,7 +120,25 @@ class WeatherModel extends ChangeNotifier {
 
   Future<void> clearData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('layouts');
+    await prefs.remove('selectedProvince');
+    await prefs.remove('selectedCity');
+    await prefs.remove('selectedDistrict');
+    selectedProvince = Province(province: '广东', cityList: []);
+    selectedCity = City(
+      areaid: '101280800',
+      cityName: '佛山市',
+      longitude: '113.12851219549718',
+      latitude: '23.02775875078891',
+      adCode: '440600',
+      areaList: [],
+    );
+    selectedDistrict = District(
+      areaid: '101280801',
+      cityName: '顺德区',
+      longitude: '113.30045343954433',
+      latitude: '22.81045342679539',
+      adCode: '440606',
+    );
   }
 
   String getWeatherType() {
