@@ -4,7 +4,7 @@ import '../../mz_slider.dart';
 
 class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  bool onOff=false;
+  bool onOff = false;
   final bool online;
   final bool isFault;
   final bool isNative;
@@ -44,27 +44,13 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       _Big485CACDeviceAirCardWidgetState();
 }
 
-class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.temperature=int.parse(widget.adapter!.data.targetTemp);
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
-   super.initState();
-  }
-
+class _Big485CACDeviceAirCardWidgetState
+    extends State<Big485CACDeviceAirCardWidget> {
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.temperature = int.parse(widget.adapter!.data.targetTemp);
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
       });
     }
   }
@@ -74,33 +60,51 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   @override
+  void initState() {
+    super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
+  }
+
+  @override
+  void didUpdateWidget(covariant Big485CACDeviceAirCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature = oldWidget.temperature;
+      widget.onOff = oldWidget.onOff;
+    });
+  }
+
+  @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
+    widget.adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
-      widget.onOff=false;
+      widget.adapter!.data!.OnOff = "0";
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
-      widget.onOff=true;
+      widget.adapter!.data!.OnOff = "1";
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if(!widget.onOff){
+    if (!widget.onOff) {
       return;
     }
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
-    widget.adapter!.data.targetTemp = value.toString();
+    widget.adapter!.data!.targetTemp = value.toString();
   }
 
   @override
@@ -160,29 +164,35 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(widget.roomName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(" | ${_getRightText()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
                 if (widget.isNative)
                   Container(
@@ -323,8 +333,8 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
         ],
       ),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
+        color: const Color(0x00FFFFFF),
+        width: 0,
       ),
     );
   }

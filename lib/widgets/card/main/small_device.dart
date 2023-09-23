@@ -79,7 +79,8 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       }
 
       if (widget.disabled) {
-        if (widget.online) {
+        if (deviceListModel.getOnlineStatus(
+            deviceId: widget.adapter?.getDeviceId())) {
           return '在线';
         } else {
           return '离线';
@@ -96,15 +97,15 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       }
 
       if (widget.adapter?.dataState == DataState.LOADING) {
-        return '加载中';
+        return '在线';
       }
 
       if (widget.adapter?.dataState == DataState.NONE) {
-        return '未加载';
+        return '离线';
       }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
-        return NameFormatter.formatName('失败', 3);
+        return '离线';
       }
 
       return widget.adapter?.getCharacteristic();

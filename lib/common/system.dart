@@ -25,9 +25,6 @@ class System {
   static const String DEVICE_ID = "device_id";
   static String? deviceId, macAddress;
 
-  static List<MeiJuRoomEntity>? meijuRoomList;
-  static List<HomluxRoomInfo>? homluxRoomList;
-
   System._();
 
   static bool inMeiJuPlatform() =>

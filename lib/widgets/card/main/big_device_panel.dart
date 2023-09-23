@@ -345,17 +345,17 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
   String _getRightText() {
     if (widget.disabled) {
-      return '未加载';
+      return '';
     }
     if (widget.adapter.dataState == DataState.LOADING ||
         widget.adapter.dataState == DataState.NONE) {
-      return '加载中';
+      return '在线';
     }
     if (widget.isOnline == '0') {
       return '离线';
     }
     if (widget.adapter.dataState == DataState.ERROR) {
-      return '加载失败';
+      return '离线';
     }
     if (widget.adapter.data!.statusList.isNotEmpty) {
       return '在线';

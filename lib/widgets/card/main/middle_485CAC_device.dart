@@ -17,6 +17,8 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   CACDataAdapter? adapter; // 数据适配器
+  String temperature = "26"; // 温度值
+
 
   Middle485CACDeviceCardWidget({
     super.key,
@@ -43,29 +45,31 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
 
 class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWidget> {
 
-  String temper="26";
 
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      temper=widget.adapter!.data.targetTemp;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
+  }
+
+  @override
+  void didUpdateWidget(covariant Middle485CACDeviceCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature=oldWidget.temperature;
+      widget.onOff=oldWidget.onOff;
+    });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-        temper=widget.adapter!.data.targetTemp;
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.temperature=widget.adapter!.data!.targetTemp;
       });
     }
   }
@@ -76,12 +80,12 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+      widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+      widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -157,7 +161,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                         borderRadius:
                             const BorderRadius.all(Radius.circular(24)),
                         border: Border.all(
-                            color: const Color(0xFFFFFFFF), width: 1),
+                            color: const Color(0x00FFFFFF), width: 0),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: const Text(
@@ -225,7 +229,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
     if (!widget.online) {
       return '离线';
     }
-    return "$temper℃";
+    return "${widget.temperature}℃";
   }
 
   BoxDecoration _getBoxDecoration() {
@@ -254,8 +258,8 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
         ],
       ),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
+        color: const Color(0x00FFFFFF),
+        width: 0,
       ),
     );
   }

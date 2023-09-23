@@ -24,13 +24,13 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   }
 
   Future<void> powerHandle() async {
-    if (adapter!.data.OnOff == '1') {
-      adapter!.data.OnOff = "0";
+    if (adapter!.data!.OnOff == '1') {
+      adapter!.data!.OnOff = "0";
       OnOff="0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
-      adapter!.data.OnOff = "1";
+      adapter!.data!.OnOff = "1";
       OnOff="1";
       setState(() {});
       adapter?.orderPower(1);
@@ -43,20 +43,22 @@ class AirCondition485PageState extends State<AirCondition485Page> {
     }else if(value==3){
       value=1;
     }
-    adapter?.orderSpeed(value.toInt());
     windSpeed = value.toString();
-    adapter!.data.windSpeed = windSpeed;
+    adapter!.data!.windSpeed = windSpeed;
+    setState(() {});
+    adapter?.orderSpeed(value.toInt());
+
   }
 
   Future<void> temperatureHandle(num value) async {
     adapter?.orderTemp(value.toInt());
     targetTemp = value.toString();
-    adapter!.data.targetTemp = targetTemp;
+    adapter!.data!.targetTemp = targetTemp;
   }
 
   Future<void> modeHandle(String mode) async {
     adapter!.orderMode(int.tryParse(mode)!.toInt());
-    adapter!.data.operationMode = mode;
+    adapter!.data!.operationMode = mode;
     this.mode = mode;
   }
 
@@ -76,17 +78,16 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args =
-          ModalRoute.of(context)?.settings.arguments as Map?;
-      name = args?['name'] ?? "";
-      adapter = args?['adapter'];
-      targetTemp = adapter!.data.targetTemp;
-      currentTemp = adapter!.data.currTemp;
-      windSpeed = adapter!.data.windSpeed;
-      mode = adapter!.data.operationMode;
-      OnOff = adapter!.data.OnOff;
-      adapter!.bindDataUpdateFunction(() {
-        updateData();
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      setState(() {
+        name = args?['name'] ?? "";
+        adapter = args?['adapter'];
+        targetTemp = adapter!.data!.targetTemp;
+        currentTemp = adapter!.data!.currTemp;
+        windSpeed = adapter!.data!.windSpeed;
+        mode = adapter!.data!.operationMode;
+        OnOff = adapter!.data!.OnOff;
+        adapter!.bindDataUpdateFunction(updateData);
       });
       updateDetail();
     });
@@ -95,12 +96,12 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   void updateData() {
     if (mounted) {
       setState(() {
-        adapter?.data = adapter!.data;
-        targetTemp = adapter!.data.targetTemp;
-        currentTemp = adapter!.data.currTemp;
-        windSpeed = adapter!.data.windSpeed;
-        mode = adapter!.data.operationMode;
-        OnOff = adapter!.data.OnOff;
+        adapter?.data = adapter!.data!;
+        targetTemp = adapter!.data!.targetTemp;
+        currentTemp = adapter!.data!.currTemp;
+        windSpeed = adapter!.data!.windSpeed;
+        mode = adapter!.data!.operationMode;
+        OnOff = adapter!.data!.OnOff;
       });
     }
   }
@@ -121,7 +122,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
 
   @override
   void dispose() {
-    adapter!.unBindDataUpdateFunction(() {updateData();});
+    adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 

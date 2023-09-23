@@ -25,6 +25,8 @@ class SelectRoomItem {
   HomluxRoomInfo? _homluxData;
   MeiJuRoomEntity? _meijuData;
 
+
+
   SelectRoomItem.fromMeiJu(MeiJuRoomEntity data)
       : name = data.name,
         id = data.roomId,
@@ -133,7 +135,8 @@ class SelectRoomListEntity {
 class SelectRoomDataAdapter extends MideaDataAdapter {
   SelectRoomListEntity? familyListEntity;
   DataState dataState = DataState.NONE;
-
+  List<MeiJuRoomEntity>? meijuRoomList;
+  List<HomluxRoomInfo>? homluxRoomList;
   SelectRoomDataAdapter(super.platform);
 
   Future<void> queryRoomList(SelectFamilyItem item) async {
@@ -144,7 +147,7 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
       if (res.isSuccess && res.data != null) {
         familyListEntity =
             SelectRoomListEntity.fromHomlux(res.data?.roomInfoWrap ?? []);
-        System.homluxRoomList = familyListEntity?._homluxData;
+        homluxRoomList = familyListEntity?._homluxData;
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;
@@ -156,7 +159,7 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {
         familyListEntity = SelectRoomListEntity.fromMeiJu(
             res.data?.homeList?[0].roomList ?? []);
-        System.meijuRoomList = familyListEntity?._meijuData;
+        meijuRoomList = familyListEntity?._meijuData;
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;

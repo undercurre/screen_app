@@ -69,9 +69,11 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   void initState() {
     super.initState();
-    _startPushListen();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      _startPushListen();
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
@@ -87,9 +89,11 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
-    super.didUpdateWidget(oldWidget);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+      super.didUpdateWidget(oldWidget);
+    }
   }
 
   @override
@@ -247,17 +251,17 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   Object? _getRightText() {
     if (widget.disabled) {
-      return '未加载';
+      return '';
     }
     if (widget.adapter.dataState == DataState.LOADING ||
         widget.adapter.dataState == DataState.NONE) {
-      return '加载中';
+      return '在线';
     }
     if (widget.isOnline == '0') {
       return '离线';
     }
     if (widget.adapter.dataState == DataState.ERROR) {
-      return NameFormatter.formatName('失败', 3);
+      return '离线';
     }
     return '在线';
   }

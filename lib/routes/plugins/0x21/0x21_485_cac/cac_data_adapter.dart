@@ -1,8 +1,8 @@
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
+import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/homlux_global.dart';
 import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
@@ -14,7 +14,7 @@ import '../../../../common/models/node_info.dart';
 import '../../../../common/system.dart';
 import '../../../../widgets/event_bus.dart';
 
-class CACDataAdapter extends MideaDataAdapter {
+class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   NodeInfo<Endpoint<CAC485Event>> _meijuData = NodeInfo(
     devId: '',
     registerUsers: [],
@@ -36,7 +36,7 @@ class CACDataAdapter extends MideaDataAdapter {
   String modelNumber = '';
   bool isLocalDevice = false;
 
-  CAC485Data data = CAC485Data(
+  CAC485Data? data = CAC485Data(
       name: "",
       currTemp: "28",
       targetTemp: "26",
@@ -48,9 +48,9 @@ class CACDataAdapter extends MideaDataAdapter {
 
   String localDeviceCode="";
 
-  CACDataAdapter(this.name, this.applianceCode, this.masterId, this.modelNumber,
-      GatewayPlatform platform)
-      : super(platform);
+  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+    type = AdapterType.floor485;
+  }
 
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
@@ -99,10 +99,14 @@ class CACDataAdapter extends MideaDataAdapter {
 
   Future<void> orderPower(int onOff) async {
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirConditionPower(
             onOff.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderPowerMeiju(onOff);
+        }
       }else{
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -121,10 +125,14 @@ class CACDataAdapter extends MideaDataAdapter {
 
   Future<void> orderMode(int mode) async {
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirConditionModel(
             mode.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderModeMeiju(mode);
+        }
       }else{
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -144,10 +152,14 @@ class CACDataAdapter extends MideaDataAdapter {
 
   Future<void> orderTemp(int temp) async {
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
             temp.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderTempMeiju(temp);
+        }
       }else{
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -166,10 +178,14 @@ class CACDataAdapter extends MideaDataAdapter {
 
   Future<void> orderSpeed(int speed) async {
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
             speed.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderSpeedMeiju(speed);
+        }
       }else{
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -372,12 +388,6 @@ class CACDataAdapter extends MideaDataAdapter {
     return HomluxRes;
   }
 
-  static CACDataAdapter create(
-      String name, String applianceCode, String masterId, String modelNumber) {
-    Log.i("创建空调adapter");
-    return CACDataAdapter(name, applianceCode, masterId, modelNumber,
-        MideaRuntimePlatform.platform);
-  }
 }
 
 // The rest of the code for PanelData class remains the same as before

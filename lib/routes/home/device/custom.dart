@@ -9,7 +9,9 @@ import 'package:screen_app/states/page_change_notifier.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/global.dart';
+import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/models/meiju_room_entity.dart';
 import '../../../common/system.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
@@ -37,12 +39,13 @@ class _CustomPageState extends State<CustomPage> {
   double dragSumX = 0;
   double dragSumY = 0;
 
+  List<MeiJuRoomEntity>? meijuRoomList;
+  List<HomluxRoomInfo>? homluxRoomList;
+
   @override
   void initState() {
     super.initState();
-    SelectRoomDataAdapter roomDataAd =
-        SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-    roomDataAd?.queryRoomList(System.familyInfo!);
+    getRoomList();
     // 在小部件初始化后等待一帧再执行回调
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       var initPage = context.read<PageCounter>().currentPage;
@@ -57,6 +60,14 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> getRoomList() async {
+    SelectRoomDataAdapter roomDataAd =
+    SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    await roomDataAd?.queryRoomList(System.familyInfo!);
+    homluxRoomList=roomDataAd.homluxRoomList;
+    meijuRoomList=roomDataAd.meijuRoomList;
   }
 
   @override
@@ -124,8 +135,7 @@ class _CustomPageState extends State<CustomPage> {
                             : Colors.white,
                         onPressed: () async {
                           if (layoutModel.layouts.length < 10000) {
-                            final result =
-                                await Navigator.pushNamed(context, 'AddDevice');
+                            final result = await Navigator.pushNamed(context, 'AddDevice',arguments: {"meijuRoomList": meijuRoomList, "homluxRoomList": homluxRoomList});
 
                             if (result != null) {
                               result as Layout;

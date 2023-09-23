@@ -68,6 +68,8 @@ class Setting {
 
   /// 最后绑定的家庭名称
   late String _lastBindHomeName;
+  /// 最后绑定的家庭Id
+  late String _lastBindHomeId;
 
   void init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -92,6 +94,7 @@ class Setting {
     _screenSaverReplaceToOff = _prefs.getBool('setting_screen_replace_off') ?? false;
 
     _lastBindHomeName = _prefs.getString("last_bind_home_name") ?? "";
+    _lastBindHomeId = _prefs.getString("last_bind_home_id") ?? "";
 
     initDeviceDefaultConfig();
   }
@@ -304,13 +307,22 @@ class Setting {
     _screenSaverReplaceToOff = val;
   }
 
-  /// 获取屏幕自动亮度使能
+  /// 获取最后绑定家庭名称
   String get lastBindHomeName => _lastBindHomeName;
 
-  /// 设置屏幕自动亮度使能
+  /// 设置最后绑定家庭名称
   set lastBindHomeName(String val) {
     _prefs.setString('last_bind_home_name', val);
     _lastBindHomeName = val;
+  }
+
+  /// 获取最后绑定家庭id
+  String get lastBindHomeId => _lastBindHomeId;
+
+  /// 设置最后绑定家庭id
+  set lastBindHomeId(String val) {
+    _prefs.setString('last_bind_home_id', val);
+    _lastBindHomeId = val;
   }
 
 }
