@@ -464,6 +464,11 @@ class LayoutModel extends ChangeNotifier {
     _saveLayouts();
     notifyListeners();
   }
+
+  static removeLayoutStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('layouts');
+  }
 }
 
 class LayoutPosition {
@@ -551,3 +556,4 @@ bool isOver(CardType cardType, List<int> target) {
 
   return false;
 }
+

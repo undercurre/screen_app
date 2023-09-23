@@ -84,7 +84,7 @@ class ChangePlatformHelper {
           await System.initForMeiju();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
-          await LayoutModel().removeLayouts();
+          LayoutModel.removeLayoutStorage();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
@@ -99,6 +99,7 @@ class ChangePlatformHelper {
         await System.initForMeiju();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+        LayoutModel.removeLayoutStorage();
       } catch(e) {
         Log.file(e.toString());
       } finally {
@@ -138,7 +139,7 @@ class ChangePlatformHelper {
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
           HomluxLanControlDeviceManager.getInstant().init();
-          await LayoutModel().removeLayouts();
+          LayoutModel.removeLayoutStorage();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
@@ -154,6 +155,7 @@ class ChangePlatformHelper {
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
         HomluxLanControlDeviceManager.getInstant().init();
+        LayoutModel.removeLayoutStorage();
       } on Exception catch(e) {
         Log.file(e.toString());
       } finally {
