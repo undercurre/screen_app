@@ -61,6 +61,7 @@ class AboutSettingProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    Log.i('执行了dispose');
     super.dispose();
     bus.off('ota-new-version-tip');
   }
@@ -182,6 +183,8 @@ class AboutSettingPage extends StatefulWidget {
 }
 
 class _AboutSettingPageState extends State<AboutSettingPage> {
+  AboutSettingProvider? provider;
+
   void showRebootDialog(
       BuildContext context, AboutSettingProvider provider) async {
     MzDialog(
@@ -340,6 +343,7 @@ class _AboutSettingPageState extends State<AboutSettingPage> {
             ChangeNotifierProvider<AboutSettingProvider>(
               create: (context) => AboutSettingProvider(),
               child: Builder(builder: (context) {
+                provider = context.read<AboutSettingProvider>();
                 return Expanded(
                     child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
@@ -529,7 +533,6 @@ class _AboutSettingPageState extends State<AboutSettingPage> {
 
   @override
   void dispose() {
-    context.read<AboutSettingProvider>().dispose();
     super.dispose();
   }
 }
