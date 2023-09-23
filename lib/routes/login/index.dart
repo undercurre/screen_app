@@ -49,6 +49,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
+  SelectFamilyItem? selectFamily;
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -72,6 +73,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     if (stepNum == 3) {
       System.familyInfo = null;
       System.roomInfo = null;
+      isNeedShowClearAlert = false;
     }
   }
 
@@ -89,16 +91,16 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         selectHomeKey.currentState?.checkAndSelect();
         return;
       }
-      if (isNeedShowClearAlert) {
-        showClearAlert(context);
-        return;
-      }
     }
 
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步
       if (System.roomInfo == null) {
         TipsUtils.toast(content: '请选择房间');
+        return;
+      }
+      if (isNeedShowClearAlert) {
+        showClearAlert(context);
         return;
       }
       // todo: linux运行屏蔽，push前解放
@@ -189,6 +191,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 .then((isSuccess) {
               if (isSuccess) {
                 Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
@@ -235,7 +238,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else if (Platform.isAndroid && isConnected()) {
         stepNum = 2;
       }
-      isNeedShowClearAlert = Setting.instant().lastBindHomeName.isNotEmpty;
     }
 
     isNeedChoosePlatform = System.inNonePlatform();
@@ -276,9 +278,14 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择家庭',
           SelectHome(
               key: selectHomeKey,
+              defaultFamily: selectFamily,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
+                selectFamily = home;
                 System.familyInfo = home;
+                if(Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
+                  isNeedShowClearAlert = true;
+                }
                 nextStep();
               })),
       Step('选择房间', SelectRoom(onChange: (SelectRoomItem room) {

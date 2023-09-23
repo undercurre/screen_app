@@ -14,7 +14,7 @@ class SoundSettingPage extends StatefulWidget {
 }
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
-  late num soundValue;
+  num soundValue = Setting.instant().volume;
   Timer? sliderTimer;
 
   @override
@@ -26,7 +26,10 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   }
 
   initial() async {
-    soundValue = Setting.instant().volume;
+    num soundVal = await settingMethodChannel.getSystemVoice();
+    Setting.instant().volume = soundVal.toInt();
+    soundValue = soundVal;
+
     aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
   }
 

@@ -108,9 +108,23 @@ class SelectHomeState extends State<SelectHome> {
 
     familyDataAd = SelectFamilyDataAdapter(MideaRuntimePlatform.platform);
     familyDataAd?.bindDataUpdateFunction(() {
+      initDefaultSelect();
       setState(() {});
     });
     familyDataAd?.queryFamilyList();
+  }
+
+  void initDefaultSelect() {
+    if (widget.defaultFamily == null) return;
+    var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
+    for (var i = 0; i < len; i++) {
+      var item = familyDataAd?.familyListEntity?.familyList[i];
+      if (item?.familyId == widget.defaultFamily?.familyId) {
+        selectVal = i;
+        itemTemp = item;
+        return;
+      }
+    }
   }
 
   @override
@@ -140,8 +154,9 @@ class SelectHome extends StatefulWidget {
 
   /// 家庭变更事件
   final ValueChanged<SelectFamilyItem?>? onChange;
+  final SelectFamilyItem? defaultFamily;
 
-  const SelectHome({super.key, this.onChange});
+  const SelectHome({super.key, this.onChange, this.defaultFamily});
 
   @override
   State<SelectHome> createState() => SelectHomeState();

@@ -30,6 +30,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           if(System.familyInfo?.familyId == item?.familyId) {
             System.familyInfo = item;
             Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+            Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
             return;
           }
         }
