@@ -1,12 +1,9 @@
-import 'package:logger/logger.dart';
 import 'package:screen_app/common/global.dart';
-
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/homlux_global.dart';
 import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
@@ -91,10 +88,14 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Future<void> orderPower(int onOff) async {
     if (nodeId != null) {
+      bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
             onOff.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderPowerMeiju(onOff);
+        }
       } else {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -113,10 +114,14 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Future<void> orderTemp(int temp) async {
     if (nodeId != null) {
+      bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
             temp.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderTempMeiju(temp);
+        }
       } else {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
@@ -287,7 +292,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
               applianceCode, masterId, (json) => Floor485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
-      Log.i('地暖大卡片拿到的nodeid:$nodeId');
+      Log.i('地暖拿到的nodeid:$nodeId');
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);

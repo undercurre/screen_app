@@ -102,6 +102,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
       value = 1;
     }
     widget.adapter!.data!.windSpeed = value.toString();
+    widget.windSpeed=value.toInt();
     setState(() {});
     widget.adapter?.orderSpeed(value.toInt());
   }
