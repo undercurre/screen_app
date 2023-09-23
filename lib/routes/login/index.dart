@@ -19,6 +19,7 @@ import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/meiju/meiju_global.dart';
+import '../../common/setting.dart';
 import '../../models/device_entity.dart';
 import '../../states/device_list_notifier.dart';
 import '../../states/layout_notifier.dart';
@@ -65,15 +66,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     if (stepNum == 1) {
       return;
     }
-    if (stepNum == 3) {
-      System.familyInfo = null;
-    }
-    if (stepNum == 4) {
-      System.roomInfo = null;
-    }
     setState(() {
       --stepNum;
     });
+    if (stepNum == 3) {
+      System.familyInfo = null;
+      System.roomInfo = null;
+    }
   }
 
   /// 下一步
@@ -189,6 +188,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 ?.bindGateway(System.familyInfo!, System.roomInfo!)
                 .then((isSuccess) {
               if (isSuccess) {
+                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
@@ -235,7 +235,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else if (Platform.isAndroid && isConnected()) {
         stepNum = 2;
       }
-      isNeedShowClearAlert = System.familyInfo != null;
+      isNeedShowClearAlert = Setting.instant().lastBindHomeName.isNotEmpty;
     }
 
     isNeedChoosePlatform = System.inNonePlatform();
@@ -455,8 +455,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   }
 
   void showClearAlert(BuildContext context) async {
-    if (System.familyInfo == null) return;
-    var name = System.familyInfo?.familyName ?? "";
+    var name = Setting.instant().lastBindHomeName;
     MzDialog(
         title: '绑定至新家庭',
         titleSize: 28,

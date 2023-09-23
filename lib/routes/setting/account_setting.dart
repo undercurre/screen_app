@@ -29,6 +29,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           var item = familyDataAd?.familyListEntity?.familyList[i];
           if(System.familyInfo?.familyId == item?.familyId) {
             System.familyInfo = item;
+            Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
             return;
           }
         }

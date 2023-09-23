@@ -66,6 +66,9 @@ class Setting {
   /// 默认亮度 0～255
   final int _defaultBrightness = 255;
 
+  /// 最后绑定的家庭名称
+  late String _lastBindHomeName;
+
   void init() async {
     _prefs = await SharedPreferences.getInstance();
     int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
@@ -87,6 +90,8 @@ class Setting {
     _screenAutoEnable = _prefs.getBool('setting_screen_auto') ?? false;
     _nearWakeupEnable = _prefs.getBool('setting_near_wakeup') ?? false;
     _screenSaverReplaceToOff = _prefs.getBool('setting_screen_replace_off') ?? false;
+
+    _lastBindHomeName = _prefs.getString("last_bind_home_name") ?? "";
 
     initDeviceDefaultConfig();
   }
@@ -298,4 +303,14 @@ class Setting {
     _prefs.setBool('setting_screen_replace_off', val);
     _screenSaverReplaceToOff = val;
   }
+
+  /// 获取屏幕自动亮度使能
+  String get lastBindHomeName => _lastBindHomeName;
+
+  /// 设置屏幕自动亮度使能
+  set lastBindHomeName(String val) {
+    _prefs.setString('last_bind_home_name', val);
+    _lastBindHomeName = val;
+  }
+
 }
