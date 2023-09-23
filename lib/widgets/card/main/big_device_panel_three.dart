@@ -64,8 +64,10 @@ class _BigDevicePanelCardWidgetThreeState
   void initState() {
     super.initState();
     _startPushListen();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
@@ -79,9 +81,11 @@ class _BigDevicePanelCardWidgetThreeState
 
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidgetThree oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
-    super.didUpdateWidget(oldWidget);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+      super.didUpdateWidget(oldWidget);
+    }
   }
 
   @override

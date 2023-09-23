@@ -70,8 +70,10 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   void initState() {
     super.initState();
     _startPushListen();
-    widget.adapter.bindDataUpdateFunction(updateData);
-    widget.adapter.init();
+    if (!widget.disabled) {
+      widget.adapter.bindDataUpdateFunction(updateData);
+      widget.adapter.init();
+    }
   }
 
   void updateData() {
@@ -87,9 +89,10 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant BigScenePanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
-
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
     super.didUpdateWidget(oldWidget);
   }
 
