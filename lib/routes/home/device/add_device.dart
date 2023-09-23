@@ -64,7 +64,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
       meijuRoomList = args?['meijuRoomList'];
       homluxRoomList = args?['homluxRoomList'];
       initCache();
@@ -537,93 +538,36 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           _handlePageChange(index);
                         },
                         children: [
-                          GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              childAspectRatio: 2,
-                              crossAxisCount: 2, // 设置列数为4
-                            ),
-                            itemCount: devices.length, // 网格项的总数
-                            itemBuilder: (BuildContext context, int index) {
-                              return Stack(
-                                children: [
-                                  Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      child: SmallDeviceCardWidget(
-                                        name: devices[index].name,
-                                        icon: Image(
-                                          image: AssetImage(_getIconUrl(
-                                              devices[index].type,
-                                              devices[index].modelNumber)),
-                                        ),
-                                        roomName: devices[index].roomName!,
-                                        online:
-                                            devices[index].onlineStatus == '1',
-                                        isFault: false,
-                                        isNative: false,
-                                        adapter: null,
-                                        disabled: true,
-                                        disableOnOff: false,
-                                        hasMore: false,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 0,
-                                    top: 0,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        _getDeviceDialog(index, resultData);
-                                      },
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xFF6B6D73),
-                                        ),
-                                        child: const Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                          GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              childAspectRatio: 2,
-                              crossAxisCount: 2, // 设置列数为4
-                            ),
-                            itemCount: scenes.length, // 网格项的总数
-                            itemBuilder: (BuildContext context, int index) {
-                              return RawGestureDetector(
-                                gestures: {
-                                  AllowMultipleGestureRecognizer:
-                                      GestureRecognizerFactoryWithHandlers<
-                                          AllowMultipleGestureRecognizer>(
-                                    () => AllowMultipleGestureRecognizer(),
-                                    (AllowMultipleGestureRecognizer instance) {
-                                      instance.onTap = () {};
-                                    },
-                                  )
-                                },
-                                behavior: HitTestBehavior.opaque,
-                                child: Stack(
+                          if (devices.isNotEmpty)
+                            GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 2,
+                                crossAxisCount: 2, // 设置列数为4
+                              ),
+                              itemCount: devices.length, // 网格项的总数
+                              itemBuilder: (BuildContext context, int index) {
+                                return Stack(
                                   children: [
                                     Center(
                                       child: Container(
                                         padding: const EdgeInsets.all(10),
-                                        child: SmallSceneCardWidget(
-                                          name: scenes[index].name,
-                                          icon: scenes[index].image,
-                                          sceneId: scenes[index].sceneId,
+                                        child: SmallDeviceCardWidget(
+                                          name: devices[index].name,
+                                          icon: Image(
+                                            image: AssetImage(_getIconUrl(
+                                                devices[index].type,
+                                                devices[index].modelNumber)),
+                                          ),
+                                          roomName: devices[index].roomName!,
+                                          online: devices[index].onlineStatus ==
+                                              '1',
+                                          isFault: false,
+                                          isNative: false,
+                                          adapter: null,
                                           disabled: true,
+                                          disableOnOff: false,
+                                          hasMore: false,
                                         ),
                                       ),
                                     ),
@@ -632,28 +576,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       top: 0,
                                       child: GestureDetector(
                                         onTap: () {
-                                          resultData = Layout(
-                                            scenes[index].sceneId,
-                                            DeviceEntityTypeInP4.Scene,
-                                            CardType.Small,
-                                            -1,
-                                            [],
-                                            DataInputCard(
-                                              name: scenes[index].name,
-                                              applianceCode:
-                                                  scenes[index].sceneId,
-                                              roomName: '',
-                                              sceneId: scenes[index].sceneId,
-                                              icon: scenes[index].image,
-                                              isOnline: '',
-                                              disabled: true,
-                                              type: 'scene',
-                                              masterId: '',
-                                              modelNumber: '',
-                                              onlineStatus: '1',
-                                            ),
-                                          );
-                                          Navigator.pop(context, resultData);
+                                          _getDeviceDialog(index, resultData);
                                         },
                                         child: Container(
                                           width: 32,
@@ -670,132 +593,254 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       ),
                                     ),
                                   ],
-                                ),
-                              );
-                            },
-                          ),
-                          GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              childAspectRatio: 2,
-                              crossAxisCount: 2, // 设置列数为4
+                                );
+                              },
                             ),
-                            itemCount: others.length, // 网格项的总数
-                            itemBuilder: (BuildContext context, int index) {
-                              return GestureDetector(
-                                onTap: () {},
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(10),
+                          if (devices.isEmpty)
+                            Container(
+                                child: Column(children: [
+                              Image(
+                                  image: AssetImage('assets/newUI/empty.png')),
+                              Text(
+                                '暂未添加设备',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 24,
+                                ),
+                              )
+                            ])),
+                          if (scenes.isNotEmpty)
+                            GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 2,
+                                crossAxisCount: 2, // 设置列数为4
+                              ),
+                              itemCount: scenes.length, // 网格项的总数
+                              itemBuilder: (BuildContext context, int index) {
+                                return RawGestureDetector(
+                                  gestures: {
+                                    AllowMultipleGestureRecognizer:
+                                        GestureRecognizerFactoryWithHandlers<
+                                            AllowMultipleGestureRecognizer>(
+                                      () => AllowMultipleGestureRecognizer(),
+                                      (AllowMultipleGestureRecognizer
+                                          instance) {
+                                        instance.onTap = () {};
+                                      },
+                                    )
+                                  },
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Stack(
+                                    children: [
+                                      Center(
                                         child: Container(
-                                          width: 210,
-                                          height: 88,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                const Color(0xFF616A76)
-                                                    .withOpacity(0.22),
-                                                // 设置渐变色起始颜色
-                                                const Color(0xFF434852)
-                                                    .withOpacity(0.22),
-                                                // 设置渐变色结束颜色
-                                              ],
-                                              begin: const Alignment(0.6, 0),
-                                              // 设置渐变色的起始位置
-                                              end: const Alignment(1, 1),
-                                              // 设置渐变色的结束位置
-                                              stops: const [0.06, 1.0],
-                                              // 设置渐变色的起始和结束位置的停止点
-                                              transform: const GradientRotation(
-                                                  213 *
-                                                      3.1415927 /
-                                                      180), // 设置渐变色的旋转角度
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                                24), // 设置边框圆角
+                                          padding: const EdgeInsets.all(10),
+                                          child: SmallSceneCardWidget(
+                                            name: scenes[index].name,
+                                            icon: scenes[index].image,
+                                            sceneId: scenes[index].sceneId,
+                                            disabled: true,
                                           ),
-                                          child: Center(
-                                            child: Text(
-                                              others[index].name,
-                                              style: const TextStyle(
-                                                fontFamily:
-                                                    'PingFangSC-Regular',
-                                                // 设置字体
-                                                fontSize: 20,
-                                                // 设置字体大小
-                                                color: Colors.white,
-                                                // 设置字体颜色
-                                                letterSpacing: 0,
-                                                // 设置字间距
-                                                fontWeight: FontWeight.w400,
-                                                // 设置字重
-                                                height: 1.2, // 设置行高
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            resultData = Layout(
+                                              scenes[index].sceneId,
+                                              DeviceEntityTypeInP4.Scene,
+                                              CardType.Small,
+                                              -1,
+                                              [],
+                                              DataInputCard(
+                                                name: scenes[index].name,
+                                                applianceCode:
+                                                    scenes[index].sceneId,
+                                                roomName: '',
+                                                sceneId: scenes[index].sceneId,
+                                                icon: scenes[index].image,
+                                                isOnline: '',
+                                                disabled: true,
+                                                type: 'scene',
+                                                masterId: '',
+                                                modelNumber: '',
+                                                onlineStatus: '1',
                                               ),
-                                              textAlign: TextAlign.center,
+                                            );
+                                            Navigator.pop(context, resultData);
+                                          },
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Color(0xFF6B6D73),
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          resultData = Layout(
-                                            DeviceEntityTypeInP4Handle
-                                                .extractLowercaseEntityType(
-                                                    others[index]
-                                                        .type
-                                                        .toString()),
-                                            others[index].type,
-                                            CardType.Other,
-                                            -1,
-                                            [],
-                                            DataInputCard(
-                                              name: '',
-                                              applianceCode:
-                                                  DeviceEntityTypeInP4Handle
-                                                      .extractLowercaseEntityType(
-                                                          others[index]
-                                                              .type
-                                                              .toString()),
-                                              roomName: '',
-                                              isOnline: '',
-                                              disabled: true,
-                                              type: DeviceEntityTypeInP4Handle
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          if (scenes.isEmpty)
+                            Container(
+                                child: Column(children: [
+                              Image(
+                                  image: AssetImage('assets/newUI/empty.png')),
+                              Text(
+                                '暂未添加设备',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 24,
+                                ),
+                              )
+                            ])),
+                          if (others.isNotEmpty)
+                            GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 2,
+                                crossAxisCount: 2, // 设置列数为4
+                              ),
+                              itemCount: others.length, // 网格项的总数
+                              itemBuilder: (BuildContext context, int index) {
+                                return GestureDetector(
+                                  onTap: () {},
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Container(
+                                            width: 210,
+                                            height: 88,
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  const Color(0xFF616A76)
+                                                      .withOpacity(0.22),
+                                                  // 设置渐变色起始颜色
+                                                  const Color(0xFF434852)
+                                                      .withOpacity(0.22),
+                                                  // 设置渐变色结束颜色
+                                                ],
+                                                begin: const Alignment(0.6, 0),
+                                                // 设置渐变色的起始位置
+                                                end: const Alignment(1, 1),
+                                                // 设置渐变色的结束位置
+                                                stops: const [0.06, 1.0],
+                                                // 设置渐变色的起始和结束位置的停止点
+                                                transform:
+                                                    const GradientRotation(213 *
+                                                        3.1415927 /
+                                                        180), // 设置渐变色的旋转角度
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      24), // 设置边框圆角
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                others[index].name,
+                                                style: const TextStyle(
+                                                  fontFamily:
+                                                      'PingFangSC-Regular',
+                                                  // 设置字体
+                                                  fontSize: 20,
+                                                  // 设置字体大小
+                                                  color: Colors.white,
+                                                  // 设置字体颜色
+                                                  letterSpacing: 0,
+                                                  // 设置字间距
+                                                  fontWeight: FontWeight.w400,
+                                                  // 设置字重
+                                                  height: 1.2, // 设置行高
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            resultData = Layout(
+                                              DeviceEntityTypeInP4Handle
                                                   .extractLowercaseEntityType(
                                                       others[index]
                                                           .type
                                                           .toString()),
-                                              masterId: '',
-                                              modelNumber: '',
-                                              onlineStatus: '1',
+                                              others[index].type,
+                                              CardType.Other,
+                                              -1,
+                                              [],
+                                              DataInputCard(
+                                                name: '',
+                                                applianceCode:
+                                                    DeviceEntityTypeInP4Handle
+                                                        .extractLowercaseEntityType(
+                                                            others[index]
+                                                                .type
+                                                                .toString()),
+                                                roomName: '',
+                                                isOnline: '',
+                                                disabled: true,
+                                                type: DeviceEntityTypeInP4Handle
+                                                    .extractLowercaseEntityType(
+                                                        others[index]
+                                                            .type
+                                                            .toString()),
+                                                masterId: '',
+                                                modelNumber: '',
+                                                onlineStatus: '1',
+                                              ),
+                                            );
+                                            Navigator.pop(context, resultData);
+                                          },
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Color(0xFF6B6D73),
                                             ),
-                                          );
-                                          Navigator.pop(context, resultData);
-                                        },
-                                        child: Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Color(0xFF6B6D73),
-                                          ),
-                                          child: const Icon(
-                                            Icons.add,
-                                            color: Colors.white,
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          if (others.isEmpty)
+                            Container(
+                                child: Column(children: [
+                              Image(
+                                  image: AssetImage('assets/newUI/empty.png')),
+                              Text(
+                                '暂未添加设备',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 24,
                                 ),
-                              );
-                            },
-                          ),
+                              )
+                            ])),
                         ],
                       ),
                     ),
