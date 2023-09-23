@@ -4,7 +4,7 @@ import '../../mz_slider.dart';
 
 class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  bool onOff=false;
+  bool onOff = false;
   final bool online;
   final bool isFault;
   final bool isNative;
@@ -44,13 +44,13 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       _Big485CACDeviceAirCardWidgetState();
 }
 
-class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
-
+class _Big485CACDeviceAirCardWidgetState
+    extends State<Big485CACDeviceAirCardWidget> {
   void updateData() {
     if (mounted) {
       setState(() {
         widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
-        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
       });
     }
   }
@@ -72,8 +72,8 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
-      widget.temperature=oldWidget.temperature;
-      widget.onOff=oldWidget.onOff;
+      widget.temperature = oldWidget.temperature;
+      widget.onOff = oldWidget.onOff;
     });
   }
 
@@ -86,19 +86,19 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
-      widget.onOff=false;
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
       widget.adapter!.data!.OnOff = "1";
-      widget.onOff=true;
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if(!widget.onOff){
+    if (!widget.onOff) {
       return;
     }
     widget.adapter?.orderTemp(value.toInt());
@@ -164,29 +164,35 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(widget.roomName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(" | ${_getRightText()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
                 if (widget.isNative)
                   Container(
@@ -327,8 +333,8 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
         ],
       ),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
+        color: const Color(0x00FFFFFF),
+        width: 0,
       ),
     );
   }

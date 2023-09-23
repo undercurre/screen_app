@@ -182,29 +182,35 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(widget.roomName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(" | ${_getRightText()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Color(0XA3FFFFFF),
+                            fontSize: 16,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)),
+                  ),
                 ),
                 if (widget.isNative)
                   Container(
@@ -214,7 +220,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
                       border:
-                          Border.all(color: const Color(0xFFFFFFFF), width: 1),
+                          Border.all(color: const Color(0x00FFFFFF), width: 0),
                     ),
                     margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
                     child: const Text(
@@ -289,8 +295,8 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
         ],
       ),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
+        color: const Color(0x00FFFFFF),
+        width: 0,
       ),
     );
   }

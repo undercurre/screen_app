@@ -154,7 +154,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
                         borderRadius:
                             const BorderRadius.all(Radius.circular(24)),
                         border: Border.all(
-                            color: const Color(0xFFFFFFFF), width: 1),
+                            color: const Color(0x00FFFFFF), width: 0),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: const Text(
@@ -251,8 +251,8 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
         ],
       ),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
+        color: const Color(0x00FFFFFF),
+        width: 0,
       ),
     );
   }
