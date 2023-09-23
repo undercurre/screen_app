@@ -61,6 +61,7 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void dispose() {
+    context.read<LayoutModel>().removeLayouts();
     super.dispose();
     widget.stopPolling();
   }

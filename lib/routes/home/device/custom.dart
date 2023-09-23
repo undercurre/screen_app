@@ -118,12 +118,12 @@ class _CustomPageState extends State<CustomPage> {
                             : const Color(0xFF818C98),
                         borderColor: Colors.transparent,
                         borderWidth: 1,
-                        text: '添加(${layoutModel.layouts.length}/99)',
-                        textColor: layoutModel.layouts.length >= 99
+                        text: '添加(${layoutModel.layouts.length})',
+                        textColor: layoutModel.layouts.length >= 10000
                             ? Colors.white.withOpacity(0.6)
                             : Colors.white,
                         onPressed: () async {
-                          if (layoutModel.layouts.length < 99) {
+                          if (layoutModel.layouts.length < 10000) {
                             final result =
                                 await Navigator.pushNamed(context, 'AddDevice');
 
