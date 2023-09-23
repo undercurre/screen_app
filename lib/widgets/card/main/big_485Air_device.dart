@@ -10,7 +10,7 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
   final bool isFault;
   final bool isNative;
   final String roomName;
-
+  int windSpeed = 4; // 风速值
   final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
 
@@ -41,41 +41,51 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
 }
 
 class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWidget> {
+
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
   }
+
+
+
+  @override
+  void didUpdateWidget(covariant Big485AirDeviceAirCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.windSpeed=oldWidget.windSpeed;
+      widget.onOff=oldWidget.onOff;
+    });
+  }
+
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.windSpeed= int.parse(widget.adapter!.data!.windSpeed);
       });
     }
   }
 
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
+    widget.adapter!.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+      widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+      widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -91,7 +101,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
     } else if (value == 3) {
       value = 1;
     }
-    widget.adapter!.data.windSpeed = value.toString();
+    widget.adapter!.data!.windSpeed = value.toString();
     setState(() {});
     widget.adapter?.orderSpeed(value.toInt());
   }
@@ -229,7 +239,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                 margin: const EdgeInsets.only(bottom: 0),
                 child: Gear485Card(
                   disabled: !widget.onOff,
-                  value: setWinSpeed(int.parse(widget.adapter!.data.windSpeed)),
+                  value: setWinSpeed(widget.windSpeed),
                   maxGear: 3,
                   minGear: 1,
                   onChanged: gearHandle,

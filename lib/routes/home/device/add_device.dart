@@ -17,6 +17,7 @@ import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
+import '../../../common/global.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
@@ -57,15 +58,23 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   List<Map<String, String>> btnList = [];
 
+  List<MeiJuRoomEntity>? meijuRoomList;
+  List<HomluxRoomInfo>? homluxRoomList;
+
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      meijuRoomList = args?['meijuRoomList'];
+      homluxRoomList = args?['homluxRoomList'];
+      initCache();
+    });
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    initCache();
   }
 
   initCache() async {
@@ -73,14 +82,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
       if (MeiJuGlobal.selectRoomId != null) {
         roomID = MeiJuGlobal.selectRoomId!;
       }
-      for (MeiJuRoomEntity room in System.meijuRoomList!) {
+      for (MeiJuRoomEntity room in meijuRoomList!) {
         btnList.add({'text': room.name!, 'key': room.roomId});
       }
     } else {
       if (HomluxGlobal.selectRoomId != null) {
         roomID = HomluxGlobal.selectRoomId!;
       }
-      for (HomluxRoomInfo room in System.homluxRoomList!) {
+      for (HomluxRoomInfo room in homluxRoomList!) {
         btnList.add({'text': room.roomName!, 'key': room.roomId!});
       }
     }

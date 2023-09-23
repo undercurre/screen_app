@@ -1,10 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/logcat_helper.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 
@@ -23,6 +19,8 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   CACDataAdapter? adapter; // 数据适配器
+  String temperature = "26"; // 温度值
+
 
   Small485CACDeviceCardWidget({
     super.key,
@@ -48,41 +46,43 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
 
 class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
-  String temper="26";
 
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      temper=widget.adapter!.data.targetTemp;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
+  }
+
+  @override
+  void didUpdateWidget(covariant Small485CACDeviceCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature=oldWidget.temperature;
+      widget.onOff=oldWidget.onOff;
+    });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-        temper=widget.adapter!.data.targetTemp;
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.temperature=widget.adapter!.data!.targetTemp;
       });
     }
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+      widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+      widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -194,7 +194,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     if (widget.online == "0") {
       return '离线';
     }
-    return "$temper℃";
+    return "${widget.temperature}℃";
   }
 
   BoxDecoration _getBoxDecoration() {

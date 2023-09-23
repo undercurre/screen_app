@@ -18,6 +18,8 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   AirDataAdapter? adapter; // 数据适配器
+  int windSpeed = 4; // 风速值
+
 
   Middle485AirDeviceCardWidget({
     super.key,
@@ -44,40 +46,44 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
 
 class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWidget> {
 
-  String speed="1";
-
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      speed =widget.adapter!.data.windSpeed;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    updateDetail();
+  }
+
+
+
+  @override
+  void didUpdateWidget(covariant Middle485AirDeviceCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.windSpeed=oldWidget.windSpeed;
+      widget.onOff=oldWidget.onOff;
+    });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-        speed =widget.adapter!.data.windSpeed;
+        widget.adapter?.data = widget.adapter!.data!;
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.windSpeed =int.parse(widget.adapter!.data!.windSpeed);
       });
     }
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+      widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+      widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -220,11 +226,11 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
       return '离线';
     }
     int windSpeed = 1;
-    if (speed == "1") {
+    if (widget.windSpeed == 1) {
       windSpeed = 3;
-    } else if (speed == "2") {
+    } else if (widget.windSpeed == 2) {
       windSpeed = 2;
-    } else if (speed == "4") {
+    } else if (widget.windSpeed == 4) {
       windSpeed = 1;
     } else {
       windSpeed = 3;

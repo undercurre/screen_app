@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 
 class Middle485FloorDeviceCardWidget extends StatefulWidget {
@@ -18,6 +16,8 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   FloorDataAdapter? adapter; // 数据适配器
+  String temperature = "26"; // 温度值
+
 
   Middle485FloorDeviceCardWidget({
     super.key,
@@ -44,41 +44,43 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
 
 class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCardWidget> {
 
-  String temper="30";
 
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-      temper=widget.adapter!.data.targetTemp;
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    updateDetail();
+  }
+
+  @override
+  void didUpdateWidget(covariant Middle485FloorDeviceCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(updateData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature=oldWidget.temperature;
+      widget.onOff=oldWidget.onOff;
+    });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
-        temper=widget.adapter!.data.targetTemp;
+        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+        widget.temperature=widget.adapter!.data!.targetTemp;
       });
     }
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
+     widget.adapter!.data!.OnOff = "0";
       widget.onOff=false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
+     widget.adapter!.data!.OnOff = "1";
       widget.onOff=true;
       setState(() {});
       widget.adapter?.orderPower(1);
@@ -220,7 +222,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
     if (!widget.online) {
       return '离线';
     }
-    return "$temper℃";
+    return "${widget.temperature}℃";
   }
 
   BoxDecoration _getBoxDecoration() {

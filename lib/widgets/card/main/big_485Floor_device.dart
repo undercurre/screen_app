@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import '../../../common/global.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../mz_slider.dart';
 
@@ -46,25 +47,34 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
 
 class _Big485FloorDeviceAirCardWidgetState
     extends State<Big485FloorDeviceAirCardWidget> {
+
+
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      widget.adapter?.init();
-      widget.temperature=int.parse(widget.adapter!.data.targetTemp);
-      widget.adapter!.bindDataUpdateFunction(() {
-        updateData();
-      });
-      updateDetail();
-    });
     super.initState();
+    widget.adapter!.init();
+    widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
+    updateDetail();
   }
 
-  void updateData() {
+  @override
+  void didUpdateWidget(covariant Big485FloorDeviceAirCardWidget oldWidget) {
+    widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
+    widget.adapter!.init();
+    setState(() {
+      widget.temperature=oldWidget.temperature;
+      widget.onOff=oldWidget.onOff;
+    });
+  }
+
+
+
+  void update485BigFloorData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data;
-        widget.temperature = int.parse(widget.adapter!.data.targetTemp);
-        widget.onOff =widget.adapter!.data.OnOff == '1'?true:false;
+        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        logger.i("大卡片地暖温度:${widget.adapter!.data!.targetTemp}");
       });
     }
   }
@@ -75,32 +85,32 @@ class _Big485FloorDeviceAirCardWidgetState
 
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
+    widget.adapter!.unBindDataUpdateFunction(update485BigFloorData);
     super.dispose();
   }
 
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
-      widget.adapter!.data.OnOff = "0";
-      widget.onOff=false;
+      widget.adapter!.data!.OnOff = "0";
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
-      widget.adapter!.data.OnOff = "1";
-      widget.onOff=true;
+      widget.adapter!.data!.OnOff = "1";
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if(!widget.onOff){
+    if (!widget.onOff) {
       return;
     }
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
-    widget.adapter!.data.targetTemp = value.toString();
+    widget.adapter!.data!.targetTemp = value.toString();
   }
 
   @override
