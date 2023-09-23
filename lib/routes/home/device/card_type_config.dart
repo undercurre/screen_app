@@ -347,6 +347,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
     CardType.Big: (params) => BigScenePanelCardWidget(
           disabled: params.disabled!,
           name: params.name,
+          discriminative: params.discriminative ?? false,
           icon: Image(
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
@@ -2401,6 +2402,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   DeviceEntityTypeInP4.Zigbee_1363: {
     CardType.Big: (params) => BigScenePanelCardWidget(
           disabled: params.disabled!,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: Image(
             image: AssetImage(
@@ -2418,6 +2420,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   DeviceEntityTypeInP4.Zigbee_1350: {
     CardType.Big: (params) => BigScenePanelCardWidget(
           disabled: params.disabled!,
+          discriminative: params.discriminative ?? false,
           name: params.name,
           icon: Image(
             image: AssetImage(

@@ -65,9 +65,11 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   @override
   void initState() {
     super.initState();
-    _startPushListen();
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      _startPushListen();
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
@@ -81,8 +83,10 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
 
   @override
   void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
-    widget.adapter.init();
-    widget.adapter.bindDataUpdateFunction(updateData);
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
+    }
     super.didUpdateWidget(oldWidget);
   }
 
