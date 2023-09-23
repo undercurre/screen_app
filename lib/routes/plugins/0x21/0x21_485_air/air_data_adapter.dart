@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/homlux_global.dart';
 import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
@@ -105,6 +102,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   Future<void> orderPower(int onOff) async {
 
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshPower(
@@ -128,10 +126,14 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Future<void> orderSpeed(int speed) async {
     if(nodeId!=null){
+      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
             speed.toString(), localDeviceCode);
+        if (platform.inMeiju()) {
+          fetchOrderSpeedMeiju(speed);
+        }
       }else{
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {

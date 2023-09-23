@@ -42,9 +42,11 @@ class FreshAir485PageState extends State<FreshAir485Page> {
     } else if (value == 3) {
       value = 1;
     }
-    adapter?.orderSpeed(value.toInt());
     localWind = value.toInt();
     adapter!.data!.windSpeed = value.toString();
+    setState(() {});
+    adapter?.orderSpeed(value.toInt());
+
   }
 
   Future<void> updateDetail() async {

@@ -43,9 +43,11 @@ class AirCondition485PageState extends State<AirCondition485Page> {
     }else if(value==3){
       value=1;
     }
-    adapter?.orderSpeed(value.toInt());
     windSpeed = value.toString();
     adapter!.data!.windSpeed = windSpeed;
+    setState(() {});
+    adapter?.orderSpeed(value.toInt());
+
   }
 
   Future<void> temperatureHandle(num value) async {
