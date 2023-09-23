@@ -402,6 +402,12 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                 "name": widget.name,
                                 "adapter": widget.adapter
                               });
+                        } else if (widget.adapter?.type ==
+                            AdapterType.wifiAir) {
+                          Navigator.pushNamed(context, '0xAC', arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
                         }
                       }
                     },
