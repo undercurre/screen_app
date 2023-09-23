@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceAirCardWidget extends StatefulWidget {
@@ -64,6 +66,37 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String? _getRightText() {
+      if (widget.isFault) {
+        return '故障';
+      }
+
+      if (widget.disabled && !widget.online) {
+        return '离线';
+      }
+
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.getDeviceId())) {
+        return '离线';
+      }
+
+      if (widget.adapter?.dataState == DataState.LOADING) {
+        return '在线';
+      }
+
+      if (widget.adapter?.dataState == DataState.NONE) {
+        return '离线';
+      }
+
+      if (widget.adapter?.dataState == DataState.ERROR) {
+        return '离线';
+      }
+
+      return widget.adapter?.getCharacteristic();
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -278,33 +311,6 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     }
     return widget.adapter!.getCardStatus()?["temperature"] +
         widget.adapter!.getCardStatus()?["smallTemperature"];
-  }
-
-  String? _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-
-    if (widget.disabled) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.LOADING) {
-      return '加载中';
-    }
-
-    if (widget.adapter?.dataState == DataState.NONE) {
-      return '未加载';
-    }
-
-    if (widget.adapter?.dataState == DataState.ERROR) {
-      return '加载失败';
-    }
-
-    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {

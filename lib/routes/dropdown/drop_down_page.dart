@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/setting.dart';
 import '../../common/utils.dart';
 import '../../widgets/mz_vslider.dart';
@@ -65,8 +66,18 @@ class _DropDownPageState extends State<DropDownPage>
       curve: Curves.linear,
     );
     controller.stop();
-    lightValue = Setting.instant().screenBrightness;
-    soundValue = Setting.instant().volume;
+    initViewData();
+    initial();
+  }
+
+  Future<void> initViewData() async {
+    num lightVal = await settingMethodChannel.getSystemLight();
+    num soundVal = await settingMethodChannel.getSystemVoice();
+
+    Setting.instant().screenBrightness = lightVal.toInt();
+    Setting.instant().volume = soundVal.toInt();
+    lightValue = lightVal;
+    soundValue = soundVal;
     if (soundValue > 7) {
       soundLogo = "assets/imgs/dropDown/sound-black.png";
     } else {
@@ -77,7 +88,6 @@ class _DropDownPageState extends State<DropDownPage>
     } else {
       lightLogo = "assets/imgs/dropDown/light-white.png";
     }
-    initial();
   }
 
   @override
