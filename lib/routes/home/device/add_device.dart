@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
@@ -15,22 +16,17 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
-import '../../../common/adapter/select_room_data_adapter.dart';
-import '../../../common/gateway_platform.dart';
-import '../../../common/global.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
 import '../../../models/device_entity.dart';
-import '../../../models/room_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/card/main/panelNum.dart';
 import '../../../widgets/card/main/small_scene.dart';
-import '../../../widgets/mz_buttion.dart';
-import '../../../widgets/mz_dialog.dart';
 import '../../../../widgets/business/dropdown_menu.dart' as ui;
+import '../../../widgets/util/nameFormatter.dart';
 
 class AddDevicePage extends StatefulWidget {
   const AddDevicePage({Key? key}) : super(key: key);
@@ -51,6 +47,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
   List<DeviceEntity> deleteDevices = [];
   List<DeviceEntity> devicesAll = [];
   List<SceneInfoEntity> scenes = [];
+  List<SceneInfoEntity> scenesAll = [];
+  List<SceneInfoEntity> deleteScenes = [];
   List<OtherEntity> others = [
     OtherEntity('时间组件', DeviceEntityTypeInP4.Clock),
     OtherEntity('天气组件', DeviceEntityTypeInP4.Weather)
@@ -80,16 +78,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   initCache() async {
     if (System.inMeiJuPlatform()) {
-      if (MeiJuGlobal.selectRoomId != null) {
-        roomID = MeiJuGlobal.selectRoomId!;
-      }
+      // if (MeiJuGlobal.selectRoomId != null) {
+      //   roomID = MeiJuGlobal.selectRoomId!;
+      // }
       for (MeiJuRoomEntity room in meijuRoomList!) {
         btnList.add({'text': room.name!, 'key': room.roomId});
       }
     } else {
-      if (HomluxGlobal.selectRoomId != null) {
-        roomID = HomluxGlobal.selectRoomId!;
-      }
+      // if (HomluxGlobal.selectRoomId != null) {
+      //   roomID = HomluxGlobal.selectRoomId!;
+      // }
       for (HomluxRoomInfo room in homluxRoomList!) {
         btnList.add({'text': room.roomName!, 'key': room.roomId!});
       }
@@ -117,13 +115,13 @@ class _AddDevicePageState extends State<AddDevicePage> {
           .toList();
     }
     if (sceneRes.length > 8) {
-      scenes = sceneRes.sublist(0, 8);
+      scenesAll = sceneRes.sublist(0, 8);
     } else {
-      scenes = sceneRes;
+      scenesAll = sceneRes;
     }
     await Future.delayed(Duration(milliseconds: 500));
     if (sceneRes.length > 8) {
-      scenes.addAll(sceneRes.sublist(8));
+      scenesAll.addAll(sceneRes.sublist(8));
     }
     if (deviceRes.length > 8) {
       devicesAll.addAll(deviceRes
@@ -193,7 +191,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     Log.i('场景删除了${compareScene[1].length}, 增加${compareScene[0].length}');
 
     devicesAll.removeWhere((element) => compareDevice[1].contains(element));
-    scenes.removeWhere((element) => compareScene[1].contains(element));
+    scenesAll.removeWhere((element) => compareScene[1].contains(element));
 
     for (DeviceEntity item in compareDevice[0]) {
       int index = deviceRes.indexOf(item);
@@ -205,10 +203,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
     }
     for (SceneInfoEntity item in compareScene[0]) {
       int index = sceneRes.indexOf(item);
-      if (index >= 0 && index <= scenes.length) {
-        scenes.insert(index, item);
+      if (index >= 0 && index <= scenesAll.length) {
+        scenesAll.insert(index, item);
       } else {
-        scenes.add(item);
+        scenesAll.add(item);
       }
     }
     selectRoom(roomID);
@@ -241,11 +239,24 @@ class _AddDevicePageState extends State<AddDevicePage> {
         devicesPanel.add(device);
       }
     }
+    devices.clear();
     devicesTemp.removeWhere((i) => devicesLightGroup.contains(i));
     devicesTemp.removeWhere((i) => devicesPanel.contains(i));
     devices.addAll(devicesLightGroup);
     devices.addAll(devicesPanel);
     devices.addAll(devicesTemp);
+
+
+    List<SceneInfoEntity> scenesTemp =scenesAll;
+    deleteScenes.clear();
+    scenes.clear();
+    for (SceneInfoEntity scene in scenesAll) {
+      if (layoutModel.hasLayoutWithDeviceId(scene.sceneId)) {
+        deleteScenes.add(scene);
+      }
+    }
+    scenesTemp.removeWhere((i) => deleteScenes.contains(i));
+    scenes.addAll(scenesTemp);
     setState(() {});
   }
 
@@ -354,7 +365,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 0, 8),
+                      padding: const EdgeInsets.fromLTRB(35, 0, 0, 8),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -481,11 +492,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                   child: Align(
                                     alignment: Alignment.center,
                                     child: SizedBox(
-                                      width: 100, // 设置最大宽度为 50
+                                      width: 200, // 设置最大宽度为 50
                                       child: Text(
                                         maxLines: 1,
                                         textAlign: TextAlign.center,
-                                        item['text']!,
+                                        NameFormatter.formatName(item['text']!, 5),
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontFamily: "MideaType",
@@ -505,7 +516,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         child: Text(
                           maxLines: 1,
                           textAlign: TextAlign.right,
-                          getCurRoomConfig()["text"] ?? '卧室',
+                          NameFormatter.formatName( getCurRoomConfig()["text"] ?? '卧室', 4),
                           style: const TextStyle(
                             color: Color(0XFFFFFFFF),
                             fontSize: 18.0,

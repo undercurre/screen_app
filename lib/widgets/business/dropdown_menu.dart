@@ -104,6 +104,7 @@ class DropdownMenuState extends State<DropdownMenu> with TickerProviderStateMixi
       constraints: BoxConstraints(
         minWidth: widget.menuWidth,
         maxWidth: widget.menuWidth,
+        maxHeight: 370,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
