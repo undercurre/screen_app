@@ -383,7 +383,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             top: 62,
             left: 25,
             child: Text(
-                "亮度 | ${widget.disabled ? '0' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
+                "亮度 | ${widget.disabled ? '1' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -430,11 +430,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             left: 4,
             child: MzSlider(
               value: widget.disabled
-                  ? 0
+                  ? 1
                   : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
               width: 390,
               height: 16,
-              min: 0,
+              min: 1,
               max: 100,
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
                   widget.disabled,

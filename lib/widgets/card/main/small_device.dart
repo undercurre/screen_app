@@ -44,15 +44,19 @@ class SmallDeviceCardWidget extends StatefulWidget {
 class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   void initState() {
-    super.initState();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      super.initState();
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
   void didUpdateWidget(covariant SmallDeviceCardWidget oldWidget) {
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override

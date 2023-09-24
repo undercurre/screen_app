@@ -154,18 +154,7 @@ class _MiddleScenePanelCardWidgetState
           Positioned(
             top: 16,
             left: 16,
-            child: widget.adapter.dataState == DataState.ERROR
-                ? GestureDetector(
-                    onTap: () {
-                      _throttledFetchData();
-                    },
-                    child: const Image(
-                      width: 40,
-                      height: 40,
-                      image: AssetImage('assets/newUI/refresh.png'),
-                    ),
-                  )
-                : widget.icon,
+            child: widget.icon,
           ),
           Positioned(
             top: 0,

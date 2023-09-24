@@ -107,7 +107,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   Map<String, dynamic>? getCardStatus() {
     return {
       "power": data!.power,
-      "brightness": data!.brightness,
+      "brightness": data!.brightness == 0 ? 1 : data!.brightness,
       "colorTemp": data!.colorTemp,
       "maxColorTemp": data!.maxColorTemp,
       "minColorTemp": data!.minColorTemp
@@ -121,14 +121,12 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   @override
   bool getPowerStatus() {
-    Log.i('获取开关状态', data!.power);
     return data!.power;
   }
 
   @override
   String? getCharacteristic() {
-    Log.i('获取特征状态', data!.brightness);
-    return "${data!.brightness}%";
+    return "${data!.brightness == 0 ? 1 : data!.brightness}%";
   }
 
   @override

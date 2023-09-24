@@ -96,7 +96,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   Map<String, dynamic>? getCardStatus() {
     return {
       "power": data!.power,
-      "brightness": data!.brightness,
+      "brightness": data!.brightness == 0 ? 1 : data!.brightness,
       "colorTemp": data!.colorTemp,
       "maxColorTemp": data!.maxColorTemp,
       "minColorTemp": data!.minColorTemp
@@ -116,8 +116,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
 
   @override
   String? getCharacteristic() {
-    Log.i('获取特征状态', data!.brightness);
-    return "${data!.brightness}%";
+    return "${data!.brightness == 0 ? 1 : data!.brightness}%";
   }
 
   @override
