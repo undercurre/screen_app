@@ -78,6 +78,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   initCache() async {
     if (System.inMeiJuPlatform()) {
+      ///需要保留上次选的房间的话就打开
       // if (MeiJuGlobal.selectRoomId != null) {
       //   roomID = MeiJuGlobal.selectRoomId!;
       // }
