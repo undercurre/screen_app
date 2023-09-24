@@ -214,7 +214,11 @@ public class FreshAirController implements Data485Observer {
                      Update485DeviceBean.PLC.AttributeUpdate.Event event=new Update485DeviceBean.PLC.AttributeUpdate.Event();
                      event.setOnOff(Integer.parseInt(FreshAirList.get(j).getOnOff()));
                      event.setWindSpeed(Integer.parseInt(FreshAirList.get(j).getWindSpeed(),16));
-                     event.setOperationMode(Integer.parseInt(FreshAirList.get(j).getWorkModel(),16));
+                     int speedModel=Integer.parseInt(FreshAirList.get(j).getWorkModel(),16);
+                     if(speedModel==0){
+                        speedModel=4;
+                     }
+                     event.setOperationMode(speedModel);
                      Attribute.setAddr(FreshAirList.get(j).getOutSideAddress()+FreshAirList.get(j).getInSideAddress());
                      Attribute.setModelId("zhonghong.air.001");
                      Attribute.setEvent(event);
