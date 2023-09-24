@@ -48,6 +48,8 @@ class _DevicePageState extends State<DevicePage> {
   final PageController _pageController = PageController();
   List<Widget> _screens = [];
 
+  LayoutModel? layoutModel;
+
   @override
   void initState() {
     super.initState();
@@ -60,8 +62,14 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    layoutModel = context.read<LayoutModel>();
+  }
+
+  @override
   void dispose() {
-    context.read<LayoutModel>().removeLayouts();
+    layoutModel?.removeLayouts();
     super.dispose();
     widget.stopPolling();
   }
