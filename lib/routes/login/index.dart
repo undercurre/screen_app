@@ -11,6 +11,7 @@ import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
 import '../../common/adapter/select_family_data_adapter.dart';
@@ -112,7 +113,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         final deviceInfoListModel =
             Provider.of<DeviceInfoListModel>(context, listen: false);
         final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        if (true) {
+        if (Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
           // 换房间，重新初始布局该房间
           await layoutModel.removeLayouts();
           if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
