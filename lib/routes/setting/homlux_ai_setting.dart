@@ -1,12 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/widgets/index.dart';
-
+import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
-import '../../common/meiju/api/meiju_ai_author_api.dart';
 import '../../common/setting.dart';
-import '../../common/utils.dart';
 
 class HomluxAiSettingPage extends StatefulWidget {
   const HomluxAiSettingPage({Key? key});
@@ -107,6 +104,7 @@ class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
                               value: AiEnable,
                               onTap: (bool value) {
                                 Setting.instant().homluxAiEnable = value;
+                                aiMethodChannel.enableAi(value);
                                 setState(() {
                                   AiEnable = value;
                                 });

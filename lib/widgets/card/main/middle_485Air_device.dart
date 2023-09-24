@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
-import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 
 class Middle485AirDeviceCardWidget extends StatefulWidget {
   final String name;

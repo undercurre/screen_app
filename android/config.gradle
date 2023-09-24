@@ -4,7 +4,7 @@
 ext {
 
     ProjectVatiant = [
-            COMPILESDKVERSION  : 33,
+            COMPILESDKVERSION  : 34,
             BUILDERTOOLSVERSION: "29.0.2",
             TARGETSDKVERSION   : 26,
             MINSDKVERSION      : 24,

@@ -34,6 +34,10 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
   }
 
   initial() async {
+    num lightVal = await settingMethodChannel.getSystemLight();
+    Setting.instant().screenBrightness = lightVal.toInt();
+    lightValue = lightVal;
+
     setState(() {
       duration = Setting.instant().getScreedDurationDetail();
     });

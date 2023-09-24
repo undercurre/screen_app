@@ -126,6 +126,10 @@ class MeiJuGlobal {
     LocalStorage.removeItem(MEIJU_GATEWAY_SN);
   }
 
+  static void setLogin() {
+
+  }
+
 }
 
 /// 使用注意 ** 使用此方法解析的对象类型，一定是注册在homluxJsonConvert中，不然报错

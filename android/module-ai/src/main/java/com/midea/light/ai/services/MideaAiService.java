@@ -469,24 +469,24 @@ public class MideaAiService extends Service {
             mHandler.sendMessage(message);
             return;
         }
-        if(isDeviceControlError(data)){
-            ControlDeviceErrorCallBack.ControlDeviceError();
-            Uri playUri = Uri.parse("/sdcard/tts/deldevice.mp3");
-            MediaPlayer mm = new MediaPlayer();
-            try {
-                mm.setDataSource(this, playUri);
-                mm.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mm.setOnPreparedListener(mediaPlayer -> mm.start());
-            mm.setOnCompletionListener(mp -> {
-                mm.reset();
-                mm.release();
-            });
-            out();
-            return;
-        }
+//        if(isDeviceControlError(data)){
+//            ControlDeviceErrorCallBack.ControlDeviceError();
+//            Uri playUri = Uri.parse("/sdcard/tts/deldevice.mp3");
+//            MediaPlayer mm = new MediaPlayer();
+//            try {
+//                mm.setDataSource(this, playUri);
+//                mm.prepareAsync();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            mm.setOnPreparedListener(mediaPlayer -> mm.start());
+//            mm.setOnCompletionListener(mp -> {
+//                mm.reset();
+//                mm.release();
+//            });
+//            out();
+//            return;
+//        }
         wakeUpState = false;
         ttsList = loadTTSItem(data);
         JSONObject object = null;

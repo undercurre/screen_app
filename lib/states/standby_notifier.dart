@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../common/api/weather_api.dart';
 import '../common/global.dart';
+import '../widgets/event_bus.dart';
 import '../widgets/standby.dart';
 
 class StandbyTimeOpt {
@@ -42,9 +43,16 @@ class StandbyChangeNotifier extends ChangeNotifier {
   /// public current state
   StandbyTimeOpt get standbyTimeOpt => _standbyTimeOpt;
   String get weatherCode => _weatherCode;
-  bool standbyPageActive = false; // 待机页激活标志，以免重复打开待机页
+  bool _standbyPageActive = false; // 待机页激活标志，以免重复打开待机页
   Timer? standbyTimer; // Timer实例，有且仅有一个实例，以免重复触发定时器
   Timer? weatherTimer; // 天气获取计时器
+
+  set standbyPageActive(bool result) {
+    _standbyPageActive = result;
+    bus.emit("eventStandbyActive", result);
+  }
+
+  bool get standbyPageActive => _standbyPageActive;
 
   /// setters
   set weatherCode(String code) {

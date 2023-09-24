@@ -141,4 +141,20 @@ class LanDeviceControlChannel extends AbstractChannel {
     });
   }
 
+  /// ******************
+  /// 动态调节局域网消息处理速度
+  /// 低速 每 2s 2条
+  /// *******************
+  void adjustSpeedToLow() {
+    methodChannel.invokeMethod("adjustSpeedToLow");
+  }
+
+  /// ******************
+  /// 动态调节局域网消息处理速度
+  /// 正常速度 每 200ms 2条
+  /// *******************
+  void adjustSpeedToNormal() {
+    methodChannel.invokeMethod("adjustSpeedToNormal");
+  }
+
 }

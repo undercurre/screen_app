@@ -222,7 +222,11 @@ public class AirConditionController implements Data485Observer {
                      Update485DeviceBean.PLC.AttributeUpdate Attribute=new Update485DeviceBean.PLC.AttributeUpdate();
                      Update485DeviceBean.PLC.AttributeUpdate.Event event=new Update485DeviceBean.PLC.AttributeUpdate.Event();
                      event.setOnOff(Integer.parseInt(AirConditionList.get(j).getOnOff()));
-                     event.setWindSpeed(Integer.parseInt(AirConditionList.get(j).getWindSpeed(),16));
+                     int speedModel=Integer.parseInt(AirConditionList.get(j).getWindSpeed(),16);
+                     if(speedModel==0){
+                        speedModel=4;
+                     }
+                     event.setWindSpeed(speedModel);
                      event.setCurrTemp(Integer.parseInt(AirConditionList.get(j).getCurrTemperature(),16));
                      event.setTargetTemp(Integer.parseInt(AirConditionList.get(j).getTemperature(),16));
                      event.setOperationMode(Integer.parseInt(AirConditionList.get(j).getWorkModel(),16));

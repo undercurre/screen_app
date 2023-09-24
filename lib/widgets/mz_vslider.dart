@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/global.dart';
+
+import '../common/logcat_helper.dart';
 
 class MzVSlider extends StatefulWidget {
   // 渐变色数组
@@ -80,6 +83,9 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
   bool isPanUpdate = false;
   bool isPanning = false;
   late Offset latestPosition = Offset.zero;
+
+  Timer? feedTimer;
+  int timeDrag = 0;
 
   @override
   void initState() {
@@ -338,6 +344,16 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
       toValue = clampValue(percentageValue);
     });
     widget.onChanging?.call(emitValue, activeColor[1]);
+
+    timeDrag = DateTime.now().millisecondsSinceEpoch;
+    feedTimer ??= Timer.periodic(const Duration(milliseconds: 300), (timer) {
+      int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - timeDrag > 300) {
+        feedTimer?.cancel();
+        feedTimer = null;
+        onPanUp();
+      }
+    });
   }
 
   void onPanUp() {
@@ -354,5 +370,8 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
       toValue = temp;
     });
     widget.onChanged?.call(toValue, activeColor[1]);
+
+    feedTimer?.cancel();
+    feedTimer = null;
   }
 }

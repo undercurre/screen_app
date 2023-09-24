@@ -5,6 +5,7 @@ import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.thread.MainThread
 import com.midea.light.homeos.HomeOsClient
 import com.midea.light.homeos.HomeOsControllerCallback
+import com.midea.light.homeos.MessageQueue
 import com.midea.light.log.LogUtil
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -29,6 +30,26 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
         }
     }
 
+    // 消息缓冲队列
+    var messageQueue = MessageQueue(object : MessageQueue.Callback {
+
+        override fun filter(topic: String?, message: String?): Boolean {
+            return true
+        }
+
+        override fun handler(msg: String?) {
+            val topic = "暂未用到字段"
+            MainThread.run {
+                LogUtil.tag("homeOs").msg("topic = $topic msg = $msg")
+                mMethodChannel.invokeMethod("mqttHandler", mapOf(
+                    "topic" to topic,
+                    "msg" to msg
+                ))
+            }
+        }
+
+    })
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val methodName = call.method
         when(methodName) {
@@ -47,11 +68,13 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                 }
                 HomeOsClient.getOsController().setCallback(this)
                 LogUtil.tag("homeOs").msg("请求login")
+                messageQueue.start()
             }
             "logout" -> {
                 HomeOsClient.getOsController().logout()
                 HomeOsClient.getOsController().setCallback(null)
                 LogUtil.tag("homeOs").msg("请求logout")
+                messageQueue.stop()
             }
             "getDeviceInfo" -> {
                 val requestId = call.argument<String>("requestId")
@@ -124,17 +147,17 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
                     LogUtil.tag("homeOs").msg("请求sceneExcute失败")
                 }
             }
+            "adjustSpeedToLow" -> {
+                messageQueue.adjustSpeedToLow()
+            }
+            "adjustSpeedToNormal" -> {
+                messageQueue.adjustSpeedToNormal()
+            }
         }
     }
 
     override fun msg(topic: String?, msg: String?) {
-        MainThread.run {
-            LogUtil.tag("homeOs").msg("topic = $topic msg = $msg")
-            mMethodChannel.invokeMethod("mqttHandler", mapOf(
-                "topic" to topic,
-                "msg" to msg
-            ))
-        }
+        messageQueue.addMessage(topic, msg)
     }
 
     override fun log(msg: String?) {

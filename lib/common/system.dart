@@ -207,8 +207,9 @@ class System {
 
   static login() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      HomluxLanControlDeviceManager.getInstant().login();
+      HomluxGlobal.setLogin();
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      MeiJuGlobal.setLogin();
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
@@ -218,7 +219,6 @@ class System {
   static logout(String reason) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogout(reason);
-      HomluxLanControlDeviceManager.getInstant().logout();
       bus.emit('logout');
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.setLogout(reason);
