@@ -150,19 +150,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
           Positioned(
             top: 14,
             left: 24,
-            child: widget.adapter.dataState == DataState.ERROR
-                ? GestureDetector(
-                    onTap: () {
-                      _throttledFetchData();
-                    },
-                    child: const Image(
-                      width: 40,
-                      height: 40,
-                      image: AssetImage('assets/newUI/refresh.png'),
-                    ),
-                  )
-                : Image(
-                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
+            child:
+                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(
             top: 10,
@@ -183,7 +172,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                             maxWidth: 76,
                           ),
                           child: Text(
-                            getDeviceName().substring(0, getDeviceName().length - 1),
+                            getDeviceName()
+                                .substring(0, getDeviceName().length - 1),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,

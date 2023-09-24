@@ -200,16 +200,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
             Container(
               margin: const EdgeInsets.only(right: 16),
               width: 40,
-              child: widget.adapter.dataState == DataState.ERROR
-                  ? GestureDetector(
-                      onTap: () {
-                        _throttledFetchData();
-                      },
-                      child: const Image(
-                        image: AssetImage('assets/newUI/refresh.png'),
-                      ),
-                    )
-                  : widget.icon,
+              child: widget.icon,
             ),
             Expanded(
               child: Column(

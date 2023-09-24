@@ -121,18 +121,7 @@ class _BigScenePanelCardWidgetThreeState
           Positioned(
             top: 14,
             left: 24,
-            child: widget.adapter.dataState == DataState.ERROR
-                ? GestureDetector(
-                    onTap: () {
-                      _throttledFetchData();
-                    },
-                    child: const Image(
-                      width: 40,
-                      height: 40,
-                      image: AssetImage('assets/newUI/refresh.png'),
-                    ),
-                  )
-                : Image(
+            child: Image(
                     width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(

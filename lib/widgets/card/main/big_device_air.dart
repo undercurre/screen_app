@@ -68,7 +68,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
-    String? _getRightText() {
+    String _getRightText() {
       if (widget.isFault) {
         return '故障';
       }
@@ -94,7 +94,13 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic();
+      if (widget.adapter != null) {
+        if (widget.adapter!.getCharacteristic() != null) {
+          return widget.adapter!.getCharacteristic()!;
+        }
+      }
+
+      return '';
     }
 
     return Container(
@@ -177,7 +183,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
+                  child: Text(" ${_getRightText().isNotEmpty ? '|' : '' } ${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
