@@ -39,8 +39,7 @@ class MeiJuDeviceApi {
       }
     });
 
-    return MeiJuResponseEntity.fromJson(
-        {'code': 0, 'msg': '成功', 'data': applianceList});
+    return MeiJuResponseEntity.fromJson({'code': 0, 'msg': '成功', 'data': applianceList});
   }
 
   /// 获取某房间下所有的设备
