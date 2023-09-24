@@ -6,6 +6,7 @@ import '../../channel/index.dart';
 import '../logcat_helper.dart';
 import '../utils.dart';
 import 'generated/json/base/homlux_json_convert_content.dart' as json;
+import 'lan/homlux_lan_control_device_manager.dart';
 import 'models/homlux_485_device_list_entity.dart';
 import 'models/homlux_dui_token_entity.dart';
 import 'models/homlux_family_entity.dart';
@@ -180,6 +181,11 @@ class HomluxGlobal {
     LocalStorage.removeItem(HOMLUX_AI_TOKEN);
     LocalStorage.removeItem(HOMLUX_GATEWAY_DEVICE_ID);
     LocalStorage.removeItem(HOMLUX_GATEWAY_SN);
+    HomluxLanControlDeviceManager.getInstant().logout();
+  }
+
+  static void setLogin() {
+    HomluxLanControlDeviceManager.getInstant().login();
   }
 
 }

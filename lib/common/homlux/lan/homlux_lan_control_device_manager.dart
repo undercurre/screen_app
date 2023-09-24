@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/homlux/api/homlux_lan_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
@@ -199,7 +198,8 @@ class HomluxLanControlDeviceManager {
   /// value为灯组信息
   Map<String, Map<String, dynamic>> groupMap = {};
 
-  void _handleMqttMsg(String topic, String msg) {
+  void _handleMqttMsg(String mTopic, String msg) {
+
     try {
       var curHouseId = HomluxGlobal.homluxHomeInfo!.houseId;
 
@@ -571,12 +571,22 @@ class HomluxLanControlDeviceManager {
     NetUtils.unregisterListenerNetState(listenerNetState);
     lanDeviceControlChannel.logout();
     sucSubscribe = false;
+    key = null;
     lanDeviceControlChannel.logCallback = null;
     lanDeviceControlChannel.mqttCallback = null;
     deviceMap.clear();
     sceneMap.clear();
     groupMap.clear();
     HomluxDeviceApi.devices.clear();
+    bus.off("eventStandbyActive", listenerEventStandbyActive);
+  }
+
+  listenerEventStandbyActive(result) {
+    if(result) {
+      lanDeviceControlChannel.adjustSpeedToLow();
+    } else {
+      lanDeviceControlChannel.adjustSpeedToNormal();
+    }
   }
 
   listenerNetState(NetState? state) {
@@ -617,6 +627,7 @@ class HomluxLanControlDeviceManager {
         Log.file('homeos login(houseId=$houseId, key=$key)');
         sucSubscribe = true;
         lanDeviceControlChannel.login(houseId, key!);
+        bus.on("eventStandbyActive", listenerEventStandbyActive);
       }
       lanDeviceControlChannel.logCallback = (args) async {
         if (args == 'aesKeyMayBeExpire') {
