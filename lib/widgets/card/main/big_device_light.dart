@@ -4,11 +4,13 @@ import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
+  final String applianceCode;
   final String name;
   final bool online;
   final bool isFault;
@@ -22,6 +24,7 @@ class BigDeviceLightCardWidget extends StatefulWidget {
 
   const BigDeviceLightCardWidget(
       {super.key,
+      required this.applianceCode,
       required this.name,
       required this.roomName,
       required this.online,
@@ -70,6 +73,13 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String? _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -127,11 +137,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       String nameInModel = deviceListModel.getDeviceName(
         deviceId: widget.adapter?.getDeviceId(),
       );
-
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
 
       if (widget.disabled) {
         return (nameInModel ==
@@ -284,6 +289,10 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             right: 16,
             child: GestureDetector(
               onTap: () {
+                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                  TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                  return;
+                }
                 if (!widget.disabled) {
                   if (widget.adapter?.type == AdapterType.wifiLight) {
                     Navigator.pushNamed(context, '0x13', arguments: {

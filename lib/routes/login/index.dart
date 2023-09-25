@@ -31,6 +31,7 @@ import '../../widgets/mz_dialog.dart';
 import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import '../../widgets/util/net_utils.dart';
 import '../home/device/card_type_config.dart';
+import '../home/device/grid_container.dart';
 import '../home/device/layout_data.dart';
 import 'chose_platform.dart';
 import 'scan_code.dart';
@@ -176,7 +177,69 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                   .transformLayoutFromDeviceList(devicesReal);
               await layoutModel.setLayouts(layoutData);
             } else {
-              await layoutModel.loadLayouts();
+              List<Layout> defaultList = [
+                Layout(
+                    'clock',
+                    DeviceEntityTypeInP4.Clock,
+                    CardType.Other,
+                    0,
+                    [1, 2, 5, 6],
+                    DataInputCard(
+                        name: '时钟',
+                        applianceCode: 'clock',
+                        roomName: '屏内',
+                        isOnline: '',
+                        type: 'clock',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: '1')),
+                Layout(
+                    'weather',
+                    DeviceEntityTypeInP4.Weather,
+                    CardType.Other,
+                    0,
+                    [3, 4, 7, 8],
+                    DataInputCard(
+                        name: '天气',
+                        applianceCode: 'weather',
+                        roomName: '屏内',
+                        isOnline: '',
+                        type: 'weather',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: '1')),
+                Layout(
+                    'localPanel1',
+                    DeviceEntityTypeInP4.LocalPanel1,
+                    CardType.Small,
+                    0,
+                    [9, 10],
+                    DataInputCard(
+                        name: '灯1',
+                        applianceCode: 'localPanel1',
+                        roomName: '屏内',
+                        isOnline: '',
+                        type: 'localPanel1',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: '1')),
+                Layout(
+                    'localPanel2',
+                    DeviceEntityTypeInP4.LocalPanel2,
+                    CardType.Small,
+                    0,
+                    [11, 12],
+                    DataInputCard(
+                        name: '灯2',
+                        applianceCode: 'localPanel2',
+                        roomName: '屏内',
+                        isOnline: '',
+                        type: 'localPanel2',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: '1')),
+              ];
+              await layoutModel.setLayouts(defaultList);
             }
           }
         }

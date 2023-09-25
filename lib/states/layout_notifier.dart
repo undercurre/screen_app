@@ -46,7 +46,7 @@ class LayoutModel extends ChangeNotifier {
       // 初次使用,展示默认布局
       setLayouts([
         Layout(
-            uuid.v4(),
+            'clock',
             DeviceEntityTypeInP4.Clock,
             CardType.Other,
             0,
@@ -61,7 +61,7 @@ class LayoutModel extends ChangeNotifier {
                 modelNumber: '',
                 onlineStatus: '1')),
         Layout(
-            uuid.v4(),
+            'weather',
             DeviceEntityTypeInP4.Weather,
             CardType.Other,
             0,
@@ -76,7 +76,7 @@ class LayoutModel extends ChangeNotifier {
                 modelNumber: '',
                 onlineStatus: '1')),
         Layout(
-            uuid.v4(),
+            'localPanel1',
             DeviceEntityTypeInP4.LocalPanel1,
             CardType.Small,
             0,
@@ -91,7 +91,7 @@ class LayoutModel extends ChangeNotifier {
                 modelNumber: '',
                 onlineStatus: '1')),
         Layout(
-            uuid.v4(),
+            'localPanel2',
             DeviceEntityTypeInP4.LocalPanel2,
             CardType.Small,
             0,

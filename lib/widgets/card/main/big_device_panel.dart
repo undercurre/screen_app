@@ -10,6 +10,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
@@ -25,6 +26,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   final bool disabled;
   final bool disableOnOff;
   final bool discriminative;
+  final String applianceCode;
 
   PanelDataAdapter adapter; // 数据适配器
 
@@ -38,6 +40,7 @@ class BigDevicePanelCardWidget extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.discriminative = false,
+    required this.applianceCode,
   });
 
   @override
@@ -102,6 +105,13 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String getRoomName() {
       if (widget.disabled) {
@@ -122,16 +132,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
         deviceId: widget.adapter.applianceCode,
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }

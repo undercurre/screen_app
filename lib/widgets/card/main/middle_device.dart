@@ -5,10 +5,12 @@ import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 
 class MiddleDeviceCardWidget extends StatefulWidget {
+  final String applianceCode;
   final String name;
   final Widget icon;
   final bool online;
@@ -25,6 +27,7 @@ class MiddleDeviceCardWidget extends StatefulWidget {
 
   const MiddleDeviceCardWidget(
       {super.key,
+      required this.applianceCode,
       required this.name,
       required this.icon,
       required this.roomName,
@@ -77,6 +80,13 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String? _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -137,17 +147,8 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         deviceId: widget.adapter?.getDeviceId(),
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-                    '未知id' ||
-                nameInModel ==
-                    '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -296,6 +297,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
+                  if (!deviceListModel.getOnlineStatus(
+                      deviceId: widget.applianceCode)) {
+                    TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                    return;
+                  }
                   if (!widget.disabled) {
                     if (widget.adapter?.type == AdapterType.wifiLight) {
                       Navigator.pushNamed(context, '0x13', arguments: {

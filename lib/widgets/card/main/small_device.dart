@@ -5,11 +5,13 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../util/nameFormatter.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
+  final String applianceCode;
   final String name;
   final Widget icon;
   final bool online;
@@ -26,6 +28,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
 
   const SmallDeviceCardWidget(
       {super.key,
+      required this.applianceCode,
       required this.name,
       required this.icon,
       required this.roomName,
@@ -79,7 +82,18 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
 
-    String? _getRightText() {
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
+
+    String _getRightText() {
+      if (widget.applianceCode == 'localPanel1' || widget.applianceCode == 'localPanel2') {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.length == 0 &&
           deviceListModel.deviceListMeiju.length == 0) {
         return '';
@@ -115,7 +129,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic();
+      return widget.adapter?.getCharacteristic() ?? '';
     }
 
     String getRoomName() {
@@ -136,11 +150,6 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter?.getDeviceId());
-
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -360,7 +369,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 3),
                                   child: Text(
-                                    '|',
+                                    '${_getRightText().isNotEmpty ? '|': ''}',
                                     style: TextStyle(
                                       fontFamily: 'MideaType',
                                       color: Colors.white.withOpacity(0.64),
@@ -389,7 +398,10 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                   GestureDetector(
                     onTap: () {
                       Log.i('点击进入插件', widget.adapter?.type);
-
+                      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                        TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                        return;
+                      }
                       if (!widget.disabled) {
                         if (widget.adapter?.type == AdapterType.wifiLight) {
                           Navigator.pushNamed(context, '0x13', arguments: {

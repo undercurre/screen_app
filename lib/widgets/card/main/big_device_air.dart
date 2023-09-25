@@ -4,11 +4,13 @@ import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceAirCardWidget extends StatefulWidget {
+  final String applianceCode;
   final String name;
   final bool online;
   final bool isFault;
@@ -31,7 +33,8 @@ class BigDeviceAirCardWidget extends StatefulWidget {
       this.adapter,
       this.hasMore = true,
       this.disabled = false,
-      this.disableOnOff = true});
+      this.disableOnOff = true,
+      required this.applianceCode});
 
   @override
   _BigDeviceAirCardWidgetState createState() => _BigDeviceAirCardWidgetState();
@@ -70,6 +73,15 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String _getRightText() {
       if (widget.isFault) {
@@ -111,16 +123,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         deviceId: widget.adapter?.getDeviceId(),
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -227,7 +231,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" ${_getRightText().isNotEmpty ? '|' : '' } ${_getRightText()}",
+                  child: Text(
+                      " ${_getRightText().isNotEmpty ? '|' : ''} ${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

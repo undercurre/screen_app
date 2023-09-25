@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/models/device_entity.dart';
 
 import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
@@ -21,6 +22,7 @@ import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
 
 class SmallScenePanelCardWidget extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -40,7 +42,7 @@ class SmallScenePanelCardWidget extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.disableOnOff = true,
-    this.discriminative = false,
+    this.discriminative = false, required this.applianceCode,
   });
 
   @override
@@ -117,14 +119,17 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       });
     }
 
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
+
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter.applianceCode);
-
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -233,7 +238,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                     ),
                   ),
                   Text(
-                    '${getRoomName()} | ${_getRightText()}',
+                    '${getRoomName()}${_getRightText().isEmpty ? '' : ' | '}${_getRightText()}',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.64),
                         fontSize: 16,
@@ -249,7 +254,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     );
   }
 
-  Object? _getRightText() {
+  String _getRightText() {
     if (widget.disabled) {
       return '';
     }
@@ -274,12 +279,11 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
+            Color(0x33616A76),
+            Color(0x33434852),
           ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
+          stops: [0.06, 1.0],
+          transform: GradientRotation(213 * (3.1415926 / 360.0)),
         ),
       );
     }
