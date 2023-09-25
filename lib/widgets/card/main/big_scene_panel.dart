@@ -113,15 +113,18 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
-    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
-      layoutModel.deleteLayout(widget.adapter.applianceCode);
-      List<DeviceEntity> hitList = deviceListModel.deviceCacheList
-          .where((element) => element.applianceCode == widget.applianceCode)
-          .toList();
-      if (hitList.isNotEmpty) {
-        TipsUtils.toast(content: '已删除${hitList[0].name}');
-      }
-    }
+    // if (mounted) {
+    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
+    //       deviceListModel.deviceCacheList.isNotEmpty) {
+    //     layoutModel.deleteLayout(widget.adapter.applianceCode);
+    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList
+    //         .where((element) => element.applianceCode == widget.applianceCode)
+    //         .toList();
+    //     if (hitList.isNotEmpty) {
+    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
+    //     }
+    //   }
+    // }
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
