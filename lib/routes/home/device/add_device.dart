@@ -525,7 +525,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: Text(
                                         maxLines: 1,
                                         textAlign: TextAlign.center,
-                                        NameFormatter.formatName(item['text']!, 5),
+                                        NameFormatter.formatNamePopRoom(item['text']!, 6),
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontFamily: "MideaType",
