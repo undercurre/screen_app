@@ -146,11 +146,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                       onPressed: (_, index, context) {
                         if (index == 1) {
                           System.logout("账号管理，手动退出登录");
-                          Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              "Login",
-                              (route) => route.settings.name == "/",
-                              arguments: {"from": "logout"});
                         } else {
                           Navigator.pop(context);
                         }

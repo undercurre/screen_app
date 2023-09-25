@@ -9,7 +9,9 @@ import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
@@ -99,43 +101,44 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter.applianceCode);
+    }
 
     String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+        deviceId: widget.adapter.applianceCode,
+      );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter.applianceCode);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
       if (widget.disabled) {
-        return (deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知id' ||
-                deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知设备')
+        return (nameInModel ==
+            '未知id' ||
+            nameInModel ==
+                '未知设备')
             ? widget.name
-            : deviceListModel.getDeviceName(
-                deviceId: widget.adapter?.getDeviceId(),
-              );
+            : nameInModel;
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
           deviceListModel.deviceListMeiju.length == 0) {
         return '加载中';
-      }
-
-      return deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
-      );
-    }
-
-    String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
-      if (widget.disabled) {
-        return NameFormatter.formatName(widget.roomName, 3);
-      }
-
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
-        return '';
       }
 
       return nameInModel;

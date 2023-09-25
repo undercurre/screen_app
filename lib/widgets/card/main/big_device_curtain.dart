@@ -5,7 +5,9 @@ import 'package:screen_app/widgets/util/nameFormatter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {
@@ -77,31 +79,47 @@ class _BigDeviceCurtainCardWidgetState
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String getDeviceName() {
-      if (widget.disabled) {
-        return (deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        ) ==
-            '未知id' ||
-            deviceListModel.getDeviceName(
-              deviceId: widget.adapter?.getDeviceId(),
-            ) ==
-                '未知设备')
-            ? widget.name
-            : deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId(),
-        );
-      }
-
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
-        return '在线';
-      }
-
-      return deviceListModel.getDeviceName(
+      String nameInModel = deviceListModel.getDeviceName(
         deviceId: widget.adapter?.getDeviceId(),
       );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
+      if (widget.disabled) {
+        return (nameInModel ==
+            '未知id' ||
+            nameInModel ==
+                '未知设备')
+            ? widget.name
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
     }
 
     return Container(
@@ -169,10 +187,7 @@ class _BigDeviceCurtainCardWidgetState
                             ),
                           ),
                           Text(
-                            getDeviceName().substring(
-                              getDeviceName().length - 1,
-                              getDeviceName().length,
-                            ),
+                            getDeviceName(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
@@ -187,7 +202,7 @@ class _BigDeviceCurtainCardWidgetState
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(NameFormatter.formatName(widget.roomName, 3),
+                  child: Text(getRoomName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
