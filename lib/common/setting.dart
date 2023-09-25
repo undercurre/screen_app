@@ -66,6 +66,9 @@ class Setting {
   /// 默认亮度 0～255
   final int _defaultBrightness = 255;
 
+  /// 是否允许登录页切换平台
+  late bool _isAllowChangePlatform;
+
   /// 最后绑定的家庭名称
   late String _lastBindHomeName;
   /// 最后绑定的家庭Id
@@ -95,6 +98,8 @@ class Setting {
 
     _lastBindHomeName = _prefs.getString("last_bind_home_name") ?? "";
     _lastBindHomeId = _prefs.getString("last_bind_home_id") ?? "";
+
+    _isAllowChangePlatform = _prefs.getBool('allow_change_platform') ?? true;
 
     initDeviceDefaultConfig();
   }
@@ -323,6 +328,15 @@ class Setting {
   set lastBindHomeId(String val) {
     _prefs.setString('last_bind_home_id', val);
     _lastBindHomeId = val;
+  }
+
+  /// 获取是否允许登录页切换平台
+  bool get isAllowChangePlatform => _isAllowChangePlatform;
+
+  /// 设置是否允许登录页切换平台
+  set isAllowChangePlatform(bool val) {
+    _prefs.setBool('allow_change_platform', val);
+    _isAllowChangePlatform = val;
   }
 
 }

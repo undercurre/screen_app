@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:screen_app/common/setting.dart';
 
 import '../../common/gateway_platform.dart';
 import '../../common/utils.dart';
@@ -184,6 +185,7 @@ class CurrentPlatformPageState extends State<CurrentPlatformPage> {
               TipsUtils.toast(content: '切换失败，请再次尝试', position: EasyLoadingToastPosition.bottom);
               return;
             }
+            Setting.instant().isAllowChangePlatform = true;
             Navigator.pushNamedAndRemoveUntil(
                 context,
                 "Login",
