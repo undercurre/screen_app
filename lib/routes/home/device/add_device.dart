@@ -17,6 +17,7 @@ import 'package:screen_app/widgets/card/main/small_device.dart';
 import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
+import '../../../channel/index.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
@@ -65,6 +66,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args =
           ModalRoute.of(context)?.settings.arguments as Map?;
+      settingMethodChannel.showLoading("设备加载中");
       meijuRoomList = args?['meijuRoomList'];
       homluxRoomList = args?['homluxRoomList'];
       initCache();
@@ -284,6 +286,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     scenesTemp.removeWhere((i) => deleteScenes.contains(i));
     scenes.addAll(scenesTemp);
     setState(() {});
+    settingMethodChannel.dismissLoading();
   }
 
   bool isLightGroup(String? type, String modelNum) {
