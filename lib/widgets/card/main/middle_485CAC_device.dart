@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../util/nameFormatter.dart';
 
 class Middle485CACDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -140,7 +141,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 110 : 160),
                     child: Text(
-                      widget.name,
+                      NameFormatter.formatName(widget.name, 5),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -186,7 +187,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
                     child: Text(
-                      widget.roomName,
+                      NameFormatter.formatName(widget.roomName, 4),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
