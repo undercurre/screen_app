@@ -111,14 +111,17 @@ class _MiddleScenePanelCardWidgetState
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
-
-    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
-      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
-      if (hitList.isEmpty) {
-        layoutModel.deleteLayout(widget.applianceCode);
-        TipsUtils.toast(content: '已删除${hitList[0].name}');
-      }
-    }
+    // if (mounted) {
+    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
+    //       deviceListModel.deviceCacheList.isNotEmpty) {
+    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((
+    //         element) => element.applianceCode == widget.applianceCode).toList();
+    //     if (hitList.isEmpty) {
+    //       layoutModel.deleteLayout(widget.applianceCode);
+    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
+    //     }
+    //   }
+    // }
 
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {

@@ -172,6 +172,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 devicesReal.add(deviceObj);
               }
             });
+            Log.i('有效布局', devicesReal);
             if (devicesReal.isNotEmpty) {
               List<Layout> layoutData = deviceInfoListModel
                   .transformLayoutFromDeviceList(devicesReal);
@@ -240,6 +241,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                         onlineStatus: '1')),
               ];
               await layoutModel.setLayouts(defaultList);
+              Log.i('插入默认布局');
             }
           }
         }
