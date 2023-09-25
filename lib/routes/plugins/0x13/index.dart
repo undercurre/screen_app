@@ -212,8 +212,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           },
                                         ),
                                       ),
-                                      if (((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
-                                          || (dataAdapter?.platform.inHomlux() ?? false)) Container(
+                                      if ((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
+                                        Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
