@@ -339,7 +339,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     if(state.modelId=="zhonghong.cac.002"&&localDeviceCode==state.address){
      data = CAC485Data(
          name: name,
-         currTemp: state.temper.toString(),
+         currTemp: state.currTemperature.toString(),
          targetTemp: state.temper.toString(),
          operationMode: state.mode.toString(),
          OnOff: state.onOff.toString(),

@@ -8,6 +8,7 @@ class Local485DeviceState {
   int mode=1;
   int speed=1;
   int temper=26;
+  int currTemperature=26;
   int onOff=1;
   int online=1;
 
@@ -23,6 +24,7 @@ _$DeviceStateToJson(Local485DeviceState instance) =>
       'mode': instance.mode,
       'speed': instance.speed,
       'temper': instance.temper,
+      'currTemperature': instance.currTemperature,
       'onOff': instance.onOff,
       'online': instance.online,
 
@@ -36,6 +38,7 @@ _$DeviceStateFromJson(Map<dynamic, dynamic> map) {
   state.speed = map['speed'] ?? 1;
   state.temper = map['temper'] ?? 26;
   state.onOff = map['onOff'] ?? 1;
+  state.currTemperature = map['currTemperature'] ?? 26;
   state.online = map['online'] ?? 1;
   return state;
 }
