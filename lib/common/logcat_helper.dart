@@ -4,13 +4,14 @@ import 'package:logger/logger.dart';
 import 'dart:io';
 
 // 定义日志文件最大保存的大小
-const _maxFileOutputLength = 10 * 1024 * 1024;
+const _maxFileOutputLength = 30 * 1024 * 1024;
 
 class FileOutput extends LogOutput {
   final File file;
   final bool overrideExisting;
   final Encoding encoding;
   RandomAccessFile? randomAccessFile;
+  int count = 1;
 
   FileOutput({
     required this.file,
@@ -36,18 +37,28 @@ class FileOutput extends LogOutput {
 
     for (var element in event.lines) {
       randomAccessFile!.writeStringSync('$element\n');
+      count++;
     }
 
     if(randomAccessFile!.positionSync() > _maxFileOutputLength) {
       randomAccessFile!.setPositionSync(0);
     }
 
-    randomAccessFile!.flushSync();
+    try{
+      if(count > 50) {
+        randomAccessFile!.flushSync();
+        count = 1;
+      }
+    } on Exception catch(error) {
+      Log.e(error);
+    }
+
   }
 
   @override
   void destroy() async {
     randomAccessFile?.closeSync();
+    randomAccessFile = null;
   }
 
 }
@@ -67,8 +78,33 @@ class MPrettyPrinter extends PrettyPrinter {
 
 }
 
-class Log {
+class ProxyLogger {
 
+  const ProxyLogger();
+
+  void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.v(message, error, stackTrace);
+  }
+  void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.d(message, error, stackTrace);
+  }
+  void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.i(message, error, stackTrace);
+  }
+  void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.w(message, error, stackTrace);
+  }
+  void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.e(message, error, stackTrace);
+  }
+  void wtf(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    Log.i(message, error, stackTrace);
+  }
+}
+
+const bool inProduction = bool.fromEnvironment('dart.vm.product');
+
+class Log {
   /// 日志台日志打印
   static final _consoleLogger = Logger(
       filter: ProductionFilter(),
@@ -76,7 +112,7 @@ class Log {
       output: MultiOutput([
         ConsoleOutput(),
       ]),
-      level: Level.info);
+      level: Level.verbose);
 
   /// 文件打印
   static final _fileLogger = Logger(
@@ -89,7 +125,12 @@ class Log {
           file: File.fromUri(Uri.file(
               '/data/data/com.midea.light/cache/MideaLog.txt')))
     ]),
+    level: Level.verbose
   );
+
+  static void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    _consoleLogger.w(message, error, stackTrace);
+  }
 
   static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.i(message, error, stackTrace);

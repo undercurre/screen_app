@@ -10,12 +10,15 @@ import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:uuid/uuid.dart';
 
 import '../widgets/event_bus.dart';
+import 'adapter/push_data_adapter.dart';
 import 'adapter/select_family_data_adapter.dart';
 import 'adapter/select_room_data_adapter.dart';
 import 'homlux/models/homlux_room_list_entity.dart';
+import 'homlux/push/homlu_push_manager.dart';
 import 'index.dart';
 import 'logcat_helper.dart';
 import 'meiju/models/meiju_room_entity.dart';
+import 'meiju/push/meiju_push_manager.dart';
 
 class System {
   /// 产品编码
@@ -216,12 +219,15 @@ class System {
   }
 
   /// 退出登录
+  /// 会自动退出到登录页，event -> logout 会发送到Boot页，最后跳入到Login页面
   static logout(String reason) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogout(reason);
+      HomluxPushManager.stopConnect();
       bus.emit('logout');
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.setLogout(reason);
+      MeiJuPushManager.stopConnect();
       bus.emit('logout');
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
