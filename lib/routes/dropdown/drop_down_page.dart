@@ -275,7 +275,7 @@ class _DropDownPageState extends State<DropDownPage>
                             soundLogo = "assets/imgs/dropDown/sound-white.png";
                           }
                           setState(() {});
-                          sliderToSetVol();
+                          // sliderToSetVol();
                         },
                         onChanged: (newValue, actieColor) {
                           soundValue = newValue;

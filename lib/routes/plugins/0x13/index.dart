@@ -179,8 +179,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                         child: ParamCard(
                                           title: '色温',
                                           unit: "K",
-                                          customMin: 2700,
-                                          customMax: 6500,
+                                          customMin: dataAdapter?.data?.minColorTemp ?? 2700,
+                                          customMax: dataAdapter?.data?.maxColorTemp ?? 6500,
                                           disabled: dataAdapter?.data!.power ?? true ? false : true,
                                           value: dataAdapter?.data!.colorTemp ?? 0,
                                           activeColors: const [
@@ -191,7 +191,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onChanging: dataAdapter?.controlColorTemperature,
                                         ),
                                       ),
-                                      Container(
+                                      if (((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
+                                        || (dataAdapter?.platform.inHomlux() ?? false)) Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: ModeCard(
@@ -211,7 +212,8 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           },
                                         ),
                                       ),
-                                      Container(
+                                      if (((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
+                                          || (dataAdapter?.platform.inHomlux() ?? false)) Container(
                                         margin:
                                             const EdgeInsets.only(bottom: 16),
                                         child: FunctionCard(
