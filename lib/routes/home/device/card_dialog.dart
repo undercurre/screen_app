@@ -107,7 +107,7 @@ class _CardDialogState extends State<CardDialog> {
                   if (_getCardType(widget.modelNumber, widget.type) !=
                       CardType.Other)
                     Text(
-                      '点击卡片可找一找设备',
+                      '操作卡片可找一找设备',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.5),
                         fontSize: 16,
