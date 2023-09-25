@@ -212,7 +212,7 @@ class _Big485FloorDeviceAirCardWidgetState
                       border:
                           Border.all(color: const Color(0xFFFFFFFF), width: 1),
                     ),
-                    margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
+                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 10),
                     child: const Text(
                       "本地",
                       style: TextStyle(

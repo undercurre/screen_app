@@ -15,6 +15,7 @@ import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
+import '../../../common/system.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
 import '../../../widgets/card/main/big_485CAC_device.dart';
@@ -1366,7 +1367,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: CACDataAdapter(
             MideaRuntimePlatform.platform,
             params.name,
@@ -1391,7 +1392,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: CACDataAdapter(
             MideaRuntimePlatform.platform,
             params.name,
@@ -1406,7 +1407,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           roomName: params.roomName,
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           temperature: 26,
           min: 16,
           max: 30,
@@ -1436,7 +1437,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: AirDataAdapter(
             MideaRuntimePlatform.platform,
             params.name,
@@ -1461,7 +1462,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: AirDataAdapter(
             MideaRuntimePlatform.platform,
             params.name,
@@ -1476,7 +1477,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           roomName: params.roomName,
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: AirDataAdapter(
             MideaRuntimePlatform.platform,
             params.name,
@@ -1503,7 +1504,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: FloorDataAdapter(
               MideaRuntimePlatform.platform,
               params.name,
@@ -1528,7 +1529,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           onMoreTap: () => {},
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           adapter: FloorDataAdapter(
               MideaRuntimePlatform.platform,
               params.name,
@@ -1543,7 +1544,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           roomName: params.roomName,
           online: params.isOnline == "0" ? false : true,
           isFault: false,
-          isNative: false,
+          isNative: System.inMeiJuPlatform()?false:true,
           temperature: 30,
           min: 5,
           max: 90,

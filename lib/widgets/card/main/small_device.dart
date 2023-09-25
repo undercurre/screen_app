@@ -122,7 +122,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       String nameInModel = deviceListModel.getDeviceRoomName(
           deviceId: widget.adapter?.getDeviceId());
       if (widget.disabled) {
-        return NameFormatter.formatName(widget.roomName, 3);
+        return NameFormatter.formatName(widget.roomName, 4);
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -137,10 +137,10 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter?.getDeviceId());
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
+      // if (nameInModel == '未知id' || nameInModel == '未知设备') {
+      //   layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+      //   TipsUtils.toast(content: '已删除$nameInModel');
+      // }
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -342,8 +342,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 80),
+                                  constraints: const BoxConstraints(maxWidth: 80),
                                   child: Text(
                                     '${getRoomName()}',
                                     overflow: TextOverflow.ellipsis,
@@ -357,8 +356,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                   ),
                                 ),
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 3),
+                                  padding: const EdgeInsets.symmetric(horizontal: 3),
                                   child: Text(
                                     '|',
                                     style: TextStyle(
