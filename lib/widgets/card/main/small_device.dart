@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../util/nameFormatter.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
@@ -75,6 +77,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String? _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -133,6 +136,12 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter?.getDeviceId());
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? NameFormatter.formatName(widget.name, 4)

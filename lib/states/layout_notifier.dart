@@ -147,9 +147,9 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 用于删除指定 deviceId 和 pageIndex 的布局对象。
-  Future<void> deleteLayout(String deviceId, int pageIndex) async {
+  Future<void> deleteLayout(String deviceId) async {
     layouts.removeWhere(
-        (item) => item.deviceId == deviceId && item.pageIndex == pageIndex);
+        (item) => item.deviceId == deviceId);
     _saveLayouts();
     notifyListeners();
   }
@@ -439,7 +439,7 @@ class LayoutModel extends ChangeNotifier {
       } else {
         // 最后一页也没有空间了，开一页新的
         screenLayer.resetGrid();
-        await deleteLayout(layout.deviceId, layout.pageIndex);
+        await deleteLayout(layout.deviceId);
         List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
         Layout newLayout = Layout(layout.deviceId, layout.type, targetType,
             maxPage + 1, fillCellsNew, layout.data);

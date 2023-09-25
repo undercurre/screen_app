@@ -13,6 +13,7 @@ import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/routes/home/device/layout_data.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
@@ -121,7 +122,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     } else {
       scenes = sceneRes;
     }
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (sceneRes.length > 8) {
       scenes.addAll(sceneRes.sublist(8));
     }
@@ -185,9 +186,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
     }
 
     List<List<DeviceEntity>> compareDevice =
-        compareData<DeviceEntity>(deviceCache, deviceRes);
+        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
     List<List<SceneInfoEntity>> compareScene =
-        compareData<SceneInfoEntity>(sceneCache, sceneRes);
+        Compare.compareData<SceneInfoEntity>(sceneCache, sceneRes);
 
     Log.i('设备删除了${compareDevice[1].length}, 增加${compareDevice[0].length}');
     Log.i('场景删除了${compareScene[1].length}, 增加${compareScene[0].length}');
@@ -931,11 +932,4 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
   }
 }
 
-List<List<T>> compareData<T>(List<T> cachedData, List<T> apiData) {
-  Set<T> cachedDataSet = Set.from(cachedData);
-  Set<T> apiDataSet = Set.from(apiData);
-  Set<T> addedData = apiDataSet.difference(cachedDataSet);
-  Set<T> removedData = cachedDataSet.difference(apiDataSet);
 
-  return [addedData.toList(), removedData.toList()];
-}

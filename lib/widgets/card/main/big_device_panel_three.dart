@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/adapter/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../common/utils.dart';
+import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
@@ -97,6 +101,49 @@ class _BigDevicePanelCardWidgetThreeState
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter.applianceCode);
+    }
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+        deviceId: widget.adapter.applianceCode,
+      );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter.applianceCode);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
+      if (widget.disabled) {
+        return (nameInModel ==
+            '未知id' ||
+            nameInModel ==
+                '未知设备')
+            ? widget.name
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
     return Container(
       width: 440,
       height: 196,
@@ -119,7 +166,7 @@ class _BigDevicePanelCardWidgetThreeState
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 140),
-                    child: Text(widget.name,
+                    child: Text(getDeviceName(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -132,7 +179,7 @@ class _BigDevicePanelCardWidgetThreeState
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
+                  child: Text(getRoomName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

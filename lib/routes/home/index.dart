@@ -7,10 +7,16 @@ import 'package:screen_app/common/push.dart';
 import 'package:screen_app/routes/home/device/newIndex.dart';
 import 'package:screen_app/routes/login/check_gateway_bind.dart';
 import 'package:screen_app/states/index.dart';
+import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
+import '../../common/homlux/push/event/homlux_push_event.dart';
+import '../../common/meiju/push/event/meiju_push_event.dart';
+import '../../models/device_entity.dart';
+import '../../states/device_list_notifier.dart';
+import '../../widgets/util/compare.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
@@ -45,6 +51,7 @@ class HomeState extends State<Home>
   @override
   void initState() {
     super.initState();
+    _startPushListen();
     //初始化状态
     initial();
 
@@ -63,21 +70,23 @@ class HomeState extends State<Home>
       bool autoLight = await settingMethodChannel.getAutoLight();
       bool nearWakeup = await settingMethodChannel.getNearWakeup();
       String macAddr = await aboutSystemChannel.getMacAddress();
-      System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
+      System.macAddress = macAddr.replaceAll(":", "").toUpperCase();
 
       Global.soundValue = soundValue;
       Global.lightValue = lightValue;
       Global.autoLight = autoLight;
       Global.nearWakeup = nearWakeup;
-      SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+      SelectRoomDataAdapter roomDataAd =
+          SelectRoomDataAdapter(MideaRuntimePlatform.platform);
       roomDataAd?.queryRoomList(System.familyInfo!);
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
       if (System.isLogin()) {
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
       }
-      if(MideaRuntimePlatform.platform==GatewayPlatform.HOMLUX){
-        aiMethodChannel.registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
+      if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+        aiMethodChannel
+            .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
       }
       deviceLocal485ControlChannel.find485Device();
       // 初始化推送
@@ -95,7 +104,8 @@ class HomeState extends State<Home>
     /// 判定当前网关是否已经绑定
     bindGatewayAd?.destroy();
     bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-    bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, deviceID) {
+    bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
+        (isBind, deviceID) {
       if (!isBind) {
         TipsUtils.toast(content: '智慧屏已删除，请重新登录');
         Push.dispose();
@@ -103,8 +113,7 @@ class HomeState extends State<Home>
         Navigator.pushNamedAndRemoveUntil(
             context, "Login", (route) => route.settings.name == "/");
       }
-    }, () {
-    });
+    }, () {});
   }
 
   @override
@@ -188,6 +197,7 @@ class HomeState extends State<Home>
 
   @override
   void dispose() {
+    _stopPushListen();
     super.dispose();
     bindGatewayAd?.destroy();
     bindGatewayAd = null;
@@ -207,5 +217,53 @@ class HomeState extends State<Home>
   void didChangeDependencies() {
     super.didChangeDependencies();
     debugPrint("didChangeDependencies");
+  }
+
+  void meijuPushDelete(MeiJuDeviceDelEvent args) {
+    handlePushDelete();
+  }
+
+  void homluxPushDelete(HomluxMovWifiDeviceEvent arg) {
+    handlePushDelete();
+  }
+
+  void homluxPushSubDelete(HomluxMovSubDeviceEvent arg) {
+    handlePushDelete();
+  }
+
+  void homluxPushGroupDelete(HomluxGroupDelEvent arg) {
+    handlePushDelete();
+  }
+
+  handlePushDelete() async {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    final layoutModel = context.read<LayoutModel>();
+    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<List<DeviceEntity>> compareDevice =
+        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    compareDevice[1].forEach((element) {
+      layoutModel.deleteLayout(element.applianceCode);
+    });
+  }
+
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushDelete);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
+    } else {
+      bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
+  }
+
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushDelete);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
+    } else {
+      bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
   }
 }
