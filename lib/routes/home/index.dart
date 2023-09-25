@@ -51,7 +51,6 @@ class HomeState extends State<Home>
   @override
   void initState() {
     super.initState();
-    _startPushListen();
     //初始化状态
     initial();
 
@@ -197,7 +196,6 @@ class HomeState extends State<Home>
 
   @override
   void dispose() {
-    _stopPushListen();
     super.dispose();
     bindGatewayAd?.destroy();
     bindGatewayAd = null;
@@ -217,53 +215,5 @@ class HomeState extends State<Home>
   void didChangeDependencies() {
     super.didChangeDependencies();
     debugPrint("didChangeDependencies");
-  }
-
-  void meijuPushDelete(MeiJuDeviceDelEvent args) {
-    handlePushDelete();
-  }
-
-  void homluxPushDelete(HomluxMovWifiDeviceEvent arg) {
-    handlePushDelete();
-  }
-
-  void homluxPushSubDelete(HomluxMovSubDeviceEvent arg) {
-    handlePushDelete();
-  }
-
-  void homluxPushGroupDelete(HomluxGroupDelEvent arg) {
-    handlePushDelete();
-  }
-
-  handlePushDelete() async {
-    final deviceModel = context.read<DeviceInfoListModel>();
-    final layoutModel = context.read<LayoutModel>();
-    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
-    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
-    List<List<DeviceEntity>> compareDevice =
-        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
-    compareDevice[1].forEach((element) {
-      layoutModel.deleteLayout(element.applianceCode);
-    });
-  }
-
-  void _startPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushDelete);
-      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
-      bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
-    } else {
-      bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
-    }
-  }
-
-  void _stopPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushDelete);
-      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
-      bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
-    } else {
-      bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
-    }
   }
 }

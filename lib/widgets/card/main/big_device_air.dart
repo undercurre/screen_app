@@ -185,6 +185,11 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             right: 16,
             child: GestureDetector(
               onTap: () {
+                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                  TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                  return;
+                }
+
                 Navigator.pushNamed(context, '0xAC', arguments: {
                   "name": widget.name,
                   "adapter": widget.adapter

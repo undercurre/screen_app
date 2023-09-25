@@ -320,9 +320,10 @@ class _LinkNetwork extends State<LinkNetwork> {
         Container(
           width: 432,
           height: 62,
+          margin: const EdgeInsets.only(left: 16),
           alignment: Alignment.centerLeft,
           child: const Text(
-            '请选择链接网络',
+            '可用网络',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.w400,

@@ -85,7 +85,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     //   }
     // }
 
-    String? _getRightText() {
+    String _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
           deviceListModel.deviceListMeiju.length == 0) {
         return '';
@@ -107,20 +107,20 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           deviceId: widget.applianceCode)) {
         return '离线';
       }
-
-      if (widget.adapter?.dataState == DataState.LOADING) {
-        return '';
-      }
-
-      if (widget.adapter?.dataState == DataState.NONE) {
-        return '离线';
-      }
+      //
+      // if (widget.adapter?.dataState == DataState.LOADING) {
+      //   return '';
+      // }
+      //
+      // if (widget.adapter?.dataState == DataState.NONE) {
+      //   return '离线';
+      // }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic();
+      return widget.adapter?.getCharacteristic() ?? '';
     }
 
     String getRoomName() {
@@ -415,7 +415,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             left: 4,
             child: MzSlider(
               value: widget.disabled
-                  ? 0
+                  ? 1
                   : widget.adapter?.getCardStatus()?['brightness'] ?? '',
               width: 390,
               height: 16,
@@ -447,11 +447,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             left: 4,
             child: MzSlider(
               value: widget.disabled
-                  ? 1
+                  ? 0
                   : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
               width: 390,
               height: 16,
-              min: 1,
+              min: 0,
               max: 100,
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
                   widget.disabled,
@@ -474,6 +474,16 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     if (widget.adapter != null) {
       if (widget.adapter!.getCardStatus()?['maxColorTemp'] != null) {
+        Log.i('最大色温', widget.adapter!.getCardStatus()?['maxColorTemp']);
+        Log.i('最小色温', widget.adapter!.getCardStatus()?['minColorTemp']);
+        Log.i('当前色温', widget.adapter!.getCardStatus()?['colorTemp']);
+        Log.i('当前色温值', ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+            100 *
+            ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -
+                (widget.adapter?.getCardStatus()?['minColorTemp']
+                as int)) +
+            (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
+            .toInt());
         return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
                     100 *
                     ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -

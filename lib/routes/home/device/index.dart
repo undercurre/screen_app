@@ -5,14 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/gateway_platform.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 import 'package:screen_app/widgets/util/debouncer.dart';
 
 import '../../../common/api/api.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../../widgets/event_bus.dart';
+import '../../../widgets/util/compare.dart';
+import '../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import 'card_type_config.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
@@ -31,8 +38,29 @@ class DevicePage extends StatefulWidget {
     const oneMinute = Duration(minutes: 5);
 
     // 使用周期性定时器，每分钟触发一次
-    _timer = Timer.periodic(oneMinute, (Timer timer) {
-      context.read<DeviceInfoListModel>().getDeviceList();
+    _timer = Timer.periodic(oneMinute, (Timer timer) async {
+      final deviceModel = context.read<DeviceInfoListModel>();
+      final layoutModel = context.read<LayoutModel>();
+      List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
+      List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+      deviceCache = deviceCache
+          .where((element) =>
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  element.type, element.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
+          .toList();
+      deviceRes = deviceRes
+          .where((element) =>
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  element.type, element.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
+          .toList();
+      List<List<DeviceEntity>> compareDevice =
+          Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+      compareDevice[1].forEach((element) {
+        layoutModel.deleteLayout(element.applianceCode);
+        TipsUtils.toast(content: '已删除${element.name}');
+      });
     });
   }
 
@@ -53,6 +81,7 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void initState() {
     super.initState();
+    _startPushListen();
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
     deviceListModel.getDeviceList();
@@ -70,6 +99,7 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void dispose() {
     layoutModel?.removeLayouts();
+    _stopPushListen();
     super.dispose();
     widget.stopPolling();
   }
@@ -160,7 +190,6 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   List<Widget> getScreenList(LayoutModel layoutModel) {
-
     // 屏幕页面列表
     List<Widget> screenList = [];
     // 当前页面的widgets
@@ -305,5 +334,53 @@ class _DevicePageState extends State<DevicePage> {
       curScreenWidgetList = [];
     }
     return screenList;
+  }
+
+  void meijuPushDelete(MeiJuDeviceDelEvent args) {
+    handlePushDelete();
+  }
+
+  void homluxPushDelete(HomluxMovWifiDeviceEvent arg) {
+    handlePushDelete();
+  }
+
+  void homluxPushSubDelete(HomluxMovSubDeviceEvent arg) {
+    handlePushDelete();
+  }
+
+  void homluxPushGroupDelete(HomluxGroupDelEvent arg) {
+    handlePushDelete();
+  }
+
+  handlePushDelete() async {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    final layoutModel = context.read<LayoutModel>();
+    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<List<DeviceEntity>> compareDevice =
+        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    compareDevice[1].forEach((element) {
+      layoutModel.deleteLayout(element.applianceCode);
+    });
+  }
+
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushDelete);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
+    } else {
+      bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
+  }
+
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushDelete);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
+    } else {
+      bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
   }
 }

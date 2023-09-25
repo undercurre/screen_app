@@ -258,6 +258,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               if (isSuccess) {
                 Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
                 Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().isAllowChangePlatform = false;
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
@@ -452,7 +453,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            MzButton(
+                            if (Setting.instant().isAllowChangePlatform) MzButton(
                               width: 168,
                               height: 56,
                               borderRadius: 29,
@@ -468,7 +469,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                               },
                             ),
                             MzButton(
-                              width: 168,
+                              width: Setting.instant().isAllowChangePlatform ? 168 : 240,
                               height: 56,
                               borderRadius: 29,
                               backgroundColor: const Color(0xFF267AFF),
