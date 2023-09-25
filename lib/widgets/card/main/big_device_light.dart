@@ -100,7 +100,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       }
 
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.getDeviceId())) {
+          deviceId: widget.applianceCode)) {
         return '离线';
       }
 
@@ -130,12 +130,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       }
 
       return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
     }
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode
       );
 
       if (widget.disabled) {
@@ -158,7 +158,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
       bool online = deviceListModel.getOnlineStatus(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode
       );
       if (widget.disabled) {
         // if (widget.disableOnOff) {

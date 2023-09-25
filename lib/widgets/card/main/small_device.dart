@@ -101,7 +101,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
       if (widget.disabled) {
         if (deviceListModel.getOnlineStatus(
-            deviceId: widget.adapter?.getDeviceId())) {
+            deviceId: widget.applianceCode)) {
           return '在线';
         } else {
           return '离线';
@@ -113,7 +113,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       }
 
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.getDeviceId())) {
+          deviceId: widget.applianceCode)) {
         return '离线';
       }
 
@@ -134,7 +134,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
       if (widget.disabled) {
         return NameFormatter.formatName(widget.roomName, 3);
       }
@@ -149,7 +149,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -168,7 +168,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
       bool online = deviceListModel.getOnlineStatus(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode,
       );
       // if (widget.disabled) {
       //   Log.i('widget:${widget.disableOnOff}');

@@ -92,7 +92,7 @@ class _BigDeviceCurtainCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode,
       );
 
       if (widget.disabled) {
@@ -120,7 +120,7 @@ class _BigDeviceCurtainCardWidgetState
       }
 
       return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
     }
 
     return Container(

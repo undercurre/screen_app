@@ -93,7 +93,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       }
 
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.getDeviceId())) {
+          deviceId: widget.applianceCode)) {
         return '离线';
       }
 
@@ -120,7 +120,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode,
       );
 
       if (widget.disabled) {
@@ -148,7 +148,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       }
 
       return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
     }
 
     return Container(
