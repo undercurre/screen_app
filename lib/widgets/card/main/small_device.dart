@@ -120,13 +120,13 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         return '离线';
       }
 
-      if (widget.adapter?.dataState == DataState.LOADING) {
-        return '在线';
-      }
-
-      if (widget.adapter?.dataState == DataState.NONE) {
-        return '离线';
-      }
+      // if (widget.adapter?.dataState == DataState.LOADING) {
+      //   return '在线';
+      // }
+      //
+      // if (widget.adapter?.dataState == DataState.NONE) {
+      //   return '离线';
+      // }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
         return '离线';
