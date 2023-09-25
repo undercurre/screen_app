@@ -165,6 +165,74 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       }
     }
 
+    bool _getOnOff() {
+      // 禁用
+      if (widget.disabled) {
+        return false;
+      }
+      // 离线
+      if (deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+        return false;
+      }
+      // 模式
+      if (widget.adapter.data.modeList[0] == '2') {
+        // 场景模式
+        return widget.sceneOnOff;
+      } else {
+        // 普通模式
+        return widget.adapter.data!.statusList.isNotEmpty &&
+            widget.adapter.data!.statusList[0] &&
+            widget.adapter.dataState == DataState.SUCCESS;
+      }
+    }
+
+    BoxDecoration _getBoxDecoration() {
+      if (widget.disabled) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+            ],
+            stops: const [0.06, 1.0],
+            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      if (_getOnOff()) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF767B86),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+            stops: [0, 0.24, 1],
+            transform: GradientRotation(194 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          ],
+          stops: const [0.06, 1.0],
+          transform: const GradientRotation(213 * (3.1415926 / 360.0)),
+        ),
+      );
+    }
+
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
           deviceId: widget.adapter.applianceCode);
@@ -272,74 +340,6 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         ),
       ),
     );
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    if (widget.disabled) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-          ],
-          stops: const [0.06, 1.0],
-          transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    if (_getOnOff()) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-        ],
-        stops: const [0.06, 1.0],
-        transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-      ),
-    );
-  }
-
-  bool _getOnOff() {
-    // 禁用
-    if (widget.disabled) {
-      return false;
-    }
-    // 离线
-    if (widget.isOnline == '0') {
-      return false;
-    }
-    // 模式
-    if (widget.adapter.data.modeList[0] == '2') {
-      // 场景模式
-      return widget.sceneOnOff;
-    } else {
-      // 普通模式
-      return widget.adapter.data!.statusList.isNotEmpty &&
-          widget.adapter.data!.statusList[0] &&
-          widget.adapter.dataState == DataState.SUCCESS;
-    }
   }
 
   String _getName(List<SceneInfoEntity> sceneListCache) {

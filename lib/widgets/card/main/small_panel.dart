@@ -154,8 +154,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       //     widget.adapter.dataState == DataState.NONE) {
       //   return '在线';
       // }
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
       if (widget.adapter.dataState == DataState.ERROR) {
@@ -166,6 +165,62 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       } else {
         return '离线';
       }
+    }
+
+    BoxDecoration _getBoxDecoration() {
+      bool curPower = widget.adapter.data!.statusList.isNotEmpty &&
+          widget.adapter.data!.statusList[0] &&
+          widget.adapter.dataState == DataState.SUCCESS;
+      bool online =
+          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      if (!online) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      if ((curPower && !widget.disabled)) {
+        return const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color(0xFF818895),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+          ),
+        );
+      }
+      return BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33616A76),
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33434852),
+          ],
+        ),
+      );
     }
 
     return GestureDetector(
@@ -232,7 +287,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                     ),
                   ),
                   Text(
-                    '${getRoomName()}${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}',
+                    '${getRoomName()}${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.64),
                         fontSize: 16,
@@ -244,62 +299,6 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    if (widget.disabled) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    if (widget.isOnline != '0' &&
-        widget.adapter.data!.statusList.isNotEmpty &&
-        widget.adapter.data!.statusList[0] &&
-        !widget.disabled &&
-        widget.adapter.dataState == DataState.SUCCESS) {
-      return BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
-      );
-    }
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          widget.discriminative
-              ? Colors.white.withOpacity(0.12)
-              : const Color(0x33616A76),
-          widget.discriminative
-              ? Colors.white.withOpacity(0.12)
-              : const Color(0x33434852),
-        ],
-        stops: [0.06, 1.0],
-        transform: GradientRotation(213 * (3.1415926 / 360.0)),
       ),
     );
   }
