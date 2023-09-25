@@ -126,9 +126,11 @@ class _OtaState1 extends State<_OtaDialog> {
         state = _DownloadState.downloadSuc;
         step = _stepInstall;
         progress = 0;
-        _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+        _timer = Timer.periodic(const Duration(microseconds: 100), (timer) {
           setState(() {
-            progress += 0.01;
+            if(progress < 0.99) {
+              progress += 0.01;
+            }
           });
         });
       });
