@@ -6,11 +6,13 @@ import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {
+  final String applianceCode;
   final String name;
   final bool online;
   final bool isFault;
@@ -34,7 +36,8 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       this.hasMore = true,
       this.disabled = false,
       this.disableOnOff = true,
-      this.discriminative = false});
+      this.discriminative = false,
+      required this.applianceCode});
 
   @override
   _BigDeviceCurtainCardWidgetState createState() =>
@@ -43,7 +46,6 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
 
 class _BigDeviceCurtainCardWidgetState
     extends State<BigDeviceCurtainCardWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -80,22 +82,21 @@ class _BigDeviceCurtainCardWidgetState
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
+        deviceId: widget.applianceCode,
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -119,7 +120,7 @@ class _BigDeviceCurtainCardWidgetState
       }
 
       return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.getDeviceId());
+          deviceId: widget.applianceCode);
     }
 
     return Container(
@@ -141,10 +142,17 @@ class _BigDeviceCurtainCardWidgetState
             right: 16,
             child: GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '0x14', arguments: {
-                  "name": getDeviceName(),
-                  "adapter": widget.adapter
-                });
+                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                  TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                  return;
+                }
+
+                if (!widget.disabled) {
+                  Navigator.pushNamed(context, '0x14', arguments: {
+                    "name": getDeviceName(),
+                    "adapter": widget.adapter
+                  });
+                }
               },
               child: widget.hasMore
                   ? const Image(
@@ -176,7 +184,8 @@ class _BigDeviceCurtainCardWidgetState
                               maxWidth: 76,
                             ),
                             child: Text(
-                              getDeviceName().substring(0, getDeviceName().length - 1),
+                              getDeviceName()
+                                  .substring(0, getDeviceName().length - 1),
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Colors.white,

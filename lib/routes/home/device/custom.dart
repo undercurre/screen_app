@@ -195,6 +195,7 @@ class _CustomPageState extends State<CustomPage> {
                                   result.data.disabled = true;
                                   result.data.context = context;
                                   result.data.disableOnOff = false;
+                                  result.data.applianceCode = result.deviceId;
                                   Widget cardWidget =
                                       buildMap[result.type]![result.cardType]!(
                                           result.data);
@@ -478,6 +479,7 @@ class _CustomPageState extends State<CustomPage> {
                                     layoutAfterSort.data.disabled = true;
                                     layoutAfterSort.data.disableOnOff = false;
                                     layoutAfterSort.data.context = context;
+                                    layoutAfterSort.data.applianceCode = layoutAfterSort.deviceId;
                                     Widget cardWidget = buildMap[layoutAfterSort
                                             .type]![layoutAfterSort.cardType]!(
                                         layoutAfterSort.data);
@@ -522,6 +524,7 @@ class _CustomPageState extends State<CustomPage> {
                                 result.data.disabled = true;
                                 result.data.disableOnOff = false;
                                 result.data.context = context;
+                                result.data.applianceCode = result.deviceId;
                                 Widget cardWidget =
                                     buildMap[result.type]![result.cardType]!(
                                         result.data);
@@ -606,6 +609,7 @@ class _CustomPageState extends State<CustomPage> {
         layout.data.disabled = true;
         layout.data.disableOnOff = false;
         layout.data.context = context;
+        layout.data.applianceCode = layout.deviceId;
         // 映射出对应的Card
         Widget cardWidget =
             buildMap[layout.type]![layout.cardType]!(layout.data);

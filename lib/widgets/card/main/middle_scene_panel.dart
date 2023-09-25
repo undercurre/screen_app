@@ -10,6 +10,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
@@ -19,6 +20,7 @@ import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
 
 class MiddleScenePanelCardWidget extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -38,7 +40,7 @@ class MiddleScenePanelCardWidget extends StatefulWidget {
     required this.name,
     this.disableOnOff = true,
     required this.disabled,
-    this.discriminative = false,
+    this.discriminative = false, required this.applianceCode,
   });
 
   @override
@@ -109,6 +111,15 @@ class _MiddleScenePanelCardWidgetState
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
+
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
@@ -119,11 +130,6 @@ class _MiddleScenePanelCardWidgetState
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter.applianceCode);
-
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')

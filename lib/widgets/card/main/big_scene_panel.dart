@@ -12,6 +12,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
@@ -21,6 +22,7 @@ import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
 
 class BigScenePanelCardWidget extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -41,6 +43,7 @@ class BigScenePanelCardWidget extends StatefulWidget {
     this.disableOnOff = true,
     required this.disabled,
     this.discriminative = false,
+    required this.applianceCode,
   });
 
   @override
@@ -110,6 +113,15 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      layoutModel.deleteLayout(widget.adapter.applianceCode);
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (hitList.isNotEmpty) {
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
@@ -118,12 +130,8 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
     }
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode);
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
+      String nameInModel =
+          deviceListModel.getDeviceName(deviceId: widget.adapter.applianceCode);
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? NameFormatter.formatName(widget.name, 4)
@@ -162,8 +170,8 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
           Positioned(
             top: 14,
             left: 24,
-            child: Image(
-                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
+            child:
+                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(
             top: 10,
@@ -395,8 +403,12 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
       ),
     );

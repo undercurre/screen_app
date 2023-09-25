@@ -10,6 +10,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
@@ -17,6 +18,7 @@ import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 
 class BigDevicePanelCardWidgetThree extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -36,6 +38,7 @@ class BigDevicePanelCardWidgetThree extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.discriminative = false,
+    required this.applianceCode,
   });
 
   @override
@@ -103,6 +106,13 @@ class _BigDevicePanelCardWidgetThreeState
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.adapter.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
 
     String getRoomName() {
       if (widget.disabled) {
@@ -123,16 +133,8 @@ class _BigDevicePanelCardWidgetThreeState
         deviceId: widget.adapter.applianceCode,
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -144,6 +146,7 @@ class _BigDevicePanelCardWidgetThreeState
 
       return nameInModel;
     }
+
     return Container(
       width: 440,
       height: 196,
@@ -153,8 +156,8 @@ class _BigDevicePanelCardWidgetThreeState
           Positioned(
             top: 14,
             left: 24,
-            child: Image(
-                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
+            child:
+                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(
             top: 10,
@@ -339,8 +342,12 @@ class _BigDevicePanelCardWidgetThreeState
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
       ),
     );

@@ -604,6 +604,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: Container(
                                         padding: const EdgeInsets.all(10),
                                         child: SmallDeviceCardWidget(
+                                          applianceCode: devices[index].applianceCode,
                                           name: devices[index].name,
                                           icon: Image(
                                             image: AssetImage(_getIconUrl(

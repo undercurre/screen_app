@@ -12,6 +12,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
@@ -19,6 +20,7 @@ import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -38,6 +40,7 @@ class SmallPanelCardWidget extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.discriminative = false,
+    required this.applianceCode,
   });
 
   @override
@@ -103,14 +106,18 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
-    String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode);
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
       }
+    }
+
+    String getDeviceName() {
+      String nameInModel =
+          deviceListModel.getDeviceName(deviceId: widget.adapter.applianceCode);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -281,15 +288,18 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
         stops: [0.06, 1.0],
         transform: GradientRotation(213 * (3.1415926 / 360.0)),
       ),
     );
   }
-
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     if (args.nodeId == widget.adapter.nodeId) {

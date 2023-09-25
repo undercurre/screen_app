@@ -12,6 +12,7 @@ import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
+import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../states/scene_list_notifier.dart';
@@ -20,6 +21,7 @@ import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 
 class BigScenePanelCardWidgetThree extends StatefulWidget {
+  final String applianceCode;
   final Widget icon;
   final String name;
   final String roomName;
@@ -40,6 +42,7 @@ class BigScenePanelCardWidgetThree extends StatefulWidget {
     required this.name,
     required this.disabled,
     this.discriminative = false,
+    required this.applianceCode,
   });
 
   @override
@@ -110,6 +113,15 @@ class _BigScenePanelCardWidgetThreeState
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     final layoutModel = context.read<LayoutModel>();
+    if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode)) {
+      List<DeviceEntity> hitList = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (hitList.isEmpty) {
+        layoutModel.deleteLayout(widget.adapter.applianceCode);
+        TipsUtils.toast(content: '已删除${hitList[0].name}');
+      }
+    }
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
@@ -136,16 +148,8 @@ class _BigScenePanelCardWidgetThreeState
         deviceId: widget.adapter.applianceCode,
       );
 
-      if (nameInModel == '未知id' || nameInModel == '未知设备') {
-        layoutModel.deleteLayout(widget.adapter.applianceCode);
-        TipsUtils.toast(content: '已删除$nameInModel');
-      }
-
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -167,8 +171,8 @@ class _BigScenePanelCardWidgetThreeState
           Positioned(
             top: 14,
             left: 24,
-            child: Image(
-                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
+            child:
+                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
           ),
           Positioned(
             top: 10,
