@@ -76,7 +76,6 @@ class QRCodeEntity {
   dynamic get homluxData {
     return _homluxData;
   }
-
 }
 
 /// 二维码授权成功回调
@@ -84,7 +83,6 @@ typedef AuthQrCodeSucCallback = void Function();
 
 /// 二维码数据适配层
 class QRCodeDataAdapter extends MideaDataAdapter {
-
   QRCodeDataAdapter(super.platform);
 
   DataState qrCodeState = DataState.NONE;
@@ -94,34 +92,42 @@ class QRCodeDataAdapter extends MideaDataAdapter {
   Timer? updateLoginStatusTime;
   Timer? updateQrCodeTime;
 
+  bool authTokenState = false;
+
   /// ### 设置二维码授权成功回调
   void setAuthQrCodeSucCallback(AuthQrCodeSucCallback callback) {
     authQrCodeSucCallback = callback;
   }
 
-  void requireQrCode() async {
+  void requireQrCode([force = true]) async {
+    if (authTokenState) {
+      Log.file('停止二维码活动');
+      return;
+    }
     if (platform.inHomlux()) {
       qrCodeState = DataState.LOADING;
-      HomluxResponseEntity<HomluxQrCodeEntity> code = await HomluxUserApi.queryQrCode();
+      HomluxResponseEntity<HomluxQrCodeEntity> code =
+          await HomluxUserApi.queryQrCode();
       if (code.isSuccess && code.result != null) {
         qrCodeState = DataState.SUCCESS;
         qrCodeEntity = QRCodeEntity.fromHomlux(code.result!);
         updateQrCodeTime?.cancel();
         updateQrCodeTime = Timer(const Duration(seconds: 3 * 60 - 20), () {
-          requireQrCode();
+          requireQrCode(false);
         });
       } else {
         qrCodeState = DataState.ERROR;
       }
-
     } else if (platform.inMeiju()) {
       qrCodeState = DataState.LOADING;
-      MeiJuResponseEntity<MeiJuQrCodeEntity> code = await MeiJuUserApi.queryQrCode();
+      MeiJuResponseEntity<MeiJuQrCodeEntity> code =
+          await MeiJuUserApi.queryQrCode();
       if (code.isSuccess && code.data != null) {
         qrCodeState = DataState.SUCCESS;
         qrCodeEntity = QRCodeEntity.fromMeiJu(code.data!);
         updateQrCodeTime?.cancel();
-        updateQrCodeTime = Timer(Duration(seconds: code.data!.effectTimeSecond! - 20), () {
+        updateQrCodeTime =
+            Timer(Duration(seconds: code.data!.effectTimeSecond! - 20), () {
           requireQrCode();
         });
       } else {
@@ -133,6 +139,11 @@ class QRCodeDataAdapter extends MideaDataAdapter {
 
   /// ### 轮询查询授权状态接口
   void updateLoginStatus() async {
+    if (authTokenState) {
+      Log.file('停止二维码活动');
+      return;
+    }
+
     var delaySec = 2; // 2s轮询间隔
     if (qrCodeEntity == null) {
       updateLoginStatusTime?.cancel();
@@ -142,36 +153,52 @@ class QRCodeDataAdapter extends MideaDataAdapter {
       return;
     }
 
-    if(platform.inMeiju()) {
-      var res = await MeiJuUserApi.getAccessToken(qrCodeEntity?._meijuData?.sessionId ?? '');
-      if (res.isSuccess && res.data != null) {
-        updateQrCodeTime?.cancel(); // 取消登录状态查询定时
-        updateLoginStatusTime?.cancel();// 取消状态轮询定时
-        Log.i('美居授权成功: ${res.toJson()}');
-        authQrCodeSucCallback?.call();
-        // 自动保存登录Token
-        MeiJuGlobal.token = res.data;
-      } else {
+    if (platform.inMeiju()) {
+      MeiJuUserApi.getAccessToken(qrCodeEntity?._meijuData?.sessionId ?? '')
+          .then((res) {
+        if (res.isSuccess && res.data != null) {
+          updateQrCodeTime?.cancel(); // 取消登录状态查询定时
+          updateLoginStatusTime?.cancel(); // 取消状态轮询定时
+          Log.i('美居授权成功: ${res.toJson()}');
+          authQrCodeSucCallback?.call();
+          // 自动保存登录Token
+          MeiJuGlobal.token = res.data;
+          authTokenState = true;
+        } else {
+          updateLoginStatusTime?.cancel();
+          updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
+            updateLoginStatus();
+          });
+        }
+      }, onError: (error) {
         updateLoginStatusTime?.cancel();
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();
         });
-      }
-    } else if(platform.inHomlux()) {
-      var res = await HomluxUserApi.getAccessToken(qrCodeEntity?._homluxData?.qrcode ?? '');
-      if(res.isSuccess && res.data?.authorizeStatus == 1) {
-        updateQrCodeTime?.cancel(); // 取消登录状态查询定时
-        updateLoginStatusTime?.cancel();// 取消状态轮询定时
-        Log.i('Homlux授权成功: ${res.toJson()}');
-        authQrCodeSucCallback?.call();
-        // 自动保存登录Token
-        HomluxGlobal.homluxQrCodeAuthEntity = res.data;
-      } else {
+      });
+    } else if (platform.inHomlux()) {
+      HomluxUserApi.getAccessToken(qrCodeEntity?._homluxData?.qrcode ?? '')
+          .then((res) {
+        if (res.isSuccess && res.data?.authorizeStatus == 1) {
+          updateQrCodeTime?.cancel(); // 取消登录状态查询定时
+          updateLoginStatusTime?.cancel(); // 取消状态轮询定时
+          Log.i('Homlux授权成功: ${res.toJson()}');
+          authQrCodeSucCallback?.call();
+          // 自动保存登录Token
+          HomluxGlobal.homluxQrCodeAuthEntity = res.data;
+          authTokenState = true;
+        } else {
+          updateLoginStatusTime?.cancel();
+          updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
+            updateLoginStatus();
+          });
+        }
+      }, onError: (error) {
         updateLoginStatusTime?.cancel();
         updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
           updateLoginStatus();
         });
-      }
+      });
     } else {
       throw Exception("No No No 异常调用");
     }
@@ -180,8 +207,8 @@ class QRCodeDataAdapter extends MideaDataAdapter {
   @override
   void destroy() {
     super.destroy();
+    Log.file('停止二维码活动');
     updateLoginStatusTime?.cancel();
     updateQrCodeTime?.cancel();
   }
-
 }

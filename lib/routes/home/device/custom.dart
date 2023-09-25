@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -64,6 +65,9 @@ class _CustomPageState extends State<CustomPage> {
   }
 
   Future<void> getRoomList() async {
+    Timer _timer= Timer(const Duration(seconds: 15), () {
+       settingMethodChannel.dismissLoading();
+     });
     settingMethodChannel.showLoading("房间加载中");
     SelectRoomDataAdapter roomDataAd =
     SelectRoomDataAdapter(MideaRuntimePlatform.platform);
@@ -71,6 +75,7 @@ class _CustomPageState extends State<CustomPage> {
     homluxRoomList=roomDataAd.homluxRoomList;
     meijuRoomList=roomDataAd.meijuRoomList;
     settingMethodChannel.dismissLoading();
+    _timer.cancel();
   }
 
   @override

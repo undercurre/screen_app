@@ -59,7 +59,7 @@ class EventBus {
     if(type.contains('?')) {
       type = type.replaceAll("?", '');
     }
-    Log.i('订阅的类型为$type');
+    Log.i('销毁订阅的类型为$type');
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
@@ -75,7 +75,7 @@ class EventBus {
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
-    Log.i('销毁订阅的类型为$type');
+    Log.i('订阅的类型为$type');
     on(type, callback);
   }
 

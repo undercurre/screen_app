@@ -107,14 +107,14 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
       child: Container(
         width: 210,
         height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
         decoration: _getBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 11),
               width: 40,
               child: widget.icon,
             ),
@@ -125,7 +125,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                 children: [
                   Row(children: [
                     SizedBox(
-                      width: 100,
+                      width: 80,
                       child: Text(
                         NameFormatter.formatName(widget.name, 5),
                         maxLines: 1,
@@ -139,7 +139,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                     ),
                     if (widget.isNative)
                       Container(
-                        margin: const EdgeInsets.only(left: 14),
+                        margin: const EdgeInsets.only(left: 0),
                         width: 36,
                         height: 20,
                         decoration: BoxDecoration(
@@ -175,7 +175,6 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                 ],
               ),
             ),
-            if (widget.onMoreTap != null)
               GestureDetector(
                 onTap: () => {
                   Navigator.pushNamed(context, '0x21_485Floor',

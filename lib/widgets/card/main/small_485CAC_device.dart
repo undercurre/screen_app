@@ -22,7 +22,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   CACDataAdapter? adapter; // 数据适配器
   String temperature = "26"; // 温度值
 
-
   Small485CACDeviceCardWidget({
     super.key,
     required this.name,
@@ -46,9 +45,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
 }
 
 class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
-
-
-
   @override
   void initState() {
     super.initState();
@@ -62,16 +58,16 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
-      widget.temperature=oldWidget.temperature;
-      widget.onOff=oldWidget.onOff;
+      widget.temperature = oldWidget.temperature;
+      widget.onOff = oldWidget.onOff;
     });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-        widget.temperature=widget.adapter!.data!.targetTemp;
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        widget.temperature = widget.adapter!.data!.targetTemp;
       });
     }
   }
@@ -79,12 +75,12 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   void powerHandle(bool state) async {
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
-      widget.onOff=false;
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
       widget.adapter!.data!.OnOff = "1";
-      widget.onOff=true;
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
@@ -97,91 +93,86 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => {
-        powerHandle(widget.onOff)
-      },
+      onTap: () => {powerHandle(widget.onOff)},
       child: Container(
         width: 210,
         height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
         decoration: _getBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 12),
               width: 40,
               child: widget.icon,
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    SizedBox(
-                      width: 100,
-                      child: Text(
-                        maxLines: 1,
-                        NameFormatter.formatName(widget.name, 5),
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w400,
-                        ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      maxLines: 1,
+                      NameFormatter.formatName(widget.name, 5),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                    if (widget.isNative)
-                      Container(
-                        margin: const EdgeInsets.only(left: 14),
-                        width: 36,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: const Color.fromRGBO(255, 255, 255, 0.32),
-                            width: 0.6,
-                          ),
+                  ),
+                  if (widget.isNative)
+                    Container(
+                      margin: const EdgeInsets.only(left: 0),
+                      width: 36,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.32),
+                          width: 0.6,
                         ),
-                        child: Center(
-                          child: Text(
-                            '本地',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.64),
-                            ),
-                          ),
-                        ),
-                      )
-                  ]),
-                  if (widget.roomName != '' || _getRightText() != '')
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        maxLines: 1,
-                        '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
-                        style: TextStyle(
+                      ),
+                      child: Center(
+                        child: Text(
+                          '本地',
+                          style: TextStyle(
+                            fontSize: 12,
                             color: Colors.white.withOpacity(0.64),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400),
+                          ),
+                        ),
                       ),
                     )
-                ],
-              ),
+                ]),
+                if (widget.roomName != '' || _getRightText() != '')
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      maxLines: 1,
+                      '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.64),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  )
+              ],
             ),
-            if (widget.onMoreTap != null)
-              GestureDetector(
-                onTap: () => {
-                  Navigator.pushNamed(context, '0x21_485CAC',
-                      arguments: {"name": widget.name,"adapter": widget.adapter})
-                },
-                child: const Image(
-                  width: 24,
-                  image: AssetImage('assets/newUI/to_plugin.png'),
-                ),
-              )
+            GestureDetector(
+              onTap: () => {
+                Navigator.pushNamed(context, '0x21_485CAC',
+                    arguments: {"name": widget.name, "adapter": widget.adapter})
+              },
+              child: const Image(
+                width: 24,
+                image: AssetImage('assets/newUI/to_plugin.png'),
+              ),
+            )
           ],
         ),
       ),
@@ -218,7 +209,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
         ),
       );
     }
-    if (widget.onOff && widget.online=="1") {
+    if (widget.onOff && widget.online == "1") {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

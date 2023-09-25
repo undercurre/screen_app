@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -17,6 +18,7 @@ import 'package:screen_app/widgets/card/main/small_device.dart';
 import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
+import '../../../channel/index.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
@@ -59,12 +61,17 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   List<MeiJuRoomEntity>? meijuRoomList;
   List<HomluxRoomInfo>? homluxRoomList;
+  late Timer _timer;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args =
           ModalRoute.of(context)?.settings.arguments as Map?;
+       _timer= Timer(const Duration(seconds: 15), () {
+        settingMethodChannel.dismissLoading();
+      });
+      settingMethodChannel.showLoading("设备加载中");
       meijuRoomList = args?['meijuRoomList'];
       homluxRoomList = args?['homluxRoomList'];
       initCache();
@@ -228,6 +235,30 @@ class _AddDevicePageState extends State<AddDevicePage> {
         deleteDevices.add(device);
       }
     }
+
+    ///首页如果有灯1灯2就去掉
+    List<String> deleteID=[];
+    for(Layout lay in layoutModel.layouts){
+      if(lay.data.applianceCode=="localPanel1"||lay.data.applianceCode=="localPanel2"){
+        deleteID.add(lay.data.applianceCode);
+      }
+    }
+
+    ///去掉自身的四寸屏
+    if (System.inMeiJuPlatform()) {
+      deleteID.add(MeiJuGlobal.gatewayApplianceCode!);
+    } else {
+      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode!}");
+    }
+
+    for (DeviceEntity device in devicesTemp) {
+      for(String id in deleteID){
+        if(device.applianceCode==id){
+          deleteDevices.add(device);
+        }
+      }
+    }
+
     devicesTemp.removeWhere((i) => deleteDevices.contains(i));
     List<DeviceEntity> devicesLightGroup = [];
     List<DeviceEntity> devicesPanel = [];
@@ -260,6 +291,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     scenesTemp.removeWhere((i) => deleteScenes.contains(i));
     scenes.addAll(scenesTemp);
     setState(() {});
+    settingMethodChannel.dismissLoading();
+    _timer.cancel();
   }
 
   bool isLightGroup(String? type, String modelNum) {
@@ -498,7 +531,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: Text(
                                         maxLines: 1,
                                         textAlign: TextAlign.center,
-                                        NameFormatter.formatName(item['text']!, 5),
+                                        NameFormatter.formatNamePopRoom(item['text']!, 6),
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontFamily: "MideaType",

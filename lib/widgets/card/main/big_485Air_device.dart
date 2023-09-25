@@ -221,9 +221,9 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
                       border:
-                          Border.all(color: const Color(0x00FFFFFF), width: 0),
+                          Border.all(color: const Color(0xFFFFFFFF), width: 1),
                     ),
-                    margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
+                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 10),
                     child: const Text(
                       "本地",
                       style: TextStyle(
