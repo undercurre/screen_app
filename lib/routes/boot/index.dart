@@ -109,6 +109,7 @@ class _Boot extends State<Boot> {
               System.familyInfo != null &&
               System.roomInfo != null;
           await migrateChannel.setMeiJuIsMigrate();
+          Setting.instant().isAllowChangePlatform = false;
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',
@@ -136,6 +137,7 @@ class _Boot extends State<Boot> {
               System.familyInfo != null &&
               System.roomInfo != null;
           await migrateChannel.setHomluxIsMigrate();
+          Setting.instant().isAllowChangePlatform = false;
           Navigator.pushNamed(
             context,
             isFinishLogin ? 'Home' : 'Login',
@@ -147,6 +149,7 @@ class _Boot extends State<Boot> {
           }
         }
       } else {
+        Setting.instant().isAllowChangePlatform = false;
         Navigator.pushNamed(
           context,
           'Login',

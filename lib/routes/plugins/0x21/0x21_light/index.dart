@@ -109,7 +109,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             disabled: dataAdapter?.data!.power ?? true ? false : true,
           ),
         ),
-        Container(
+        if (dataAdapter?.platform.inMeiju() ?? false) Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',
@@ -155,7 +155,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             onChanging: dataAdapter?.controlBrightness,
           ),
         ),
-        Container(
+        if (dataAdapter?.platform.inMeiju() ?? false) Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: FunctionCard(
             title: '延时关灯',

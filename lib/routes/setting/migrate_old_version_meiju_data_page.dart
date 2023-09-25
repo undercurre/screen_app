@@ -51,6 +51,7 @@ class MigrationOldVersionMeiJuDataState
     _timer = Timer(const Duration(minutes: 2), () {
       if (!startMigrate) {
         System.logout("迁移数据，导致退出登录");
+        Setting.instant().isAllowChangePlatform = false;
         Navigator.popAndPushNamed(context, 'Login');
         aboutSystemChannel
             .getAppVersion()
@@ -200,6 +201,7 @@ class MigrationOldVersionMeiJuDataState
       System.logout("迁移数据，导致退出登录");
       Future.delayed(Duration.zero).then(
         (value) {
+          Setting.instant().isAllowChangePlatform = false;
           Navigator.popAndPushNamed(context, 'Login');
           Log.i('报错', e);
         }

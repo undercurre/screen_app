@@ -23,8 +23,8 @@ class LightDataEntity {
   bool power = false; //开关
   String screenModel = 'manual'; //模式
   int timeOff = 0; //延时关
-  int maxColorTemp = 2700;
-  int minColorTemp = 6500;
+  int maxColorTemp = 6500;
+  int minColorTemp = 2700;
 
   LightDataEntity({
     required brightness,

@@ -49,6 +49,7 @@ class MigrationOldVersionHomLuxDataState
     _timer = Timer(const Duration(minutes: 2), () {
       if (!startMigrate) {
         System.logout("数据迁移失败");
+        Setting.instant().isAllowChangePlatform = false;
         Navigator.popAndPushNamed(context, 'Login');
         aboutSystemChannel
             .getAppVersion()
@@ -211,6 +212,7 @@ class MigrationOldVersionHomLuxDataState
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       System.logout("数据迁移失败");
+      Setting.instant().isAllowChangePlatform = false;
       Future.delayed(Duration.zero)
           .then((value) => Navigator.popAndPushNamed(context, 'Login'));
     }
