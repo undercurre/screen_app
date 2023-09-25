@@ -41,13 +41,9 @@ class _CustomPageState extends State<CustomPage> {
   double dragSumX = 0;
   double dragSumY = 0;
 
-  List<MeiJuRoomEntity>? meijuRoomList;
-  List<HomluxRoomInfo>? homluxRoomList;
-
   @override
   void initState() {
     super.initState();
-    getRoomList();
     // 在小部件初始化后等待一帧再执行回调
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       var initPage = context.read<PageCounter>().currentPage;
@@ -62,20 +58,6 @@ class _CustomPageState extends State<CustomPage> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> getRoomList() async {
-    Timer _timer= Timer(const Duration(seconds: 15), () {
-       settingMethodChannel.dismissLoading();
-     });
-    settingMethodChannel.showLoading("房间加载中");
-    SelectRoomDataAdapter roomDataAd =
-    SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-    await roomDataAd?.queryRoomList(System.familyInfo!);
-    homluxRoomList=roomDataAd.homluxRoomList;
-    meijuRoomList=roomDataAd.meijuRoomList;
-    settingMethodChannel.dismissLoading();
-    _timer.cancel();
   }
 
   @override
@@ -143,7 +125,7 @@ class _CustomPageState extends State<CustomPage> {
                             : Colors.white,
                         onPressed: () async {
                           if (layoutModel.layouts.length < 10000) {
-                            final result = await Navigator.pushNamed(context, 'AddDevice',arguments: {"meijuRoomList": meijuRoomList, "homluxRoomList": homluxRoomList});
+                            final result = await Navigator.pushNamed(context, 'AddDevice');
 
                             if (result != null) {
                               result as Layout;
