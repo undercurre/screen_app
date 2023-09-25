@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -60,12 +61,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   List<MeiJuRoomEntity>? meijuRoomList;
   List<HomluxRoomInfo>? homluxRoomList;
+  late Timer _timer;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map<dynamic, dynamic>? args =
           ModalRoute.of(context)?.settings.arguments as Map?;
+       _timer= Timer(const Duration(seconds: 15), () {
+        settingMethodChannel.dismissLoading();
+      });
       settingMethodChannel.showLoading("设备加载中");
       meijuRoomList = args?['meijuRoomList'];
       homluxRoomList = args?['homluxRoomList'];
@@ -287,6 +292,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     scenes.addAll(scenesTemp);
     setState(() {});
     settingMethodChannel.dismissLoading();
+    _timer.cancel();
   }
 
   bool isLightGroup(String? type, String modelNum) {
