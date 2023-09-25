@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 
+import '../../../channel/index.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/global.dart';
@@ -63,11 +64,13 @@ class _CustomPageState extends State<CustomPage> {
   }
 
   Future<void> getRoomList() async {
+    settingMethodChannel.showLoading("房间加载中");
     SelectRoomDataAdapter roomDataAd =
     SelectRoomDataAdapter(MideaRuntimePlatform.platform);
     await roomDataAd?.queryRoomList(System.familyInfo!);
     homluxRoomList=roomDataAd.homluxRoomList;
     meijuRoomList=roomDataAd.meijuRoomList;
+    settingMethodChannel.dismissLoading();
   }
 
   @override

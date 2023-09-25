@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../plugins/gear_485_card.dart';
-import '../../plugins/gear_card.dart';
+import '../../util/nameFormatter.dart';
 
 class Big485AirDeviceAirCardWidget extends StatefulWidget {
   final String name;
@@ -171,7 +171,8 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: Text(widget.name,
+                    child: Text(
+                        NameFormatter.formatName(widget.name, 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -186,7 +187,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(widget.roomName,
+                    child: Text( NameFormatter.formatName(widget.roomName, 4),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

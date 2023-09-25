@@ -10,6 +10,7 @@ import com.midea.light.MainApplication
 import com.midea.light.R
 import com.midea.light.common.config.AppCommonConfig
 import com.midea.light.channel.AbsMZMethodChannel
+import com.midea.light.common.utils.DialogUtil
 import com.midea.light.common.utils.SoundPoolManager
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
@@ -129,6 +130,14 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             }
             "GettingAutoLight" -> {
                 result.success(SystemUtil.isScreenAutoMode())
+            }
+            "showLoading" -> {
+                DialogUtil.showLoadingMessage(context,call.arguments as String)
+                result.success(true)
+            }
+            "dismissLoading" -> {
+                DialogUtil.closeLoadingDialog()
+                result.success(true)
             }
             else -> {
                 // 对应的方法没有报错

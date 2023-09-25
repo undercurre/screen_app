@@ -109,8 +109,8 @@ public class DialogUtil {
     public static void showLoadingMessage(Context context, String mess) {
         LoadingDialog.Builder loadBuilder = new LoadingDialog.Builder(context)
                 .setMessage(mess)
-                .setCancelable(false)
-                .setCancelOutside(false);
+                .setCancelable(true)
+                .setCancelOutside(true);
         loadingDialog = loadBuilder.create();
         loadingDialog.show();
     }

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../util/nameFormatter.dart';
 
 class Small485CACDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -123,7 +124,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                       width: 100,
                       child: Text(
                         maxLines: 1,
-                        widget.name,
+                        NameFormatter.formatName(widget.name, 5),
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
@@ -160,7 +161,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
                         maxLines: 1,
-                        '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                        '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                         style: TextStyle(
                             color: Colors.white.withOpacity(0.64),
                             fontSize: 16,

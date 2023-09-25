@@ -88,4 +88,12 @@ class SettingMethodChannel extends AbstractChannel{
     return await methodChannel.invokeMethod('screenOpenCloseState') as bool;
   }
 
+  void showLoading(String text) async {
+      methodChannel.invokeMethod('showLoading',text);
+  }
+
+  void dismissLoading() async {
+    methodChannel.invokeMethod('dismissLoading');
+  }
+
 }

@@ -29,7 +29,6 @@ import com.google.gson.Gson;
 import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
-import com.midea.light.bean.Add485DeviceBean;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
@@ -40,7 +39,6 @@ import com.midea.light.device.explore.controller.control485.controller.FreshAirC
 import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent;
 import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent;
 import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent;
-import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.issued.distribution.GateWayDistributionEvent;
 import com.midea.light.issued.plc.PLCControlEvent;
 import com.midea.light.log.LogUtil;
@@ -149,30 +147,30 @@ public class MainActivity extends FlutterActivity {
                     new Thread() {
                         public void run() {
                             if (mGateWayDistributionEvent.getState() == 60) {
-                                Log.e("sky", "接收到网关配网状态,空调设备数量:" + AirConditionController.getInstance().AirConditionList.size());
-                                Log.e("sky", "接收到网关配网状态,新风设备数量:" + FreshAirController.getInstance().FreshAirList.size());
-                                Log.e("sky", "接收到网关配网状态,地暖设备数量:" + FloorHotController.getInstance().FloorHotList.size());
-                                ArrayList<Add485DeviceBean.PLC.AddDev> AddDevList = new ArrayList<>();
-                                for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
-                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
-                                    AddDev.setAddr(AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.cac.002");
-                                    AddDevList.add(AddDev);
-                                }
-                                for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
-                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
-                                    AddDev.setAddr(FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.air.001");
-                                    AddDevList.add(AddDev);
-                                }
-                                for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
-                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
-                                    AddDev.setAddr(FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
-                                    AddDev.setModelId("zhonghong.heat.001");
-                                    AddDevList.add(AddDev);
-                                }
-                                Log.e("sky", "给网关的设备列表:" + new Gson().toJson(AddDevList));
-                                GateWayUtils.add485(AddDevList);
+//                                Log.e("sky", "接收到网关配网状态,空调设备数量:" + AirConditionController.getInstance().AirConditionList.size());
+//                                Log.e("sky", "接收到网关配网状态,新风设备数量:" + FreshAirController.getInstance().FreshAirList.size());
+//                                Log.e("sky", "接收到网关配网状态,地暖设备数量:" + FloorHotController.getInstance().FloorHotList.size());
+//                                ArrayList<Add485DeviceBean.PLC.AddDev> AddDevList = new ArrayList<>();
+//                                for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
+//                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
+//                                    AddDev.setAddr(AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress());
+//                                    AddDev.setModelId("zhonghong.cac.002");
+//                                    AddDevList.add(AddDev);
+//                                }
+//                                for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+//                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
+//                                    AddDev.setAddr(FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
+//                                    AddDev.setModelId("zhonghong.air.001");
+//                                    AddDevList.add(AddDev);
+//                                }
+//                                for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+//                                    Add485DeviceBean.PLC.AddDev AddDev = new Add485DeviceBean.PLC.AddDev();
+//                                    AddDev.setAddr(FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
+//                                    AddDev.setModelId("zhonghong.heat.001");
+//                                    AddDevList.add(AddDev);
+//                                }
+//                                Log.e("sky", "给网关的设备列表:" + new Gson().toJson(AddDevList));
+                                runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId",null));
                             }
                         }
                     }.start();

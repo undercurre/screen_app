@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
+import '../../util/nameFormatter.dart';
 
 class Small485AirDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -124,7 +125,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                     SizedBox(
                       width: 100,
                       child: Text(
-                        widget.name,
+                        NameFormatter.formatName(widget.name, 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -162,7 +163,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
                         maxLines: 1,
-                        '${widget.roomName} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                        '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                         style: TextStyle(
                             color: Colors.white.withOpacity(0.64),
                             fontSize: 16,
