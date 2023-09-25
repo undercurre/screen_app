@@ -63,6 +63,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
   List<MeiJuRoomEntity>? meijuRoomList;
   List<HomluxRoomInfo>? homluxRoomList;
   late Timer _timer;
+  double selectRoomVisible=1;
 
   @override
   void initState() {
@@ -351,6 +352,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
   void _handlePageChange(int index) {
     setState(() {
       _currentIndex = index;
+      if(index==0){
+        selectRoomVisible=1;
+      }else{
+        selectRoomVisible=0;
+      }
     });
   }
 
@@ -511,72 +517,76 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         ],
                       ),
                     ),
-                    ui.DropdownMenu(
-                      disabled: false,
-                      menu: btnList.map(
-                        (item) {
-                          return PopupMenuItem<String>(
-                            padding: EdgeInsets.zero,
-                            value: item['key'],
-                            child: MouseRegion(
-                              child: Center(
-                                child: Container(
-                                  width: 130,
-                                  height: 50,
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x26101010),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: SizedBox(
-                                      width: 200, // 设置最大宽度为 50
-                                      child: Text(
-                                        maxLines: 1,
-                                        textAlign: TextAlign.center,
-                                        NameFormatter.formatNamePopRoom(item['text']!, 6),
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontFamily: "MideaType",
-                                          fontWeight: FontWeight.w200,
+                    Opacity(
+                      opacity: selectRoomVisible,
+                      child: ui.DropdownMenu(
+                        disabled: false,
+                        menu: btnList.map(
+                              (item) {
+                            return PopupMenuItem<String>(
+                              padding: EdgeInsets.zero,
+                              value: item['key'],
+                              child: MouseRegion(
+                                child: Center(
+                                  child: Container(
+                                    width: 130,
+                                    height: 50,
+                                    margin:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x26101010),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: SizedBox(
+                                        width: 200, // 设置最大宽度为 50
+                                        child: Text(
+                                          maxLines: 1,
+                                          textAlign: TextAlign.center,
+                                          NameFormatter.formatNamePopRoom(item['text']!, 6),
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontFamily: "MideaType",
+                                            fontWeight: FontWeight.w200,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+                            );
+                          },
+                        ).toList(),
+                        trigger: SizedBox(
+                          width: 80, // 设置最大宽度为 60
+                          child: Text(
+                            maxLines: 1,
+                            textAlign: TextAlign.right,
+                            NameFormatter.formatName( getCurRoomConfig()["text"] ?? '卧室', 4),
+                            style: const TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 18.0,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.w200,
+                              decoration: TextDecoration.none,
                             ),
-                          );
-                        },
-                      ).toList(),
-                      trigger: SizedBox(
-                        width: 80, // 设置最大宽度为 60
-                        child: Text(
-                          maxLines: 1,
-                          textAlign: TextAlign.right,
-                          NameFormatter.formatName( getCurRoomConfig()["text"] ?? '卧室', 4),
-                          style: const TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.w200,
-                            decoration: TextDecoration.none,
                           ),
                         ),
+                        onVisibleChange: (visible) {
+                          setState(() {
+                            menuVisible = visible;
+                          });
+                        },
+                        onSelected: (dynamic roomID) {
+                          if (roomID != null && roomID != getSelectedKeys()) {
+                            roomHandle(roomID);
+                          }
+                        },
                       ),
-                      onVisibleChange: (visible) {
-                        setState(() {
-                          menuVisible = visible;
-                        });
-                      },
-                      onSelected: (dynamic roomID) {
-                        if (roomID != null && roomID != getSelectedKeys()) {
-                          roomHandle(roomID);
-                        }
-                      },
                     ),
+
                   ],
                 ),
                 Expanded(
