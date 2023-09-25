@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../plugins/gear_485_card.dart';
-import '../../plugins/gear_card.dart';
 import '../../util/nameFormatter.dart';
 
 class Big485AirDeviceAirCardWidget extends StatefulWidget {
