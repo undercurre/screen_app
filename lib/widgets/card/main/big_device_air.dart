@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
@@ -384,14 +385,14 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         ),
       );
     }
-    return const BoxDecoration(
+    return BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
       gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
         ],
       ),
     );

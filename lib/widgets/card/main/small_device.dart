@@ -89,18 +89,13 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         return '';
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
       if (widget.disabled) {
-        if (deviceListModel.getOnlineStatus(
-            deviceId: widget.applianceCode)) {
-          return '在线';
-        } else {
-          return '离线';
-        }
+        return '';
       }
 
       // if (widget.isFault) {

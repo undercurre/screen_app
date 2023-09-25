@@ -200,12 +200,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -215,12 +215,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       if (!curPower) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),

@@ -395,14 +395,14 @@ class _BigScenePanelCardWidgetThreeState
   }
 
   BoxDecoration _getBoxDecoration() {
-    return const BoxDecoration(
+    return BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
       gradient: LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
         ],
       ),
     );

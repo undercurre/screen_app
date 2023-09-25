@@ -208,22 +208,6 @@ class _BigDeviceCurtainCardWidgetState
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Container(
-                            constraints: const BoxConstraints(
-                              maxWidth: 76,
-                            ),
-                            child: Text(
-                              getDeviceName()
-                                  .substring(0, getDeviceName().length - 1),
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontFamily: 'MideaType',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
                           Text(
                             getDeviceName(),
                             style: const TextStyle(
