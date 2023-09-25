@@ -227,6 +227,30 @@ class _AddDevicePageState extends State<AddDevicePage> {
         deleteDevices.add(device);
       }
     }
+
+    ///首页如果有灯1灯2就去掉
+    List<String> deleteID=[];
+    for(Layout lay in layoutModel.layouts){
+      if(lay.data.applianceCode=="localPanel1"||lay.data.applianceCode=="localPanel2"){
+        deleteID.add(lay.data.applianceCode);
+      }
+    }
+
+    ///去掉自身的四寸屏
+    if (System.inMeiJuPlatform()) {
+      deleteID.add(MeiJuGlobal.gatewayApplianceCode!);
+    } else {
+      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode!}");
+    }
+
+    for (DeviceEntity device in devicesTemp) {
+      for(String id in deleteID){
+        if(device.applianceCode==id){
+          deleteDevices.add(device);
+        }
+      }
+    }
+
     devicesTemp.removeWhere((i) => deleteDevices.contains(i));
     List<DeviceEntity> devicesLightGroup = [];
     List<DeviceEntity> devicesPanel = [];
