@@ -17,6 +17,7 @@ class BigDeviceLightCardWidget extends StatefulWidget {
   final bool isNative;
   final String roomName;
   final bool disableOnOff;
+  final bool discriminative;
   final bool hasMore;
   final bool disabled;
 
@@ -32,6 +33,7 @@ class BigDeviceLightCardWidget extends StatefulWidget {
       required this.isNative,
       this.hasMore = true,
       this.disabled = false,
+      this.discriminative = false,
       this.adapter,
       this.disableOnOff = true});
 
@@ -74,6 +76,9 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';
@@ -87,8 +92,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
       //
@@ -117,20 +121,15 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.applianceCode);
+      return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
     }
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.applianceCode
-      );
+      String nameInModel =
+          deviceListModel.getDeviceName(deviceId: widget.applianceCode);
 
       if (widget.disabled) {
-        return (nameInModel ==
-            '未知id' ||
-            nameInModel ==
-                '未知设备')
+        return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? widget.name
             : nameInModel;
       }
@@ -145,9 +144,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
-      bool online = deviceListModel.getOnlineStatus(
-        deviceId: widget.applianceCode
-      );
+      bool online =
+          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.disabled) {
         // if (widget.disableOnOff) {
         //   return BoxDecoration(
@@ -277,7 +275,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             right: 16,
             child: GestureDetector(
               onTap: () {
-                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                if (!deviceListModel.getOnlineStatus(
+                    deviceId: widget.applianceCode)) {
                   TipsUtils.toast(content: '设备已离线，请检查连接状态');
                   return;
                 }
@@ -345,7 +344,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
+                    child: Text(
+                        "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -461,13 +461,16 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
         Log.i('最大色温', widget.adapter!.getCardStatus()?['maxColorTemp']);
         Log.i('最小色温', widget.adapter!.getCardStatus()?['minColorTemp']);
         Log.i('当前色温', widget.adapter!.getCardStatus()?['colorTemp']);
-        Log.i('当前色温值', ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
-            100 *
-            ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -
-                (widget.adapter?.getCardStatus()?['minColorTemp']
-                as int)) +
-            (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
-            .toInt());
+        Log.i(
+            '当前色温值',
+            ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+                        100 *
+                        ((widget.adapter?.getCardStatus()?['maxColorTemp']
+                                as int) -
+                            (widget.adapter?.getCardStatus()?['minColorTemp']
+                                as int)) +
+                    (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
+                .toInt());
         return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
                     100 *
                     ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -

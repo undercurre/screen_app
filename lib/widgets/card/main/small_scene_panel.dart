@@ -137,6 +137,9 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     }
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';

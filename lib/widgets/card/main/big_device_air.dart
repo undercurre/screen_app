@@ -17,6 +17,7 @@ class BigDeviceAirCardWidget extends StatefulWidget {
   final bool isNative;
   final String roomName;
   final bool disableOnOff;
+  final bool discriminative;
   final bool hasMore;
   final bool disabled;
 
@@ -34,6 +35,7 @@ class BigDeviceAirCardWidget extends StatefulWidget {
       this.hasMore = true,
       this.disabled = false,
       this.disableOnOff = true,
+      this.discriminative = false,
       required this.applianceCode});
 
   @override
@@ -74,6 +76,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';
@@ -87,8 +92,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
       //
@@ -118,8 +122,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             : nameInModel;
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -136,8 +140,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.applianceCode);
+      return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
     }
 
     return Container(
@@ -171,7 +174,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             right: 16,
             child: GestureDetector(
               onTap: () {
-                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                if (!deviceListModel.getOnlineStatus(
+                    deviceId: widget.applianceCode)) {
                   TipsUtils.toast(content: '设备已离线，请检查连接状态');
                   return;
                 }

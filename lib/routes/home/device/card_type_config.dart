@@ -717,6 +717,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           isNative: params.isNative ?? false,
           disabled: params.disabled ?? false,
           disableOnOff: params.disableOnOff ?? false,
+          discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
           adapter: WIFIAirDataAdapter(MideaRuntimePlatform.platform,
               params.context!, params.applianceCode ?? ''),

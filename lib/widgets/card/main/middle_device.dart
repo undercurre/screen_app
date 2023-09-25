@@ -81,6 +81,9 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';
@@ -283,8 +286,8 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
-                  if (!deviceListModel.getOnlineStatus(
-                      deviceId: widget.applianceCode)) {
+                  Log.i('点击进入插件', widget.adapter?.type);
+                  if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
                     TipsUtils.toast(content: '设备已离线，请检查连接状态');
                     return;
                   }
@@ -295,14 +298,28 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                         "adapter": widget.adapter
                       });
                     } else if (widget.adapter?.type ==
+                        AdapterType.wifiCurtain) {
+                      Navigator.pushNamed(context, '0x14', arguments: {
+                        "name": widget.name,
+                        "adapter": widget.adapter
+                      });
+                    } else if (widget.adapter?.type ==
                         AdapterType.zigbeeLight) {
                       Navigator.pushNamed(context, '0x21_light_colorful',
                           arguments: {
                             "name": widget.name,
                             "adapter": widget.adapter
                           });
-                    } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                      Navigator.pushNamed(context, 'lightGroup', arguments: {
+                    } else if (widget.adapter?.type ==
+                        AdapterType.lightGroup) {
+                      Navigator.pushNamed(context, 'lightGroup',
+                          arguments: {
+                            "name": widget.name,
+                            "adapter": widget.adapter
+                          });
+                    } else if (widget.adapter?.type ==
+                        AdapterType.wifiAir) {
+                      Navigator.pushNamed(context, '0xAC', arguments: {
                         "name": widget.name,
                         "adapter": widget.adapter
                       });

@@ -135,6 +135,9 @@ class _BigScenePanelCardWidgetThreeState
     }
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';

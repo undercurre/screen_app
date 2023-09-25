@@ -82,6 +82,9 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (widget.applianceCode == 'localPanel1' || widget.applianceCode == 'localPanel2') {
         return '';
       }

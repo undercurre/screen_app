@@ -107,6 +107,9 @@ class _BigDevicePanelCardWidgetThreeState
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String _getRightText() {
+      if (widget.discriminative) {
+        return '';
+      }
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return '';
