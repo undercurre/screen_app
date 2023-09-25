@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
@@ -19,6 +18,8 @@ import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 
 import '../../../channel/index.dart';
+import '../../../common/adapter/select_room_data_adapter.dart';
+import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
@@ -66,17 +67,21 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args =
-          ModalRoute.of(context)?.settings.arguments as Map?;
        _timer= Timer(const Duration(seconds: 15), () {
         settingMethodChannel.dismissLoading();
       });
-      settingMethodChannel.showLoading("设备加载中");
-      meijuRoomList = args?['meijuRoomList'];
-      homluxRoomList = args?['homluxRoomList'];
-      initCache();
+      getRoomList();
     });
     super.initState();
+  }
+
+  Future<void> getRoomList() async {
+    settingMethodChannel.showLoading("设备加载中");
+    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+    await roomDataAd?.queryRoomList(System.familyInfo!);
+    homluxRoomList=roomDataAd.homluxRoomList;
+    meijuRoomList=roomDataAd.meijuRoomList;
+    initCache();
   }
 
   @override
