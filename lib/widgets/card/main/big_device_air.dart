@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceAirCardWidget extends StatefulWidget {
@@ -67,6 +69,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String _getRightText() {
       if (widget.isFault) {
@@ -101,6 +104,47 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       }
 
       return '';
+    }
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
+      if (widget.disabled) {
+        return (nameInModel ==
+            '未知id' ||
+            nameInModel ==
+                '未知设备')
+            ? widget.name
+            : nameInModel;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      if (widget.disabled) {
+        return widget.roomName;
+      }
+
+      if (deviceListModel.deviceListHomlux.length == 0 &&
+          deviceListModel.deviceListMeiju.length == 0) {
+        return '';
+      }
+
+      return deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.getDeviceId());
     }
 
     return Container(
@@ -158,7 +202,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: Text(widget.name,
+                    child: Text(getDeviceName(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -171,7 +215,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(widget.roomName,
+                  child: Text(getRoomName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

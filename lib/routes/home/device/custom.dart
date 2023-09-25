@@ -228,8 +228,7 @@ class _CustomPageState extends State<CustomPage> {
                                                 layoutModel.getLayoutsByDevice(
                                                     result.deviceId);
                                             layoutModel.deleteLayout(
-                                                result.deviceId,
-                                                result.pageIndex);
+                                                result.deviceId);
                                             if (!layoutModel.layouts.map((e) => e.pageIndex).contains(result.pageIndex)) {
                                               layoutModel.handleNullPage(result.pageIndex);
                                             }
@@ -680,7 +679,7 @@ class _CustomPageState extends State<CustomPage> {
                 top: 8,
                 child: GestureDetector(
                   onTap: () async {
-                    await layoutModel.deleteLayout(layout.deviceId, layout.pageIndex);
+                    await layoutModel.deleteLayout(layout.deviceId);
                     // 看看是否删空
                     if (!layoutModel.layouts.map((e) => e.pageIndex).contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);

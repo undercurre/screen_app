@@ -9,7 +9,9 @@ import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
@@ -100,10 +102,17 @@ class _MiddleDevicePanelCardWidgetState
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
           deviceId: widget.adapter.applianceCode);
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter.applianceCode);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
             ? NameFormatter.formatName(widget.name, 4)

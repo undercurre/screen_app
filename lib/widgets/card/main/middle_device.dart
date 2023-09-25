@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 
 class MiddleDeviceCardWidget extends StatefulWidget {
   final String name;
@@ -74,6 +76,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String? _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -130,19 +133,23 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     }
 
     String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+        TipsUtils.toast(content: '已删除$nameInModel');
+
+      }
+
       if (widget.disabled) {
-        return (deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
+        return (nameInModel ==
                     '未知id' ||
-                deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
+                nameInModel ==
                     '未知设备')
             ? widget.name
-            : deviceListModel.getDeviceName(
-                deviceId: widget.adapter?.getDeviceId(),
-              );
+            : nameInModel;
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -150,9 +157,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         return '加载中';
       }
 
-      return deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
-      );
+      return nameInModel;
     }
 
     BoxDecoration _getBoxDecoration() {

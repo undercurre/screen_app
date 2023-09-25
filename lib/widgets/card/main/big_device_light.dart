@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/utils.dart';
 import '../../../states/device_list_notifier.dart';
+import '../../../states/layout_notifier.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
@@ -67,6 +69,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final layoutModel = context.read<LayoutModel>();
 
     String? _getRightText() {
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -121,29 +124,30 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     }
 
     String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+        deviceId: widget.adapter?.getDeviceId(),
+      );
+
+      if (nameInModel == '未知id' || nameInModel == '未知设备') {
+        layoutModel.deleteLayout(widget.adapter!.getDeviceId()!);
+        TipsUtils.toast(content: '已删除$nameInModel');
+      }
+
       if (widget.disabled) {
-        return (deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知id' ||
-                deviceListModel.getDeviceName(
-                      deviceId: widget.adapter?.getDeviceId(),
-                    ) ==
-                    '未知设备')
-            ? getDeviceName()
-            : deviceListModel.getDeviceName(
-                deviceId: widget.adapter?.getDeviceId(),
-              );
+        return (nameInModel ==
+            '未知id' ||
+            nameInModel ==
+                '未知设备')
+            ? widget.name
+            : nameInModel;
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
           deviceListModel.deviceListMeiju.length == 0) {
-        return '在线';
+        return '加载中';
       }
 
-      return deviceListModel.getDeviceName(
-        deviceId: widget.adapter?.getDeviceId(),
-      );
+      return nameInModel;
     }
 
     BoxDecoration _getBoxDecoration() {
@@ -332,7 +336,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(widget.roomName,
+                    child: Text(getRoomName(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
