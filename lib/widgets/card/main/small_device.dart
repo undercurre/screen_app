@@ -72,9 +72,11 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
   void updateCallback() {
     Log.i('小卡片状态更新');
-    setState(() {
-      widget.adapter?.data = widget.adapter?.data;
-    });
+    if (mounted) {
+      setState(() {
+        widget.adapter?.data = widget.adapter?.data;
+      });
+    }
   }
 
   @override
@@ -157,42 +159,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
-      bool online = deviceListModel.getOnlineStatus(
-        deviceId: widget.applianceCode,
-      );
-      // if (widget.disabled) {
-      //   Log.i('widget:${widget.disableOnOff}');
-      //   if (widget.disableOnOff) {
-      //     return BoxDecoration(
-      //       borderRadius: BorderRadius.circular(24),
-      //       gradient: const LinearGradient(
-      //         begin: Alignment.topLeft,
-      //         end: Alignment.bottomRight,
-      //         colors: [
-      //           Color(0xFF767B86),
-      //           Color(0xFF88909F),
-      //           Color(0xFF516375),
-      //         ],
-      //         stops: [0, 0.24, 1],
-      //         transform: GradientRotation(194 * (3.1415926 / 360.0)),
-      //       ),
-      //     );
-      //   } else {
-      //     return BoxDecoration(
-      //       borderRadius: BorderRadius.circular(24),
-      //       gradient: const LinearGradient(
-      //         begin: Alignment.topLeft,
-      //         end: Alignment.bottomRight,
-      //         colors: [
-      //           Color(0x33616A76),
-      //           Color(0x33434852),
-      //         ],
-      //         stops: [0.06, 1.0],
-      //         transform: GradientRotation(213 * (3.1415926 / 360.0)),
-      //       ),
-      //     );
-      //   }
-      // }
+      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -219,52 +186,39 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33616A76),
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33434852),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
           ),
         );
       }
-      if (!curPower) {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+      if ((curPower && !widget.disabled)) {
+        return const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33616A76),
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33434852),
-            ],
-            stops: const [0.06, 1.0],
-            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
-        );
-      } else {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF767B86),
+              Color(0xFF818895),
               Color(0xFF88909F),
               Color(0xFF516375),
             ],
-            stops: [0, 0.24, 1],
-            transform: GradientRotation(194 * (3.1415926 / 360.0)),
           ),
         );
       }
+      return BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          ],
+        ),
+      );
     }
 
     return GestureDetector(

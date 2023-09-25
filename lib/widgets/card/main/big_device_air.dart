@@ -47,14 +47,18 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   void initState() {
     super.initState();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
   void didUpdateWidget(covariant BigDeviceAirCardWidget oldWidget) {
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    if (!widget.disabled) {
+      widget.adapter?.bindDataUpdateFunction(updateCallback);
+      widget.adapter?.init();
+    }
   }
 
   @override
@@ -142,6 +146,70 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       }
 
       return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
+    }
+
+    BoxDecoration _getBoxDecoration() {
+      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      if (widget.isFault) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x77AE4C5E),
+              Color.fromRGBO(167, 78, 97, 0.32),
+            ],
+            stops: [0, 1],
+            transform: GradientRotation(222 * (3.1415926 / 360.0)),
+          ),
+          border: Border.all(
+            color: const Color.fromRGBO(255, 0, 0, 0.32),
+            width: 0.6,
+          ),
+        );
+      }
+      if (!online) {
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
+      }
+      if ((curPower && !widget.disabled)) {
+        return const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color(0xFF818895),
+              Color(0xFF88909F),
+              Color(0xFF516375),
+            ],
+          ),
+        );
+      }
+      return BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
+            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          ],
+        ),
+      );
     }
 
     return Container(
@@ -365,36 +433,5 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     }
     return widget.adapter!.getCardStatus()?["temperature"] +
         widget.adapter!.getCardStatus()?["smallTemperature"];
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    bool curPower = widget.adapter?.getPowerStatus() ?? false;
-    // if ((curPower && widget.online && !widget.disabled) ||
-    //     (widget.disabled && widget.disableOnOff)) {
-    if ((curPower && widget.online && !widget.disabled) || widget.disabled) {
-      return const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
-      );
-    }
-    return BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(24)),
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-        ],
-      ),
-    );
   }
 }
