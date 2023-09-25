@@ -111,24 +111,12 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    final layoutModel = context.read<LayoutModel>();
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
         sceneListCache = sceneModel.getCacheSceneList();
       });
     }
-    // if (mounted) {
-    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
-    //       deviceListModel.deviceCacheList.isNotEmpty) {
-    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((
-    //         element) => element.applianceCode == widget.applianceCode).toList();
-    //     if (hitList.isEmpty) {
-    //       layoutModel.deleteLayout(widget.applianceCode);
-    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
-    //     }
-    //   }
-    // }
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -146,6 +134,32 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       }
 
       return nameInModel;
+    }
+
+    String _getRightText() {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+      if (widget.disabled) {
+        return '';
+      }
+      // if (widget.adapter.dataState == DataState.LOADING ||
+      //     widget.adapter.dataState == DataState.NONE) {
+      //   return '在线';
+      // }
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.applianceCode)) {
+        return '离线';
+      }
+      if (widget.adapter.dataState == DataState.ERROR) {
+        return '离线';
+      }
+      if (widget.adapter.data!.statusList.isNotEmpty) {
+        return '在线';
+      } else {
+        return '离线';
+      }
     }
 
     String getRoomName() {
@@ -255,23 +269,6 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         ),
       ),
     );
-  }
-
-  String _getRightText() {
-    if (widget.disabled) {
-      return '';
-    }
-    if (widget.adapter.dataState == DataState.LOADING ||
-        widget.adapter.dataState == DataState.NONE) {
-      return '在线';
-    }
-    if (widget.isOnline == '0') {
-      return '离线';
-    }
-    if (widget.adapter.dataState == DataState.ERROR) {
-      return '离线';
-    }
-    return '在线';
   }
 
   BoxDecoration _getBoxDecoration() {

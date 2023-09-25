@@ -72,53 +72,39 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    final layoutModel = context.read<LayoutModel>();
-    // if (mounted) {
-    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
-    //       deviceListModel.deviceCacheList.isNotEmpty) {
-    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList
-    //         .where((element) => element.applianceCode == widget.applianceCode)
-    //         .toList();
-    //     if (hitList.isEmpty) {
-    //       layoutModel.deleteLayout(widget.applianceCode);
-    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
-    //     }
-    //   }
-    // }
 
     String _getRightText() {
-      if (widget.isFault) {
-        return '故障';
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
       }
 
-      if (widget.disabled && !widget.online) {
-        return '离线';
+      if (widget.disabled) {
+        return '';
       }
+
+      // if (widget.isFault) {
+      //   return '故障';
+      // }
 
       if (!deviceListModel.getOnlineStatus(
           deviceId: widget.applianceCode)) {
         return '离线';
       }
-
-      if (widget.adapter?.dataState == DataState.LOADING) {
-        return '在线';
-      }
-
-      if (widget.adapter?.dataState == DataState.NONE) {
-        return '离线';
-      }
+      //
+      // if (widget.adapter?.dataState == DataState.LOADING) {
+      //   return '';
+      // }
+      //
+      // if (widget.adapter?.dataState == DataState.NONE) {
+      //   return '离线';
+      // }
 
       if (widget.adapter?.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      if (widget.adapter != null) {
-        if (widget.adapter!.getCharacteristic() != null) {
-          return widget.adapter!.getCharacteristic()!;
-        }
-      }
-
-      return '';
+      return widget.adapter?.getCharacteristic() ?? '';
     }
 
     String getDeviceName() {

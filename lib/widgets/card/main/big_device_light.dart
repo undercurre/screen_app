@@ -72,36 +72,20 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    final layoutModel = context.read<LayoutModel>();
-    // if (mounted) {
-    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
-    //       deviceListModel.deviceCacheList.isNotEmpty) {
-    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((
-    //         element) => element.applianceCode == widget.applianceCode).toList();
-    //     if (hitList.isEmpty) {
-    //       layoutModel.deleteLayout(widget.applianceCode);
-    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
-    //     }
-    //   }
-    // }
 
     String _getRightText() {
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
       if (widget.disabled) {
-        if (widget.online) {
-          return '在线';
-        } else {
-          return '离线';
-        }
+        return '';
       }
 
-      if (widget.isFault) {
-        return '故障';
-      }
+      // if (widget.isFault) {
+      //   return '故障';
+      // }
 
       if (!deviceListModel.getOnlineStatus(
           deviceId: widget.applianceCode)) {
@@ -361,7 +345,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(" | ${_getRightText()}",
+                    child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

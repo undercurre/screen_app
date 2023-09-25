@@ -105,7 +105,33 @@ class _BigDevicePanelCardWidgetThreeState
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    final layoutModel = context.read<LayoutModel>();
+
+    String _getRightText() {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+      if (widget.disabled) {
+        return '';
+      }
+      // if (widget.adapter.dataState == DataState.LOADING ||
+      //     widget.adapter.dataState == DataState.NONE) {
+      //   return '在线';
+      // }
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.applianceCode)) {
+        return '离线';
+      }
+      if (widget.adapter.dataState == DataState.ERROR) {
+        return '离线';
+      }
+      if (widget.adapter.data!.statusList.isNotEmpty) {
+        return '在线';
+      } else {
+        return '离线';
+      }
+    }
+
     // if (mounted) {
     //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
     //       deviceListModel.deviceCacheList.isNotEmpty) {
@@ -198,7 +224,7 @@ class _BigDevicePanelCardWidgetThreeState
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
+                  child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -315,27 +341,6 @@ class _BigDevicePanelCardWidgetThreeState
       }
     } else {
       return false;
-    }
-  }
-
-  String _getRightText() {
-    if (widget.disabled) {
-      return '';
-    }
-    if (widget.adapter.dataState == DataState.LOADING ||
-        widget.adapter.dataState == DataState.NONE) {
-      return '在线';
-    }
-    if (widget.isOnline == '0') {
-      return '离线';
-    }
-    if (widget.adapter.dataState == DataState.ERROR) {
-      return '离线';
-    }
-    if (widget.adapter.data!.statusList.isNotEmpty) {
-      return '在线';
-    } else {
-      return '离线';
     }
   }
 

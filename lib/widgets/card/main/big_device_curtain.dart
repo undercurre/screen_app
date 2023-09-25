@@ -81,18 +81,40 @@ class _BigDeviceCurtainCardWidgetState
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
-    final layoutModel = context.read<LayoutModel>();
-    // if (mounted) {
-    //   if (layoutModel.hasLayoutWithDeviceId(widget.applianceCode) &&
-    //       deviceListModel.deviceCacheList.isNotEmpty) {
-    //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((
-    //         element) => element.applianceCode == widget.applianceCode).toList();
-    //     if (hitList.isEmpty) {
-    //       layoutModel.deleteLayout(widget.applianceCode);
-    //       TipsUtils.toast(content: '已删除${hitList[0].name}');
-    //     }
-    //   }
-    // }
+
+    String _getRightText() {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      if (widget.disabled) {
+        return '';
+      }
+
+      // if (widget.isFault) {
+      //   return '故障';
+      // }
+
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.applianceCode)) {
+        return '离线';
+      }
+      //
+      // if (widget.adapter?.dataState == DataState.LOADING) {
+      //   return '';
+      // }
+      //
+      // if (widget.adapter?.dataState == DataState.NONE) {
+      //   return '离线';
+      // }
+
+      if (widget.adapter?.dataState == DataState.ERROR) {
+        return '离线';
+      }
+
+      return widget.adapter?.getCharacteristic() ?? '';
+    }
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -227,7 +249,7 @@ class _BigDeviceCurtainCardWidgetState
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(" | ${_getRightText()}",
+                  child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -375,33 +397,6 @@ class _BigDeviceCurtainCardWidgetState
       return 0;
     }
     return 2;
-  }
-
-  String? _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-
-    if (widget.disabled) {
-      return '';
-    }
-
-    if (widget.adapter?.dataState == DataState.LOADING) {
-      return '在线';
-    }
-
-    if (widget.adapter?.dataState == DataState.NONE) {
-      return '离线';
-    }
-
-    if (widget.adapter?.dataState == DataState.ERROR) {
-      return '离线';
-    }
-
-    return widget.adapter?.getCharacteristic();
   }
 
   BoxDecoration _getBoxDecoration() {
