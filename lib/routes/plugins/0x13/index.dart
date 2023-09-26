@@ -192,60 +192,60 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                                           onChanging: dataAdapter?.controlColorTemperature,
                                         ),
                                       ),
-                                      if (((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
-                                        || (dataAdapter?.platform.inHomlux() ?? false)) Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: ModeCard(
-                                          disabled: dataAdapter?.data!.power ?? true ? false : true,
-                                          modeList: lightModes,
-                                          selectedKeys: getSelectedKeys(),
-                                          onTap: (mode) {
-                                            setState(() {
-                                              modeTap = mode;
-                                            });
-                                            Timer(const Duration(milliseconds: 500), () {
-                                              setState(() {
-                                                modeTap = null;
-                                              });
-                                            });
-                                            dataAdapter?.controlMode(mode);
-                                          },
-                                        ),
-                                      ),
-                                      if ((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
-                                        Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: FunctionCard(
-                                          title: '延时关灯',
-                                          subTitle: dataAdapter?.data!.timeOff == 0
-                                              ? '未设置'
-                                              : '${dataAdapter?.data!.timeOff}分钟后关灯',
-                                          child: Listener(
-                                            onPointerDown: (e) {
-                                              dataAdapter?.controlDelay();
-                                            },
-                                            child: Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.topRight,
-                                                  end: Alignment.bottomLeft,
-                                                  colors: dataAdapter?.data!.timeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
-                                                    [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: const Image(
-                                                image: AssetImage('assets/imgs/plugins/0x13/delay_off.png'),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
+                                      // if (((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
+                                      //   || (dataAdapter?.platform.inHomlux() ?? false)) Container(
+                                      //   margin:
+                                      //       const EdgeInsets.only(bottom: 16),
+                                      //   child: ModeCard(
+                                      //     disabled: dataAdapter?.data!.power ?? true ? false : true,
+                                      //     modeList: lightModes,
+                                      //     selectedKeys: getSelectedKeys(),
+                                      //     onTap: (mode) {
+                                      //       setState(() {
+                                      //         modeTap = mode;
+                                      //       });
+                                      //       Timer(const Duration(milliseconds: 500), () {
+                                      //         setState(() {
+                                      //           modeTap = null;
+                                      //         });
+                                      //       });
+                                      //       dataAdapter?.controlMode(mode);
+                                      //     },
+                                      //   ),
+                                      // ),
+                                      // if ((dataAdapter?.platform.inMeiju() ?? false)  && dataAdapter?.sn8 == '79009833')
+                                      //   Container(
+                                      //   margin:
+                                      //       const EdgeInsets.only(bottom: 16),
+                                      //   child: FunctionCard(
+                                      //     title: '延时关灯',
+                                      //     subTitle: dataAdapter?.data!.timeOff == 0
+                                      //         ? '未设置'
+                                      //         : '${dataAdapter?.data!.timeOff}分钟后关灯',
+                                      //     child: Listener(
+                                      //       onPointerDown: (e) {
+                                      //         dataAdapter?.controlDelay();
+                                      //       },
+                                      //       child: Container(
+                                      //         width: 40,
+                                      //         height: 40,
+                                      //         decoration: BoxDecoration(
+                                      //           gradient: LinearGradient(
+                                      //             begin: Alignment.topRight,
+                                      //             end: Alignment.bottomLeft,
+                                      //             colors: dataAdapter?.data!.timeOff == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                                      //               [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
+                                      //           ),
+                                      //           borderRadius:
+                                      //               BorderRadius.circular(20),
+                                      //         ),
+                                      //         child: const Image(
+                                      //           image: AssetImage('assets/imgs/plugins/0x13/delay_off.png'),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // )
                                     ],
                                   ),
                                 ),
