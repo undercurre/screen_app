@@ -178,7 +178,7 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
         onPressed: (_, position, context) {
           Navigator.pop(context);
           if (position == 1) {
-            TipsUtils.showLoading("正在清除中...");
+            TipsUtils.showClear(context);
             WeatherModel.resetData();
             // 此处执行清除数据的业务逻辑
             clearUserData().then((value) {

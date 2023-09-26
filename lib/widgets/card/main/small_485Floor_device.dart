@@ -222,10 +222,6 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
           stops: [0, 1],
           transform: GradientRotation(222 * (3.1415926 / 360.0)),
         ),
-        border: Border.all(
-          color: const Color.fromRGBO(255, 0, 0, 0.32),
-          width: 0.6,
-        ),
       );
     }
     if (widget.onOff && widget.online=="1") {

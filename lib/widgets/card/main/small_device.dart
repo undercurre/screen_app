@@ -174,10 +174,6 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
             stops: [0, 1],
             transform: GradientRotation(222 * (3.1415926 / 360.0)),
           ),
-          border: Border.all(
-            color: const Color.fromRGBO(255, 0, 0, 0.32),
-            width: 0.6,
-          ),
         );
       }
       if (!online) {
@@ -225,7 +221,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     return GestureDetector(
       onTap: () {
         Log.i('disabled: ${widget.disabled}');
-        if (!widget.disabled) {
+        if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
           widget.onTap?.call();
           widget.adapter?.power(widget.adapter?.getPowerStatus());
         } else {

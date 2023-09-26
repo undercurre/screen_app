@@ -253,7 +253,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       onTap: () async {
         Log.i('disabled', widget.disabled);
         if (!widget.disabled && widget.adapter.dataState == DataState.SUCCESS) {
-          if (widget.isOnline == '0') {
+          if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
             MzDialog(
                 title: '该设备已离线',
                 titleSize: 28,

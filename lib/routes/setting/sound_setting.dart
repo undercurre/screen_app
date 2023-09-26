@@ -74,7 +74,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                         "assets/newUI/back.png",
                       ),
                     ),
-                    const Text("声音设置",
+                    const Text("音量设置",
                         style: TextStyle(
                             color: Color(0XD8FFFFFF),
                             fontSize: 28,
@@ -108,7 +108,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     Positioned(
                       left: 20,
                       top: 12,
-                      child: Text("声音 | ${(soundValue / 15 * 100).toInt()}%",
+                      child: Text("音量 | ${(soundValue / 15 * 100).toInt()}%",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 24,

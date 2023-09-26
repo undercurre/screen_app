@@ -392,7 +392,7 @@ class _BigDeviceCurtainCardWidgetState
               },
               groupValue: _getGroupIndex(),
               onValueChanged: (int? value) {
-                if (widget.adapter?.getPowerStatus() != null) {
+                if (widget.adapter?.getPowerStatus() != null && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                   widget.adapter?.tabTo(value);
                 }
               },
@@ -407,7 +407,7 @@ class _BigDeviceCurtainCardWidgetState
               height: 16,
               min: 0,
               max: 100,
-              disabled: false,
+              disabled: widget.disabled || !(widget.adapter?.getPowerStatus() ?? false) || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());

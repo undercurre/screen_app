@@ -526,13 +526,14 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
       backgroundColor: Colors.transparent,
       child: Container(
         width: 435,
-        height: 292,
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+        height: 240,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         decoration: const BoxDecoration(
           color: Color(0xFF494E59),
           borderRadius: BorderRadius.all(Radius.circular(40.0)),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
                 flex: 1,
@@ -541,13 +542,13 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text('输入“${widget.result.ssid}”的密码',
+                        Text('输入“${toLimitString(widget.result.ssid)}”的密码',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 24)),
                         if (widget.connectedError)
                           const Text(
                             '密码错误！',
-                            style: TextStyle(color: Color(0xFFFF1111), fontSize: 18),
+                            style: TextStyle(color: Color(0xFFFF1111), fontSize: 16),
                           ),
                       ],
                     ))),
@@ -611,9 +612,9 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                                 },
                                 icon: closeEye
                                     ? Image.asset(
-                                    'assets/imgs/icon/eye-close.png')
+                                    'assets/newUI/eyeClose.png')
                                     : Image.asset(
-                                    'assets/imgs/icon/eye-open.png'))
+                                    'assets/newUI/eyeOpen.png'))
                           ],
                         ),
                       ),
@@ -644,12 +645,14 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                       borderColor: Colors.transparent,
                       borderWidth: 0,
                       isShowShadow: false,
+                      isClickable: (StrUtils.isNullOrEmpty(_nameController.text) ||
+                          _nameController.text.length < 8)?false:true,
                       text: '加入',
                       textColor: isLengthOk ? const Color(0xFFFFFFFF) : const Color(0xC8FFFFFF),
                       onPressed: () {
                         if (StrUtils.isNullOrEmpty(_nameController.text) ||
                             _nameController.text.length < 8) {
-                          TipsUtils.toast(content: "请输入8位密码");
+                          // TipsUtils.toast(content: "请输入8位密码");
                         } else {
                           widget.confirmAction
                               .call(widget.result, _nameController.text);
@@ -657,49 +660,22 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         }
                       },
                     )
-                    // Expanded(
-                    //     child: TextButton(
-                    //   onPressed: () {
-                    //     Navigator.pop(context);
-                    //   },
-                    //   style: ButtonStyle(
-                    //       backgroundColor: MaterialStateProperty.all(
-                    //           const Color.fromRGBO(40, 40, 40, 1)),
-                    //       shape: MaterialStateProperty.all(
-                    //           const RoundedRectangleBorder())),
-                    //   child: const Text(
-                    //     '取消',
-                    //     style: TextStyle(color: Colors.white, fontSize: 18),
-                    //   ),
-                    // )),
-                    // Container(width: 1),
-                    // Expanded(
-                    //     child: TextButton(
-                    //   style: ButtonStyle(
-                    //       backgroundColor: MaterialStateProperty.all(
-                    //           const Color(0xff267AFF)),
-                    //       shape: MaterialStateProperty.all(
-                    //           const RoundedRectangleBorder())),
-                    //   onPressed: () {
-                    //     if (StrUtils.isNullOrEmpty(_nameController.text) ||
-                    //         _nameController.text.length < 8) {
-                    //       TipsUtils.toast(content: "请输入8位密码");
-                    //     } else {
-                    //       widget.confirmAction
-                    //           .call(widget.result, _nameController.text);
-                    //       Navigator.pop(context);
-                    //     }
-                    //   },
-                    //   child: const Text(
-                    //     '加入',
-                    //     style: TextStyle(color: Colors.white, fontSize: 18),
-                    //   ),
-                    // )),
                   ],
                 )),
           ],
         ),
       ),
     );
+  }
+
+  String toLimitString(String str) {
+    if(str.isNotEmpty) {
+      if(str.length < 13) {
+        return str;
+      } else {
+        return '${str.substring(0, 9)}...${str.substring(str.length - 1)}';
+      }
+    }
+    return str;
   }
 }

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/global.dart';
 
 import '../../common/setting.dart';
 import '../../states/standby_notifier.dart';
@@ -17,12 +18,14 @@ class StandbySettingPage extends StatefulWidget {
 class StandbySettingPageState extends State<StandbySettingPage> {
   late bool isEnable;
   late int screenSaverId;
-
+  late int selectValue;
   @override
   void initState() {
     super.initState();
     screenSaverId = Setting.instant().screenSaverId;
     isEnable = !Setting.instant().screenSaverReplaceToOff;
+    selectValue=Setting.instant().standbyTimeOptNum;
+    logger.i("选择的时间:$selectValue");
   }
 
   @override
@@ -100,12 +103,16 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                     bgColor: Colors.transparent,
                     padding: const EdgeInsets.all(0),
                     onTap: () {
-                      Navigator.pushNamed(context, 'StandbyTimeChoicePage');
+                      Navigator.pushNamed(context, 'StandbyTimeChoicePage').then((value) => {
+                      setState(() {
+                        selectValue=Setting.instant().standbyTimeOptNum;
+                      })
+                      });
                     },
                   );
                 }),
               ),
-
+              if(selectValue!=4)
               Container(
                 height: 105,
                 width: 432,
@@ -115,7 +122,10 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                     color: const Color(0x19FFFFFF),
                     borderRadius: BorderRadius.circular(16)
                 ),
-                child: Column(
+
+                child:
+
+                Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -149,7 +159,7 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                 ),
               ),
 
-              if(isEnable) Container(
+              if(isEnable&&selectValue!=4) Container(
                 height: 72,
                 width: 432,
                 margin: const EdgeInsets.only(top: 18),
@@ -195,9 +205,13 @@ class StandbySettingPageState extends State<StandbySettingPage> {
     }
   }
 
+
   @override
   void didUpdateWidget(StandbySettingPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    setState(() {
+      selectValue=Setting.instant().standbyTimeOptNum;
+    });
   }
 
   @override
