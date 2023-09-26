@@ -32,7 +32,7 @@ class HomluxDeviceEntity {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -57,7 +57,7 @@ class HomluxDeviceSwitchInfoDTOList {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -82,7 +82,7 @@ class HomluxDeviceMzgdPropertyDTOList {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -127,7 +127,7 @@ class HomluxDeviceMzgdPropertyDTOList1 {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -172,7 +172,7 @@ class HomluxDeviceMzgdPropertyDTOList2 {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -217,7 +217,7 @@ class HomluxDeviceMzgdPropertyDTOList3 {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -262,7 +262,7 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }
 
@@ -307,6 +307,6 @@ class HomluxDeviceMzgdPropertyDTOListLight {
 
 	@override
 	String toString() {
-		return jsonEncode(this);
+		return jsonEncode(toJson());
 	}
 }

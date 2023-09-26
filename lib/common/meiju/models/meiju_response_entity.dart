@@ -28,7 +28,7 @@ class MeiJuResponseEntity<T> {
 
   @override
   String toString() {
-    return jsonEncode(this);
+    return jsonEncode(toJson());
   }
 }
 
@@ -59,6 +59,15 @@ Map<String, dynamic> $MideaResponseEntityToJson(MeiJuResponseEntity entity) {
   data['code'] = entity.code;
   data['msg'] = entity.msg;
   data['data'] = entity._data?.toJson();
-  data['result'] = entity._result?.toJson();
+  if(entity._data is List) {
+    data['data'] = entity._data?.map((element) => element.toJson()).toList();
+  } else {
+    data['data'] = entity._data?.toJson();
+  }
+  if(entity._result is List) {
+    data['result'] = entity._result?.map((element) => element.toJson()).toList();
+  } else {
+    data['result'] = entity._result?.toJson();
+  }
   return data;
 }
