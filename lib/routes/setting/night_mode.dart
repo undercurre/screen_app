@@ -101,7 +101,7 @@ class NightModePageState extends State<NightModePage> {
                       rightSlot: MzSwitch(
                         value: isEnable,
                         onTap: (e) {
-                          // Setting.instant().nightModeEnable = e;
+                          Setting.instant().nightModeEnable = e;
                           // if(e == false) {
                           //   /// 暂时逻辑，关闭开关就清除设置时间段
                           //   Setting.instant().setScreedDuration(Pair.of(23, 7));
