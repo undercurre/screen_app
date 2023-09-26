@@ -313,7 +313,7 @@ class _DevicePageState extends State<DevicePage> {
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 20,
                 axisDirection: AxisDirection.down,
-                children: [...curScreenWidgetList],
+                children: curScreenWidgetList,
               ),
             ),
           ),
