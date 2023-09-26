@@ -324,10 +324,6 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
           Color(0x33434852),
         ],
       ),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.32),
-        width: 0.6,
-      ),
     );
   }
 
