@@ -27,8 +27,8 @@ class DeviceDataEntity {
   int? colorTemp = 0; // 色温
   bool power = false; //开关
   int delayClose = 0; //延时关
-  int? maxColorTemp = 2700;
-  int? minColorTemp = 6500;
+  int? maxColorTemp = 6500;
+  int? minColorTemp = 2700;
 
   DeviceDataEntity({
     required brightness,

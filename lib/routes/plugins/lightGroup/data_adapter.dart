@@ -26,8 +26,8 @@ class GroupDataEntity {
   int brightness = 1; // 亮度
   int colorTemp = 0; // 色温
   bool power = false; //开关
-  int maxColorTemp = 2700;
-  int minColorTemp = 6500;
+  int maxColorTemp = 6500;
+  int minColorTemp = 2700;
 
 
   GroupDataEntity({
@@ -50,6 +50,8 @@ class GroupDataEntity {
     brightness = data!.controlAction?[0].brightness as int;
     colorTemp = data!.controlAction?[0].colorTemperature as int;
     power = data!.controlAction?[0].power == 1;
+    maxColorTemp = data!.colorTempRangeMap?.maxColorTemp! ?? 6500;
+    minColorTemp = data!.colorTempRangeMap?.minColorTemp! ?? 2700;
   }
 
   Map<String, dynamic> toJson() {

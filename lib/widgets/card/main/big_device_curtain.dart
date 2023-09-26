@@ -140,7 +140,8 @@ class _BigDeviceCurtainCardWidgetState
 
     String getRoomName() {
       if (widget.disabled) {
-        return widget.roomName;
+        return deviceListModel.getDeviceRoomName(
+            deviceId: widget.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&

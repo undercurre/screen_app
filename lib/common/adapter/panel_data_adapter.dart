@@ -111,7 +111,7 @@ class PanelDataAdapter extends MideaDataAdapter {
   }
 
   Future<void> fetchOrderPower(int PanelIndex) async {
-    bus.emit('operateDevice', nodeId);
+    bus.emit('operateDevice', applianceCode);
     if (platform.inMeiju()) {
       fetchOrderPowerMeiju(PanelIndex);
     } else {
