@@ -191,7 +191,6 @@ class _DevicePageState extends State<DevicePage> {
   List<Widget> getScreenList(LayoutModel layoutModel) {
     // 清空
     _screens.clear();
-    _screens.forEach((element) {element.})
     // 当前页面的widgets
     List<Widget> curScreenWidgetList = [];
     // 当前要布局的页面
