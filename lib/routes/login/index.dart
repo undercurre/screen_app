@@ -353,7 +353,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 debugPrint('Select: ${home?.toJson()}');
                 selectFamily = home;
                 System.familyInfo = home;
-                if(Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
+                if(Setting.instant().lastBindHomeId.isNotEmpty
+                    && Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
                   isNeedShowClearAlert = true;
                 }
                 nextStep();
