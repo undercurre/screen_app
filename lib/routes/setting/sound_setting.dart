@@ -74,7 +74,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                         "assets/newUI/back.png",
                       ),
                     ),
-                    const Text("声音设置",
+                    const Text("音量设置",
                         style: TextStyle(
                             color: Color(0XD8FFFFFF),
                             fontSize: 28,
