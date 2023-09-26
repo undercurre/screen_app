@@ -259,10 +259,6 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
           Color(0x33434852),
         ],
       ),
-      border: Border.all(
-        color: const Color(0x00FFFFFF),
-        width: 0,
-      ),
     );
   }
 }

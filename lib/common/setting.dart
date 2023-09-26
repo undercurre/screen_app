@@ -76,9 +76,11 @@ class Setting {
 
   void init() async {
     _prefs = await SharedPreferences.getInstance();
-    int screedStartTime = _prefs.getInt("setting_screed_start_time") ?? -1;
-    int screedEndTime = _prefs.getInt("setting_screed_end_time") ?? -1;
-    _screedDuration = Pair.of(screedStartTime, screedEndTime);
+
+    int? screedStartTime = _prefs.getInt("setting_screed_start_time") ?? (23 * 60);//23:00
+    int? screedEndTime = _prefs.getInt("setting_screed_end_time") ?? (31 * 60);//第二天07:00
+
+    _screedDuration = Pair.of(screedStartTime!, screedEndTime!);
     _nightModeEnable = _prefs.getBool('setting_night_mode_enable') ?? false;
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
@@ -165,9 +167,9 @@ class Setting {
   /// 获取息屏时间段的文字描述
   String getScreedDurationDetail() {
     final result = _screedDuration;
-    if(result.value1 == -1 || result.value2 == -1 || result.value1 >= result.value2 ) {
-      return '暂未设置';
-    }
+    // if(result.value1 == -1 || result.value2 == -1 || result.value1 >= result.value2 ) {
+    //   return '暂未设置';
+    // }
     final format = NumberFormat('00', 'en_US');
     final startHour = format.format(result.value1 ~/ 60 % 24);
     final startMinute = format.format(result.value1 % 60);

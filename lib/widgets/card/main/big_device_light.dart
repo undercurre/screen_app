@@ -175,10 +175,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             stops: [0, 1],
             transform: GradientRotation(222 * (3.1415926 / 360.0)),
           ),
-          border: Border.all(
-            color: const Color.fromRGBO(255, 0, 0, 0.32),
-            width: 0.6,
-          ),
         );
       }
       if (!online) {

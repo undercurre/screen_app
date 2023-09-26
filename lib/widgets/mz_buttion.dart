@@ -11,6 +11,8 @@ class MzButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isShowShadow;
   final Color textColor;
+  final bool isClickable;
+
 
   const MzButton({
     super.key,
@@ -24,6 +26,7 @@ class MzButton extends StatelessWidget {
     required this.onPressed,
     this.isShowShadow = true,
     this.textColor = const Color(0xFFFFFFFF),
+    this.isClickable=true,
   });
 
   @override
@@ -32,7 +35,7 @@ class MzButton extends StatelessWidget {
       width: width,
       height: height,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isClickable? onPressed:null,
         style: ButtonStyle(
           shadowColor: isShowShadow ? null : MaterialStateProperty.all(const Color(0x00000000)),
           backgroundColor: MaterialStateProperty.all(backgroundColor),

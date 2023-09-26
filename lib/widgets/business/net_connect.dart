@@ -645,12 +645,14 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                       borderColor: Colors.transparent,
                       borderWidth: 0,
                       isShowShadow: false,
+                      isClickable: (StrUtils.isNullOrEmpty(_nameController.text) ||
+                          _nameController.text.length < 8)?false:true,
                       text: '加入',
                       textColor: isLengthOk ? const Color(0xFFFFFFFF) : const Color(0xC8FFFFFF),
                       onPressed: () {
                         if (StrUtils.isNullOrEmpty(_nameController.text) ||
                             _nameController.text.length < 8) {
-                          TipsUtils.toast(content: "请输入8位密码");
+                          // TipsUtils.toast(content: "请输入8位密码");
                         } else {
                           widget.confirmAction
                               .call(widget.result, _nameController.text);

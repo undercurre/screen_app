@@ -258,10 +258,6 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
           Color(0x33434852),
         ],
       ),
-      border: Border.all(
-        color: const Color(0x00FFFFFF),
-        width: 0,
-      ),
     );
   }
 }
