@@ -148,7 +148,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                           Positioned(
                             left: 20,
                             top: 12,
-                            child: Text("屏幕亮度 | ${(lightValue / 255 * 100).toInt()}%",
+                            child: Text("屏幕亮度 | ${(lightValue / 255 * 100).toInt()==0?1:(lightValue / 255 * 100).toInt()}%",
                                 style: const TextStyle(
                                     color: Color(0XFFFFFFFF),
                                     fontSize: 24,
