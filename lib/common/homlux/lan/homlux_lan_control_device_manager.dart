@@ -5,6 +5,7 @@ import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/homlux/api/homlux_lan_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/lan/hang_up.dart';
+import 'package:screen_app/common/homlux/lan/utils.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,106 +20,7 @@ import '../push/event/homlux_push_event.dart';
 import '../push/homlu_push_manager.dart';
 import '../push/homlux_push_message_model.dart';
 
-//  print(equal(['1','2','2'], ['1','2','3']));
-//   print(equal(['1','3','2'], ['1','2','3']));
-//   print(equal(['1','3','2'], ['1','2']));
-//   print(equal({
-//     '1': ['1','2','3'],
-//     '2':123,
-//     '3':{
-//       '1': 1,
-//       '2': 2,
-//       '3':['1','2','3'],
-//       '4': {
-//         '1': 1,
-//         '2': 2,
-//         '3':['1','2','2']
-//       }
-//     }
-//   }, {
-//     '1': ['1','2','3'],
-//     '2': 123,
-//     '3':{
-//       '1': 1,
-//       '2': 2,
-//       '3':['1','3','2'],
-//       '4': {
-//         '1': 1,
-//         '2': 2,
-//         '3':['1','2','3']
-//       }
-//     }
-//   }));
-bool _equal(dynamic value1, dynamic value2, [int deep = 9223372036854775807]) {
-  if (value1 is Map && value2 is Map) {
-    if (deep == 0) {
-      return true;
-    }
-    if (value1.keys.length != value2.keys.length) {
-      return false;
-    }
-    bool equals = true;
-    value1.forEach((key, elementValue) {
-      equals &= _equal(elementValue, value2[key], deep - 1);
-    });
-    return equals;
-  } else if (value1 is List && value2 is List) {
-    if (deep == 0) {
-      return true;
-    }
-    bool result = true;
-    for (var item1 in value1) {
-      bool equals = false;
-      for (var item2 in value2) {
-        equals |= _equal(item1, item2, deep - 1);
-      }
-      result &= equals;
-    }
-    if (!result) return false;
 
-    result = true;
-    for (var item1 in value2) {
-      bool equals = false;
-      for (var item2 in value1) {
-        equals |= _equal(item1, item2, deep - 1);
-      }
-      result &= equals;
-    }
-    return result;
-  } else {
-    return value1 == value2;
-  }
-}
-
-// value2 contain in value1
-// 数值2 被 数值1 包含
-bool _mapContain(Map<String, dynamic> value1, Map<String, dynamic> value2) {
-  bool equals = true;
-  value2.forEach((key, elementValue) {
-    equals &= _equal(elementValue, value1[key]);
-  });
-  return equals;
-}
-
-// 将collection2 融合到 collection1 上
-Map<dynamic, dynamic> _mapDeepMerge(
-    Map<dynamic, dynamic> collection1, Map<dynamic, dynamic> collection2) {
-
-  collection2.forEach((key2, value2) {
-    if (collection1.containsKey(key2)) {
-      var value1 = collection1[key2];
-      if (value2 is Map && value1 is Map) {
-        collection1[key2] = _mapDeepMerge(value1, value2);
-      } else {
-        collection1[key2] = value2;
-      }
-    } else {
-      collection1[key2] = value2;
-    }
-  });
-
-  return collection1;
-}
 
 /// 请求成功
 final _successResponseEntity = HomluxResponseEntity()
@@ -197,6 +99,11 @@ class HomluxLanControlDeviceManager {
   /// key为灯组ID
   /// value为灯组信息
   Map<String, Map<String, dynamic>> groupMap = {};
+
+
+  bool isEnable() {
+    return sucSubscribe && connectOk;
+  }
 
   void _handleMqttMsg(String mTopic, String msg) {
 
@@ -324,7 +231,7 @@ class HomluxLanControlDeviceManager {
                 for (var i = 0; i < curStatus.length; i++) {
                   var cStatu = curStatus[i];
                   if(cStatu['modelName'] == rStatu['modelName']) {
-                    curStatus[i] = _mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
+                    curStatus[i] = LanUtils.mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
                   }
                 }
 
@@ -703,7 +610,7 @@ class HomluxLanControlDeviceManager {
       }
     } else {
       login();
-      Log.file('homlux 局域网控制 场景 \n 异常 连接还未订阅成功');
+      Log.file('homlux 局域网控制 场景 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
     }
     return _errorResponseEntity;
   }
@@ -733,7 +640,7 @@ class HomluxLanControlDeviceManager {
       }
     } else {
       login();
-      Log.file('homlux 局域网控制 灯组 \n 异常 连接还未订阅成功');
+      Log.file('homlux 局域网控制 场景 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
     }
     return _errorResponseEntity;
   }
@@ -760,7 +667,7 @@ class HomluxLanControlDeviceManager {
 
     } else {
       login();
-      Log.file('homlux 局域网控制 设备控制 \n 异常 连接还未订阅成功');
+      Log.file('homlux 局域网控制 场景 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
     }
     return _errorResponseEntity;
   }

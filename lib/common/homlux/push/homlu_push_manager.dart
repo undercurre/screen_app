@@ -5,12 +5,14 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/push/homlux_push_message_model.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
 import '../../system.dart';
+import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 const _connectTimeout = 5;
@@ -172,7 +174,14 @@ class HomluxPushManager {
 
       HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
       if(entity.result?.eventType == TypeDeviceProperty) {
-        bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity.result!));
+        var deviceId = entity.result?.eventData?.deviceId;
+        if(StrUtils.isNotNullAndEmpty(deviceId)) {
+          var lanManager = HomluxLanControlDeviceManager.getInstant();
+          var lanContainer = lanManager.isEnable() && lanManager.deviceMap.containsKey(deviceId);
+          if(!lanContainer) { // 因局域网也会推送，则不再处理云端的推送
+            bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity.result!));
+          }
+        }
       } else if(TypeScreenOnlineStatusSubDevice == eventType|| TypeScreenOnlineStatusWifiDevice == eventType) {
         bus.typeEmit(HomluxDeviceOnlineStatusChangeEvent.of(entity.result!));
       } else if(TypeScreenAddSubDevice == eventType) {
