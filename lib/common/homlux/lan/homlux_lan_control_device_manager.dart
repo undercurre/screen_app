@@ -68,6 +68,7 @@ class HomluxLanControlDeviceManager {
   ///                             "productId": "model.light.001.002",
   ///                             "devId": "123123",
   ///                             "modelName": "wallSwicth",
+  ///                             "online": 1,
   ///                             "deviceProperty": {
   ///                                 "aaa": "2",
   ///                                 "bbb": "4"
@@ -77,6 +78,7 @@ class HomluxLanControlDeviceManager {
   ///                                 "ccc": "7",
   ///                                 "ddd": "5"
   ///                             },
+  ///                             "online": 1,
   ///                             "modelName": "wallSwicth2",
   ///                             "devId": "3333",
   ///                             "gatewayId": "1",
@@ -523,20 +525,31 @@ class HomluxLanControlDeviceManager {
         sucSubscribe = false;
         return;
       }
-      String? _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+
+      String? _key;
+      try {
+         _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+      } catch(e) {
+        Log.file(e);
+      }
       if (_key == null) {
-        Log.e('请求到的key为空');
-        sucSubscribe = false;
-        return;
+        _key = await LocalStorage.getItem('homlux_lan_control_key');
+        if(_key == null) {
+          Log.e('请求到的key为空');
+          sucSubscribe = false;
+          return;
+        }
       }
       if (_key != key) {
         key = _key;
+        LocalStorage.setItem('homlux_lan_control_key', key!);
         Log.file('homeos login(houseId=$houseId, key=$key)');
         sucSubscribe = true;
         lanDeviceControlChannel.login(houseId, key!);
         bus.on("eventStandbyActive", listenerEventStandbyActive);
       }
       lanDeviceControlChannel.logCallback = (args) async {
+        Log.file('homeos log $args');
         if (args == 'aesKeyMayBeExpire') {
           /// key过期
           if (System.inHomluxPlatform() && System.isLogin()) {
@@ -560,6 +573,7 @@ class HomluxLanControlDeviceManager {
       };
       lanDeviceControlChannel.mqttCallback = (topic, msg) {
         if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
+          Log.file('homeos message $msg');
           _handleMqttMsg(topic, msg);
         }
       };
@@ -573,9 +587,8 @@ class HomluxLanControlDeviceManager {
       String deviceID, List<Map<String, dynamic>> actions) async {
     if (sucSubscribe && connectOk) {
       if (deviceMap.containsKey(deviceID)) {
-        Log.file('homlux 局域网控制 deviceControl(deviceID=$deviceID, actions=$actions)');
-        lanDeviceControlChannel.deviceControl(uuid.v4(), deviceID, actions);
         Log.file('homlux 局域网控制 设备 \n ${deviceMap[deviceID]}');
+        lanDeviceControlChannel.deviceControl(uuid.v4(), deviceID, actions);
         return _successResponseEntity;
       } else {
         Log.file('homlux 局域网控制 本地设备列表不包含此设备 $deviceID');
@@ -622,7 +635,7 @@ class HomluxLanControlDeviceManager {
         // 1. 查询本地灯组能否控制
         dynamic group = groupMap[groupID];
         if(group['updateStamp'] == null || int.parse(group['updateStamp']) < updateStamp) {
-          Log.i('homlux 局域网控制 \n 灯组 ${group['updateStamp']} 太小，跳出局域网控制');
+          Log.file('homlux 局域网控制 \n 灯组 ${group['updateStamp']} 太小，跳出局域网控制');
           return _errorResponseEntity; // 局域网能控制的设备
         }
 
@@ -640,7 +653,7 @@ class HomluxLanControlDeviceManager {
       }
     } else {
       login();
-      Log.file('homlux 局域网控制 场景 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
+      Log.file('homlux 局域网控制 灯组 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
     }
     return _errorResponseEntity;
   }
