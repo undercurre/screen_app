@@ -219,7 +219,7 @@ class MeiJuPushManager {
                     if(!pushRecord.containsKey(nodeId)) {
                       bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId));
                     } else {
-                      var pair = pushRecord[deviceId]!;
+                      var pair = pushRecord[nodeId]!;
                       if(pair.value2?.id != "gemini/appliance/event") {
                         pushRecord[nodeId] = Pair.of(pair.value1,
                             PushEventFunction.create("gemini/appliance/event",
