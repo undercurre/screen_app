@@ -12,10 +12,14 @@ class MzWiFiImage extends StatelessWidget {
   Widget build(BuildContext context) => Image.asset(parse(level), width: size?.width, height: size?.height,);
 
   String parse(int level) {
-    if(level > 1) {
-      return 'assets/imgs/icon/wifi-3.png';
-    } else {
+    if(level ==3) {
       return 'assets/imgs/icon/wifi-4.png';
+    } else if(level ==2){
+      return 'assets/imgs/icon/wifi-2.png';
+    }else if(level ==1){
+      return 'assets/imgs/icon/wifi-1.png';
+    }else{
+      return 'assets/imgs/icon/wifi-1.png';
     }
   }
 }
