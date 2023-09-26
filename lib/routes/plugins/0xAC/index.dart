@@ -39,6 +39,7 @@ class AirConditionPageState extends State<AirConditionPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
+    dataAdapter?.destroy();
   }
 
   void updateCallback() {

@@ -142,6 +142,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   /// 防抖刷新
   void _throttledFetchData() async {
+    Log.i('准备触发更新 $hashCode ${runtimeType}');
     if (!_isFetching) {
       _isFetching = true;
 
@@ -405,14 +406,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   }
 
   void homluxPush(HomluxDevicePropertyChangeEvent event) {
+    Log.i('接收到推送，即将请求设备状态 $this');
     if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
       _throttledFetchData();
-    }
-  }
-
-  void homluxNamePush(HomluxEditSubEvent event) {
-    if (event != null) {
-      context.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 
@@ -442,10 +438,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
-      bus.typeOn<HomluxEditSubEvent>(homluxNamePush);
-      bus.typeOn<HomluxMovSubDeviceEvent>(homluxMovePush);
-      bus.typeOn<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush);
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush, this);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxMovePush, this);
+      bus.typeOn<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
     } else {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
       bus.typeOn<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline);
@@ -454,10 +449,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
-      bus.typeOff<HomluxEditSubEvent>(homluxNamePush);
-      bus.typeOff<HomluxMovSubDeviceEvent>(homluxMovePush);
-      bus.typeOff<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush);
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush, this);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxMovePush, this);
+      bus.typeOff<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
     } else {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
       bus.typeOff<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline);

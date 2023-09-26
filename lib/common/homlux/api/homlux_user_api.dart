@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:screen_app/common/homlux/api/homlux_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_member_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
+import 'package:screen_app/common/index.dart';
 
+import '../../logcat_helper.dart';
 import '../homlux_global.dart';
 import '../models/homlux_auth_entity.dart';
 import '../models/homlux_bind_device_entity.dart';
@@ -13,6 +17,14 @@ import '../models/homlux_room_list_entity.dart';
 import '../models/homlux_user_info_entity.dart';
 
 class HomluxUserApi {
+  /// 房间列表
+  static Map<String, HomluxResponseEntity<HomluxRoomListEntity>> _cacheRoomList = {};
+
+  /// 清除内存缓存
+  static void clearMemoryCache() {
+    _cacheRoomList.clear();
+  }
+
   /// 家庭列表接口
   static Future<HomluxResponseEntity<List<HomluxFamilyEntity>>> queryFamilyList(
       {CancelToken? cancelToken}) {
@@ -26,11 +38,51 @@ class HomluxUserApi {
   /// 请求房间列表
   static Future<HomluxResponseEntity<HomluxRoomListEntity>> queryRoomList(
       String houseId,
-      {CancelToken? cancelToken}) {
-    return HomluxApi.request('/v1/mzgd/user/house/queryRoomList',
-        cancelToken: cancelToken,
-        options: Options(method: 'POST'),
-        data: {'houseId': houseId});
+      {CancelToken? cancelToken}) async {
+
+    Future<HomluxResponseEntity<HomluxRoomListEntity>> getCacheData() async {
+      if(_cacheRoomList.containsKey(houseId)) {
+        return _cacheRoomList[houseId]!;
+      } else {
+        var jsonStr = await LocalStorage.getItem('homlux_login_room_list_$houseId');
+        if(StrUtils.isNotNullAndEmpty(jsonStr)) {
+          var entity = HomluxResponseEntity<HomluxRoomListEntity>.fromJson(jsonDecode(jsonStr!));
+          _cacheRoomList[houseId] = entity;
+          return entity;
+        }
+      }
+
+      return HomluxResponseEntity<HomluxRoomListEntity>()
+        ..code = -1
+        ..msg = '请求失败'
+        ..success = false;
+    }
+
+    void saveCache(HomluxResponseEntity<HomluxRoomListEntity>? res, [bool clear = false]) {
+      if(clear) {
+        _cacheRoomList.remove(houseId);
+        LocalStorage.removeItem('homlux_login_room_list_$houseId');
+      } else if(res != null) {
+        _cacheRoomList[houseId] = res;
+        LocalStorage.setItem('homlux_login_room_list_$houseId', jsonEncode(res.toJson()));
+      }
+    }
+    try {
+      var res = await HomluxApi.request<HomluxRoomListEntity>('/v1/mzgd/user/house/queryRoomList',
+          cancelToken: cancelToken,
+          options: Options(method: 'POST'),
+          data: {'houseId': houseId});
+
+      if(res.isSuccess) {
+        saveCache(res, res.result == null);
+      }
+      return res;
+    } catch(e) {
+      Log.i("请求房间列表失败");
+    }
+
+    return getCacheData();
+
   }
 
   /// 请求家庭成员

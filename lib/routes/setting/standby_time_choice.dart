@@ -57,7 +57,7 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
                   children: [
                     IconButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pop(Setting.instant().standbyTimeOptNum);
                       },
                       iconSize: 64,
                       icon: Image.asset(

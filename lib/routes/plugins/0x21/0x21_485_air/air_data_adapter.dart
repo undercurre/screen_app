@@ -236,11 +236,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if(applianceCode.length!=4){
       isLocalDevice=false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-        if(nodeId==args.nodeId){
-          fetchData()
-        }
-      });
+      _startPushListen();
       fetchData();
     }else{
       isLocalDevice=true;
@@ -269,6 +265,24 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     }
   }
 
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (nodeId==args.nodeId) {
+        fetchData();
+      }
+  }
+
+  void _startPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
   void _local485StateCallback(Local485DeviceState state) {
     if(state.modelId=="zhonghong.air.001"&&localDeviceCode==state.address){
       data = Air485Data(
@@ -283,6 +297,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   @override
   void destroy() {
     deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    _stopPushListen();
   }
 
   Future<NodeInfo<Endpoint<Air485Event>>> fetchMeijuData() async {
@@ -380,9 +395,9 @@ class Air485Event extends Event {
 
   factory Air485Event.fromJson(Map<String, dynamic> json) {
     return Air485Event(
-      OnOff: json['OnOff'],
-      operationMode: json['operationMode'],
-      windSpeed: json['windSpeed'],
+      OnOff: json['OnOff'].toString(),
+      operationMode: json['operationMode'].toString(),
+      windSpeed: json['windSpeed'].toString(),
     );
   }
 

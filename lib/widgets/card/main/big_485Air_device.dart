@@ -75,6 +75,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
   @override
   void dispose() {
     widget.adapter!.unBindDataUpdateFunction(updateData);
+    widget.adapter!.destroy();
     super.dispose();
   }
 

@@ -27,8 +27,11 @@ $HomluxResponseEntityToJson(HomluxResponseEntity entity) {
   final Map<String, dynamic> data = <String, dynamic>{};
   data['code'] = entity.code;
   data['msg'] = entity.msg;
-  data['result'] = entity.result?.toJson();
-
+  if (entity.result is List) {
+    data['result'] = entity.result?.map((e) => e.toJson()).toList();
+  } else {
+    data['result'] = entity.result?.toJson();
+  }
   return data;
 }
 

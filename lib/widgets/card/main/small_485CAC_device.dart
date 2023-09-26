@@ -54,6 +54,13 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateData);
+    widget.adapter?.destroy();
+  }
+
+  @override
   void didUpdateWidget(covariant Small485CACDeviceCardWidget oldWidget) {
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();

@@ -51,6 +51,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
+    dataAdapter?.destroy();
   }
 
   void updateCallback() {

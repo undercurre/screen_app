@@ -98,6 +98,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   void dispose() {
     _stopPushListen();
     widget.adapter.unBindDataUpdateFunction(updateData);
+    widget.adapter.destroy();
     super.dispose();
   }
 

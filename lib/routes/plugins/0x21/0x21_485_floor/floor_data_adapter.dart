@@ -223,18 +223,12 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-            // nid = args.nodeId,
-            // Log.i("收到推送:$nid"),
-            // Log.i("设备的id:$nodeId"),
-            if (nodeId == args.nodeId) {fetchData()}
-          });
+      _startPushListen();
       fetchData();
     } else {
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
-
       ///homlux添加本地485空调设备
       if (deviceList != null) {
         for (int i = 0;
@@ -262,6 +256,24 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     }
   }
 
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (nodeId==args.nodeId) {
+      fetchData();
+    }
+  }
+
+  void _startPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
   void _local485StateCallback(Local485DeviceState state) {
     if (state.modelId == "zhonghong.heat.001" &&
         localDeviceCode == state.address) {
@@ -276,14 +288,10 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   @override
-  void dispose() {
-    logger.i("注销Local485CallBack");
-    deviceLocal485ControlChannel
-        .unregisterLocal485CallBack(_local485StateCallback);
+  void destroy() {
+    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    _stopPushListen();
   }
-
-  @override
-  void destroy() {}
 
   Future<NodeInfo<Endpoint<Floor485Event>>> fetchMeijuData() async {
     try {
@@ -364,8 +372,8 @@ class Floor485Event extends Event {
 
   factory Floor485Event.fromJson(Map<String, dynamic> json) {
     return Floor485Event(
-      OnOff: json['OnOff'],
-      targetTemp: json['targetTemp'],
+      OnOff: json['OnOff'].toString(),
+      targetTemp: json['targetTemp'].toString(),
     );
   }
 

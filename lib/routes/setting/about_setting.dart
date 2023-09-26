@@ -423,18 +423,16 @@ class _AboutSettingPageState extends State<AboutSettingPage> {
                               context.watch<AboutSettingProvider>().snCode ??
                                   "获取失败",
                         ),
-                        if (context
-                                .watch<AboutSettingProvider>()
-                                .isEngineeringEnable ==
-                            false)
+                        if (context.watch<AboutSettingProvider>().isEngineeringEnable == false)
                           MzSettingItem(
-                            onTap: () {
-                              context
-                                  .read<AboutSettingProvider>()
-                                  .checkUpgrade();
-                            },
+
                             leftText: '应用升级',
                             rightWidget: MzSettingButton(
+                              onTap: () {
+                                context
+                                    .read<AboutSettingProvider>()
+                                    .checkUpgrade();
+                              },
                               text: otaChannel.hasNewVersion ? "立即更新" : "检查更新",
                             ),
                             tipText: otaChannel.hasNewVersion ? 'New' : null,

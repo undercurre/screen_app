@@ -64,7 +64,7 @@ class _AiSettingPageState extends State<AiSettingPage> {
                         "assets/newUI/back.png",
                       ),
                     ),
-                    const Text("小美语音",
+                    const Text("语音设置",
                         style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.85),
                             fontSize: 28,

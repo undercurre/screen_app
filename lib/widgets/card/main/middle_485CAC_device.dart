@@ -95,7 +95,8 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
 
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(() {updateData();});
+    widget.adapter!.unBindDataUpdateFunction(updateData);
+    widget.adapter!.destroy();
     super.dispose();
   }
 

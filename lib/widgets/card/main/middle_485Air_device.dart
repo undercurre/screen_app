@@ -54,6 +54,13 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
     updateDetail();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateData);
+    widget.adapter?.destroy();
+  }
+
 
 
   @override

@@ -99,6 +99,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   void dispose() {
     _stopPushListen();
     widget.adapter.unBindDataUpdateFunction(updateData);
+    widget.adapter.destroy();
     super.dispose();
   }
 

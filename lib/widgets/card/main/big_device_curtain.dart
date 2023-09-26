@@ -66,8 +66,8 @@ class _BigDeviceCurtainCardWidgetState
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.destroy();
     widget.adapter?.unBindDataUpdateFunction(updateCallback);
+    widget.adapter?.destroy();
   }
 
   void updateCallback() {

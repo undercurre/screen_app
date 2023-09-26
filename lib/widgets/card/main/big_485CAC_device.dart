@@ -81,6 +81,7 @@ class _Big485CACDeviceAirCardWidgetState
   @override
   void dispose() {
     widget.adapter!.unBindDataUpdateFunction(updateData);
+    widget.adapter!.destroy();
     super.dispose();
   }
 

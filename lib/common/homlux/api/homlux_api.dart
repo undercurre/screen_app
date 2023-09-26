@@ -114,6 +114,10 @@ Future<HomluxResponseEntity<T>> $request<T>(String path,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress);
 
+  if (res.statusCode != 200) {
+    throw DioException(requestOptions: res.requestOptions, response: res);
+  }
+
   HomluxResponseEntity<T> response = HomluxResponseEntity.fromJson(res.data);
 
   /// 重新刷新token, refreshToken

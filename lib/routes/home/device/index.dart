@@ -284,8 +284,10 @@ class _DevicePageState extends State<DevicePage> {
                 layoutAfterSort.data);
         // 映射布局占格
         Widget cardWithPosition = StaggeredGridTile.fit(
+          key: UniqueKey(),
           crossAxisCellCount: sizeMap[layoutAfterSort.cardType]!['cross']!,
           child: UnconstrainedBox(
+            key: UniqueKey(),
             child: GestureDetector(
               child: cardWidget,
               onLongPress: () {
@@ -305,6 +307,7 @@ class _DevicePageState extends State<DevicePage> {
       // ************插入pageview
       _screens.add(
         UnconstrainedBox(
+          key: UniqueKey(),
           child: Container(
             width: 480,
             height: 480,
@@ -324,7 +327,9 @@ class _DevicePageState extends State<DevicePage> {
       // ************插入pageview
 
       if (!isCanAdd) {
-        _screens.add(const Center(child: EditCardWidget()));
+        _screens.add(Center(
+            key: UniqueKey(),
+            child: const EditCardWidget()));
       }
 
       // 每一页处理前重置布局器

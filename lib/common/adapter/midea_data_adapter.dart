@@ -46,9 +46,13 @@ abstract class MideaDataAdapter {
 
   /// 数据驱动UI更新
   void updateUI() {
-    _dataUpdateFunctionSet?.forEach((element) {
-      element.call();
-    });
+    try {
+      _dataUpdateFunctionSet?.forEach((element) {
+        element.call();
+      });
+    } catch(e) {
+      Log.e(e);
+    }
     Log.i("调用 $runtimeType${key == null ? '' : ".$key"} 刷新次数: ${++_refreshCount}");
   }
 
