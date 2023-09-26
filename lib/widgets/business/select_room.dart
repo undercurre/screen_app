@@ -6,7 +6,7 @@ import '../../common/gateway_platform.dart';
 import '../../common/system.dart';
 import '../index.dart';
 
-class _SelectRoom extends State<SelectRoom> {
+class SelectRoomState extends State<SelectRoom> {
   SelectRoomDataAdapter? roomDataAd;
   int selectVal = -1;
 
@@ -106,6 +106,10 @@ class _SelectRoom extends State<SelectRoom> {
     });
     roomDataAd?.queryRoomList(System.familyInfo!);
   }
+
+  void refreshList() {
+    roomDataAd?.queryRoomList(System.familyInfo!);
+  }
 }
 
 class SelectRoom extends StatefulWidget {
@@ -115,5 +119,5 @@ class SelectRoom extends StatefulWidget {
   const SelectRoom({super.key, this.onChange});
 
   @override
-  State<SelectRoom> createState() => _SelectRoom();
+  State<SelectRoom> createState() => SelectRoomState();
 }

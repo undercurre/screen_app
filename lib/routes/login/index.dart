@@ -51,6 +51,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   bool isNeedShowClearAlert = false;
   String routeFrom = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
+  GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
   SelectFamilyItem? selectFamily;
 
   void showBindingDialog(bool show) async {
@@ -262,6 +263,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
+                Navigator.pop(context);
+                selectRoomKey.currentState?.refreshList();
               }
             });
           } else {
@@ -355,7 +358,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
                 nextStep();
               })),
-      Step('选择房间', SelectRoom(onChange: (SelectRoomItem room) {
+      Step('选择房间', SelectRoom(key: selectRoomKey, onChange: (SelectRoomItem room) {
         debugPrint('SelectRoom: ${room.toJson()}');
         System.roomInfo = room;
       })),
