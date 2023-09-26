@@ -217,18 +217,19 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     return MeijuRes;
   }
 
+  void handle(MeiJuSubDevicePropertyChangeEvent args) {
+    if(nodeId==args.nodeId){
+      fetchData();
+    }
+  }
+
   @override
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-            // nid = args.nodeId,
-            // Log.i("收到推送:$nid"),
-            // Log.i("设备的id:$nodeId"),
-            if (nodeId == args.nodeId) {fetchData()}
-          });
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(handle);
       fetchData();
     } else {
       isLocalDevice = true;
@@ -280,6 +281,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     logger.i("注销Local485CallBack");
     deviceLocal485ControlChannel
         .unregisterLocal485CallBack(_local485StateCallback);
+    bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(handle);
   }
 
   @override

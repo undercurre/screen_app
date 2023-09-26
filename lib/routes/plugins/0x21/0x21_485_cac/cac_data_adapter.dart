@@ -281,17 +281,19 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     return MeijuRes;
   }
 
+  void handle(MeiJuSubDevicePropertyChangeEvent args) {
+    if (nodeId == args.nodeId) {
+      fetchData();
+    }
+  }
+
   @override
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-        // Log.i("收到推送:$nid"),
-        // Log.i("设备的id:$nodeId"),
-            if (nodeId == args.nodeId) {fetchData()}
-          });
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(handle);
       fetchData();
     } else {
       isLocalDevice = true;
@@ -351,6 +353,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   @override
   void destroy() {
     deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(handle);
   }
 
   Future<NodeInfo<Endpoint<CAC485Event>>> fetchMeijuData() async {

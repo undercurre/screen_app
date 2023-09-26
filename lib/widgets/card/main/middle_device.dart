@@ -65,6 +65,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   void dispose() {
     super.dispose();
     widget.adapter?.unBindDataUpdateFunction(updateCallback);
+    widget.adapter?.destroy();
   }
 
   void updateCallback() {

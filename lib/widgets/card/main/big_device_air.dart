@@ -65,6 +65,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   void dispose() {
     super.dispose();
     widget.adapter?.unBindDataUpdateFunction(updateCallback);
+    widget.adapter?.destroy();
   }
 
   void updateCallback() {

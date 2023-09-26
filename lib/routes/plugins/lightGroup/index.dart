@@ -33,6 +33,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
+    dataAdapter?.destroy();
   }
 
   void updateCallback() {

@@ -60,6 +60,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   void dispose() {
     super.dispose();
     widget.adapter?.unBindDataUpdateFunction(updateCallback);
+    widget.adapter?.destroy();
   }
 
   void updateCallback() {

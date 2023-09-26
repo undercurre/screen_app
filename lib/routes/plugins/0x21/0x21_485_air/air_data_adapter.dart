@@ -230,17 +230,19 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     return MeijuRes;
   }
 
+  void handle(MeiJuSubDevicePropertyChangeEvent args) {
+    if(nodeId==args.nodeId){
+      fetchData();
+    }
+  }
+
 
   @override
   void init() {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if(applianceCode.length!=4){
       isLocalDevice=false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) => {
-        if(nodeId==args.nodeId){
-          fetchData()
-        }
-      });
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(handle);
       fetchData();
     }else{
       isLocalDevice=true;
@@ -283,6 +285,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   @override
   void destroy() {
     deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(handle);
   }
 
   Future<NodeInfo<Endpoint<Air485Event>>> fetchMeijuData() async {

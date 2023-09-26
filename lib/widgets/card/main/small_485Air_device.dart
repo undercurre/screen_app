@@ -56,6 +56,13 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     updateDetail();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    widget.adapter?.unBindDataUpdateFunction(updateData);
+    widget.adapter?.destroy();
+  }
+
 
 
   @override

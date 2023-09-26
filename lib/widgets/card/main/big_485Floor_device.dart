@@ -87,6 +87,7 @@ class _Big485FloorDeviceAirCardWidgetState
   @override
   void dispose() {
     widget.adapter!.unBindDataUpdateFunction(update485BigFloorData);
+    widget.adapter!.destroy();
     super.dispose();
   }
 

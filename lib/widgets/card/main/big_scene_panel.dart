@@ -104,6 +104,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   @override
   void dispose() {
     widget.adapter.unBindDataUpdateFunction(updateData);
+    widget.adapter.destroy();
     _stopPushListen();
     super.dispose();
   }
