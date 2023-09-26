@@ -6,7 +6,8 @@ class DigitalClockWidget extends StatefulWidget {
   final bool disabled;
   final bool discriminative;
 
-  DigitalClockWidget({
+  const DigitalClockWidget({
+    super.key,
     this.disabled = false,
     this.discriminative = false,
   });

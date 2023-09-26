@@ -11,7 +11,8 @@ class DigitalWeatherWidget extends StatefulWidget {
   final bool disabled;
   final bool discriminative;
 
-  DigitalWeatherWidget({
+  const DigitalWeatherWidget({
+    super.key,
     this.disabled = false,
     this.discriminative = false,
   });
