@@ -281,19 +281,13 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     return MeijuRes;
   }
 
-  void handle(MeiJuSubDevicePropertyChangeEvent args) {
-    if (nodeId == args.nodeId) {
-      fetchData();
-    }
-  }
-
   @override
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     if (applianceCode.length != 4) {
       isLocalDevice = false;
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(handle);
+      _startPushListen();
       fetchData();
     } else {
       isLocalDevice = true;
@@ -337,6 +331,24 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     }
   }
 
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (nodeId==args.nodeId) {
+      fetchData();
+    }
+  }
+
+  void _startPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (platform.inMeiju()) {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
   void _local485StateCallback(Local485DeviceState state) {
     if(state.modelId=="zhonghong.cac.002"&&localDeviceCode==state.address){
      data = CAC485Data(
@@ -353,7 +365,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   @override
   void destroy() {
     deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
-    bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(handle);
+    _stopPushListen();
   }
 
   Future<NodeInfo<Endpoint<CAC485Event>>> fetchMeijuData() async {
@@ -459,11 +471,11 @@ class CAC485Event extends Event {
 
   factory CAC485Event.fromJson(Map<String, dynamic> json) {
     return CAC485Event(
-      currTemp: json['currTemp'],
-      OnOff: json['OnOff'],
-      targetTemp: json['targetTemp'],
-      operationMode: json['operationMode'],
-      windSpeed: json['windSpeed'],
+      currTemp: json['currTemp'].toString(),
+      OnOff: json['OnOff'].toString(),
+      targetTemp: json['targetTemp'].toString(),
+      operationMode: json['operationMode'].toString(),
+      windSpeed: json['windSpeed'].toString(),
     );
   }
 
