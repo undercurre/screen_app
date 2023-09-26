@@ -110,7 +110,7 @@ class _DevicePageState extends State<DevicePage> {
     final layoutModel = Provider.of<LayoutModel>(context);
     if (mounted) {
       try {
-        _screens = getScreenList(layoutModel);
+        getScreenList(layoutModel);
       } catch (e) {
         Log.i('Error', e);
         _screens = [];
@@ -189,8 +189,6 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   List<Widget> getScreenList(LayoutModel layoutModel) {
-    // 屏幕页面列表
-    List<Widget> screenList = [];
     // 当前页面的widgets
     List<Widget> curScreenWidgetList = [];
     // 当前要布局的页面
@@ -201,8 +199,8 @@ class _DevicePageState extends State<DevicePage> {
     Screen screenLayer = Screen();
 
     if (layoutModel.layouts.isEmpty) {
-      screenList.add(const Center(child: EditCardWidget()));
-      return screenList;
+      _screens.add(const Center(child: EditCardWidget()));
+      return _screens;
     }
 
     for (; pageCount <= hadPageCount; pageCount++) {
@@ -303,7 +301,7 @@ class _DevicePageState extends State<DevicePage> {
       // ************单页构造
 
       // ************插入pageview
-      screenList.add(
+      _screens.add(
         UnconstrainedBox(
           child: Container(
             width: 480,
@@ -324,7 +322,7 @@ class _DevicePageState extends State<DevicePage> {
       // ************插入pageview
 
       if (!isCanAdd) {
-        screenList.add(const Center(child: EditCardWidget()));
+        _screens.add(const Center(child: EditCardWidget()));
       }
 
       // 每一页处理前重置布局器
@@ -332,7 +330,7 @@ class _DevicePageState extends State<DevicePage> {
       // 每一页处理前情况当前页Widget存储器
       curScreenWidgetList = [];
     }
-    return screenList;
+    return _screens;
   }
 
   void meijuPushDelete(MeiJuDeviceDelEvent args) {
