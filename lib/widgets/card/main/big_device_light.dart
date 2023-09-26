@@ -113,7 +113,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     String getRoomName() {
       if (widget.disabled) {
-        return widget.roomName;
+        return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -441,19 +441,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     if (widget.adapter != null) {
       if (widget.adapter!.getCardStatus()?['maxColorTemp'] != null) {
-        Log.i('最大色温', widget.adapter!.getCardStatus()?['maxColorTemp']);
-        Log.i('最小色温', widget.adapter!.getCardStatus()?['minColorTemp']);
-        Log.i('当前色温', widget.adapter!.getCardStatus()?['colorTemp']);
-        Log.i(
-            '当前色温值',
-            ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
-                        100 *
-                        ((widget.adapter?.getCardStatus()?['maxColorTemp']
-                                as int) -
-                            (widget.adapter?.getCardStatus()?['minColorTemp']
-                                as int)) +
-                    (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
-                .toInt());
         return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
                     100 *
                     ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -

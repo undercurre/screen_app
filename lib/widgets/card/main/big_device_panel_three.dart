@@ -149,7 +149,8 @@ class _BigDevicePanelCardWidgetThreeState
 
     String getRoomName() {
       if (widget.disabled) {
-        return widget.roomName;
+        return deviceListModel.getDeviceRoomName(
+            deviceId: widget.adapter.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&

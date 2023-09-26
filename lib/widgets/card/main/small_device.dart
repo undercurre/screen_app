@@ -128,7 +128,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       String nameInModel = deviceListModel.getDeviceRoomName(
           deviceId: widget.applianceCode);
       if (widget.disabled) {
-        return NameFormatter.formatName(widget.roomName, 3);
+        return nameInModel;
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&

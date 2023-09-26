@@ -339,11 +339,21 @@ class _DevicePageState extends State<DevicePage> {
     handlePushDelete();
   }
 
-  void homluxPushDelete(HomluxMovWifiDeviceEvent arg) {
+  void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
+  void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
+  void homluxPushDel(HomluxDelWiFiDeviceEvent arg) {
     handlePushDelete();
   }
 
-  void homluxPushSubDelete(HomluxMovSubDeviceEvent arg) {
+  void homluxPushSubDel(HomluxDelSubDeviceEvent arg) {
     handlePushDelete();
   }
 
@@ -352,6 +362,7 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   handlePushDelete() async {
+    Log.i('首页推送响应');
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
@@ -365,8 +376,10 @@ class _DevicePageState extends State<DevicePage> {
 
   void _startPushListen() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushDelete);
-      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushMov);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubMov);
+      bus.typeOn<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
@@ -375,8 +388,10 @@ class _DevicePageState extends State<DevicePage> {
 
   void _stopPushListen() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushDelete);
-      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubDelete);
+      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushMov);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubMov);
+      bus.typeOff<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);

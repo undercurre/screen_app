@@ -119,7 +119,8 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
 
     String getRoomName() {
       if (widget.disabled) {
-        return widget.roomName;
+        return deviceListModel.getDeviceRoomName(
+            deviceId: widget.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
