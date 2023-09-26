@@ -542,7 +542,7 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text('输入“${widget.result.ssid}”的密码',
+                        Text('输入“${toLimitString(widget.result.ssid)}”的密码',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 24)),
                         if (widget.connectedError)
@@ -664,5 +664,16 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
         ),
       ),
     );
+  }
+
+  String toLimitString(String str) {
+    if(str.isNotEmpty) {
+      if(str.length < 13) {
+        return str;
+      } else {
+        return '${str.substring(0, 9)}...${str.substring(str.length - 1)}';
+      }
+    }
+    return str;
   }
 }
