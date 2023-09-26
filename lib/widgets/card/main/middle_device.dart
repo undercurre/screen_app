@@ -219,7 +219,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     return GestureDetector(
       onTap: () {
         Log.i('disabled: ${widget.disabled}');
-        if (!widget.disabled) {
+        if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
           widget.onTap?.call();
           widget.adapter?.power(
             widget.adapter?.getPowerStatus(),

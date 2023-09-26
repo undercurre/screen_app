@@ -240,7 +240,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             child: GestureDetector(
               onTap: () {
                 Log.i('disabled: ${widget.disabled}');
-                if (!widget.disabled) {
+                if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                   widget.adapter?.power(
                     widget.adapter?.getPowerStatus(),
                   );
@@ -390,7 +390,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               min: 0,
               max: 100,
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
-                  widget.disabled,
+                  widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
               activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
@@ -422,7 +422,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               min: 0,
               max: 100,
               disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
-                  widget.disabled,
+                  widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
               activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
               isBarColorKeepFull: false,
               onChanged: (val, color) {

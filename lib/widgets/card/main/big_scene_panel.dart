@@ -270,6 +270,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
 
   Widget _panelItem(int index, SceneListModel sceneModel,
       List<SceneInfoEntity> sceneListCache) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     return SizedBox(
       width: 84,
       height: 120,
@@ -278,7 +279,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
           Log.i('disabled', widget.disabled);
           if (!widget.disabled &&
               widget.adapter.dataState == DataState.SUCCESS) {
-            if (widget.isOnline == '0') {
+            if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
               MzDialog(
                   title: '该设备已离线',
                   titleSize: 28,
