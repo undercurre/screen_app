@@ -311,31 +311,31 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
     }
   }
 
-  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == masterId) {
-      fetchData();
+  void statusChangePushHomlux(HomluxDevicePropertyChangeEvent arg) {
+    if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+      _throttledFetchData();
+    }
+  }
+
+  void statusChangePushMeiJu(MeiJuSubDevicePropertyChangeEvent arg) {
+    if (arg.nodeId == nodeId) {
+      _throttledFetchData();
     }
   }
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>((arg) {
-        if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
-          _throttledFetchData();
-        }
-      });
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(statusChangePushHomlux);
     } else {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>((args) {
-        if (args.nodeId == nodeId) {
-          _throttledFetchData();
-        }
-      });
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(statusChangePushMeiJu);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOff(statusChangePushHomlux);
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(statusChangePushHomlux);
+    } else {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(statusChangePushMeiJu);
     }
   }
 

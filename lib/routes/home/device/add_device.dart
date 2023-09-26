@@ -936,6 +936,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
       },
     ).then(
       (value) {
+        if(value == null) return;
         resultData = Layout(
           devices[index].applianceCode,
           curDeviceEntity,

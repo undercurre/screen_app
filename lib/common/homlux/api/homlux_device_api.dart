@@ -48,7 +48,13 @@ class HomluxDeviceApi {
     Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> getCacheData() async {
       if (roomDeviceList[roomId] != null) {
         roomDeviceList[roomId]!.result = roomDeviceList[roomId]!.result?.map((e) {
-              e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
+              e.onLineStatus = 0;
+              if(lanManager.deviceMap.containsKey(e.deviceId)) {
+                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+                }
+              }
               return e;
             }).toList();
         return roomDeviceList[roomId]!;
@@ -113,8 +119,13 @@ class HomluxDeviceApi {
     if (!devices.containsKey(deviceId)) {
       if(homeDeviceList.containsKey(homeId)) {
         homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
-              e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
-              devices[e.deviceId!] = e;
+              e.onLineStatus = 0;
+              if(lanManager.deviceMap.containsKey(e.deviceId)) {
+                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+                }
+              }
               return e;
             }).toList();
       } else {
@@ -122,7 +133,13 @@ class HomluxDeviceApi {
         if (StrUtils.isNotNullAndEmpty(jsonStr)) {
           var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
           entity.result = entity.result?.map((e) {
-            e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
+            e.onLineStatus = 0;
+            if(lanManager.deviceMap.containsKey(e.deviceId)) {
+              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+              }
+            }
             devices[e.deviceId!] = e;
             return e;
           }).toList();
@@ -193,7 +210,13 @@ class HomluxDeviceApi {
 
       if (homeDeviceList[homeId] != null) {
         homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
-              e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
+              e.onLineStatus = 0;
+              if(lanManager.deviceMap.containsKey(e.deviceId)) {
+                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+                }
+              }
               devices[e.deviceId!] = e;
               return e;
             }).toList();
@@ -204,7 +227,13 @@ class HomluxDeviceApi {
           var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(
               jsonDecode(jsonStr!));
           entity.result = entity.result?.map((e) {
-            e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
+            e.onLineStatus = 0;
+            if(lanManager.deviceMap.containsKey(e.deviceId)) {
+              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+              }
+            }
             devices[e.deviceId!] = e;
             return e;
           }).toList();

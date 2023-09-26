@@ -28,10 +28,7 @@ class DeviceInfoListModel extends ChangeNotifier {
   List<DeviceEntity> deviceCacheList = [];
   List<DeviceEntity> MeijuGroup = [];
 
-  DeviceListModel() {
-    Log.i('deviceModel加载');
-    getDeviceList();
-  }
+  DeviceListModel() {}
 
   List<DeviceEntity> getCacheDeviceList() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
@@ -169,9 +166,7 @@ class DeviceInfoListModel extends ChangeNotifier {
             HomluxGlobal.getHomlux485DeviceList;
 
         ///homlux添加本地485空调设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.airConditionList!.length;
-            i++) {
+        for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "空调${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
@@ -189,9 +184,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
 
         ///homlux添加本地485新风设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.freshAirList!.length;
-            i++) {
+        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "新风${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
@@ -209,9 +202,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
 
         ///homlux添加本地485地暖设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.floorHotList!.length;
-            i++) {
+        for (int i = 0; i < deviceList!.nameValuePairs!.floorHotList!.length; i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "地暖${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
@@ -288,11 +279,14 @@ class DeviceInfoListModel extends ChangeNotifier {
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
+        Log.i('获取设备$deviceId在线状态 ${curOne[0]}');
         return curOne[0].onlineStatus == '1';
       } else {
+        Log.i('获取设备$deviceId在线状态 离线');
         return false;
       }
     } else {
+      Log.i('获取设备$deviceId在线状态 离线');
       return false;
     }
   }

@@ -87,6 +87,8 @@ class _DevicePageState extends State<DevicePage> {
     deviceListModel.getDeviceList();
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       widget.startPolling(context);
+    } else {
+      widget.startPolling(context);
     }
   }
 
