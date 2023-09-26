@@ -165,10 +165,6 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             stops: [0, 1],
             transform: GradientRotation(222 * (3.1415926 / 360.0)),
           ),
-          border: Border.all(
-            color: const Color.fromRGBO(255, 0, 0, 0.32),
-            width: 0.6,
-          ),
         );
       }
       if (!online) {
@@ -225,7 +221,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             child: GestureDetector(
               onTap: () {
                 Log.i('disabled: ${widget.disabled}');
-                if (!widget.disabled) {
+                if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                   widget.adapter?.power(
                     widget.adapter?.getPowerStatus(),
                   );
@@ -239,6 +235,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                       : 'assets/newUI/card_power_off.png')),
             ),
           ),
+
           Positioned(
             top: 16,
             right: 16,
@@ -269,6 +266,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                // 设备名
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
@@ -285,6 +283,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                             decoration: TextDecoration.none)),
                   ),
                 ),
+                // 房间名
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 90),
                   child: Text(getRoomName(),
@@ -335,6 +334,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               ],
             ),
           ),
+          // 加减按钮组
           Positioned(
             top: 62,
             left: 20,
@@ -347,7 +347,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      if (!widget.disabled) {
+                      if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && (widget.adapter?.getPowerStatus() ?? false)) {
                         double value =
                             widget.adapter!.getCardStatus()?["temperature"] +
                                 widget.adapter!
@@ -380,7 +380,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                           decoration: TextDecoration.none)),
                   GestureDetector(
                     onTap: () {
-                      if (!widget.disabled) {
+                      if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && (widget.adapter?.getPowerStatus() ?? false)) {
                         double value =
                             widget.adapter!.getCardStatus()?["temperature"] +
                                 widget.adapter!
@@ -405,6 +405,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               ),
             ),
           ),
+          // 滑动条
           Positioned(
             top: 140,
             left: 4,
@@ -415,7 +416,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               height: 16,
               min: 16,
               max: 30,
-              disabled: !(widget.adapter?.getPowerStatus() ?? false),
+              disabled: widget.disabled || !(widget.adapter?.getPowerStatus() ?? false) || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) =>
                   {widget.adapter?.slider1To(val.toInt())},
