@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
+import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
 
 import '../../channel/index.dart';
 import '../logcat_helper.dart';
@@ -182,6 +185,9 @@ class HomluxGlobal {
     LocalStorage.removeItem(HOMLUX_GATEWAY_DEVICE_ID);
     LocalStorage.removeItem(HOMLUX_GATEWAY_SN);
     HomluxLanControlDeviceManager.getInstant().logout();
+    HomluxDeviceApi.clearMemoryCache();
+    HomluxSceneApi.clearMemoryCache();
+    HomluxUserApi.clearMemoryCache();
   }
 
   static void setLogin() {
