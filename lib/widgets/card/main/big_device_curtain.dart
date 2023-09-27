@@ -9,6 +9,7 @@ import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../event_bus.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceCurtainCardWidget extends StatefulWidget {

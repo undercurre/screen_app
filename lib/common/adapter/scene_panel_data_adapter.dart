@@ -27,8 +27,8 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   ScenePanelData data = ScenePanelData(
     modeList: ['0', '0', '0', '0'],
-    sceneList: ['场景1', '场景2', '场景3', '场景4'],
-    nameList: ['按键1', '按键2', '按键3', '按键4'],
+    sceneList: ['场景一', '场景二', '场景三', '场景四'],
+    nameList: ['按键一', '按键二', '按键三', '按键四'],
     statusList: [false, false, false, false],
   );
 
@@ -64,8 +64,8 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
         dataState = DataState.ERROR;
         data = ScenePanelData(
           modeList: ['0', '0', '0', '0'],
-          sceneList: ['场景1', '场景2', '场景3', '场景4'],
-          nameList: ['按键1', '按键2', '按键3', '按键4'],
+          sceneList: ['场景一', '场景二', '场景三', '场景四'],
+          nameList: ['按键一', '按键二', '按键三', '按键四'],
           statusList: [false, false, false, false],
         );
         updateUI();
@@ -225,10 +225,10 @@ class ScenePanelData {
   List<dynamic> modeList = ['0', '0', '0', '0'];
 
   // 绑定的场景列表
-  List<dynamic> sceneList = ['场景1', '场景2', '场景3', '场景4'];
+  List<dynamic> sceneList = ['场景一', '场景二', '场景三', '场景四'];
 
   // 开关名称列表
-  List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
+  List<String> nameList = ['按键一', '按键二', '按键三', '按键四'];
 
   // 开关状态列表
   List<bool> statusList = [false, false, false, false];
@@ -257,10 +257,10 @@ class ScenePanelData {
   ScenePanelData.fromHomlux(HomluxDeviceEntity data, List<dynamic> sceneNet) {
     nameList = data.switchInfoDTOList!.map((e) => e.switchName!).toList();
     statusList = [
-      data.mzgdPropertyDTOList!.x1?.power == 1,
-      data.mzgdPropertyDTOList!.x2?.power == 1,
-      data.mzgdPropertyDTOList!.x3?.power == 1,
-      data.mzgdPropertyDTOList!.x4?.power == 1
+      data.mzgdPropertyDTOList!.x1?.power == 1 || data.mzgdPropertyDTOList!.x1?.power == '1',
+      data.mzgdPropertyDTOList!.x2?.power == 1 || data.mzgdPropertyDTOList!.x1?.power == '1',
+      data.mzgdPropertyDTOList!.x3?.power == 1 || data.mzgdPropertyDTOList!.x1?.power == '1',
+      data.mzgdPropertyDTOList!.x4?.power == 1 || data.mzgdPropertyDTOList!.x1?.power == '1'
     ];
 
     modeList = [

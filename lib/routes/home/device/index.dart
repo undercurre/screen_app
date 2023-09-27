@@ -35,10 +35,11 @@ class DevicePage extends StatefulWidget {
 
   // 启动定时器
   void startPolling(BuildContext context) {
-    const oneMinute = Duration(minutes: 5);
+    const oneMinute = Duration(seconds: 90);
 
     // 使用周期性定时器，每分钟触发一次
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
+      Log.i('更新列表');
       final deviceModel = context.read<DeviceInfoListModel>();
       final layoutModel = context.read<LayoutModel>();
       List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
@@ -58,8 +59,10 @@ class DevicePage extends StatefulWidget {
       List<List<DeviceEntity>> compareDevice =
           Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
       compareDevice[1].forEach((element) {
-        layoutModel.deleteLayout(element.applianceCode);
-        TipsUtils.toast(content: '已删除${element.name}');
+        if (layoutModel.hasLayoutWithDeviceId(element.applianceCode)) {
+          layoutModel.deleteLayout(element.applianceCode);
+          TipsUtils.toast(content: '已删除${element.name}');
+        }
       });
     });
   }
@@ -85,11 +88,7 @@ class _DevicePageState extends State<DevicePage> {
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
     deviceListModel.getDeviceList();
-    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      widget.startPolling(context);
-    } else {
-      widget.startPolling(context);
-    }
+    widget.startPolling(context);
   }
 
   @override
@@ -101,8 +100,8 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void dispose() {
     _stopPushListen();
-    super.dispose();
     widget.stopPolling();
+    super.dispose();
   }
 
   @override

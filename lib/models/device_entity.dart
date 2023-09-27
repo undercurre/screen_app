@@ -45,9 +45,9 @@ class DeviceEntity {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is DeviceEntity && other.applianceCode == applianceCode && other.name == name && other.roomName == roomName && other.onlineStatus == onlineStatus;
+    return other is DeviceEntity && other.applianceCode == applianceCode;
   }
 
   @override
-  int get hashCode => applianceCode.hashCode ^ name.hashCode;
+  int get hashCode => applianceCode.hashCode;
 }

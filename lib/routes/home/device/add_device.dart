@@ -664,7 +664,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               Image(
                                   image: AssetImage('assets/newUI/empty.png')),
                               Text(
-                                '暂未添加设备',
+                                '暂无设备',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.4),
                                   fontSize: 24,
@@ -759,7 +759,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               Image(
                                   image: AssetImage('assets/newUI/empty.png')),
                               Text(
-                                '暂未添加设备',
+                                '暂无场景',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.4),
                                   fontSize: 24,
@@ -896,7 +896,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                               Image(
                                   image: AssetImage('assets/newUI/empty.png')),
                               Text(
-                                '暂未添加设备',
+                                '暂无设备',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.4),
                                   fontSize: 24,
