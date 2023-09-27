@@ -586,6 +586,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             ),
                             Expanded(
                                 child: TextField(
+                                  keyboardType: TextInputType.visiblePassword,
+                                  autocorrect: false,
                                   style: const TextStyle(fontSize: 18.0),
                                   controller: _nameController,
                                   obscureText: closeEye,

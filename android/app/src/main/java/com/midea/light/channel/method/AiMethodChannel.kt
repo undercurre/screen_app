@@ -86,9 +86,12 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                 if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
                     Log.e("sky", "停止美居ai")
                     com.midea.light.ai.AiManager.getInstance().stopAi()
+                    com.midea.homlux.ai.AiManager.getInstance().stopAi()
                 } else if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
                     Log.e("sky", "停止HomluxAi")
                     com.midea.homlux.ai.AiManager.getInstance().stopAi()
+                    com.midea.light.ai.AiManager.getInstance().stopAi()
+
                 }
             }
             "WakeUpAi" -> {

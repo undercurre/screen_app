@@ -84,9 +84,16 @@ class SnifferViewModel {
   }
 
   void allSelect() {
-    for (var element in combineList) {
-      element.selected = true;
+    if(hasSelected()){
+      for (var element in combineList) {
+        element.selected = false;
+      }
+    }else{
+      for (var element in combineList) {
+        element.selected = true;
+      }
     }
+
   }
 
   /// 开始探测设备
