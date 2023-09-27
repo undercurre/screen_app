@@ -11,10 +11,52 @@ import '../../logcat_helper.dart';
 import '../models/homlux_device_entity.dart';
 import '../models/homlux_group_entity.dart';
 
+/// 恢复[HomluxDeviceApi.devices]的单个设备缓存数据
+Future<void> _recoverForDevices(String deviceId) async {
+
+  var homeId = HomluxGlobal.homluxHomeInfo?.houseId ?? "xx";
+  var devices = HomluxDeviceApi.devices;
+  var homeDeviceList = HomluxDeviceApi.homeDeviceList;
+  var lanManager = HomluxDeviceApi.lanManager;
+
+  if (!devices.containsKey(deviceId)) {
+    if(homeDeviceList.containsKey(homeId)) {
+      homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
+        e.onLineStatus = 0;
+        if(lanManager.deviceMap.containsKey(e.deviceId)) {
+          if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+            e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+            Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
+          }
+        }
+        return e;
+      }).toList();
+    } else {
+      var jsonStr = await LocalStorage.getItem("homlux_device_list_by_home_id_$homeId");
+      if (StrUtils.isNotNullAndEmpty(jsonStr)) {
+        var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
+        entity.result = entity.result?.map((e) {
+          e.onLineStatus = 0;
+          if(lanManager.deviceMap.containsKey(e.deviceId)) {
+            if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+              e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+              Log.file('[device-api] 设备 ${e.deviceId} 局域网检查状态 ${lanManager.deviceMap[e.deviceId]}');
+            }
+          }
+          devices[e.deviceId!] = e;
+          return e;
+        }).toList();
+        homeDeviceList[homeId] = entity;
+      }
+    }
+  }
+
+  return;
+}
+
 class HomluxDeviceApi {
   /// 局域网控制器
-  static HomluxLanControlDeviceManager lanManager =
-      HomluxLanControlDeviceManager.getInstant();
+  static HomluxLanControlDeviceManager lanManager = HomluxLanControlDeviceManager.getInstant();
 
   // 设备状态存储内存存储器
   static Map<String, HomluxDeviceEntity> devices = {};
@@ -32,7 +74,7 @@ class HomluxDeviceApi {
 
   // 清除内存缓存
   static void clearMemoryCache() {
-    Log.file('清除数据');
+    Log.file('[device-api] 清除内存数据');
     devices.clear();
     groups.clear();
     roomDeviceList.clear();
@@ -52,19 +94,25 @@ class HomluxDeviceApi {
               if(lanManager.deviceMap.containsKey(e.deviceId)) {
                 if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
                   e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
+                  Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
                 }
               }
               return e;
             }).toList();
         return roomDeviceList[roomId]!;
       } else {
-        var jsonStr =
-        await LocalStorage.getItem("homlux_device_list_by_room_id_$roomId");
+        var jsonStr = await LocalStorage.getItem("homlux_device_list_by_room_id_$roomId");
         if (StrUtils.isNotNullAndEmpty(jsonStr)) {
           var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
           entity.result = entity.result?.map((e) {
-            e.onLineStatus = lanManager.deviceMap.containsKey(e.deviceId) ? 1 : 0;
+            e.onLineStatus = 0;
+            if(lanManager.deviceMap.containsKey(e.deviceId)) {
+              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+                e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+                Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
+              }
+            }
+            Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
             return e;
           }).toList();
           roomDeviceList[roomId] = entity;
@@ -97,11 +145,11 @@ class HomluxDeviceApi {
 
       if (res.success) {
         saveCacheData(res, res.result == null || res.result!.isEmpty);
+        return res;
       }
 
-      return res;
     } catch (e) {
-      Log.i('获取房间ID失败 $roomId', e);
+      Log.i('[device-api] 获取房间设备列表ID=$roomId 失败 ', e);
     }
     return getCacheData();
   }
@@ -111,52 +159,21 @@ class HomluxDeviceApi {
   /// [deviceId] 设备id
   /// ****************
   static Future<HomluxResponseEntity<HomluxDeviceEntity>>
-      queryDeviceStatusByDeviceId(String deviceId,
-          {CancelToken? cancelToken, bool forceRequestNetwork = false}) async {
-    Log.i('homlux 请求设备状态 deviceId=$deviceId forceRequestNetwork=$forceRequestNetwork');
+      queryDeviceStatusByDeviceId(String deviceId, {CancelToken? cancelToken, bool forceRequestNetwork = false}) async {
+    Log.i('[device-api] 请求设备状态 deviceId=$deviceId forceRequestNetwork=$forceRequestNetwork');
     /// 从本地缓存中，还原设备状态
-    var homeId = HomluxGlobal.homluxHomeInfo?.houseId ?? "xx";
-    if (!devices.containsKey(deviceId)) {
-      if(homeDeviceList.containsKey(homeId)) {
-        homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
-              e.onLineStatus = 0;
-              if(lanManager.deviceMap.containsKey(e.deviceId)) {
-                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
-                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
-                }
-              }
-              return e;
-            }).toList();
-      } else {
-        var jsonStr = await LocalStorage.getItem("homlux_device_list_by_home_id_$homeId");
-        if (StrUtils.isNotNullAndEmpty(jsonStr)) {
-          var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
-          entity.result = entity.result?.map((e) {
-            e.onLineStatus = 0;
-            if(lanManager.deviceMap.containsKey(e.deviceId)) {
-              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
-                e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
-              }
-            }
-            devices[e.deviceId!] = e;
-            return e;
-          }).toList();
-          homeDeviceList[homeId] = entity;
-        }
-      }
-    }
+    await _recoverForDevices(deviceId);
 
+    // 去获取设备状态。优先局域网状态
     if (!forceRequestNetwork && devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
       HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
 
       if (responseEntity.isSuccess) {
         HomluxDeviceEntity curEntity = devices[deviceId]!;
-        curEntity.onLineStatus = 1;
 
         /// [{
         //             "modelName": "wallSwicth2",
+        //             "online": 1,
         //             "deviceProperty": {
         //                 "ccc": "7",
         //                 "ddd": "5"
@@ -168,6 +185,7 @@ class HomluxDeviceApi {
           var name = statu['modelName'] as String;
           var value = statu['deviceProperty'] as Map;
           newStatus[name] = value;
+          curEntity.onLineStatus = statu['online'] ?? 0;
         }
         curEntity.mzgdPropertyDTOList = HomluxDeviceMzgdPropertyDTOList.fromJson(newStatus);
         HomluxResponseEntity<HomluxDeviceEntity> response =
@@ -175,10 +193,10 @@ class HomluxDeviceApi {
               ..code = 0
               ..msg = '请求成功'
               ..result = curEntity;
-        Log.file('局域网 设备状态返回 ${response.toJson()}');
+        Log.file('[device-api]设备状态返回 ${response.toJson()}');
         return response;
       } else {
-        Log.file('局域网 获取局域网状态失败：$deviceId');
+        Log.file('[device-api] 获取局域网状态失败：$deviceId');
       }
     }
 
@@ -192,19 +210,17 @@ class HomluxDeviceApi {
     /// 更新最新的数据到缓存中
     if (entity.isSuccess && entity.data != null) {
       devices[deviceId] = entity.data!;
-      LocalStorage.setItem('homlux_lan_device_save_$deviceId',
-          jsonEncode(entity.data!.toJson()));
+      LocalStorage.setItem('homlux_lan_device_save_$deviceId', jsonEncode(entity.data!.toJson()));
     }
 
-    Log.file('云端 设备状态返回 ${entity.toJson()}');
+    Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
     return entity;
   }
 
   /// ******************
   /// 获取家庭设备列表
   /// *******************
-  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>>
-      queryDeviceListByHomeId(String homeId, {CancelToken? cancelToken}) async {
+  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> queryDeviceListByHomeId(String homeId, {CancelToken? cancelToken}) async {
 
     Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> getCacheData() async {
 
@@ -214,12 +230,12 @@ class HomluxDeviceApi {
               if(lanManager.deviceMap.containsKey(e.deviceId)) {
                 if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
                   e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                  Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
                 }
               }
               devices[e.deviceId!] = e;
               return e;
             }).toList();
+        Log.file('[device-api] 家庭设备列表 局域网状态 ${homeDeviceList[homeId]!.toJson()}');
         return homeDeviceList[homeId]!;
       } else {
         var jsonStr = await LocalStorage.getItem("homlux_device_list_by_home_id_$homeId");
@@ -231,13 +247,13 @@ class HomluxDeviceApi {
             if(lanManager.deviceMap.containsKey(e.deviceId)) {
               if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
                 e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                Log.file('homeos 设备 ${e.deviceId} 局域网检查在线状态 ${lanManager.deviceMap[e.deviceId]?['status']}');
               }
             }
             devices[e.deviceId!] = e;
             return e;
           }).toList();
           homeDeviceList[homeId] = entity;
+          Log.file('[device-api] 家庭设备列表 局域网状态 ${entity.toJson()}');
           return entity;
         }
       }
@@ -266,11 +282,11 @@ class HomluxDeviceApi {
 
       if (res.success) {
         saveCache(res, res.result == null || res.result!.isEmpty);
+        return res;
       }
 
-      return res;
     } catch (e) {
-      Log.i('获取家庭设备列表失败 $homeId', e);
+      Log.file('[device-api] 获取家庭设备列表失败 $homeId', e);
     }
 
     return getCacheData();
@@ -280,9 +296,26 @@ class HomluxDeviceApi {
   /// 根据分组id查设备详情
   /// [groupId] 分组id
   /// ****************
-  static Future<HomluxResponseEntity<HomluxGroupEntity>> queryGroupByGroupId(
-      String groupId,
-      {CancelToken? cancelToken}) async {
+  static Future<HomluxResponseEntity<HomluxGroupEntity>> queryGroupByGroupId(String groupId, {CancelToken? cancelToken}) async {
+
+    Future<HomluxResponseEntity<HomluxGroupEntity>> getCacheData() async {
+      if (groups.containsKey(groupId)) {
+        Log.file('[device-api] 获取灯组$groupId详情 ${groups[groupId]}');
+        return HomluxResponseEntity()
+          ..code = 0 ..msg = "请求成功" ..result = groups[groupId];
+      } else {
+        var jsonStr = await LocalStorage.getItem('homlux_lan_group_save_$groupId');
+        if(StrUtils.isNotNullAndEmpty(jsonStr)) {
+          HomluxGroupEntity entity = HomluxGroupEntity.fromJson(jsonDecode(jsonStr!));
+          groups[groupId] = entity;
+          Log.file('[device-api] 获取灯组$groupId详情 $entity');
+          return HomluxResponseEntity()
+            ..code = 0 ..msg = "请求成功" ..result = entity;
+        }
+      }
+      return HomluxResponseEntity()
+        ..code = -1 ..msg = "请求失败";
+    }
 
     try {
       var res = await HomluxApi.request<HomluxGroupEntity>(
@@ -303,21 +336,10 @@ class HomluxDeviceApi {
 
       return res;
     } catch (e) {
-      if (groups.containsKey(groupId)) {
-        return HomluxResponseEntity()
-          ..code = 0 ..msg = "请求成功" ..result = groups[groupId];
-      } else {
-        var jsonStr = await LocalStorage.getItem('homlux_lan_group_save_$groupId');
-        if(StrUtils.isNotNullAndEmpty(jsonStr)) {
-          HomluxGroupEntity entity = HomluxGroupEntity.fromJson(jsonDecode(jsonStr!));
-          return HomluxResponseEntity()
-            ..code = 0 ..msg = "请求成功" ..result = entity;
-        }
-      }
+      Log.i('[device-api] 请求云端灯组列表失败');
     }
 
-    return HomluxResponseEntity()
-      ..code = -1 ..msg = "请求失败";
+    return getCacheData();
 
   }
 
