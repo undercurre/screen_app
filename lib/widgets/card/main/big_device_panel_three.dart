@@ -296,6 +296,7 @@ class _BigDevicePanelCardWidgetThreeState
                   }).show(context);
             } else {
               await widget.adapter.fetchOrderPower(index + 1);
+              bus.emit('operateDevice', widget.applianceCode);
             }
           }
         },

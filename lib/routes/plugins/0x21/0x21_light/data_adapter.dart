@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,16 +37,17 @@ class DeviceDataEntity {
   });
 
   DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
-    brightness = int.parse(data!.endList[0].event.Level);
-    colorTemp = int.parse(data!.endList[0].event.ColorTemp ?? '0');
-    power = data!.endList[0].event.OnOff == '1' || data!.endList[0].event.OnOff == 1;
-    delayClose = int.parse(data!.endList[0].event.DelayClose);
+    brightness = int.parse(data.endList[0].event.Level);
+    colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
+    power = data.endList[0].event.OnOff == '1' || data.endList[0].event.OnOff == 1;
+    delayClose = int.parse(data.endList[0].event.DelayClose);
+    Log.i('lmn>>> ${toJson()}');
   }
 
   DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    brightness = data!.mzgdPropertyDTOList?.light?.brightness as int;
-    colorTemp = data!.mzgdPropertyDTOList?.light?.colorTemperature as int;
-    power = data!.mzgdPropertyDTOList!.light?.power == 1;
+    brightness = data.mzgdPropertyDTOList?.light?.brightness as int;
+    colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature as int;
+    power = data.mzgdPropertyDTOList!.light?.power == 1;
     delayClose = 0;
   }
 
@@ -70,6 +70,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   bool _isFetching = false;
   Timer? _debounceTimer;
+  int controlLastTime = 0;
 
   NodeInfo<Endpoint<ZigbeeLightEvent>>? _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
@@ -151,8 +152,10 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       }
 
       _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-        Log.i('触发更新');
-        await fetchData();
+        if(DateTime.now().millisecondsSinceEpoch - controlLastTime > 1000) {
+          Log.i('触发更新');
+          await fetchData();
+        }
         _isFetching = false;
       });
     }
@@ -220,6 +223,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   Future<void> controlPower() async {
     data!.power = !data!.power;
     updateUI();
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       /// todo: 可以优化类型限制
       var command = {
@@ -261,6 +265,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       data!.delayClose = 0;
     }
     updateUI();
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       var command = {
         "msgId": uuid.v4(),
@@ -300,6 +305,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     data!.brightness = curMode.brightness.toInt();
     data!.colorTemp = curMode.colorTemperature.toInt();
     updateUI();
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       var command = {
         "brightness": data!.brightness,
@@ -316,6 +322,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
         command: command,
       );
       if (res.isSuccess) {
+        Log.i('lmn>>> controlMode success');
       } else {
         data!.brightness = lastBrightness;
         data!.colorTemp = lastColorTemp;
@@ -341,7 +348,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     int lastBrightness = data!.brightness;
     data!.brightness = value.toInt();
     updateUI();
-
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       var command = {
         "brightness": data!.brightness,
@@ -376,6 +383,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     int? lastColorTemp = data!.colorTemp;
     data!.colorTemp = value.toInt();
     updateUI();
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       var command = {
         "brightness": data!.brightness,
