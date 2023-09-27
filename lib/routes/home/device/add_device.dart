@@ -664,7 +664,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 );
                               },
                             ),
-                          if (devices.isEmpty)
+                          if (devices.isEmpty&&NetUtils.getNetState()!=null)
                             Container(
                                 child: Column(children: [
                               Image(
@@ -677,6 +677,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 ),
                               )
                             ])),
+                          if(NetUtils.getNetState()==null)
+                            Container(
+                                child: Column(children: [
+                                  const Image(width: 300,height:300,image: AssetImage('assets/newUI/net_error.png')),
+                                  Text(
+                                    '网络异常，请检查你的网络',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.4),
+                                      fontSize: 24,
+                                    ),
+                                  )
+                                ])),
                           if (scenes.isNotEmpty)
                             GridView.builder(
                               gridDelegate:
