@@ -8,6 +8,7 @@ import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../event_bus.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceAirCardWidget extends StatefulWidget {
@@ -143,7 +144,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
     String getRoomName() {
       if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
+        return deviceListModel.getDeviceRoomName(
+            deviceId: widget.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.length == 0 &&
@@ -156,7 +158,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
-      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online =
+          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -179,8 +182,12 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -207,8 +214,12 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
           colors: [
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33616A76),
+            widget.discriminative
+                ? Colors.white.withOpacity(0.12)
+                : const Color(0x33434852),
           ],
         ),
       );
@@ -226,10 +237,13 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
             child: GestureDetector(
               onTap: () {
                 Log.i('disabled: ${widget.disabled}');
-                if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+                if (!widget.disabled &&
+                    deviceListModel.getOnlineStatus(
+                        deviceId: widget.applianceCode)) {
                   widget.adapter?.power(
                     widget.adapter?.getPowerStatus(),
                   );
+                  bus.emit('operateDevice', widget.applianceCode);
                 }
               },
               child: Image(
@@ -352,13 +366,17 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && (widget.adapter?.getPowerStatus() ?? false)) {
+                      if (!widget.disabled &&
+                          deviceListModel.getOnlineStatus(
+                              deviceId: widget.applianceCode) &&
+                          (widget.adapter?.getPowerStatus() ?? false)) {
                         double value =
                             widget.adapter!.getCardStatus()?["temperature"] +
                                 widget.adapter!
                                     .getCardStatus()?["smallTemperature"] -
                                 0.5;
                         widget.adapter?.reduceTo(value.toInt());
+                        bus.emit('operateDevice', widget.applianceCode);
                       }
                     },
                     child: Image(
@@ -385,13 +403,17 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                           decoration: TextDecoration.none)),
                   GestureDetector(
                     onTap: () {
-                      if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && (widget.adapter?.getPowerStatus() ?? false)) {
+                      if (!widget.disabled &&
+                          deviceListModel.getOnlineStatus(
+                              deviceId: widget.applianceCode) &&
+                          (widget.adapter?.getPowerStatus() ?? false)) {
                         double value =
                             widget.adapter!.getCardStatus()?["temperature"] +
                                 widget.adapter!
                                     .getCardStatus()?["smallTemperature"] +
                                 0.5;
                         widget.adapter?.increaseTo(value.toInt());
+                        bus.emit('operateDevice', widget.applianceCode);
                       }
                     },
                     child: Image(
@@ -421,12 +443,15 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               height: 16,
               min: 16,
               max: 30,
-              disabled: widget.disabled || !(widget.adapter?.getPowerStatus() ?? false) || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+              disabled: widget.disabled ||
+                  !(widget.adapter?.getPowerStatus() ?? false) ||
+                  !deviceListModel.getOnlineStatus(
+                      deviceId: widget.applianceCode),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              onChanging: (val, color) =>
-                  {widget.adapter?.slider1To(val.toInt())},
-              onChanged: (val, color) =>
-                  {widget.adapter?.slider1To(val.toInt())},
+              onChanged: (val, color) {
+                widget.adapter?.slider1To(val.toInt());
+                bus.emit('operateDevice', widget.applianceCode);
+              },
             ),
           ),
         ],

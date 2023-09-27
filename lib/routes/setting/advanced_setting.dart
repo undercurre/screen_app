@@ -210,10 +210,15 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
     netMethodChannel.removeAllWiFiRecord();
     // 删除本地所有缓存
     aboutSystemChannel.clearLocalCache();
+    settingMethodChannel.setSystemVoice(12);
+    settingMethodChannel.setSystemLight(128);
+    Setting.instant().setStandbyTimeOptNum(3);
+    Setting.instant().showVolume=80;
     Timer(const Duration(seconds: 7), () {
       aboutSystemChannel
           .getAppVersion()
           .then((value) => Setting.instant().saveVersionCompatibility(value));
+      aiMethodChannel.stopAi();
       System.logout("清除缓存，导致退出登录");
     });
     // 定时十秒

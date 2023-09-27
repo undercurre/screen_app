@@ -112,6 +112,9 @@ class _LinkNetworkModel with ChangeNotifier {
       list.removeWhere((element) => element.bssid == _data.currentConnect?.data.bssid);
     }
     _data.wifiList = list.toSet();
+    if (_data.isWiFiOn && (_data.wifiList?.isEmpty ?? true)) {
+      return;
+    }
     notifyListeners();
   }
 
@@ -201,9 +204,7 @@ class _LinkNetwork extends State<LinkNetwork> {
                   if (model.pageData[index] == 'headerTag') {
                     return switchBar(model);
                   } else if(model.pageData[index] == 'lastTag') {
-                    if (model.pageData.length > 2) {
-                      return lastTag();
-                    }
+                    return lastTag(model);
                   } else {
                     WiFiScanResult item = model.pageData[index] as WiFiScanResult;
                     return MzCell(
@@ -317,7 +318,7 @@ class _LinkNetwork extends State<LinkNetwork> {
           ),
         ),
 
-        Container(
+        if (model.pageData.length > 2) Container(
           width: 432,
           height: 62,
           margin: const EdgeInsets.only(left: 16),
@@ -335,25 +336,36 @@ class _LinkNetwork extends State<LinkNetwork> {
     );
   }
 
-  Widget lastTag() {
-    return Container(
-      width: 432,
-      height: 44,
-      decoration: const BoxDecoration(
-        color: Color.fromRGBO(255, 255, 255, 0.05),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
-      ),
-      margin: const EdgeInsets.only(bottom: 40),
-      alignment: Alignment.center,
-      child: const Text(
-        '已经到底了！',
-        style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            color: Color.fromRGBO(255, 255, 255, 0.85)
-        ),
-      ),
-    );
+  Widget lastTag(_LinkNetworkModel model) {
+    if (model.pageData.length == 2) {
+      return Container(
+        margin: const EdgeInsets.only(top: 20),
+        child: const CupertinoActivityIndicator(radius: 20),
+      );
+    } else {
+      if (model.pageData.length > 4) {
+        return Container(
+          width: 432,
+          height: 44,
+          decoration: const BoxDecoration(
+              color: Color.fromRGBO(255, 255, 255, 0.05),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
+          ),
+          margin: const EdgeInsets.only(bottom: 40),
+          alignment: Alignment.center,
+          child: const Text(
+            '已经到底了~',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: Color.fromRGBO(255, 255, 255, 0.85)
+            ),
+          ),
+        );
+      } else {
+        return const SizedBox();
+      }
+    }
   }
 
   void showInputPasswordDialog(WiFiScanResult result, _LinkNetworkModel model,
@@ -586,6 +598,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                             ),
                             Expanded(
                                 child: TextField(
+                                  keyboardType: TextInputType.visiblePassword,
+                                  autocorrect: false,
                                   style: const TextStyle(fontSize: 18.0),
                                   controller: _nameController,
                                   obscureText: closeEye,

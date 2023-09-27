@@ -62,6 +62,8 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
+  int controlLastTime = 0;
+
   CurtainDataEntity? data = CurtainDataEntity(
     curtainPosition: 0,
     curtainStatus: 'stop',
@@ -171,9 +173,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(Duration(milliseconds: 2000), () async {
-        Log.i('触发更新');
-        await fetchData();
+      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
+        if(DateTime.now().millisecondsSinceEpoch - controlLastTime > 1000) {
+          Log.i('触发更新');
+          await fetchData();
+        }
         _isFetching = false;
       });
     }
@@ -290,7 +294,8 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   Future<void> controlCurtain(num value) async {
     int lastPosition = data!.curtainPosition;
     data!.curtainPosition = value.toInt();
-    updateUI();
+    //updateUI();
+    controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
       var command = {
         "curtain_position": value,

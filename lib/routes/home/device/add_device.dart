@@ -16,6 +16,7 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
+import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../channel/index.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
@@ -23,6 +24,7 @@ import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
+import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
 import '../../../states/device_list_notifier.dart';
@@ -78,6 +80,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   Future<void> getRoomList() async {
     settingMethodChannel.showLoading("设备加载中");
+    if(NetUtils.getNetState()==null){
+      settingMethodChannel.dismissLoading();
+      TipsUtils.toast(content: '请检查网络');
+    }
     SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
     await roomDataAd?.queryRoomList(System.familyInfo!);
     homluxRoomList=roomDataAd.homluxRoomList;
@@ -658,7 +664,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 );
                               },
                             ),
-                          if (devices.isEmpty)
+                          if (devices.isEmpty&&NetUtils.getNetState()!=null)
                             Container(
                                 child: Column(children: [
                               Image(
@@ -671,6 +677,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 ),
                               )
                             ])),
+                          if(NetUtils.getNetState()==null)
+                            Container(
+                                child: Column(children: [
+                                  const Image(width: 300,height:300,image: AssetImage('assets/newUI/net_error.png')),
+                                  Text(
+                                    '网络异常，请检查你的网络',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.4),
+                                      fontSize: 24,
+                                    ),
+                                  )
+                                ])),
                           if (scenes.isNotEmpty)
                             GridView.builder(
                               gridDelegate:

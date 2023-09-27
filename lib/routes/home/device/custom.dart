@@ -65,11 +65,9 @@ class _CustomPageState extends State<CustomPage> {
     final layoutModel = Provider.of<LayoutModel>(context);
     // 获取屏幕信息
     MediaQueryData mediaQuery = MediaQuery.of(context);
-    double screenWidth = mediaQuery.size.width;
-    double screenHeight = mediaQuery.size.height;
     // 处理布局信息
     if (mounted) {
-      _screens = getScreenList(screenWidth, screenHeight, layoutModel);
+      getScreenList(layoutModel);
     }
     return Stack(
       children: [
@@ -583,15 +581,11 @@ class _CustomPageState extends State<CustomPage> {
     );
   }
 
-  List<Widget> getScreenList(
-      double width, double height, LayoutModel layoutModel) {
-    // 屏幕页面列表
-    List<Widget> screenList = [];
-    // 计算出网格的宽高
-    double gridWidth = width / 4;
-    double gridHeight = height / 4;
-    // 最大页数
+  void getScreenList(LayoutModel layoutModel) {
+    _screens = [];
+    // 取得最大页数
     int maxPage = layoutModel.getMaxPageIndex();
+    // 逐页渲染
     for (int page = 0; page <= maxPage; page++) {
       // 收集当前page的widget
       List<Widget> curScreenWidgets = [];
@@ -603,7 +597,7 @@ class _CustomPageState extends State<CustomPage> {
       List<Layout> fillNullLayoutList =
           layoutModel.fillNullLayoutList(curScreenLayouts, page);
       // 排序
-      List<Layout> sortedLayoutList = Layout.sortLayoutList(fillNullLayoutList);
+      List<Layout> sortedLayoutList = Layout.sortLayoutList(curScreenLayouts);
       // 映射成widget放进去
       for (Layout layout in sortedLayoutList) {
         layout.data.disabled = true;
@@ -639,7 +633,7 @@ class _CustomPageState extends State<CustomPage> {
                   }
                 },
                 onAccept: (data) {
-                  Log.i('拖拽结束');
+                  Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex));
                   setState(() {
                     dragSumX = 0;
                     dragSumY = 0;
@@ -719,7 +713,7 @@ class _CustomPageState extends State<CustomPage> {
               dragSumY += details.delta.dy;
             },
             onDragEnd: (detail) {
-              Log.i('拖拽结束');
+              Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex).map((e) => e.grids).toList());
               setState(() {
                 dragSumX = 0;
                 dragSumY = 0;
@@ -737,7 +731,7 @@ class _CustomPageState extends State<CustomPage> {
                 );
               },
               onAccept: (data) {
-                Log.i('拖拽结束');
+                Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex).map((e) => e.grids).toList());
                 setState(() {
                   dragSumX = 0;
                   dragSumY = 0;
@@ -771,7 +765,7 @@ class _CustomPageState extends State<CustomPage> {
         }
       }
       // 每一页插入屏幕表
-      screenList.add(
+      _screens.add(
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 0, 34),
           child: SingleChildScrollView(
@@ -780,14 +774,12 @@ class _CustomPageState extends State<CustomPage> {
               mainAxisSpacing: 0,
               crossAxisSpacing: 0,
               axisDirection: AxisDirection.down,
-              children: [...curScreenWidgets],
+              children: curScreenWidgets,
             ),
           ),
         ),
       );
     }
-    // 布局结束，抛出屏幕列表
-    return screenList;
   }
 }
 

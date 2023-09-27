@@ -8,6 +8,7 @@ import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../event_bus.dart';
 import '../../util/nameFormatter.dart';
 
 class SmallDeviceCardWidget extends StatefulWidget {
@@ -231,8 +232,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
           widget.onTap?.call();
           widget.adapter?.power(widget.adapter?.getPowerStatus());
-        } else {
-          widget.adapter?.tryOnce();
+          bus.emit('operateDevice', widget.applianceCode);
         }
       },
       child: Container(

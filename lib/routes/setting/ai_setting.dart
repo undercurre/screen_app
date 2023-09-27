@@ -165,51 +165,49 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                   color:
                                       const Color.fromRGBO(255, 255, 255, 0.05),
                                 ),
-                                SizedBox(
-                                  width: 432,
-                                  height: 72,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text("小美语音授权",
-                                          style: TextStyle(
-                                            color: Color(0XFFFFFFFF),
-                                            fontSize: 24.0,
-                                            fontFamily: "MideaType",
-                                            fontWeight: FontWeight.normal,
-                                            decoration: TextDecoration.none,
-                                          )),
-                                      GestureDetector(
-                                        onTap: () async => {AiAuthor()},
-                                        child: Container(
-                                          width: 88,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: const Color(0x330092DC),
-                                            border: Border.all(
-                                                color: const Color(0xFF0092DC)),
-                                          ),
-                                          child: const Center(
-                                            child: Text("授权",
-                                                style: TextStyle(
-                                                  color: Color(0xFF0092DC),
-                                                  fontSize: 20.0,
-                                                  fontFamily: "MideaType",
-                                                  fontWeight: FontWeight.normal,
-                                                  decoration:
-                                                      TextDecoration.none,
-                                                )),
-                                          ),
+                              SizedBox(
+                                width: 432,
+                                height: 72,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text("小美语音授权",
+                                        style: TextStyle(
+                                          color: Color(0XFFFFFFFF),
+                                          fontSize: 24.0,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none,
+                                        )),
+                                    GestureDetector(
+                                      onTap: () async => {AiAuthor()},
+                                      child: Container(
+                                        width: 88,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: const Color(0x330092DC),
+                                          border: Border.all(
+                                              color: const Color(0xFF0092DC)),
+                                        ),
+                                        child: const Center(
+                                          child: Text("授权",
+                                              style: TextStyle(
+                                                color: Color(0xFF0092DC),
+                                                fontSize: 20.0,
+                                                fontFamily: "MideaType",
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              )),
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
+                              ),
                             ],
                           )),
                       Container(
@@ -222,58 +220,59 @@ class _AiSettingPageState extends State<AiSettingPage> {
                           ),
                           child: Column(
                             children: [
-                                SizedBox(
-                                  width: 432,
-                                  height: 132,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text("自定义设备名",
+                              SizedBox(
+                                width: 432,
+                                height: 132,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("自定义设备名",
+                                            style: TextStyle(
+                                              color: Color(0XFFFFFFFF),
+                                              fontSize: 24.0,
+                                              fontFamily: "MideaType",
+                                              fontWeight: FontWeight.normal,
+                                              decoration: TextDecoration.none,
+                                            )),
+                                        SizedBox(
+                                          width: 307,
+                                          child: Text(
+                                              "唤醒小美后说：“打开自定义设备名”，即可按照设备自定义的名称进行语音控制",
                                               style: TextStyle(
-                                                color: Color(0XFFFFFFFF),
-                                                fontSize: 24.0,
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 0.60),
+                                                fontSize: 16.0,
                                                 fontFamily: "MideaType",
                                                 fontWeight: FontWeight.normal,
                                                 decoration: TextDecoration.none,
                                               )),
-                                          SizedBox(
-                                            width: 307,
-                                            child: Text(
-                                                "唤醒小美后说：“打开自定义设备名”，即可按照设备自定义的名称进行语音控制",
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(
-                                                      255, 255, 255, 0.60),
-                                                  fontSize: 16.0,
-                                                  fontFamily: "MideaType",
-                                                  fontWeight: FontWeight.normal,
-                                                  decoration:
-                                                      TextDecoration.none,
-                                                )),
-                                          )
-                                        ],
-                                      ),
-                                      MzSwitch(
-                                        value: AiCustomNameEnable,
-                                        onTap: (bool value) {
-                                          MeiJuAiAuthorApi.aiCustomDeviceName(
-                                              value);
-                                          setState(() {
-                                            AiCustomNameEnable = value;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                        )
+                                      ],
+                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 0, 0, 70),
+                                        child: MzSwitch(
+                                          value: AiCustomNameEnable,
+                                          onTap: (bool value) {
+                                            MeiJuAiAuthorApi.aiCustomDeviceName(
+                                                value);
+                                            setState(() {
+                                              AiCustomNameEnable = value;
+                                            });
+                                          },
+                                        )),
+                                  ],
                                 ),
+                              ),
                               Container(
                                 width: 392,
                                 height: 1,
@@ -317,16 +316,19 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                         )
                                       ],
                                     ),
-                                    MzSwitch(
-                                      value: AiOnlyOneWakeup,
-                                      onTap: (bool value) {
-                                        MeiJuAiAuthorApi.aiOnlyOneWakeup(
-                                            value ? 1 : 0);
-                                        setState(() {
-                                          AiOnlyOneWakeup = value;
-                                        });
-                                      },
-                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 0, 0, 70),
+                                        child: MzSwitch(
+                                          value: AiOnlyOneWakeup,
+                                          onTap: (bool value) {
+                                            MeiJuAiAuthorApi.aiOnlyOneWakeup(
+                                                value ? 1 : 0);
+                                            setState(() {
+                                              AiOnlyOneWakeup = value;
+                                            });
+                                          },
+                                        )),
                                   ],
                                 ),
                               ),
@@ -384,18 +386,16 @@ class _AiSettingPageState extends State<AiSettingPage> {
   Future<void> getAiState() async {
     var res = await MeiJuAiAuthorApi.isAiCustomDeviceName();
     if (res.data.toString().contains("true")) {
-      AiCustomNameEnable=true;
-    }else{
-      AiCustomNameEnable=false;
+      AiCustomNameEnable = true;
+    } else {
+      AiCustomNameEnable = false;
     }
     var ress = await MeiJuAiAuthorApi.isAiOnlyOneWakeup();
     if (ress.data.toString().contains("1")) {
-      AiOnlyOneWakeup=true;
-    }else{
-      AiOnlyOneWakeup=false;
+      AiOnlyOneWakeup = true;
+    } else {
+      AiOnlyOneWakeup = false;
     }
-    setState(() {
-
-    });
+    setState(() {});
   }
 }

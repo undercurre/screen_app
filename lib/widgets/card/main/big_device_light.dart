@@ -246,6 +246,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   widget.adapter?.power(
                     widget.adapter?.getPowerStatus(),
                   );
+                  bus.emit('operateDevice', widget.applianceCode);
                 }
               },
               child: Image(

@@ -400,6 +400,7 @@ class _BigDeviceCurtainCardWidgetState
               onValueChanged: (int? value) {
                 if (widget.adapter?.getPowerStatus() != null && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                   widget.adapter?.tabTo(value);
+                  bus.emit('operateDevice', widget.applianceCode);
                 }
               },
             ),
@@ -417,6 +418,7 @@ class _BigDeviceCurtainCardWidgetState
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
+                bus.emit('operateDevice', widget.applianceCode);
               },
             ),
           ),
