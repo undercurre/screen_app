@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:screen_app/common/setting.dart';
 
+import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/utils.dart';
 import '../../widgets/mz_dialog.dart';
@@ -186,6 +187,7 @@ class CurrentPlatformPageState extends State<CurrentPlatformPage> {
               return;
             }
             Setting.instant().isAllowChangePlatform = true;
+            aiMethodChannel.stopAi();
             Navigator.pushNamedAndRemoveUntil(
                 context,
                 "Login",
