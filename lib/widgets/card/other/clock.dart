@@ -18,12 +18,14 @@ class DigitalClockWidget extends StatefulWidget {
 
 class _DigitalClockWidgetState extends State<DigitalClockWidget> {
   late ValueNotifier<DateTime> _currentTimeNotifier;
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
     _currentTimeNotifier = ValueNotifier<DateTime>(DateTime.now());
-    Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    timer?.cancel();
+    timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       if (_currentTimeNotifier != null && mounted) {
         _currentTimeNotifier.value = DateTime.now();
       }
@@ -32,6 +34,7 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
 
   @override
   void dispose() {
+    timer?.cancel();
     _currentTimeNotifier.dispose();
     super.dispose();
   }

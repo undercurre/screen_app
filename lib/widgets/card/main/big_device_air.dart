@@ -47,6 +47,11 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (!widget.disabled) {
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();

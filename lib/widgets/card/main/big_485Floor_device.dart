@@ -53,9 +53,13 @@ class _Big485FloorDeviceAirCardWidgetState
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
-    updateDetail();
   }
 
   @override

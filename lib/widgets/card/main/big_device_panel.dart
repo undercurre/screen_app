@@ -72,6 +72,13 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
     super.initState();
     if (!widget.disabled) {
       _startPushListen();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
     }

@@ -45,9 +45,14 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
   @override
   void initState() {
     super.initState();
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
-    updateDetail();
   }
 
 

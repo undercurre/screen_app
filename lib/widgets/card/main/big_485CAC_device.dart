@@ -63,9 +63,13 @@ class _Big485CACDeviceAirCardWidgetState
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
-    updateDetail();
   }
 
   @override

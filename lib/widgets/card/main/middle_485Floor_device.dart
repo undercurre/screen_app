@@ -50,9 +50,13 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
-    updateDetail();
   }
 
   @override

@@ -81,6 +81,15 @@ class _BigScenePanelCardWidgetThreeState
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
+      widget.adapter.bindDataUpdateFunction(updateData);
+      widget.adapter.init();
+    }
+  }
+
   void updateData() {
     if (mounted) {
       setState(() {

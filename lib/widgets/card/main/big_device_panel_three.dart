@@ -59,7 +59,7 @@ class _BigDevicePanelCardWidgetThreeState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
@@ -71,6 +71,11 @@ class _BigDevicePanelCardWidgetThreeState
   void initState() {
     super.initState();
     _startPushListen();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (!widget.disabled) {
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);

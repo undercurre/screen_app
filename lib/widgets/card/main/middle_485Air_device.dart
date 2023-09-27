@@ -49,9 +49,13 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
-    updateDetail();
   }
 
   @override
