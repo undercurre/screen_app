@@ -52,6 +52,9 @@ class Setting {
   /// 音量
   late int _volume;
 
+  /// 显示音量
+  late int _showVolume;
+
   /// 工程模式使能
   late bool _engineeringModeEnable;
 
@@ -93,6 +96,7 @@ class Setting {
 
     _screenBrightness = _prefs.getInt('setting_screen_brightness') ?? _defaultBrightness;
     _volume = _prefs.getInt('setting_system_volume') ?? _defaultVolume;
+    _showVolume= _prefs.getInt('setting_system_show_volume') ?? (_volume / 15 * 100).toInt();
     _engineeringModeEnable = _prefs.getBool('setting_engineering_mode') ?? false;
     _screenAutoEnable = _prefs.getBool('setting_screen_auto') ?? false;
     _nearWakeupEnable = _prefs.getBool('setting_near_wakeup') ?? false;
@@ -267,6 +271,15 @@ class Setting {
   set volume(int val) {
     _prefs.setInt('setting_system_volume', val);
     _volume = val;
+  }
+
+  /// 获取系统显示音量
+  int get showVolume => _showVolume;
+
+  /// 设置系统显示音量
+  set showVolume(int val) {
+    _prefs.setInt('setting_system_volume', val);
+    _showVolume = val;
   }
 
   /// 获取工程模式

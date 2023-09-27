@@ -15,6 +15,8 @@ class SoundSettingPage extends StatefulWidget {
 
 class _SoundSettingPageState extends State<SoundSettingPage> {
   num soundValue = Setting.instant().volume;
+  num soundShowValue = Setting.instant().showVolume;
+
   Timer? sliderTimer;
 
   @override
@@ -36,6 +38,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
   void _aiSetVoiceCallback(int voice) {
     setState(() {
       soundValue = voice;
+      soundShowValue=(soundValue / 15 * 100).toInt();
     });
     Setting.instant().volume = voice;
   }
@@ -108,7 +111,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     Positioned(
                       left: 20,
                       top: 12,
-                      child: Text("音量 | ${(soundValue / 15 * 100).toInt()}%",
+                      child: Text("音量 | $soundShowValue%",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 24,
@@ -150,6 +153,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                                 onChanged: (value) {
                                   setState(() {
                                       soundValue = value;
+                                      soundShowValue=(soundValue / 15 * 100).toInt();
                                   });
                                   sliderToSetVol();
                                 },
@@ -186,6 +190,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
     }
     settingMethodChannel.setSystemVoice(soundValue.toInt());
     Setting.instant().volume = soundValue.toInt();
+    Setting.instant().showVolume = (soundValue / 15 * 100).toInt();
   }
 
   @override
