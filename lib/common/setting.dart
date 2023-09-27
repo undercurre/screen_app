@@ -86,7 +86,7 @@ class Setting {
     _screedDuration = Pair.of(screedStartTime!, screedEndTime!);
     _nightModeEnable = _prefs.getBool('setting_night_mode_enable') ?? false;
 
-    standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 2; /// 默认选序号2的选项（从0开始）
+    standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 3; /// 默认选序号3的选项（从0开始）
     _screenSaverId = _prefs.getInt('setting_screen_saver_id') ?? 6; /// 默认的屏保样式为6
 
     _aiEnable = _prefs.getBool('setting_ai_enable') ?? true;
