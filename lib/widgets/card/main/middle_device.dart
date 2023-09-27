@@ -8,6 +8,7 @@ import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../event_bus.dart';
 
 class MiddleDeviceCardWidget extends StatefulWidget {
   final String applianceCode;
@@ -221,6 +222,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
           widget.adapter?.power(
             widget.adapter?.getPowerStatus(),
           );
+          bus.emit('operateDevice', widget.applianceCode);
         }
       },
       child: Container(

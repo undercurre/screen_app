@@ -313,6 +313,7 @@ class _BigScenePanelCardWidgetThreeState
                 });
               } else {
                 await widget.adapter.fetchOrderPower(index + 1);
+                bus.emit('operateDevice', widget.applianceCode);
               }
             }
           }
