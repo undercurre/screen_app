@@ -353,10 +353,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 debugPrint('Select: ${home?.toJson()}');
                 selectFamily = home;
                 System.familyInfo = home;
-                if(Setting.instant().lastBindHomeId.isNotEmpty
-                    && Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
-                  isNeedShowClearAlert = true;
-                }
+                checkIsNeedShowClearAlert();
                 nextStep();
               })),
       Step('选择房间', SelectRoom(key: selectRoomKey, onChange: (SelectRoomItem room) {
@@ -530,6 +527,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           ))))))
       ],
     );
+  }
+
+  void checkIsNeedShowClearAlert() {
+    int lenDiff = (Setting.instant().lastBindHomeId.length - (System.familyInfo?.familyId.length ?? 0)).abs();
+    if(Setting.instant().lastBindHomeId.isNotEmpty
+        && Setting.instant().lastBindHomeId != System.familyInfo?.familyId
+        && lenDiff < 3) {
+      isNeedShowClearAlert = true;
+    }
   }
 
   void showClearAlert(BuildContext context) async {

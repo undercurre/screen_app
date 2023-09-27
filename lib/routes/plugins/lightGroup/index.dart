@@ -155,6 +155,9 @@ class LightGroupPageState extends State<LightGroupPage> {
                                       child: ParamCard(
                                         disabled: dataAdapter?.data?.power ?? true ? false : true,
                                         title: '色温',
+                                        unit: 'k',
+                                        customMin: dataAdapter?.data?.minColorTemp ?? 2700,
+                                        customMax: dataAdapter?.data?.maxColorTemp ?? 6500,
                                         value: dataAdapter?.data?.colorTemp ?? 0,
                                         activeColors: const [
                                           Color(0xFFFFD39F),

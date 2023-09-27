@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -89,6 +90,9 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   bool isPanning = false;
   late Offset latestPosition;
 
+  Timer? feedTimer;
+  int timeDrag = 0;
+
   @override
   void initState() {
     super.initState();
@@ -117,9 +121,9 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
       onHorizontalDragUpdate: (e) => onPanUpdate(e),
-      onHorizontalDragEnd: (e) => onPanUp(),
-      onPanEnd: (e) => onPanUp(),
-      onPanCancel: () => onPanUp(),
+      //onHorizontalDragEnd: (e) => onPanUp(),
+      //onPanEnd: (e) => onPanUp(),
+      onTap: () => onPanUp(),
       child: Container(
         padding: widget.padding,
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -354,6 +358,16 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       toValue = clampValue(percentageValue);
     });
     widget.onChanging?.call(emitValue, activeColor[1]);
+
+    timeDrag = DateTime.now().millisecondsSinceEpoch;
+    feedTimer ??= Timer.periodic(const Duration(milliseconds: 300), (timer) {
+      int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - timeDrag > 300) {
+        feedTimer?.cancel();
+        feedTimer = null;
+        onPanUp();
+      }
+    });
   }
 
   void onPanUp() {
