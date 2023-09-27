@@ -25,15 +25,20 @@ class SelectHomeState extends State<SelectHome> {
             height: 99,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             title: item?.familyName,
+            titleMaxLines: 1,
+            titleMaxWidth: 320,
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             titleSize: 24,
             descSize: 18,
             tag: familyDataAd?.familyListEntity?.familyList[i].houseCreatorFlag == true ? '创建' : null,
-            bgColor: Colors.transparent,
+            bgColor: const Color(0xFF303441),
             hasTopBorder: false,
-            hasBottomBorder: i + 1 != len + 1,
-            desc:
-                '房间${item?.roomNum}  |  设备${item?.deviceNum}  |  成员${item?.userNum}',
+            hasBottomBorder: i != len -1,
+            topLeftRadius: i == 0 ? 16 : 0,
+            topRightRadius: i == 0 ? 16 : 0,
+            bottomLeftRadius: i == len -1 ? 16 : 0,
+            bottomRightRadius: i == len -1 ? 16 : 0,
+            desc: '房间${item?.roomNum}  |  设备${item?.deviceNum}  |  成员${item?.userNum}',
             onTap: () {
               setState(() {
                 selectVal = i;
@@ -48,13 +53,13 @@ class SelectHomeState extends State<SelectHome> {
       );
     }
 
-    if(len > 0) {
+    if(len > 2) {
       listView.add(const SizedBox(
         width: 432,
         height: 44,
         child: Center(
             child: Text(
-              '已经到底了！',
+              '已经到底了~',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
@@ -86,10 +91,10 @@ class SelectHomeState extends State<SelectHome> {
             child: Container(
               width: 432,
               margin: const EdgeInsets.fromLTRB(24, 10, 24, 50),
-              decoration: const BoxDecoration(
-                  color: Color(0xFF303441),
-                  borderRadius: BorderRadius.all(Radius.circular(16))
-              ),
+              // decoration: const BoxDecoration(
+              //     color: Color(0xFF303441),
+              //     borderRadius: BorderRadius.all(Radius.circular(16))
+              // ),
               child: Column(
                   children: listView.toList()
               ),

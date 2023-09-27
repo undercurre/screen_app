@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/gateway_platform.dart';
 import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
@@ -76,7 +77,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             onChanging: dataAdapter?.controlBrightness,
           ),
         ),
-        Container(
+        if(dataAdapter?.type == AdapterType.zigbeeLight) Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: ParamCard(
             disabled: dataAdapter?.data!.power ?? true ? false : true,
@@ -110,30 +111,32 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
             disabled: dataAdapter?.data!.power ?? true ? false : true,
           ),
         ),
-        if (dataAdapter?.platform.inMeiju() ?? false) Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: FunctionCard(
-            title: '延时关灯',
-            subTitle: dataAdapter?.data!.delayClose == 0 ? '未设置' : '${dataAdapter?.data!.delayClose}分钟后关灯',
-            child: Listener(
-              onPointerDown: (e) {
-                dataAdapter?.controlDelay();
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: dataAdapter?.data!.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
-                    [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
+        if ((dataAdapter?.platform.inMeiju() ?? false)
+            && (dataAdapter?.type == AdapterType.zigbeeLight))
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: FunctionCard(
+              title: '延时关灯',
+              subTitle: dataAdapter?.data!.delayClose == 0 ? '未设置' : '${dataAdapter?.data!.delayClose}分钟后关灯',
+              child: Listener(
+                onPointerDown: (e) {
+                  dataAdapter?.controlDelay();
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: dataAdapter?.data!.delayClose == 0 ? [const Color(0x21FFFFFF), const Color(0x21FFFFFF)]:
+                      [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Image(
-                  image: AssetImage('assets/imgs/plugins/0x13/delay_off.png'),
-                ),
+                  child: const Image(
+                    image: AssetImage('assets/imgs/plugins/0x13/delay_off.png'),
+                  ),
               ),
             ),
           ),
