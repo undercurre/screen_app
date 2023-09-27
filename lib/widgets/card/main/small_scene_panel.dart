@@ -172,7 +172,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         return false;
       }
       // 离线
-      if (deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return false;
       }
       // 模式
@@ -180,6 +180,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         // 场景模式
         return widget.sceneOnOff;
       } else {
+        Log.i('普通模式开关状态');
         // 普通模式
         return widget.adapter.data!.statusList.isNotEmpty &&
             widget.adapter.data!.statusList[0] &&

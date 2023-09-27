@@ -23,8 +23,8 @@ class LightDataEntity {
   bool power = false; //开关
   String screenModel = 'manual'; //模式
   int timeOff = 0; //延时关
-  int maxColorTemp = 6500;
-  int minColorTemp = 2700;
+  int maxColorTemp = 5700;
+  int minColorTemp = 3000;
 
   LightDataEntity({
     required brightness,
@@ -42,8 +42,8 @@ class LightDataEntity {
       screenModel = data["screenModel"];
       timeOff = int.parse(data["timeOff"]);
     } else {
-      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
-      colorTemp = int.parse(data["color_temperature"]);
+      brightness = ((int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"])) / 255 * 100).toInt();
+      colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt() ;
       power = data["power"] == 'on';
       screenModel = data["scene_light"] ?? 'manual';
       timeOff = int.parse(data["delay_light_off"]);
@@ -53,7 +53,6 @@ class LightDataEntity {
   }
 
   LightDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    Log.i('解析数据${data.mzgdPropertyDTOList}');
     brightness = data.mzgdPropertyDTOList?.light?.brightness ?? 0;
     colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
     power = data.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
@@ -351,6 +350,16 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
           applianceCode: applianceCode,
           command: command,
         );
+      } else if (sn8 == '79010914') {
+        var command = {
+          "brightness":
+          int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))
+        };
+        res = await MeiJuDeviceApi.sendLuaOrder(
+          categoryCode: '0x13',
+          applianceCode: applianceCode,
+          command: command,
+        );
       } else {
         var command = {
           "brightness": data!.brightness
@@ -392,6 +401,16 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
         res = await MeiJuDeviceApi.sendPDMControlOrder(
           categoryCode: '0x13',
           uri: 'controlColorTemperatureValue',
+          applianceCode: applianceCode,
+          command: command,
+        );
+      } else if (sn8 == '79010914') {
+        var command = {
+          "color_temperature":
+          int.parse((data!.colorTemp / 100 * 255).toStringAsFixed(0))
+        };
+        res = await MeiJuDeviceApi.sendLuaOrder(
+          categoryCode: '0x13',
           applianceCode: applianceCode,
           command: command,
         );
