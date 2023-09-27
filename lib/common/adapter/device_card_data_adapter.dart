@@ -5,6 +5,7 @@ enum AdapterType {
   unKnow,
   wifiLight,
   zigbeeLight,
+  zigbeeLightSingle, //单调光灯
   lightGroup,
   wifiCurtain,
   air485,
