@@ -191,7 +191,7 @@ class _SettingPageState extends State<SettingPage> {
                                 'SoundSettingPage',
                               )
                             }, true),
-                            settingCell("assets/newUI/sound.png", "语音设置", () => {
+                            settingCell("assets/newUI/sound.png", "小美语音", () => {
                               if(System.inMeiJuPlatform()){
                                 Navigator.pushNamed(
                                   context,
