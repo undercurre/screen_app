@@ -357,7 +357,7 @@ class LayoutModel extends ChangeNotifier {
     }
     // 尝试新占位
     List<int> fillCells = screenLayer.checkAvailability(targetType);
-    if (fillCells.isEmpty) {
+    if (fillCells.isNotEmpty) {
       // 新占位成功
       layout.grids = fillCells;
     } else {
@@ -386,7 +386,9 @@ class LayoutModel extends ChangeNotifier {
         }
       }
       List<int> fillCellsInMaxPage = screenLayer.checkAvailability(targetType);
-      if (fillCellsInMaxPage.isEmpty) {
+      if (fillCellsInMaxPage.isNotEmpty) {
+        // 回补空缺
+        layouts.add(Layout(uuid.v4(), DeviceEntityTypeInP4.DeviceNull, CardType.Null, layout.pageIndex, layout.grids, layout.data));
         // 新占位成功
         layout.pageIndex = maxPage;
         layout.grids = fillCells;
@@ -394,6 +396,8 @@ class LayoutModel extends ChangeNotifier {
         // 最后一页也没有空间了，开一页新的
         screenLayer.resetGrid();
         await deleteLayout(layout.deviceId);
+        // 回补空缺
+        layouts.add(Layout(uuid.v4(), DeviceEntityTypeInP4.DeviceNull, CardType.Null, layout.pageIndex, layout.grids, layout.data));
         List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
         Layout newLayout = Layout(layout.deviceId, layout.type, targetType,
             maxPage + 1, fillCellsNew, layout.data);
