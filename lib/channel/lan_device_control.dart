@@ -32,7 +32,7 @@ class LanDeviceControlChannel extends AbstractChannel {
         Map<String, dynamic>? map = call.arguments as Map<String, dynamic>?;
         String? topic = map?['topic'];
         String? msg = map?['msg'];
-        Log.file('局域网 接收到mqtt数据 topic= $topic \n msg= $msg');
+        Log.file('[HomeOs] 接收到mqtt数据 topic= $topic \n msg= $msg');
         if(StrUtils.isNotNullAndEmpty(topic) && StrUtils.isNotNullAndEmpty(msg)) {
           mqttCallback?.call(topic!, msg!);
         }
@@ -40,7 +40,7 @@ class LanDeviceControlChannel extends AbstractChannel {
       case 'log':
         Map<String, dynamic>? map = call.arguments as Map<String, dynamic>?;
         String? msg = map?['msg'];
-        Log.file('HomeOs 接收到日志数据 msg= $msg');
+        Log.file('[HomeOs] 接收到日志数据 msg= $msg');
         if(StrUtils.isNotNullAndEmpty(msg)) {
           logCallback?.call(msg!);
         }

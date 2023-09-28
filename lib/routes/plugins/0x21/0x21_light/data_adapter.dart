@@ -15,6 +15,7 @@ import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../common/utils.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
 import 'api.dart';
@@ -96,7 +97,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   @override
   Map<String, dynamic>? getCardStatus() {
     return {
-      "nodeId": nodeId,
+      "nodeId": StrUtils.isNotNullAndEmpty(nodeId) ? nodeId : null,
       "power": data!.power,
       "brightness": data!.brightness,
       "colorTemp": data!.colorTemp,
