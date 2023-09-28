@@ -33,11 +33,12 @@ class _LinkNetworkModel with ChangeNotifier {
   late _LinkNetworkData _data;
   DateTime? lastTime;
 
-  List<dynamic> get pageData => <dynamic>[
-    'headerTag',
-    if (_data.supportWiFi && _data.isWiFiOn) ...?_data.wifiList,
-    'lastTag'
-  ];
+  List<dynamic> get pageData =>
+      <dynamic>[
+        'headerTag',
+        if (_data.supportWiFi && _data.isWiFiOn) ...?_data.wifiList,
+        'lastTag'
+      ];
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
@@ -94,22 +95,27 @@ class _LinkNetworkModel with ChangeNotifier {
     int wifiState = state.wifiState;
     if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
-      _data.wifiList?.removeWhere((element) => element.bssid == state.wiFiScanResult?.bssid);
+      _data.wifiList?.removeWhere((element) =>
+      element.bssid == state.wiFiScanResult?.bssid);
     } else {
-      _data.currentConnect = null;
+      // _data.currentConnect = null;
     }
     notifyListeners();
   }
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
     if (lastTime != null) {
-      if(DateTime.now().millisecondsSinceEpoch - lastTime!.millisecondsSinceEpoch < 5000) {
+      if (DateTime
+          .now()
+          .millisecondsSinceEpoch - lastTime!.millisecondsSinceEpoch < 5000) {
         return;
       }
     }
     lastTime = DateTime.now();
-    if (_data.currentConnect != null && _data.currentConnect?.type == UpdateType.SUCCESS) {
-      list.removeWhere((element) => element.bssid == _data.currentConnect?.data.bssid);
+    if (_data.currentConnect != null &&
+        _data.currentConnect?.type == UpdateType.SUCCESS) {
+      list.removeWhere((element) =>
+      element.bssid == _data.currentConnect?.data.bssid);
     }
     _data.wifiList = list.toSet();
     if (_data.isWiFiOn && (_data.wifiList?.isEmpty ?? true)) {
@@ -123,7 +129,7 @@ class _LinkNetworkModel with ChangeNotifier {
       await netMethodChannel.enableWiFi(wifiOpen);
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
-      _data.currentConnect = wifiOpen?_data.currentConnect : null;
+      _data.currentConnect = wifiOpen ? _data.currentConnect : null;
       if (wifiOpen) {
         netMethodChannel.scanNearbyWiFi();
       } else {
@@ -137,10 +143,9 @@ class _LinkNetworkModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void connectWiFi(
-      {required WiFiScanResult result,
-        String? password,
-        required void Function(bool) callback}) async {
+  void connectWiFi({required WiFiScanResult result,
+    String? password,
+    required void Function(bool) callback}) async {
     _data.currentConnect = UpdateState.loading(result);
     notifyListeners();
     bool connect =
@@ -191,6 +196,8 @@ class _LinkNetwork extends State<LinkNetwork> {
     super.dispose();
   }
 
+  final ScrollController _controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
@@ -199,14 +206,16 @@ class _LinkNetwork extends State<LinkNetwork> {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: ListView.builder(
+                controller: _controller,
                 itemCount: model.pageData.length,
                 itemBuilder: (BuildContext context, int index) {
                   if (model.pageData[index] == 'headerTag') {
                     return switchBar(model);
-                  } else if(model.pageData[index] == 'lastTag') {
+                  } else if (model.pageData[index] == 'lastTag') {
                     return lastTag(model);
                   } else {
-                    WiFiScanResult item = model.pageData[index] as WiFiScanResult;
+                    WiFiScanResult item = model
+                        .pageData[index] as WiFiScanResult;
                     return MzCell(
                         rightIcon: Row(
                           children: [
@@ -234,20 +243,28 @@ class _LinkNetwork extends State<LinkNetwork> {
                         onTap: () {
                           if (item.auth == 'open') {
                             // 尝试连接开放型WiFi
-                            model.connectWiFi(result: item, password: null, callback: (result) {});
+                            model.connectWiFi(result: item,
+                                password: null,
+                                callback: (result) {});
                           } else if (item.alreadyConnected) {
                             // 尝试连接曾经的WiFi
+                            _controller.animateTo(
+                              0.0,
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
                             model.connectWiFi(
                                 result: item,
                                 password: null,
                                 callback: (result) {
                                   if (!result) {
-                                    showInputPasswordDialog(item, model);
+                                    showInputPasswordDialog(
+                                        item, model, _controller);
                                   }
                                 });
                           } else {
                             // 连接新WiFi
-                            showInputPasswordDialog(item, model);
+                            showInputPasswordDialog(item, model, _controller);
                           }
                         }
                     );
@@ -258,6 +275,7 @@ class _LinkNetwork extends State<LinkNetwork> {
         })
     );
   }
+
 
   Widget switchBar(_LinkNetworkModel model) {
     return Column(
@@ -274,8 +292,11 @@ class _LinkNetwork extends State<LinkNetwork> {
                 titleSize: 24,
                 titleColor: const Color(0xFFFFFFFF),
                 bgColor: Colors.transparent,
-                hasBottomBorder: model._data.currentConnect?.type == UpdateType.LONGING
-                    || model._data.currentConnect?.type == UpdateType.SUCCESS? true : false,
+                hasBottomBorder: model._data.currentConnect?.type ==
+                    UpdateType.LONGING
+                    || model._data.currentConnect?.type == UpdateType.SUCCESS
+                    ? true
+                    : false,
                 rightSlot: MzSwitch(
                   value: model._data.isWiFiOn,
                   onTap: (e) => model.changeSwitch(!model._data.isWiFiOn, true),
@@ -290,11 +311,13 @@ class _LinkNetwork extends State<LinkNetwork> {
                   titleMaxLines: 1,
                   titleColor: const Color(0xD8FFFFFF),
                   bgColor: Colors.transparent,
-                  rightSlot: model._data.currentConnect?.type == UpdateType.LONGING?
+                  rightSlot: model._data.currentConnect?.type ==
+                      UpdateType.LONGING ?
                   const CupertinoActivityIndicator(radius: 12) :
                   Row(
                     children: [
-                      if (model._data.currentConnect?.data.auth == 'encryption') const Padding(
+                      if (model._data.currentConnect?.data.auth ==
+                          'encryption') const Padding(
                         padding: EdgeInsets.only(right: 12),
                         child: Image(
                           height: 32,
@@ -303,14 +326,18 @@ class _LinkNetwork extends State<LinkNetwork> {
                         ),
                       ),
                       MzWiFiImage(
-                          level: model._data.currentConnect?.data.level.toInt() ?? 0,
+                          level: model._data.currentConnect?.data.level
+                              .toInt() ?? 0,
                           size: const Size.square(28)),
                     ],
                   ),
-                  tag: model._data.currentConnect?.type == UpdateType.SUCCESS? "已连接" : null,
+                  tag: model._data.currentConnect?.type == UpdateType.SUCCESS
+                      ? "已连接"
+                      : null,
                   onLongPress: () {
-                    if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
-                      showIgnoreDialog(model._data.currentConnect!.data);
+                    if (model._data.currentConnect?.type ==
+                        UpdateType.SUCCESS) {
+                      showIgnoreDialog(model);
                     }
                   },
                 ),
@@ -349,7 +376,8 @@ class _LinkNetwork extends State<LinkNetwork> {
           height: 44,
           decoration: const BoxDecoration(
               color: Color.fromRGBO(255, 255, 255, 0.05),
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16))
           ),
           margin: const EdgeInsets.only(bottom: 40),
           alignment: Alignment.center,
@@ -369,6 +397,7 @@ class _LinkNetwork extends State<LinkNetwork> {
   }
 
   void showInputPasswordDialog(WiFiScanResult result, _LinkNetworkModel model,
+      ScrollController mScrollController,
       [bool connectedError = false]) async {
     showDialog(
         context: context,
@@ -376,6 +405,7 @@ class _LinkNetwork extends State<LinkNetwork> {
           return InputPasswordDialog(
             connectedError: connectedError,
             result: result,
+            mScrollController: mScrollController,
             confirmAction: (_, password) {
               model.connectWiFi(
                   result: result,
@@ -383,7 +413,8 @@ class _LinkNetwork extends State<LinkNetwork> {
                   callback: (suc) {
                     if (!suc) {
                       // 连接失败继续显示弹窗
-                      showInputPasswordDialog(result, model, true);
+                      showInputPasswordDialog(
+                          result, model, mScrollController, true);
                     }
                   });
             },
@@ -391,7 +422,7 @@ class _LinkNetwork extends State<LinkNetwork> {
         });
   }
 
-  void showIgnoreDialog(WiFiScanResult result) async {
+  void showIgnoreDialog(_LinkNetworkModel result) async {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -404,7 +435,7 @@ class _LinkNetwork extends State<LinkNetwork> {
 }
 
 class IgnorePasswordDialog extends StatelessWidget {
-  final WiFiScanResult result;
+  final _LinkNetworkModel result;
 
   const IgnorePasswordDialog({super.key, required this.result});
 
@@ -427,7 +458,7 @@ class IgnorePasswordDialog extends StatelessWidget {
                 child: Container(
                   alignment: Alignment.center,
                   child: Text(
-                    '忽略“${result.ssid}”',
+                    '忽略“${result._data.currentConnect?.data.ssid}”',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -460,7 +491,10 @@ class IgnorePasswordDialog extends StatelessWidget {
                   isShowShadow: false,
                   text: '确认',
                   onPressed: () {
-                    netMethodChannel.forgetWiFi(result.ssid, result.bssid);
+                    netMethodChannel.forgetWiFi(
+                        result._data.currentConnect!.data.ssid,
+                        result._data.currentConnect!.data.bssid);
+                    result._data.currentConnect = null;
                     Navigator.pop(context);
                   },
                 )
@@ -512,12 +546,14 @@ class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
   final void Function(WiFiScanResult result, String password) confirmAction;
   final bool connectedError;
+  final ScrollController mScrollController;
 
-  const InputPasswordDialog(
-      {super.key,
-        required this.result,
-        required this.confirmAction,
-        required this.connectedError});
+
+  const InputPasswordDialog({super.key,
+    required this.result,
+    required this.confirmAction,
+    required this.connectedError,
+    required this.mScrollController});
 
   @override
   State<StatefulWidget> createState() {
@@ -560,7 +596,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         if (widget.connectedError)
                           const Text(
                             '密码错误！',
-                            style: TextStyle(color: Color(0xFFFF1111), fontSize: 16),
+                            style: TextStyle(
+                                color: Color(0xFFFF1111), fontSize: 16),
                           ),
                       ],
                     ))),
@@ -576,9 +613,11 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                         height: 56,
                         decoration: BoxDecoration(
                           color: const Color.fromRGBO(216, 216, 216, 0.2),
-                          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(12.0)),
                           border:
-                          widget.connectedError ? Border.all(color: const Color.fromRGBO(255, 0, 0, 1)) : null,
+                          widget.connectedError ? Border.all(color: const Color
+                              .fromRGBO(255, 0, 0, 1)) : null,
                         ),
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Row(
@@ -604,7 +643,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                                   controller: _nameController,
                                   obscureText: closeEye,
                                   maxLines: 1,
-                                  decoration: const InputDecoration(border: InputBorder.none),
+                                  decoration: const InputDecoration(
+                                      border: InputBorder.none),
                                   onChanged: (str) {
                                     if (str.length == 7) {
                                       setState(() {
@@ -655,19 +695,29 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                       width: 152,
                       height: 56,
                       borderRadius: 29.0,
-                      backgroundColor: isLengthOk ? const Color(0xFF267AFF) : const Color(0xFF4065A7),
+                      backgroundColor: isLengthOk
+                          ? const Color(0xFF267AFF)
+                          : const Color(0xFF4065A7),
                       borderColor: Colors.transparent,
                       borderWidth: 0,
                       isShowShadow: false,
-                      isClickable: (StrUtils.isNullOrEmpty(_nameController.text) ||
-                          _nameController.text.length < 8)?false:true,
+                      isClickable: (StrUtils.isNullOrEmpty(
+                          _nameController.text) ||
+                          _nameController.text.length < 8) ? false : true,
                       text: '加入',
-                      textColor: isLengthOk ? const Color(0xFFFFFFFF) : const Color(0xC8FFFFFF),
+                      textColor: isLengthOk
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xC8FFFFFF),
                       onPressed: () {
                         if (StrUtils.isNullOrEmpty(_nameController.text) ||
                             _nameController.text.length < 8) {
                           // TipsUtils.toast(content: "请输入8位密码");
                         } else {
+                          widget.mScrollController.animateTo(
+                            0.0,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
                           widget.confirmAction
                               .call(widget.result, _nameController.text);
                           Navigator.pop(context);
@@ -683,8 +733,8 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
   }
 
   String toLimitString(String str) {
-    if(str.isNotEmpty) {
-      if(str.length < 13) {
+    if (str.isNotEmpty) {
+      if (str.length < 13) {
         return str;
       } else {
         return '${str.substring(0, 9)}...${str.substring(str.length - 1)}';
