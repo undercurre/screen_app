@@ -56,7 +56,7 @@ class MeiJuPushManager {
   }
 
   static void _operateDevice(String deviceId) {
-    Log.file('接收到设备操作$deviceId');
+    Log.file('操作设备 设备id$deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
       operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
@@ -151,7 +151,6 @@ class MeiJuPushManager {
       _isConnect = 2;
 
       var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
-      _globalTimer?.cancel();
       _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if(_isConnect == 2) {
           if(MeiJuGlobal.isLogin) {

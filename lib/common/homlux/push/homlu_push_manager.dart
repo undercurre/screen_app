@@ -11,12 +11,14 @@ import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
+import '../../helper.dart';
+import '../../meiju/push/meiju_push_manager.dart';
 import '../../system.dart';
 import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 const _connectTimeout = 5;
-const _pingInterval = 30;
+const _pingInterval = 30000;
 
 // //设备属性变化
 const TypeConnectSuc = 'connect_success_status';
@@ -49,18 +51,48 @@ const TypeDeleteHouseUser = 'del_house_user';
 // 2.定义消息数据解析Bean
 // 3.发送消息
 
+/// 用户主动操作设备的消息延长推送时间
+const int initiativeDelayPush = 20 * 1000;
+/// 被动操作设备的消息延长推送时间
+const int passivityDelayPush = 3 * 1000;
+/// 最大连续重连次数
+const int _maxRetryCount = 20;
+
 class HomluxPushManager {
 
   static WebSocket? webSocket;
   static Timer? retryConnectTimer;
-  static Timer? hearPacketTimeoutTimer;
+  static Timer? _globalTimer;
   static int _isConnect = 0;  // 0.未连接 1.连接中 2.已连接
-  static bool heartBeatReply = false;
+  static int retryCount = 0;
+  static int heartSendLastTime  = 0;
+
+  /// 记录用户操作的设备
+  /// 操作设备之后，设备的推送事件将延迟10s
+  /// 被动接收云端推送的设备的推送事件延迟3s
+  /// 记录用户操作的设备ID、延迟通知时间
+  static Map<String, Pair<int, PushEventFunction?>> operatePushRecord = {};
+
+  static void deviceStatusChange(String deviceId, HomluxPushResultEntity entity) {
+    if(!operatePushRecord.containsKey(deviceId)) {
+      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+          PushEventFunction.create(TypeDeviceProperty,
+                  () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity))));
+    } else {
+      var pair = operatePushRecord[deviceId]!;
+      if(pair.value2?.id != TypeDeviceProperty) {
+        operatePushRecord[deviceId] = Pair.of(pair.value1,
+            PushEventFunction.create(TypeDeviceProperty,
+                    () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity))));
+      }
+    }
+  }
   
   static void _netConnectState(NetState? state) {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
-      Log.file('【WebSocket】homlux ws 检测到已连接网络');
+      Log.file('[WebSocket]homlux ws 检测到已连接网络');
       if(_isConnect == 0) {
+        retryCount = 0;
         _startConnect();
       }
     } else {
@@ -76,6 +108,16 @@ class HomluxPushManager {
     return _isConnect == 2;
   }
 
+  static void _operateDevice(String deviceId) {
+    Log.file('操作设备 设备id $deviceId');
+    if(operatePushRecord.containsKey(deviceId)) {
+      var pair = operatePushRecord[deviceId]!;
+      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
+    } else {
+      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, null);
+    }
+  }
+
   static void stopConnect() async {
     NetUtils.unregisterListenerNetState(_netConnectState);
     _stopConnect('切换平台断开连接');
@@ -83,25 +125,35 @@ class HomluxPushManager {
 
   static Future _stopConnect(String reason) async {
     if(_isConnect > 0) {
-      Log.file('【WebSocket】homlux ws 关闭连接, 关闭原因：$reason');
+      Log.file('[WebSocket]homlux ws 关闭连接, 关闭原因：$reason');
       // 1. 关闭旧连接, 定时器
       _isConnect = 0;
       retryConnectTimer?.cancel();
-      hearPacketTimeoutTimer?.cancel();
+      _globalTimer?.cancel();
+      _globalTimer = null;
       webSocket?.close();
       webSocket = null;
+      bus.off('operateDevice');
     }
   }
 
 
   static _startConnect([int retrySeconds = 2]) async {
 
+    // 延迟两秒连接
+    await Future.delayed(const Duration(seconds: 2));
+
+    if(retryCount >= _maxRetryCount) {
+      Log.file('meiju ws 超过最大连接次数');
+      return;
+    }
+
     _isConnect = 1;
 
     // 重连函数
     void reconnectFunction() {
       if(_isConnect != 1) {
-        Log.file('【WebSocket】homlux ws 即将重新连接');
+        Log.file('[WebSocket]homlux ws 即将重新连接');
         retryConnectTimer?.cancel();
         retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
           startConnect(retrySeconds * 2);
@@ -111,10 +163,12 @@ class HomluxPushManager {
     }
 
     try {
-      Log.file('【WebSocket】homlux ws 建立连接中');
+      Log.file('[WebSocket]homlux ws 建立连接中 尝试次数$retryCount');
       // 1. 关闭旧连接, 定时器
+      retryCount++;
       retryConnectTimer?.cancel();
-      hearPacketTimeoutTimer?.cancel();
+      _globalTimer?.cancel();
+      _globalTimer = null;
       await webSocket?.close();
       webSocket = null;
 
@@ -124,11 +178,12 @@ class HomluxPushManager {
 
       // 1.1 判断是否能建立连接
       if(!System.isLogin() || !System.inHomluxPlatform()) {
-        Log.file('【WebSocket】homlux ws 状态不符合，无法建立连接');
+        Log.file('[WebSocket]homlux ws 状态不符合，无法建立连接');
         return;
       }
 
       // 2.建立新连接
+      bus.off('operateDevice');
       webSocket = await WebSocket.connect(
           dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
           headers: {
@@ -144,10 +199,37 @@ class HomluxPushManager {
           onDone: () => _done(reconnectFunction),
           cancelOnError: false);
 
-      // 4.发送心跳包
-      _sendHearPacket(reconnectFunction);
-
       _isConnect = 2;
+
+      _globalTimer?.cancel();
+      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if(_isConnect == 2) {
+          if(HomluxGlobal.isLogin) {
+            /// 发送订阅任务
+            var currTimer = DateTime.now();
+            // 检测心跳、发送心跳
+            if(currTimer.millisecondsSinceEpoch - heartSendLastTime >= _pingInterval) {
+              webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
+              heartSendLastTime = currTimer.millisecondsSinceEpoch;
+            }
+            /// 执行延迟消息推送队列任务
+            operatePushRecord.removeWhere((key, element) {
+              int exeTime = element.value1;
+              if(currTimer.millisecondsSinceEpoch >= exeTime) {
+                element.value2?.call();
+              }
+              return currTimer.millisecondsSinceEpoch >= exeTime;
+            });
+
+          } else {
+            _stopConnect('检测到退出登录，即将断开推送连接');
+          }
+        } else {
+          timer.cancel();
+        }
+      });
+
+      bus.on('operateDevice', _operateDevice);
     } catch(e) {
       Log.file('执行异常，尝试重连 $e');
       reconnectFunction();
@@ -156,31 +238,32 @@ class HomluxPushManager {
   }
   
   static _message(dynamic event, void Function() reconnectFunction) {
-    Log.file('【WebSocket】homlux ws message $event');
+    Log.i('[WebSocket]homlux ws message $event');
+    retryCount = 0;
     try {
 
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
       var eventType = jsonMap['result']?['eventType'] as String?;
       if (TypeConnectSuc == eventType) {
-        Log.file('【WebSocket】websocket 建立连接成功');
+        Log.file('[WebSocket]websocket 建立连接成功');
         return;
       }
 
       var topic = jsonMap['result']?['topic'] as String?;
       if(topic == 'heartbeatTopic') {
-        heartBeatReply = true;
         return;
       }
 
       HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
       if(entity.result?.eventType == TypeDeviceProperty) {
         var deviceId = entity.result?.eventData?.deviceId;
-        if(StrUtils.isNotNullAndEmpty(deviceId)) {
-          var lanManager = HomluxLanControlDeviceManager.getInstant();
-          var lanContainer = lanManager.isEnable() && lanManager.deviceMap.containsKey(deviceId);
-          if(!lanContainer) { // 因局域网也会推送，则不再处理云端的推送
-            bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity.result!));
-          }
+        if(StrUtils.isNotNullAndEmpty(deviceId) && entity.result != null) {
+          // var lanManager = HomluxLanControlDeviceManager.getInstant();
+          // var lanContainer = lanManager.isEnable() && lanManager.deviceMap.containsKey(deviceId);
+          // if(!lanContainer) { // 因局域网也会推送，则不再处理云端的推送
+          //   deviceStatusChange(deviceId!, entity.result!);
+          // }
+          deviceStatusChange(deviceId!, entity.result!);
         }
       } else if(TypeScreenOnlineStatusSubDevice == eventType|| TypeScreenOnlineStatusWifiDevice == eventType) {
         bus.typeEmit(HomluxDeviceOnlineStatusChangeEvent.of(entity.result!));
@@ -224,51 +307,34 @@ class HomluxPushManager {
       } else if(TypeDeleteHouseUser == eventType) {
         bus.typeEmit(HomluxDeleteHouseUser());
       } else {
-        Log.file('【WebSocket】homlux 此消息类型无法处理：$event');
+        Log.file('[WebSocket]homlux 此消息类型无法处理：$event');
       }
     } catch(e) {
-      Log.file('【WebSocket】homlux ws message error ->  $event $e');
+      Log.file('[WebSocket]homlux ws message error ->  $event $e');
     }
   }
   
   static _error(dynamic error, void Function() reconnectFunction) {
-    Log.file('【WebSocket】 homlux ws error $error');
+    Log.file('[WebSocket] homlux ws error $error');
     try {
 
     } catch(e) {
-      Log.file('【WebSocket】homlux ws error error $e');
+      Log.file('[WebSocket]homlux ws error error $e');
     }
   }
 
   static _done(void Function() reconnectFunction) {
-    Log.file('【WebSocket】homlux ws done');
+    Log.file('[WebSocket]homlux ws done');
     try {
       var state = NetUtils.getNetState();
       if(state != null) {
         reconnectFunction();
       } else {
-        _stopConnect('【WebSocket】网络状态失效');
+        _stopConnect('[WebSocket]网络状态失效');
       }
     } catch(e) {
-      Log.file('【WebSocket】homlux ws done error $e');
+      Log.file('[WebSocket]homlux ws done error $e');
     }
-  }
-
-  static _sendHearPacket(void Function() reconnectFunction) {
-    hearPacketTimeoutTimer?.cancel();
-    hearPacketTimeoutTimer = Timer(const Duration(seconds: _pingInterval), () {
-      if(_isConnect == 2) {
-        if (heartBeatReply) {
-          _sendHearPacket(reconnectFunction);
-        } else {
-          reconnectFunction();
-          hearPacketTimeoutTimer = null;
-        }
-      }
-    });
-    // 发送心跳包
-    webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
-    heartBeatReply = false;
   }
 
 }

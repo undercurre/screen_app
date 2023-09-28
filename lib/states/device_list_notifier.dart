@@ -279,14 +279,11 @@ class DeviceInfoListModel extends ChangeNotifier {
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
-        Log.i('获取设备$deviceId在线状态 ${curOne[0]}');
         return curOne[0].onlineStatus == '1';
       } else {
-        Log.i('获取设备$deviceId在线状态 离线');
         return false;
       }
     } else {
-      Log.i('获取设备$deviceId在线状态 离线');
       return false;
     }
   }
