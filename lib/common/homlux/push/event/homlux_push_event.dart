@@ -146,3 +146,5 @@ class HomluxEditWifiEvent{}
 class HomluxAddSubEvent{}
 // 添加wifi设备事件
 class HomluxAddWifiEvent{}
+// 局域网控制设备更新
+class HomluxLanDeviceChange {}

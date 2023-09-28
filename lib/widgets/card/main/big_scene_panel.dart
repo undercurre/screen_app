@@ -75,6 +75,11 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   void initState() {
     super.initState();
     _startPushListen();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (!widget.disabled) {
       widget.adapter.bindDataUpdateFunction(updateData);
       widget.adapter.init();

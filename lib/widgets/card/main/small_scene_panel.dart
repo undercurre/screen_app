@@ -75,8 +75,15 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     super.initState();
     if (!widget.disabled) {
       _startPushListen();
-      // widget.adapter.init();
-      // widget.adapter.bindDataUpdateFunction(updateData);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
     }
   }
 
@@ -97,16 +104,6 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
       super.didUpdateWidget(oldWidget);
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
     }
   }
 

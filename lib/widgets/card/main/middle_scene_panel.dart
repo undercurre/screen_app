@@ -61,7 +61,7 @@ class _MiddleScenePanelCardWidgetState
         _debounceTimer!.cancel();
       }
 
-      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         Log.i('触发更新');
         await widget.adapter.fetchData();
         _isFetching = false;
@@ -74,8 +74,6 @@ class _MiddleScenePanelCardWidgetState
     super.initState();
     if (!widget.disabled) {
       _startPushListen();
-      widget.adapter.bindDataUpdateFunction(updateData);
-      widget.adapter.init();
     }
   }
 
@@ -87,6 +85,15 @@ class _MiddleScenePanelCardWidgetState
         widget.adapter.data.sceneList = widget.adapter.data.sceneList;
       });
       // Log.i('更新数据', widget.adapter.data.nameList);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
     }
   }
 
@@ -138,6 +145,8 @@ class _MiddleScenePanelCardWidgetState
     }
 
     String _getRightText() {
+      Log.file('检测局域网在离线状态', deviceListModel.getOnlineStatus(
+          deviceId: widget.applianceCode));
       if (widget.discriminative) {
         return '';
       }
@@ -159,6 +168,7 @@ class _MiddleScenePanelCardWidgetState
       if (widget.adapter.dataState == DataState.ERROR) {
         return '离线';
       }
+      Log.file('走到这');
       if (widget.adapter.data!.statusList.isNotEmpty) {
         return '在线';
       } else {

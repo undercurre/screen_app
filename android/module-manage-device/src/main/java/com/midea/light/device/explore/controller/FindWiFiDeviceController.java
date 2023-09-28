@@ -133,9 +133,13 @@ public class FindWiFiDeviceController extends AbstractController implements ISer
         if(mDisposable != null && !mDisposable.isDisposed()) {
             mDisposable.dispose();
         }
-        if(mWifiScanReceiver != null) {
-            getContext().unregisterReceiver(mWifiScanReceiver);
-            mWifiScanReceiver = null;
+        try {
+            if (mWifiScanReceiver != null) {
+                getContext().unregisterReceiver(mWifiScanReceiver);
+                mWifiScanReceiver = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         startScan = Boolean.FALSE;
     }

@@ -386,6 +386,8 @@ class _DropDownPageState extends State<DropDownPage>
     lastTimeSetVolume = DateTime.now().millisecondsSinceEpoch;
     settingMethodChannel.setSystemVoice(soundValue.toInt());
     Setting.instant().volume = soundValue.toInt();
+    Setting.instant().showVolume = (soundValue / 15 * 100).toInt();
+
   }
 
   void sliderToSetLight() {

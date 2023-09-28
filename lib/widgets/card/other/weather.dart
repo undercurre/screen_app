@@ -23,12 +23,14 @@ class DigitalWeatherWidget extends StatefulWidget {
 
 class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with WidgetNetState {
   late ValueNotifier<DateTime> _currentTimeNotifier;
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
     _currentTimeNotifier = ValueNotifier<DateTime>(DateTime.now());
-    Timer.periodic(const Duration(seconds: 72000), (Timer timer) {
+    timer?.cancel();
+    timer = Timer.periodic(const Duration(seconds: 72000), (Timer timer) {
       if (_currentTimeNotifier != null && mounted) {
         _currentTimeNotifier.value = DateTime.now();
       }
@@ -37,6 +39,7 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with Widget
 
   @override
   void dispose() {
+    timer?.cancel();
     _currentTimeNotifier.dispose();
     super.dispose();
   }

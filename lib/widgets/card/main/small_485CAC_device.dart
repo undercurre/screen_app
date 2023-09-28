@@ -48,9 +48,13 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
-    updateDetail();
   }
 
   @override

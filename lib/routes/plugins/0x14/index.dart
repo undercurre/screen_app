@@ -17,7 +17,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[dataAdapter?.data!.curtainStatus ?? "stop"] = true;
+    selectKeys[dataAdapter?.data!.curtainStatus ?? "unknown"] = true;
     debugPrint('$selectKeys');
     return selectKeys;
   }
@@ -67,7 +67,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
               left: -32, // 向左偏移
               top: 0,
               child: AnimationCurtain(
-                position: dataAdapter?.data!.curtainPosition ?? 0,
+                position: dataAdapter?.data?.curtainPosition ?? 0,
               )
           ),
           Column(
@@ -108,11 +108,11 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                               Container(
                                 margin: const EdgeInsets.only(bottom: 16),
                                 child: SliderButtonCard(
-                                    unit: '%',
-                                    value: dataAdapter?.data!.curtainPosition ?? 0,
-                                    min: 0,
-                                    max: 100,
-                                    onChanged: dataAdapter?.controlCurtain,
+                                  unit: '%',
+                                  value: dataAdapter?.data?.curtainPosition ?? 0,
+                                  min: 0,
+                                  max: 100,
+                                  onChanged: dataAdapter?.controlCurtain,
                                 ),
                               ),
                               ModeCard(

@@ -50,6 +50,11 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }

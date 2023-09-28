@@ -50,6 +50,11 @@ class _BigDeviceCurtainCardWidgetState
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (!widget.disabled) {
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();

@@ -47,6 +47,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }

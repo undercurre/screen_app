@@ -1,3 +1,5 @@
+import 'package:screen_app/common/global.dart';
+
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
@@ -358,6 +360,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
          operationMode: state.mode.toString(),
          OnOff: state.onOff.toString(),
          windSpeed: state.speed.toString());
+     logger.i("本地空调变化刷新ui");
      updateUI();
    }
   }

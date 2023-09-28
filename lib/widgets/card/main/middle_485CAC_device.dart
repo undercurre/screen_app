@@ -51,9 +51,13 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
-    updateDetail();
   }
 
   @override

@@ -71,8 +71,6 @@ class _MiddleDevicePanelCardWidgetState
     super.initState();
     if (!widget.disabled) {
       _startPushListen();
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
     }
   }
 
@@ -82,6 +80,15 @@ class _MiddleDevicePanelCardWidgetState
         widget.adapter.data.statusList = widget.adapter.data.statusList;
       });
       // Log.i('更新数据', widget.adapter.data.nameList);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
+      widget.adapter.init();
+      widget.adapter.bindDataUpdateFunction(updateData);
     }
   }
 

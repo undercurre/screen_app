@@ -360,9 +360,20 @@ class _DevicePageState extends State<DevicePage> {
     handlePushDelete();
   }
 
+  void homluxDeviceListChange(HomluxLanDeviceChange arg) {
+    handleHomluxDeviceListChange();
+  }
+
   void homluxPushGroupDelete(HomluxGroupDelEvent arg) {
     handlePushDelete();
   }
+
+  handleHomluxDeviceListChange() {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
+
 
   handlePushDelete() async {
     Log.i('首页推送响应');
@@ -384,6 +395,7 @@ class _DevicePageState extends State<DevicePage> {
       bus.typeOn<HomluxDelWiFiDeviceEvent>(homluxPushDel);
       bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
+      bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
@@ -396,6 +408,7 @@ class _DevicePageState extends State<DevicePage> {
       bus.typeOff<HomluxDelWiFiDeviceEvent>(homluxPushDel);
       bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
+      bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
     }

@@ -52,6 +52,13 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   void initState() {
     if (!widget.disabled) {
       super.initState();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.disabled) {
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
     }

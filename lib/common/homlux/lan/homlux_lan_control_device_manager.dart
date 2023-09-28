@@ -33,8 +33,7 @@ final _errorResponseEntity = HomluxResponseEntity()
   ..msg = '请求失败';
 
 class HomluxLanControlDeviceManager {
-  static final HomluxLanControlDeviceManager _instant =
-      HomluxLanControlDeviceManager._();
+  static final HomluxLanControlDeviceManager _instant = HomluxLanControlDeviceManager._();
 
   HomluxLanControlDeviceManager._();
 
@@ -127,13 +126,17 @@ class HomluxLanControlDeviceManager {
       }
 
       /// host通知control重新获取数据
-      if('/homeos/controller/home/$curHouseId' == topic) {
-        Log.file('homeos getDeviceInfo()');
+      if('/local/synchronize' == topic) {
+        Log.file('[homeos] getDeviceInfo()');
         lanDeviceControlChannel.getDeviceInfo(uuid.v4());
-        Log.file('homeos getSceneInfo()');
+        Log.file('[homeos] getSceneInfo()');
         lanDeviceControlChannel.getSceneInfo(uuid.v4());
-        Log.file('homeos getGroupInfo()');
+        Log.file('[homeos] getGroupInfo()');
         lanDeviceControlChannel.getGroupInfo(uuid.v4());
+
+        Future.delayed(const Duration(seconds: 2), () {
+          bus.typeEmit(HomluxLanDeviceChange(), 500);
+        });
       }
 
       /// 设备列表
@@ -155,6 +158,10 @@ class HomluxLanControlDeviceManager {
 
         /// 获取设备列表中的设备状态
         lanDeviceControlChannel.getDeviceStatus(uuid.v4(), null);
+
+        Future.delayed(const Duration(seconds: 2), () {
+          bus.typeEmit(HomluxLanDeviceChange(), 500);
+        });
       }
 
       /// 子设备删除通知
@@ -291,9 +298,9 @@ class HomluxLanControlDeviceManager {
             sceneMap[sceneId] = scene;
           }
           if(sceneMap.values.isNotEmpty) {
-            Log.i('homeos 场景列表数据处理成功 第一个数据为 ${sceneMap.values.first}');
+            Log.i('[homeos] 场景列表数据处理成功 第一个数据为 ${sceneMap.values.first}');
           } else {
-            Log.i('homeos 场景列表数据处理成功 数据为空');
+            Log.i('[homeos] 场景列表数据处理成功 数据为空');
           }
         }
       }
@@ -471,12 +478,12 @@ class HomluxLanControlDeviceManager {
   }
 
   void init() {
-    Log.file('homeos init()');
+    Log.file('[homeos] init()');
     lanDeviceControlChannel.init();
   }
 
   void logout() {
-    Log.file('homeos logout()');
+    Log.file('[homeos] logout()');
     NetUtils.unregisterListenerNetState(listenerNetState);
     lanDeviceControlChannel.logout();
     sucSubscribe = false;
@@ -543,13 +550,13 @@ class HomluxLanControlDeviceManager {
       if (_key != key) {
         key = _key;
         LocalStorage.setItem('homlux_lan_control_key', key!);
-        Log.file('homeos login(houseId=$houseId, key=$key)');
+        Log.file('[homeos] login(houseId=$houseId, key=$key)');
         sucSubscribe = true;
         lanDeviceControlChannel.login(houseId, key!);
         bus.on("eventStandbyActive", listenerEventStandbyActive);
       }
       lanDeviceControlChannel.logCallback = (args) async {
-        Log.file('homeos log $args');
+        Log.file('[homeos] log $args');
         if (args == 'aesKeyMayBeExpire') {
           /// key过期
           if (System.inHomluxPlatform() && System.isLogin()) {
@@ -561,11 +568,11 @@ class HomluxLanControlDeviceManager {
           }
         } else if (args == 'connectOk') {
           connectOk = true;
-          Log.file('homeos getDeviceInfo()');
+          Log.file('[homeos] getDeviceInfo()');
           lanDeviceControlChannel.getDeviceInfo(uuid.v4());
-          Log.file('homeos getSceneInfo()');
+          Log.file('[homeos] getSceneInfo()');
           lanDeviceControlChannel.getSceneInfo(uuid.v4());
-          Log.file('homeos getGroupInfo()');
+          Log.file('[homeos] getGroupInfo()');
           lanDeviceControlChannel.getGroupInfo(uuid.v4());
         } else if(args == 'connectLost') {
           connectOk = false;
@@ -573,7 +580,7 @@ class HomluxLanControlDeviceManager {
       };
       lanDeviceControlChannel.mqttCallback = (topic, msg) {
         if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
-          Log.file('homeos message $msg');
+          Log.file('[homeos] message $msg');
           _handleMqttMsg(topic, msg);
         }
       };
@@ -610,7 +617,7 @@ class HomluxLanControlDeviceManager {
           return _errorResponseEntity; // 局域网能控制的设备
         }
         // 2.去执行本地场景
-        Log.file('homeos sceneExcute(scene = ${sceneMap[sceneID]})');
+        Log.file('[homeos] sceneExcute(scene = ${sceneMap[sceneID]})');
         final requestId = uuid.v4();
         lanDeviceControlChannel.sceneExcute(requestId, sceneID);
         // 3.等待执行结果并返回
@@ -641,7 +648,7 @@ class HomluxLanControlDeviceManager {
 
         // 2. 控制灯组状态
         for (var action in actions) {
-          Log.file('homeos groupControl(groupID=$groupID)');
+          Log.file('[homeos] groupControl(groupID=$groupID)');
           lanDeviceControlChannel.groupControl(uuid.v4(), groupID, action);
         }
 
