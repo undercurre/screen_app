@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 
+import '../../../common/api/api.dart';
+import '../../../common/logcat_helper.dart';
 import 'grid_container.dart';
 
 class Layout {
@@ -14,7 +16,9 @@ class Layout {
   DataInputCard data;
   bool disabled;
 
-  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids, this.data, { this.disabled = false });
+  Layout(this.deviceId, this.type, this.cardType, this.pageIndex, this.grids,
+      this.data,
+      {this.disabled = false});
 
   Layout clone() {
     return Layout(
@@ -58,7 +62,8 @@ class Layout {
 
   static CardType _parseCardType(String value) {
     return CardType.values.firstWhere(
-          (type) => type.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+      (type) =>
+          type.toString().split('.').last.toLowerCase() == value.toLowerCase(),
       orElse: () => CardType.Other,
     );
   }
@@ -69,7 +74,8 @@ class Layout {
 
   static DeviceEntityTypeInP4 _parseDeviceEntityTypeInP4(String value) {
     return DeviceEntityTypeInP4.values.firstWhere(
-          (type) => type.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+      (type) =>
+          type.toString().split('.').last.toLowerCase() == value.toLowerCase(),
       orElse: () => DeviceEntityTypeInP4.Default,
     );
   }
@@ -95,7 +101,7 @@ class Layout {
       // }
 
       //
-      for (int i = 0; i < a.grids.length  && i < b.grids.length; i++) {
+      for (int i = 0; i < a.grids.length && i < b.grids.length; i++) {
         final gridComparison = a.grids[i].compareTo(b.grids[i]);
 
         if (gridComparison != 0) {
@@ -107,5 +113,112 @@ class Layout {
     });
 
     return layoutList;
+  }
+
+  static List<Layout> filledLayout(List<Layout> layouts) {
+    if (layouts.isEmpty) return [];
+    layouts.removeWhere((element) => element.cardType == CardType.Null);
+    List<Layout> newList = [...layouts];
+    Screen screenLayer = Screen();
+    // 拿到当前页的layout
+    for (int layIndex = 0; layIndex < layouts.length; layIndex++) {
+      // 取出当前布局的grids
+      for (int gridsIndex = 0;
+          gridsIndex < layouts[layIndex].grids.length;
+          gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = layouts[layIndex].grids[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
+      }
+    }
+
+    // 尝试占位
+    List<int> fillCells = screenLayer.checkAvailability(CardType.Null);
+
+    if (fillCells.isNotEmpty) {
+      for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = fillCells[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
+      }
+      // 填充
+      newList.add(Layout(
+          uuid.v4(),
+          DeviceEntityTypeInP4.DeviceNull,
+          CardType.Null,
+          layouts[0].pageIndex,
+          fillCells,
+          DataInputCard(
+              name: '',
+              type: '',
+              applianceCode: '',
+              roomName: '',
+              masterId: '',
+              modelNumber: '',
+              isOnline: '',
+              onlineStatus: '')));
+    } else {
+      // 填满
+      return newList;
+    }
+
+    while (fillCells.isNotEmpty) {
+      fillCells = screenLayer.checkAvailability(CardType.Null);
+      for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = fillCells[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
+      }
+      if (fillCells.isNotEmpty) {
+        // 填充
+        newList.add(
+          Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.DeviceNull,
+            CardType.Null,
+            layouts[0].pageIndex,
+            fillCells,
+            DataInputCard(
+                name: '',
+                type: '',
+                applianceCode: '',
+                roomName: '',
+                masterId: '',
+                modelNumber: '',
+                isOnline: '',
+                onlineStatus: ''),
+          ),
+        );
+      }
+    }
+
+    return newList;
+  }
+
+  static List<Layout> flexLayout(List<Layout> layouts) {
+    List<Layout> valid = layouts.where((element) => element.cardType != CardType.Null).toList();
+    List<Layout> newList = [];
+    Screen screenLayer = Screen();
+    for(int i = 0; i < valid.length; i++) {
+      List<int> fillCells = screenLayer.checkAvailability(CardType.Null);
+      if (fillCells.isNotEmpty) {
+        valid[i].grids = fillCells;
+        newList.add(valid[i]);
+        for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
+          // 把已经布局的数据在布局器中占位
+          int grid = fillCells[gridsIndex];
+          int row = (grid - 1) ~/ 4;
+          int col = (grid - 1) % 4;
+          screenLayer.setCellOccupied(row, col, true);
+        }
+      }
+    }
+    return filledLayout(newList);
   }
 }

@@ -67,7 +67,7 @@ class Screen {
 
   List<int> checkAvailability(CardType type) {
     // 小卡片的摆放方式
-    if (type == CardType.Small) {
+    if (type == CardType.Small || type == CardType.Null) {
       if (isCellOccupied(0, 0) || isCellOccupied(0, 1)) {
       } else {
         return [1, 2];
@@ -122,14 +122,14 @@ class Screen {
           isCellOccupied(2, 0) ||
           isCellOccupied(2, 1)) {
       } else {
-        // return [5, 6, 9, 10];
+        return [5, 6, 9, 10];
       }
       if (isCellOccupied(1, 2) ||
           isCellOccupied(1, 3) ||
           isCellOccupied(2, 2) ||
           isCellOccupied(2, 3)) {
       } else {
-        // return [7, 8, 11, 12];
+        return [7, 8, 11, 12];
       }
       if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||
@@ -222,7 +222,8 @@ Map<CardType, Map<String, int>> sizeMap = {
   CardType.Middle: {'cross': 2, 'main': 2},
   CardType.Other: {'cross': 2, 'main': 2},
   CardType.Big: {'cross': 4, 'main': 2},
-  CardType.Edit: {'cross': 4, 'main': 1}
+  CardType.Edit: {'cross': 4, 'main': 1},
+  CardType.Null: {'cross': 2, 'main': 1},
 };
 
-enum CardType { Small, Middle, Big, Other, Edit }
+enum CardType { Small, Middle, Big, Other, Edit, Null }

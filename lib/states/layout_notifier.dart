@@ -150,7 +150,7 @@ class LayoutModel extends ChangeNotifier {
   Future<void> deleteLayout(String deviceId) async {
     layouts.removeWhere(
         (item) => item.deviceId == deviceId);
-    _saveLayouts();
+    await _saveLayouts();
     notifyListeners();
   }
 
@@ -286,89 +286,43 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 拖拽换位算法
-  void swapPosition(Layout source, Layout targetOne) {
-    int distance = targetOne.grids[0] - source.grids[0];
-    List<int> target = source.grids.map((e) => e + distance).toList();
-    Log.i('原位置${source.grids}到目标${target}', distance);
-    // 避免越界
-
-    List<Layout> curPageLayoutList = getLayoutsByPageIndex(source.pageIndex);
-    List<Layout> fillNulls =
-        fillNullLayoutList(curPageLayoutList, source.pageIndex);
-    List<int> targetIndexes = [];
-
-    if (isOver(source.cardType, target)) {
-      Log.i('目标越界');
-      if (source.cardType == CardType.Big && distance.abs() > 8) {
-        distance = distance > 0 ? 8 : -8;
-        target = source.grids.map((e) => e + distance).toList();
-      } else if (source.cardType == CardType.Big && distance < -4) {
-        distance = -8;
-        target = source.grids.map((e) => e + distance).toList();
-      } else {
-        return;
+  void swapPosition(String sourceId, String targetId, int pageIndex, bool isLeft) {
+    // 取到当前页的卡片
+    List<Layout> curPageLayout = getLayoutsByPageIndex(pageIndex);
+    // 排序
+    List<Layout> sortedLayout = Layout.sortLayoutList(curPageLayout);
+    // 找到被拖拽的下标
+    int sourceIndex = sortedLayout.indexWhere((element) => element.deviceId == sourceId);
+    if (sourceIndex == -1) return;
+    Layout source = sortedLayout.removeAt(sourceIndex);
+    // 找到target下标
+    int targetIndex = sortedLayout.indexWhere((element) => element.deviceId == targetId);
+    if (targetIndex == -1) return;
+    if (isLeft) {
+      sortedLayout.insert(targetIndex, source);
+    } else {
+      sortedLayout.insert(targetIndex + 1, source);
+    }
+    // 已经进行新排序
+    // 取到现在的卡片类型顺序
+    List<CardType> cardTypeSort = sortedLayout.map((e) => e.cardType).toList();
+    // 占位
+    Screen screenLayer = Screen();
+    for (int k = 0; k < cardTypeSort.length; k ++) {
+      List<int> fillCells = screenLayer.checkAvailability(cardTypeSort[k]);
+      for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = fillCells[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
       }
-      Log.i('目标变更${target}', distance);
+      sortedLayout[k].grids = fillCells;
     }
 
-    int lengthSum = 0;
-    // 找到目标
-    for (int i = 0; i < fillNulls.length; i++) {
-      List<int> grids = fillNulls[i].grids;
-      if (grids != source.grids) {
-        if (target.any((element) => grids.contains(element))) {
-          if (i < curPageLayoutList.length &&
-              curPageLayoutList
-                  .any((element) =>
-              element.deviceId == fillNulls[i].deviceId)) {
-            targetIndexes.add(i);
-          }
-          lengthSum += grids.length;
-        }
-      }
-    }
+    Log.i('排序$sourceIndex到$targetIndex后', layouts.map((e) => e.grids).toList());
 
-    // 如果元素移动到有自身的格子
-    if (findDuplicates(source.grids, target).isNotEmpty) {
-      lengthSum += findDuplicates(source.grids, target).length;
-      Log.i('元素移动到有自身的格子', findDuplicates(source.grids, target));
-    }
-
-    // 目标违规
-    if (lengthSum != target.length && lengthSum != 0) {
-      Log.i('目标违规', lengthSum);
-      return;
-    }
-
-    // 对占位进行替换
-    if (targetIndexes.isNotEmpty) {
-      bool isValid = true;
-      for (int i = 0; i < targetIndexes.length; i++) {
-        // 再逐个替换掉被置换的占位
-        Layout targetLayout = layouts.firstWhere((layout) =>
-            layout.deviceId == curPageLayoutList[targetIndexes[i]].deviceId);
-        if (targetLayout.grids.length > source.grids.length) {
-          // 只能大替换小
-          isValid = false;
-          break;
-        }
-        List<int> newGrids = targetLayout.grids
-            .map((item) => item + source.grids[0] - target[0])
-            .cast<int>()
-            .toList();
-        if (isOver(targetLayout.cardType, newGrids)) {
-          isValid = false;
-          break;
-        }
-        // 检查目标位置是否已在某元素中
-        targetLayout.grids = newGrids;
-      }
-      if (!isValid) return;
-    }
-    // 进行源到目标动作
-    source.grids = target;
-
-    // _saveLayouts();
+    _saveLayouts();
     notifyListeners();
   }
 

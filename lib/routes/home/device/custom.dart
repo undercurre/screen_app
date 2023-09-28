@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
@@ -33,13 +34,7 @@ class _CustomPageState extends State<CustomPage> {
   final PageController _pageController = PageController();
   int curPageIndex = 0;
   List<Widget> _screens = [];
-  late Layout curLayout;
   String dragingWidgetId = '';
-  String overlayId = '';
-  List<Layout> curscreenLayout = [];
-  List<Layout> backupLayout = [];
-  double dragSumX = 0;
-  double dragSumY = 0;
 
   @override
   void initState() {
@@ -123,8 +118,8 @@ class _CustomPageState extends State<CustomPage> {
                             : Colors.white,
                         onPressed: () async {
                           if (layoutModel.layouts.length < 10000) {
-                            final result = await Navigator.pushNamed(context, 'AddDevice');
-
+                            final result =
+                                await Navigator.pushNamed(context, 'AddDevice');
                             if (result != null) {
                               result as Layout;
                               // 处理回调的增加信息
@@ -140,6 +135,9 @@ class _CustomPageState extends State<CustomPage> {
                                     layoutInCurPageIndex <
                                         layoutsInCurPage.length;
                                     layoutInCurPageIndex++) {
+                                  if (layoutsInCurPage[layoutInCurPageIndex]
+                                          .cardType ==
+                                      CardType.Null) continue;
                                   // 取出当前布局的grids
                                   for (int gridsIndex = 0;
                                       gridsIndex <
@@ -156,9 +154,6 @@ class _CustomPageState extends State<CustomPage> {
                                     screenLayer.setCellOccupied(row, col, true);
                                   }
                                 }
-                                // 查询是否已经用持久化的数据就填满了这一页
-                                List<int> arrHasPosition =
-                                    screenLayer.getOccupiedGridIndices();
                                 // 尝试占位
                                 List<int> fillCells = screenLayer
                                     .checkAvailability(result.cardType);
@@ -176,9 +171,13 @@ class _CustomPageState extends State<CustomPage> {
                                     result.grids = proFlexiblePage.grids;
                                     Log.i('找到了合适的位置',
                                         '${result.pageIndex}页${result.grids}');
-                                    WidgetsBinding.instance?.addPostFrameCallback((_) {
-                                      _pageController.animateToPage(result.pageIndex,
-                                          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                                    WidgetsBinding.instance
+                                        ?.addPostFrameCallback((_) {
+                                      _pageController.animateToPage(
+                                          result.pageIndex,
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          curve: Curves.ease);
                                     });
                                   } else {
                                     // 放到最后一页
@@ -189,330 +188,45 @@ class _CustomPageState extends State<CustomPage> {
                                         .checkAvailability(result.cardType);
                                     result.pageIndex = maxPage + 1;
                                     result.grids = fillCells;
+                                    // 跳到最后一页
+                                    WidgetsBinding.instance
+                                        ?.addPostFrameCallback((_) {
+                                      _pageController.animateToPage(maxPage + 1,
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          curve: Curves.ease);
+                                    });
                                   }
                                   result.data.disabled = true;
                                   result.data.context = context;
                                   result.data.disableOnOff = false;
                                   result.data.applianceCode = result.deviceId;
-                                  Widget cardWidget =
-                                      buildMap[result.type]![result.cardType]!(
-                                          result.data);
-                                  // 映射图标
-                                  Widget cardWithIcon = Stack(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            right: 20, top: 20),
-                                        child: cardWidget,
-                                      ),
-                                      Positioned(
-                                        right: 8,
-                                        top: 8,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Layout deleteBackup =
-                                                layoutModel.getLayoutsByDevice(
-                                                    result.deviceId);
-                                            layoutModel.deleteLayout(
-                                                result.deviceId);
-                                            if (!layoutModel.layouts.map((e) => e.pageIndex).contains(result.pageIndex)) {
-                                              layoutModel.handleNullPage(result.pageIndex);
-                                            }
-                                            // 取出当前布局的grids
-                                            for (int gridsIndex = 0;
-                                                gridsIndex <
-                                                    deleteBackup.grids.length;
-                                                gridsIndex++) {
-                                              // 把已经布局的数据在布局器中占位
-                                              int grid = deleteBackup
-                                                  .grids[gridsIndex];
-                                              int row = (grid - 1) ~/ 4;
-                                              int col = (grid - 1) % 4;
-                                              screenLayer.setCellOccupied(
-                                                  row, col, false);
-                                            }
-                                          },
-                                          child: Container(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(0xFF6B6D73),
-                                            ),
-                                            child: const Icon(
-                                              Icons.remove,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                  // 映射拖拽
-                                  Widget cardWithDrag =
-                                      LongPressDraggable<String>(
-                                    data: result.deviceId,
-                                    // 拖拽时原位置的样子
-                                    childWhenDragging: Opacity(
-                                      opacity:
-                                          result.deviceId == dragingWidgetId
-                                              ? 0.5
-                                              : 1,
-                                      child: Container(
-                                        child: cardWithIcon,
-                                      ),
-                                    ),
-                                    // 拖拽时的样子
-                                    feedback: cardWidget,
-                                    onDragStarted: () {
-                                      setState(() {
-                                        Log.i('触发拖拽开始');
-                                        dragingWidgetId = result.deviceId;
-                                        curLayout =
-                                            layoutModel.getLayoutsByDevice(
-                                                result.deviceId);
-                                        curscreenLayout =
-                                            layoutModel.getLayoutsByPageIndex(
-                                                curPageIndex);
-                                        backupLayout = [...curscreenLayout];
-                                      });
-                                    },
-                                    onDragUpdate: (details) {
-                                      // 计算出拖拽中卡片的位置
-                                      dragSumX += details.delta.dx;
-                                      dragSumY += details.delta.dy;
-                                      Log.i('锚点', details.delta);
-                                      List<Layout> curScreenLayouts =
-                                          layoutModel.getLayoutsByPageIndex(
-                                              curPageIndex);
-                                      // 填充
-                                      List<Layout> fillNullLayoutList =
-                                          layoutModel.fillNullLayoutList(
-                                              curScreenLayouts, curPageIndex);
-                                      // 排序
-                                      List<Layout> sortedLayoutList =
-                                          Layout.sortLayoutList(
-                                              fillNullLayoutList);
-                                      if (curLayout.grids ==
-                                          [5, 6, 7, 8, 9, 10, 11, 12]) {
-                                        if (dragSumY > 50) {
-                                          // 源
-                                          Layout source = sortedLayoutList
-                                              .firstWhere((item) =>
-                                                  item.deviceId ==
-                                                  dragingWidgetId);
-
-                                          // 目标
-                                          Layout target = Layout(
-                                            uuid.v4(),
-                                            DeviceEntityTypeInP4.Default,
-                                            CardType.Big,
-                                            curPageIndex,
-                                            [9, 10, 11, 12, 13, 14, 15, 16],
-                                            DataInputCard(
-                                              name: '',
-                                              applianceCode: '',
-                                              roomName: '',
-                                              isOnline: '',
-                                              type: '',
-                                              masterId: '',
-                                              modelNumber: '',
-                                              onlineStatus: '1',
-                                            ),
-                                          );
-
-                                          layoutModel.swapPosition(
-                                              source, target);
-                                        } else if (dragSumX < -50) {
-                                          // 源
-                                          Layout source = sortedLayoutList
-                                              .firstWhere((item) =>
-                                                  item.deviceId ==
-                                                  dragingWidgetId);
-
-                                          // 目标
-                                          Layout target = Layout(
-                                            uuid.v4(),
-                                            DeviceEntityTypeInP4.Default,
-                                            CardType.Big,
-                                            curPageIndex,
-                                            [1, 2, 3, 4, 5, 6, 7, 8],
-                                            DataInputCard(
-                                              name: '',
-                                              applianceCode: '',
-                                              roomName: '',
-                                              isOnline: '',
-                                              type: '',
-                                              masterId: '',
-                                              modelNumber: '',
-                                              onlineStatus: '1',
-                                            ),
-                                          );
-
-                                          layoutModel.swapPosition(
-                                              source, target);
-                                        }
-                                      } else if (curLayout.grids ==
-                                          [5, 6, 9, 10]) {
-                                      } else if (curLayout.grids ==
-                                          [3, 4, 11, 12]) {}
-                                      ;
-                                    },
-                                    onDragEnd: (detail) {
-                                      Log.i('拖拽结束');
-                                      setState(() {
-                                        dragSumX = 0;
-                                        dragSumY = 0;
-                                        dragingWidgetId = '';
-                                      });
-                                    },
-                                    onDraggableCanceled: (_, __) {},
-                                    child: DragTarget<String>(
-                                      builder: (context, candidateData,
-                                          rejectedData) {
-                                        return Opacity(
-                                          opacity:
-                                              result.deviceId == dragingWidgetId
-                                                  ? 0.5
-                                                  : 1,
-                                          child: Container(
-                                            child: cardWithIcon,
-                                          ),
-                                        );
-                                      },
-                                      onAccept: (data) {
-                                        Log.i('拖拽结束');
-                                        setState(() {
-                                          dragSumX = 0;
-                                          dragSumY = 0;
-                                          dragingWidgetId = '';
-                                        });
-                                      },
-                                      onLeave: (data) {},
-                                      onWillAccept: (data) {
-                                        // 计算被移动多少格,滑动1格以上算滑动
-                                        double absX = dragSumX.abs();
-                                        double absY = dragSumY.abs();
-                                        if (absX < 50 && absY < 50) {
-                                          return false;
-                                        } else {
-                                          List<Layout> curScreenLayouts =
-                                              layoutModel.getLayoutsByPageIndex(
-                                                  curPageIndex);
-                                          // 填充
-                                          List<Layout> fillNullLayoutList =
-                                              layoutModel.fillNullLayoutList(
-                                                  curScreenLayouts,
-                                                  curPageIndex);
-                                          // 排序
-                                          List<Layout> sortedLayoutList =
-                                              Layout.sortLayoutList(
-                                                  fillNullLayoutList);
-                                          // 源
-                                          Layout source = sortedLayoutList
-                                              .firstWhere((item) =>
-                                                  item.deviceId ==
-                                                  dragingWidgetId);
-
-                                          // 目标
-                                          Layout target = sortedLayoutList
-                                              .firstWhere((item) =>
-                                                  item.deviceId ==
-                                                  result.deviceId);
-
-                                          layoutModel.swapPosition(
-                                              source, target);
-                                          return true;
-                                        }
-                                      },
-                                    ),
-                                  );
-                                  // 映射占位
-                                  Widget cardWithPosition =
-                                      StaggeredGridTile.fit(
-                                          crossAxisCellCount: sizeMap[
-                                              result.cardType]!['cross']!,
-                                          child: cardWithDrag);
-                                  // 扔进pageview里
-                                  _screens.add(
-                                    UnconstrainedBox(
-                                      child: Container(
-                                        width: 480,
-                                        height: 480,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            20, 32, 20, 34),
-                                        child: StaggeredGrid.count(
-                                          crossAxisCount: 4,
-                                          mainAxisSpacing: 20,
-                                          crossAxisSpacing: 20,
-                                          axisDirection: AxisDirection.down,
-                                          children: [cardWithPosition],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                  // 跳到最后一页
-                                  WidgetsBinding.instance?.addPostFrameCallback((_) {
-                                    _pageController.animateToPage(maxPage + 1,
-                                        duration:
-                                        const Duration(milliseconds: 300),
-                                        curve: Curves.ease);
-                                  });
+                                  layoutModel.addLayout(result);
                                 } else {
                                   // 屏幕没占满又放的下,重构该页
                                   // 拿到当前页的layout
-                                  logger.i('屏幕没占满又放的下');
-                                  List<Layout> layoutsInCurPage = layoutModel
-                                      .getLayoutsByPageIndex(curPageIndex);
+                                  Log.i('屏幕没占满又放的下');
                                   result.grids = fillCells;
                                   result.pageIndex = curPageIndex;
-                                  layoutsInCurPage.add(result);
-                                  List<Layout> sortedLayoutList =
-                                      Layout.sortLayoutList(layoutsInCurPage);
-                                  List<Widget> curScreenWidgetList = [];
-                                  // 根据队列顺序插入该屏页面
-                                  for (Layout layoutAfterSort
-                                      in sortedLayoutList) {
-                                    // 映射出对应的Card
-                                    layoutAfterSort.data.disabled = true;
-                                    layoutAfterSort.data.disableOnOff = false;
-                                    layoutAfterSort.data.context = context;
-                                    layoutAfterSort.data.applianceCode = layoutAfterSort.deviceId;
-                                    Widget cardWidget = buildMap[layoutAfterSort
-                                            .type]![layoutAfterSort.cardType]!(
-                                        layoutAfterSort.data);
-                                    // 映射布局占格
-                                    Widget cardWithPosition =
-                                        StaggeredGridTile.fit(
-                                      crossAxisCellCount: sizeMap[
-                                          layoutAfterSort.cardType]!['cross']!,
-                                      child:
-                                          UnconstrainedBox(child: cardWidget),
-                                    );
-                                    // 扔进页面里
-                                    curScreenWidgetList.add(cardWithPosition);
+                                  List<Layout> hasThisNullCardList =
+                                      layoutsInCurPage
+                                          .where((element) =>
+                                              element.grids.every((element) =>
+                                                  fillCells
+                                                      .contains(element)) &&
+                                              element.cardType == CardType.Null)
+                                          .toList();
+                                  Log.i('找到了这张空卡片了吗',
+                                      hasThisNullCardList.map((e) => e.grids));
+                                  if (hasThisNullCardList.isNotEmpty) {
+                                    hasThisNullCardList.forEach((element) {
+                                      layoutModel
+                                          .deleteLayout(element.deviceId);
+                                    });
+                                    layoutModel.addLayout(result);
                                   }
-                                  logger.i('映射后的列表', curScreenWidgetList);
-                                  // ************插入pageview
-                                  _screens[curPageIndex] = UnconstrainedBox(
-                                    child: Container(
-                                      width: 480,
-                                      height: 480,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 32, 20, 34),
-                                      child: StaggeredGrid.count(
-                                        crossAxisCount: 4,
-                                        mainAxisSpacing: 20,
-                                        crossAxisSpacing: 20,
-                                        axisDirection: AxisDirection.down,
-                                        children: [...curScreenWidgetList],
-                                      ),
-                                    ),
-                                  );
-                                  // ************插入pageview
                                 }
                               } else {
-                                logger.i('空页直接插入', curPageIndex);
                                 // 空页直接插入
                                 result.pageIndex = curPageIndex;
                                 // 占位
@@ -523,36 +237,16 @@ class _CustomPageState extends State<CustomPage> {
                                 result.data.disableOnOff = false;
                                 result.data.context = context;
                                 result.data.applianceCode = result.deviceId;
-                                Widget cardWidget =
-                                    buildMap[result.type]![result.cardType]!(
-                                        result.data);
-                                // 映射布局占格
-                                Widget cardWithPosition = StaggeredGridTile.fit(
-                                  crossAxisCellCount:
-                                      sizeMap[result.cardType]!['cross']!,
-                                  child: UnconstrainedBox(child: cardWidget),
-                                );
-                                // 插入pageview
-                                _screens.add(
-                                  UnconstrainedBox(
-                                    child: Container(
-                                      width: 480,
-                                      height: 480,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 32, 20, 34),
-                                      child: StaggeredGrid.count(
-                                        crossAxisCount: 4,
-                                        mainAxisSpacing: 20,
-                                        crossAxisSpacing: 20,
-                                        axisDirection: AxisDirection.down,
-                                        children: [cardWithPosition],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                                logger.i('屏幕列表', _screens);
+                                List<Layout> curPageLayouts =
+                                    Layout.filledLayout([result]);
+                                Log.i('填充后的布局列表',
+                                    curPageLayouts.map((e) => e.grids));
+                                for (int o = 0;
+                                    o < curPageLayouts.length;
+                                    o++) {
+                                  layoutModel.addLayout(curPageLayouts[o]);
+                                }
                               }
-                              layoutModel.addLayout(result);
                             }
                           }
                         },
@@ -593,9 +287,6 @@ class _CustomPageState extends State<CustomPage> {
       List<Layout> curScreenLayouts = layoutModel.getLayoutsByPageIndex(page);
       // 逃避空页
       if (curScreenLayouts.isEmpty) continue;
-      // 填充
-      List<Layout> fillNullLayoutList =
-          layoutModel.fillNullLayoutList(curScreenLayouts, page);
       // 排序
       List<Layout> sortedLayoutList = Layout.sortLayoutList(curScreenLayouts);
       // 映射成widget放进去
@@ -607,66 +298,55 @@ class _CustomPageState extends State<CustomPage> {
         // 映射出对应的Card
         Widget cardWidget =
             buildMap[layout.type]![layout.cardType]!(layout.data);
-        if (layout.type == DeviceEntityTypeInP4.DeviceNull) {
-          Widget cardWithPosition = StaggeredGridTile.fit(
-            crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
-            child: Padding(
+
+        // 映射点击（用于置换）
+        Widget cardWithSwap = layout.cardType != CardType.Null
+            ? GestureDetector(
+                onTap: () {
+                  _getDeviceDialog(context, layout);
+                },
+                child: AbsorbPointer(absorbing: true, child: cardWidget),
+              )
+            : cardWidget;
+        // 映射图标
+        Widget cardWithIcon = Stack(
+          children: [
+            Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
-              child: DragTarget<String>(
-                builder: (context, candidateData, rejectedData) {
-                  return cardWidget;
-                },
-                onWillAccept: (data) {
-                  // 计算被移动多少格,滑动1格以上算滑动
-                  double absX = dragSumX.abs();
-                  double absY = dragSumY.abs();
-                  if (absX < 50 && absY < 50) {
-                    return false;
-                  } else {
-                    layoutModel.swapPosition(
-                      sortedLayoutList
-                          .firstWhere((item) => item.deviceId == data),
-                      sortedLayoutList.firstWhere(
-                          (item) => item.deviceId == layout.deviceId),
-                    );
-                    return true;
-                  }
-                },
-                onAccept: (data) {
-                  Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex));
-                  setState(() {
-                    dragSumX = 0;
-                    dragSumY = 0;
-                    dragingWidgetId = '';
-                  });
-                },
-              ),
+              child: cardWithSwap,
             ),
-          );
-          curScreenWidgets.add(cardWithPosition);
-        } else {
-          // 映射点击（用于置换）
-          Widget cardWithSwap = GestureDetector(
-            onTap: () {
-              _getDeviceDialog(context, layout);
-            },
-            child: AbsorbPointer(absorbing: true, child: cardWidget),
-          );
-          // 映射图标
-          Widget cardWithIcon = Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 20, top: 20),
-                child: cardWithSwap,
-              ),
+            if (layout.cardType != CardType.Null)
               Positioned(
                 right: 8,
                 top: 8,
                 child: GestureDetector(
                   onTap: () async {
                     await layoutModel.deleteLayout(layout.deviceId);
+                    // 检查还有没有不是空卡
+                    List<Layout> curPageLayouts =
+                        layoutModel.getLayoutsByPageIndex(curPageIndex);
+                    bool hasNotNullCard = curPageLayouts
+                        .any((element) => element.cardType != CardType.Null);
+                    if (!hasNotNullCard) {
+                      layoutModel.layouts.removeWhere(
+                          (element) => element.pageIndex == curPageIndex);
+                    } else {
+                      // 删除后还有其他有效卡片就补回去那张删掉的空卡片
+                      // 因为要流式布局就要删掉空卡片，重新排过
+                      layoutModel.layouts.removeWhere(
+                          (element) => element.pageIndex == curPageIndex);
+                      List<Layout> curPageLayoutsAfterFill =
+                          Layout.flexLayout(curPageLayouts);
+                      Log.i('删除填充后的布局列表',
+                          curPageLayoutsAfterFill.map((e) => e.grids));
+                      for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
+                        layoutModel.addLayout(curPageLayoutsAfterFill[o]);
+                      }
+                    }
                     // 看看是否删空
-                    if (!layoutModel.layouts.map((e) => e.pageIndex).contains(layout.pageIndex)) {
+                    if (!layoutModel.layouts
+                        .map((e) => e.pageIndex)
+                        .contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);
                     }
                   },
@@ -684,10 +364,11 @@ class _CustomPageState extends State<CustomPage> {
                   ),
                 ),
               )
-            ],
-          );
-          // 映射拖拽
-          Widget cardWithDrag = LongPressDraggable<String>(
+          ],
+        );
+        // 映射拖拽
+        Widget cardWithDrag = layout.cardType != CardType.Null ?
+        LongPressDraggable<String>(
             data: layout.deviceId,
             // 拖拽时原位置的样子
             childWhenDragging: Opacity(
@@ -701,68 +382,54 @@ class _CustomPageState extends State<CustomPage> {
             onDragStarted: () {
               setState(() {
                 dragingWidgetId = layout.deviceId;
-                curLayout = layoutModel.getLayoutsByDevice(layout.deviceId);
-                curscreenLayout =
-                    layoutModel.getLayoutsByPageIndex(layout.pageIndex);
-                backupLayout = [...curscreenLayout];
               });
             },
-            onDragUpdate: (details) {
-              // 计算出拖拽中卡片的位置
-              dragSumX += details.delta.dx;
-              dragSumY += details.delta.dy;
-            },
             onDragEnd: (detail) {
-              Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex).map((e) => e.grids).toList());
               setState(() {
-                dragSumX = 0;
-                dragSumY = 0;
                 dragingWidgetId = '';
               });
             },
-            onDraggableCanceled: (_, __) {},
-            child: DragTarget<String>(
-              builder: (context, candidateData, rejectedData) {
-                return Opacity(
-                  opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
-                  child: Container(
-                    child: cardWithIcon,
-                  ),
-                );
-              },
-              onAccept: (data) {
-                Log.i('拖拽结束', layoutModel.getLayoutsByPageIndex(curPageIndex).map((e) => e.grids).toList());
-                setState(() {
-                  dragSumX = 0;
-                  dragSumY = 0;
-                  dragingWidgetId = '';
-                });
-              },
-              onLeave: (data) {},
-              onWillAccept: (data) {
-                // 计算被移动多少格,滑动1格以上算滑动
-                double absX = dragSumX.abs();
-                double absY = dragSumY.abs();
-                if (absX < 50 && absY < 50) {
-                  return false;
-                } else {
-                  layoutModel.swapPosition(
-                    sortedLayoutList
-                        .firstWhere((item) => item.deviceId == data),
-                    sortedLayoutList
-                        .firstWhere((item) => item.deviceId == layout.deviceId),
-                  );
-                  return true;
-                }
-              },
-            ),
-          );
-          // 映射占位
-          Widget cardWithPosition = StaggeredGridTile.fit(
-              crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
-              child: cardWithDrag);
-          curScreenWidgets.add(cardWithPosition);
-        }
+            onDraggableCanceled: (_, __) {
+              setState(() {
+                dragingWidgetId = '';
+              });
+            },
+            child: Stack(children: [
+              Opacity(
+                opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
+                child: cardWithIcon,
+              ),
+              Positioned(
+                top: 20,
+                right: 20,
+                child: DragTarget<String>(
+                builder: (context, candidateData, rejectedData) {
+                  return Container(width: sizeMap[layout.cardType]!['cross']! / 2 * 105, height: sizeMap[layout.cardType]!['main']! * 96, color: Colors.transparent);
+                },
+                onAccept: (data) {
+                  Log.i('$data拖拽结束右', layout.deviceId);
+                  // 被拖拽的
+                  layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, false);
+                },
+              ),),
+              Positioned(
+                top: 20,
+                left: 0,
+                child: DragTarget<String>(
+                builder: (context, candidateData, rejectedData) {
+                  return Container(width: sizeMap[layout.cardType]!['cross']! / 2 * 105, height: sizeMap[layout.cardType]!['main']! * 96, color: Colors.transparent);
+                },
+                onAccept: (data) {
+                  Log.i('$data拖拽结束左', layout.grids);
+                  layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, true);
+                },
+              ),),
+            ])) : cardWithIcon;
+        // 映射占位
+        Widget cardWithPosition = StaggeredGridTile.fit(
+            crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
+            child: cardWithDrag);
+        curScreenWidgets.add(cardWithPosition);
       }
       // 每一页插入屏幕表
       _screens.add(
