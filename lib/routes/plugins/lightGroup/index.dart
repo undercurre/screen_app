@@ -52,8 +52,8 @@ class LightGroupPageState extends State<LightGroupPage> {
       }
 
       return deviceListModel.getDeviceName(
-        deviceId: dataAdapter?.getDeviceId(),
-        maxLength: 10
+          deviceId: dataAdapter?.getDeviceId(),
+          maxLength: 8, startLength: 5, endLength: 2
       );
     }
 

@@ -126,6 +126,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
         deviceId: widget.applianceCode,
+        maxLength: 6, startLength: 3, endLength: 2
       );
 
       if (widget.disabled) {

@@ -128,7 +128,8 @@ class _MiddleScenePanelCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode);
+          deviceId: widget.adapter.applianceCode,
+          maxLength: 6, startLength: 3, endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')

@@ -83,7 +83,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                   onLeftBtnTap: goBack,
                   title: deviceListModel.getDeviceName(
                       deviceId: dataAdapter?.getDeviceId(),
-                      maxLength: 10),
+                      maxLength: 8, startLength: 5, endLength: 2),
                   hasPower: false,
                 ),
               ),
