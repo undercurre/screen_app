@@ -57,7 +57,7 @@ class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
                         "assets/newUI/back.png",
                       ),
                     ),
-                    const Text("语音设置",
+                    const Text("小美语音",
                         style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.85),
                             fontSize: 28,
