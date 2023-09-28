@@ -21,8 +21,14 @@ import '../../logcat_helper.dart';
 import '../../system.dart';
 import '../api/meiju_api.dart';
 
-/// 消息延长推送时间
-const int delayPush = 10 * 1000;
+
+
+/// 用户主动操作设备的消息延长推送时间
+const int initiativeDelayPush = 10 * 1000;
+/// 被动操作设备的消息延长推送时间
+const int passivityDelayPush = 3 * 1000;
+/// 最大连续重连次数
+const int _maxRetryCount = 20;
 
 class PushEventFunction {
   String id;
@@ -33,23 +39,28 @@ class PushEventFunction {
 class MeiJuPushManager {
 
   static IOWebSocketChannel? _channel;
-  static int _isConnect = 0;
+  static int _isConnect = 0; // 0 未连接 1 连接中  2已连接
+  static int retryCount = 0;
 
   static Timer? _globalTimer;
   static int? _sendHearTimerInterval;
-  /// 记录设备ID、延迟通知时间
-  static Map<String, Pair<int, PushEventFunction?>> pushRecord = {};
+  /// 记录用户操作的设备
+  /// 操作设备之后，设备的推送事件将延迟10s
+  /// 被动接收云端推送的设备的推送事件延迟3s
+  /// 记录用户操作的设备ID、延迟通知时间
+  static Map<String, Pair<int, PushEventFunction?>> operatePushRecord = {};
+
 
   static bool isConnect() {
     return _isConnect == 2;
   }
 
   static void _operateDevice(String deviceId) {
-    if(pushRecord.containsKey(deviceId)) {
-      var pair = pushRecord[deviceId]!;
-      pushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + delayPush, pair.value2);
+    if(operatePushRecord.containsKey(deviceId)) {
+      var pair = operatePushRecord[deviceId]!;
+      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
     } else {
-      pushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + delayPush, null);
+      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, null);
     }
   }
 
@@ -57,6 +68,7 @@ class MeiJuPushManager {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
       Log.file('meiju ws 检测到已连接网络');
       if(_isConnect == 0) {
+        retryCount = 0;
         _startConnect('检测到网络已连接');
       }
     } else {
@@ -79,12 +91,10 @@ class MeiJuPushManager {
       _isConnect = 0;
       _sendHearTimerInterval = null;
 
-      if (_globalTimer?.isActive ?? false) {
-        _globalTimer?.cancel();
-        _globalTimer = null;
-      }
+      _globalTimer?.cancel();
+      _globalTimer = null;
 
-      pushRecord.clear();
+      operatePushRecord.clear();
 
       _channel?.sink.close();
 
@@ -95,16 +105,23 @@ class MeiJuPushManager {
   }
 
   static void _startConnect(String reason) async {
+    // 延迟两秒连接
+    await Future.delayed(const Duration(seconds: 2));
 
-    if (MeiJuGlobal.isLogin) {
-      Log.file('meiju ws 即将建立连接, 原因$reason');
+    if(retryCount >= _maxRetryCount) {
+      Log.file('meiju ws 超过最大连接次数');
+      return;
+    }
 
+    if (MeiJuGlobal.isLogin && _isConnect == 0) {
+      Log.file('meiju ws 即将建立连接, 原因$reason 尝试次数$retryCount');
+      retryCount++;
       _isConnect = 1;
 
       _sendHearTimerInterval = null;
       _globalTimer?.cancel();
       _globalTimer = null;
-      pushRecord.clear();
+      operatePushRecord.clear();
       _channel?.sink.close();
       _aliPushUnBind();
       bus.off('operateDevice');
@@ -132,45 +149,35 @@ class MeiJuPushManager {
 
       _isConnect = 2;
 
-      if(!(_globalTimer?.isActive ?? false)) {
-        var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
-
-        _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          if(_isConnect == 2) {
-            if(MeiJuGlobal.isLogin) {
-
-              /// 发送订阅任务
-              var currTimer = DateTime.now();
-              // 按云端要求，可以不用请求订阅接口
-              // if(currTimer.millisecondsSinceEpoch - lastSubscriptionTime > 60 * 1000) {
-              //   _subscriptionSet();
-              //   lastSubscriptionTime = currTimer.millisecondsSinceEpoch;
-              // }
-
-              /// 发送心跳业务
-              if(_sendHearTimerInterval != null &&
-                  (currTimer.millisecondsSinceEpoch - lastBeatHearTime >= _sendHearTimerInterval!)) {
-                _sendBeatHeart();
-                lastBeatHearTime = currTimer.millisecondsSinceEpoch;
-              }
-
-              /// 执行延迟消息推送队列任务
-              pushRecord.removeWhere((key, element) {
-                int exeTime = element.value1;
-                if(currTimer.millisecondsSinceEpoch >= exeTime) {
-                  element.value2?.call();
-                }
-                return currTimer.millisecondsSinceEpoch >= exeTime;
-              });
-
-            } else {
-              _stopConnect('检测到退出登录，即将断开推送连接');
+      var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
+      _globalTimer?.cancel();
+      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if(_isConnect == 2) {
+          if(MeiJuGlobal.isLogin) {
+            /// 发送订阅任务
+            var currTimer = DateTime.now();
+            /// 发送心跳业务
+            if(_sendHearTimerInterval != null &&
+                (currTimer.millisecondsSinceEpoch - lastBeatHearTime >= _sendHearTimerInterval!)) {
+              _sendBeatHeart();
+              lastBeatHearTime = currTimer.millisecondsSinceEpoch;
             }
+            /// 执行延迟消息推送队列任务
+            operatePushRecord.removeWhere((key, element) {
+              int exeTime = element.value1;
+              if(currTimer.millisecondsSinceEpoch >= exeTime) {
+                element.value2?.call();
+              }
+              return currTimer.millisecondsSinceEpoch >= exeTime;
+            });
+
           } else {
-            timer.cancel();
+            _stopConnect('检测到退出登录，即将断开推送连接');
           }
-        });
-      }
+        } else {
+          timer.cancel();
+        }
+      });
 
       bus.on('operateDevice', _operateDevice);
     }
@@ -188,6 +195,7 @@ class MeiJuPushManager {
   }
 
   static void _onData(event) {
+    retryCount = 0;
     Map<String,dynamic> eventMap = json.decode(event);
     Log.file('meiju ws 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
@@ -216,24 +224,28 @@ class MeiJuPushManager {
                   Map<String,dynamic> eventMap = json.decode(event);
                   if (eventMap.containsKey("nodeId")) {
                     String nodeId = eventMap['nodeId'] as String;
-                    if(!pushRecord.containsKey(nodeId)) {
-                      bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId));
+                    if(!operatePushRecord.containsKey(nodeId)) {
+                      operatePushRecord[nodeId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                          PushEventFunction.create("gemini/appliance/event",
+                                  () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))));
                     } else {
-                      var pair = pushRecord[nodeId]!;
+                      var pair = operatePushRecord[nodeId]!;
                       if(pair.value2?.id != "gemini/appliance/event") {
-                        pushRecord[nodeId] = Pair.of(pair.value1,
+                        operatePushRecord[nodeId] = Pair.of(pair.value1,
                             PushEventFunction.create("gemini/appliance/event",
                                     () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))));
                       }
                     }
                   }
                 } else { // wifi设备状态推送
-                  if(!pushRecord.containsKey(deviceId)) {
-                    bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId));
+                  if(!operatePushRecord.containsKey(deviceId)) {
+                    operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                        PushEventFunction.create("gemini/appliance/event",
+                                () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
                   } else {
-                    var pair = pushRecord[deviceId]!;
+                    var pair = operatePushRecord[deviceId]!;
                     if(pair.value2?.id != "gemini/appliance/event") {
-                      pushRecord[deviceId] = Pair.of(pair.value1,
+                      operatePushRecord[deviceId] = Pair.of(pair.value1,
                           PushEventFunction.create("gemini/appliance/event",
                               () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
                     }
@@ -243,12 +255,14 @@ class MeiJuPushManager {
             } else if (type == 'appliance/status/report') {
               if(msgMap.containsKey('applianceId')) {
                 String deviceId = msgMap['applianceId'];
-                if(!pushRecord.containsKey(deviceId)) {
-                  bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId));
+                if(!operatePushRecord.containsKey(deviceId)) {
+                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      PushEventFunction.create("appliance/status/report",
+                              () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
                 } else {
-                  var pair = pushRecord[deviceId]!;
+                  var pair = operatePushRecord[deviceId]!;
                   if(pair.value2?.id != "appliance/status/report") {
-                    pushRecord[deviceId] = Pair.of(pair.value1,
+                    operatePushRecord[deviceId] = Pair.of(pair.value1,
                         PushEventFunction.create("appliance/status/report",
                                 () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
                   }
@@ -258,12 +272,14 @@ class MeiJuPushManager {
               // 设备离线通知
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
-                if(!pushRecord.containsKey(deviceId)) {
-                  bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false));
+                if(!operatePushRecord.containsKey(deviceId)) {
+                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      PushEventFunction.create("appliance/online/status/off",
+                              () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))));
                 } else {
-                  var pair = pushRecord[deviceId]!;
+                  var pair = operatePushRecord[deviceId]!;
                   if (pair.value2?.id != 'appliance/online/status/off') {
-                    pushRecord[deviceId] = Pair.of(pair.value1,
+                    operatePushRecord[deviceId] = Pair.of(pair.value1,
                         PushEventFunction.create("appliance/online/status/off",
                             () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))));
                   }
@@ -273,12 +289,14 @@ class MeiJuPushManager {
               // 设备在线通知
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
-                if(!pushRecord.containsKey(deviceId)) {
-                  bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true));
+                if(!operatePushRecord.containsKey(deviceId)) {
+                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      PushEventFunction.create("appliance/online/status/on",
+                              () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))));
                 } else {
-                  var pair = pushRecord[deviceId]!;
+                  var pair = operatePushRecord[deviceId]!;
                   if (pair.value2?.id != 'appliance/online/status/on') {
-                    pushRecord[deviceId] = Pair.of(pair.value1,
+                    operatePushRecord[deviceId] = Pair.of(pair.value1,
                         PushEventFunction.create("appliance/online/status/on",
                             () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))));
                   }
@@ -310,13 +328,15 @@ class MeiJuPushManager {
     if (MeiJuGlobal.isLogin) {
       var state = NetUtils.getNetState();
       if(state != null) {
-        _startConnect('');
+        _stopConnect('接收到done事件，断开连接');
+        _startConnect('接收到done事件，断开连接');
       } else {
         _stopConnect('接收到done事件，断开连接');
       }
     }
   }
 
+  // 按云端要求，可以不用请求订阅接口
   static _subscriptionSet() {
     MeiJuApi.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/push/subscription/set",
