@@ -150,7 +150,8 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.applianceCode);
+          deviceId: widget.applianceCode,
+      maxLength: 4, startLength: 1, endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')

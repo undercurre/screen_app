@@ -171,6 +171,7 @@ class _BigDevicePanelCardWidgetThreeState
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
         deviceId: widget.adapter.applianceCode,
+        maxLength: 6, startLength: 3, endLength: 2
       );
 
       if (widget.disabled) {

@@ -135,7 +135,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     String getDeviceName() {
       String nameInModel =
-          deviceListModel.getDeviceName(deviceId: widget.applianceCode);
+          deviceListModel.getDeviceName(deviceId: widget.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
