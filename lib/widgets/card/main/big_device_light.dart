@@ -52,12 +52,14 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    Log.file('视图更新导致请求 didChangeDependencies');
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }
 
   @override
   void didUpdateWidget(covariant BigDeviceLightCardWidget oldWidget) {
+    Log.file('视图更新导致请求 didUpdateWidget');
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }
@@ -246,7 +248,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   widget.adapter?.power(
                     widget.adapter?.getPowerStatus(),
                   );
-                  bus.emit('operateDevice', widget.applianceCode);
+                  bus.emit('operateDevice', widget.adapter?.getCardStatus()!["nodeId"] ?? widget.applianceCode);
                 }
               },
               child: Image(
@@ -397,7 +399,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
-                bus.emit('operateDevice', widget.applianceCode);
+                bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
               },
             ),
           ),
@@ -431,7 +433,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
               isBarColorKeepFull: false,
               onChanged: (val, color) {
                 widget.adapter?.slider2To(val.toInt());
-                bus.emit('operateDevice', widget.applianceCode);
+                bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
               },
             ),
           ),

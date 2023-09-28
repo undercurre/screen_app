@@ -112,12 +112,23 @@ class _CustomPageState extends State<CustomPage> {
                             : const Color(0xFF818C98),
                         borderColor: Colors.transparent,
                         borderWidth: 1,
-                        text: '添加(${layoutModel.layouts.length})',
-                        textColor: layoutModel.layouts.length >= 10000
+                        text:
+                            '添加(${layoutModel.layouts.where((element) => element.cardType != CardType.Null).toList().length})',
+                        textColor: layoutModel.layouts
+                                    .where((element) =>
+                                        element.cardType != CardType.Null)
+                                    .toList()
+                                    .length >=
+                                10000
                             ? Colors.white.withOpacity(0.6)
                             : Colors.white,
                         onPressed: () async {
-                          if (layoutModel.layouts.length < 10000) {
+                          if (layoutModel.layouts
+                                  .where((element) =>
+                                      element.cardType != CardType.Null)
+                                  .toList()
+                                  .length <
+                              10000) {
                             final result =
                                 await Navigator.pushNamed(context, 'AddDevice');
                             if (result != null) {
@@ -188,6 +199,15 @@ class _CustomPageState extends State<CustomPage> {
                                         .checkAvailability(result.cardType);
                                     result.pageIndex = maxPage + 1;
                                     result.grids = fillCells;
+                                    List<Layout> curPageLayouts =
+                                        Layout.filledLayout([result]);
+                                    Log.i('填充后的布局列表',
+                                        curPageLayouts.map((e) => e.grids));
+                                    for (int o = 0;
+                                        o < curPageLayouts.length;
+                                        o++) {
+                                      layoutModel.addLayout(curPageLayouts[o]);
+                                    }
                                     // 跳到最后一页
                                     WidgetsBinding.instance
                                         ?.addPostFrameCallback((_) {
@@ -367,64 +387,48 @@ class _CustomPageState extends State<CustomPage> {
           ],
         );
         // 映射拖拽
-        Widget cardWithDrag = layout.cardType != CardType.Null ?
-        LongPressDraggable<String>(
-            data: layout.deviceId,
-            // 拖拽时原位置的样子
-            childWhenDragging: Opacity(
-              opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
-              child: Container(
-                child: cardWithIcon,
-              ),
-            ),
-            // 拖拽时的样子
-            feedback: cardWidget,
-            onDragStarted: () {
-              setState(() {
-                dragingWidgetId = layout.deviceId;
-              });
-            },
-            onDragEnd: (detail) {
-              setState(() {
-                dragingWidgetId = '';
-              });
-            },
-            onDraggableCanceled: (_, __) {
-              setState(() {
-                dragingWidgetId = '';
-              });
-            },
-            child: Stack(children: [
-              Opacity(
-                opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
-                child: cardWithIcon,
-              ),
-              Positioned(
-                top: 20,
-                right: 20,
+        Widget cardWithDrag = layout.cardType != CardType.Null
+            ? LongPressDraggable<String>(
+                data: layout.deviceId,
+                // 拖拽时原位置的样子
+                childWhenDragging: Opacity(
+                  opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
+                  child: Container(
+                    child: cardWithIcon,
+                  ),
+                ),
+                // 拖拽时的样子
+                feedback: cardWidget,
+                onDragStarted: () {
+                  setState(() {
+                    dragingWidgetId = layout.deviceId;
+                  });
+                },
+                onDragEnd: (detail) {
+                  setState(() {
+                    dragingWidgetId = '';
+                  });
+                },
+                onDraggableCanceled: (_, __) {
+                  setState(() {
+                    dragingWidgetId = '';
+                  });
+                },
                 child: DragTarget<String>(
-                builder: (context, candidateData, rejectedData) {
-                  return Container(width: sizeMap[layout.cardType]!['cross']! / 2 * 105, height: sizeMap[layout.cardType]!['main']! * 96, color: Colors.transparent);
-                },
-                onAccept: (data) {
-                  Log.i('$data拖拽结束右', layout.deviceId);
-                  // 被拖拽的
-                  layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, false);
-                },
-              ),),
-              Positioned(
-                top: 20,
-                left: 0,
-                child: DragTarget<String>(
-                builder: (context, candidateData, rejectedData) {
-                  return Container(width: sizeMap[layout.cardType]!['cross']! / 2 * 105, height: sizeMap[layout.cardType]!['main']! * 96, color: Colors.transparent);
-                },
-                onAccept: (data) {
-                  Log.i('$data拖拽结束左', layout.grids);
-                  layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, true);
-                },
-              ),),
-            ])) : cardWithIcon;
+                  builder: (context, candidateData, rejectedData) {
+                    return Opacity(
+                      opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
+                      child: cardWithIcon,
+                    );
+                  },
+                  onAccept: (data) {
+                    Log.i('$data拖拽结束右', layout.deviceId);
+                    // 被拖拽的
+                    layoutModel.swapPosition(
+                        data, layout.deviceId, layout.pageIndex, false);
+                  },
+                ))
+            : cardWithIcon;
         // 映射占位
         Widget cardWithPosition = StaggeredGridTile.fit(
             crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
