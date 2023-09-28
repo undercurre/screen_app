@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/gateway_platform.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
 import 'data_adapter.dart';
@@ -47,6 +49,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -78,7 +81,9 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 35),
                 child: MzNavigationBar(
                   onLeftBtnTap: goBack,
-                  title: dataAdapter?.deviceName ?? "",
+                  title: deviceListModel.getDeviceName(
+                      deviceId: dataAdapter?.getDeviceId(),
+                      maxLength: 10),
                   hasPower: false,
                 ),
               ),
@@ -108,10 +113,12 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                               Container(
                                 margin: const EdgeInsets.only(bottom: 16),
                                 child: SliderButtonCard(
+                                  title: '开合度',
                                   unit: '%',
                                   value: dataAdapter?.data?.curtainPosition ?? 0,
                                   min: 0,
                                   max: 100,
+                                  isOnlySlide: true,
                                   onChanged: dataAdapter?.controlCurtain,
                                 ),
                               ),

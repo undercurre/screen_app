@@ -114,7 +114,7 @@ class NightModePageState extends State<NightModePage> {
                       ),
                     ),
 
-                    const Text("处于“夜间模式”，将自动熄屏同时关闭除告\n警消息以外的其它声音。",
+                    const Text("处于“夜间模式”时，设备将自动熄屏",
                         style: TextStyle(
                             color: Color(0X6CFFFFFF),
                             fontSize: 16,

@@ -1,5 +1,4 @@
 
-import 'dart:async';
 import 'dart:math';
 
 import 'package:easy_refresh/easy_refresh.dart';
@@ -8,10 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../common/gateway_platform.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
-import './mode_list.dart';
 import 'data_adapter.dart';
 
 class WifiLightPageState extends State<WifiLightPage> with Throttle {
@@ -63,13 +60,14 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
       return deviceListModel.getDeviceName(
         deviceId: dataAdapter?.getDeviceId(),
+        maxLength: 10
       );
     }
 
@@ -112,7 +110,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
                     onRightBtnTap: () {
                       dataAdapter?.controlPower();
                     },
-                    title: getDeviceName() ?? '',
+                    title: getDeviceName(),
                     power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),

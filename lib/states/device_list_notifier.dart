@@ -243,13 +243,13 @@ class DeviceInfoListModel extends ChangeNotifier {
     return [];
   }
 
-  String getDeviceName({String? deviceId}) {
+  String getDeviceName({String? deviceId, int maxLength = 4}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
-        return NameFormatter.formatName(curOne[0].name!, 4);
+        return NameFormatter.formatName(curOne[0].name!, maxLength);
       } else {
         return '未知设备';
       }
