@@ -95,6 +95,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         widget.title,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           height: 1.6,
                           fontSize: 24,

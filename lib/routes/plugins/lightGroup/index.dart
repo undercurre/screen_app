@@ -53,6 +53,7 @@ class LightGroupPageState extends State<LightGroupPage> {
 
       return deviceListModel.getDeviceName(
         deviceId: dataAdapter?.getDeviceId(),
+        maxLength: 10
       );
     }
 
@@ -92,7 +93,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: dataAdapter?.controlPower,
-                    title: getDeviceName() ?? "",
+                    title: getDeviceName(),
                     power: dataAdapter?.data?.power ?? false,
                     hasPower: true,
                   ),

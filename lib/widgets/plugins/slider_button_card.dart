@@ -11,6 +11,7 @@ class SliderButtonCard extends StatefulWidget {
   final num step;
   final bool disabled;
   final Duration? duration;
+  final bool isOnlySlide;
   final void Function(num value)? onChanged;
 
   const SliderButtonCard({
@@ -24,6 +25,7 @@ class SliderButtonCard extends StatefulWidget {
     this.disabled = false,
     this.duration,
     this.onChanged,
+    this.isOnlySlide = false,
   });
 
   @override
@@ -78,22 +80,36 @@ class _SliderButtonCardState extends State<SliderButtonCard> {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 24, top: 15),
+                  padding: const EdgeInsets.only(left: 24, top: 16),
                   child: Text(
-                    widget.title!,
+                    '${widget.title!}${widget.isOnlySlide ? ' | ' : ""}',
                     style: const TextStyle(
                       fontFamily: "MideaType",
                       fontSize: 18,
                       height: 1.2,
                       color: Colors.white,
-                      fontWeight: FontWeight.w200,
+                      fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+                if (widget.isOnlySlide) Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    '$value${widget.unit}',
+                    style: const TextStyle(
+                      fontFamily: "MideaType",
+                      fontSize: 18,
+                      height: 1.2,
+                      color: Colors.white54,
+                      fontWeight: FontWeight.w400,
                       decoration: TextDecoration.none,
                     ),
                   ),
                 ),
               ],
             ),
-          Padding(
+          if (!widget.isOnlySlide) Padding(
             padding: EdgeInsets.only(
               top: widget.title != null ? 5 : 30,
               bottom: widget.title != null ? 0 : 15,

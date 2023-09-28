@@ -232,7 +232,8 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
                     onLeftBtnTap: goBack,
                     onRightBtnTap: dataAdapter?.controlPower,
                     title: deviceListModel.getDeviceName(
-                      deviceId: dataAdapter?.getDeviceId()),
+                        deviceId: dataAdapter?.getDeviceId(),
+                        maxLength: 10),
                     power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
