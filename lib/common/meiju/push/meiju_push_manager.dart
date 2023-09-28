@@ -24,7 +24,7 @@ import '../api/meiju_api.dart';
 
 
 /// 用户主动操作设备的消息延长推送时间
-const int initiativeDelayPush = 10 * 1000;
+const int initiativeDelayPush = 20 * 1000;
 /// 被动操作设备的消息延长推送时间
 const int passivityDelayPush = 3 * 1000;
 /// 最大连续重连次数
@@ -56,6 +56,7 @@ class MeiJuPushManager {
   }
 
   static void _operateDevice(String deviceId) {
+    Log.file('接收到设备操作$deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
       operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
@@ -197,7 +198,7 @@ class MeiJuPushManager {
   static void _onData(event) {
     retryCount = 0;
     Map<String,dynamic> eventMap = json.decode(event);
-    Log.file('meiju ws 接收到的Push消息: $eventMap');
+    Log.i('meiju ws 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
         Log.file('meiju see recv beat heart');
