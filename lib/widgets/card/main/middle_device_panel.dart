@@ -266,7 +266,7 @@ class _MiddleDevicePanelCardWidgetState
                         }).show(context);
                   } else {
                     await widget.adapter.fetchOrderPower(1);
-                    bus.emit('operateDevice', widget.applianceCode);
+                    bus.emit('operateDevice', widget.adapter.nodeId);
                   }
                 }
               },
@@ -333,7 +333,7 @@ class _MiddleDevicePanelCardWidgetState
                         }).show(context);
                   } else {
                     await widget.adapter.fetchOrderPower(2);
-                    bus.emit('operateDevice', widget.applianceCode);
+                    bus.emit('operateDevice', widget.adapter.nodeId);
                   }
                 }
               },

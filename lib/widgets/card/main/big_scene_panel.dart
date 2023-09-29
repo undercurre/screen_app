@@ -174,10 +174,18 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter.applianceCode);
+      String BigCardName = '';
+
+      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (curOne.isNotEmpty) {
+        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      } else {
+        BigCardName = '未知区域';
+      }
       if (widget.disabled) {
-        return nameInModel;
+        return BigCardName;
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -185,7 +193,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
         return '';
       }
 
-      return nameInModel;
+      return BigCardName;
     }
 
     return Container(
@@ -319,7 +327,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
                 });
               } else {
                 await widget.adapter.fetchOrderPower(index + 1);
-                bus.emit('operateDevice', widget.applianceCode);
+                bus.emit('operateDevice', widget.adapter.nodeId);
               }
             }
           }

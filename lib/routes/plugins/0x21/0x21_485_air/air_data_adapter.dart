@@ -102,7 +102,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   Future<void> orderPower(int onOff) async {
 
     if(nodeId!=null){
-      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshPower(
@@ -126,7 +125,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Future<void> orderSpeed(int speed) async {
     if(nodeId!=null){
-      bus.emit('operateDevice', nodeId);
       if(nodeId.split('-')[0]==System.macAddress){
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(

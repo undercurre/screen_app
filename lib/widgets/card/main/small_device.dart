@@ -233,7 +233,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
           widget.onTap?.call();
           widget.adapter?.power(widget.adapter?.getPowerStatus());
-          bus.emit('operateDevice', widget.applianceCode);
+          bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
         }
       },
       child: Container(

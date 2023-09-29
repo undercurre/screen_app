@@ -146,18 +146,27 @@ class _BigDeviceCurtainCardWidgetState
     }
 
     String getRoomName() {
-      if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(
-            deviceId: widget.applianceCode);
+      String BigCardName = '';
+
+      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (curOne.isNotEmpty) {
+        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      } else {
+        BigCardName = '未知区域';
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (widget.disabled) {
+        return BigCardName;
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.applianceCode);
+      return BigCardName;
     }
 
     BoxDecoration _getBoxDecoration() {
@@ -401,6 +410,9 @@ class _BigDeviceCurtainCardWidgetState
               onValueChanged: (int? value) {
                 if (widget.adapter?.getPowerStatus() != null && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                   widget.adapter?.tabTo(value);
+                  if (value == 1) {
+                    widget.adapter?.init();
+                  }
                   bus.emit('operateDevice', widget.applianceCode);
                 }
               },
@@ -415,7 +427,7 @@ class _BigDeviceCurtainCardWidgetState
               height: 16,
               min: 0,
               max: 100,
-              disabled: widget.disabled || !(widget.adapter?.getPowerStatus() ?? false) || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+              disabled: widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanged: (val, color) {
                 widget.adapter?.slider1To(val.toInt());
