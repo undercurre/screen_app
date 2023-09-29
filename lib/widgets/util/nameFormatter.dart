@@ -19,4 +19,23 @@ class NameFormatter {
       return inputName;
     }
   }
+
+  /// 名称长度限制格式
+  /// [<-----------maxLength----------->]
+  /// [<-startLength->]...[<-endLength->]
+  static String formLimitString(String str, int maxLength, int startLength, int endLength) {
+    if (str.length <= maxLength) {
+      if(startLength + endLength >= str.length) {
+        return str;
+      } else {
+        return '${str.substring(0, startLength)}...${str.substring(str.length - endLength)}';
+      }
+    } else {
+      if (startLength + endLength >= maxLength) {
+        return str.substring(0, maxLength);
+      } else {
+        return '${str.substring(0, startLength)}...${str.substring(str.length - endLength)}';
+      }
+    }
+  }
 }

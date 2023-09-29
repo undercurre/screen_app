@@ -209,6 +209,9 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
     // 删除所有的wifi记录
     netMethodChannel.removeAllWiFiRecord();
     // 删除本地所有缓存
+    LocalStorage.clearAllData();
+    gatewayChannel.controlRelay1Open(false);
+    gatewayChannel.controlRelay2Open(false);
     aboutSystemChannel.clearLocalCache();
     settingMethodChannel.setSystemVoice(12);
     settingMethodChannel.setSystemLight(128);

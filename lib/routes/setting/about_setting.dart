@@ -114,6 +114,9 @@ class AboutSettingProvider with ChangeNotifier {
     // 删除所有的wifi记录
     netMethodChannel.removeAllWiFiRecord();
     // 删除本地所有缓存
+    LocalStorage.clearAllData();
+    gatewayChannel.controlRelay1Open(false);
+    gatewayChannel.controlRelay2Open(false);
     aboutSystemChannel.clearLocalCache();
     Timer(const Duration(seconds: 7), () {
       aboutSystemChannel

@@ -46,7 +46,7 @@ class EventBus {
     // 移除事件订阅队列指定事件处理方法
     else {
       bool result = list.remove(callback);
-      Log.i('【 bus 】 buss 订阅者者${identity?.hashCode} $eventName ${result? '移除成功': '移除失败'} 监听数量为：${list.length} }');
+      Log.i('[ bus ] buss 订阅者者${identity?.hashCode} $eventName ${result? '移除成功': '移除失败'} 监听数量为：${list.length} }');
     }
   }
 

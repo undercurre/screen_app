@@ -752,7 +752,7 @@ class HomluxDeviceApi {
     var lanActions = [
       <String, dynamic>{
         'modelName': 'curtain',
-        'deviceProperty': {'curtain_status': "stop"}
+        'deviceProperty': {'curtain_position': "$position"}
       }
     ];
 

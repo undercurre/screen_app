@@ -41,6 +41,8 @@ class HomluxLanControlDeviceManager {
     return _instant;
   }
 
+  final enable = true;
+
   final uuid = const Uuid();
 
   String? key;
@@ -255,7 +257,7 @@ class HomluxLanControlDeviceManager {
                   eventData.event = rStatu['deviceProperty'];
                   pushResult.eventType = TypeDeviceProperty;
                   pushResult.eventData = eventData;
-                  bus.typeEmit(HomluxDevicePropertyChangeEvent.of(pushResult));
+                  HomluxPushManager.deviceStatusChange(rStatu['devId'], pushResult);
                   Log.file('homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
                 }
 
@@ -515,6 +517,8 @@ class HomluxLanControlDeviceManager {
   }
 
   void login() async {
+    if(!enable) return;
+
     if (_lock != null && !_lock!.isCompleted) {
       _lock!.future.then((value) => login());
       return;

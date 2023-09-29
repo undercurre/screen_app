@@ -128,7 +128,8 @@ class _MiddleScenePanelCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode);
+          deviceId: widget.adapter.applianceCode,
+          maxLength: 6, startLength: 3, endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -145,8 +146,6 @@ class _MiddleScenePanelCardWidgetState
     }
 
     String _getRightText() {
-      Log.file('检测局域网在离线状态', deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode));
       if (widget.discriminative) {
         return '';
       }
@@ -168,8 +167,7 @@ class _MiddleScenePanelCardWidgetState
       if (widget.adapter.dataState == DataState.ERROR) {
         return '离线';
       }
-      Log.file('走到这');
-      if (widget.adapter.data!.statusList.isNotEmpty) {
+      if (widget.adapter.data.statusList.isNotEmpty) {
         return '在线';
       } else {
         return '离线';
