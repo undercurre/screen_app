@@ -139,7 +139,7 @@ class Log {
             file: File.fromUri(Uri.file(
                 '/data/data/com.midea.light/cache/DevelopLog.txt')))
       ]),
-      level: Level.nothing
+      level: Level.verbose
   );
 
   static void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {

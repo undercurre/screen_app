@@ -6,58 +6,65 @@ class WidgetLifeCycleTest extends StatefulWidget {
 
   final Widget child;
 
-  const WidgetLifeCycleTest({super.key, required this.child});
+  WidgetLifeCycleTest({super.key, required this.child}) {
+    Log.develop("[life] widget $hashCode MethodName(construct)");
+  }
 
   @override
-  State<WidgetLifeCycleTest> createState() => _WidgetLifeCycleTestState();
+  // ignore: no_logic_in_create_state
+  State<WidgetLifeCycleTest> createState() {
+    var state = _WidgetLifeCycleTestState();
+    Log.develop("[life] widget $hashCode MethodName(createState${state.hashCode})");
+    return state;
+  }
 
 }
 
 class _WidgetLifeCycleTestState extends State<WidgetLifeCycleTest> {
 
   _WidgetLifeCycleTestState() {
-    Log.develop("[life] $hashCode MethodName(construct)");
+    Log.develop("[life] state $hashCode MethodName(construct)");
   }
 
   @override
   void initState() {
     super.initState();
-    Log.develop("[life] $hashCode MethodName(initState)");
+    Log.develop("[life] state $hashCode MethodName(initState)");
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Log.develop("[life] $hashCode MethodName(didChangeDependencies)");
+    Log.develop("[life] state $hashCode MethodName(didChangeDependencies)");
   }
 
   @override
   void didUpdateWidget(covariant WidgetLifeCycleTest oldWidget) {
     super.didUpdateWidget(oldWidget);
-    Log.develop("[life] $hashCode MethodName(didUpdateWidget)");
+    Log.develop("[life] state $hashCode MethodName(didUpdateWidget)");
   }
 
   @override
   void activate() {
     super.activate();
-    // Log.develop("[life] $hashCode MethodName(activate)");
+    Log.develop("[life] state $hashCode MethodName(activate)");
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    // Log.develop("[life] $hashCode MethodName(deactivate)");
+    Log.develop("[life] state $hashCode MethodName(deactivate)");
   }
 
   @override
   void dispose() {
     super.dispose();
-    Log.develop("[life] $hashCode MethodName(dispose)");
+    Log.develop("[life] state $hashCode MethodName(dispose)");
   }
 
   @override
   Widget build(BuildContext context) {
-    // Log.develop("[life] $hashCode MethodName(build)");
+    Log.develop("[life] state $hashCode MethodName(build)");
     return Stack(children: [widget.child]);
   }
 
