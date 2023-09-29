@@ -3,18 +3,17 @@ import 'dart:convert';
 import 'package:logger/logger.dart';
 import 'dart:io';
 
-// 定义日志文件最大保存的大小
-const _maxFileOutputLength = 30 * 1024 * 1024;
-
 class FileOutput extends LogOutput {
   final File file;
   final bool overrideExisting;
   final Encoding encoding;
   RandomAccessFile? randomAccessFile;
   int count = 1;
+  int fileLimit;
 
   FileOutput({
     required this.file,
+    required this.fileLimit,
     this.overrideExisting = false,
     this.encoding = utf8,
   }) {
@@ -26,7 +25,7 @@ class FileOutput extends LogOutput {
   @override
   void init() {
     randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
-    if(randomAccessFile!.lengthSync() > _maxFileOutputLength) {
+    if(randomAccessFile!.lengthSync() > fileLimit) {
       randomAccessFile!.setPositionSync(0);
     }
   }
@@ -40,7 +39,7 @@ class FileOutput extends LogOutput {
       count++;
     }
 
-    if(randomAccessFile!.positionSync() > _maxFileOutputLength) {
+    if(randomAccessFile!.positionSync() > fileLimit) {
       randomAccessFile!.setPositionSync(0);
     }
 
@@ -122,6 +121,7 @@ class Log {
       ConsoleOutput(),
       FileOutput(
           overrideExisting: true,
+          fileLimit: 30 * 1024 * 1024,
           file: File.fromUri(Uri.file(
               '/data/data/com.midea.light/cache/MideaLog.txt')))
     ]),
@@ -136,6 +136,7 @@ class Log {
         ConsoleOutput(),
         FileOutput(
             overrideExisting: true,
+            fileLimit: 10 * 1024* 1024,
             file: File.fromUri(Uri.file(
                 '/data/data/com.midea.light/cache/DevelopLog.txt')))
       ]),
