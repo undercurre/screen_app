@@ -83,9 +83,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   Timer? delayTimer;
 
-  ZigbeeLightDataAdapter(
-      super.platform, this.context, this.masterId, this.applianceCode) {
+  ZigbeeLightDataAdapter(super.platform, this.context, this.masterId, this.applianceCode) {
     type = AdapterType.zigbeeLight;
+    Log.develop('$hashCode construct');
   }
 
   @override
@@ -453,6 +453,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush, this);
       bus.typeOn<HomluxMovSubDeviceEvent>(homluxMovePush, this);
       bus.typeOn<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
+      Log.develop('$hashCode bind');
     } else {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush, this);
       bus.typeOn<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline, this);
@@ -464,6 +465,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
       bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush, this);
       bus.typeOff<HomluxMovSubDeviceEvent>(homluxMovePush, this);
       bus.typeOff<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
+      Log.develop('$hashCode unbind');
     } else {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush, this);
       bus.typeOff<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline, this);

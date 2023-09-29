@@ -27,9 +27,9 @@ class EventBus {
     var list = _emap[eventName]!;
     if(!list.contains(callback)) {
       list.add(callback);
-      Log.i('【 bus 】 buss $eventName 订阅者${identity?.hashCode} 订阅成功');
+      Log.i('[ bus ] buss $eventName 订阅者${identity?.hashCode} 订阅成功');
     } else {
-      Log.i('【 bus 】buss $eventName 重复绑定，无需再绑定');
+      Log.i('[ bus ]buss $eventName 重复绑定，无需再绑定');
     }
 
   }
@@ -59,10 +59,10 @@ class EventBus {
     var lastPushTime = _limitEventTime[eventName];
     var curTime = DateTime.now().millisecondsSinceEpoch;
     if(lastPushTime != null && curTime - lastPushTime < limitTime) {
-      Log.file('【 bus 】推送事件类型：$eventName 发送太频繁，已被忽略 记录的事件数量${_limitEventTime.length}');
+      Log.file('[ bus ]推送事件类型：$eventName 发送太频繁，已被忽略 记录的事件数量${_limitEventTime.length}');
       return;
     }
-    Log.file('【 bus 】推送事件类型：$eventName 监听者数量：${list.length}');
+    Log.file('[ bus ]推送事件类型：$eventName 监听者数量：${list.length}');
     // 反向遍历，防止订阅者在回调中移除自身带来的下标错位
     for (int i = list.length - 1; i > -1; --i) {
       list[i](arg);
@@ -81,7 +81,7 @@ class EventBus {
     if(type.contains('?')) {
       type = type.replaceAll("?", '');
     }
-    Log.i('【 bus 】销毁订阅的类型为$type');
+    Log.i('[ bus ]销毁订阅的类型为$type');
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
@@ -97,7 +97,7 @@ class EventBus {
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
-    Log.i('【 bus 】订阅的类型为$type');
+    Log.i('[ bus ]订阅的类型为$type');
     on(type, callback, identity);
   }
 
@@ -109,7 +109,7 @@ class EventBus {
       type = type.replaceAll("?", '');
     }
     emit(type, d, limitTime);
-    Log.file('【 bus 】发送事件类型 ${d.runtimeType} ${d.toString()}');
+    Log.file('[ bus ]发送事件类型 ${d.runtimeType} ${d.toString()}');
   }
 
   void clearAllListener() {

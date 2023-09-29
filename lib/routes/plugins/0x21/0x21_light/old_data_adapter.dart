@@ -9,6 +9,7 @@ import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
 import '../../../../models/device_entity.dart';
 import '../../../../states/device_change_notifier.dart';
 import '../../../../widgets/event_bus.dart';
@@ -279,13 +280,15 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter {
 
   void _startPushListen() {
     if (platform.inHomlux()) {
-      bus.typeOn(statusChangePushHomlux);
+      bus.typeOn(statusChangePushHomlux, this);
+      Log.develop('$hashCode bind');
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff(statusChangePushHomlux);
+      Log.develop('$hashCode unbind');
     }
   }
 

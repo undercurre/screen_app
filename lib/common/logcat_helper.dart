@@ -128,6 +128,20 @@ class Log {
     level: Level.verbose
   );
 
+  /// 文件打印
+  static final _developLogger = Logger(
+      filter: DevelopmentFilter(),
+      printer: SimplePrinter(),
+      output: MultiOutput([
+        ConsoleOutput(),
+        FileOutput(
+            overrideExisting: true,
+            file: File.fromUri(Uri.file(
+                '/data/data/com.midea.light/cache/DevelopLog.txt')))
+      ]),
+      level: Level.nothing
+  );
+
   static void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.w(message, error, stackTrace);
   }
@@ -151,4 +165,9 @@ class Log {
   static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _fileLogger.i(message, error, stackTrace);
   }
+
+  static void develop(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    _developLogger.i(message, error, stackTrace);
+  }
+
 }

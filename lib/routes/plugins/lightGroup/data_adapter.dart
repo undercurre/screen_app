@@ -326,6 +326,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn<HomluxDevicePropertyChangeEvent>(statusChangePushHomlux);
+      Log.develop('$hashCode bind');
     } else {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(statusChangePushMeiJu);
     }
@@ -334,6 +335,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff<HomluxDevicePropertyChangeEvent>(statusChangePushHomlux);
+      Log.develop('$hashCode unbind');
     } else {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(statusChangePushMeiJu);
     }

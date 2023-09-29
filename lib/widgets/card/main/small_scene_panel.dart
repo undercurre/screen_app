@@ -385,6 +385,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   void _startPushListen() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      Log.develop('$hashCode bind');
       bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
     } else {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
@@ -393,6 +394,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
   void _stopPushListen() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      Log.develop('$hashCode unbind');
       bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
     } else {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);

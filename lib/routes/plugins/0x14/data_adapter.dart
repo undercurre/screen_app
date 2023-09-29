@@ -331,6 +331,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+      Log.develop('$hashCode bind');
     } else {
       bus.typeOn<MeiJuWifiDevicePropertyChangeEvent>(meijuPush);
     }
@@ -339,6 +340,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+      Log.develop('$hashCode unbind');
     } else {
       bus.typeOff<MeiJuWifiDevicePropertyChangeEvent>(meijuPush);
     }
