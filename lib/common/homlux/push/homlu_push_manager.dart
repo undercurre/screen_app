@@ -44,6 +44,7 @@ const TypeUpdateRoomName = 'update_room_name';
 const TypeChangeHouse = 'change_house';
 const TypeProjectChangeHouse = 'project_change_house';
 const TypeDeleteHouseUser = 'del_house_user';
+const TypeDeviceDel = 'device_del';
 
 
 
@@ -265,6 +266,8 @@ class HomluxPushManager {
           // }
           deviceStatusChange(deviceId!, entity.result!);
         }
+      } else if(TypeDeviceDel == eventType) {
+        bus.typeEmit(HomluxDeviceDelEvent.of(entity.result?.eventData?.deviceId ?? ""));
       } else if(TypeScreenOnlineStatusSubDevice == eventType|| TypeScreenOnlineStatusWifiDevice == eventType) {
         bus.typeEmit(HomluxDeviceOnlineStatusChangeEvent.of(entity.result!));
       } else if(TypeScreenAddSubDevice == eventType) {
@@ -290,7 +293,7 @@ class HomluxPushManager {
       } else if(TypeSceneDel == eventType) {
         bus.typeEmit(HomluxSceneDelEvent());
       } else if(TypeDelGateway == eventType) {
-        bus.typeEmit(HomluxScreenDelGatewayEvent.of(entity.result?.eventData?.sn ?? ""));
+        bus.typeEmit(HomluxScreenDelGatewayEvent.of(entity.result?.eventData?.sn ?? "", entity.result?.eventData?.deviceId ?? ""));
       } else if(TypeGroupUpt == eventType) {
         bus.typeEmit(HomluxGroupUptEvent());
       } else if(TypeGroupAdd == eventType) {

@@ -47,13 +47,15 @@ class HomluxSceneDelEvent {}
 // 网关被删除
 class HomluxScreenDelGatewayEvent {
   late final String sn;
+  late final String deviceId;
 
-  HomluxScreenDelGatewayEvent.of(this.sn);
+  HomluxScreenDelGatewayEvent.of(this.sn, this.deviceId);
 
   @override
   String toString() {
     return jsonEncode({
-      'sn': sn
+      'sn': sn,
+      'deviceId': sn,
     });
   }
 }
@@ -148,3 +150,16 @@ class HomluxAddSubEvent{}
 class HomluxAddWifiEvent{}
 // 局域网控制设备更新
 class HomluxLanDeviceChange {}
+// 删除设备
+class HomluxDeviceDelEvent {
+  late final String deviceId;
+
+  HomluxDeviceDelEvent.of(this.deviceId);
+
+  @override
+  String toString() {
+    return jsonEncode({
+      'deviceId': deviceId
+    });
+  }
+}

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/bind_gateway_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
 import '../../common/homlux/push/event/homlux_push_event.dart';
@@ -21,6 +22,12 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
 
   void notifyHomluxLogout(dynamic event) {
     System.logout('Homlux推送事件，用户退出登录');
+  }
+
+  void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
+    if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
+      System.logout('接收到删除网关的推送, 网关设备code = ${event.deviceId}');
+    }
   }
 
   void apiCheckLogout() {
@@ -49,6 +56,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
       bus.typeOn<HomluxChangHouseEvent>(notifyHomluxLogout);
       bus.typeOn<HomluxProjectChangeHouse>(notifyHomluxLogout);
       bus.typeOn<HomluxDeleteHouseUser>(notifyHomluxLogout);
+      bus.typeOn<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
     } else if(MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       bus.typeOn<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
       bus.typeOn<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
@@ -68,6 +76,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     bus.typeOff<HomluxDeleteHouseUser>(notifyHomluxLogout);
     bus.typeOff<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
+    bus.typeOff<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
     checkGatewayTimer?.cancel();
   }
 
