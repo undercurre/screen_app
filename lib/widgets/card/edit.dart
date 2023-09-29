@@ -14,11 +14,10 @@ class EditCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         /// 跳到编辑页去
-        final callback = await Navigator.pushNamed(
+        Navigator.pushNamed(
           context,
           'Custom',
         );
-        layoutModel.refresh();
       },
       child: SizedBox(
         width: 440,

@@ -9,6 +9,7 @@ import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
+import '../../util/nameFormatter.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
   final String applianceCode;
@@ -121,16 +122,27 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     }
 
     String getRoomName() {
+      String BigCardName = '';
+
+      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (curOne.isNotEmpty) {
+        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      } else {
+        BigCardName = '未知区域';
+      }
+
       if (widget.disabled) {
         return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
+      return BigCardName;
     }
 
     String getDeviceName() {

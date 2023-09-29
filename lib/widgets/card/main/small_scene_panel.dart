@@ -295,7 +295,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
               });
             } else {
               await widget.adapter.fetchOrderPower(1);
-              bus.emit('operateDevice', widget.applianceCode);
+              bus.emit('operateDevice', widget.adapter.nodeId);
             }
           }
         }

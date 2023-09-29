@@ -114,18 +114,27 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getRoomName() {
-      if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(
-            deviceId: widget.adapter.applianceCode);
+      String BigCardName = '';
+
+      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (curOne.isNotEmpty) {
+        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      } else {
+        BigCardName = '未知区域';
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (widget.disabled) {
+        return BigCardName;
+      }
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter.applianceCode);
+      return BigCardName;
     }
 
     String getDeviceName() {
@@ -139,8 +148,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
             : nameInModel;
       }
 
-      if (deviceListModel.deviceListHomlux.length == 0 &&
-          deviceListModel.deviceListMeiju.length == 0) {
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -315,7 +324,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                   }).show(context);
             } else {
               await widget.adapter.fetchOrderPower(index + 1);
-              bus.emit('operateDevice', widget.applianceCode);
+              bus.emit('operateDevice', widget.adapter.nodeId);
             }
           }
         },

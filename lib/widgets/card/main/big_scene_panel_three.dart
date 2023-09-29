@@ -19,6 +19,7 @@ import '../../../states/scene_list_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
+import '../../util/nameFormatter.dart';
 
 class BigScenePanelCardWidgetThree extends StatefulWidget {
   final String applianceCode;
@@ -131,9 +132,19 @@ class _BigScenePanelCardWidgetThreeState
     }
 
     String getRoomName() {
+      String BigCardName = '';
+
+      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
+          .where((element) => element.applianceCode == widget.applianceCode)
+          .toList();
+      if (curOne.isNotEmpty) {
+        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      } else {
+        BigCardName = '未知区域';
+      }
+
       if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(
-            deviceId: widget.adapter.applianceCode);
+        return BigCardName;
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -141,8 +152,7 @@ class _BigScenePanelCardWidgetThreeState
         return '';
       }
 
-      return deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter.applianceCode);
+      return BigCardName;
     }
 
     String _getRightText() {
@@ -322,7 +332,7 @@ class _BigScenePanelCardWidgetThreeState
                 });
               } else {
                 await widget.adapter.fetchOrderPower(index + 1);
-                bus.emit('operateDevice', widget.applianceCode);
+                bus.emit('operateDevice', widget.adapter.nodeId);
               }
             }
           }

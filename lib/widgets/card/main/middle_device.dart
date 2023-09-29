@@ -227,7 +227,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
           widget.adapter?.power(
             widget.adapter?.getPowerStatus(),
           );
-          bus.emit('operateDevice', widget.applianceCode);
+          bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
         }
       },
       child: Container(
