@@ -67,6 +67,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   void didUpdateWidget(covariant SmallDeviceCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter?.destroy();
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
     }

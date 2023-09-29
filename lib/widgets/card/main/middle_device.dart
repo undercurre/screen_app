@@ -62,6 +62,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
   @override
   void didUpdateWidget(covariant MiddleDeviceCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter?.destroy();
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
     }

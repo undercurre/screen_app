@@ -61,6 +61,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   @override
   void didUpdateWidget(covariant BigDeviceLightCardWidget oldWidget) {
     Log.file('视图更新导致请求 didUpdateWidget');
+    oldWidget.adapter?.destroy();
     widget.adapter?.bindDataUpdateFunction(updateCallback);
     widget.adapter?.init();
   }
