@@ -170,8 +170,7 @@ class _BigScenePanelCardWidgetThreeState
       //     widget.adapter.dataState == DataState.NONE) {
       //   return '在线';
       // }
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
       if (widget.adapter.dataState == DataState.ERROR) {
@@ -186,9 +185,10 @@ class _BigScenePanelCardWidgetThreeState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.adapter.applianceCode,
-        maxLength: 6, startLength: 3, endLength: 2
-      );
+          deviceId: widget.adapter.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -204,86 +204,100 @@ class _BigScenePanelCardWidgetThreeState
       return nameInModel;
     }
 
-    return Container(
-      width: 440,
-      height: 196,
-      decoration: _getBoxDecoration(),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 14,
-            left: 24,
-            child:
-                Image(width: 40, height: 40, image: AssetImage(_getIconSrc())),
-          ),
-          Positioned(
-            top: 10,
-            left: 88,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 140),
-                    child: Text(getDeviceName(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 22,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)),
+    return GestureDetector(
+      onTap: () {
+        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
+            !widget.disabled) {
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
+          return;
+        }
+      },
+      child: AbsorbPointer(
+        absorbing:
+            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+        child: Container(
+          width: 440,
+          height: 196,
+          decoration: _getBoxDecoration(),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 14,
+                left: 24,
+                child: Image(
+                    width: 40, height: 40, image: AssetImage(_getIconSrc())),
+              ),
+              Positioned(
+                top: 10,
+                left: 88,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: Text(getDeviceName(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Color(0XFFFFFFFF),
+                                fontSize: 22,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 90),
+                      child: Text(getRoomName(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Color(0XA3FFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 90),
+                      child: Text(
+                          "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Color(0XA3FFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 68,
+                left: 32,
+                child: SizedBox(
+                  height: 120,
+                  width: 376,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      if (widget.adapter.data.nameList.isNotEmpty)
+                        _panelItem(0, sceneModel, sceneListCache),
+                      if (widget.adapter.data.nameList.length >= 2)
+                        _panelItem(1, sceneModel, sceneListCache),
+                      if (widget.adapter.data.nameList.length >= 3)
+                        _panelItem(2, sceneModel, sceneListCache),
+                    ],
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(getRoomName(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 68,
-            left: 32,
-            child: SizedBox(
-              height: 120,
-              width: 376,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  if (widget.adapter.data.nameList.isNotEmpty)
-                    _panelItem(0, sceneModel, sceneListCache),
-                  if (widget.adapter.data.nameList.length >= 2)
-                    _panelItem(1, sceneModel, sceneListCache),
-                  if (widget.adapter.data.nameList.length >= 3)
-                    _panelItem(2, sceneModel, sceneListCache),
-                ],
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -299,7 +313,8 @@ class _BigScenePanelCardWidgetThreeState
           Log.i('disabled', widget.disabled);
           if (!widget.disabled &&
               widget.adapter.dataState == DataState.SUCCESS) {
-            if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+            if (!deviceListModel.getOnlineStatus(
+                deviceId: widget.applianceCode)) {
               MzDialog(
                   title: '该设备已离线',
                   titleSize: 28,
@@ -425,8 +440,12 @@ class _BigScenePanelCardWidgetThreeState
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
         colors: [
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-          widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33616A76),
+          widget.discriminative
+              ? Colors.white.withOpacity(0.12)
+              : const Color(0x33434852),
         ],
       ),
     );

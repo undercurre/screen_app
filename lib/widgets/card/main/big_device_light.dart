@@ -135,7 +135,8 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       }
 
       if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
+        return deviceListModel.getDeviceRoomName(
+            deviceId: widget.applianceCode);
       }
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -147,8 +148,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     }
 
     String getDeviceName() {
-      String nameInModel =
-          deviceListModel.getDeviceName(deviceId: widget.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -169,19 +173,19 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       bool online =
           deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.disabled) {
-          return BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0x33616A76),
-                Color(0x33434852),
-              ],
-              stops: [0.06, 1.0],
-              transform: GradientRotation(213 * (3.1415926 / 360.0)),
-            ),
-          );
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0x33616A76),
+              Color(0x33434852),
+            ],
+            stops: [0.06, 1.0],
+            transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
+        );
       }
       if (widget.isFault) {
         return BoxDecoration(
@@ -205,8 +209,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -220,8 +228,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -245,212 +257,243 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       }
     }
 
-    return Container(
-      width: 440,
-      height: 196,
-      decoration: _getBoxDecoration(),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 14,
-            left: 24,
-            child: GestureDetector(
-              onTap: () {
-                Log.i('disabled: ${widget.disabled}');
-                if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
-                  widget.adapter?.power(
-                    widget.adapter?.getPowerStatus(),
-                  );
-                  bus.emit('operateDevice', widget.adapter?.getCardStatus()!["nodeId"] ?? widget.applianceCode);
-                }
-              },
-              child: Image(
-                  width: 40,
-                  height: 40,
-                  image: AssetImage(widget.adapter?.getPowerStatus() ?? false
-                      ? 'assets/newUI/card_power_on.png'
-                      : 'assets/newUI/card_power_off.png')),
-            ),
-          ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: GestureDetector(
-              onTap: () {
-                if (!deviceListModel.getOnlineStatus(
-                    deviceId: widget.applianceCode)) {
-                  TipsUtils.toast(content: '设备已离线，请检查连接状态');
-                  return;
-                }
-                if (!widget.disabled) {
-                  if (widget.adapter?.type == AdapterType.wifiLight) {
-                    Navigator.pushNamed(context, '0x13', arguments: {
-                      "name": getDeviceName(),
-                      "adapter": widget.adapter
-                    });
-                  } else if (widget.adapter?.type == AdapterType.zigbeeLight) {
-                    Navigator.pushNamed(context, '0x21_light_colorful',
-                        arguments: {
+    return GestureDetector(
+      onTap: () {
+        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
+            !widget.disabled) {
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
+          return;
+        }
+      },
+      child: AbsorbPointer(
+        absorbing:
+            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+        child: Container(
+          width: 440,
+          height: 196,
+          decoration: _getBoxDecoration(),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 14,
+                left: 24,
+                child: GestureDetector(
+                  onTap: () {
+                    Log.i('disabled: ${widget.disabled}');
+                    if (!widget.disabled &&
+                        deviceListModel.getOnlineStatus(
+                            deviceId: widget.applianceCode)) {
+                      widget.adapter?.power(
+                        widget.adapter?.getPowerStatus(),
+                      );
+                      bus.emit(
+                          'operateDevice',
+                          widget.adapter?.getCardStatus()!["nodeId"] ??
+                              widget.applianceCode);
+                    }
+                  },
+                  child: Image(
+                      width: 40,
+                      height: 40,
+                      image: AssetImage(
+                          widget.adapter?.getPowerStatus() ?? false
+                              ? 'assets/newUI/card_power_on.png'
+                              : 'assets/newUI/card_power_off.png')),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () {
+                    if (!deviceListModel.getOnlineStatus(
+                        deviceId: widget.applianceCode)) {
+                      TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                      return;
+                    }
+                    if (!widget.disabled) {
+                      if (widget.adapter?.type == AdapterType.wifiLight) {
+                        Navigator.pushNamed(context, '0x13', arguments: {
                           "name": getDeviceName(),
                           "adapter": widget.adapter
                         });
-                  } else if (widget.adapter?.type == AdapterType.lightGroup) {
-                    Navigator.pushNamed(context, 'lightGroup', arguments: {
-                      "name": getDeviceName(),
-                      "adapter": widget.adapter
-                    });
-                  }
-                }
-              },
-              child: widget.hasMore
-                  ? const Image(
-                      width: 32,
-                      height: 32,
-                      image: AssetImage('assets/newUI/to_plugin.png'))
-                  : Container(),
-            ),
-          ),
-          Positioned(
-              top: 10,
-              left: 88,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                    child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                      child: Text(getDeviceName(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: Color(0XFFFFFFFF),
-                              fontSize: 22,
-                              fontFamily: "MideaType",
-                              fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none)),
-                    ),
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(getRoomName(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XA3FFFFFF),
-                            fontSize: 16,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)),
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(
-                        "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0XA3FFFFFF),
-                            fontSize: 16,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)),
-                  ),
-                  if (widget.isNative)
-                    Container(
-                      alignment: Alignment.center,
-                      width: 48,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(24)),
-                        border: Border.all(
-                            color: const Color(0xFFFFFFFF), width: 1),
+                      } else if (widget.adapter?.type ==
+                          AdapterType.zigbeeLight) {
+                        Navigator.pushNamed(context, '0x21_light_colorful',
+                            arguments: {
+                              "name": getDeviceName(),
+                              "adapter": widget.adapter
+                            });
+                      } else if (widget.adapter?.type ==
+                          AdapterType.lightGroup) {
+                        Navigator.pushNamed(context, 'lightGroup', arguments: {
+                          "name": getDeviceName(),
+                          "adapter": widget.adapter
+                        });
+                      }
+                    }
+                  },
+                  child: widget.hasMore
+                      ? const Image(
+                          width: 32,
+                          height: 32,
+                          image: AssetImage('assets/newUI/to_plugin.png'))
+                      : Container(),
+                ),
+              ),
+              Positioned(
+                  top: 10,
+                  left: 88,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                              maxWidth: widget.isNative ? 100 : 140),
+                          child: Text(getDeviceName(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 22,
+                                  fontFamily: "MideaType",
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none)),
+                        ),
                       ),
-                      margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                      child: const Text(
-                        "本地",
-                        style: TextStyle(
-                            height: 1.6,
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 14,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 90),
+                        child: Text(getRoomName(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Color(0XA3FFFFFF),
+                                fontSize: 16,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
                       ),
-                    )
-                ],
-              )),
-          Positioned(
-            top: 62,
-            left: 25,
-            child: Text(
-                "亮度 | ${widget.disabled ? '1' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    color: Color(0XA3FFFFFF),
-                    fontSize: 16,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none)),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 90),
+                        child: Text(
+                            "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Color(0XA3FFFFFF),
+                                fontSize: 16,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
+                      ),
+                      if (widget.isNative)
+                        Container(
+                          alignment: Alignment.center,
+                          width: 48,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(24)),
+                            border: Border.all(
+                                color: const Color(0xFFFFFFFF), width: 1),
+                          ),
+                          margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
+                          child: const Text(
+                            "本地",
+                            style: TextStyle(
+                                height: 1.6,
+                                color: Color(0XFFFFFFFF),
+                                fontSize: 14,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none),
+                          ),
+                        )
+                    ],
+                  )),
+              Positioned(
+                top: 62,
+                left: 25,
+                child: Text(
+                    "亮度 | ${widget.disabled ? '1' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Color(0XA3FFFFFF),
+                        fontSize: 16,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none)),
+              ),
+              Positioned(
+                top: 80,
+                left: 4,
+                child: MzSlider(
+                  value: widget.disabled
+                      ? 1
+                      : widget.adapter?.getCardStatus()?['brightness'] ?? '',
+                  width: 390,
+                  height: 16,
+                  min: 0,
+                  max: 100,
+                  disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                      widget.disabled ||
+                      !deviceListModel.getOnlineStatus(
+                          deviceId: widget.applianceCode),
+                  activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
+                  onChanged: (val, color) {
+                    widget.adapter?.slider1To(val.toInt());
+                    bus.emit(
+                        'operateDevice',
+                        widget.adapter!.getCardStatus()?["nodeId"] ??
+                            widget.applianceCode);
+                  },
+                ),
+              ),
+              Positioned(
+                top: 124,
+                left: 25,
+                child: Text("色温 | ${_getColorK()}K",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Color(0XA3FFFFFF),
+                        fontSize: 16,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none)),
+              ),
+              Positioned(
+                top: 140,
+                left: 4,
+                child: MzSlider(
+                  value: widget.disabled
+                      ? 0
+                      : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
+                  width: 390,
+                  height: 16,
+                  min: 0,
+                  max: 100,
+                  disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                      widget.disabled ||
+                      !deviceListModel.getOnlineStatus(
+                          deviceId: widget.applianceCode),
+                  activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
+                  isBarColorKeepFull: false,
+                  onChanged: (val, color) {
+                    widget.adapter?.slider2To(val.toInt());
+                    bus.emit(
+                        'operateDevice',
+                        widget.adapter!.getCardStatus()?["nodeId"] ??
+                            widget.applianceCode);
+                  },
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 80,
-            left: 4,
-            child: MzSlider(
-              value: widget.disabled
-                  ? 1
-                  : widget.adapter?.getCardStatus()?['brightness'] ?? '',
-              width: 390,
-              height: 16,
-              min: 0,
-              max: 100,
-              disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
-                  widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
-              activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
-              onChanged: (val, color) {
-                widget.adapter?.slider1To(val.toInt());
-                bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
-              },
-            ),
-          ),
-          Positioned(
-            top: 124,
-            left: 25,
-            child: Text("色温 | ${_getColorK()}K",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    color: Color(0XA3FFFFFF),
-                    fontSize: 16,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none)),
-          ),
-          Positioned(
-            top: 140,
-            left: 4,
-            child: MzSlider(
-              value: widget.disabled
-                  ? 0
-                  : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
-              width: 390,
-              height: 16,
-              min: 0,
-              max: 100,
-              disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
-                  widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
-              activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
-              isBarColorKeepFull: false,
-              onChanged: (val, color) {
-                widget.adapter?.slider2To(val.toInt());
-                bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

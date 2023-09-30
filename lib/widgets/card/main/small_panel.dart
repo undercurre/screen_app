@@ -233,6 +233,15 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
     }
 
     return GestureDetector(
+        onTap: () {
+          if (!deviceListModel.getOnlineStatus(
+              deviceId: widget.applianceCode) && !widget.disabled) {
+            TipsUtils.toast(content: '设备已离线，请检查连接状态');
+            return;
+          }
+        },
+        child: AbsorbPointer(absorbing: !deviceListModel.getOnlineStatus(
+    deviceId: widget.applianceCode), child: GestureDetector(
       onTap: () async {
         Log.i('disabled', widget.disabled);
         if (!widget.disabled && widget.adapter.dataState == DataState.SUCCESS) {
@@ -310,7 +319,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
           ],
         ),
       ),
-    );
+    ),),);
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {

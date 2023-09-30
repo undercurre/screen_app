@@ -105,8 +105,7 @@ class _BigDeviceCurtainCardWidgetState
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
       //
@@ -127,9 +126,10 @@ class _BigDeviceCurtainCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-        deviceId: widget.applianceCode,
-        maxLength: 6, startLength: 3, endLength: 2
-      );
+          deviceId: widget.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -171,7 +171,8 @@ class _BigDeviceCurtainCardWidgetState
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = widget.adapter?.getPowerStatus() ?? false;
-      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online =
+          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -179,8 +180,12 @@ class _BigDeviceCurtainCardWidgetState
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -218,224 +223,244 @@ class _BigDeviceCurtainCardWidgetState
       );
     }
 
-    return Container(
-      width: 440,
-      height: 196,
-      decoration: _getBoxDecoration(),
-      child: Stack(
-        children: [
-          const Positioned(
-            top: 14,
-            left: 24,
-            child: Image(
-                width: 40,
-                height: 40,
-                image: AssetImage('assets/newUI/device/0x14.png')),
-          ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: GestureDetector(
-              onTap: () {
-                if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
-                  TipsUtils.toast(content: '设备已离线，请检查连接状态');
-                  return;
-                }
+    return GestureDetector(
+      onTap: () {
+        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
+            !widget.disabled) {
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
+          return;
+        }
+      },
+      child: AbsorbPointer(
+        absorbing:
+            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+        child: Container(
+          width: 440,
+          height: 196,
+          decoration: _getBoxDecoration(),
+          child: Stack(
+            children: [
+              const Positioned(
+                top: 14,
+                left: 24,
+                child: Image(
+                    width: 40,
+                    height: 40,
+                    image: AssetImage('assets/newUI/device/0x14.png')),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () {
+                    if (!deviceListModel.getOnlineStatus(
+                        deviceId: widget.applianceCode)) {
+                      TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                      return;
+                    }
 
-                if (!widget.disabled) {
-                  Navigator.pushNamed(context, '0x14', arguments: {
-                    "name": getDeviceName(),
-                    "adapter": widget.adapter
-                  });
-                }
-              },
-              child: widget.hasMore
-                  ? const Image(
-                      width: 32,
-                      height: 32,
-                      image: AssetImage('assets/newUI/to_plugin.png'))
-                  : Container(),
-            ),
-          ),
-          Positioned(
-            top: 10,
-            left: 88,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: SizedBox(
-                      width: 100,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            getDeviceName(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
+                    if (!widget.disabled) {
+                      Navigator.pushNamed(context, '0x14', arguments: {
+                        "name": getDeviceName(),
+                        "adapter": widget.adapter
+                      });
+                    }
+                  },
+                  child: widget.hasMore
+                      ? const Image(
+                          width: 32,
+                          height: 32,
+                          image: AssetImage('assets/newUI/to_plugin.png'))
+                      : Container(),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                left: 88,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: widget.isNative ? 100 : 140),
+                        child: SizedBox(
+                          width: 100,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                getDeviceName(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text(getRoomName(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
-                  child: Text("${_getRightText().isNotEmpty ? ' | ': ''}${_getRightText()}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Color(0XA3FFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                ),
-                if (widget.isNative)
-                  Container(
-                    alignment: Alignment.center,
-                    width: 48,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      border:
-                          Border.all(color: const Color(0xFFFFFFFF), width: 1),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 90),
+                      child: Text(getRoomName(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Color(0XA3FFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
                     ),
-                    margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                    child: const Text(
-                      "本地",
-                      style: TextStyle(
-                          height: 1.6,
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 14,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 90),
+                      child: Text(
+                          "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Color(0XA3FFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
                     ),
-                  )
-              ],
-            ),
-          ),
-          Positioned(
-            top: 44,
-            left: 32,
-            child: Text(
-                "${widget.adapter!.getCardStatus()?['curtainPosition'] == 0 ? '全关' : widget.adapter!.getCardStatus()?['curtainPosition'] == 100 ? '全开' : widget.adapter!.getCardStatus()?['curtainPosition']}",
-                style: const TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 60,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.normal,
-                    decoration: TextDecoration.none)),
-          ),
-          if (widget.adapter!.getCardStatus()?['curtainPosition'] > 0 &&
-              widget.adapter!.getCardStatus()?['curtainPosition'] < 100)
-            const Positioned(
-              top: 66,
-              left: 114,
-              child: Text("%",
-                  style: TextStyle(
-                      color: Color(0XFFFFFFFF),
-                      fontSize: 18,
-                      fontFamily: "MideaType",
-                      fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none)),
-            ),
-          Positioned(
-            top: 74,
-            left: 174,
-            child: CupertinoSlidingSegmentedControl(
-              backgroundColor: (widget.adapter?.getPowerStatus() ?? false)
-                  ? const Color(0xFF767D87)
-                  : const Color(0xFF4C525E),
-              thumbColor: const Color(0xC1B7C4CF),
-              padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
-              children: {
-                0: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
-                  child: const Text('全开',
+                    if (widget.isNative)
+                      Container(
+                        alignment: Alignment.center,
+                        width: 48,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(24)),
+                          border: Border.all(
+                              color: const Color(0xFFFFFFFF), width: 1),
+                        ),
+                        margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
+                        child: const Text(
+                          "本地",
+                          style: TextStyle(
+                              height: 1.6,
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 14,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 44,
+                left: 32,
+                child: Text(
+                    "${widget.adapter!.getCardStatus()?['curtainPosition'] == 0 ? '全关' : widget.adapter!.getCardStatus()?['curtainPosition'] == 100 ? '全开' : widget.adapter!.getCardStatus()?['curtainPosition']}",
+                    style: const TextStyle(
+                        color: Color(0XFFFFFFFF),
+                        fontSize: 60,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.none)),
+              ),
+              if (widget.adapter!.getCardStatus()?['curtainPosition'] > 0 &&
+                  widget.adapter!.getCardStatus()?['curtainPosition'] < 100)
+                const Positioned(
+                  top: 66,
+                  left: 114,
+                  child: Text("%",
                       style: TextStyle(
                           color: Color(0XFFFFFFFF),
-                          fontSize: 16,
+                          fontSize: 18,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
                           decoration: TextDecoration.none)),
                 ),
-                1: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
-                  child: const Text('暂停',
-                      style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+              Positioned(
+                top: 74,
+                left: 174,
+                child: CupertinoSlidingSegmentedControl(
+                  backgroundColor: (widget.adapter?.getPowerStatus() ?? false)
+                      ? const Color(0xFF767D87)
+                      : const Color(0xFF4C525E),
+                  thumbColor: const Color(0xC1B7C4CF),
+                  padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
+                  children: {
+                    0: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 11),
+                      child: const Text('全开',
+                          style: TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    ),
+                    1: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 11),
+                      child: const Text('暂停',
+                          style: TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    ),
+                    2: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 11),
+                      child: const Text('全关',
+                          style: TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    )
+                  },
+                  groupValue: _getGroupIndex(),
+                  onValueChanged: (int? value) {
+                    if (widget.adapter?.getPowerStatus() != null &&
+                        deviceListModel.getOnlineStatus(
+                            deviceId: widget.applianceCode)) {
+                      widget.adapter?.tabTo(value);
+                      if (value == 1) {
+                        widget.adapter?.init();
+                      }
+                      bus.emit('operateDevice', widget.applianceCode);
+                    }
+                  },
                 ),
-                2: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
-                  child: const Text('全关',
-                      style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 16,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                )
-              },
-              groupValue: _getGroupIndex(),
-              onValueChanged: (int? value) {
-                if (widget.adapter?.getPowerStatus() != null && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
-                  widget.adapter?.tabTo(value);
-                  if (value == 1) {
-                    widget.adapter?.init();
-                  }
-                  bus.emit('operateDevice', widget.applianceCode);
-                }
-              },
-            ),
+              ),
+              Positioned(
+                top: 140,
+                left: 4,
+                child: MzSlider(
+                  value: widget.adapter!.getCardStatus()?['curtainPosition'],
+                  width: 390,
+                  height: 16,
+                  min: 0,
+                  max: 100,
+                  disabled: widget.disabled ||
+                      !deviceListModel.getOnlineStatus(
+                          deviceId: widget.applianceCode),
+                  activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
+                  onChanged: (val, color) {
+                    widget.adapter?.slider1To(val.toInt());
+                    bus.emit('operateDevice', widget.applianceCode);
+                  },
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 140,
-            left: 4,
-            child: MzSlider(
-              value: widget.adapter!.getCardStatus()?['curtainPosition'],
-              width: 390,
-              height: 16,
-              min: 0,
-              max: 100,
-              disabled: widget.disabled || !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
-              activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              onChanged: (val, color) {
-                widget.adapter?.slider1To(val.toInt());
-                bus.emit('operateDevice', widget.applianceCode);
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
