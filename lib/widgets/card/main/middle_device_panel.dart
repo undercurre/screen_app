@@ -204,7 +204,7 @@ class _MiddleDevicePanelCardWidgetState
                 top: 0,
                 left: 72,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 90),
+                  constraints: const BoxConstraints(maxWidth: 120),
                   child: Text(getDeviceName(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -222,7 +222,7 @@ class _MiddleDevicePanelCardWidgetState
                 child: Row(
                   children: [
                     ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 50),
+                      constraints: const BoxConstraints(maxWidth: 120),
                       child: Text(getRoomName(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
