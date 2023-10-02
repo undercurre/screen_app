@@ -217,41 +217,19 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                   children: [
                     Container(
                       margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                      child: SizedBox(
-                        width: 100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              constraints: const BoxConstraints(
-                                maxWidth: 76,
-                              ),
-                              child: Text(
-                                getDeviceName()
-                                    .substring(0, getDeviceName().length - 1),
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontFamily: 'MideaType',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              getDeviceName().substring(
-                                getDeviceName().length - 1,
-                                getDeviceName().length,
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontFamily: 'MideaType',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 140,
+                        ),
+                        child: Text(
+                          getDeviceName(),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontFamily: 'MideaType',
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ),

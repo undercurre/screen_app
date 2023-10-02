@@ -62,10 +62,10 @@ class WeatherModel extends ChangeNotifier {
   
   // 在构造函数中启动定时器
   WeatherModel() {
-    _loadSelectedDistrict();
+    loadSelectedDistrict();
   }
 
-  Future<void> _loadSelectedDistrict() async {
+  Future<void> loadSelectedDistrict() async {
     final prefs = await SharedPreferences.getInstance();
     final provinceJson = await prefs.getString('selectedProvince');
     final cityJson = await prefs.getString('selectedCity');
