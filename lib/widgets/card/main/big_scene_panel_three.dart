@@ -105,6 +105,7 @@ class _BigScenePanelCardWidgetThreeState
   @override
   void didUpdateWidget(covariant BigScenePanelCardWidgetThree oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter?.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
     }

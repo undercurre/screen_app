@@ -101,6 +101,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
       super.didUpdateWidget(oldWidget);

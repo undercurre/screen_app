@@ -95,6 +95,7 @@ class _BigDevicePanelCardWidgetThreeState
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidgetThree oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
       super.didUpdateWidget(oldWidget);

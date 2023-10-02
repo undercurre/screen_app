@@ -63,6 +63,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   @override
   void didUpdateWidget(covariant BigDeviceAirCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter?.destroy();
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
     }

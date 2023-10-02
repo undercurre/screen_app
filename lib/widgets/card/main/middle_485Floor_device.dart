@@ -68,6 +68,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
   @override
   void didUpdateWidget(covariant Middle485FloorDeviceCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {

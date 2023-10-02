@@ -101,6 +101,7 @@ class _MiddleScenePanelCardWidgetState
   @override
   void didUpdateWidget(covariant MiddleScenePanelCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
       super.didUpdateWidget(oldWidget);

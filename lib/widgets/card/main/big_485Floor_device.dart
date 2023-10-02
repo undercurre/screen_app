@@ -64,6 +64,7 @@ class _Big485FloorDeviceAirCardWidgetState
 
   @override
   void didUpdateWidget(covariant Big485FloorDeviceAirCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
     widget.adapter!.init();
     setState(() {

@@ -100,6 +100,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   @override
   void didUpdateWidget(covariant BigScenePanelCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
     }

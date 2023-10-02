@@ -96,6 +96,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
   @override
   void didUpdateWidget(covariant SmallPanelCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
     }

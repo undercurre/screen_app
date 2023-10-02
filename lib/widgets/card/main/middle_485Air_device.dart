@@ -69,6 +69,7 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
 
   @override
   void didUpdateWidget(covariant Middle485AirDeviceCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
