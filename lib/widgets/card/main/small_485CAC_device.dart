@@ -66,6 +66,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
   @override
   void didUpdateWidget(covariant Small485CACDeviceCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {

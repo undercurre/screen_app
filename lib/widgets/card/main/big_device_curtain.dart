@@ -64,6 +64,7 @@ class _BigDeviceCurtainCardWidgetState
   @override
   void didUpdateWidget(covariant BigDeviceCurtainCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter?.destroy();
       widget.adapter?.bindDataUpdateFunction(updateCallback);
       widget.adapter?.init();
     }

@@ -74,6 +74,7 @@ class _Big485CACDeviceAirCardWidgetState
 
   @override
   void didUpdateWidget(covariant Big485CACDeviceAirCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {

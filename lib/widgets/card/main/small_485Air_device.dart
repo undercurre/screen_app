@@ -71,6 +71,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   @override
   void didUpdateWidget(covariant Small485AirDeviceCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {

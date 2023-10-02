@@ -95,6 +95,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   @override
   void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
     if (!widget.disabled) {
+      oldWidget.adapter.destroy();
       widget.adapter.init();
       widget.adapter.bindDataUpdateFunction(updateData);
     }

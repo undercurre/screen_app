@@ -74,6 +74,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
 
   @override
   void didUpdateWidget(covariant Small485FloorDeviceCardWidget oldWidget) {
+    oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
