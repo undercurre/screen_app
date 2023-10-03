@@ -287,13 +287,15 @@ class _BigDeviceCurtainCardWidgetState
                         constraints: BoxConstraints(
                             maxWidth: widget.isNative ? 100 : 140),
                         child: SizedBox(
-                          width: 100,
+                          width: 120,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 getDeviceName(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,

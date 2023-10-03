@@ -51,8 +51,12 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   /// 滑条1，滑动到value
   Future<dynamic> slider1To(int? value) async {}
+  /// 滑条1，假赋值
+  Future<dynamic> slider1ToFaker(int? value) async {}
   /// 滑条2，滑动到value
   Future<dynamic> slider2To(int? value) async {}
+  /// 滑条2，假赋值
+  Future<dynamic> slider2ToFaker(int? value) async {}
 
   /// 增加按钮，增加到value
   Future<dynamic> increaseTo(int? value) async {}
