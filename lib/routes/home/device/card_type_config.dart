@@ -494,7 +494,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 空组件
   DeviceEntityTypeInP4.DeviceNull: {
     CardType.Null: (params) =>
-        Container(width: 210, height: 88, color: Colors.transparent)
+        Container(width: 210, height: 88, color: Colors.red)
   },
   // 场景组件
   DeviceEntityTypeInP4.Scene: {

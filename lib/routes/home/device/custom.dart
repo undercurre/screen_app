@@ -368,6 +368,7 @@ class _CustomPageState extends State<CustomPage> {
                         .map((e) => e.pageIndex)
                         .contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);
+                      curPageIndex = (layout.pageIndex - 1) < 0 ? 0 : (layout.pageIndex - 1);
                     }
                   },
                   child: Container(

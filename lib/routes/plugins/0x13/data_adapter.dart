@@ -139,8 +139,18 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   }
 
   @override
+  Future<dynamic> slider1ToFaker(int? value) async {
+    return controlBrightnessFaker(value as num, null);
+  }
+
+  @override
   Future<dynamic> slider2To(int? value) async {
     return controlColorTemperature(value as num, null);
+  }
+
+  @override
+  Future<dynamic> slider2ToFaker(int? value) async {
+    return controlColorTemperatureFaker(value as num, null);
   }
 
   /// 防抖刷新
@@ -435,6 +445,16 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
         data!.colorTemp = lastColorTemp;
       }
     }
+  }
+
+  Future<void> controlBrightnessFaker(num value, Color? activeColor) async {
+    data!.brightness = value.toInt();
+    updateUI();
+  }
+
+  Future<void> controlColorTemperatureFaker(num value, Color? activeColor) async {
+    data!.colorTemp = value.toInt();
+    updateUI();
   }
 
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {

@@ -443,6 +443,9 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       !deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
+                  onChanging: (val, color) {
+                    widget.adapter?.slider1ToFaker(val.toInt());
+                  },
                   onChanged: (val, color) {
                     widget.adapter?.slider1To(val.toInt());
                     bus.emit(
@@ -482,6 +485,9 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
                   isBarColorKeepFull: false,
+                  onChanging: (val, color) {
+                    widget.adapter?.slider2ToFaker(val.toInt());
+                  },
                   onChanged: (val, color) {
                     widget.adapter?.slider2To(val.toInt());
                     bus.emit(

@@ -306,7 +306,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                           decoration: TextDecoration.none),
                     ),
                   ),
-                  if (deviceListModel.deviceListHomlux.isNotEmpty &&
+                  if (deviceListModel.deviceListHomlux.isNotEmpty ||
                       deviceListModel.deviceListMeiju.isNotEmpty)
                   Text(
                     '${getRoomName()}${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}',

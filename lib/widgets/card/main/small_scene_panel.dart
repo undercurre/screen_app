@@ -345,7 +345,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                           decoration: TextDecoration.none),
                     ),
                   ),
-                  if (deviceListModel.deviceListHomlux.isNotEmpty &&
+                  if (deviceListModel.deviceListHomlux.isNotEmpty ||
                       deviceListModel.deviceListMeiju.isNotEmpty)
                   Text(
                     '${getRoomName()}${_getRightText().isEmpty ? '' : ' | '}${_getRightText()}',

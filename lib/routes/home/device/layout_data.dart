@@ -117,17 +117,18 @@ class Layout {
 
   static List<Layout> filledLayout(List<Layout> layouts) {
     if (layouts.isEmpty) return [];
-    layouts.removeWhere((element) => element.cardType == CardType.Null);
-    List<Layout> newList = [...layouts];
+    List<Layout> clone = List<Layout>.from(layouts);
+    clone.removeWhere((element) => element.cardType == CardType.Null);
+    List<Layout> newList = [...clone];
     Screen screenLayer = Screen();
     // 拿到当前页的layout
-    for (int layIndex = 0; layIndex < layouts.length; layIndex++) {
+    for (int layIndex = 0; layIndex < clone.length; layIndex++) {
       // 取出当前布局的grids
       for (int gridsIndex = 0;
-          gridsIndex < layouts[layIndex].grids.length;
+          gridsIndex < clone[layIndex].grids.length;
           gridsIndex++) {
         // 把已经布局的数据在布局器中占位
-        int grid = layouts[layIndex].grids[gridsIndex];
+        int grid = clone[layIndex].grids[gridsIndex];
         int row = (grid - 1) ~/ 4;
         int col = (grid - 1) % 4;
         screenLayer.setCellOccupied(row, col, true);
