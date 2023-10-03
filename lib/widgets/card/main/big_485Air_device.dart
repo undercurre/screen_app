@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../plugins/gear_485_card.dart';
 import '../../util/nameFormatter.dart';
 
@@ -54,8 +56,6 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
     widget.adapter!.init();
     widget.adapter!.bindDataUpdateFunction(updateData);
   }
-
-
 
   @override
   void didUpdateWidget(covariant Big485AirDeviceAirCardWidget oldWidget) {
@@ -134,6 +134,36 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
+
     return Container(
       width: 440,
       height: 196,
@@ -159,7 +189,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
             child: GestureDetector(
               onTap: () => {
                 Navigator.pushNamed(context, '0x21_485Air',
-                    arguments: {"name": widget.name, "adapter": widget.adapter})
+                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
               },
               child: const Image(
                   width: 32,
@@ -179,7 +209,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
                     child: Text(
-                        NameFormatter.formatName(widget.name, 5),
+                        NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -194,7 +224,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text( NameFormatter.formatName(widget.roomName, 4),
+                    child: Text( NameFormatter.formatName(getRoomName(), 4),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

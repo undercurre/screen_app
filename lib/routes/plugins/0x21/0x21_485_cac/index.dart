@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
+import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/business/dropdown_menu.dart' as ui;
 import '../../../../widgets/plugins/air_485_condition.dart';
@@ -158,6 +160,22 @@ class AirCondition485PageState extends State<AirCondition485Page> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -195,7 +213,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
                     onRightBtnTap: powerHandle,
-                    title: name,
+                    title: getDeviceName(),
                     power: OnOff == '1',
                     hasPower: true,
                   ),

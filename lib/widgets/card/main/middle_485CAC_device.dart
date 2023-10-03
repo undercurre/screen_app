@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../util/nameFormatter.dart';
 
 class Middle485CACDeviceCardWidget extends StatefulWidget {
@@ -107,6 +109,36 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return GestureDetector(
       onTap: () => {
         powerHandle(widget.onOff)
@@ -123,7 +155,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
               child: GestureDetector(
                 onTap: () => {
                   Navigator.pushNamed(context, '0x21_485CAC', arguments: {
-                    "name": widget.name,
+                    "name": getDeviceName(),
                     "adapter": widget.adapter
                   })
                 },
@@ -147,7 +179,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 110 : 160),
                     child: Text(
-                      NameFormatter.formatName(widget.name, 5),
+                      NameFormatter.formatName(getDeviceName(), 5),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -193,7 +225,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
                     child: Text(
-                      NameFormatter.formatName(widget.roomName, 4),
+                      NameFormatter.formatName(getRoomName(), 4),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
