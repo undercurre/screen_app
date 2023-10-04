@@ -52,8 +52,10 @@ class _Big485CACDeviceAirCardWidgetState
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+          widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
+          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        }
       });
     }
   }

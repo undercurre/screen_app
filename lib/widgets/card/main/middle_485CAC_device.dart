@@ -76,8 +76,10 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-        widget.temperature=widget.adapter!.data!.targetTemp;
+        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+          widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+          widget.temperature=widget.adapter!.data!.targetTemp;
+        }
       });
     }
   }

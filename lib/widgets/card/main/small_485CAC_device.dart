@@ -80,8 +80,10 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        widget.temperature = widget.adapter!.data!.targetTemp;
+        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+          widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+          widget.temperature=widget.adapter!.data!.targetTemp;
+        }
       });
     }
   }
