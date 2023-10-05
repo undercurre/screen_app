@@ -106,7 +106,7 @@ const bool inProduction = bool.fromEnvironment('dart.vm.product');
 class Log {
   /// 日志台日志打印
   static final _consoleLogger = Logger(
-      filter: ProductionFilter(),
+      filter: DevelopmentFilter(),
       printer: MPrettyPrinter(),
       output: MultiOutput([
         ConsoleOutput(),
@@ -118,7 +118,6 @@ class Log {
     filter: ProductionFilter(),
     printer: MPrettyPrinter(),
     output: MultiOutput([
-      ConsoleOutput(),
       FileOutput(
           overrideExisting: true,
           fileLimit: 30 * 1024 * 1024,
@@ -145,25 +144,31 @@ class Log {
 
   static void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.w(message, error, stackTrace);
+    _fileLogger.w(message, error, stackTrace);
   }
 
   static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.i(message, error, stackTrace);
+    _fileLogger.i(message, error, stackTrace);
   }
 
   static void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.e(message, error, stackTrace);
+    _fileLogger.e(message, error, stackTrace);
   }
 
   static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.d(message, error, stackTrace);
+    _fileLogger.d(message, error, stackTrace);
   }
 
   static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.v(message, error, stackTrace);
+    _fileLogger.v(message, error, stackTrace);
   }
 
   static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    _consoleLogger.v(message, error, stackTrace);
     _fileLogger.i(message, error, stackTrace);
   }
 

@@ -32,6 +32,7 @@ class _LinkNetworkData {
 class _LinkNetworkModel with ChangeNotifier {
   late _LinkNetworkData _data;
   DateTime? lastTime;
+  Timer? wifiScanOutTime;
 
   List<dynamic> get pageData =>
       <dynamic>[
@@ -75,7 +76,11 @@ class _LinkNetworkModel with ChangeNotifier {
     netMethodChannel.registerNetChangeCallBack(_connectStateCallback);
 
     if (_data.supportWiFi && _data.isWiFiOn) {
-      netMethodChannel.scanNearbyWiFi();
+      wifiScanOutTime?.cancel();
+      wifiScanOutTime = Timer(const Duration(minutes: 5), () {
+        netMethodChannel.stopScanNearbyWiFi();
+      });
+      netMethodChannel.startScanNearbyWiFi();
     }
 
     notifyListeners();
@@ -84,6 +89,7 @@ class _LinkNetworkModel with ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
+    wifiScanOutTime?.cancel();
     netMethodChannel.stopObserverNetState();
     netMethodChannel.stopScanNearbyWiFi();
     netMethodChannel.unregisterNetChangeCallBack(_connectStateCallback);
@@ -131,7 +137,11 @@ class _LinkNetworkModel with ChangeNotifier {
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
       if (wifiOpen) {
-        netMethodChannel.scanNearbyWiFi();
+        wifiScanOutTime?.cancel();
+        wifiScanOutTime = Timer(const Duration(minutes: 5), () {
+          netMethodChannel.stopScanNearbyWiFi();
+        });
+        netMethodChannel.startScanNearbyWiFi();
       } else {
         netMethodChannel.stopScanNearbyWiFi();
       }
