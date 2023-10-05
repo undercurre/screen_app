@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
 import '../../util/nameFormatter.dart';
 
@@ -50,8 +52,10 @@ class _Big485CACDeviceAirCardWidgetState
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+          widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
+          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        }
       });
     }
   }
@@ -116,6 +120,36 @@ class _Big485CACDeviceAirCardWidgetState
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -141,7 +175,7 @@ class _Big485CACDeviceAirCardWidgetState
             child: GestureDetector(
               onTap: () => {
                 Navigator.pushNamed(context, '0x21_485CAC',
-                    arguments: {"name": widget.name, "adapter": widget.adapter})
+                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
               },
               child: const Image(
                   width: 32,
@@ -161,7 +195,7 @@ class _Big485CACDeviceAirCardWidgetState
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
                     child: Text(
-                        NameFormatter.formatName(widget.name, 5),
+                        NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -176,7 +210,7 @@ class _Big485CACDeviceAirCardWidgetState
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text( NameFormatter.formatName(widget.roomName, 4),
+                    child: Text( NameFormatter.formatName(getRoomName(), 4),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

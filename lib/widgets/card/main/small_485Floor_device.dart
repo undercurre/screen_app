@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../util/nameFormatter.dart';
 
 class Small485FloorDeviceCardWidget extends StatefulWidget {
@@ -112,6 +114,36 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return GestureDetector(
       onTap: () => {
         powerHandle(widget.onOff)
@@ -139,7 +171,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                     SizedBox(
                       width: 80,
                       child: Text(
-                        NameFormatter.formatName(widget.name, 5),
+                        NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -177,7 +209,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
                         maxLines: 1,
-                        '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                        '${NameFormatter.formatName(getRoomName(), 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                         style: TextStyle(
                             color: Colors.white.withOpacity(0.64),
                             fontSize: 16,
@@ -190,7 +222,7 @@ class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget
               GestureDetector(
                 onTap: () => {
                   Navigator.pushNamed(context, '0x21_485Floor',
-                      arguments: {"name": widget.name,"adapter": widget.adapter})
+                      arguments: {"name": getDeviceName(),"adapter": widget.adapter})
                 },
                 child: const Image(
                   width: 24,

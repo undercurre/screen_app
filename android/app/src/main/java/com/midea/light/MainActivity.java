@@ -281,6 +281,9 @@ public class MainActivity extends FlutterActivity {
                     int currTemperature = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getCurrTemperature(), 16);
                     int onOff = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnOff(), 16);
                     int online = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnlineState(), 16);
+                    if(speed==0){
+                        return;
+                    }
                     JSONObject json = new JSONObject();
                     json.put("modelId", modelId);
                     json.put("address", address);
@@ -291,6 +294,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("online", online);
                     json.put("currTemperature", currTemperature);
                     Log.e("sky","通知flutter更新空调:"+json);
+
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
@@ -303,6 +307,9 @@ public class MainActivity extends FlutterActivity {
                     int speed = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getWindSpeed(), 16);
                     int onOff = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnOff(), 16);
                     int online = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnlineState(), 16);
+                    if(speed==0){
+                        return;
+                    }
                     JSONObject json = new JSONObject();
                     json.put("modelId", modelId);
                     json.put("address", address);

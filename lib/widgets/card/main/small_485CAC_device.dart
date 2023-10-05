@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../util/nameFormatter.dart';
 
 class Small485CACDeviceCardWidget extends StatefulWidget {
@@ -78,8 +80,10 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        widget.temperature = widget.adapter!.data!.targetTemp;
+        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+          widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
+          widget.temperature=widget.adapter!.data!.targetTemp;
+        }
       });
     }
   }
@@ -104,6 +108,36 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.adapter?.applianceCode,
+          maxLength: 6,
+          startLength: 3,
+          endLength: 2);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+    String getRoomName() {
+      String nameInModel = deviceListModel.getDeviceRoomName(
+          deviceId: widget.adapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '';
+      }
+
+      return nameInModel;
+    }
+
     return GestureDetector(
       onTap: () => {powerHandle(widget.onOff)},
       child: Container(
@@ -129,7 +163,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                     width: 80,
                     child: Text(
                       maxLines: 1,
-                      NameFormatter.formatName(widget.name, 5),
+                      NameFormatter.formatName(getDeviceName(), 5),
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
@@ -166,7 +200,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                       maxLines: 1,
-                      '${NameFormatter.formatName(widget.roomName, 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                      '${NameFormatter.formatName(getRoomName(), 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
                       style: TextStyle(
                           color: Colors.white.withOpacity(0.64),
                           fontSize: 16,
@@ -178,7 +212,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
             GestureDetector(
               onTap: () => {
                 Navigator.pushNamed(context, '0x21_485CAC',
-                    arguments: {"name": widget.name, "adapter": widget.adapter})
+                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
               },
               child: const Image(
                 width: 24,
