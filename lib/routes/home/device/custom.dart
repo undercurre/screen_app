@@ -190,6 +190,7 @@ class _CustomPageState extends State<CustomPage> {
                                               const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
+                                    curPageIndex = result.pageIndex;
                                   } else {
                                     // 放到最后一页
                                     // 清空布局器
@@ -200,9 +201,9 @@ class _CustomPageState extends State<CustomPage> {
                                     result.pageIndex = maxPage + 1;
                                     result.grids = fillCells;
                                     List<Layout> curPageLayouts =
-                                        Layout.filledLayout([result]);
-                                    Log.i('填充后的布局列表',
-                                        curPageLayouts.map((e) => e.grids));
+                                        Layout.flexLayout([result]);
+                                    layoutModel
+                                        .removeNullCardByPage(result.pageIndex);
                                     for (int o = 0;
                                         o < curPageLayouts.length;
                                         o++) {
@@ -216,6 +217,7 @@ class _CustomPageState extends State<CustomPage> {
                                               const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
+                                    curPageIndex = maxPage + 1;
                                   }
                                   result.data.disabled = true;
                                   result.data.context = context;
@@ -343,22 +345,19 @@ class _CustomPageState extends State<CustomPage> {
                   onTap: () async {
                     await layoutModel.deleteLayout(layout.deviceId);
                     // 检查还有没有不是空卡
-                    List<Layout> curPageLayouts =
-                        layoutModel.getLayoutsByPageIndex(curPageIndex);
-                    bool hasNotNullCard = curPageLayouts
-                        .any((element) => element.cardType != CardType.Null);
+                    bool hasNotNullCard = layoutModel.layouts.any((element) =>
+                        element.cardType != CardType.Null &&
+                        element.pageIndex == curPageIndex);
                     if (!hasNotNullCard) {
                       layoutModel.layouts.removeWhere(
                           (element) => element.pageIndex == curPageIndex);
                     } else {
                       // 删除后还有其他有效卡片就补回去那张删掉的空卡片
                       // 因为要流式布局就要删掉空卡片，重新排过
-                      layoutModel.layouts.removeWhere(
-                          (element) => element.pageIndex == curPageIndex);
                       List<Layout> curPageLayoutsAfterFill =
-                          Layout.flexLayout(curPageLayouts);
-                      Log.i('删除填充后的布局列表',
-                          curPageLayoutsAfterFill.map((e) => e.grids));
+                          Layout.flexLayout(layoutModel.getLayoutsByPageIndex(curPageIndex));
+                      layoutModel.layouts.removeWhere(
+                              (element) => element.pageIndex == curPageIndex);
                       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
                         layoutModel.addLayout(curPageLayoutsAfterFill[o]);
                       }
@@ -368,7 +367,9 @@ class _CustomPageState extends State<CustomPage> {
                         .map((e) => e.pageIndex)
                         .contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);
-                      curPageIndex = (layout.pageIndex - 1) < 0 ? 0 : (layout.pageIndex - 1);
+                      curPageIndex = (layout.pageIndex - 1) < 0
+                          ? 0
+                          : (layout.pageIndex - 1);
                     }
                   },
                   child: Container(
