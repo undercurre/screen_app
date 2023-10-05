@@ -189,7 +189,7 @@ class NetMethodChannel extends AbstractChannel {
   }
 
   // 启动扫描WiFi
-  void scanNearbyWiFi() {
+  void startScanNearbyWiFi() {
     methodChannel.invokeMethod("scanNearbyWiFi");
   }
 
