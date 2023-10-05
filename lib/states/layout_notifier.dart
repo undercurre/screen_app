@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
@@ -382,7 +383,6 @@ class LayoutModel extends ChangeNotifier {
                   onlineStatus: '')));
         }
       }
-      Log.i('填充后结果', layouts.map((e) => e.grids));
     } else {
       // 新占位失败，转到最后一页
       screenLayer.resetGrid();
@@ -423,12 +423,57 @@ class LayoutModel extends ChangeNotifier {
         screenLayer.resetGrid();
         await deleteLayout(layout.deviceId);
         // 回补空缺
-        layouts.add(Layout(uuid.v4(), DeviceEntityTypeInP4.DeviceNull,
-            CardType.Null, layout.pageIndex, layout.grids, layout.data));
+        List<Layout> curLayoutsAfterDel = getLayoutsByPageIndex(layout.pageIndex);
+        List<Layout> backFilled = Layout.filledLayout(curLayoutsAfterDel);
+        curLayoutsAfterDel.forEach((element) async {
+          if (element.cardType == CardType.Null) {
+            await deleteLayout(element.deviceId);
+          }
+        });
+        for (int k = 0; k < backFilled.length; k++) {
+          if (backFilled[k].cardType == CardType.Null) {
+            layouts.add(Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                layout.pageIndex,
+                backFilled[k].grids,
+                DataInputCard(
+                    name: '',
+                    type: '',
+                    applianceCode: '',
+                    roomName: '',
+                    masterId: '',
+                    modelNumber: '',
+                    isOnline: '',
+                    onlineStatus: '')));
+          }
+        }
+        // 新增目标
         List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
         Layout newLayout = Layout(layout.deviceId, layout.type, targetType,
             maxPage + 1, fillCellsNew, layout.data);
         addLayout(newLayout);
+        List<Layout> backAdded = Layout.filledLayout([newLayout]);
+        for (int k = 0; k < backAdded.length; k++) {
+          if (backAdded[k].cardType == CardType.Null) {
+            addLayout(Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                maxPage + 1,
+                backAdded[k].grids,
+                DataInputCard(
+                    name: '',
+                    type: '',
+                    applianceCode: '',
+                    roomName: '',
+                    masterId: '',
+                    modelNumber: '',
+                    isOnline: '',
+                    onlineStatus: '')));
+          }
+        }
       }
     }
     _saveLayouts();
