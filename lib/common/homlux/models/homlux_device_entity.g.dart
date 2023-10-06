@@ -189,6 +189,10 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 	if (light != null) {
 		homluxDeviceMzgdPropertyDTOList.light = light;
 	}
+	final HomluxDeviceMzgdPropertyDTOListCurtain? curtain = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListCurtain>(json['curtain']);
+	if (curtain != null) {
+		homluxDeviceMzgdPropertyDTOList.curtain = curtain;
+	}
 	return homluxDeviceMzgdPropertyDTOList;
 }
 
@@ -199,6 +203,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 	data['wallSwitch3'] = entity.x3?.toJson();
 	data['wallSwitch4'] = entity.x4?.toJson();
 	data['light'] = entity.light?.toJson();
+	data['curtain'] = entity.curtain?.toJson();
 	return data;
 }
 
@@ -608,6 +613,91 @@ HomluxDeviceMzgdPropertyDTOListLight $HomluxDeviceMzgdPropertyDTOListLightFromJs
 }
 
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListLightToJson(HomluxDeviceMzgdPropertyDTOListLight entity) {
+	final Map<String, dynamic> data = <String, dynamic>{};
+	data['buttonScene'] = entity.buttonScene;
+	data['buttonMode'] = entity.buttonMode;
+	data['power'] = entity.power;
+	data['StartUpOnOff'] = entity.startUpOnOff;
+	data['colorTemperature'] = entity.colorTemperature;
+	data['brightness'] = entity.brightness;
+	data['Duration'] = entity.duration;
+	data['BcReportTime'] = entity.bcReportTime;
+	data['DelayClose'] = entity.delayClose;
+	data['curtain_position'] = entity.curtainPosition;
+	data['curtain_status'] = entity.curtainStatus;
+	data['curtain_direction'] = entity.curtainDirection;
+	data['power'] = entity.wifiLightPower;
+	data['delay_light_off'] = entity.wifiLightDelayOff;
+	data['scene_light'] = entity.wifiLightScene;
+	return data;
+}
+
+HomluxDeviceMzgdPropertyDTOListCurtain $HomluxDeviceMzgdPropertyDTOListCurtainFromJson(Map<String, dynamic> json) {
+	final HomluxDeviceMzgdPropertyDTOListCurtain homluxDeviceMzgdPropertyDTOListCurtain = HomluxDeviceMzgdPropertyDTOListCurtain();
+	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
+	if (buttonScene != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.buttonScene = buttonScene;
+	}
+	final int? buttonMode = homluxJsonConvert.convert<int>(json['buttonMode']);
+	if (buttonMode != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.buttonMode = buttonMode;
+	}
+	final int? power = homluxJsonConvert.convert<int>(json['power']);
+	if (power != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.power = power;
+	}
+	final int? startUpOnOff = homluxJsonConvert.convert<int>(json['StartUpOnOff']);
+	if (startUpOnOff != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.startUpOnOff = startUpOnOff;
+	}
+	final int? colorTemperature = homluxJsonConvert.convert<int>(json['colorTemperature']);
+	if (colorTemperature != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.colorTemperature = colorTemperature;
+	}
+	final int? brightness = homluxJsonConvert.convert<int>(json['brightness']);
+	if (brightness != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.brightness = brightness;
+	}
+	final int? duration = homluxJsonConvert.convert<int>(json['Duration']);
+	if (duration != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.duration = duration;
+	}
+	final int? bcReportTime = homluxJsonConvert.convert<int>(json['BcReportTime']);
+	if (bcReportTime != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.bcReportTime = bcReportTime;
+	}
+	final int? delayClose = homluxJsonConvert.convert<int>(json['DelayClose']);
+	if (delayClose != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.delayClose = delayClose;
+	}
+	final String? curtainPosition = homluxJsonConvert.convert<String>(json['curtain_position']);
+	if (curtainPosition != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.curtainPosition = curtainPosition;
+	}
+	final String? curtainStatus = homluxJsonConvert.convert<String>(json['curtain_status']);
+	if (curtainStatus != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.curtainStatus = curtainStatus;
+	}
+	final String? curtainDirection = homluxJsonConvert.convert<String>(json['curtain_direction']);
+	if (curtainDirection != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.curtainDirection = curtainDirection;
+	}
+	final String? wifiLightPower = homluxJsonConvert.convert<String>(json['power']);
+	if (wifiLightPower != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.wifiLightPower = wifiLightPower;
+	}
+	final String? wifiLightDelayOff = homluxJsonConvert.convert<String>(json['delay_light_off']);
+	if (wifiLightDelayOff != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.wifiLightDelayOff = wifiLightDelayOff;
+	}
+	final String? wifiLightScene = homluxJsonConvert.convert<String>(json['scene_light']);
+	if (wifiLightScene != null) {
+		homluxDeviceMzgdPropertyDTOListCurtain.wifiLightScene = wifiLightScene;
+	}
+	return homluxDeviceMzgdPropertyDTOListCurtain;
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListCurtainToJson(HomluxDeviceMzgdPropertyDTOListCurtain entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
 	data['buttonScene'] = entity.buttonScene;
 	data['buttonMode'] = entity.buttonMode;

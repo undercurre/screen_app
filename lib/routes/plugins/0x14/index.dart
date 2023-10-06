@@ -1,9 +1,10 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../common/gateway_platform.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
@@ -11,6 +12,7 @@ import 'data_adapter.dart';
 
 class WifiCurtainPageState extends State<WifiCurtainPage> {
   WIFICurtainDataAdapter? dataAdapter;
+  Mode? modeTap;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -19,7 +21,12 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[dataAdapter?.data!.curtainStatus ?? "unknown"] = true;
+    if (modeTap != null) {
+      selectKeys[modeTap!.key] = true;
+    } else {
+      //selectKeys[dataAdapter?.data!.curtainStatus ?? "unknown"] = true;
+      selectKeys["unknown"] = true;
+    }
     debugPrint('$selectKeys');
     return selectKeys;
   }
@@ -40,7 +47,6 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
-    dataAdapter?.destroy();
   }
 
   void updateCallback() {
@@ -127,7 +133,17 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                                 spacing: 40,
                                 modeList: curtainModes,
                                 selectedKeys: getSelectedKeys(),
-                                onTap: dataAdapter?.controlMode,
+                                onTap: (mode) {
+                                  setState(() {
+                                    modeTap = mode;
+                                  });
+                                  Timer(const Duration(milliseconds: 500), () {
+                                    setState(() {
+                                      modeTap = null;
+                                    });
+                                  });
+                                  dataAdapter?.controlMode(mode);
+                                },
                               ),
                             ],
                           ),

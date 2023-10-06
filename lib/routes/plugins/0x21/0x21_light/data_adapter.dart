@@ -42,7 +42,6 @@ class DeviceDataEntity {
     colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
     power = data.endList[0].event.OnOff == '1' || data.endList[0].event.OnOff == 1;
     delayClose = int.parse(data.endList[0].event.DelayClose);
-    Log.i('lmn>>> ${toJson()}');
   }
 
   DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
@@ -234,6 +233,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   /// 控制开关
   Future<void> controlPower() async {
     data!.power = !data!.power;
+    Log.i('开关调用', data!.power);
     updateUI();
     controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {

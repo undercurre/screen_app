@@ -73,6 +73,8 @@ class HomluxDeviceMzgdPropertyDTOList {
 	HomluxDeviceMzgdPropertyDTOList4? x4;
 	@JSONField(name: "light")
 	HomluxDeviceMzgdPropertyDTOListLight? light;
+	@JSONField(name: "curtain")
+	HomluxDeviceMzgdPropertyDTOListCurtain? curtain;
 
 	HomluxDeviceMzgdPropertyDTOList();
 
@@ -304,6 +306,51 @@ class HomluxDeviceMzgdPropertyDTOListLight {
 	factory HomluxDeviceMzgdPropertyDTOListLight.fromJson(Map<String, dynamic> json) => $HomluxDeviceMzgdPropertyDTOListLightFromJson(json);
 
 	Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListLightToJson(this);
+
+	@override
+	String toString() {
+		return jsonEncode(toJson());
+	}
+}
+
+@JsonSerializable()
+class HomluxDeviceMzgdPropertyDTOListCurtain {
+	@JSONField(name: "buttonScene")
+	int? buttonScene;
+	@JSONField(name: "buttonMode")
+	int? buttonMode;
+	@JSONField(name: "power")
+	int? power;
+	@JSONField(name: "StartUpOnOff")
+	int? startUpOnOff;
+	@JSONField(name: "colorTemperature")
+	int? colorTemperature;
+	@JSONField(name: "brightness")
+	int? brightness;
+	@JSONField(name: "Duration")
+	int? duration;
+	@JSONField(name: "BcReportTime")
+	int? bcReportTime;
+	@JSONField(name: "DelayClose")
+	int? delayClose;
+	@JSONField(name: "curtain_position")
+	String? curtainPosition;
+	@JSONField(name: "curtain_status")
+	String? curtainStatus;
+	@JSONField(name: "curtain_direction")
+	String? curtainDirection;
+	@JSONField(name: "power")
+	String? wifiLightPower;
+	@JSONField(name: "delay_light_off")
+	String? wifiLightDelayOff;
+	@JSONField(name: "scene_light")
+	String? wifiLightScene;
+
+	HomluxDeviceMzgdPropertyDTOListCurtain();
+
+	factory HomluxDeviceMzgdPropertyDTOListCurtain.fromJson(Map<String, dynamic> json) => $HomluxDeviceMzgdPropertyDTOListCurtainFromJson(json);
+
+	Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListCurtainToJson(this);
 
 	@override
 	String toString() {

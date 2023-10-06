@@ -205,14 +205,15 @@ class Layout {
 
   static List<Layout> flexLayout(List<Layout> layouts) {
     List<Layout> valid = layouts.where((element) => element.cardType != CardType.Null).toList();
-    Log.i('要flex的合法数据', valid.map((e) => e.grids));
+    List<Layout> sorted = sortLayoutList(valid);
+    Log.i('要flex的合法数据', sorted.map((e) => e.grids));
     List<Layout> newList = [];
     Screen screenLayer = Screen();
-    for(int i = 0; i < valid.length; i++) {
-      List<int> fillCells = screenLayer.checkAvailability(valid[i].cardType);
+    for(int i = 0; i < sorted.length; i++) {
+      List<int> fillCells = screenLayer.checkAvailability(sorted[i].cardType);
       if (fillCells.isNotEmpty) {
-        valid[i].grids = fillCells;
-        newList.add(valid[i]);
+        sorted[i].grids = fillCells;
+        newList.add(sorted[i]);
         for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
           // 把已经布局的数据在布局器中占位
           int grid = fillCells[gridsIndex];

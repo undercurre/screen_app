@@ -7,10 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
-import '../../../home/device/register_controller.dart';
 import 'data_adapter.dart';
 import 'mode_list.dart';
 
@@ -51,7 +49,6 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
-    dataAdapter?.destroy();
   }
 
   void updateCallback() {

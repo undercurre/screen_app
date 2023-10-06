@@ -68,7 +68,7 @@ class SelectRoomState extends State<SelectRoom> {
     return Container(
       width: 480,
       height: 340,
-      alignment: Alignment.center,
+      alignment: Alignment.topCenter,
       child: Stack(
         children: [
           if(len == 0) Positioned(

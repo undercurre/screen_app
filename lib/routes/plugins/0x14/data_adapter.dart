@@ -36,11 +36,9 @@ class CurtainDataEntity {
   }
 
   CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    curtainPosition =
-        int.parse(data.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
-    curtainStatus = data.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
-    curtainDirection =
-        data.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
+    curtainPosition = int.parse(data.mzgdPropertyDTOList?.curtain?.curtainPosition ?? "0");
+    curtainStatus = data.mzgdPropertyDTOList?.curtain?.curtainStatus ?? "stop";
+    curtainDirection = data.mzgdPropertyDTOList?.curtain?.curtainDirection ?? "positive";
   }
 
   Map<String, dynamic> toJson() {
@@ -159,6 +157,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   @override
   Future<dynamic> slider1To(int? value) async {
     return controlCurtain(value as num);
+  }
+
+  @override
+  Future<dynamic> slider1ToFaker(int? value) async {
+    return controlCurtainFaker(value as num);
   }
 
   /// 防抖刷新
@@ -314,6 +317,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
         data!.curtainPosition = lastPosition;
       }
     }
+  }
+
+  Future<void> controlCurtainFaker(num value) async {
+    data!.curtainPosition = value.toInt();
+    updateUI();
   }
 
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {
