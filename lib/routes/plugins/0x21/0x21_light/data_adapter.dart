@@ -233,6 +233,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   /// 控制开关
   Future<void> controlPower() async {
     data!.power = !data!.power;
+    Log.i('开关调用', data!.power);
     updateUI();
     controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
