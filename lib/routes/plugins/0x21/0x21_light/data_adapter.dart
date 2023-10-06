@@ -42,7 +42,6 @@ class DeviceDataEntity {
     colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
     power = data.endList[0].event.OnOff == '1' || data.endList[0].event.OnOff == 1;
     delayClose = int.parse(data.endList[0].event.DelayClose);
-    Log.i('lmn>>> ${toJson()}');
   }
 
   DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
