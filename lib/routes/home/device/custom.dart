@@ -190,6 +190,7 @@ class _CustomPageState extends State<CustomPage> {
                                               const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
+                                    curPageIndex = result.pageIndex;
                                   } else {
                                     // 放到最后一页
                                     // 清空布局器
@@ -200,9 +201,9 @@ class _CustomPageState extends State<CustomPage> {
                                     result.pageIndex = maxPage + 1;
                                     result.grids = fillCells;
                                     List<Layout> curPageLayouts =
-                                        Layout.filledLayout([result]);
-                                    Log.i('填充后的布局列表',
-                                        curPageLayouts.map((e) => e.grids));
+                                        Layout.flexLayout([result]);
+                                    layoutModel
+                                        .removeNullCardByPage(result.pageIndex);
                                     for (int o = 0;
                                         o < curPageLayouts.length;
                                         o++) {
@@ -216,6 +217,7 @@ class _CustomPageState extends State<CustomPage> {
                                               const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
+                                    curPageIndex = maxPage + 1;
                                   }
                                   result.data.disabled = true;
                                   result.data.context = context;
@@ -343,22 +345,19 @@ class _CustomPageState extends State<CustomPage> {
                   onTap: () async {
                     await layoutModel.deleteLayout(layout.deviceId);
                     // 检查还有没有不是空卡
-                    List<Layout> curPageLayouts =
-                        layoutModel.getLayoutsByPageIndex(curPageIndex);
-                    bool hasNotNullCard = curPageLayouts
-                        .any((element) => element.cardType != CardType.Null);
+                    bool hasNotNullCard = layoutModel.layouts.any((element) =>
+                        element.cardType != CardType.Null &&
+                        element.pageIndex == curPageIndex);
                     if (!hasNotNullCard) {
                       layoutModel.layouts.removeWhere(
                           (element) => element.pageIndex == curPageIndex);
                     } else {
                       // 删除后还有其他有效卡片就补回去那张删掉的空卡片
                       // 因为要流式布局就要删掉空卡片，重新排过
+                      List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
+                          layoutModel.getLayoutsByPageIndex(curPageIndex));
                       layoutModel.layouts.removeWhere(
                           (element) => element.pageIndex == curPageIndex);
-                      List<Layout> curPageLayoutsAfterFill =
-                          Layout.flexLayout(curPageLayouts);
-                      Log.i('删除填充后的布局列表',
-                          curPageLayoutsAfterFill.map((e) => e.grids));
                       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
                         layoutModel.addLayout(curPageLayoutsAfterFill[o]);
                       }
@@ -368,7 +367,9 @@ class _CustomPageState extends State<CustomPage> {
                         .map((e) => e.pageIndex)
                         .contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);
-                      curPageIndex = (layout.pageIndex - 1) < 0 ? 0 : (layout.pageIndex - 1);
+                      curPageIndex = (layout.pageIndex - 1) < 0
+                          ? 0
+                          : (layout.pageIndex - 1);
                     }
                   },
                   child: Container(
@@ -415,20 +416,53 @@ class _CustomPageState extends State<CustomPage> {
                     dragingWidgetId = '';
                   });
                 },
-                child: DragTarget<String>(
-                  builder: (context, candidateData, rejectedData) {
-                    return Opacity(
+                child: Stack(
+                  children: [
+                    Opacity(
                       opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
                       child: cardWithIcon,
-                    );
-                  },
-                  onAccept: (data) {
-                    Log.i('$data拖拽结束右', layout.deviceId);
-                    // 被拖拽的
-                    layoutModel.swapPosition(
-                        data, layout.deviceId, layout.pageIndex, false);
-                  },
-                ))
+                    ),
+                    if (dragingWidgetId.isNotEmpty) Positioned(
+                      top: 20,
+                      left: 0,
+                      child: DragTarget<String>(
+                        builder: (context, candidateData, rejectedData) {
+                          return Container(
+                              width:
+                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
+                              height: sizeMap[layout.cardType]!['main']! * 96,
+                              color: Colors.transparent);
+                        },
+                        onAccept: (data) {
+                          Log.i('$data拖拽结束左', layout.deviceId);
+                          // 被拖拽的
+                          layoutModel.swapPosition(
+                              data, layout.deviceId, layout.pageIndex, true);
+                        },
+                      ),
+                    ),
+                    if (dragingWidgetId.isNotEmpty) Positioned(
+                      top: 20,
+                      right: 20,
+                      child: DragTarget<String>(
+                        builder: (context, candidateData, rejectedData) {
+                          return Container(
+                              width:
+                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
+                              height: sizeMap[layout.cardType]!['main']! * 96,
+                              color: Colors.transparent);
+                        },
+                        onAccept: (data) {
+                          Log.i('$data拖拽结束右', layout.deviceId);
+                          // 被拖拽的
+                          layoutModel.swapPosition(
+                              data, layout.deviceId, layout.pageIndex, false);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
             : cardWithIcon;
         // 映射占位
         Widget cardWithPosition = StaggeredGridTile.fit(

@@ -118,6 +118,7 @@ class Layout {
   static List<Layout> filledLayout(List<Layout> layouts) {
     if (layouts.isEmpty) return [];
     List<Layout> clone = List<Layout>.from(layouts);
+    Log.i('克隆', clone.map((e) => e.grids));
     clone.removeWhere((element) => element.cardType == CardType.Null);
     List<Layout> newList = [...clone];
     Screen screenLayer = Screen();
@@ -198,16 +199,17 @@ class Layout {
         );
       }
     }
-
+    Log.i('最后新表', newList.map((e) => e.grids));
     return newList;
   }
 
   static List<Layout> flexLayout(List<Layout> layouts) {
     List<Layout> valid = layouts.where((element) => element.cardType != CardType.Null).toList();
+    Log.i('要flex的合法数据', valid.map((e) => e.grids));
     List<Layout> newList = [];
     Screen screenLayer = Screen();
     for(int i = 0; i < valid.length; i++) {
-      List<int> fillCells = screenLayer.checkAvailability(CardType.Null);
+      List<int> fillCells = screenLayer.checkAvailability(valid[i].cardType);
       if (fillCells.isNotEmpty) {
         valid[i].grids = fillCells;
         newList.add(valid[i]);

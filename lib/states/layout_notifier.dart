@@ -358,7 +358,9 @@ class LayoutModel extends ChangeNotifier {
       // 新占位成功
       layout.grids = fillCells;
       // 回补空缺
-      List<Layout> curPageLayouts = Layout.filledLayout(curLayouts);
+      List<Layout> curPageLayoutsAfterUpt = getLayoutsByPageIndex(layout.pageIndex);
+      Log.i('更新后的占位', curPageLayoutsAfterUpt.map((e) => e.grids));
+      List<Layout> curPageLayouts = Layout.flexLayout(curPageLayoutsAfterUpt);
       curLayouts.forEach((element) async {
         if (element.cardType == CardType.Null) {
           await deleteLayout(element.deviceId);
@@ -394,7 +396,7 @@ class LayoutModel extends ChangeNotifier {
         for (int layoutInMaxPageIndex = 0;
             layoutInMaxPageIndex < maxLayouts.length;
             layoutInMaxPageIndex++) {
-          if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId) {
+          if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId && maxLayouts[layoutInMaxPageIndex].cardType != CardType.Null) {
             // 取出当前布局的grids
             for (int gridsIndexInMaxPage = 0;
                 gridsIndexInMaxPage <
@@ -412,19 +414,69 @@ class LayoutModel extends ChangeNotifier {
       }
       List<int> fillCellsInMaxPage = screenLayer.checkAvailability(targetType);
       if (fillCellsInMaxPage.isNotEmpty) {
-        // 回补空缺
-        layouts.add(Layout(uuid.v4(), DeviceEntityTypeInP4.DeviceNull,
-            CardType.Null, layout.pageIndex, layout.grids, layout.data));
         // 新占位成功
+        // 回补空缺
+        List<Layout> curLayoutsAfterDel = getLayoutsByPageIndex(layout.pageIndex).where((element) => element.deviceId != layout.deviceId).toList();
+        List<Layout> backFilled = Layout.flexLayout(curLayoutsAfterDel);
+        curLayoutsAfterDel.forEach((element) async {
+          if (element.cardType == CardType.Null) {
+            await deleteLayout(element.deviceId);
+          }
+        });
+        for (int k = 0; k < backFilled.length; k++) {
+          if (backFilled[k].cardType == CardType.Null) {
+            layouts.add(Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                layout.pageIndex,
+                backFilled[k].grids,
+                DataInputCard(
+                    name: '',
+                    type: '',
+                    applianceCode: '',
+                    roomName: '',
+                    masterId: '',
+                    modelNumber: '',
+                    isOnline: '',
+                    onlineStatus: '')));
+          }
+        }
         layout.pageIndex = maxPage;
-        layout.grids = fillCells;
+        layout.grids = fillCellsInMaxPage;
+        List<Layout> maxPageLayoutAfterAdd = getLayoutsByPageIndex(layout.pageIndex);
+        List<Layout> backAdded = Layout.flexLayout(maxPageLayoutAfterAdd);
+        maxPageLayoutAfterAdd.forEach((element) async {
+          if (element.cardType == CardType.Null) {
+            await deleteLayout(element.deviceId);
+          }
+        });
+        for (int k = 0; k < backAdded.length; k++) {
+          if (backAdded[k].cardType == CardType.Null) {
+            addLayout(Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                maxPage + 1,
+                backAdded[k].grids,
+                DataInputCard(
+                    name: '',
+                    type: '',
+                    applianceCode: '',
+                    roomName: '',
+                    masterId: '',
+                    modelNumber: '',
+                    isOnline: '',
+                    onlineStatus: '')));
+          }
+        }
       } else {
         // 最后一页也没有空间了，开一页新的
         screenLayer.resetGrid();
         await deleteLayout(layout.deviceId);
         // 回补空缺
         List<Layout> curLayoutsAfterDel = getLayoutsByPageIndex(layout.pageIndex);
-        List<Layout> backFilled = Layout.filledLayout(curLayoutsAfterDel);
+        List<Layout> backFilled = Layout.flexLayout(curLayoutsAfterDel);
         curLayoutsAfterDel.forEach((element) async {
           if (element.cardType == CardType.Null) {
             await deleteLayout(element.deviceId);
@@ -493,6 +545,10 @@ class LayoutModel extends ChangeNotifier {
 
     _saveLayouts();
     notifyListeners();
+  }
+
+  void removeNullCardByPage(int pageIndex) async {
+    layouts.removeWhere((element) => element.cardType == CardType.Null && element.pageIndex == pageIndex);
   }
 
   static removeLayoutStorage() async {

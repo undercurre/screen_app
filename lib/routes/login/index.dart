@@ -57,7 +57,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   void showBindingDialog(bool show) async {
     showDialog<void>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       // false = user must tap button, true = tap outside dialog
       builder: (BuildContext dialogContext) {
         return const BindingDialog();
