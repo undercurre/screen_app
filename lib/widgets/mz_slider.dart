@@ -116,6 +116,15 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    if (controller?.status == AnimationStatus.forward) {
+      controller!.stop();
+      controller!.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanDown: (e) => onPanDown(e),

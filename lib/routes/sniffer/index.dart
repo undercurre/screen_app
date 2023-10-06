@@ -289,12 +289,13 @@ class SnifferState extends SafeState<SnifferPage> with LifeCycleState, WidgetNet
         ),
         maxWidth: 425,
         contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 50),
-        onPressed: (String item, int index, dialogContext) {
+        onPressed: (String item, int index, dialogContext) async {
           if(index == 0) {
             Navigator.pop(dialogContext);
           } else {
-            if(value != null) {
-              netMethodChannel.forgetWiFi(value.ssid, value.bssid);
+            NetState state = netMethodChannel.currentNetState;
+            if(state.wiFiScanResult != null) {
+              await netMethodChannel.forgetWiFi(state.wiFiScanResult!.ssid, state.wiFiScanResult!.bssid);
             }
             Navigator.popAndPushNamed(dialogContext, 'NetSettingPage');
           }
