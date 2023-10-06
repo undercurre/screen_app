@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../routes/login/index.dart';
+import '../widgets/util/nameFormatter.dart';
 
 class StrUtils {
   StrUtils._();
@@ -41,7 +42,9 @@ class TipsUtils {
 
   /// 轻提示弹窗
   static void toast({String content = '', int duration = 2000, EasyLoadingToastPosition? position}) {
-    EasyLoading.showToast(content, duration: Duration(milliseconds: duration), toastPosition: position);
+    EasyLoading.showToast(
+        NameFormatter.formLimitString(content, 20, 15, 0),
+        duration: Duration(milliseconds: duration), toastPosition: position);
   }
 
 }
