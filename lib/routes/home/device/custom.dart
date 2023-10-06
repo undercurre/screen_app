@@ -354,10 +354,10 @@ class _CustomPageState extends State<CustomPage> {
                     } else {
                       // 删除后还有其他有效卡片就补回去那张删掉的空卡片
                       // 因为要流式布局就要删掉空卡片，重新排过
-                      List<Layout> curPageLayoutsAfterFill =
-                          Layout.flexLayout(layoutModel.getLayoutsByPageIndex(curPageIndex));
+                      List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
+                          layoutModel.getLayoutsByPageIndex(curPageIndex));
                       layoutModel.layouts.removeWhere(
-                              (element) => element.pageIndex == curPageIndex);
+                          (element) => element.pageIndex == curPageIndex);
                       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
                         layoutModel.addLayout(curPageLayoutsAfterFill[o]);
                       }
@@ -416,20 +416,53 @@ class _CustomPageState extends State<CustomPage> {
                     dragingWidgetId = '';
                   });
                 },
-                child: DragTarget<String>(
-                  builder: (context, candidateData, rejectedData) {
-                    return Opacity(
+                child: Stack(
+                  children: [
+                    Opacity(
                       opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
                       child: cardWithIcon,
-                    );
-                  },
-                  onAccept: (data) {
-                    Log.i('$data拖拽结束右', layout.deviceId);
-                    // 被拖拽的
-                    layoutModel.swapPosition(
-                        data, layout.deviceId, layout.pageIndex, false);
-                  },
-                ))
+                    ),
+                    if (dragingWidgetId.isNotEmpty) Positioned(
+                      top: 20,
+                      left: 0,
+                      child: DragTarget<String>(
+                        builder: (context, candidateData, rejectedData) {
+                          return Container(
+                              width:
+                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
+                              height: sizeMap[layout.cardType]!['main']! * 96,
+                              color: Colors.transparent);
+                        },
+                        onAccept: (data) {
+                          Log.i('$data拖拽结束左', layout.deviceId);
+                          // 被拖拽的
+                          layoutModel.swapPosition(
+                              data, layout.deviceId, layout.pageIndex, true);
+                        },
+                      ),
+                    ),
+                    if (dragingWidgetId.isNotEmpty) Positioned(
+                      top: 20,
+                      right: 20,
+                      child: DragTarget<String>(
+                        builder: (context, candidateData, rejectedData) {
+                          return Container(
+                              width:
+                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
+                              height: sizeMap[layout.cardType]!['main']! * 96,
+                              color: Colors.transparent);
+                        },
+                        onAccept: (data) {
+                          Log.i('$data拖拽结束右', layout.deviceId);
+                          // 被拖拽的
+                          layoutModel.swapPosition(
+                              data, layout.deviceId, layout.pageIndex, false);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
             : cardWithIcon;
         // 映射占位
         Widget cardWithPosition = StaggeredGridTile.fit(

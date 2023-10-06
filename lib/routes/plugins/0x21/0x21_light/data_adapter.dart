@@ -38,7 +38,7 @@ class DeviceDataEntity {
   });
 
   DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
-    brightness = int.parse(data.endList[0].event.Level);
+    brightness = int.parse(data.endList[0].event.Level ?? '1');
     colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
     power = data.endList[0].event.OnOff == '1' || data.endList[0].event.OnOff == 1;
     delayClose = int.parse(data.endList[0].event.DelayClose);
@@ -77,7 +77,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   HomluxDeviceEntity? _homluxData = null;
 
   DeviceDataEntity? data = DeviceDataEntity(
-      brightness: 0, colorTemp: 0, power: false, delayClose: 0);
+      brightness: 1, colorTemp: 0, power: false, delayClose: 0);
 
   final BuildContext context;
 
@@ -191,7 +191,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
         data = DeviceDataEntity(
-            brightness: 0, colorTemp: 0, power: false, delayClose: 0);
+            brightness: 1, colorTemp: 0, power: false, delayClose: 0);
         updateUI();
         return;
       }
@@ -358,7 +358,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   /// 控制亮度
   Future<void> controlBrightness(num value, Color? activeColor) async {
     int lastBrightness = data!.brightness;
-    data!.brightness = value.toInt();
+    data!.brightness = value.toInt() < 1 ? 1 : value.toInt();
     updateUI();
     controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
@@ -426,7 +426,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   }
 
   Future<void> controlBrightnessFaker(num value, Color? activeColor) async {
-    data!.brightness = value.toInt();
+    data!.brightness = value.toInt() < 1 ? 1 : value.toInt();
     updateUI();
   }
 
@@ -502,7 +502,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 class ZigbeeLightEvent extends Event {
   dynamic OnOff = '0';
   dynamic DelayClose = '0';
-  dynamic Level = '0';
+  dynamic Level = '1';
   dynamic ColorTemp = '0';
   dynamic duration = 3;
 
