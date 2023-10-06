@@ -505,10 +505,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   }
 
   int _getColorK() {
-    if (widget.disabled) {
-      return 0;
-    }
-
     if (widget.adapter != null) {
       if (widget.adapter!.getCardStatus()?['maxColorTemp'] != null) {
         return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /

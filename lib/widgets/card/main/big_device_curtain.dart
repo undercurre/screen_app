@@ -435,7 +435,9 @@ class _BigDeviceCurtainCardWidgetState
                             deviceId: widget.applianceCode)) {
                       widget.adapter?.tabTo(value);
                       if (value == 1) {
-                        widget.adapter?.init();
+                        Future.delayed(const Duration(seconds: 5), () {
+                          widget.adapter?.init();
+                        });
                       }
                       bus.emit('operateDevice', widget.applianceCode);
                     }
@@ -455,6 +457,9 @@ class _BigDeviceCurtainCardWidgetState
                       !deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
+                  onChanging: (val, color) {
+                    widget.adapter?.slider1ToFaker(val.toInt());
+                  },
                   onChanged: (val, color) {
                     widget.adapter?.slider1To(val.toInt());
                     bus.emit('operateDevice', widget.applianceCode);

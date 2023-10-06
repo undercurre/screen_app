@@ -147,7 +147,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         tempList.addAll(getLocalPanelDevices());
 
-        Log.i('网表', tempList.map((e) => e.name).toList());
+        Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
 
         deviceCacheList = tempList;
 
@@ -240,6 +240,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         return tempList;
       }
     }
+    Log.i('更新列表数据——美居', deviceListMeiju.length);
+    Log.i('更新列表数据——homlux', deviceListHomlux.length);
     return [];
   }
 
