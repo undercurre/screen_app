@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
