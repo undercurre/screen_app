@@ -47,7 +47,6 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
-    dataAdapter?.destroy();
   }
 
   void updateCallback() {
