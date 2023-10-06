@@ -9,7 +9,7 @@ import '../../util/nameFormatter.dart';
 class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final String name;
   bool onOff;
-  final bool online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -50,8 +50,6 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
 
 class _Big485FloorDeviceAirCardWidgetState
     extends State<Big485FloorDeviceAirCardWidget> {
-
-
   @override
   void initState() {
     super.initState();
@@ -70,12 +68,10 @@ class _Big485FloorDeviceAirCardWidgetState
     widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
     widget.adapter!.init();
     setState(() {
-      widget.temperature=oldWidget.temperature;
-      widget.onOff=oldWidget.onOff;
+      widget.temperature = oldWidget.temperature;
+      widget.onOff = oldWidget.onOff;
     });
   }
-
-
 
   void update485BigFloorData() {
     if (mounted) {
@@ -99,6 +95,9 @@ class _Big485FloorDeviceAirCardWidgetState
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
       widget.onOff = false;
@@ -116,6 +115,9 @@ class _Big485FloorDeviceAirCardWidgetState
     if (!widget.onOff) {
       return;
     }
+    if (!widget.online) {
+      return;
+    }
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
@@ -124,8 +126,6 @@ class _Big485FloorDeviceAirCardWidgetState
 
   @override
   Widget build(BuildContext context) {
-
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -155,6 +155,28 @@ class _Big485FloorDeviceAirCardWidgetState
       return nameInModel;
     }
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        return '在线';
+      }
+    }
+
+    String getPowerIcon(){
+      if(widget.onOff&&widget.online){
+        return "assets/newUI/card_power_on.png";
+      }else if(!widget.online){
+        return "assets/newUI/card_power_off.png";
+      }else if(!widget.onOff){
+        return "assets/newUI/card_power_off.png";
+      }else{
+        return "assets/newUI/card_power_on.png";
+      }
+    }
 
     return Container(
       width: 440,
@@ -170,9 +192,7 @@ class _Big485FloorDeviceAirCardWidgetState
               child: Image(
                   width: 40,
                   height: 40,
-                  image: AssetImage(widget.onOff
-                      ? 'assets/newUI/card_power_on.png'
-                      : 'assets/newUI/card_power_off.png')),
+                  image: AssetImage(getPowerIcon())),
             ),
           ),
           Positioned(
@@ -180,8 +200,13 @@ class _Big485FloorDeviceAirCardWidgetState
             right: 16,
             child: GestureDetector(
               onTap: () => {
-                Navigator.pushNamed(context, '0x21_485Floor',
-                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
+                if (widget.online)
+                  {
+                    Navigator.pushNamed(context, '0x21_485Floor', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    })
+                  }
               },
               child: const Image(
                   width: 32,
@@ -200,8 +225,7 @@ class _Big485FloorDeviceAirCardWidgetState
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: Text(
-                        NameFormatter.formatName(getDeviceName(), 5),
+                    child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -216,7 +240,7 @@ class _Big485FloorDeviceAirCardWidgetState
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text( NameFormatter.formatName(getRoomName(), 4),
+                    child: Text(NameFormatter.formatName(getRoomName(), 4),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -231,7 +255,7 @@ class _Big485FloorDeviceAirCardWidgetState
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(" | ${_getRightText()}",
+                    child: Text(" | ${getRightText()}",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -326,7 +350,7 @@ class _Big485FloorDeviceAirCardWidgetState
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !widget.onOff,
+              disabled:  !widget.onOff||!widget.online,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
@@ -345,15 +369,6 @@ class _Big485FloorDeviceAirCardWidgetState
             : widget.temperature;
   }
 
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-    return '在线';
-  }
 
   BoxDecoration _getBoxDecoration() {
     if (widget.onOff && widget.online) {

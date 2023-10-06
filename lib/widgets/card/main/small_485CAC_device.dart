@@ -14,7 +14,7 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   bool onOff;
-  final String online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -80,15 +80,18 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
   void updateData() {
     if (mounted) {
       setState(() {
-        if(int.parse(widget.adapter!.data!.targetTemp)<35){
-          widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-          widget.temperature=widget.adapter!.data!.targetTemp;
+        if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
+          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+          widget.temperature = widget.adapter!.data!.targetTemp;
         }
       });
     }
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
       widget.onOff = false;
@@ -108,7 +111,6 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -136,6 +138,17 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
       }
 
       return nameInModel;
+    }
+
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        return "${widget.temperature}℃";
+      }
     }
 
     return GestureDetector(
@@ -195,12 +208,11 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                       ),
                     )
                 ]),
-                if (widget.roomName != '' || _getRightText() != '')
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                       maxLines: 1,
-                      '${NameFormatter.formatName(getRoomName(), 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
+                      '${NameFormatter.formatName(getRoomName(), 4)} | ${getRightText()}',
                       style: TextStyle(
                           color: Colors.white.withOpacity(0.64),
                           fontSize: 16,
@@ -211,8 +223,13 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
             ),
             GestureDetector(
               onTap: () => {
-                Navigator.pushNamed(context, '0x21_485CAC',
-                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
+                if (widget.online)
+                  {
+                    Navigator.pushNamed(context, '0x21_485CAC', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    })
+                  }
               },
               child: const Image(
                 width: 24,
@@ -225,15 +242,6 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     );
   }
 
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (widget.online == "0") {
-      return '离线';
-    }
-    return "${widget.temperature}℃";
-  }
 
   BoxDecoration _getBoxDecoration() {
     if (widget.isFault) {
@@ -251,7 +259,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
         ),
       );
     }
-    if (widget.onOff && widget.online == "1") {
+    if (widget.onOff && widget.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -265,7 +273,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
         ),
       );
     }
-    if (widget.online == "0") {
+    if (!widget.online) {
       BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(

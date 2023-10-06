@@ -14,7 +14,7 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   bool onOff;
-  final String online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -23,7 +23,6 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final Function? onMoreTap; // 右边的三点图标的点击事件
   AirDataAdapter? adapter; // 数据适配器
   int windSpeed = 4; // 风速值
-
 
   Small485AirDeviceCardWidget({
     super.key,
@@ -48,8 +47,6 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
 }
 
 class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
-
-
   @override
   void initState() {
     super.initState();
@@ -69,16 +66,14 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     widget.adapter?.destroy();
   }
 
-
-
   @override
   void didUpdateWidget(covariant Small485AirDeviceCardWidget oldWidget) {
     oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
-      widget.windSpeed=oldWidget.windSpeed;
-      widget.onOff=oldWidget.onOff;
+      widget.windSpeed = oldWidget.windSpeed;
+      widget.onOff = oldWidget.onOff;
     });
   }
 
@@ -86,21 +81,24 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     if (mounted) {
       setState(() {
         widget.adapter?.data = widget.adapter!.data!;
-        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-        widget.windSpeed =int.parse(widget.adapter!.data!.windSpeed);
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
       });
     }
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
-      widget.onOff=false;
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
       widget.adapter!.data!.OnOff = "1";
-      widget.onOff=true;
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
@@ -112,8 +110,6 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -143,10 +139,29 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
       return nameInModel;
     }
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        int windSpeed = 1;
+        if (widget.windSpeed == 1) {
+          windSpeed = 3;
+        } else if (widget.windSpeed == 2) {
+          windSpeed = 2;
+        } else if (widget.windSpeed == 4) {
+          windSpeed = 1;
+        } else {
+          windSpeed = 3;
+        }
+        return "$windSpeed档";
+      }
+    }
+
     return GestureDetector(
-      onTap: () => {
-        powerHandle(widget.onOff)
-      },
+      onTap: () => {powerHandle(widget.onOff)},
       child: Container(
         width: 210,
         height: 88,
@@ -203,56 +218,41 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                         ),
                       )
                   ]),
-                  if (widget.roomName != '' || _getRightText() != '')
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        maxLines: 1,
-                        '${NameFormatter.formatName(getRoomName(), 4)} ${_getRightText() != '' ? '|' : ''} ${_getRightText()}',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.64),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400),
-                      ),
-                    )
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      maxLines: 1,
+                      '${NameFormatter.formatName(getRoomName(), 4)} | ${getRightText()}',
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.64),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  )
                 ],
               ),
             ),
-              GestureDetector(
-                onTap: () => {
-                  Navigator.pushNamed(context, '0x21_485Air',
-                      arguments: {"name": getDeviceName(),"adapter": widget.adapter})
-                },
-                child: const Image(
-                  width: 24,
-                  image: AssetImage('assets/newUI/to_plugin.png'),
-                ),
-              )
+            GestureDetector(
+              onTap: () => {
+                if (widget.online)
+                  {
+                    Navigator.pushNamed(context, '0x21_485Air', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    })
+                  }
+              },
+              child: const Image(
+                width: 24,
+                image: AssetImage('assets/newUI/to_plugin.png'),
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (widget.online == "0") {
-      return '离线';
-    }
-    int windSpeed = 1;
-    if (widget.windSpeed == 1) {
-      windSpeed = 3;
-    } else if (widget.windSpeed == 2) {
-      windSpeed = 2;
-    } else if (widget.windSpeed == 4) {
-      windSpeed = 1;
-    } else {
-      windSpeed = 3;
-    }
-    return "$windSpeed档";
-  }
 
   BoxDecoration _getBoxDecoration() {
     if (widget.isFault) {
@@ -270,7 +270,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
         ),
       );
     }
-    if (widget.onOff && widget.online=="1") {
+    if (widget.onOff && widget.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -284,7 +284,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
         ),
       );
     }
-    if (widget.online == "0") {
+    if (!widget.online) {
       BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(

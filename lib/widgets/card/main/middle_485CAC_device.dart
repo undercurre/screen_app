@@ -12,7 +12,7 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   bool onOff;
-  final bool online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -21,7 +21,6 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final Function? onMoreTap; // 右边的三点图标的点击事件
   CACDataAdapter? adapter; // 数据适配器
   String temperature = "26"; // 温度值
-
 
   Middle485CACDeviceCardWidget({
     super.key,
@@ -46,10 +45,8 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
       _Middle485CACDeviceCardWidgetState();
 }
 
-class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWidget> {
-
-
-
+class _Middle485CACDeviceCardWidgetState
+    extends State<Middle485CACDeviceCardWidget> {
   @override
   void initState() {
     super.initState();
@@ -68,17 +65,17 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
-      widget.temperature=oldWidget.temperature;
-      widget.onOff=oldWidget.onOff;
+      widget.temperature = oldWidget.temperature;
+      widget.onOff = oldWidget.onOff;
     });
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        if(int.parse(widget.adapter!.data!.targetTemp)<35){
-          widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-          widget.temperature=widget.adapter!.data!.targetTemp;
+        if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
+          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+          widget.temperature = widget.adapter!.data!.targetTemp;
         }
       });
     }
@@ -89,14 +86,17 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
-      widget.onOff=false;
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
       widget.adapter!.data!.OnOff = "1";
-      widget.onOff=true;
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
@@ -111,7 +111,6 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
 
   @override
   Widget build(BuildContext context) {
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -141,10 +140,19 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
       return nameInModel;
     }
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        return "${widget.temperature}℃";
+      }
+    }
+
     return GestureDetector(
-      onTap: () => {
-        powerHandle(widget.onOff)
-      },
+      onTap: () => {powerHandle(widget.onOff)},
       child: Container(
         width: 210,
         height: 196,
@@ -156,10 +164,13 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
               right: 16,
               child: GestureDetector(
                 onTap: () => {
-                  Navigator.pushNamed(context, '0x21_485CAC', arguments: {
-                    "name": getDeviceName(),
-                    "adapter": widget.adapter
-                  })
+                  if (widget.online)
+                    {
+                      Navigator.pushNamed(context, '0x21_485CAC', arguments: {
+                        "name": getDeviceName(),
+                        "adapter": widget.adapter
+                      })
+                    }
                 },
                 child: const Image(
                     width: 32,
@@ -242,7 +253,7 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
                     child: Text(
-                      _getRightText() != "" ? " | ${_getRightText()}" : "",
+                      " | ${getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -261,16 +272,6 @@ class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWid
         ),
       ),
     );
-  }
-
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-    return "${widget.temperature}℃";
   }
 
   BoxDecoration _getBoxDecoration() {
