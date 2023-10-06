@@ -53,7 +53,7 @@ class EventBus {
   // 触发事件：参数强制为String，参数列表可选
   // 事件触发后，该事件所有订阅者会被调用
   // [limitTime] 限制发送频率时间 单位毫秒
-  void emit(String eventName, [dynamic arg, int limitTime = -1]) {
+  void emit(String eventName, [dynamic arg, int limitTime = -1]) async {
     var list = _emap[eventName];
     if (list == null) return;
     var lastPushTime = _limitEventTime[eventName];
@@ -65,15 +65,11 @@ class EventBus {
     Log.file('[ bus ]推送事件类型：$eventName 监听者数量：${list.length}');
     // 反向遍历，防止订阅者在回调中移除自身带来的下标错位
     for (int i = list.length - 1; i > -1; --i) {
+      await Future.delayed(const Duration(milliseconds: 500));
       list[i](arg);
     }
     _limitEventTime[eventName] = curTime;
   }
-
-  /// buss HomluxDeviceOnlineStatusChangeEvent 订阅者984106429 订阅成功
-  /// buss HomluxDeviceOnlineStatusChangeEvent 订阅者801186494 订阅成功
-  /// buss HomluxDeviceOnlineStatusChangeEvent 订阅者293510060 订阅成功
-  /// buss 订阅者者1032265174 HomluxDeviceOnlineStatusChangeEvent 移除失败 监听数量为：3 }
 
   // 基于事件类型销毁订阅
   void typeOff<D>([EventCallback<D>? callback, dynamic identity]) {
