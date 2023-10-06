@@ -161,6 +161,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     return controlCurtain(value as num);
   }
 
+  @override
+  Future<dynamic> slider1ToFaker(int? value) async {
+    return controlCurtainFaker(value as num);
+  }
+
   /// 防抖刷新
   void _throttledFetchData() async {
     if (!_isFetching) {
@@ -314,6 +319,11 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
         data!.curtainPosition = lastPosition;
       }
     }
+  }
+
+  Future<void> controlCurtainFaker(num value) async {
+    data!.curtainPosition = value.toInt();
+    updateUI();
   }
 
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {
