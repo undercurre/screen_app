@@ -44,6 +44,7 @@ class HomluxJsonConvert {
     (HomluxDeviceMzgdPropertyDTOList3).toString(): HomluxDeviceMzgdPropertyDTOList3.fromJson,
     (HomluxDeviceMzgdPropertyDTOList4).toString(): HomluxDeviceMzgdPropertyDTOList4.fromJson,
     (HomluxDeviceMzgdPropertyDTOListLight).toString(): HomluxDeviceMzgdPropertyDTOListLight.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListCurtain).toString(): HomluxDeviceMzgdPropertyDTOListCurtain.fromJson,
     (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
     (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
@@ -132,6 +133,9 @@ class HomluxJsonConvert {
     }
     if(<HomluxDeviceMzgdPropertyDTOListLight>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOListLight>((e) => HomluxDeviceMzgdPropertyDTOListLight.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListCurtain>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListCurtain>((e) => HomluxDeviceMzgdPropertyDTOListCurtain.fromJson(e)).toList() as M;
     }
     if(<HomluxDuiTokenEntity>[] is M) {
       return data.map<HomluxDuiTokenEntity>((e) => HomluxDuiTokenEntity.fromJson(e)).toList() as M;

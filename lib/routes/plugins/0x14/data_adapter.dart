@@ -36,11 +36,9 @@ class CurtainDataEntity {
   }
 
   CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    curtainPosition =
-        int.parse(data.mzgdPropertyDTOList?.x1?.curtainPosition ?? "0");
-    curtainStatus = data.mzgdPropertyDTOList?.x1?.curtainStatus ?? "stop";
-    curtainDirection =
-        data.mzgdPropertyDTOList?.x1?.curtainDirection ?? "positive";
+    curtainPosition = int.parse(data.mzgdPropertyDTOList?.curtain?.curtainPosition ?? "0");
+    curtainStatus = data.mzgdPropertyDTOList?.curtain?.curtainStatus ?? "stop";
+    curtainDirection = data.mzgdPropertyDTOList?.curtain?.curtainDirection ?? "positive";
   }
 
   Map<String, dynamic> toJson() {
