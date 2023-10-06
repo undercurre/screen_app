@@ -50,7 +50,7 @@ public class AiManager {
 
     private void addService(MideaAiService s) {
         sever = s;
-        sever.setServerInitialBack(InitialBack,BindCallBack);
+        sever.setServerInitialBack(InitialBack, BindCallBack);
         BindCallBack.isServerBind(true);
     }
 
@@ -68,8 +68,8 @@ public class AiManager {
         this.context = activity;
         intent = new Intent(activity, MideaAiService.class);
         this.context.bindService(intent, conn, BIND_AUTO_CREATE);
-        this.BindCallBack=BindCallBack;
-        this.InitialBack=InitialBack;
+        this.BindCallBack = BindCallBack;
+        this.InitialBack = InitialBack;
     }
 
     private ServiceConnection conn = new ServiceConnection() {
@@ -99,18 +99,21 @@ public class AiManager {
             sever.addWakUpStateCallBack(mWakUpStateCallBack);
         }
     }
+
     public void addMusicPlayControlBack(MusicPlayControlBack CallBack) {
         this.MusicPlayControl = CallBack;
         if (sever != null) {
             sever.addMusicPlayControlCallBack(MusicPlayControl);
         }
     }
+
     public void addAISetVoiceCallBack(AISetVoiceCallBack CallBack) {
         this.SetVoiceCallBack = CallBack;
         if (sever != null) {
             sever.addAISetVoiceCallBack(SetVoiceCallBack);
         }
     }
+
     public void addControlDeviceErrorCallBack(AiControlDeviceErrorCallBack CallBack) {
         this.ControlDeviceErrorCallBack = CallBack;
         if (sever != null) {
@@ -138,64 +141,70 @@ public class AiManager {
         }
     });
 
-    public void setAiEnable(boolean aiEnable){
+    public void setAiEnable(boolean aiEnable) {
         if (sever != null) {
-            if(aiEnable){
-                sever.isAiEnable=true;
+            if (aiEnable) {
+                sever.isAiEnable = true;
                 sever.startRecord();
-            }else{
-                sever.isAiEnable=false;
+            } else {
+                sever.isAiEnable = false;
                 sever.stopRecord();
             }
 
         }
     }
 
-    public void wakeupAi(){
+    public void wakeupAi() {
         if (sever != null) {
             sever.wakeupByHand();
-        }else{
+        } else {
             DialogUtil.showToast("小美语音服务启动失败,请重启设备");
         }
     }
 
-    public void updateVoiceToCloud(int voice){
+    public void updateVoiceToCloud(int voice) {
         if (sever != null) {
             sever.updateVoiceToCloud(voice);
         }
     }
 
-    public void reportPlayerStatusToCloud(String MusicUrl,String Song,int index, String str_status){
-        TTSItem ttsItem=new TTSItem(MusicUrl);
+    public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) {
+        TTSItem ttsItem = new TTSItem(MusicUrl);
         ttsItem.setAutoResume(true);
         ttsItem.setUrlType("media");
         ttsItem.setLabel(Song);
         ttsItem.setSkillType("");
-        ttsItem.setSeq(index+1);
+        ttsItem.setSeq(index + 1);
         if (sever != null) {
-            sever.reportPlayerStatusToCloud(ttsItem,str_status);
+            sever.reportPlayerStatusToCloud(ttsItem, str_status);
         }
     }
 
-    public void stopAi(){
-        if(sever!=null){
-            sever.stop();
-            context.unbindService(conn);
-            sever.stopService(intent);
-            sever.stopSelf();
+    public void stopAi() {
+        try {
+            if (sever != null) {
+                sever.stop();
+                context.unbindService(conn);
+                sever.stopService(intent);
+                sever.stopSelf();
+            }
+        } catch (Exception e) {
+
         }
+
     }
-    public boolean isAiStop(){
-        if(sever==null){
+
+    public boolean isAiStop() {
+        if (sever == null) {
             return true;
-        }else{
-            if(sever!=null){
-                if(sever.mMediaMwEngine==null){
+        } else {
+            if (sever != null) {
+                if (sever.mMediaMwEngine == null) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
         }
