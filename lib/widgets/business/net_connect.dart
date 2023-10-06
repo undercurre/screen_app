@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
 
@@ -13,7 +14,10 @@ import '../../channel/index.dart';
 import '../../channel/models/net_state.dart';
 import '../../channel/models/wifi_scan_result.dart';
 import '../../common/helper.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/utils.dart';
+import '../../states/device_list_notifier.dart';
+import '../../states/weather_change_notifier.dart';
 import '../mz_cell.dart';
 import '../mz_switch.dart';
 
@@ -209,6 +213,24 @@ class _LinkNetwork extends State<LinkNetwork> {
   final ScrollController _controller = ScrollController();
 
   @override
+  deactivate() {
+    updateWeatherIfWifiOn();
+    super.deactivate();
+  }
+
+  void updateWeatherIfWifiOn() {
+    if (_model._data.currentConnect?.type == UpdateType.SUCCESS) {
+      final weatherModel = Provider.of<WeatherModel>(context, listen: false);
+      weatherModel.loadSelectedDistrict();
+
+      if (System.isLogin()) {
+        final devListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+        devListModel.getDeviceList();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
         value: _model,
@@ -374,7 +396,7 @@ class _LinkNetwork extends State<LinkNetwork> {
   }
 
   Widget lastTag(_LinkNetworkModel model) {
-    if (model.pageData.length == 2) {
+    if (model.pageData.length == 2 && model._data.currentConnect?.type == UpdateType.SUCCESS) {
       return Container(
         margin: const EdgeInsets.only(top: 20),
         child: const CupertinoActivityIndicator(radius: 20),
