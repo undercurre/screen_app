@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:screen_app/common/exceptions/MideaException.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_delete_device_result_entity.dart';
@@ -24,7 +25,7 @@ class MeiJuDeviceApi {
     if (!res.isSuccess ||
         res.data == null ||
         (res.data['homeList'] is List && res.data['homeList'].length <= 0)) {
-      throw Exception('获取家庭列表失败');
+      throw MideaException('获取家庭列表失败');
     }
 
     List<dynamic> applianceList = [];

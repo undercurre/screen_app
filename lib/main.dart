@@ -90,7 +90,7 @@ class _App extends State<App> {
             //注册路由表
             routes: routes,
             navigatorObservers: [globalRouteObserver],
-            navigatorKey: navigatorKey,
+            navigatorKey: Catcher.navigatorKey,
             builder: EasyLoading.init(builder: (context, widget) {
               Catcher.addDefaultErrorWidget(
                   showStacktrace: false,
