@@ -212,7 +212,7 @@ class WeatherPageState extends State<WeatherPage>
           ],
         ),
         onTap: () {
-          navigatorKey.currentState?.pop();
+          Navigator.of(context).pop();
           Provider.of<StandbyChangeNotifier>(context, listen: false)
               .standbyPageActive = false;
         });
