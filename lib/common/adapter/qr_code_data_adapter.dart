@@ -116,6 +116,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
 
   void requireHomluxQrCode() async {
     qrCodeState = DataState.LOADING;
+    updateUI();
     try {
       HomluxResponseEntity<HomluxQrCodeEntity> code = await HomluxUserApi.queryQrCode();
       if (code.isSuccess && code.result != null) {
@@ -136,6 +137,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
 
   void requireMeiJuQrCode() async {
     qrCodeState = DataState.LOADING;
+    updateUI();
     try {
       MeiJuResponseEntity<MeiJuQrCodeEntity> code = await MeiJuUserApi.queryQrCode();
       if (code.isSuccess && code.data != null) {

@@ -42,7 +42,7 @@ class _ScanCode extends State<ScanCode> {
       alignment: Alignment.center,
       child: Stack(
         children: [
-          if (StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
+          if (qrDataAd?.qrCodeState == DataState.SUCCESS && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
             right: 14,
             bottom: 11,
             child: Image(
@@ -66,7 +66,7 @@ class _ScanCode extends State<ScanCode> {
               ),
             ),
           ),
-          if (StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
+          if (qrDataAd?.qrCodeState != DataState.LOADING && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
             left: 120,
             top: 10,
             child: GestureDetector(
@@ -101,7 +101,7 @@ class _ScanCode extends State<ScanCode> {
               ),
             ),
           ),
-          if (!StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
+          if (qrDataAd?.qrCodeState == DataState.LOADING) Positioned(
             left: 0,
             top: 0,
             child: Container(
