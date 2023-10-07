@@ -35,7 +35,7 @@ class DevicePage extends StatefulWidget {
 
   // 启动定时器
   void startPolling(BuildContext context) {
-    const oneMinute = Duration(seconds: 360);
+    const oneMinute = Duration(seconds: 180);
 
     // 使用周期性定时器，每分钟触发一次
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
