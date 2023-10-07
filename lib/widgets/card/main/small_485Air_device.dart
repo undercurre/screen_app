@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../util/nameFormatter.dart';
@@ -89,6 +90,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   void powerHandle(bool state) async {
     if (!widget.online) {
+      TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
     if (widget.onOff == true) {
@@ -241,6 +243,8 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                       "adapter": widget.adapter
                     })
                   }
+                else
+                  {TipsUtils.toast(content: '设备已离线,请检查设备')}
               },
               child: const Image(
                 width: 24,
@@ -252,7 +256,6 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
       ),
     );
   }
-
 
   BoxDecoration _getBoxDecoration() {
     if (widget.isFault) {

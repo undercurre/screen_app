@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../common/global.dart';
+import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
@@ -96,6 +97,7 @@ class _Big485FloorDeviceAirCardWidgetState
 
   void powerHandle(bool state) async {
     if (!widget.online) {
+      TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
     if (widget.onOff == true) {
@@ -166,14 +168,14 @@ class _Big485FloorDeviceAirCardWidgetState
       }
     }
 
-    String getPowerIcon(){
-      if(widget.onOff&&widget.online){
+    String getPowerIcon() {
+      if (widget.onOff && widget.online) {
         return "assets/newUI/card_power_on.png";
-      }else if(!widget.online){
+      } else if (!widget.online) {
         return "assets/newUI/card_power_off.png";
-      }else if(!widget.onOff){
+      } else if (!widget.onOff) {
         return "assets/newUI/card_power_off.png";
-      }else{
+      } else {
         return "assets/newUI/card_power_on.png";
       }
     }
@@ -190,9 +192,7 @@ class _Big485FloorDeviceAirCardWidgetState
             child: GestureDetector(
               onTap: () => powerHandle(widget.onOff),
               child: Image(
-                  width: 40,
-                  height: 40,
-                  image: AssetImage(getPowerIcon())),
+                  width: 40, height: 40, image: AssetImage(getPowerIcon())),
             ),
           ),
           Positioned(
@@ -207,6 +207,8 @@ class _Big485FloorDeviceAirCardWidgetState
                       "adapter": widget.adapter
                     })
                   }
+                else
+                  {TipsUtils.toast(content: '设备已离线,请检查设备')}
               },
               child: const Image(
                   width: 32,
@@ -350,7 +352,7 @@ class _Big485FloorDeviceAirCardWidgetState
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled:  !widget.onOff||!widget.online,
+              disabled: !widget.onOff || !widget.online,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
@@ -368,7 +370,6 @@ class _Big485FloorDeviceAirCardWidgetState
             ? widget.max
             : widget.temperature;
   }
-
 
   BoxDecoration _getBoxDecoration() {
     if (widget.onOff && widget.online) {
