@@ -48,7 +48,7 @@ public class ControlManager implements Data485Subject {
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
     private Timer timer;
-    private Integer cacheTime = 10;
+    private Integer cacheTime = 2;
     private ExecutorService service, readService;
 
 
@@ -137,15 +137,16 @@ public class ControlManager implements Data485Subject {
             while (running) {
                 if (mInputStream != null) {
                     try {
-                        //阻塞判断,如果超过读取10000次还没数据就重新写新的数据
+                        //阻塞判断,如果超过读取100000次还没数据就重新写新的数据
                         int size = 0;
                         if (mInputStream.available() > 0) {
                             size = mInputStream.read(buffer);
                             read0Times = 0;
+                            resetFlag=true;
                         } else {
                             read0Times++;
 //                            Log.e("sky", "1111xx的量:" + read0Times);
-                            if (read0Times == 10000) {
+                            if (read0Times == 100000) {
                                 read0Times = 0;
                                 commandReset();
                             }
@@ -280,6 +281,7 @@ public class ControlManager implements Data485Subject {
         totalSize = 0;
         total = new StringBuffer();
         queue.clear();
+//        Log.e("sky", "到了阈值resetFlag:"+resetFlag);
         //整个网关断电,全部设备离线上报
         if(resetFlag==true){
             Log.e("sky", "485网关断开连接所有设备上报离线");
@@ -301,6 +303,7 @@ public class ControlManager implements Data485Subject {
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
             }
+//            Log.e("sky","空调全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
@@ -315,6 +318,7 @@ public class ControlManager implements Data485Subject {
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
             }
+//            Log.e("sky","地暖全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
@@ -329,6 +333,7 @@ public class ControlManager implements Data485Subject {
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
             }
+//            Log.e("sky","新风全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
@@ -382,17 +387,17 @@ public class ControlManager implements Data485Subject {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().findAllAirConditionOnlineState();
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().getAllAirConditionParamete();
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().findAllFreshAirOnlineState();
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().getAllFreshAirParamete();
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().findAllFloorHotOnlineState();
-                    Thread.sleep(10);
+                    Thread.sleep(2);
                     GetWayController.getInstance().getAllFloorHotParamete();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

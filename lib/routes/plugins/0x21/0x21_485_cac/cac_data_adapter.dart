@@ -362,7 +362,17 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
          windSpeed: state.speed.toString());
      logger.i("本地空调变化刷新ui");
      updateUI();
-   }
+   }else if(state.modelId=="zhonghong.cac.002"&&applianceCode==state.address){
+      data = CAC485Data(
+          name: name,
+          currTemp: state.currTemperature.toString(),
+          targetTemp: state.temper.toString(),
+          operationMode: state.mode.toString(),
+          OnOff: state.onOff.toString(),
+          windSpeed: state.speed.toString());
+      logger.i("本地空调变化刷新ui");
+      updateUI();
+    }
   }
 
   @override
