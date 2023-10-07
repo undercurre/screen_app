@@ -177,7 +177,7 @@ public class AirConditionController implements Data485Observer {
             for (int j = 0; j <TempAirConditionList.size() ; j++) {
                String querAddr=arrayData[4+(i*10)]+arrayData[5+(i*10)];
                String deviceAddr=TempAirConditionList.get(j).getOutSideAddress()+TempAirConditionList.get(j).getInSideAddress();
-               if(querAddr.equals(deviceAddr)){
+               if(arrayData.length>(11+(i*10))&&querAddr.equals(deviceAddr)){
                   if(arrayData[6+(i*10)].equals(OPEN.data)){
                      TempAirConditionList.get(j).setOnOff(OPEN.data);
                   }else{
@@ -204,7 +204,7 @@ public class AirConditionController implements Data485Observer {
                if(querAddr.equals(deviceAddr)){
                   String TempDeviceStr=new Gson().toJson(TempAirConditionList.get(i));
                   String DeviceStr=new Gson().toJson(AirConditionList.get(j));
-                  if(arrayData.length>=(11+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
+                  if(arrayData.length>(11+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
                      if(arrayData[6+(i*10)].equals(OPEN.data)){
                         AirConditionList.get(j).setOnOff(OPEN.data);
                      }else{

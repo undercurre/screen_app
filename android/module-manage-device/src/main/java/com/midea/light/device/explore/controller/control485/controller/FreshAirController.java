@@ -177,7 +177,7 @@ public class FreshAirController implements Data485Observer {
             for (int j = 0; j <TempFreshAirList.size() ; j++) {
                String querAddr=arrayData[4+(i*10)]+arrayData[5+(i*10)];
                String deviceAddr=TempFreshAirList.get(j).getOutSideAddress()+TempFreshAirList.get(j).getInSideAddress();
-               if(querAddr.equals(deviceAddr)){
+               if(arrayData.length>(11+(i*10))&&querAddr.equals(deviceAddr)){
                   if(arrayData[6+(i*10)].equals(FRESH_AIR_OPEN.data)){
                      TempFreshAirList.get(j).setOnOff(FRESH_AIR_OPEN.data);
                   }else{
@@ -197,7 +197,7 @@ public class FreshAirController implements Data485Observer {
                if(querAddr.equals(deviceAddr)){
                   String TempDeviceStr=new Gson().toJson(TempFreshAirList.get(i));
                   String DeviceStr=new Gson().toJson(FreshAirList.get(j));
-                  if(arrayData.length>=(11+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
+                  if(arrayData.length>(11+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
                      if(arrayData[6+(i*10)].equals(OPEN.data)){
                         FreshAirList.get(j).setOnOff(OPEN.data);
                      }else{

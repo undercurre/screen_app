@@ -180,7 +180,7 @@ public class FloorHotController implements Data485Observer {
                String querAddr=arrayData[4+(i*10)]+arrayData[5+(i*10)];
                String deviceAddr=TempFloorHotList.get(j).getOutSideAddress()+TempFloorHotList.get(j).getInSideAddress();
                if(querAddr.equals(deviceAddr)){
-                  if(arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
+                  if(arrayData.length>(12+(i*10))&&arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
                      TempFloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
                   }else{
                      TempFloorHotList.get(j).setOnOff(FLOOR_HOT_CLOSE.data);
@@ -204,7 +204,7 @@ public class FloorHotController implements Data485Observer {
                if(querAddr.equals(deviceAddr)){
                   String TempDeviceStr=new Gson().toJson(TempFloorHotList.get(i));
                   String DeviceStr=new Gson().toJson(FloorHotList.get(j));
-                  if(arrayData.length>=(12+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
+                  if(arrayData.length>(12+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
                      if(arrayData.length>(6+(i*10))&&arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
                         FloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
                      }else{
