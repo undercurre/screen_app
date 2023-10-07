@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/global.dart';
 
 import '../../channel/index.dart';
 import '../../common/setting.dart';
@@ -21,26 +22,25 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
 
   @override
   void initState() {
-    super.initState();
-    //初始化状态
-    print("初始化initState");
     initial();
+    super.initState();
   }
 
   initial() async {
+    aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
     num soundVal = await settingMethodChannel.getSystemVoice();
     Setting.instant().volume = soundVal.toInt();
     soundValue = soundVal;
-
-    aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
   }
 
   void _aiSetVoiceCallback(int voice) {
     setState(() {
+      logger.i("设置语音音量调整:$voice");
       soundValue = voice;
       soundShowValue=(soundValue / 15 * 100).toInt();
     });
     Setting.instant().volume = voice;
+    Setting.instant().showVolume = (soundValue / 15 * 100).toInt();
   }
 
   @override
