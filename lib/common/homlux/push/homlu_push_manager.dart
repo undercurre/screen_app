@@ -14,7 +14,6 @@ import '../../../widgets/event_bus.dart';
 import '../../helper.dart';
 import '../../meiju/push/meiju_push_manager.dart';
 import '../../system.dart';
-import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 const _connectTimeout = 5;
@@ -74,21 +73,60 @@ class HomluxPushManager {
   /// 记录用户操作的设备ID、延迟通知时间
   static Map<String, Pair<int, PushEventFunction?>> operatePushRecord = {};
 
+  // 用途：内存缓存，避免重复构建
+  static List<Pair<int, PushEventFunction?>> unoccupiedPair = [];
+
+  /// 获取pair
+  static Pair<int, PushEventFunction?> getOrGeneratePair1(int time) {
+    if(unoccupiedPair.isNotEmpty) {
+      var pair = unoccupiedPair.removeAt(0);
+      pair.value1 = time;
+      pair.value2 = null;
+      return pair;
+    } else {
+      return Pair.of(time, null);
+    }
+  }
+
+  static Pair<int, PushEventFunction?> getOrGeneratePair2(int time, String id, void Function() func) {
+    if(unoccupiedPair.isNotEmpty) {
+      var pair = unoccupiedPair.removeAt(0);
+      pair.value1 = time;
+      pair.value2 = pair.value2 ?? PushEventFunction.create(id, func);
+      pair.value2!.id = id;
+      pair.value2!.call = func;
+      return pair;
+    } else {
+      return Pair.of(time, PushEventFunction.create(id, func));
+    }
+  }
+
+  /// 回收pair
+  static void recyclePair(Pair<int, PushEventFunction?> pair) {
+    /// 支持20个设备的缓存
+    if(unoccupiedPair.length <= 20) {
+      unoccupiedPair.add(pair);
+    }
+  }
+
+
   static void deviceStatusChange(String deviceId, HomluxPushResultEntity entity) {
     if(!operatePushRecord.containsKey(deviceId)) {
-      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-          PushEventFunction.create(TypeDeviceProperty,
-                  () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity))));
+      operatePushRecord[deviceId] = getOrGeneratePair2(
+          DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+          TypeDeviceProperty,
+          () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity)));
     } else {
       var pair = operatePushRecord[deviceId]!;
       if(pair.value2?.id != TypeDeviceProperty) {
-        operatePushRecord[deviceId] = Pair.of(pair.value1,
-            PushEventFunction.create(TypeDeviceProperty,
-                    () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity))));
+        operatePushRecord[deviceId] = getOrGeneratePair2(
+            pair.value1,
+            TypeDeviceProperty,
+            () => bus.typeEmit(HomluxDevicePropertyChangeEvent.of(entity)));
       }
     }
   }
-  
+
   static void _netConnectState(NetState? state) {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
       Log.file('[WebSocket]homlux ws 检测到已连接网络');
@@ -113,9 +151,10 @@ class HomluxPushManager {
     Log.file('操作设备 设备id $deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
-      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
+      pair.value1 = DateTime.now().millisecondsSinceEpoch + initiativeDelayPush;
+      operatePushRecord[deviceId] = pair;
     } else {
-      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, null);
+      operatePushRecord[deviceId] = getOrGeneratePair1(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush);
     }
   }
 
@@ -203,7 +242,7 @@ class HomluxPushManager {
       _isConnect = 2;
 
       _globalTimer?.cancel();
-      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         if(_isConnect == 2) {
           if(HomluxGlobal.isLogin) {
             /// 发送订阅任务
@@ -218,6 +257,7 @@ class HomluxPushManager {
               int exeTime = element.value1;
               if(currTimer.millisecondsSinceEpoch >= exeTime) {
                 element.value2?.call();
+                recyclePair(element);
               }
               return currTimer.millisecondsSinceEpoch >= exeTime;
             });
@@ -237,7 +277,7 @@ class HomluxPushManager {
     }
 
   }
-  
+
   static _message(dynamic event, void Function() reconnectFunction) {
     Log.i('[WebSocket]homlux ws message $event');
     retryCount = 0;
@@ -316,7 +356,7 @@ class HomluxPushManager {
       Log.file('[WebSocket]homlux ws message error ->  $event $e');
     }
   }
-  
+
   static _error(dynamic error, void Function() reconnectFunction) {
     Log.file('[WebSocket] homlux ws error $error');
     try {

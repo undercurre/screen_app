@@ -50,6 +50,42 @@ class MeiJuPushManager {
   /// 记录用户操作的设备ID、延迟通知时间
   static Map<String, Pair<int, PushEventFunction?>> operatePushRecord = {};
 
+  // 用途：内存缓存，避免重复构建
+  static List<Pair<int, PushEventFunction?>> unoccupiedPair = [];
+
+  /// 获取pair
+  static Pair<int, PushEventFunction?> getOrGeneratePair1(int time) {
+    if(unoccupiedPair.isNotEmpty) {
+      var pair = unoccupiedPair.removeAt(0);
+      pair.value1 = time;
+      pair.value2 = null;
+      return pair;
+    } else {
+      return Pair.of(time, null);
+    }
+  }
+
+  static Pair<int, PushEventFunction?> getOrGeneratePair2(int time, String id, void Function() func) {
+    if(unoccupiedPair.isNotEmpty) {
+      var pair = unoccupiedPair.removeAt(0);
+      pair.value1 = time;
+      pair.value2 = pair.value2 ?? PushEventFunction.create(id, func);
+      pair.value2!.id = id;
+      pair.value2!.call = func;
+      return pair;
+    } else {
+      return Pair.of(time, PushEventFunction.create(id, func));
+    }
+  }
+
+  /// 回收pair
+  static void recyclePair(Pair<int, PushEventFunction?> pair) {
+    /// 支持20个设备的缓存
+    if(unoccupiedPair.length <= 20) {
+      unoccupiedPair.add(pair);
+    }
+  }
+
 
   static bool isConnect() {
     return _isConnect == 2;
@@ -59,9 +95,10 @@ class MeiJuPushManager {
     Log.file('操作设备 设备id$deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
-      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, pair.value2);
+      pair.value1 = DateTime.now().millisecondsSinceEpoch + initiativeDelayPush;
+      operatePushRecord[deviceId] = pair;
     } else {
-      operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush, null);
+      operatePushRecord[deviceId] = getOrGeneratePair1(DateTime.now().millisecondsSinceEpoch + initiativeDelayPush);
     }
   }
 
@@ -151,7 +188,7 @@ class MeiJuPushManager {
       _isConnect = 2;
 
       var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
-      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         if(_isConnect == 2) {
           if(MeiJuGlobal.isLogin) {
             /// 发送订阅任务
@@ -167,6 +204,7 @@ class MeiJuPushManager {
               int exeTime = element.value1;
               if(currTimer.millisecondsSinceEpoch >= exeTime) {
                 element.value2?.call();
+                recyclePair(element);
               }
               return currTimer.millisecondsSinceEpoch >= exeTime;
             });
@@ -225,29 +263,42 @@ class MeiJuPushManager {
                   if (eventMap.containsKey("nodeId")) {
                     String nodeId = eventMap['nodeId'] as String;
                     if(!operatePushRecord.containsKey(nodeId)) {
-                      operatePushRecord[nodeId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-                          PushEventFunction.create("gemini/appliance/event",
-                                  () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))));
+                      operatePushRecord[nodeId] = getOrGeneratePair2(
+                          DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                          "gemini/appliance/event", () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))
+                      );
                     } else {
                       var pair = operatePushRecord[nodeId]!;
                       if(pair.value2?.id != "gemini/appliance/event") {
-                        operatePushRecord[nodeId] = Pair.of(pair.value1,
-                            PushEventFunction.create("gemini/appliance/event",
-                                    () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))));
+                        pair.value2 = switch(pair.value2) {
+                          null => PushEventFunction.create("gemini/appliance/event",
+                                  () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(nodeId))),
+                          _ => pair.value2!
+                            ..id = "gemini/appliance/event"
+                            ..call = () => bus.typeEmit(MeiJuSubDevicePropertyChangeEvent(deviceId))
+                        };
+                        operatePushRecord[deviceId] = pair;
                       }
                     }
                   }
                 } else { // wifi设备状态推送
                   if(!operatePushRecord.containsKey(deviceId)) {
-                    operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-                        PushEventFunction.create("gemini/appliance/event",
-                                () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
+                    operatePushRecord[deviceId] = getOrGeneratePair2(
+                        DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                        "gemini/appliance/event",
+                        () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                    );
                   } else {
                     var pair = operatePushRecord[deviceId]!;
                     if(pair.value2?.id != "gemini/appliance/event") {
-                      operatePushRecord[deviceId] = Pair.of(pair.value1,
-                          PushEventFunction.create("gemini/appliance/event",
-                              () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
+                      pair.value2 = switch(pair.value2) {
+                        null => PushEventFunction.create("gemini/appliance/event",
+                                () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))),
+                        _ => pair.value2!
+                          ..id = "gemini/appliance/event"
+                          ..call = () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                      };
+                      operatePushRecord[deviceId] = pair;
                     }
                   }
                 }
@@ -256,15 +307,22 @@ class MeiJuPushManager {
               if(msgMap.containsKey('applianceId')) {
                 String deviceId = msgMap['applianceId'];
                 if(!operatePushRecord.containsKey(deviceId)) {
-                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-                      PushEventFunction.create("appliance/status/report",
-                              () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
+                  operatePushRecord[deviceId] = getOrGeneratePair2(
+                      DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      "appliance/status/report",
+                      () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                  );
                 } else {
                   var pair = operatePushRecord[deviceId]!;
                   if(pair.value2?.id != "appliance/status/report") {
-                    operatePushRecord[deviceId] = Pair.of(pair.value1,
-                        PushEventFunction.create("appliance/status/report",
-                                () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))));
+                    pair.value2 = switch(pair.value2) {
+                      null => PushEventFunction.create("appliance/status/report",
+                              () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))),
+                      _ => pair.value2!
+                        ..id = "appliance/status/report"
+                        ..call = () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                    };
+                    operatePushRecord[deviceId] = pair;
                   }
                 }
               }
@@ -273,15 +331,22 @@ class MeiJuPushManager {
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
                 if(!operatePushRecord.containsKey(deviceId)) {
-                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-                      PushEventFunction.create("appliance/online/status/off",
-                              () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))));
+                  operatePushRecord[deviceId] = getOrGeneratePair2(
+                      DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      "appliance/online/status/off",
+                      () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))
+                  );
                 } else {
                   var pair = operatePushRecord[deviceId]!;
                   if (pair.value2?.id != 'appliance/online/status/off') {
-                    operatePushRecord[deviceId] = Pair.of(pair.value1,
-                        PushEventFunction.create("appliance/online/status/off",
-                            () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))));
+                    pair.value2 = switch(pair.value2) {
+                      null => PushEventFunction.create("appliance/online/status/off",
+                              () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))),
+                      _ => pair.value2!
+                        ..id = "appliance/online/status/on"
+                        ..call = () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, false))
+                    };
+                    operatePushRecord[deviceId] = pair;
                   }
                 }
               }
@@ -290,15 +355,21 @@ class MeiJuPushManager {
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
                 if(!operatePushRecord.containsKey(deviceId)) {
-                  operatePushRecord[deviceId] = Pair.of(DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
-                      PushEventFunction.create("appliance/online/status/on",
-                              () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))));
+                  operatePushRecord[deviceId] = getOrGeneratePair2(
+                      DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                      "appliance/online/status/on",
+                      () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true)));
                 } else {
                   var pair = operatePushRecord[deviceId]!;
                   if (pair.value2?.id != 'appliance/online/status/on') {
-                    operatePushRecord[deviceId] = Pair.of(pair.value1,
-                        PushEventFunction.create("appliance/online/status/on",
-                            () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))));
+                    pair.value2 = switch(pair.value2) {
+                      null => PushEventFunction.create("appliance/online/status/on", () =>
+                            bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))),
+                      _ => pair.value2!
+                        ..id = "appliance/online/status/on"
+                        ..call = () => bus.typeEmit(MeiJuDeviceOnlineStatusChangeEvent(deviceId, true))
+                    };
+                    operatePushRecord[deviceId] = pair;
                   }
                 }
               }
