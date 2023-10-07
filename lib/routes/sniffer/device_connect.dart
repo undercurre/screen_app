@@ -50,8 +50,9 @@ class DeviceConnectViewModel {
     if(args is! Map<String, dynamic>) {
       throw Exception('请传入正确的参数 ${args.runtimeType}');
     }
-    startBind(args['devices']);
+
     rooms = args['rooms'];
+    startBind(args['devices']);
   }
 
   /// 发起绑定
@@ -110,6 +111,12 @@ class DeviceConnectViewModel {
           if(result.code != 0) {
             TipsUtils.toast(content: '绑定${result.findResult.name}失败');
           } else {
+            for (var room in rooms) {
+              if (room.roomId == result.bindResult!.roomId.toString()) {
+                result.bindResult!.roomName = room.name!;
+              }
+            }
+
             alreadyAddedList.add(result);
           }
           toBeAddedList.remove(result.findResult);
@@ -140,6 +147,12 @@ class DeviceConnectViewModel {
         if(result.code != 0) {
           TipsUtils.toast(content: '绑定${result.findResult.name}失败');
         } else {
+          for (var room in rooms) {
+            if (room.roomId == result.bindResult!.roomId.toString()) {
+              result.bindResult!.roomName = room.name!;
+            }
+          }
+
           alreadyAddedList.add(result);
         }
         toBeAddedList.remove(result.findResult);
@@ -202,7 +215,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                   alignment: Alignment.center,
                   value: item.name,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    // padding: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: d.bindResult!.roomName == item.name ? const ShapeDecoration(
                         color: Color(0xff575757),
                         shape: RoundedRectangleBorder(
@@ -272,8 +285,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
           MzNavigationBar(
             leftBtnVisible: false,
             onLeftBtnTap: () => viewModel.goBack(context),
-            title: '设备连接',
-            desc: '已成功添加${viewModel.alreadyAddedList.length}台设备',
+            title: '设备连接(${viewModel.alreadyAddedList.length}/${viewModel.toBeAddedList.length + viewModel.alreadyAddedList.length})',
             isLoading: viewModel.toBeAddedList.isNotEmpty,
             hasBottomBorder: true,
           ),
