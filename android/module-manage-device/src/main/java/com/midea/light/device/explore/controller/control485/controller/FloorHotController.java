@@ -159,6 +159,7 @@ public class FloorHotController implements Data485Observer {
          }
          if(diffStatelsit.size()>0){
             GateWayUtils.updateOnlineState485(diffStatelsit);
+//            Log.e("sky","地暖在线状态上报:"+GsonUtils.stringify(diffStatelsit));
          }
          //将在线状态同步过来
          for (int i = 0; i <FindList.size() ; i++) {
