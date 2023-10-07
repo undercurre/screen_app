@@ -13,6 +13,7 @@ import '../../common/meiju/meiju_global.dart';
 import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../widgets/event_bus.dart';
 import '../../widgets/mz_buttion.dart';
+import '../../widgets/util/nameFormatter.dart';
 import '../../widgets/util/net_utils.dart';
 
 class DeviceConnectViewModel {
@@ -199,7 +200,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                   Container(
                     width: 100,
                     alignment: Alignment.center,
-                    child: Text(item.name ?? '未知房间名',
+                    child: Text(NameFormatter.formatName(item.name ?? '未知房间', 6),
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 24,
@@ -207,25 +208,24 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                             fontWeight: FontWeight.w400)),
               )).toList(),
               value: d.bindResult!.roomName,
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              alignment: AlignmentDirectional.topCenter,
+              borderRadius: const BorderRadius.all(Radius.circular(13)),
+              alignment: AlignmentDirectional.topStart,
               items: viewModel.rooms
                   .map<DropdownMenuItem<String>>((MeiJuRoomEntity item) {
                 return DropdownMenuItem<String>(
                   alignment: Alignment.center,
                   value: item.name,
                   child: Container(
-                    // padding: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: d.bindResult!.roomName == item.name ? const ShapeDecoration(
-                        color: Color(0xff575757),
+                        color: Color(0x26101010),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(3))
+                          borderRadius: BorderRadius.all(Radius.circular(13))
                         )
                     ) : null,
-                    // padding: const EdgeInsets.symmetric(horizontal: 5),
-                    width: 120,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    width: 108,
                     alignment: Alignment.center,
-                    child: Text(item.name ?? '未知房间名',
+                    child: Text(NameFormatter.formatName(item.name ?? '未知房间', 6),
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 24,
@@ -234,10 +234,11 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                   ),
                 );
               }).toList(),
-              dropdownColor: const Color(0XFF626262),
+              dropdownColor: const Color(0XFF88909F),
               focusColor: Colors.blue,
               icon: const Icon(Icons.keyboard_arrow_down_outlined),
               iconSize: 30,
+              menuMaxHeight: 252,
               iconEnabledColor: Colors.white,
               onChanged: (String? data) {
                 /// 改变房间
@@ -249,8 +250,6 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
               }
             )),
         hasBottomBorder: true,
-        padding:
-        const EdgeInsets.symmetric(vertical: 17, horizontal: 26),
       );
     }).toList();
   }
@@ -287,13 +286,13 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
             onLeftBtnTap: () => viewModel.goBack(context),
             title: '设备连接(${viewModel.alreadyAddedList.length}/${viewModel.toBeAddedList.length + viewModel.alreadyAddedList.length})',
             isLoading: viewModel.toBeAddedList.isNotEmpty,
-            hasBottomBorder: true,
+            hasBottomBorder: false,
           ),
 
           Positioned(
               top: 70,
               left: 7,
-              right: 7,
+              right: 0,
               bottom: 64,
               child: ListView(children: _listView())),
 
