@@ -125,7 +125,6 @@ class AirCondition485PageState extends State<AirCondition485Page> {
   @override
   void dispose() {
     adapter!.unBindDataUpdateFunction(updateData);
-    adapter!.destroy();
     super.dispose();
   }
 

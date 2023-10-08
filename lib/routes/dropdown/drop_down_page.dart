@@ -42,6 +42,7 @@ class _DropDownPageState extends State<DropDownPage>
   void _aiSetVoiceCallback(int voice) {
     logger.i("语音音量调整:$voice");
     Setting.instant().volume = voice;
+    Setting.instant().showVolume = (voice / 15 * 100).toInt();
     setState(() {
       soundValue=voice;
       if (soundValue > 7) {

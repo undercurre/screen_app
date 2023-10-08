@@ -90,15 +90,17 @@ public class FloorHotController implements Data485Observer {
          //保存拉取到的设备以及设备地址到列表
          for (int i = 0; i <num ; i++) {
             FloorHotModel FloorHot=new FloorHotModel();
-            FloorHot.setOutSideAddress(arrayData[4+(i*3)]);
-            FloorHot.setInSideAddress(arrayData[5+(i*3)]);
-            if(arrayData[6+(i*3)].equals(FLOOR_HOT_ON_LINE.data)){
-               FloorHot.setOnlineState(FLOOR_HOT_ON_LINE.data);
-            }else{
-               FloorHot.setOnlineState(FLOOR_HOT_OFF_LINE.data);
+            if(arrayData.length>(6+(i*3))){
+               FloorHot.setOutSideAddress(arrayData[4+(i*3)]);
+               FloorHot.setInSideAddress(arrayData[5+(i*3)]);
+               if(arrayData[6+(i*3)].equals(FLOOR_HOT_ON_LINE.data)){
+                  FloorHot.setOnlineState(FLOOR_HOT_ON_LINE.data);
+               }else{
+                  FloorHot.setOnlineState(FLOOR_HOT_OFF_LINE.data);
+               }
+               FindAddressList.add(FloorHot.getOutSideAddress()+FloorHot.getInSideAddress());
+               FindList.add(FloorHot);
             }
-            FindAddressList.add(FloorHot.getOutSideAddress()+FloorHot.getInSideAddress());
-            FindList.add(FloorHot);
          }
 
          //保存已经有的设备地址到列表
