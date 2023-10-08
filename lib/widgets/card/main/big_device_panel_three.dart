@@ -49,23 +49,9 @@ class BigDevicePanelCardWidgetThree extends StatefulWidget {
 
 class _BigDevicePanelCardWidgetThreeState
     extends State<BigDevicePanelCardWidgetThree> {
-  bool _isFetching = false;
-  Timer? _debounceTimer;
 
-  void _throttledFetchData() async {
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-        Log.i('触发更新');
-        await widget.adapter.fetchData();
-        _isFetching = false;
-      });
-    }
+  void _throttledFetchData() {
+    widget.adapter.fetchData();
   }
 
   @override

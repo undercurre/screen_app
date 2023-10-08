@@ -76,9 +76,6 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   String sn8 = "";
   String applianceCode = "";
 
-  bool _isFetching = false;
-  Timer? _debounceTimer;
-
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
@@ -154,20 +151,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   }
 
   /// 防抖刷新
-  void _throttledFetchData() async {
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(Duration(milliseconds: 2000), () async {
-        Log.i('触发更新');
-        await fetchData();
-        _isFetching = false;
-      });
-    }
+  void _throttledFetchData() {
+    fetchData();
   }
 
   @override

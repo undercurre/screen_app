@@ -48,23 +48,9 @@ class SmallPanelCardWidget extends StatefulWidget {
 }
 
 class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
-  bool _isFetching = false;
-  Timer? _debounceTimer;
 
-  void _throttledFetchData() async {
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(Duration(milliseconds: 2000), () async {
-        Log.i('触发更新');
-        await widget.adapter.fetchData();
-        _isFetching = false;
-      });
-    }
+  void _throttledFetchData() {
+    widget.adapter.fetchData();
   }
 
   @override

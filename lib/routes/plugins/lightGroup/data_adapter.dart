@@ -70,9 +70,6 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   String modelNumber = "";
   String nodeId = '';
 
-  bool _isFetching = false;
-  Timer? _debounceTimer;
-
   dynamic _meijuData = null;
   HomluxGroupEntity? _homluxData = null;
 
@@ -138,19 +135,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
 
   /// 防抖刷新
   void _throttledFetchData() async {
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-        Log.i('触发更新');
-        await fetchData();
-        _isFetching = false;
-      });
-    }
+    fetchData();
   }
 
   /// 查询状态

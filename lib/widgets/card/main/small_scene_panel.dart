@@ -52,8 +52,8 @@ class SmallScenePanelCardWidget extends StatefulWidget {
 
 class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
-  void _throttledFetchData() async {
-    await widget.adapter.fetchData();
+  void _throttledFetchData() {
+    widget.adapter.fetchData();
   }
 
   @override

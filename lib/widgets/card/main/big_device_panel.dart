@@ -50,8 +50,8 @@ class BigDevicePanelCardWidget extends StatefulWidget {
 
 class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
-  void _throttledFetchData() async {
-    await widget.adapter.fetchData();
+  void _throttledFetchData() {
+    widget.adapter.fetchData();
   }
 
   @override

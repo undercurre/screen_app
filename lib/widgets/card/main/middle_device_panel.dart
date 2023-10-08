@@ -49,8 +49,8 @@ class MiddleDevicePanelCardWidget extends StatefulWidget {
 class _MiddleDevicePanelCardWidgetState
     extends State<MiddleDevicePanelCardWidget> {
 
-  void _throttledFetchData() async {
-    await widget.adapter.fetchData();
+  void _throttledFetchData() {
+    widget.adapter.fetchData();
   }
 
   @override

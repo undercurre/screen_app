@@ -54,9 +54,6 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   String deviceName = "Wifi窗帘";
   String applianceCode = "";
 
-  bool _isFetching = false;
-  Timer? _debounceTimer;
-
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
@@ -165,22 +162,8 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   }
 
   /// 防抖刷新
-  void _throttledFetchData() async {
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(const Duration(milliseconds: 2000), () async {
-        if(DateTime.now().millisecondsSinceEpoch - controlLastTime > 1000) {
-          Log.i('触发更新');
-          await fetchData();
-        }
-        _isFetching = false;
-      });
-    }
+  void _throttledFetchData() {
+    fetchData();
   }
 
   /// 查询状态

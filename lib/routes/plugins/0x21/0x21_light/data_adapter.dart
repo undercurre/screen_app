@@ -67,9 +67,6 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   String applianceCode = "";
   String modelNumber = "";
   String nodeId = '';
-
-  bool _isFetching = false;
-  Timer? _debounceTimer;
   int controlLastTime = 0;
 
   NodeInfo<Endpoint<ZigbeeLightEvent>>? _meijuData = null;
@@ -153,23 +150,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   }
 
   /// 防抖刷新
-  void _throttledFetchData() async {
+  void _throttledFetchData() {
     Log.i('准备触发更新 $hashCode ${runtimeType}');
-    if (!_isFetching) {
-      _isFetching = true;
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-        if(DateTime.now().millisecondsSinceEpoch - controlLastTime > 1000) {
-          Log.i('触发更新');
-          await fetchData();
-        }
-        _isFetching = false;
-      });
-    }
+    fetchData();
   }
 
   /// 查询状态
