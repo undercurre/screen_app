@@ -289,6 +289,13 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
           OnOff: state.onOff.toString(),
           windSpeed: state.speed.toString());
       updateUI();
+    }else if(state.modelId=="zhonghong.air.001"&&applianceCode==state.address){
+      data = Air485Data(
+          name: name,
+          operationMode: state.mode.toString(),
+          OnOff: state.onOff.toString(),
+          windSpeed: state.speed.toString());
+      updateUI();
     }
   }
 

@@ -1,22 +1,16 @@
 
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../common/adapter/midea_data_adapter.dart';
 import '../../common/adapter/qr_code_data_adapter.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
+
   QRCodeDataAdapter? qrDataAd;
-
-  Timer? validTimer;
-  bool isCodeInvalid = false;
-  int timerCnt = 0;
-
-  Timer? timeOutTimer;
 
   @override
   void initState() {
@@ -30,45 +24,13 @@ class _ScanCode extends State<ScanCode> {
     });
     /// 更新二维码数据回调
     qrDataAd?.bindDataUpdateFunction(() {
-      timeOutTimer?.cancel();
-      setState(() {
-        isCodeInvalid = false;
-      });
-      timerCnt = 0;
+      if(qrDataAd?.qrCodeState == DataState.ERROR) {
+        TipsUtils.toast(content: qrDataAd?.errorTip ?? "请检查你的网络", duration: 1000);
+      }
+      setState(() {});
     });
     /// 请求数据
     qrDataAd?.requireQrCode();
-    setRequestTimer();
-
-    startCheckCodeTimer();
-    /// 轮询登陆状态
-    qrDataAd?.updateLoginStatus();
-  }
-
-  void startCheckCodeTimer() {
-    validTimer?.cancel();
-    validTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      timerCnt++;
-      if (timerCnt == 18) {
-        qrDataAd?.requireQrCode();
-        setRequestTimer();
-      } else if (timerCnt == 19) {
-        setState(() {
-          isCodeInvalid = true;
-        });
-      }
-    });
-  }
-
-  void setRequestTimer() {
-    timeOutTimer?.cancel();
-    timeOutTimer = Timer(const Duration(seconds: 5), () {
-      TipsUtils.toast(content: '请检查您的网络', duration: 1000);
-      if (!StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) {
-        qrDataAd?.requireQrCode();
-        setRequestTimer();
-      }
-    });
   }
 
   @override
@@ -80,7 +42,7 @@ class _ScanCode extends State<ScanCode> {
       alignment: Alignment.center,
       child: Stack(
         children: [
-          if (StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
+          if (qrDataAd?.qrCodeState == DataState.SUCCESS && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
             right: 14,
             bottom: 11,
             child: Image(
@@ -104,13 +66,12 @@ class _ScanCode extends State<ScanCode> {
               ),
             ),
           ),
-          if (StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
+          if (qrDataAd?.qrCodeState != DataState.LOADING && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
             left: 120,
             top: 10,
             child: GestureDetector(
               onTap: () {
                 qrDataAd?.requireQrCode();
-                setRequestTimer();
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -126,13 +87,12 @@ class _ScanCode extends State<ScanCode> {
               ),
             ),
           ),
-          if (isCodeInvalid) Positioned(
+          if (qrDataAd?.qrCodeState == DataState.ERROR) Positioned(
             left: 197,
             top: 90,
             child: GestureDetector(
               onTap: () {
                 qrDataAd?.requireQrCode();
-                setRequestTimer();
               },
               child: const Image(
                 height: 80,
@@ -141,7 +101,7 @@ class _ScanCode extends State<ScanCode> {
               ),
             ),
           ),
-          if (!StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
+          if (qrDataAd?.qrCodeState == DataState.LOADING) Positioned(
             left: 0,
             top: 0,
             child: Container(
@@ -161,8 +121,6 @@ class _ScanCode extends State<ScanCode> {
     super.dispose();
     qrDataAd?.destroy();
     qrDataAd = null;
-    validTimer?.cancel();
-    timeOutTimer?.cancel();
   }
 
 }

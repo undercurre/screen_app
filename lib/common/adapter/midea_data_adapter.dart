@@ -56,6 +56,11 @@ abstract class MideaDataAdapter {
     Log.i("调用 $runtimeType${key == null ? '' : ".$key"} 刷新次数: ${++_refreshCount}");
   }
 
+  /// 是否包含UI回调监听
+  bool isContainUpdateUIFunction() {
+    return _dataUpdateFunctionSet?.isNotEmpty ?? false;
+  }
+
   // 初始化Adapter
   void init() {
 

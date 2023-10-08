@@ -102,7 +102,6 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   @override
   void dispose() {
     adapter!.unBindDataUpdateFunction(updateData);
-    adapter!.destroy();
     super.dispose();
   }
 

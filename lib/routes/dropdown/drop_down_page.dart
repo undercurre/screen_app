@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
-import '../../common/logcat_helper.dart';
+import '../../common/global.dart';
 import '../../common/setting.dart';
 import '../../common/utils.dart';
 import '../../widgets/mz_vslider.dart';
@@ -34,8 +34,23 @@ class _DropDownPageState extends State<DropDownPage>
   int lastTimeSetBrightness = 0;
 
   initial() async {
+    aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
     aiMethodChannel.registerAiCallBack(_aiMusicStateCallback);
     await aiMethodChannel.musicInforGet();
+  }
+
+  void _aiSetVoiceCallback(int voice) {
+    logger.i("语音音量调整:$voice");
+    Setting.instant().volume = voice;
+    Setting.instant().showVolume = (voice / 15 * 100).toInt();
+    setState(() {
+      soundValue=voice;
+      if (soundValue > 7) {
+        soundLogo = "assets/imgs/dropDown/sound-black.png";
+      } else {
+        soundLogo = "assets/imgs/dropDown/sound-white.png";
+      }
+    });
   }
 
   void _aiMusicStateCallback(AiMusicState state) {
@@ -420,6 +435,7 @@ class _DropDownPageState extends State<DropDownPage>
     controller.dispose();
     super.dispose();
     aiMethodChannel.unregisterAiCallBack(_aiMusicStateCallback);
+    aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
   }
 
   @override

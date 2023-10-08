@@ -131,10 +131,9 @@ public class MainActivity extends FlutterActivity {
         new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(10000);
                     ControlManager.getInstance().initial();
                     ControlManager.getInstance().regestOber();
-                    Thread.sleep(2000);
                     ControlManager.getInstance().startFresh();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

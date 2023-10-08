@@ -82,7 +82,6 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   void dispose() {
     logger.i("解绑数据更新");
     adapter!.unBindDataUpdateFunction(update485FloorDetialData);
-    adapter!.destroy();
     super.dispose();
   }
 

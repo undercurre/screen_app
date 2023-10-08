@@ -90,15 +90,17 @@ public class FloorHotController implements Data485Observer {
          //保存拉取到的设备以及设备地址到列表
          for (int i = 0; i <num ; i++) {
             FloorHotModel FloorHot=new FloorHotModel();
-            FloorHot.setOutSideAddress(arrayData[4+(i*3)]);
-            FloorHot.setInSideAddress(arrayData[5+(i*3)]);
-            if(arrayData[6+(i*3)].equals(FLOOR_HOT_ON_LINE.data)){
-               FloorHot.setOnlineState(FLOOR_HOT_ON_LINE.data);
-            }else{
-               FloorHot.setOnlineState(FLOOR_HOT_OFF_LINE.data);
+            if(arrayData.length>(6+(i*3))){
+               FloorHot.setOutSideAddress(arrayData[4+(i*3)]);
+               FloorHot.setInSideAddress(arrayData[5+(i*3)]);
+               if(arrayData[6+(i*3)].equals(FLOOR_HOT_ON_LINE.data)){
+                  FloorHot.setOnlineState(FLOOR_HOT_ON_LINE.data);
+               }else{
+                  FloorHot.setOnlineState(FLOOR_HOT_OFF_LINE.data);
+               }
+               FindAddressList.add(FloorHot.getOutSideAddress()+FloorHot.getInSideAddress());
+               FindList.add(FloorHot);
             }
-            FindAddressList.add(FloorHot.getOutSideAddress()+FloorHot.getInSideAddress());
-            FindList.add(FloorHot);
          }
 
          //保存已经有的设备地址到列表
@@ -159,6 +161,7 @@ public class FloorHotController implements Data485Observer {
          }
          if(diffStatelsit.size()>0){
             GateWayUtils.updateOnlineState485(diffStatelsit);
+//            Log.e("sky","地暖在线状态上报:"+GsonUtils.stringify(diffStatelsit));
          }
          //将在线状态同步过来
          for (int i = 0; i <FindList.size() ; i++) {
@@ -180,7 +183,7 @@ public class FloorHotController implements Data485Observer {
                String querAddr=arrayData[4+(i*10)]+arrayData[5+(i*10)];
                String deviceAddr=TempFloorHotList.get(j).getOutSideAddress()+TempFloorHotList.get(j).getInSideAddress();
                if(querAddr.equals(deviceAddr)){
-                  if(arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
+                  if(arrayData.length>(12+(i*10))&&arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
                      TempFloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
                   }else{
                      TempFloorHotList.get(j).setOnOff(FLOOR_HOT_CLOSE.data);
@@ -204,8 +207,8 @@ public class FloorHotController implements Data485Observer {
                if(querAddr.equals(deviceAddr)){
                   String TempDeviceStr=new Gson().toJson(TempFloorHotList.get(i));
                   String DeviceStr=new Gson().toJson(FloorHotList.get(j));
-                  if(!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
-                     if(arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
+                  if(arrayData.length>(12+(i*10))&&!TempDeviceStr.equals(DeviceStr)){//json数据不相等说明数据有变化
+                     if(arrayData.length>(6+(i*10))&&arrayData[6+(i*10)].equals(FLOOR_HOT_OPEN.data)){
                         FloorHotList.get(j).setOnOff(FLOOR_HOT_OPEN.data);
                      }else{
                         FloorHotList.get(j).setOnOff(FLOOR_HOT_CLOSE.data);
@@ -268,6 +271,7 @@ public class FloorHotController implements Data485Observer {
       sb.append(device.getInSideAddress());
       sb.append(" ");
       sb.append(SumUtil.sum(sb.toString().toUpperCase()));
+      ControlManager.getInstance().clearFlashCommand();
       ControlManager.getInstance().write(sb.toString());
    }
 }

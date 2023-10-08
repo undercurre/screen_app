@@ -284,6 +284,14 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       );
       logger.i("Local地暖温度:${data?.targetTemp}");
       updateUI();
+    }else if(state.modelId=="zhonghong.heat.001"&&applianceCode==state.address){
+      data = Floor485Data(
+        name: name,
+        targetTemp: state.temper.toString(),
+        OnOff: state.onOff.toString(),
+      );
+      logger.i("Local地暖温度:${data?.targetTemp}");
+      updateUI();
     }
   }
 

@@ -74,8 +74,8 @@ mixin AiWakeUPScreenSaverState<T extends StatefulWidget> on State<T> {
 
     debugPrint("语音状态: state==1, 退出待机页");
 
-    navigatorKey.currentState?.pop();
-    Provider.of<StandbyChangeNotifier>(navigatorKey.currentContext ?? context, listen: false)
+    Navigator.of(context).pop();
+    Provider.of<StandbyChangeNotifier>(context, listen: false)
         .standbyPageActive = false;
 
     debugPrint("end of dropStandby");

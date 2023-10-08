@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../mz_slider.dart';
@@ -8,7 +9,7 @@ import '../../util/nameFormatter.dart';
 class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
   bool onOff = false;
-  final bool online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -52,7 +53,7 @@ class _Big485CACDeviceAirCardWidgetState
   void updateData() {
     if (mounted) {
       setState(() {
-        if(int.parse(widget.adapter!.data!.targetTemp)<35){
+        if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
           widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
           widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
         }
@@ -95,6 +96,10 @@ class _Big485CACDeviceAirCardWidgetState
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      TipsUtils.toast(content: '设备已离线,请检查设备');
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
       widget.onOff = false;
@@ -112,6 +117,9 @@ class _Big485CACDeviceAirCardWidgetState
     if (!widget.onOff) {
       return;
     }
+    if (!widget.online) {
+      return;
+    }
     widget.adapter?.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
@@ -120,7 +128,6 @@ class _Big485CACDeviceAirCardWidgetState
 
   @override
   Widget build(BuildContext context) {
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -150,6 +157,29 @@ class _Big485CACDeviceAirCardWidgetState
       return nameInModel;
     }
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        return '在线';
+      }
+    }
+
+    String getPowerIcon() {
+      if (widget.onOff && widget.online) {
+        return "assets/newUI/card_power_on.png";
+      } else if (!widget.online) {
+        return "assets/newUI/card_power_off.png";
+      } else if (!widget.onOff) {
+        return "assets/newUI/card_power_off.png";
+      } else {
+        return "assets/newUI/card_power_on.png";
+      }
+    }
+
     return Container(
       width: 440,
       height: 196,
@@ -162,11 +192,7 @@ class _Big485CACDeviceAirCardWidgetState
             child: GestureDetector(
               onTap: () => powerHandle(widget.onOff),
               child: Image(
-                  width: 40,
-                  height: 40,
-                  image: AssetImage(widget.onOff
-                      ? 'assets/newUI/card_power_on.png'
-                      : 'assets/newUI/card_power_off.png')),
+                  width: 40, height: 40, image: AssetImage(getPowerIcon())),
             ),
           ),
           Positioned(
@@ -174,8 +200,15 @@ class _Big485CACDeviceAirCardWidgetState
             right: 16,
             child: GestureDetector(
               onTap: () => {
-                Navigator.pushNamed(context, '0x21_485CAC',
-                    arguments: {"name": getDeviceName(), "adapter": widget.adapter})
+                if (widget.online)
+                  {
+                    Navigator.pushNamed(context, '0x21_485CAC', arguments: {
+                      "name": getDeviceName(),
+                      "adapter": widget.adapter
+                    })
+                  }
+                else
+                  {TipsUtils.toast(content: '设备已离线,请检查设备')}
               },
               child: const Image(
                   width: 32,
@@ -194,8 +227,7 @@ class _Big485CACDeviceAirCardWidgetState
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
-                    child: Text(
-                        NameFormatter.formatName(getDeviceName(), 5),
+                    child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -210,7 +242,7 @@ class _Big485CACDeviceAirCardWidgetState
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text( NameFormatter.formatName(getRoomName(), 4),
+                    child: Text(NameFormatter.formatName(getRoomName(), 4),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -225,7 +257,7 @@ class _Big485CACDeviceAirCardWidgetState
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(" | ${_getRightText()}",
+                    child: Text(" | ${getRightText()}",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -320,7 +352,7 @@ class _Big485CACDeviceAirCardWidgetState
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !widget.onOff,
+              disabled: !widget.onOff || !widget.online,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
@@ -337,16 +369,6 @@ class _Big485CACDeviceAirCardWidgetState
         : widget.temperature > widget.max
             ? widget.max
             : widget.temperature;
-  }
-
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-    return '在线';
   }
 
   BoxDecoration _getBoxDecoration() {

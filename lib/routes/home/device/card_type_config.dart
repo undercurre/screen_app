@@ -1477,7 +1477,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline,
+          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           adapter: CACDataAdapter(
@@ -1547,7 +1547,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline,
+          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           adapter: AirDataAdapter(
@@ -1614,7 +1614,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline,
+          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           adapter: FloorDataAdapter(

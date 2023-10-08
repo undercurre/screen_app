@@ -272,8 +272,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
     }
 
     devicesTemp.removeWhere((i) => deleteDevices.contains(i));
+    List<DeviceEntity> devicesLocalLight = [];
     List<DeviceEntity> devicesLightGroup = [];
     List<DeviceEntity> devicesPanel = [];
+    for (DeviceEntity device in devicesTemp) {
+      if (device.applianceCode=="localPanel1"||device.applianceCode=="localPanel2") {
+        devicesLocalLight.add(device);
+      }
+    }
     for (DeviceEntity device in devicesTemp) {
       if (isLightGroup(device.type, device.modelNumber)) {
         devicesLightGroup.add(device);
@@ -285,8 +291,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     devices.clear();
+    devicesTemp.removeWhere((i) => devicesLocalLight.contains(i));
     devicesTemp.removeWhere((i) => devicesLightGroup.contains(i));
     devicesTemp.removeWhere((i) => devicesPanel.contains(i));
+    devicesPanel.removeWhere((i) => devicesLocalLight.contains(i));
+
+    devices.addAll(devicesLocalLight);
     devices.addAll(devicesLightGroup);
     devices.addAll(devicesPanel);
     devices.addAll(devicesTemp);

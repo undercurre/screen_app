@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../util/nameFormatter.dart';
@@ -12,7 +13,7 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   bool onOff;
-  final bool online;
+  bool online;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -21,7 +22,6 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
   final Function? onMoreTap; // 右边的三点图标的点击事件
   AirDataAdapter? adapter; // 数据适配器
   int windSpeed = 4; // 风速值
-
 
   Middle485AirDeviceCardWidget({
     super.key,
@@ -46,8 +46,8 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
       _Middle485AirDeviceCardWidgetState();
 }
 
-class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWidget> {
-
+class _Middle485AirDeviceCardWidgetState
+    extends State<Middle485AirDeviceCardWidget> {
   @override
   void initState() {
     super.initState();
@@ -67,16 +67,14 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
     widget.adapter?.destroy();
   }
 
-
-
   @override
   void didUpdateWidget(covariant Middle485AirDeviceCardWidget oldWidget) {
     oldWidget.adapter?.destroy();
     widget.adapter!.bindDataUpdateFunction(updateData);
     widget.adapter!.init();
     setState(() {
-      widget.windSpeed=oldWidget.windSpeed;
-      widget.onOff=oldWidget.onOff;
+      widget.windSpeed = oldWidget.windSpeed;
+      widget.onOff = oldWidget.onOff;
     });
   }
 
@@ -84,21 +82,25 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
     if (mounted) {
       setState(() {
         widget.adapter?.data = widget.adapter!.data!;
-        widget.onOff =widget.adapter!.data!.OnOff == '1'?true:false;
-        widget.windSpeed =int.parse(widget.adapter!.data!.windSpeed);
+        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+        widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
       });
     }
   }
 
   void powerHandle(bool state) async {
+    if (!widget.online) {
+      TipsUtils.toast(content: '设备已离线,请检查设备');
+      return;
+    }
     if (widget.onOff == true) {
       widget.adapter!.data!.OnOff = "0";
-      widget.onOff=false;
+      widget.onOff = false;
       setState(() {});
       widget.adapter?.orderPower(0);
     } else {
       widget.adapter!.data!.OnOff = "1";
-      widget.onOff=true;
+      widget.onOff = true;
       setState(() {});
       widget.adapter?.orderPower(1);
     }
@@ -110,7 +112,6 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
 
   @override
   Widget build(BuildContext context) {
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context);
 
     String getDeviceName() {
@@ -140,11 +141,29 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
       return nameInModel;
     }
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(
+          deviceId: widget.adapter?.applianceCode)) {
+        widget.online = false;
+        return '离线';
+      } else {
+        widget.online = true;
+        int windSpeed = 1;
+        if (widget.windSpeed == 1) {
+          windSpeed = 3;
+        } else if (widget.windSpeed == 2) {
+          windSpeed = 2;
+        } else if (widget.windSpeed == 4) {
+          windSpeed = 1;
+        } else {
+          windSpeed = 3;
+        }
+        return "$windSpeed档";
+      }
+    }
 
     return GestureDetector(
-      onTap: () => {
-        powerHandle(widget.onOff)
-      },
+      onTap: () => {powerHandle(widget.onOff)},
       child: Container(
         width: 210,
         height: 196,
@@ -156,10 +175,15 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
               right: 16,
               child: GestureDetector(
                 onTap: () => {
-                  Navigator.pushNamed(context, '0x21_485Air', arguments: {
-                    "name": getDeviceName(),
-                    "adapter": widget.adapter
-                  })
+                  if (widget.online)
+                    {
+                      Navigator.pushNamed(context, '0x21_485Air', arguments: {
+                        "name": getDeviceName(),
+                        "adapter": widget.adapter
+                      })
+                    }
+                  else
+                    {TipsUtils.toast(content: '设备已离线,请检查设备')}
                 },
                 child: const Image(
                     width: 32,
@@ -242,7 +266,7 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 90),
                     child: Text(
-                      _getRightText() != "" ? " | ${_getRightText()}" : "",
+                      " | ${getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -261,27 +285,6 @@ class _Middle485AirDeviceCardWidgetState extends State<Middle485AirDeviceCardWid
         ),
       ),
     );
-  }
-
-  String _getRightText() {
-    if (widget.isFault) {
-      return '故障';
-    }
-    if (!widget.online) {
-      return '离线';
-    }
-    int windSpeed = 1;
-    if (widget.windSpeed == 1) {
-      windSpeed = 3;
-    } else if (widget.windSpeed == 2) {
-      windSpeed = 2;
-    } else if (widget.windSpeed == 4) {
-      windSpeed = 1;
-    } else {
-      windSpeed = 3;
-    }
-    return "$windSpeed档";
-
   }
 
   BoxDecoration _getBoxDecoration() {
