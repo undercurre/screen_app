@@ -229,8 +229,7 @@ class HomluxLanControlDeviceManager {
       if ('/local/subDeviceStatus' == topic) {
         var houseId = data['houseId'] as String;
         if(houseId == curHouseId) {
-          var deviceStatusInfoList =
-          data['deviceStatusInfoList'] as List<dynamic>;
+          var deviceStatusInfoList = data['deviceStatusInfoList'] as List<dynamic>;
           bool needQueryDeviceList = false;
           for (var rStatu in deviceStatusInfoList) {
             var devId = rStatu['devId'] as String;
@@ -584,7 +583,6 @@ class HomluxLanControlDeviceManager {
       };
       lanDeviceControlChannel.mqttCallback = (topic, msg) {
         if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
-          Log.file('[homeos] message $msg');
           _handleMqttMsg(topic, msg);
         }
       };

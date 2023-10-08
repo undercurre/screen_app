@@ -88,9 +88,12 @@ object ConnectStateHandler {
     }
 
     fun stop(context: Context) {
-        if(register) {
-            context.unregisterReceiver(mScanWiFiReceiver)
-            register = false
+        try {
+            if (register) {
+                context.unregisterReceiver(mScanWiFiReceiver)
+                register = false
+            }
+        } catch (e: Exception) {
         }
     }
 

@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/states/global_route_observer_notifier.dart';
@@ -35,6 +36,11 @@ void main() async {
     netMethodChannel.checkNetState();
     /// 初始化设置配置
     Setting.instant().init();
+    assert((() {
+      bus.clearAllListener();
+      HomluxLanControlDeviceManager.getInstant().logout();
+      return true;
+    })());
     /// 增加全局异常捕获机制
     CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
     CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);

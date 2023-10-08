@@ -24,7 +24,7 @@ class PushDataAdapter extends MideaDataAdapter {
     if (platform.inMeiju()) {
       MeiJuPushManager.startConnect();
     } else if (platform.inHomlux()) {
-      HomluxPushManager.startConnect();
+      HomluxPushManager.init();
     } else {
       Log.file('程序执行异常');
     }
@@ -32,7 +32,7 @@ class PushDataAdapter extends MideaDataAdapter {
 
   void stopConnect() {
     MeiJuPushManager.stopConnect();
-    HomluxPushManager.stopConnect();
+    HomluxPushManager.destroy();
   }
 
 

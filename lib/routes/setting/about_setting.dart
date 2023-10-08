@@ -83,8 +83,11 @@ class AboutSettingProvider with ChangeNotifier {
   }
 
   void checkUpgrade() {
-    TipsUtils.toast(
-        content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
+    if(NetUtils.getNetState() == null) {
+      TipsUtils.toast(content: '请连接网络', position: EasyLoadingToastPosition.bottom);
+      return;
+    }
+    TipsUtils.toast(content: '正在检查更新', position: EasyLoadingToastPosition.bottom);
     if (otaChannel.isDownloading) {
       TipsUtils.toast(
           content: "已经在下载中...", position: EasyLoadingToastPosition.bottom);

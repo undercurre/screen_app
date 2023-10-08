@@ -21,7 +21,24 @@ import '../../logcat_helper.dart';
 import '../../system.dart';
 import '../api/meiju_api.dart';
 
-
+/// 获取WebSocket连接的地址
+Future<String> getWebSocketAddress() async {
+  String host = 'wss://${dotenv.get('SSE_URL')}';
+  String query = '/v1/ws/access?';
+  query += 'src_token=1000&';
+  query += 'req=${const Uuid().v4()}&';
+  query += 'token=${MeiJuGlobal.token?.accessToken}&';
+  query += 'appid=${dotenv.get('IOT_APP_COUNT')}&';
+  query += 'client_type=4&';
+  query += 'reset=1&';
+  query += 'offset=0&';
+  query += 'version=${await aboutSystemChannel.getSystemVersion()}&';
+  query += 'timestamp=${DateTime.now().millisecondsSinceEpoch}&';
+  query += 'device_id=${System.deviceId}&';
+  Digest sign = md5.convert(utf8.encode('$query${dotenv.get('SSE_SECRET')}'));
+  query += 'sign=$sign';
+  return host + query;
+}
 
 /// 用户主动操作设备的消息延长推送时间
 const int initiativeDelayPush = 20 * 1000;
@@ -92,7 +109,7 @@ class MeiJuPushManager {
   }
 
   static void _operateDevice(String deviceId) {
-    Log.file('操作设备 设备id$deviceId');
+    Log.file('[ WebSocket ] 操作设备 设备id$deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
       pair.value1 = DateTime.now().millisecondsSinceEpoch + initiativeDelayPush;
@@ -104,7 +121,7 @@ class MeiJuPushManager {
 
   static void _netConnectState(NetState? state) {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
-      Log.file('meiju ws 检测到已连接网络');
+      Log.file('[ WebSocket ] 检测到已连接网络');
       if(_isConnect == 0) {
         retryCount = 0;
         _startConnect('检测到网络已连接');
@@ -125,7 +142,7 @@ class MeiJuPushManager {
 
   static void _stopConnect(String reason) {
     if(_isConnect == 2) {
-      Log.file('meiju ws 关闭连接，原因：$reason');
+      Log.file('[ WebSocket ] 关闭连接，原因：$reason');
       _isConnect = 0;
       _sendHearTimerInterval = null;
 
@@ -147,12 +164,12 @@ class MeiJuPushManager {
     await Future.delayed(const Duration(seconds: 2));
 
     if(retryCount >= _maxRetryCount) {
-      Log.file('meiju ws 超过最大连接次数');
+      Log.file('[ WebSocket ]超过最大连接次数');
       return;
     }
 
     if (MeiJuGlobal.isLogin && _isConnect == 0) {
-      Log.file('meiju ws 即将建立连接, 原因$reason 尝试次数$retryCount');
+      Log.file('[ WebSocket ] 即将建立连接, 原因$reason 尝试次数$retryCount');
       retryCount++;
       _isConnect = 1;
 
@@ -161,31 +178,23 @@ class MeiJuPushManager {
       _globalTimer = null;
       operatePushRecord.clear();
       _channel?.sink.close();
-      _aliPushUnBind();
       bus.off('operateDevice');
 
-      _aliPushBind();
-      _updatePushToken();
-
-      String host = 'wss://${dotenv.get('SSE_URL')}';
-      String query = '/v1/ws/access?';
-      query += 'src_token=1000&';
-      query += 'req=${const Uuid().v4()}&';
-      query += 'token=${MeiJuGlobal.token?.accessToken}&';
-      query += 'appid=${dotenv.get('IOT_APP_COUNT')}&';
-      query += 'client_type=4&';
-      query += 'reset=1&';
-      query += 'offset=0&';
-      query += 'version=${await aboutSystemChannel.getSystemVersion()}&';
-      query += 'timestamp=${DateTime.now().millisecondsSinceEpoch}&';
-      query += 'device_id=${System.deviceId}&';
-      Digest sign = md5.convert(utf8.encode('$query${dotenv.get('SSE_SECRET')}'));
-      query += 'sign=$sign';
-
-      _channel = IOWebSocketChannel.connect(host + query,pingInterval:const Duration(seconds: 10),connectTimeout:const Duration(seconds: 8));
-      _channel?.stream.listen(_onData,onError:_onError,onDone: _onDone);
-
-      _isConnect = 2;
+      try {
+        _aliPushBind();
+        _updatePushToken();
+        _channel = IOWebSocketChannel.connect(await getWebSocketAddress(),
+            pingInterval: const Duration(seconds: 10),
+            connectTimeout: const Duration(seconds: 8));
+        _channel?.stream.listen(_onData, onError: _onError, onDone: _onDone);
+        _isConnect = 2;
+        bus.on('operateDevice', _operateDevice);
+      } catch (e) {
+        Log.e("[ WebSocket ] 捕捉异常", e);
+        _isConnect = 0;
+        _startConnect("捕捉到异常，准备重新连接");
+        return;
+      }
 
       var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
       _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
@@ -216,8 +225,6 @@ class MeiJuPushManager {
           timer.cancel();
         }
       });
-
-      bus.on('operateDevice', _operateDevice);
     }
   }
 
@@ -228,23 +235,23 @@ class MeiJuPushManager {
     map['event_type'] = 5;
     map['sign'] = null;
     map['data'] = null;
-    Log.i('send beat heart ${convert.jsonEncode(map)}');
+    Log.i('[ WebSocket ] send beat heart ${convert.jsonEncode(map)}');
     _channel?.sink.add(convert.jsonEncode(map));
   }
 
   static void _onData(event) {
     retryCount = 0;
     Map<String,dynamic> eventMap = json.decode(event);
-    Log.i('meiju ws 接收到的Push消息: $eventMap');
+    Log.i('[ WebSocket ] 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
-        Log.file('meiju see recv beat heart');
+        Log.file('[ WebSocket ] recv beat heart');
         break;
       case 1:
         String data = eventMap['data'];
         Map<String,dynamic> dataMap = json.decode(data);
         _sendHearTimerInterval = dataMap['heatbeat_interval'];
-        Log.i('meiju ws 接收到心跳发送间隔时间: $_sendHearTimerInterval');
+        Log.i('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
         break;
       case 2:
         String data = eventMap['data'];
@@ -381,7 +388,7 @@ class MeiJuPushManager {
   }
   // ALI 推送通知
   static notifyPushMessage(String title) {
-    Log.file('meiju ws  ali推送 $title');
+    Log.file('[ WebSocket ] 啊里推送 $title');
     if(title == '添加设备') {
       bus.typeEmit(MeiJuDeviceAddEvent());
     } else if(title == '删除设备') {
@@ -392,7 +399,7 @@ class MeiJuPushManager {
   }
 
   static void _onError(err) {
-    Log.file('meiju ws hjl $err');
+    Log.file('[ WebSocket ] onError $err');
   }
 
   static void _onDone() {
@@ -421,7 +428,7 @@ class MeiJuPushManager {
   }
 
   static _aliPushBind() async {
-    await MeiJuApi.requestMideaIot(
+    MeiJuApi.requestMideaIot(
         "/push/bind",
         data: {
           'alias': MeiJuGlobal.token?.uid,
@@ -436,11 +443,15 @@ class MeiJuPushManager {
         options: Options(
             method: 'POST',
             headers: {'Authorization' : "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}"}
-        ));
+        )).then((value) {
+          Log.file("[ WebSocket ] 绑定阿里推送成功");
+        }, onError: (e) {
+          Log.file("[ WebSocket ] 绑定阿里推送失败");
+        });
   }
 
   static _aliPushUnBind() async {
-    await MeiJuApi.requestMideaIot(
+    MeiJuApi.requestMideaIot(
         "/push/bind",
         data: {
           'alias': MeiJuGlobal.token?.uid,
@@ -455,7 +466,11 @@ class MeiJuPushManager {
         options: Options(
             method: 'POST',
             headers: {'Authorization': "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}" }
-        ));
+        )).then((value) {
+          Log.file("[ WebSocket ] 解绑阿里推送成功");
+        }, onError: (e) {
+          Log.file("[ WebSocket ] 解绑阿里推送失败");
+        });
   }
 
   static _updatePushToken() async {

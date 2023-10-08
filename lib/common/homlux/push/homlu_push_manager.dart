@@ -16,9 +16,6 @@ import '../../meiju/push/meiju_push_manager.dart';
 import '../../system.dart';
 import 'event/homlux_push_event.dart';
 
-const _connectTimeout = 5;
-const _pingInterval = 30000;
-
 // //设备属性变化
 const TypeConnectSuc = 'connect_success_status';
 const TypeDeviceProperty = 'device_property';
@@ -51,10 +48,14 @@ const TypeDeviceDel = 'device_del';
 // 2.定义消息数据解析Bean
 // 3.发送消息
 
+/// 连接超时
+const _connectTimeout = 5;
+/// 心跳发送间隔
+const _pingInterval = 30000;
 /// 用户主动操作设备的消息延长推送时间
 const int initiativeDelayPush = 20 * 1000;
 /// 被动操作设备的消息延长推送时间
-const int passivityDelayPush = 3 * 1000;
+const int passivityDelayPush = 1 * 1000;
 /// 最大连续重连次数
 const int _maxRetryCount = 20;
 
@@ -163,6 +164,49 @@ class HomluxPushManager {
     _stopConnect('切换平台断开连接');
   }
 
+  static void init() {
+    /// 消息处理全局定时器
+    _globalTimer?.cancel();
+    _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        if (HomluxGlobal.isLogin) {
+          /// 发送订阅任务
+          var currTimer = DateTime.now();
+
+          try {
+            if (_isConnect == 2) {
+              // 检测心跳、发送心跳
+              if (currTimer.millisecondsSinceEpoch - heartSendLastTime >=
+                  _pingInterval) {
+                webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
+                heartSendLastTime = currTimer.millisecondsSinceEpoch;
+              }
+            }
+          } catch (e) {
+            Log.e("[WebSocket] 发送心跳失败",e );
+          }
+
+          /// 执行延迟消息推送队列任务
+          operatePushRecord.removeWhere((key, element) {
+            int exeTime = element.value1;
+            if (currTimer.millisecondsSinceEpoch >= exeTime) {
+              element.value2?.call();
+              recyclePair(element);
+            }
+            return currTimer.millisecondsSinceEpoch >= exeTime;
+          });
+
+        } else {
+          _stopConnect('检测到退出登录，即将断开推送连接');
+        }
+    });
+    startConnect();
+  }
+
+  static void destroy() {
+    _globalTimer?.cancel();
+    stopConnect();
+  }
+
   static Future _stopConnect(String reason) async {
     if(_isConnect > 0) {
       Log.file('[WebSocket]homlux ws 关闭连接, 关闭原因：$reason');
@@ -176,7 +220,6 @@ class HomluxPushManager {
       bus.off('operateDevice');
     }
   }
-
 
   static _startConnect([int retrySeconds = 2]) async {
 
@@ -202,7 +245,6 @@ class HomluxPushManager {
       }
     }
 
-    try {
       Log.file('[WebSocket]homlux ws 建立连接中 尝试次数$retryCount');
       // 1. 关闭旧连接, 定时器
       retryCount++;
@@ -223,23 +265,29 @@ class HomluxPushManager {
       }
 
       // 2.建立新连接
-      bus.off('operateDevice');
-      webSocket = await WebSocket.connect(
-          dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
-          headers: {
-            'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
-          });
+      try {
+        bus.off('operateDevice');
+        webSocket = await WebSocket.connect(
+            dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
+            headers: {
+              'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
+            });
+        webSocket?.pingInterval = const Duration(seconds: _pingInterval);
+        webSocket?.timeout(const Duration(seconds: _connectTimeout));
 
-      webSocket?.pingInterval = const Duration(seconds: _pingInterval);
-      webSocket?.timeout(const Duration(seconds: _connectTimeout));
-
-      // 3.设置消息监听
-      webSocket?.listen((event) => _message(event, reconnectFunction),
-          onError: (err) => _error(err, reconnectFunction),
-          onDone: () => _done(reconnectFunction),
-          cancelOnError: false);
-
-      _isConnect = 2;
+        // 3.设置消息监听
+        webSocket?.listen((event) => _message(event, reconnectFunction),
+            onError: (err) => _error(err, reconnectFunction),
+            onDone: () => _done(reconnectFunction),
+            cancelOnError: false);
+        _isConnect = 2;
+        bus.on('operateDevice', _operateDevice);
+      } catch (e) {
+        Log.file('[WebSocket] 执行异常，尝试重连 $e');
+        _isConnect = 0;
+        reconnectFunction();
+        return;
+      }
 
       _globalTimer?.cancel();
       _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
@@ -269,12 +317,6 @@ class HomluxPushManager {
           timer.cancel();
         }
       });
-
-      bus.on('operateDevice', _operateDevice);
-    } catch(e) {
-      Log.file('执行异常，尝试重连 $e');
-      reconnectFunction();
-    }
 
   }
 

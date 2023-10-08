@@ -168,6 +168,10 @@ class NetMethodChannel extends AbstractChannel {
 
   Future<bool> enableWiFi(bool enable) async {
     bool result =  await methodChannel.invokeMethod('enableWiFi', {'enable': enable});
+    if(result && enable == false) {
+      _currentNetState.wifiState = 0;
+      _currentNetState.wiFiScanResult = null;
+    }
     return result;
   }
 

@@ -34,6 +34,12 @@ class FileOutput extends LogOutput {
   void output(OutputEvent event) {
     if(randomAccessFile == null) return;
 
+    /// 因开发者有可能会在外部调用 `> MideaLog.txt` 指令清空文件内容
+    /// 方便使用 tail -f MideaLog.txt 查看日志
+    if(randomAccessFile!.lengthSync() == 0) {
+      randomAccessFile!.setPositionSync(0);
+    }
+
     for (var element in event.lines) {
       randomAccessFile!.writeStringSync('$element\n');
       count++;
