@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
 
 import '../generated/json/base/homlux_json_convert_content.dart';
@@ -527,6 +529,20 @@ HomluxDeviceMzgdPropertyDTOList4 $HomluxDeviceMzgdPropertyDTOList4FromJson(Map<S
 	return homluxDeviceMzgdPropertyDTOList4;
 }
 
+HomluxColorTempRange $HomluxColorTempRangeFromJson(Map<String, dynamic> json) {
+	HomluxColorTempRange range = HomluxColorTempRange();
+	range.maxColorTemp = homluxJsonConvert.convert<int>(json["maxColorTemp"]);
+	range.minColorTemp = homluxJsonConvert.convert<int>(json["minColorTemp"]);
+	return range;
+}
+
+Map<String, dynamic> $HomluxColorTempRangeToJson(HomluxColorTempRange range) {
+	return {
+		"maxColorTemp": range.maxColorTemp,
+		"minColorTemp": range.minColorTemp,
+	};
+}
+
 Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPropertyDTOList4 entity) {
 	final Map<String, dynamic> data = <String, dynamic>{};
 	data['buttonScene'] = entity.buttonScene;
@@ -549,6 +565,11 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPro
 
 HomluxDeviceMzgdPropertyDTOListLight $HomluxDeviceMzgdPropertyDTOListLightFromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOListLight homluxDeviceMzgdPropertyDTOListLight = HomluxDeviceMzgdPropertyDTOListLight();
+
+	final HomluxColorTempRange? colorTempRange = homluxJsonConvert.convert<HomluxColorTempRange>(json['colorTempRange']);
+	if (colorTempRange != null) {
+		homluxDeviceMzgdPropertyDTOListLight.colorTempRange = colorTempRange;
+	}
 	final int? buttonScene = homluxJsonConvert.convert<int>(json['buttonScene']);
 	if (buttonScene != null) {
 		homluxDeviceMzgdPropertyDTOListLight.buttonScene = buttonScene;
@@ -626,6 +647,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListLightToJson(HomluxDeviceMzg
 	data['curtain_position'] = entity.curtainPosition;
 	data['curtain_status'] = entity.curtainStatus;
 	data['curtain_direction'] = entity.curtainDirection;
+	data['colorTempRange'] = entity.colorTempRange?.toJson();
 	data['power'] = entity.wifiLightPower;
 	data['delay_light_off'] = entity.wifiLightDelayOff;
 	data['scene_light'] = entity.wifiLightScene;

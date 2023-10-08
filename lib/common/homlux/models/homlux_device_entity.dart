@@ -1,3 +1,6 @@
+import 'dart:core';
+import 'dart:core';
+
 import 'package:screen_app/generated/json/base/json_field.dart';
 import 'package:screen_app/common/homlux/models/homlux_device_entity.g.dart';
 import 'dart:convert';
@@ -268,6 +271,23 @@ class HomluxDeviceMzgdPropertyDTOList4 {
 	}
 }
 
+class HomluxColorTempRange {
+
+	int? maxColorTemp;
+	int? minColorTemp;
+	HomluxColorTempRange();
+
+	factory HomluxColorTempRange.fromJson(Map<String, dynamic> json) => $HomluxColorTempRangeFromJson(json);
+
+	Map<String, dynamic> toJson() => $HomluxColorTempRangeToJson(this);
+
+	@override
+	String toString() {
+		return jsonEncode(toJson());
+	}
+
+}
+
 @JsonSerializable()
 class HomluxDeviceMzgdPropertyDTOListLight {
 	@JSONField(name: "buttonScene")
@@ -300,6 +320,8 @@ class HomluxDeviceMzgdPropertyDTOListLight {
 	String? wifiLightDelayOff;
 	@JSONField(name: "scene_light")
 	String? wifiLightScene;
+	@JSONField(name: "colorTempRange")
+	HomluxColorTempRange? colorTempRange;
 
 	HomluxDeviceMzgdPropertyDTOListLight();
 

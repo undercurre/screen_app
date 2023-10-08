@@ -61,10 +61,14 @@ class HomluxJsonConvert {
     (HomluxDeviceConditions).toString(): HomluxDeviceConditions.fromJson,
     (HomluxEffectiveTime).toString(): HomluxEffectiveTime.fromJson,
     (HomluxUserConfigInfo).toString(): HomluxUserConfigInfo.fromJson,
+    (HomluxColorTempRange).toString(): HomluxColorTempRange.fromJson,
 
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxColorTempRange>[] is M) {
+      return data.map<HomluxColorTempRange>((e) => HomluxColorTempRange.fromJson(e)).toList() as M;
+    }
     if(<HomluxPanelAssociateSceneEntity>[] is M) {
       return data.map<HomluxPanelAssociateSceneEntity>((e) => HomluxPanelAssociateSceneEntity.fromJson(e)).toList() as M;
     }
@@ -224,8 +228,7 @@ class HomluxJsonConvert {
   }
 
   /// 禁止修改
-  T? _asT<T extends Object?>(dynamic value,
-      {EnumConvertFunction? enumConvert}) {
+  T? _asT<T extends Object?>(dynamic value, {EnumConvertFunction? enumConvert}) {
     final String type = T.toString();
     final String valueS = value.toString();
     if (enumConvert != null) {
