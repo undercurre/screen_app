@@ -166,7 +166,9 @@ class DeviceInfoListModel extends ChangeNotifier {
             HomluxGlobal.getHomlux485DeviceList;
 
         ///homlux添加本地485空调设备
-        for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
+        for (int i = 0;
+            i < deviceList!.nameValuePairs!.airConditionList!.length;
+            i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "空调${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
@@ -184,7 +186,9 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
 
         ///homlux添加本地485新风设备
-        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
+        for (int i = 0;
+            i < deviceList!.nameValuePairs!.freshAirList!.length;
+            i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "新风${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
@@ -202,7 +206,9 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
 
         ///homlux添加本地485地暖设备
-        for (int i = 0; i < deviceList!.nameValuePairs!.floorHotList!.length; i++) {
+        for (int i = 0;
+            i < deviceList!.nameValuePairs!.floorHotList!.length;
+            i++) {
           HomluxDeviceEntity device = HomluxDeviceEntity();
           device.deviceName =
               "地暖${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
@@ -218,7 +224,6 @@ class DeviceInfoListModel extends ChangeNotifier {
           device.onLineStatus = int.parse(online!);
           deviceListHomlux.add(device);
         }
-
 
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -245,13 +250,18 @@ class DeviceInfoListModel extends ChangeNotifier {
     return [];
   }
 
-  String getDeviceName({String? deviceId, int maxLength = 4, int startLength = 1, int endLength = 2}) {
+  String getDeviceName(
+      {String? deviceId,
+      int maxLength = 4,
+      int startLength = 1,
+      int endLength = 2}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
-        return NameFormatter.formLimitString(curOne[0].name, maxLength, startLength, endLength);
+        return NameFormatter.formLimitString(
+            curOne[0].name, maxLength, startLength, endLength);
       } else {
         return '未知设备';
       }
@@ -260,13 +270,18 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
   }
 
-  String getDeviceRoomName({String? deviceId, int maxLength = 4, int startLength = 1, int endLength = 2}) {
+  String getDeviceRoomName(
+      {String? deviceId,
+      int maxLength = 4,
+      int startLength = 1,
+      int endLength = 2}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
-        return NameFormatter.formLimitString(curOne[0].roomName!, maxLength, startLength, endLength);
+        return NameFormatter.formLimitString(
+            curOne[0].roomName!, maxLength, startLength, endLength);
       } else {
         return '未知区域';
       }
@@ -337,7 +352,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           // 直接占位
           List<int> fillCells = screenLayer.checkAvailability(curCardType);
           if (fillCells.isEmpty) {
-            curDevice.pageIndex = 1;
+            curDevice.pageIndex = 0;
             screenLayer.resetGrid();
             curDevice.grids = screenLayer.checkAvailability(curCardType);
           } else {
@@ -382,6 +397,36 @@ class DeviceInfoListModel extends ChangeNotifier {
         }
         Log.i('生成布局${curDevice.pageIndex}', curDevice.grids);
         transformList.add(curDevice);
+      }
+    }
+
+    // 最后一页填充空缺
+    int lastPageIndex = getMaxPageIndex(transformList);
+    List<Layout> lastPageLayouts = transformList
+        .where((element) => element.pageIndex == lastPageIndex)
+        .toList();
+    screenLayer.resetGrid();
+    for (int layoutInCurPageIndex = 0;
+        layoutInCurPageIndex < lastPageLayouts.length;
+        layoutInCurPageIndex++) {
+      // 取出当前布局的grids
+      for (int gridsIndex = 0;
+          gridsIndex < lastPageLayouts[layoutInCurPageIndex].grids.length;
+          gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = lastPageLayouts[layoutInCurPageIndex].grids[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
+      }
+    }
+
+    List<Layout> lastPageLayoutsAfterFilled =
+        Layout.filledLayout(lastPageLayouts);
+    Log.i('生成的最后一页', lastPageLayoutsAfterFilled);
+    for (int o = 0; o < lastPageLayoutsAfterFilled.length; o++) {
+      if (lastPageLayoutsAfterFilled[o].cardType == CardType.Null) {
+        transformList.add(lastPageLayoutsAfterFilled[o]);
       }
     }
 

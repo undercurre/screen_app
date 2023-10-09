@@ -100,6 +100,36 @@ class LayoutModel extends ChangeNotifier {
                 masterId: '',
                 modelNumber: '',
                 onlineStatus: '1')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.DeviceNull,
+            CardType.Null,
+            0,
+            [13, 14],
+            DataInputCard(
+                name: '',
+                applianceCode: '',
+                roomName: '',
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.DeviceNull,
+            CardType.Null,
+            0,
+            [15, 16],
+            DataInputCard(
+                name: '',
+                applianceCode: '',
+                roomName: '',
+                isOnline: '',
+                type: '',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: ''))
       ]);
       _saveLayouts();
     }
@@ -338,7 +368,8 @@ class LayoutModel extends ChangeNotifier {
       for (int layoutInCurPageIndex = 0;
           layoutInCurPageIndex < curLayouts.length;
           layoutInCurPageIndex++) {
-        if (curLayouts[layoutInCurPageIndex].deviceId != layout.deviceId && curLayouts[layoutInCurPageIndex].cardType != CardType.Null) {
+        if (curLayouts[layoutInCurPageIndex].deviceId != layout.deviceId &&
+            curLayouts[layoutInCurPageIndex].cardType != CardType.Null) {
           // 取出当前布局的grids
           for (int gridsIndex = 0;
               gridsIndex < curLayouts[layoutInCurPageIndex].grids.length;
@@ -358,7 +389,8 @@ class LayoutModel extends ChangeNotifier {
       // 新占位成功
       layout.grids = fillCells;
       // 回补空缺
-      List<Layout> curPageLayoutsAfterUpt = getLayoutsByPageIndex(layout.pageIndex);
+      List<Layout> curPageLayoutsAfterUpt =
+          getLayoutsByPageIndex(layout.pageIndex);
       Log.i('更新后的占位', curPageLayoutsAfterUpt.map((e) => e.grids));
       List<Layout> curPageLayouts = Layout.flexLayout(curPageLayoutsAfterUpt);
       curLayouts.forEach((element) async {
@@ -396,7 +428,8 @@ class LayoutModel extends ChangeNotifier {
         for (int layoutInMaxPageIndex = 0;
             layoutInMaxPageIndex < maxLayouts.length;
             layoutInMaxPageIndex++) {
-          if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId && maxLayouts[layoutInMaxPageIndex].cardType != CardType.Null) {
+          if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId &&
+              maxLayouts[layoutInMaxPageIndex].cardType != CardType.Null) {
             // 取出当前布局的grids
             for (int gridsIndexInMaxPage = 0;
                 gridsIndexInMaxPage <
@@ -416,7 +449,10 @@ class LayoutModel extends ChangeNotifier {
       if (fillCellsInMaxPage.isNotEmpty) {
         // 新占位成功
         // 回补空缺
-        List<Layout> curLayoutsAfterDel = getLayoutsByPageIndex(layout.pageIndex).where((element) => element.deviceId != layout.deviceId).toList();
+        List<Layout> curLayoutsAfterDel =
+            getLayoutsByPageIndex(layout.pageIndex)
+                .where((element) => element.deviceId != layout.deviceId)
+                .toList();
         List<Layout> backFilled = Layout.flexLayout(curLayoutsAfterDel);
         curLayoutsAfterDel.forEach((element) async {
           if (element.cardType == CardType.Null) {
@@ -444,7 +480,8 @@ class LayoutModel extends ChangeNotifier {
         }
         layout.pageIndex = maxPage;
         layout.grids = fillCellsInMaxPage;
-        List<Layout> maxPageLayoutAfterAdd = getLayoutsByPageIndex(layout.pageIndex);
+        List<Layout> maxPageLayoutAfterAdd =
+            getLayoutsByPageIndex(layout.pageIndex);
         List<Layout> backAdded = Layout.flexLayout(maxPageLayoutAfterAdd);
         maxPageLayoutAfterAdd.forEach((element) async {
           if (element.cardType == CardType.Null) {
@@ -475,7 +512,8 @@ class LayoutModel extends ChangeNotifier {
         screenLayer.resetGrid();
         await deleteLayout(layout.deviceId);
         // 回补空缺
-        List<Layout> curLayoutsAfterDel = getLayoutsByPageIndex(layout.pageIndex);
+        List<Layout> curLayoutsAfterDel =
+            getLayoutsByPageIndex(layout.pageIndex);
         List<Layout> backFilled = Layout.flexLayout(curLayoutsAfterDel);
         curLayoutsAfterDel.forEach((element) async {
           if (element.cardType == CardType.Null) {
@@ -484,21 +522,25 @@ class LayoutModel extends ChangeNotifier {
         });
         for (int k = 0; k < backFilled.length; k++) {
           if (backFilled[k].cardType == CardType.Null) {
-            layouts.add(Layout(
+            layouts.add(
+              Layout(
                 uuid.v4(),
                 DeviceEntityTypeInP4.DeviceNull,
                 CardType.Null,
                 layout.pageIndex,
                 backFilled[k].grids,
                 DataInputCard(
-                    name: '',
-                    type: '',
-                    applianceCode: '',
-                    roomName: '',
-                    masterId: '',
-                    modelNumber: '',
-                    isOnline: '',
-                    onlineStatus: '')));
+                  name: '',
+                  type: '',
+                  applianceCode: '',
+                  roomName: '',
+                  masterId: '',
+                  modelNumber: '',
+                  isOnline: '',
+                  onlineStatus: '',
+                ),
+              ),
+            );
           }
         }
         // 新增目标
@@ -548,7 +590,8 @@ class LayoutModel extends ChangeNotifier {
   }
 
   void removeNullCardByPage(int pageIndex) async {
-    layouts.removeWhere((element) => element.cardType == CardType.Null && element.pageIndex == pageIndex);
+    layouts.removeWhere((element) =>
+        element.cardType == CardType.Null && element.pageIndex == pageIndex);
   }
 
   static removeLayoutStorage() async {

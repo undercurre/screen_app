@@ -31,7 +31,7 @@ class DevicePage extends StatefulWidget {
   Timer? _timer;
 
   // 页数计算器
-  int currentPage = 0;
+  // int currentPage = 0;
 
   // 启动定时器
   void startPolling(BuildContext context) {
@@ -76,7 +76,7 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
-  final PageController _pageController = PageController();
+  PageController _pageController = PageController();
   List<Widget> _screens = [];
 
   LayoutModel? layoutModel;
@@ -109,6 +109,10 @@ class _DevicePageState extends State<DevicePage> {
     final Debouncer debouncer = Debouncer(milliseconds: 2000);
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
+    final pageCounterModel = Provider.of<PageCounter>(context);
+
+    // 滑动控制重置
+    _pageController = PageController(initialPage: pageCounterModel.currentPage);
     if (mounted) {
       try {
         getScreenList(layoutModel);

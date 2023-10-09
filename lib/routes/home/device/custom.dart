@@ -31,23 +31,13 @@ class CustomPage extends StatefulWidget {
 }
 
 class _CustomPageState extends State<CustomPage> {
-  final PageController _pageController = PageController();
-  int curPageIndex = 0;
+  PageController _pageController = PageController();
   List<Widget> _screens = [];
   String dragingWidgetId = '';
 
   @override
   void initState() {
     super.initState();
-    // 在小部件初始化后等待一帧再执行回调
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      var initPage = context.read<PageCounter>().currentPage;
-      if (initPage > _screens.length - 1) {
-        initPage = _screens.length - 1;
-      }
-      _pageController.animateToPage(initPage,
-          duration: const Duration(milliseconds: 300), curve: Curves.ease);
-    });
   }
 
   @override
@@ -58,37 +48,40 @@ class _CustomPageState extends State<CustomPage> {
   @override
   Widget build(BuildContext context) {
     final layoutModel = Provider.of<LayoutModel>(context);
+    final pageCounterModel = Provider.of<PageCounter>(context);
+
+    // 滑动控制重置
+    _pageController = PageController(initialPage: pageCounterModel.currentPage);
     // 获取屏幕信息
     MediaQueryData mediaQuery = MediaQuery.of(context);
     // 处理布局信息
     if (mounted) {
-      getScreenList(layoutModel);
+      getScreenList(layoutModel, pageCounterModel);
     }
     return Stack(
       children: [
         Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF272F41), Color(0xFF080C14)],
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF272F41), Color(0xFF080C14)],
+              ),
             ),
-          ),
-          constraints:
-              BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          height: MediaQuery.of(context).size.height,
-          child: PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.horizontal,
-            onPageChanged: (index) {
-              curPageIndex = index;
-            },
-            itemCount: _screens.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _screens[index];
-            },
-          ),
-        ),
+            constraints:
+                BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            height: MediaQuery.of(context).size.height,
+            child: PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.horizontal,
+                onPageChanged: (index) {
+                  pageCounterModel.currentPage = index;
+                },
+                itemCount: _screens.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _screens[index];
+                },
+              ),),
         Positioned(
           bottom: 0,
           child: ClipRect(
@@ -139,7 +132,7 @@ class _CustomPageState extends State<CustomPage> {
                               Screen screenLayer = Screen();
                               // 拿到当前页的layout
                               List<Layout> layoutsInCurPage = layoutModel
-                                  .getLayoutsByPageIndex(curPageIndex);
+                                  .getLayoutsByPageIndex(pageCounterModel.currentPage);
                               if (layoutsInCurPage.isNotEmpty) {
                                 // 非空页
                                 for (int layoutInCurPageIndex = 0;
@@ -187,10 +180,10 @@ class _CustomPageState extends State<CustomPage> {
                                       _pageController.animateToPage(
                                           result.pageIndex,
                                           duration:
-                                              const Duration(milliseconds: 300),
+                                          const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
-                                    curPageIndex = result.pageIndex;
+                                    pageCounterModel.currentPage = result.pageIndex;
                                   } else {
                                     // 放到最后一页
                                     // 清空布局器
@@ -214,10 +207,10 @@ class _CustomPageState extends State<CustomPage> {
                                         ?.addPostFrameCallback((_) {
                                       _pageController.animateToPage(maxPage + 1,
                                           duration:
-                                              const Duration(milliseconds: 300),
+                                          const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
-                                    curPageIndex = maxPage + 1;
+                                    pageCounterModel.currentPage = maxPage + 1;
                                   }
                                   result.data.disabled = true;
                                   result.data.context = context;
@@ -229,7 +222,7 @@ class _CustomPageState extends State<CustomPage> {
                                   // 拿到当前页的layout
                                   Log.i('屏幕没占满又放的下');
                                   result.grids = fillCells;
-                                  result.pageIndex = curPageIndex;
+                                  result.pageIndex = pageCounterModel.currentPage;
                                   List<Layout> hasThisNullCardList =
                                       layoutsInCurPage
                                           .where((element) =>
@@ -250,7 +243,7 @@ class _CustomPageState extends State<CustomPage> {
                                 }
                               } else {
                                 // 空页直接插入
-                                result.pageIndex = curPageIndex;
+                                result.pageIndex = pageCounterModel.currentPage;
                                 // 占位
                                 List<int> fillCells = screenLayer
                                     .checkAvailability(result.cardType);
@@ -297,7 +290,7 @@ class _CustomPageState extends State<CustomPage> {
     );
   }
 
-  void getScreenList(LayoutModel layoutModel) {
+  void getScreenList(LayoutModel layoutModel, PageCounter pageCounterModel) {
     _screens = [];
     // 取得最大页数
     int maxPage = layoutModel.getMaxPageIndex();
@@ -347,17 +340,17 @@ class _CustomPageState extends State<CustomPage> {
                     // 检查还有没有不是空卡
                     bool hasNotNullCard = layoutModel.layouts.any((element) =>
                         element.cardType != CardType.Null &&
-                        element.pageIndex == curPageIndex);
+                        element.pageIndex == pageCounterModel.currentPage);
                     if (!hasNotNullCard) {
                       layoutModel.layouts.removeWhere(
-                          (element) => element.pageIndex == curPageIndex);
+                          (element) => element.pageIndex == pageCounterModel.currentPage);
                     } else {
                       // 删除后还有其他有效卡片就补回去那张删掉的空卡片
                       // 因为要流式布局就要删掉空卡片，重新排过
                       List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
-                          layoutModel.getLayoutsByPageIndex(curPageIndex));
+                          layoutModel.getLayoutsByPageIndex(pageCounterModel.currentPage));
                       layoutModel.layouts.removeWhere(
-                          (element) => element.pageIndex == curPageIndex);
+                          (element) => element.pageIndex == pageCounterModel.currentPage);
                       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
                         layoutModel.addLayout(curPageLayoutsAfterFill[o]);
                       }
@@ -367,7 +360,7 @@ class _CustomPageState extends State<CustomPage> {
                         .map((e) => e.pageIndex)
                         .contains(layout.pageIndex)) {
                       layoutModel.handleNullPage(layout.pageIndex);
-                      curPageIndex = (layout.pageIndex - 1) < 0
+                      pageCounterModel.currentPage = (layout.pageIndex - 1) < 0
                           ? 0
                           : (layout.pageIndex - 1);
                     }
@@ -422,44 +415,48 @@ class _CustomPageState extends State<CustomPage> {
                       opacity: layout.deviceId == dragingWidgetId ? 0.5 : 1,
                       child: cardWithIcon,
                     ),
-                    if (dragingWidgetId.isNotEmpty) Positioned(
-                      top: 20,
-                      left: 0,
-                      child: DragTarget<String>(
-                        builder: (context, candidateData, rejectedData) {
-                          return Container(
-                              width:
-                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
-                              height: sizeMap[layout.cardType]!['main']! * 96,
-                              color: Colors.transparent);
-                        },
-                        onAccept: (data) {
-                          Log.i('$data拖拽结束左', layout.deviceId);
-                          // 被拖拽的
-                          layoutModel.swapPosition(
-                              data, layout.deviceId, layout.pageIndex, true);
-                        },
+                    if (dragingWidgetId.isNotEmpty)
+                      Positioned(
+                        top: 20,
+                        left: 0,
+                        child: DragTarget<String>(
+                          builder: (context, candidateData, rejectedData) {
+                            return Container(
+                                width: sizeMap[layout.cardType]!['cross']! /
+                                    2 *
+                                    105,
+                                height: sizeMap[layout.cardType]!['main']! * 96,
+                                color: Colors.transparent);
+                          },
+                          onAccept: (data) {
+                            Log.i('$data拖拽结束左', layout.deviceId);
+                            // 被拖拽的
+                            layoutModel.swapPosition(
+                                data, layout.deviceId, layout.pageIndex, true);
+                          },
+                        ),
                       ),
-                    ),
-                    if (dragingWidgetId.isNotEmpty) Positioned(
-                      top: 20,
-                      right: 20,
-                      child: DragTarget<String>(
-                        builder: (context, candidateData, rejectedData) {
-                          return Container(
-                              width:
-                                  sizeMap[layout.cardType]!['cross']! / 2 * 105,
-                              height: sizeMap[layout.cardType]!['main']! * 96,
-                              color: Colors.transparent);
-                        },
-                        onAccept: (data) {
-                          Log.i('$data拖拽结束右', layout.deviceId);
-                          // 被拖拽的
-                          layoutModel.swapPosition(
-                              data, layout.deviceId, layout.pageIndex, false);
-                        },
+                    if (dragingWidgetId.isNotEmpty)
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child: DragTarget<String>(
+                          builder: (context, candidateData, rejectedData) {
+                            return Container(
+                                width: sizeMap[layout.cardType]!['cross']! /
+                                    2 *
+                                    105,
+                                height: sizeMap[layout.cardType]!['main']! * 96,
+                                color: Colors.transparent);
+                          },
+                          onAccept: (data) {
+                            Log.i('$data拖拽结束右', layout.deviceId);
+                            // 被拖拽的
+                            layoutModel.swapPosition(
+                                data, layout.deviceId, layout.pageIndex, false);
+                          },
+                        ),
                       ),
-                    ),
                   ],
                 ),
               )

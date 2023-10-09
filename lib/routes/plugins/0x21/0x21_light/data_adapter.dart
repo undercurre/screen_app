@@ -49,6 +49,8 @@ class DeviceDataEntity {
     colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature as int;
     power = data.mzgdPropertyDTOList!.light?.power == 1;
     delayClose = 0;
+    maxColorTemp = data.mzgdPropertyDTOList!.light?.colorTempRange?.maxColorTemp ?? 6500;
+    minColorTemp = data.mzgdPropertyDTOList!.light?.colorTempRange?.minColorTemp ?? 2700;
   }
 
   Map<String, dynamic> toJson() {

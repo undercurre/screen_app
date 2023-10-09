@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,6 +49,25 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
 
 class _BigDeviceCurtainCardWidgetState
     extends State<BigDeviceCurtainCardWidget> {
+  bool _isFetching = false;
+  Timer? _debounceTimer;
+
+  void _throttledFetchData() async {
+    if (!_isFetching) {
+      _isFetching = true;
+
+      if (_debounceTimer != null && _debounceTimer!.isActive) {
+        _debounceTimer!.cancel();
+      }
+
+      _debounceTimer = Timer(const Duration(milliseconds: 10000), () async {
+        Log.i('触发更新');
+        widget.adapter?.init();
+        _isFetching = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -435,9 +456,7 @@ class _BigDeviceCurtainCardWidgetState
                             deviceId: widget.applianceCode)) {
                       widget.adapter?.tabTo(value);
                       if (value == 1) {
-                        Future.delayed(const Duration(seconds: 5), () {
-                          widget.adapter?.init();
-                        });
+                        _throttledFetchData();
                       }
                       bus.emit('operateDevice', widget.applianceCode);
                     }

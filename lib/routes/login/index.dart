@@ -12,6 +12,7 @@ import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../common/adapter/bind_gateway_data_adapter.dart';
 import '../../common/adapter/select_family_data_adapter.dart';
@@ -53,6 +54,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
   GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
   SelectFamilyItem? selectFamily;
+  Uuid uuid = Uuid();
 
   void showBindingDialog(bool show) async {
     showDialog<void>(
@@ -240,6 +242,36 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                         masterId: '',
                         modelNumber: '',
                         onlineStatus: '1')),
+                Layout(
+                    uuid.v4(),
+                    DeviceEntityTypeInP4.DeviceNull,
+                    CardType.Null,
+                    0,
+                    [13, 14],
+                    DataInputCard(
+                        name: '',
+                        applianceCode: '',
+                        roomName: '',
+                        isOnline: '',
+                        type: '',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: '')),
+                Layout(
+                    uuid.v4(),
+                    DeviceEntityTypeInP4.DeviceNull,
+                    CardType.Null,
+                    0,
+                    [15, 16],
+                    DataInputCard(
+                        name: '',
+                        applianceCode: '',
+                        roomName: '',
+                        isOnline: '',
+                        type: '',
+                        masterId: '',
+                        modelNumber: '',
+                        onlineStatus: ''))
               ];
               await layoutModel.setLayouts(defaultList);
               Log.i('插入默认布局');
@@ -257,8 +289,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 ?.bindGateway(System.familyInfo!, System.roomInfo!)
                 .then((isSuccess) {
               if (isSuccess) {
-                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindHomeName =
+                    System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId =
+                    System.familyInfo?.familyId ?? "";
                 Setting.instant().isAllowChangePlatform = false;
                 prepare2goHome();
               } else {
@@ -356,10 +390,14 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 checkIsNeedShowClearAlert();
                 nextStep();
               })),
-      Step('选择房间', SelectRoom(key: selectRoomKey, onChange: (SelectRoomItem room) {
-        debugPrint('SelectRoom: ${room.toJson()}');
-        System.roomInfo = room;
-      })),
+      Step(
+          '选择房间',
+          SelectRoom(
+              key: selectRoomKey,
+              onChange: (SelectRoomItem room) {
+                debugPrint('SelectRoom: ${room.toJson()}');
+                System.roomInfo = room;
+              })),
     ];
 
     var stepItem = stepNum > stepList.length ? null : stepList[stepNum - 1];
@@ -454,23 +492,26 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (Setting.instant().isAllowChangePlatform) MzButton(
-                              width: 168,
-                              height: 56,
-                              borderRadius: 29,
-                              backgroundColor: const Color(0xFF949CA8),
-                              borderColor: Colors.transparent,
-                              borderWidth: 1,
-                              text: '切换平台',
-                              onPressed: () {
-                                setState(() {
-                                  isNeedChoosePlatform = true;
-                                  routeFrom = "";
-                                });
-                              },
-                            ),
+                            if (Setting.instant().isAllowChangePlatform)
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF949CA8),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: '切换平台',
+                                onPressed: () {
+                                  setState(() {
+                                    isNeedChoosePlatform = true;
+                                    routeFrom = "";
+                                  });
+                                },
+                              ),
                             MzButton(
-                              width: Setting.instant().isAllowChangePlatform ? 168 : 240,
+                              width: Setting.instant().isAllowChangePlatform
+                                  ? 168
+                                  : 240,
                               height: 56,
                               borderRadius: 29,
                               backgroundColor: const Color(0xFF267AFF),
@@ -530,10 +571,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   }
 
   void checkIsNeedShowClearAlert() {
-    int lenDiff = (Setting.instant().lastBindHomeId.length - (System.familyInfo?.familyId.length ?? 0)).abs();
-    if(Setting.instant().lastBindHomeId.isNotEmpty
-        && Setting.instant().lastBindHomeId != System.familyInfo?.familyId
-        && lenDiff < 3) {
+    int lenDiff = (Setting.instant().lastBindHomeId.length -
+            (System.familyInfo?.familyId.length ?? 0))
+        .abs();
+    if (Setting.instant().lastBindHomeId.isNotEmpty &&
+        Setting.instant().lastBindHomeId != System.familyInfo?.familyId &&
+        lenDiff < 3) {
       isNeedShowClearAlert = true;
     }
   }
