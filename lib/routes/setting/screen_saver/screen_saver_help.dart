@@ -29,18 +29,19 @@ mixin StandbyOnSaverScreen on AbstractSaverScreen {
     super.onTick();
 
     () async {
+      if(Setting.instant().nightModeEnable) {
+        bool toBeClose = Setting.instant().isStandByDuration();
 
-      bool toBeClose = Setting.instant().isStandByDuration();
+        List.copyRange(array, 0, array, 1, array.length);
+        array[array.length - 1] = toBeClose;
 
-      List.copyRange(array, 0, array, 1, array.length);
-      array[array.length - 1] = toBeClose;
+        debugPrint('toBeClose = $toBeClose');
 
-      debugPrint('toBeClose = $toBeClose');
-
-      if(array.every((element) => element == false) || array.every((element) => element == true)) {
-        settingMethodChannel.setScreenClose(toBeClose);
-        // 重新复位数组，纠正上面方法设置的频率
-        array.fillRange(0, array.length, !toBeClose);
+        if(array.every((element) => element == false) || array.every((element) => element == true)) {
+          settingMethodChannel.setScreenClose(toBeClose);
+          // 重新复位数组，纠正上面方法设置的频率
+          array.fillRange(0, array.length, !toBeClose);
+        }
       }
     }();
 
