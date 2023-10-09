@@ -381,30 +381,29 @@ class _BigDeviceCurtainCardWidgetState
                 ),
               ),
               Positioned(
-                top: 44,
-                left: 32,
-                child: Text(
-                    "${widget.adapter!.getCardStatus()?['curtainPosition'] == 0 ? '全关' : widget.adapter!.getCardStatus()?['curtainPosition'] == 100 ? '全开' : widget.adapter!.getCardStatus()?['curtainPosition']}",
-                    style: const TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 60,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none)),
-              ),
-              if (widget.adapter!.getCardStatus()?['curtainPosition'] > 0 &&
-                  widget.adapter!.getCardStatus()?['curtainPosition'] < 100)
-                const Positioned(
-                  top: 66,
-                  left: 114,
-                  child: Text("%",
-                      style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 18,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
-                ),
+                  top: 60,
+                  left: 32,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          "${widget.adapter!.getCardStatus()?['curtainPosition']}",
+                          style: const TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 60,
+                              height: 1.5,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                      const Text("%",
+                          style: TextStyle(
+                              color: Color(0XFFFFFFFF),
+                              fontSize: 18,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                    ],
+                  )),
               Positioned(
                 top: 74,
                 left: 174,

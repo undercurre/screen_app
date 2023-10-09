@@ -84,10 +84,15 @@ class _AddDevicePageState extends State<AddDevicePage> {
       settingMethodChannel.dismissLoading();
       TipsUtils.toast(content: '请检查网络');
     }
-    SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-    await roomDataAd?.queryRoomList(System.familyInfo!);
-    homluxRoomList=roomDataAd.homluxRoomList;
-    meijuRoomList=roomDataAd.meijuRoomList;
+    try {
+      SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(
+          MideaRuntimePlatform.platform);
+      await roomDataAd?.queryRoomList(System.familyInfo!);
+      homluxRoomList = roomDataAd.homluxRoomList;
+      meijuRoomList = roomDataAd.meijuRoomList;
+    } catch (e) {
+      Log.i('加载房间失败');
+    }
     initCache();
   }
 
@@ -97,62 +102,73 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   initCache() async {
-    if (System.inMeiJuPlatform()) {
-      ///需要保留上次选的房间的话就打开
-      // if (MeiJuGlobal.selectRoomId != null) {
-      //   roomID = MeiJuGlobal.selectRoomId!;
-      // }
-      for (MeiJuRoomEntity room in meijuRoomList!) {
-        btnList.add({'text': room.name!, 'key': room.roomId});
+    try {
+      if (System.inMeiJuPlatform()) {
+        ///需要保留上次选的房间的话就打开
+        // if (MeiJuGlobal.selectRoomId != null) {
+        //   roomID = MeiJuGlobal.selectRoomId!;
+        // }
+        for (MeiJuRoomEntity room in meijuRoomList!) {
+          btnList.add({'text': room.name!, 'key': room.roomId});
+        }
+      } else {
+        // if (HomluxGlobal.selectRoomId != null) {
+        //   roomID = HomluxGlobal.selectRoomId!;
+        // }
+        for (HomluxRoomInfo room in homluxRoomList!) {
+          btnList.add({'text': room.roomName!, 'key': room.roomId!});
+        }
       }
-    } else {
-      // if (HomluxGlobal.selectRoomId != null) {
-      //   roomID = HomluxGlobal.selectRoomId!;
-      // }
-      for (HomluxRoomInfo room in homluxRoomList!) {
-        btnList.add({'text': room.roomName!, 'key': room.roomId!});
+
+      final sceneListModel = Provider.of<SceneListModel>(
+          context, listen: false);
+      final deviceListModel =
+      Provider.of<DeviceInfoListModel>(context, listen: false);
+      List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
+      List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
+      if (deviceRes.length > 8) {
+        devicesAll = deviceRes
+            .sublist(0, 8)
+            .where((e) =>
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
+      } else {
+        devicesAll = deviceRes
+            .where((e) =>
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList();
       }
+      if (sceneRes.length > 8) {
+        scenesAll = sceneRes.sublist(0, 8);
+      } else {
+        scenesAll = sceneRes;
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (sceneRes.length > 8) {
+        scenesAll.addAll(sceneRes.sublist(8));
+      }
+      if (deviceRes.length > 8) {
+        devicesAll.addAll(deviceRes
+            .sublist(8)
+            .where((e) =>
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            e.type, e.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
+            .toList());
+      }
+    } catch(e) {
+      Log.i('设备、场景数据加载失败');
     }
 
-    final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
-    List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
-    List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
-    if (deviceRes.length > 8) {
-      devicesAll = deviceRes
-          .sublist(0, 8)
-          .where((e) =>
-              DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
-              DeviceEntityTypeInP4.Default)
-          .toList();
-    } else {
-      devicesAll = deviceRes
-          .where((e) =>
-              DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
-              DeviceEntityTypeInP4.Default)
-          .toList();
-    }
-    if (sceneRes.length > 8) {
-      scenesAll = sceneRes.sublist(0, 8);
-    } else {
-      scenesAll = sceneRes;
-    }
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (sceneRes.length > 8) {
-      scenesAll.addAll(sceneRes.sublist(8));
-    }
-    if (deviceRes.length > 8) {
-      devicesAll.addAll(deviceRes
-          .sublist(8)
-          .where((e) =>
-              DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
-              DeviceEntityTypeInP4.Default)
-          .toList());
-    }
+    Log.i('其他组件', others
+        .where((element) => !layoutModel.layouts
+        .map((e) => e.deviceId)
+        .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
+        element.type.toString()))));
     others = others
         .where((element) => !layoutModel.layouts
             .map((e) => e.deviceId)
