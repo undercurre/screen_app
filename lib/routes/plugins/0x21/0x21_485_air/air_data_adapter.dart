@@ -3,6 +3,7 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
+import '../../../../common/global.dart';
 import '../../../../common/homlux/homlux_global.dart';
 import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
@@ -40,7 +41,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Air485Data? data = Air485Data(
       name: "",
-      online: false,
+      online: true,
       operationMode: "1",
       OnOff: "0",
       windSpeed: "1");
@@ -73,7 +74,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
           dataState = DataState.ERROR;
           data = Air485Data(
               name: name,
-              online: false,
+              online: true,
               operationMode: "4",
               OnOff: "0",
               windSpeed: "1");
@@ -87,13 +88,14 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
         dataState = DataState.ERROR;
         data = Air485Data(
             name: name,
-            online: false,
+            online: true,
             operationMode: "4",
             OnOff: "0",
             windSpeed: "1");
         updateUI();
       }
     } else {
+      logger.i("新风调用刷新");
       deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
     }
   }
@@ -243,37 +245,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   void init() {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
-    if(applianceCode.length!=4){
-      isLocalDevice=false;
-      _startPushListen();
-      fetchData();
-    }else{
-      isLocalDevice=true;
-      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
-      ///homlux添加本地485空调设备
-      if(deviceList!=null){
-        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
-          if("${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}"==applianceCode){
-            String? operationMode=deviceList!.nameValuePairs!.freshAirList![i].workModel;
-            String? OnOff=deviceList!.nameValuePairs!.freshAirList![i].onOff;
-            String? windSpeed=deviceList!.nameValuePairs!.freshAirList![i].windSpeed;
-            data = Air485Data(
-                name: name,
-                online: deviceList!.nameValuePairs!.freshAirList![i].onlineState=="1"?true:false,
-                operationMode: int.parse(operationMode!, radix: 16).toString()!,
-                OnOff: OnOff!,
-                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
-          }
-        }
-      }else{
-        data = Air485Data(
-            name: name,
-            online: false,
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
-      }
-    }
+
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -327,6 +299,11 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
               applianceCode, masterId, (json) => Air485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
+      if (nodeId.split('-')[0] == System.macAddress) {
+        isLocalDevice = true;
+      } else {
+        isLocalDevice = false;
+      }
       LocalStorage.setItem(applianceCode, nodeId);
       return nodeInfo;
     } catch (e) {
@@ -360,12 +337,44 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Future<void> getLocalDeviceCode() async {
     nodeId = await LocalStorage.getItem(applianceCode) ?? "";
-    if (nodeId.isNotEmpty) {
-      localDeviceCode = nodeId.split('-')[1];
-      if (nodeId.split('-')[0] == System.macAddress) {
-        isLocalDevice = true;
-      } else {
+    if(applianceCode.length!=4){
+      if (nodeId.isNotEmpty) {
+        localDeviceCode = nodeId.split('-')[1];
+        if (nodeId.split('-')[0] == System.macAddress) {
+          isLocalDevice = true;
+        } else {
+          isLocalDevice = false;
+        }
+      }else{
         isLocalDevice = false;
+      }
+      _startPushListen();
+      fetchData();
+    }else{
+      isLocalDevice = true;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+      ///homlux添加本地485空调设备
+      if(deviceList!=null){
+        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
+          if("${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}"==applianceCode){
+            String? operationMode=deviceList!.nameValuePairs!.freshAirList![i].workModel;
+            String? OnOff=deviceList!.nameValuePairs!.freshAirList![i].onOff;
+            String? windSpeed=deviceList!.nameValuePairs!.freshAirList![i].windSpeed;
+            data = Air485Data(
+                name: name,
+                online: deviceList!.nameValuePairs!.freshAirList![i].onlineState=="1"?true:false,
+                operationMode: int.parse(operationMode!, radix: 16).toString()!,
+                OnOff: OnOff!,
+                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+          }
+        }
+      }else{
+        data = Air485Data(
+            name: name,
+            online: true,
+            operationMode: "4",
+            OnOff: "0",
+            windSpeed: "1");
       }
     }
   }
@@ -389,7 +398,7 @@ class Air485Data {
   // 开关状态
   String OnOff = "0";
 
-  bool online = false;
+  bool online = true;
 
   //风速
   String windSpeed = "1";
@@ -407,6 +416,7 @@ class Air485Data {
     operationMode = data.endList[0].event.operationMode;
     OnOff = data.endList[0].event.OnOff;
     windSpeed = data.endList[0].event.windSpeed;
+    online = true;
   }
 
   Air485Data.fromHomlux(dynamic data, String modelNumber) {}

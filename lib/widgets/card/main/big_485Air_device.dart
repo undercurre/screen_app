@@ -49,12 +49,6 @@ class _Big485AirDeviceAirCardWidgetState
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        widget.isNative= widget.adapter!.isLocalDevice;
-      });
-      updateDetail();
-    });
   }
 
   @override
@@ -72,15 +66,27 @@ class _Big485AirDeviceAirCardWidgetState
     setState(() {
       widget.windSpeed = oldWidget.windSpeed;
       widget.onOff = oldWidget.onOff;
+      widget.isNative= oldWidget.isNative;
+      widget.online = oldWidget.online;
+      widget.localOnline=oldWidget.localOnline;
     });
   }
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.windSpeed == int.parse(widget.adapter!.data!.windSpeed)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
         widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
         widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
         widget.localOnline=widget.adapter!.data!.online;
+        widget.isNative= widget.adapter!.isLocalDevice;
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
       });
     }
   }
@@ -186,7 +192,9 @@ class _Big485AirDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=false;
-        widget.adapter?.fetchData();
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
         if(widget.online){
           return '在线';
         }else{
@@ -199,7 +207,9 @@ class _Big485AirDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=true;
-        widget.adapter?.fetchData();
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
         if(widget.online){
           return '在线';
         }else{

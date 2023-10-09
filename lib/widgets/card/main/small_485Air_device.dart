@@ -16,8 +16,9 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final Widget icon;
   bool onOff;
   bool online;
+  bool localOnline=false;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
@@ -75,15 +76,27 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     setState(() {
       widget.windSpeed = oldWidget.windSpeed;
       widget.onOff = oldWidget.onOff;
+      widget.isNative= oldWidget.isNative;
+      widget.online = oldWidget.online;
+      widget.localOnline=oldWidget.localOnline;
     });
   }
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.windSpeed == int.parse(widget.adapter!.data!.windSpeed)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
-        widget.adapter?.data = widget.adapter!.data!;
         widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
         widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
+        widget.localOnline=widget.adapter!.data!.online;
+        widget.isNative= widget.adapter!.isLocalDevice;
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
       });
     }
   }
@@ -142,23 +155,56 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.applianceCode)) {
-        widget.online = false;
-        return '离线';
-      } else {
-        widget.online = true;
-        int windSpeed = 1;
-        if (widget.windSpeed == 1) {
-          windSpeed = 3;
-        } else if (widget.windSpeed == 2) {
-          windSpeed = 2;
-        } else if (widget.windSpeed == 4) {
-          windSpeed = 1;
-        } else {
-          windSpeed = 3;
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.adapter?.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
         }
-        return "$windSpeed档";
+        widget.localOnline=false;
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
+        if(widget.online){
+          int windSpeed = 1;
+          if (widget.windSpeed == 1) {
+            windSpeed = 3;
+          } else if (widget.windSpeed == 2) {
+            windSpeed = 2;
+          } else if (widget.windSpeed == 4) {
+            windSpeed = 1;
+          } else {
+            windSpeed = 3;
+          }
+          return "$windSpeed档";
+        }else{
+          return '离线';
+        }
+      } else {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
+        if(widget.online){
+          int windSpeed = 1;
+          if (widget.windSpeed == 1) {
+            windSpeed = 3;
+          } else if (widget.windSpeed == 2) {
+            windSpeed = 2;
+          } else if (widget.windSpeed == 4) {
+            windSpeed = 1;
+          } else {
+            windSpeed = 3;
+          }
+          return "$windSpeed档";
+        }else{
+          return '离线';
+        }
       }
     }
 
