@@ -36,34 +36,70 @@ class DevicePage extends StatefulWidget {
   // 启动定时器
   void startPolling(BuildContext context) {
     const oneMinute = Duration(seconds: 180);
-
+    // 立即执行一次
+    autoDeleleLayout(context);
     // 使用周期性定时器，每分钟触发一次
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
-      Log.i('更新列表');
-      final deviceModel = context.read<DeviceInfoListModel>();
-      final layoutModel = context.read<LayoutModel>();
-      List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
-      List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
-      deviceCache = deviceCache
-          .where((element) =>
-              DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  element.type, element.modelNumber) !=
-              DeviceEntityTypeInP4.Default)
-          .toList();
-      deviceRes = deviceRes
-          .where((element) =>
-              DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  element.type, element.modelNumber) !=
-              DeviceEntityTypeInP4.Default)
-          .toList();
-      List<List<DeviceEntity>> compareDevice =
-          Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
-      compareDevice[1].forEach((element) {
-        if (layoutModel.hasLayoutWithDeviceId(element.applianceCode)) {
-          layoutModel.deleteLayout(element.applianceCode);
-          TipsUtils.toast(content: '已删除${element.name}');
+      autoDeleleLayout(context);
+    });
+  }
+
+  Future<void> autoDeleleLayout(BuildContext context) async {
+    Log.i('更新列表');
+    final deviceModel = context.read<DeviceInfoListModel>();
+    final layoutModel = context.read<LayoutModel>();
+    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    deviceCache = deviceCache
+        .where((element) =>
+    DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        element.type, element.modelNumber) !=
+        DeviceEntityTypeInP4.Default)
+        .toList();
+    deviceRes = deviceRes
+        .where((element) =>
+    DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        element.type, element.modelNumber) !=
+        DeviceEntityTypeInP4.Default)
+        .toList();
+    List<List<DeviceEntity>> compareDevice =
+    Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    compareDevice[1].forEach((compare) {
+      Layout curLayout =
+      layoutModel.getLayoutsByDevice(compare.applianceCode);
+      int curPageIndex = curLayout.pageIndex;
+      if (layoutModel.hasLayoutWithDeviceId(compare.applianceCode)) {
+        layoutModel.deleteLayout(compare.applianceCode);
+        // 检查还有没有不是空卡
+        Log.i('检查是否还有空卡');
+        bool hasNotNullCard = layoutModel.layouts.any((element) =>
+        element.cardType != CardType.Null &&
+            element.pageIndex == curPageIndex);
+        Log.i('是否有$curPageIndex页的其他空卡', curLayout.pageIndex);
+        if (!hasNotNullCard) {
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+        } else {
+          // 删除后还有其他有效卡片就补回去那张删掉的空卡片
+          // 因为要流式布局就要删掉空卡片，重新排过
+          List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
+              layoutModel.getLayoutsByPageIndex(curLayout.pageIndex));
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+          for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
+            layoutModel.addLayout(curPageLayoutsAfterFill[o]);
+          }
         }
-      });
+        // 看看是否删空
+        if (!layoutModel.layouts
+            .map((e) => e.pageIndex)
+            .contains(curLayout.pageIndex)) {
+          layoutModel.handleNullPage(curLayout.pageIndex);
+          curLayout.pageIndex =
+          (curLayout.pageIndex - 1) < 0 ? 0 : (curLayout.pageIndex - 1);
+        }
+        TipsUtils.toast(content: '已删除${compare.name}');
+      }
     });
   }
 
@@ -329,9 +365,7 @@ class _DevicePageState extends State<DevicePage> {
       // ************插入pageview
 
       if (!isCanAdd) {
-        _screens.add(Center(
-            key: UniqueKey(),
-            child: const EditCardWidget()));
+        _screens.add(Center(key: UniqueKey(), child: const EditCardWidget()));
       }
 
       // 每一页处理前重置布局器
@@ -377,18 +411,62 @@ class _DevicePageState extends State<DevicePage> {
     deviceModel.getDeviceList();
   }
 
-
-
   handlePushDelete() async {
-    Log.i('首页推送响应');
+    Log.i('更新列表');
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    deviceCache = deviceCache
+        .where((element) =>
+    DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        element.type, element.modelNumber) !=
+        DeviceEntityTypeInP4.Default)
+        .toList();
+    deviceRes = deviceRes
+        .where((element) =>
+    DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        element.type, element.modelNumber) !=
+        DeviceEntityTypeInP4.Default)
+        .toList();
     List<List<DeviceEntity>> compareDevice =
-        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
-    compareDevice[1].forEach((element) {
-      layoutModel.deleteLayout(element.applianceCode);
+    Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    compareDevice[1].forEach((compare) {
+      Layout curLayout =
+      layoutModel.getLayoutsByDevice(compare.applianceCode);
+      int curPageIndex = curLayout.pageIndex;
+      if (layoutModel.hasLayoutWithDeviceId(compare.applianceCode)) {
+        layoutModel.deleteLayout(compare.applianceCode);
+        // 检查还有没有不是空卡
+        Log.i('检查是否还有空卡');
+        bool hasNotNullCard = layoutModel.layouts.any((element) =>
+        element.cardType != CardType.Null &&
+            element.pageIndex == curPageIndex);
+        Log.i('是否有$curPageIndex页的其他空卡', curLayout.pageIndex);
+        if (!hasNotNullCard) {
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+        } else {
+          // 删除后还有其他有效卡片就补回去那张删掉的空卡片
+          // 因为要流式布局就要删掉空卡片，重新排过
+          List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
+              layoutModel.getLayoutsByPageIndex(curLayout.pageIndex));
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+          for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
+            layoutModel.addLayout(curPageLayoutsAfterFill[o]);
+          }
+        }
+        // 看看是否删空
+        if (!layoutModel.layouts
+            .map((e) => e.pageIndex)
+            .contains(curLayout.pageIndex)) {
+          layoutModel.handleNullPage(curLayout.pageIndex);
+          curLayout.pageIndex =
+          (curLayout.pageIndex - 1) < 0 ? 0 : (curLayout.pageIndex - 1);
+        }
+        TipsUtils.toast(content: '已删除${compare.name}');
+      }
     });
   }
 

@@ -178,17 +178,16 @@ class _CustomPageState extends State<CustomPage> {
                                     Log.i('找到了合适的位置',
                                         '${result.pageIndex}页${result.grids}');
                                     // 找到并删掉空缺
-                                    Layout daiding = layoutModel.layouts
+                                    List<Layout> daiding = layoutModel.layouts
                                         .where((element) =>
                                             element.pageIndex ==
                                                 result.pageIndex &&
                                             element.cardType == CardType.Null &&
-                                            Set<int>.from(element.grids)
-                                                .containsAll(result.grids) &&
-                                            Set<int>.from(result.grids)
-                                                .containsAll(element.grids))
-                                        .toList()[0];
-                                    layoutModel.deleteLayout(daiding.deviceId);
+                                            result.grids.any((res) => element.grids.contains(res)))
+                                        .toList();
+                                    daiding.forEach((element) {
+                                      layoutModel.deleteLayout(element.deviceId);
+                                    });
                                     WidgetsBinding.instance
                                         ?.addPostFrameCallback((_) {
                                       _pageController.animateToPage(
