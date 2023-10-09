@@ -55,11 +55,20 @@ class _Big485CACDeviceAirCardWidgetState
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
         if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
           widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
           widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
           widget.localOnline=widget.adapter!.data!.online;
+          widget.isNative= widget.adapter!.isLocalDevice;
+          if(widget.localOnline){
+            widget.online = true;
+          }else{
+            widget.online = false;
+          }
         }
       });
     }
@@ -72,12 +81,6 @@ class _Big485CACDeviceAirCardWidgetState
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        widget.isNative= widget.adapter!.isLocalDevice;
-      });
-      updateDetail();
-    });
   }
 
   @override
@@ -95,6 +98,9 @@ class _Big485CACDeviceAirCardWidgetState
     setState(() {
       widget.temperature = oldWidget.temperature;
       widget.onOff = oldWidget.onOff;
+      widget.online = oldWidget.online;
+      widget.isNative= oldWidget.isNative;
+      widget.localOnline=oldWidget.localOnline;
     });
   }
 
@@ -175,7 +181,9 @@ class _Big485CACDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=false;
-        widget.adapter?.fetchData();
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
         if(widget.online){
           return '在线';
         }else{
@@ -188,7 +196,9 @@ class _Big485CACDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=true;
-        widget.adapter?.fetchData();
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
         if(widget.online){
           return '在线';
         }else{
@@ -345,16 +355,37 @@ class _Big485CACDeviceAirCardWidgetState
                         height: 36,
                         image: const AssetImage('assets/newUI/sub.png')),
                   ),
-                  Text("${widget.temperature}",
-                      style: TextStyle(
-                          height: 1.5,
-                          color: widget.onOff
-                              ? const Color(0XFFFFFFFF)
-                              : const Color(0XA3FFFFFF),
-                          fontSize: 60,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${widget.temperature}",
+                          style: TextStyle(
+                              height: 1.5,
+                              color: widget.onOff&&widget.online
+                                  ? const Color(0XFFFFFFFF)
+                                  : const Color(0XA3FFFFFF),
+                              fontSize: 60,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                        child:Text("℃",
+                            style: TextStyle(
+                                height: 1.5,
+                                color: widget.onOff&&widget.online
+                                    ? const Color(0XFFFFFFFF)
+                                    : const Color(0XA3FFFFFF),
+                                fontSize: 25,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
+
+                      ),
+                    ],
+                  ),
+
+
                   GestureDetector(
                     onTap: () => {
                       temperatureHandle(widget.temperature < widget.max

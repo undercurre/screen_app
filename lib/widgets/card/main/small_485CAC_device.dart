@@ -16,8 +16,9 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   final Widget icon;
   bool onOff;
   bool online;
+  bool localOnline = false;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
@@ -75,6 +76,9 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     setState(() {
       widget.temperature = oldWidget.temperature;
       widget.onOff = oldWidget.onOff;
+      widget.online = oldWidget.online;
+      widget.isNative = oldWidget.isNative;
+      widget.localOnline = oldWidget.localOnline;
     });
   }
 
@@ -82,8 +86,15 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     if (mounted) {
       setState(() {
         if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
-          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
           widget.temperature = widget.adapter!.data!.targetTemp;
+          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
+          widget.localOnline=widget.adapter!.data!.online;
+          widget.isNative= widget.adapter!.isLocalDevice;
+          if(widget.localOnline){
+            widget.online = true;
+          }else{
+            widget.online = false;
+          }
         }
       });
     }
@@ -145,11 +156,35 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(
           deviceId: widget.adapter?.applianceCode)) {
-        widget.online = false;
-        return '离线';
+        if (widget.localOnline) {
+          widget.online = true;
+        } else {
+          widget.online = false;
+        }
+        widget.localOnline = false;
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
+        if (widget.online) {
+          return "${widget.temperature}℃";
+        } else {
+          return '离线';
+        }
       } else {
-        widget.online = true;
-        return "${widget.temperature}℃";
+        if (widget.localOnline) {
+          widget.online = true;
+        } else {
+          widget.online = false;
+        }
+        widget.localOnline = true;
+        // Future.delayed(const Duration(seconds: 3), () {
+        //   widget.adapter?.fetchData();
+        // });
+        if (widget.online) {
+          return "${widget.temperature}℃";
+        } else {
+          return '离线';
+        }
       }
     }
 
