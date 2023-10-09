@@ -23,9 +23,9 @@ class BigDeviceLightCardWidget extends StatefulWidget {
   final bool hasMore;
   final bool disabled;
 
-  final DeviceCardDataAdapter? adapter;
+  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
 
-  const BigDeviceLightCardWidget(
+  BigDeviceLightCardWidget(
       {super.key,
       required this.applianceCode,
       required this.name,
@@ -33,10 +33,10 @@ class BigDeviceLightCardWidget extends StatefulWidget {
       required this.online,
       required this.isFault,
       required this.isNative,
+      required this.adapterGenerateFunction,
       this.hasMore = true,
       this.disabled = false,
       this.discriminative = false,
-      this.adapter,
       this.disableOnOff = true});
 
   @override
@@ -45,39 +45,29 @@ class BigDeviceLightCardWidget extends StatefulWidget {
 }
 
 class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
+  late DeviceCardDataAdapter adapter;
+  
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Log.file('视图更新导致请求 didChangeDependencies');
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
-  }
-
-  @override
-  void didUpdateWidget(covariant BigDeviceLightCardWidget oldWidget) {
-    Log.file('视图更新导致请求 didUpdateWidget');
-    oldWidget.adapter?.destroy();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(widget.disabled) {
+      adapter.bindDataUpdateFunction(updateCallback);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateCallback);
-    widget.adapter?.destroy();
+    adapter.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
     setState(() {
       Log.i('大卡片状态更新');
       setState(() {
-        widget.adapter?.data = widget.adapter?.data;
+        adapter.data = adapter.data;
       });
     });
   }
@@ -107,19 +97,19 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
         return '离线';
       }
       //
-      // if (widget.adapter?.dataState == DataState.LOADING) {
+      // if (adapter.dataState == DataState.LOADING) {
       //   return '';
       // }
       //
-      // if (widget.adapter?.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.NONE) {
       //   return '离线';
       // }
 
-      if (widget.adapter?.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic() ?? '';
+      return adapter.getCharacteristic() ?? '';
     }
 
     String getRoomName() {
@@ -169,7 +159,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool curPower = adapter.getPowerStatus() ?? false;
       bool online =
           deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.disabled) {
@@ -283,12 +273,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                     if (!widget.disabled &&
                         deviceListModel.getOnlineStatus(
                             deviceId: widget.applianceCode)) {
-                      widget.adapter?.power(
-                        widget.adapter?.getPowerStatus(),
+                      adapter.power(
+                        adapter.getPowerStatus(),
                       );
                       bus.emit(
                           'operateDevice',
-                          widget.adapter?.getCardStatus()!["nodeId"] ??
+                          adapter.getCardStatus()!["nodeId"] ??
                               widget.applianceCode);
                     }
                   },
@@ -296,7 +286,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       width: 40,
                       height: 40,
                       image: AssetImage(
-                          widget.adapter?.getPowerStatus() ?? false
+                          adapter.getPowerStatus() ?? false
                               ? 'assets/newUI/card_power_on.png'
                               : 'assets/newUI/card_power_off.png')),
                 ),
@@ -312,23 +302,23 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       return;
                     }
                     if (!widget.disabled) {
-                      if (widget.adapter?.type == AdapterType.wifiLight) {
+                      if (adapter.type == AdapterType.wifiLight) {
                         Navigator.pushNamed(context, '0x13', arguments: {
                           "name": getDeviceName(),
-                          "adapter": widget.adapter
+                          "adapter": adapter
                         });
-                      } else if (widget.adapter?.type ==
+                      } else if (adapter.type ==
                           AdapterType.zigbeeLight) {
                         Navigator.pushNamed(context, '0x21_light_colorful',
                             arguments: {
                               "name": getDeviceName(),
-                              "adapter": widget.adapter
+                              "adapter": adapter
                             });
-                      } else if (widget.adapter?.type ==
+                      } else if (adapter.type ==
                           AdapterType.lightGroup) {
                         Navigator.pushNamed(context, 'lightGroup', arguments: {
                           "name": getDeviceName(),
-                          "adapter": widget.adapter
+                          "adapter": adapter
                         });
                       }
                     }
@@ -417,7 +407,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 top: 62,
                 left: 25,
                 child: Text(
-                    "亮度 | ${widget.disabled ? '1' : widget.adapter?.getCardStatus()?['brightness'] ?? ''}%",
+                    "亮度 | ${widget.disabled ? '1' : adapter.getCardStatus()?['brightness'] ?? ''}%",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -433,24 +423,24 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 child: MzSlider(
                   value: widget.disabled
                       ? 1
-                      : widget.adapter?.getCardStatus()?['brightness'] ?? '',
+                      : adapter.getCardStatus()?['brightness'] ?? '',
                   width: 390,
                   height: 16,
                   min: 0,
                   max: 100,
-                  disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                  disabled: !(adapter.getPowerStatus() ?? false) ||
                       widget.disabled ||
                       !deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
                   onChanging: (val, color) {
-                    widget.adapter?.slider1ToFaker(val.toInt());
+                    adapter.slider1ToFaker(val.toInt());
                   },
                   onChanged: (val, color) {
-                    widget.adapter?.slider1To(val.toInt());
+                    adapter.slider1To(val.toInt());
                     bus.emit(
                         'operateDevice',
-                        widget.adapter!.getCardStatus()?["nodeId"] ??
+                        adapter.getCardStatus()?["nodeId"] ??
                             widget.applianceCode);
                   },
                 ),
@@ -474,25 +464,25 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 child: MzSlider(
                   value: widget.disabled
                       ? 0
-                      : widget.adapter?.getCardStatus()?['colorTemp'] ?? '',
+                      : adapter.getCardStatus()?['colorTemp'] ?? '',
                   width: 390,
                   height: 16,
                   min: 0,
                   max: 100,
-                  disabled: !(widget.adapter?.getPowerStatus() ?? false) ||
+                  disabled: !(adapter.getPowerStatus() ?? false) ||
                       widget.disabled ||
                       !deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
                   isBarColorKeepFull: false,
                   onChanging: (val, color) {
-                    widget.adapter?.slider2ToFaker(val.toInt());
+                    adapter.slider2ToFaker(val.toInt());
                   },
                   onChanged: (val, color) {
-                    widget.adapter?.slider2To(val.toInt());
+                    adapter.slider2To(val.toInt());
                     bus.emit(
                         'operateDevice',
-                        widget.adapter!.getCardStatus()?["nodeId"] ??
+                        adapter.getCardStatus()?["nodeId"] ??
                             widget.applianceCode);
                   },
                 ),
@@ -505,19 +495,19 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   }
 
   int _getColorK() {
-    if (widget.adapter != null) {
-      if (widget.adapter!.getCardStatus()?['maxColorTemp'] != null) {
-        return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+    if (adapter != null) {
+      if (adapter.getCardStatus()?['maxColorTemp'] != null) {
+        return ((adapter.getCardStatus()?['colorTemp'] as int) /
                     100 *
-                    ((widget.adapter?.getCardStatus()?['maxColorTemp'] as int) -
-                        (widget.adapter?.getCardStatus()?['minColorTemp']
+                    ((adapter.getCardStatus()?['maxColorTemp'] as int) -
+                        (adapter.getCardStatus()?['minColorTemp']
                             as int)) +
-                (widget.adapter?.getCardStatus()?['minColorTemp'] as int))
+                (adapter.getCardStatus()?['minColorTemp'] as int))
             .toInt();
       }
     }
 
-    return ((widget.adapter?.getCardStatus()?['colorTemp'] as int) /
+    return ((adapter.getCardStatus()?['colorTemp'] as int) /
                 100 *
                 (6500 - 2700) +
             2700)
