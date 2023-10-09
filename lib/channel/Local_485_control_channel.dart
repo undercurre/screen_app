@@ -69,6 +69,10 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
     HomluxGlobal.homlux485DeviceList = deviceList;
   }
 
+  void get485DeviceStateByAddr(String addr){
+    methodChannel.invokeMethod("get485DeviceStateByAddr", {"addr": addr});
+  }
+
   void controlLocal485AirConditionPower(String power, String addr) async {
     methodChannel.invokeMethod(
         "ControlLocal485AirConditionPower", {"power": power, "addr": addr});

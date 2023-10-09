@@ -12,6 +12,7 @@ import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
 import '../../../../common/system.dart';
+import '../../../../common/utils.dart';
 import '../../../../widgets/event_bus.dart';
 
 class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
@@ -39,6 +40,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Air485Data? data = Air485Data(
       name: "",
+      online: false,
       operationMode: "1",
       OnOff: "0",
       windSpeed: "1");
@@ -57,13 +59,11 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     if(isLocalDevice==false){
       try {
         dataState = DataState.LOADING;
-
         if (platform.inMeiju()) {
           _meijuData = await fetchMeijuData();
         } else {
           _homluxData = await fetchHomluxData();
         }
-
         if (_meijuData != null) {
           data = Air485Data.fromMeiJu(_meijuData, modelNumber);
         } else if (_homluxData != null) {
@@ -73,78 +73,88 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
           dataState = DataState.ERROR;
           data = Air485Data(
               name: name,
+              online: false,
               operationMode: "4",
               OnOff: "0",
               windSpeed: "1");
           return;
         }
-
         // Data retrieval success
         dataState = DataState.SUCCESS;
-        String wendu=data!.windSpeed;
-        String kaiguan=data!.OnOff;
-        Log.i("设定风速:$wendu");
-        Log.i("设定开关:$kaiguan");
         updateUI();
       } catch (e) {
         // Error occurred while fetching data
         dataState = DataState.ERROR;
         data = Air485Data(
             name: name,
+            online: false,
             operationMode: "4",
             OnOff: "0",
             windSpeed: "1");
         updateUI();
       }
+    } else {
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
     }
   }
 
   Future<void> orderPower(int onOff) async {
 
-    if(nodeId!=null){
-      if(nodeId.split('-')[0]==System.macAddress){
+    if (localDeviceCode.isNotEmpty) {
+      deviceLocal485ControlChannel.controlLocal485AirFreshPower(
+          onOff.toString(), localDeviceCode);
+    } else if (applianceCode.length == 4) {
+      deviceLocal485ControlChannel.controlLocal485AirFreshPower(
+          onOff.toString(), localDeviceCode);
+    } else if (nodeId != null) {
+      bus.emit('operateDevice', nodeId);
+      if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshPower(
             onOff.toString(), localDeviceCode);
-      }else{
+        if (platform.inMeiju()) {
+          fetchOrderPowerMeiju(onOff);
+        }
+      } else {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
             fetchOrderPowerMeiju(onOff);
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485AirFreshPower(
-              onOff.toString(), applianceCode);
+              onOff.toString(), localDeviceCode);
         }
       }
-    }else if(applianceCode.length==4){
-      deviceLocal485ControlChannel.controlLocal485AirFreshPower(
-          onOff.toString(), applianceCode);
     }
-
   }
 
   Future<void> orderSpeed(int speed) async {
-    if(nodeId!=null){
-      if(nodeId.split('-')[0]==System.macAddress){
+    if (localDeviceCode.isNotEmpty) {
+      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
+          speed.toString(), localDeviceCode);
+    } else if (applianceCode.length == 4) {
+      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
+          speed.toString(), localDeviceCode);
+    } else if (nodeId != null) {
+      bus.emit('operateDevice', nodeId);
+      if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
         deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
             speed.toString(), localDeviceCode);
         if (platform.inMeiju()) {
           fetchOrderSpeedMeiju(speed);
         }
-      }else{
+      } else {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
             fetchOrderSpeedMeiju(speed);
+
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
-              speed.toString(), applianceCode);
+              speed.toString(), localDeviceCode);
         }
       }
-    }else if(applianceCode.length==4){
-      deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
-          speed.toString(), applianceCode);
     }
   }
 
@@ -232,6 +242,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   @override
   void init() {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
+    getLocalDeviceCode();
     if(applianceCode.length!=4){
       isLocalDevice=false;
       _startPushListen();
@@ -248,6 +259,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
             String? windSpeed=deviceList!.nameValuePairs!.freshAirList![i].windSpeed;
             data = Air485Data(
                 name: name,
+                online: deviceList!.nameValuePairs!.freshAirList![i].onlineState=="1"?true:false,
                 operationMode: int.parse(operationMode!, radix: 16).toString()!,
                 OnOff: OnOff!,
                 windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
@@ -256,6 +268,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
       }else{
         data = Air485Data(
             name: name,
+            online: false,
             operationMode: "4",
             OnOff: "0",
             windSpeed: "1");
@@ -285,6 +298,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     if(state.modelId=="zhonghong.air.001"&&localDeviceCode==state.address){
       data = Air485Data(
           name: name,
+          online: state.online==1?true:false,
           operationMode: state.mode.toString(),
           OnOff: state.onOff.toString(),
           windSpeed: state.speed.toString());
@@ -292,6 +306,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     }else if(state.modelId=="zhonghong.air.001"&&applianceCode==state.address){
       data = Air485Data(
           name: name,
+          online: state.online==1?true:false,
           operationMode: state.mode.toString(),
           OnOff: state.onOff.toString(),
           windSpeed: state.speed.toString());
@@ -312,6 +327,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
               applianceCode, masterId, (json) => Air485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
+      LocalStorage.setItem(applianceCode, nodeId);
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
@@ -342,6 +358,18 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     return HomluxRes;
   }
 
+  Future<void> getLocalDeviceCode() async {
+    nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+    if (nodeId.isNotEmpty) {
+      localDeviceCode = nodeId.split('-')[1];
+      if (nodeId.split('-')[0] == System.macAddress) {
+        isLocalDevice = true;
+      } else {
+        isLocalDevice = false;
+      }
+    }
+  }
+
 }
 
 // The rest of the code for PanelData class remains the same as before
@@ -361,6 +389,8 @@ class Air485Data {
   // 开关状态
   String OnOff = "0";
 
+  bool online = false;
+
   //风速
   String windSpeed = "1";
 
@@ -368,7 +398,8 @@ class Air485Data {
       {required this.name,
       required this.operationMode,
       required this.OnOff,
-      required this.windSpeed});
+        required this.online,
+        required this.windSpeed});
 
   Air485Data.fromMeiJu(
       NodeInfo<Endpoint<Air485Event>> data, String modelNumber) {

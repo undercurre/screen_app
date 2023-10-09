@@ -13,6 +13,7 @@ import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
 import '../../../../common/system.dart';
+import '../../../../common/utils.dart';
 import '../../../../widgets/event_bus.dart';
 
 class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
@@ -66,6 +67,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           dataState = DataState.ERROR;
           data = Floor485Data(
             name: name,
+            online: false,
             targetTemp: "26",
             OnOff: "0",
           );
@@ -79,15 +81,25 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         dataState = DataState.ERROR;
         data = Floor485Data(
           name: name,
+          online: false,
           targetTemp: "26",
           OnOff: "0",
         );
       }
+    }else {
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
     }
   }
 
   Future<void> orderPower(int onOff) async {
-    if (nodeId != null) {
+
+    if (localDeviceCode.isNotEmpty) {
+      deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
+          onOff.toString(), localDeviceCode);
+    } else if (applianceCode.length == 4) {
+      deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
+          onOff.toString(), localDeviceCode);
+    } else if (nodeId != null) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -103,17 +115,20 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
-              onOff.toString(), applianceCode);
+              onOff.toString(), localDeviceCode);
         }
       }
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
-          onOff.toString(), applianceCode);
     }
   }
 
   Future<void> orderTemp(int temp) async {
-    if (nodeId != null) {
+    if (localDeviceCode.isNotEmpty) {
+      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
+          temp.toString(), localDeviceCode);
+    } else if (applianceCode.length == 4) {
+      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
+          temp.toString(), localDeviceCode);
+    } else if (nodeId != null) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -129,12 +144,9 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-              temp.toString(), applianceCode);
+              temp.toString(), localDeviceCode);
         }
       }
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-          temp.toString(), applianceCode);
     }
   }
 
@@ -221,6 +233,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
+    getLocalDeviceCode();
     if (applianceCode.length != 4) {
       isLocalDevice = false;
       _startPushListen();
@@ -241,6 +254,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
                 deviceList!.nameValuePairs!.floorHotList![i].currTemperature;
             data = Floor485Data(
               name: name,
+              online: deviceList!.nameValuePairs!.floorHotList![i].onlineState=="1"?true:false,
               targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
               OnOff: OnOff!,
             );
@@ -249,6 +263,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       } else {
         data = Floor485Data(
           name: name,
+          online: false,
           targetTemp: "26",
           OnOff: "0",
         );
@@ -279,6 +294,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         localDeviceCode == state.address) {
       data = Floor485Data(
         name: name,
+        online: state.online==1?true:false,
         targetTemp: state.temper.toString(),
         OnOff: state.onOff.toString(),
       );
@@ -287,6 +303,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     }else if(state.modelId=="zhonghong.heat.001"&&applianceCode==state.address){
       data = Floor485Data(
         name: name,
+        online: state.online==1?true:false,
         targetTemp: state.temper.toString(),
         OnOff: state.onOff.toString(),
       );
@@ -308,6 +325,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
               applianceCode, masterId, (json) => Floor485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
+      LocalStorage.setItem(applianceCode, nodeId);
       Log.i('地暖拿到的nodeid:$nodeId');
       return nodeInfo;
     } catch (e) {
@@ -337,6 +355,18 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     dynamic HomluxRes = {};
     return HomluxRes;
   }
+
+  Future<void> getLocalDeviceCode() async {
+    nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+    if (nodeId.isNotEmpty) {
+      localDeviceCode = nodeId.split('-')[1];
+      if (nodeId.split('-')[0] == System.macAddress) {
+        isLocalDevice = true;
+      } else {
+        isLocalDevice = false;
+      }
+    }
+  }
 }
 
 // The rest of the code for PanelData class remains the same as before
@@ -350,8 +380,12 @@ class Floor485Data {
   // 开关状态
   String OnOff = "0";
 
+  bool online = false;
+
+
   Floor485Data({
     required this.name,
+    required this.online,
     required this.targetTemp,
     required this.OnOff,
   });

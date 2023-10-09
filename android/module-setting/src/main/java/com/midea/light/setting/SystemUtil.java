@@ -785,9 +785,31 @@ public class SystemUtil {
 
     public static String getMacAddress() {
         if (AppCommonConfig.getChannel().equals("JH")) {
-            return MacUtil.macAddress("wlan0");
+            if(!MacUtil.macAddress("wlan0").equals("00.00.00.00.00.00")){
+                SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-JH", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("M-Smart-4-MAC-JH", MacUtil.macAddress("wlan0")).commit();
+            }
+            SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-JH", Context.MODE_PRIVATE);
+            String mac= sp.getString("M-Smart-4-MAC-JH","");
+            if(!mac.isEmpty()){
+                return mac;
+            }else{
+                return MacUtil.macAddress("wlan0");
+            }
         } else {
-            return MacUtil.macAddress("p2p0");
+            if(!MacUtil.macAddress("p2p0").equals("00.00.00.00.00.00")){
+                SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-LD", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("M-Smart-4-MAC-LD", MacUtil.macAddress("p2p0")).commit();
+            }
+            SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-LD", Context.MODE_PRIVATE);
+            String mac= sp.getString("M-Smart-4-MAC-LD","");
+            if(!mac.isEmpty()){
+                return mac;
+            }else{
+                return MacUtil.macAddress("p2p0");
+            }
         }
     }
 

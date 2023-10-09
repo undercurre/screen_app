@@ -552,7 +552,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                     Opacity(
                       opacity: selectRoomVisible,
                       child: ui.DropdownMenu(
-                        disabled: false,
+                        disabled: selectRoomVisible==0?false:true,
                         menu: btnList.map(
                               (item) {
                             return PopupMenuItem<String>(
