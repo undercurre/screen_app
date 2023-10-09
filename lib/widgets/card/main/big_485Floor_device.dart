@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/global.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
@@ -15,6 +16,10 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
+  String applianceCode;
+  bool disable;
+  AdapterGenerateFunction<FloorDataAdapter> adapterGenerateFunction;
+
   //----
   int temperature = 26; // 温度值
   final int min; // 温度最小值
@@ -25,11 +30,13 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
 
   final void Function(bool toOn)? onPowerTap; // 开关点击
 
-  FloorDataAdapter? adapter; // 数据适配器
+
 
   Big485FloorDeviceAirCardWidget(
       {super.key,
       required this.name,
+      required this.disable,
+      required this.applianceCode,
       required this.onOff,
       required this.roomName,
       this.onMoreTap,
@@ -41,57 +48,40 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
       required this.temperature,
       required this.min,
       required this.max,
-      required this.adapter,
+      required this.adapterGenerateFunction,
       this.onPowerTap});
 
   @override
-  _Big485FloorDeviceAirCardWidgetState createState() =>
-      _Big485FloorDeviceAirCardWidgetState();
+  _Big485FloorDeviceAirCardWidgetState createState() => _Big485FloorDeviceAirCardWidgetState();
 }
 
-class _Big485FloorDeviceAirCardWidgetState
-    extends State<Big485FloorDeviceAirCardWidget> {
+class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCardWidget> {
+  
+  late FloorDataAdapter adapter;
+  
   @override
   void initState() {
     super.initState();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable){
+      adapter.bindDataUpdateFunction(update485BigFloorData);
+    }
   }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.init();
-    widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
-  }
-
-  @override
-  void didUpdateWidget(covariant Big485FloorDeviceAirCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(update485BigFloorData);
-    widget.adapter!.init();
-    setState(() {
-      widget.temperature = oldWidget.temperature;
-      widget.onOff = oldWidget.onOff;
-    });
-  }
-
+  
   void update485BigFloorData() {
     if (mounted) {
       setState(() {
-        widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        logger.i("大卡片地暖温度:${widget.adapter!.data!.targetTemp}");
+        widget.temperature = int.parse(adapter.data!.targetTemp);
+        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+        logger.i("大卡片地暖温度:${adapter.data!.targetTemp}");
       });
     }
   }
-
-  Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
-  }
-
+  
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(update485BigFloorData);
-    widget.adapter!.destroy();
+    adapter.unBindDataUpdateFunction(update485BigFloorData);
     super.dispose();
   }
 
@@ -101,15 +91,15 @@ class _Big485FloorDeviceAirCardWidgetState
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter.orderPower(1);
     }
   }
 
@@ -120,10 +110,10 @@ class _Big485FloorDeviceAirCardWidgetState
     if (!widget.online) {
       return;
     }
-    widget.adapter?.orderTemp(value.toInt());
+    adapter.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
-    widget.adapter!.data!.targetTemp = value.toString();
+    adapter.data!.targetTemp = value.toString();
   }
 
   @override
@@ -132,7 +122,7 @@ class _Big485FloorDeviceAirCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -147,7 +137,7 @@ class _Big485FloorDeviceAirCardWidgetState
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -159,7 +149,7 @@ class _Big485FloorDeviceAirCardWidgetState
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.applianceCode)) {
+          deviceId: adapter.applianceCode)) {
         widget.online = false;
         return '离线';
       } else {
@@ -204,7 +194,7 @@ class _Big485FloorDeviceAirCardWidgetState
                   {
                     Navigator.pushNamed(context, '0x21_485Floor', arguments: {
                       "name": getDeviceName(),
-                      "adapter": widget.adapter
+                      "adapter": adapter
                     })
                   }
                 else

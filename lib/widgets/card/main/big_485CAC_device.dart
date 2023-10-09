@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -25,13 +26,18 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
 
   final void Function(bool toOn)? onPowerTap; // 开关点击
 
-  CACDataAdapter? adapter; // 数据适配器
+  bool disable;
+  String applianceCode;
+  AdapterGenerateFunction<CACDataAdapter> adapterGenerateFunction;
 
   Big485CACDeviceAirCardWidget(
       {super.key,
       required this.name,
+      required this.applianceCode,
       required this.onOff,
       required this.roomName,
+      required this.disable,
+      required this.adapterGenerateFunction,
       this.onMoreTap,
       required this.online,
       required this.isFault,
@@ -41,67 +47,42 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       required this.temperature,
       required this.min,
       required this.max,
-      required this.adapter,
       this.onPowerTap});
 
   @override
-  _Big485CACDeviceAirCardWidgetState createState() =>
-      _Big485CACDeviceAirCardWidgetState();
+  _Big485CACDeviceAirCardWidgetState createState() => _Big485CACDeviceAirCardWidgetState();
 }
 
 class _Big485CACDeviceAirCardWidgetState
     extends State<Big485CACDeviceAirCardWidget> {
 
+  late CACDataAdapter adapter;
+
+  @override
+  void initState() {
+    super.initState();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable){
+      adapter.bindDataUpdateFunction(updateData);
+    }
+  }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
-          widget.temperature = int.parse(widget.adapter!.data!.targetTemp);
-          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-          widget.localOnline=widget.adapter!.data!.online;
+        if (int.parse(adapter.data!.targetTemp) < 35) {
+          widget.temperature = int.parse(adapter.data!.targetTemp);
+          widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+          widget.localOnline=adapter.data!.online;
         }
       });
     }
   }
 
-  Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        widget.isNative= widget.adapter!.isLocalDevice;
-      });
-      updateDetail();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.init();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-  }
-
-  @override
-  void didUpdateWidget(covariant Big485CACDeviceAirCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
-    setState(() {
-      widget.temperature = oldWidget.temperature;
-      widget.onOff = oldWidget.onOff;
-    });
-  }
-
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(updateData);
-    widget.adapter!.destroy();
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
@@ -111,15 +92,15 @@ class _Big485CACDeviceAirCardWidgetState
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter.orderPower(1);
     }
   }
 
@@ -130,10 +111,10 @@ class _Big485CACDeviceAirCardWidgetState
     if (!widget.online) {
       return;
     }
-    widget.adapter?.orderTemp(value.toInt());
+    adapter.orderTemp(value.toInt());
     widget.temperature = value.toInt();
     setState(() {});
-    widget.adapter!.data!.targetTemp = value.toString();
+    adapter.data!.targetTemp = value.toString();
   }
 
   @override
@@ -142,14 +123,14 @@ class _Big485CACDeviceAirCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'空调${widget.adapter?.localDeviceCode.substring(2,4)}':'加载中';
+        return widget.isNative?'空调${adapter.localDeviceCode.substring(2,4)}':'加载中';
       }
 
       return nameInModel;
@@ -157,7 +138,7 @@ class _Big485CACDeviceAirCardWidgetState
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -168,14 +149,14 @@ class _Big485CACDeviceAirCardWidgetState
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.adapter?.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
         if(widget.localOnline){
           widget.online = true;
         }else{
           widget.online = false;
         }
         widget.localOnline=false;
-        widget.adapter?.fetchData();
+        adapter.fetchData();
         if(widget.online){
           return '在线';
         }else{
@@ -188,7 +169,7 @@ class _Big485CACDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=true;
-        widget.adapter?.fetchData();
+        adapter.fetchData();
         if(widget.online){
           return '在线';
         }else{
@@ -233,7 +214,7 @@ class _Big485CACDeviceAirCardWidgetState
                   {
                     Navigator.pushNamed(context, '0x21_485CAC', arguments: {
                       "name": getDeviceName(),
-                      "adapter": widget.adapter
+                      "adapter": adapter
                     })
                   }
                 else

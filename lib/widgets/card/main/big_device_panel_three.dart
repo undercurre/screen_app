@@ -27,12 +27,12 @@ class BigDevicePanelCardWidgetThree extends StatefulWidget {
   final bool disabled;
   final bool disableOnOff;
   final bool discriminative;
-  PanelDataAdapter adapter; // 数据适配器
+  AdapterGenerateFunction<PanelDataAdapter> adapterGenerateFunction;
 
   BigDevicePanelCardWidgetThree({
     super.key,
     required this.icon,
-    required this.adapter,
+    required this.adapterGenerateFunction,
     required this.roomName,
     this.disableOnOff = true,
     required this.isOnline,
@@ -47,52 +47,32 @@ class BigDevicePanelCardWidgetThree extends StatefulWidget {
       _BigDevicePanelCardWidgetThreeState();
 }
 
-class _BigDevicePanelCardWidgetThreeState
-    extends State<BigDevicePanelCardWidgetThree> {
-
-  void _throttledFetchData() {
-    widget.adapter.fetchData();
-  }
+class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidgetThree> {
+  
+  late PanelDataAdapter adapter;
 
   @override
   void initState() {
     super.initState();
-    _startPushListen();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
     if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
+      adapter.bindDataUpdateFunction(updateData);
     }
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter.data.statusList = widget.adapter.data.statusList;
+        adapter.data.statusList = adapter.data.statusList;
       });
-      // Log.i('更新数据', widget.adapter.data.nameList);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant BigDevicePanelCardWidgetThree oldWidget) {
-    if (!widget.disabled) {
-      oldWidget.adapter.destroy();
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
-      super.didUpdateWidget(oldWidget);
+      // Log.i('更新数据', adapter.data.nameList);
     }
   }
 
   @override
   void dispose() {
-    _stopPushListen();
-    widget.adapter.unBindDataUpdateFunction(updateData);
-    widget.adapter.destroy();
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
@@ -111,17 +91,17 @@ class _BigDevicePanelCardWidgetThreeState
       if (widget.disabled) {
         return '';
       }
-      // if (widget.adapter.dataState == DataState.LOADING ||
-      //     widget.adapter.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.LOADING ||
+      //     adapter.dataState == DataState.NONE) {
       //   return '在线';
       // }
       if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
-      if (widget.adapter.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
-      if (widget.adapter.data!.statusList.isNotEmpty) {
+      if (adapter.data!.statusList.isNotEmpty) {
         return '在线';
       } else {
         return '离线';
@@ -134,7 +114,7 @@ class _BigDevicePanelCardWidgetThreeState
     //     List<DeviceEntity> hitList = deviceListModel.deviceCacheList.where((
     //         element) => element.applianceCode == widget.applianceCode).toList();
     //     if (hitList.isEmpty) {
-    //       layoutModel.deleteLayout(widget.adapter.applianceCode);
+    //       layoutModel.deleteLayout(adapter.applianceCode);
     //       TipsUtils.toast(content: '已删除${hitList[0].name}');
     //     }
     //   }
@@ -166,7 +146,7 @@ class _BigDevicePanelCardWidgetThreeState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -266,11 +246,11 @@ class _BigDevicePanelCardWidgetThreeState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      if (widget.adapter.data.nameList.isNotEmpty)
+                      if (adapter.data.nameList.isNotEmpty)
                         _panelItem(0),
-                      if (widget.adapter.data.nameList.length >= 2)
+                      if (adapter.data.nameList.length >= 2)
                         _panelItem(1),
-                      if (widget.adapter.data.nameList.length >= 3)
+                      if (adapter.data.nameList.length >= 3)
                         _panelItem(2),
                     ],
                   ),
@@ -292,7 +272,7 @@ class _BigDevicePanelCardWidgetThreeState
         onTap: () async {
           Log.i('disabled', widget.disabled);
           if (!widget.disabled &&
-              widget.adapter.dataState == DataState.SUCCESS) {
+              adapter.dataState == DataState.SUCCESS) {
             if (!deviceListModel.getOnlineStatus(
                 deviceId: widget.applianceCode)) {
               MzDialog(
@@ -316,8 +296,8 @@ class _BigDevicePanelCardWidgetThreeState
                     Navigator.pop(context);
                   }).show(context);
             } else {
-              await widget.adapter.fetchOrderPower(index + 1);
-              bus.emit('operateDevice', widget.adapter.nodeId);
+              await adapter.fetchOrderPower(index + 1);
+              bus.emit('operateDevice', adapter.nodeId);
             }
           }
         },
@@ -332,7 +312,7 @@ class _BigDevicePanelCardWidgetThreeState
                   : const AssetImage("assets/newUI/panel_btn_off.png"),
             ),
             Text(
-              widget.adapter.data.nameList[index],
+              adapter.data.nameList[index],
               style: const TextStyle(
                   overflow: TextOverflow.ellipsis,
                   color: Color(0XFFFFFFFF),
@@ -348,13 +328,13 @@ class _BigDevicePanelCardWidgetThreeState
   }
 
   String _getIconSrc() {
-    if (widget.adapter.data.nameList.length == 1) {
+    if (adapter.data.nameList.length == 1) {
       return "assets/newUI/device/0x21_1339.png";
     }
-    if (widget.adapter.data.nameList.length == 2) {
+    if (adapter.data.nameList.length == 2) {
       return "assets/newUI/device/0x21_1340.png";
     }
-    if (widget.adapter.data.nameList.length == 3) {
+    if (adapter.data.nameList.length == 3) {
       return "assets/newUI/device/0x21_1341.png";
     }
     return "assets/newUI/device/0x21_1342.png";
@@ -362,10 +342,10 @@ class _BigDevicePanelCardWidgetThreeState
 
   bool _isPanelItemOn(int index) {
     if (!widget.disabled) {
-      if (index < 0 || index > widget.adapter.data.statusList.length - 1) {
+      if (index < 0 || index > adapter.data.statusList.length - 1) {
         return false;
       } else {
-        return widget.adapter.data.statusList[index];
+        return adapter.data.statusList[index];
       }
     } else {
       return false;
@@ -388,35 +368,5 @@ class _BigDevicePanelCardWidgetThreeState
         ],
       ),
     );
-  }
-
-  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
-    if (args.nodeId == widget.adapter.nodeId) {
-      _throttledFetchData();
-    }
-  }
-
-  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
-    if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
-      _throttledFetchData();
-    }
-  }
-
-  void _startPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      Log.develop('$hashCode bind');
-      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
-  }
-
-  void _stopPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      Log.develop('$hashCode unbind');
-      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
   }
 }

@@ -26,16 +26,16 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final bool disableOnOff;
   final bool discriminative;
 
-  final DeviceCardDataAdapter? adapter;
+  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
 
-  const BigDeviceCurtainCardWidget(
+  BigDeviceCurtainCardWidget(
       {super.key,
       required this.name,
       required this.roomName,
       required this.online,
       required this.isFault,
       required this.isNative,
-      this.adapter,
+      required this.adapterGenerateFunction,
       this.hasMore = true,
       this.disabled = false,
       this.disableOnOff = true,
@@ -52,6 +52,8 @@ class _BigDeviceCurtainCardWidgetState
   bool _isFetching = false;
   Timer? _debounceTimer;
 
+  late DeviceCardDataAdapter adapter;
+
   void _throttledFetchData() async {
     if (!_isFetching) {
       _isFetching = true;
@@ -62,7 +64,7 @@ class _BigDeviceCurtainCardWidgetState
 
       _debounceTimer = Timer(const Duration(milliseconds: 10000), () async {
         Log.i('触发更新');
-        widget.adapter?.init();
+        adapter.fetchData();
         _isFetching = false;
       });
     }
@@ -71,37 +73,23 @@ class _BigDeviceCurtainCardWidgetState
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
     if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant BigDeviceCurtainCardWidget oldWidget) {
-    if (!widget.disabled) {
-      oldWidget.adapter?.destroy();
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
+      adapter.bindDataUpdateFunction(updateCallback);
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateCallback);
-    widget.adapter?.destroy();
+    adapter.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter?.data;
+        adapter.data = adapter.data;
       });
     }
   }
@@ -131,19 +119,19 @@ class _BigDeviceCurtainCardWidgetState
         return '离线';
       }
       //
-      // if (widget.adapter?.dataState == DataState.LOADING) {
+      // if (adapter.dataState == DataState.LOADING) {
       //   return '';
       // }
       //
-      // if (widget.adapter?.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.NONE) {
       //   return '离线';
       // }
 
-      if (widget.adapter?.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic() ?? '';
+      return adapter.getCharacteristic() ?? '';
     }
 
     String getDeviceName() {
@@ -192,7 +180,7 @@ class _BigDeviceCurtainCardWidgetState
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool curPower = adapter.getPowerStatus() ?? false;
       bool online =
           deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (!online) {
@@ -284,7 +272,7 @@ class _BigDeviceCurtainCardWidgetState
                     if (!widget.disabled) {
                       Navigator.pushNamed(context, '0x14', arguments: {
                         "name": getDeviceName(),
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       });
                     }
                   },
@@ -387,7 +375,7 @@ class _BigDeviceCurtainCardWidgetState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          "${widget.adapter!.getCardStatus()?['curtainPosition']}",
+                          "${adapter!.getCardStatus()?['curtainPosition']}",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 60,
@@ -408,7 +396,7 @@ class _BigDeviceCurtainCardWidgetState
                 top: 74,
                 left: 174,
                 child: CupertinoSlidingSegmentedControl(
-                  backgroundColor: (widget.adapter?.getPowerStatus() ?? false)
+                  backgroundColor: (adapter.getPowerStatus() ?? false)
                       ? const Color(0xFF767D87)
                       : const Color(0xFF4C525E),
                   thumbColor: const Color(0xC1B7C4CF),
@@ -450,10 +438,10 @@ class _BigDeviceCurtainCardWidgetState
                   },
                   groupValue: _getGroupIndex(),
                   onValueChanged: (int? value) {
-                    if (widget.adapter?.getPowerStatus() != null &&
+                    if (adapter.getPowerStatus() != null &&
                         deviceListModel.getOnlineStatus(
                             deviceId: widget.applianceCode)) {
-                      widget.adapter?.tabTo(value);
+                      adapter.tabTo(value);
                       if (value == 1) {
                         _throttledFetchData();
                       }
@@ -466,7 +454,7 @@ class _BigDeviceCurtainCardWidgetState
                 top: 140,
                 left: 4,
                 child: MzSlider(
-                  value: widget.adapter!.getCardStatus()?['curtainPosition'],
+                  value: adapter!.getCardStatus()?['curtainPosition'],
                   width: 390,
                   height: 16,
                   min: 0,
@@ -476,10 +464,10 @@ class _BigDeviceCurtainCardWidgetState
                           deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
                   onChanging: (val, color) {
-                    widget.adapter?.slider1ToFaker(val.toInt());
+                    adapter.slider1ToFaker(val.toInt());
                   },
                   onChanged: (val, color) {
-                    widget.adapter?.slider1To(val.toInt());
+                    adapter.slider1To(val.toInt());
                     bus.emit('operateDevice', widget.applianceCode);
                   },
                 ),
@@ -492,17 +480,17 @@ class _BigDeviceCurtainCardWidgetState
   }
 
   int? _getGroupIndex() {
-    if (widget.adapter == null) {
+    if (adapter == null) {
       return 2;
     }
-    ;
-    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'close') {
+
+    if (adapter!.getCardStatus()?['curtainStatus'] == 'close') {
       return 2;
     }
-    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'stop') {
+    if (adapter!.getCardStatus()?['curtainStatus'] == 'stop') {
       return 1;
     }
-    if (widget.adapter!.getCardStatus()?['curtainStatus'] == 'open') {
+    if (adapter!.getCardStatus()?['curtainStatus'] == 'open') {
       return 0;
     }
     return 2;

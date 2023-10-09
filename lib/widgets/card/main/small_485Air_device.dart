@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -22,13 +23,15 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  AirDataAdapter? adapter; // 数据适配器
   int windSpeed = 4; // 风速值
+  final bool disable;
+  final AdapterGenerateFunction<AirDataAdapter> adapterGenerateFunction;
 
   Small485AirDeviceCardWidget({
     super.key,
     required this.name,
     required this.applianceCode,
+    required this.disable,
     required this.modelNumber,
     required this.masterId,
     required this.icon,
@@ -40,50 +43,38 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
     required this.online,
     required this.isFault,
     required this.isNative,
-    required this.adapter,
+    required this.adapterGenerateFunction,
   });
 
   @override
   _Small485AirDeviceCardWidget createState() => _Small485AirDeviceCardWidget();
+  
 }
 
 class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
+  late AirDataAdapter adapter;
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable) {
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateData);
-    widget.adapter?.destroy();
-  }
-
-  @override
-  void didUpdateWidget(covariant Small485AirDeviceCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
-    setState(() {
-      widget.windSpeed = oldWidget.windSpeed;
-      widget.onOff = oldWidget.onOff;
-    });
+    adapter.unBindDataUpdateFunction(updateData);
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter?.data = widget.adapter!.data!;
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
+        adapter.data = adapter.data!;
+        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+        widget.windSpeed = int.parse(adapter.data!.windSpeed);
       });
     }
   }
@@ -94,20 +85,20 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter.orderPower(1);
     }
   }
 
   Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
+    adapter.fetchData();
   }
 
   @override
@@ -116,7 +107,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -131,7 +122,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -143,7 +134,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.applianceCode)) {
+          deviceId: adapter.applianceCode)) {
         widget.online = false;
         return '离线';
       } else {
@@ -240,7 +231,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                   {
                     Navigator.pushNamed(context, '0x21_485Air', arguments: {
                       "name": getDeviceName(),
-                      "adapter": widget.adapter
+                      "adapter": adapter
                     })
                   }
                 else

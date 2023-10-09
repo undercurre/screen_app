@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -19,13 +20,17 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  FloorDataAdapter? adapter; // 数据适配器
   String temperature = "26"; // 温度值
+
+  bool disable;
+  AdapterGenerateFunction<FloorDataAdapter> adapterGenerateFunction;
 
   Middle485FloorDeviceCardWidget({
     super.key,
     required this.name,
     required this.applianceCode,
+    required this.disable,
+    required this.adapterGenerateFunction,
     required this.modelNumber,
     required this.masterId,
     required this.icon,
@@ -36,52 +41,31 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
     this.onMoreTap,
     required this.online,
     required this.isFault,
-    required this.isNative,
-    required this.adapter,
+    required this.isNative
   });
 
   @override
-  _Middle485FloorDeviceCardWidgetState createState() =>
-      _Middle485FloorDeviceCardWidgetState();
+  _Middle485FloorDeviceCardWidgetState createState() => _Middle485FloorDeviceCardWidgetState();
 }
 
-class _Middle485FloorDeviceCardWidgetState
-    extends State<Middle485FloorDeviceCardWidget> {
+class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCardWidget> {
+  late FloorDataAdapter adapter;
+  
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.init();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateData);
-    widget.adapter?.destroy();
-  }
-
-  @override
-  void didUpdateWidget(covariant Middle485FloorDeviceCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
-    setState(() {
-      widget.temperature = oldWidget.temperature;
-      widget.onOff = oldWidget.onOff;
-    });
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable){
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        widget.temperature = widget.adapter!.data!.targetTemp;
+        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+        widget.temperature = adapter.data!.targetTemp;
       });
     }
   }
@@ -92,20 +76,20 @@ class _Middle485FloorDeviceCardWidgetState
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter.orderPower(1);
     }
   }
 
   Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
+    adapter.fetchData();
   }
 
   @override
@@ -114,7 +98,7 @@ class _Middle485FloorDeviceCardWidgetState
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -129,7 +113,7 @@ class _Middle485FloorDeviceCardWidgetState
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -141,7 +125,7 @@ class _Middle485FloorDeviceCardWidgetState
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.applianceCode)) {
+          deviceId: adapter.applianceCode)) {
         widget.online = false;
         return '离线';
       } else {
@@ -167,7 +151,7 @@ class _Middle485FloorDeviceCardWidgetState
                     {
                       Navigator.pushNamed(context, '0x21_485Floor', arguments: {
                         "name": getDeviceName(),
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       })
                     }
                   else

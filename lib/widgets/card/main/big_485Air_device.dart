@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -25,6 +26,11 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
 
   AirDataAdapter? adapter; // 数据适配器
 
+
+  final bool disable;
+  final AdapterGenerateFunction<AirDataAdapter> adapterGenerateFunction;
+  final String applianceCode;
+
   Big485AirDeviceAirCardWidget(
       {super.key,
       required this.name,
@@ -36,43 +42,27 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
       required this.isNative,
       this.onChanging,
       this.onChanged,
-      required this.adapter,
+      required this.disable,
+      required this.adapterGenerateFunction,
+      required this.applianceCode,
       this.onPowerTap});
 
   @override
-  _Big485AirDeviceAirCardWidgetState createState() =>
-      _Big485AirDeviceAirCardWidgetState();
+  _Big485AirDeviceAirCardWidgetState createState() => _Big485AirDeviceAirCardWidgetState();
 }
 
-class _Big485AirDeviceAirCardWidgetState
-    extends State<Big485AirDeviceAirCardWidget> {
+class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWidget> {
+
+  late AirDataAdapter adapter;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        widget.isNative= widget.adapter!.isLocalDevice;
-      });
-      updateDetail();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.init();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-  }
-
-  @override
-  void didUpdateWidget(covariant Big485AirDeviceAirCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
-    setState(() {
-      widget.windSpeed = oldWidget.windSpeed;
-      widget.onOff = oldWidget.onOff;
-    });
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable) {
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {
@@ -88,7 +78,6 @@ class _Big485AirDeviceAirCardWidgetState
   @override
   void dispose() {
     widget.adapter!.unBindDataUpdateFunction(updateData);
-    widget.adapter!.destroy();
     super.dispose();
   }
 
