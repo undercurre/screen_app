@@ -77,7 +77,7 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {

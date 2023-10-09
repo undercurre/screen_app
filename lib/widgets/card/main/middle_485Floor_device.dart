@@ -105,7 +105,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(

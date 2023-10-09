@@ -95,7 +95,7 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
@@ -277,7 +277,7 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
 
   Widget _panelItem(int index, SceneListModel sceneModel,
       List<SceneInfoEntity> sceneListCache) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 84,
       height: 120,

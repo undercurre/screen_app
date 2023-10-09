@@ -56,7 +56,7 @@ class WifiLightPageState extends State<WifiLightPage> with Throttle {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       if (deviceListModel.deviceListHomlux.isEmpty &&

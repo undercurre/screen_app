@@ -57,7 +57,7 @@ class ZigbeeLightPageState extends State<ZigbeeLightPage> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     var colorful = Column(
       children: [

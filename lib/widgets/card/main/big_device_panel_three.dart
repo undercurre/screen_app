@@ -78,7 +78,7 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -264,7 +264,7 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
   }
 
   Widget _panelItem(int index) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 84,
       height: 120,

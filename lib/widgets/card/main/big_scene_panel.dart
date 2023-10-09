@@ -85,7 +85,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -266,7 +266,7 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
 
   Widget _panelItem(int index, SceneListModel sceneModel,
       List<SceneInfoEntity> sceneListCache) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 84,
       height: 120,
