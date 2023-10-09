@@ -105,9 +105,13 @@ public class MainActivity extends FlutterActivity {
             Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
             mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
         }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_TIME_TICK);
-        registerReceiver(receiver, filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_TIME_TICK);
+            registerReceiver(receiver, filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SLKClear();
         ZH485Device();
         checkInstallResourceExitInLocal();
@@ -362,18 +366,26 @@ public class MainActivity extends FlutterActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(receiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initReceive() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
-        filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
-        //注册广播接收
-        registerReceiver(receiver, filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
+            filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
+            filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
+            filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+            AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
+            //注册广播接收
+            registerReceiver(receiver, filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initNotifyChannel() {

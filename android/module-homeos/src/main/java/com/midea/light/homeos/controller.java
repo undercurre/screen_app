@@ -96,6 +96,13 @@ public class controller {
      */
     public native int sceneExcute(String requestId, String sceneId);
 
+    /**
+     * 发送心跳到 mqtt
+     * @param requestId
+     * @return
+     */
+    public native int heartBeat(String requestId);
+
     static {
         System.loadLibrary("controller");
     }

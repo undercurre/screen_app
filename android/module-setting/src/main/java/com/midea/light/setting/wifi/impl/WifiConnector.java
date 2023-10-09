@@ -182,7 +182,11 @@ public class WifiConnector {
             filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
             filter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            BaseApplication.getContext().registerReceiver(connectedState = new VerifyConnectedState(scanResult), filter);
+            try {
+                BaseApplication.getContext().registerReceiver(connectedState = new VerifyConnectedState(scanResult), filter);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -190,7 +194,11 @@ public class WifiConnector {
         if (register) {
             register = false;
             connectedState.start = false;
-            BaseApplication.getContext().unregisterReceiver(connectedState);
+            try {
+                BaseApplication.getContext().unregisterReceiver(connectedState);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             mHandler.removeCallbacksAndMessages(null);
         }
     }

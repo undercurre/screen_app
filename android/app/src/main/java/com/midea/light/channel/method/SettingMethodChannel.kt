@@ -73,16 +73,24 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             "registerScreenBroadcast" -> {
                 if (!screenReceiverRegister) {
                     screenReceiverRegister = true
-                    context.registerReceiver(mScreenReceiver, IntentFilter().apply {
-                        this.addAction(Intent.ACTION_SCREEN_ON)
-                        this.addAction(Intent.ACTION_SCREEN_OFF)
-                    })
+                    try {
+                        context.registerReceiver(mScreenReceiver, IntentFilter().apply {
+                            this.addAction(Intent.ACTION_SCREEN_ON)
+                            this.addAction(Intent.ACTION_SCREEN_OFF)
+                        })
+                    } catch (e: Exception) {
+                        e.printStackTrace();
+                    }
                 }
             }
             "unRegisterScreenBroadcast" -> {
-                if(screenReceiverRegister) {
-                    screenReceiverRegister = false
-                    context.unregisterReceiver(mScreenReceiver)
+                try {
+                    if (screenReceiverRegister) {
+                        screenReceiverRegister = false
+                        context.unregisterReceiver(mScreenReceiver)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace();
                 }
             }
             "SettingMediaVoiceValue" -> {

@@ -1271,14 +1271,18 @@ public class MideaAiService extends Service {
     }
 
     public void registerNetworkReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(NetWorkStateReceiver.getInstant(), filter);
-        IntentFilter filter2 = new IntentFilter();
-        filter2.addAction(Intent.ACTION_TIME_TICK);
-        registerReceiver(receiver, filter2);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver(NetWorkStateReceiver.getInstant(), filter);
+            IntentFilter filter2 = new IntentFilter();
+            filter2.addAction(Intent.ACTION_TIME_TICK);
+            registerReceiver(receiver, filter2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void unreregisterNetworkReceiver() {
