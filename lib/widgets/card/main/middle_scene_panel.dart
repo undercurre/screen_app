@@ -57,7 +57,9 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    adapter.bindDataUpdateFunction(updateData);
+    if(!widget.disabled) {
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   void updateData() {

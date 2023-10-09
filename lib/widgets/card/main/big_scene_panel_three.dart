@@ -60,7 +60,9 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    adapter.bindDataUpdateFunction(updateData);
+    if(!widget.disabled) {
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
   @override
