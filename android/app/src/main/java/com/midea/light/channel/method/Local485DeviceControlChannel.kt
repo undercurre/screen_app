@@ -126,7 +126,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
                         Log.e("sky", "找到了要控制的设备")
                         AirConditionController.getInstance().setWindSpeedLevl(
                             AirConditionController.getInstance().AirConditionList[i],
-                            Integer.toHexString(Integer.parseInt(windSpeed))
+                            String.format("%02x", Integer.parseInt(windSpeed))
                         )
                     }
                 }
@@ -144,7 +144,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
                         Log.e("sky", "找到了要控制的设备")
                         AirConditionController.getInstance().setModel(
                             AirConditionController.getInstance().AirConditionList[i],
-                            Integer.toHexString(Integer.parseInt(model))
+                            String.format("%02x", Integer.parseInt(model))
                         )
                     }
                 }
@@ -185,7 +185,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
                         Log.e("sky", "找到了要控制的设备")
                         FreshAirController.getInstance().setWindSpeedLevl(
                             FreshAirController.getInstance().FreshAirList[i],
-                            Integer.toHexString(Integer.parseInt(windSpeed))
+                            String.format("%02x", Integer.parseInt(windSpeed))
                         )
                     }
                 }

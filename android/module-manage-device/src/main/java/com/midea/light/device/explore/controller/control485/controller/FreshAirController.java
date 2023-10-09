@@ -272,6 +272,7 @@ public class FreshAirController implements Data485Observer {
         sb.append(device.getInSideAddress());
         sb.append(" ");
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
+        Log.e("sky","新风指令内容:"+sb);
         ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
     }
