@@ -18,12 +18,13 @@ class Small485FloorDeviceCardWidget extends StatefulWidget {
   bool onOff;
   bool online;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   String temperature = "26"; // 温度值
+  bool localOnline = false;
 
   bool disable;
   AdapterGenerateFunction<FloorDataAdapter> adapterGenerateFunction;
@@ -75,9 +76,19 @@ class _Small485FloorDeviceCardWidget
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
-        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
         widget.temperature = adapter.data!.targetTemp;
+        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+        widget.localOnline= adapter.data!.online;
+        widget.isNative= adapter.isLocalDevice;
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
       });
     }
   }
@@ -136,13 +147,32 @@ class _Small485FloorDeviceCardWidget
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: adapter.applianceCode)) {
-        widget.online = false;
-        return '离线';
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=false;
+        if(widget.online){
+          return "${widget.temperature}℃";
+
+        }else{
+          return '离线';
+        }
       } else {
-        widget.online = true;
-        return "${widget.temperature}℃";
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        if(widget.online){
+          return "${widget.temperature}℃";
+
+        }else{
+          return '离线';
+        }
       }
     }
 

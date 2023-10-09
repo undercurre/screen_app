@@ -24,8 +24,6 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
 
   final void Function(bool toOn)? onPowerTap; // 开关点击
 
-  AirDataAdapter? adapter; // 数据适配器
-
 
   final bool disable;
   final AdapterGenerateFunction<AirDataAdapter> adapterGenerateFunction;
@@ -68,16 +66,16 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-        widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
-        widget.localOnline=widget.adapter!.data!.online;
+        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+        widget.windSpeed = int.parse(adapter.data!.windSpeed);
+        widget.localOnline=adapter.data!.online;
       });
     }
   }
 
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(updateData);
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
@@ -87,15 +85,15 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter?.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter?.orderPower(1);
     }
   }
 
@@ -111,14 +109,14 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
     } else if (value == 3) {
       value = 1;
     }
-    widget.adapter!.data!.windSpeed = value.toString();
+    adapter.data!.windSpeed = value.toString();
     widget.windSpeed = value.toInt();
     setState(() {});
-    widget.adapter?.orderSpeed(value.toInt());
+    adapter?.orderSpeed(value.toInt());
   }
 
   Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
+    adapter?.fetchData();
   }
 
   int setWinSpeed(int wind) {
@@ -141,14 +139,14 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter?.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'新风${widget.adapter?.localDeviceCode.substring(2,4)}':'加载中';
+        return widget.isNative?'新风${adapter?.localDeviceCode.substring(2,4)}':'加载中';
 
       }
 
@@ -157,7 +155,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter?.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -168,14 +166,13 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.adapter?.applianceCode)) {
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter?.applianceCode)) {
         if(widget.localOnline){
           widget.online = true;
         }else{
           widget.online = false;
         }
         widget.localOnline=false;
-        widget.adapter?.fetchData();
         if(widget.online){
           return '在线';
         }else{
@@ -188,7 +185,6 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
           widget.online = false;
         }
         widget.localOnline=true;
-        widget.adapter?.fetchData();
         if(widget.online){
           return '在线';
         }else{
@@ -233,7 +229,7 @@ class _Big485AirDeviceAirCardWidgetState extends State<Big485AirDeviceAirCardWid
                   {
                     Navigator.pushNamed(context, '0x21_485Air', arguments: {
                       "name": getDeviceName(),
-                      "adapter": widget.adapter
+                      "adapter": adapter
                     })
                   }
                 else

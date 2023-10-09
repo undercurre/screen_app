@@ -70,11 +70,20 @@ class _Big485CACDeviceAirCardWidgetState
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
-        if (int.parse(adapter.data!.targetTemp) < 35) {
-          widget.temperature = int.parse(adapter.data!.targetTemp);
-          widget.onOff = adapter.data!.OnOff == '1' ? true : false;
-          widget.localOnline=adapter.data!.online;
+        if (int.parse(adapter!.data!.targetTemp) < 35) {
+          widget.temperature = int.parse(adapter!.data!.targetTemp);
+          widget.onOff = adapter!.data!.OnOff == '1' ? true : false;
+          widget.localOnline=adapter!.data!.online;
+          widget.isNative= adapter!.isLocalDevice;
+          if(widget.localOnline){
+            widget.online = true;
+          }else{
+            widget.online = false;
+          }
         }
       });
     }

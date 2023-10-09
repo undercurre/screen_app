@@ -16,12 +16,14 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
   bool onOff;
   bool online;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
   int windSpeed = 4; // 风速值
+  bool localOnline=false;
+
 
   final bool disable;
   final AdapterGenerateFunction<AirDataAdapter> adapterGenerateFunction;
@@ -72,10 +74,19 @@ class _Middle485AirDeviceCardWidgetState
 
   void updateData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.windSpeed == int.parse(widget.adapter!.data!.windSpeed)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
-        adapter.data = adapter.data!;
-        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
-        widget.windSpeed = int.parse(adapter.data!.windSpeed);
+        widget.onOff = adapter!.data!.OnOff == '1' ? true : false;
+        widget.windSpeed = int.parse(adapter!.data!.windSpeed);
+        widget.localOnline=adapter!.data!.online;
+        widget.isNative= adapter!.isLocalDevice;
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
       });
     }
   }
@@ -129,24 +140,52 @@ class _Middle485AirDeviceCardWidgetState
       return nameInModel;
     }
 
+
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: adapter.applianceCode)) {
-        widget.online = false;
-        return '离线';
-      } else {
-        widget.online = true;
-        int windSpeed = 1;
-        if (widget.windSpeed == 1) {
-          windSpeed = 3;
-        } else if (widget.windSpeed == 2) {
-          windSpeed = 2;
-        } else if (widget.windSpeed == 4) {
-          windSpeed = 1;
-        } else {
-          windSpeed = 3;
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
         }
-        return "$windSpeed档";
+        widget.localOnline=false;
+        if(widget.online) {
+          int windSpeed = 1;
+          if (widget.windSpeed == 1) {
+            windSpeed = 3;
+          } else if (widget.windSpeed == 2) {
+            windSpeed = 2;
+          } else if (widget.windSpeed == 4) {
+            windSpeed = 1;
+          } else {
+            windSpeed = 3;
+          }
+          return "$windSpeed档";
+        }else{
+          return '离线';
+        }
+      } else {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        if(widget.online){
+          int windSpeed = 1;
+          if (widget.windSpeed == 1) {
+            windSpeed = 3;
+          } else if (widget.windSpeed == 2) {
+            windSpeed = 2;
+          } else if (widget.windSpeed == 4) {
+            windSpeed = 1;
+          } else {
+            windSpeed = 3;
+          }
+          return "$windSpeed档";
+        }else{
+          return '离线';
+        }
       }
     }
 

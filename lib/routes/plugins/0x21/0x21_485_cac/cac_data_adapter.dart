@@ -41,7 +41,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   CAC485Data? data = CAC485Data(
       name: "",
-      online: false,
+      online: true,
       currTemp: "28",
       targetTemp: "26",
       operationMode: "1",
@@ -76,7 +76,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
           dataState = DataState.ERROR;
           data = CAC485Data(
               name: name,
-              online: false,
+              online: true,
               currTemp: "28",
               targetTemp: "26",
               operationMode: "4",
@@ -93,7 +93,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         dataState = DataState.ERROR;
         data = CAC485Data(
             name: name,
-            online: false,
+            online: true,
             currTemp: "28",
             targetTemp: "26",
             operationMode: "4",
@@ -102,6 +102,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         updateUI();
       }
     } else {
+      logger.i("空调调用刷新");
       deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
     }
   }
@@ -310,56 +311,14 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
+    logger.i("空调适配器初始化");
     getLocalDeviceCode();
-    if (applianceCode.length != 4) {
-      _startPushListen();
-    } else {
-      isLocalDevice = true;
-      Homlux485DeviceListEntity? deviceList =
-          HomluxGlobal.getHomlux485DeviceList;
-
-      ///homlux添加本地485空调设备
-      if (deviceList != null) {
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.airConditionList!.length;
-            i++) {
-          if ("${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}" ==
-              applianceCode) {
-            String? targetTemp = deviceList!
-                .nameValuePairs!.airConditionList![i].currTemperature;
-            String? currTemp =
-                deviceList!.nameValuePairs!.airConditionList![i].temperature;
-            String? operationMode =
-                deviceList!.nameValuePairs!.airConditionList![i].workModel;
-            String? OnOff =
-                deviceList!.nameValuePairs!.airConditionList![i].onOff;
-            String? windSpeed =
-                deviceList!.nameValuePairs!.airConditionList![i].windSpeed;
-            data = CAC485Data(
-                name: name,
-                online: deviceList!.nameValuePairs!.airConditionList![i].onlineState=="1"?true:false,
-                currTemp: int.parse(currTemp!, radix: 16).toString()!,
-                targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
-                operationMode: int.parse(operationMode!, radix: 16).toString()!,
-                OnOff: OnOff!,
-                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
-          }
-        }
-      } else {
-        data = CAC485Data(
-            name: name,
-            online: false,
-            currTemp: "24",
-            targetTemp: "26",
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
-      }
-    }
+    _startPushListen();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     if (nodeId == args.nodeId) {
+      logger.i("空调调用刷新2222");
       fetchData();
     }
   }
@@ -415,6 +374,11 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
       LocalStorage.setItem(applianceCode, nodeId);
+      if (nodeId.split('-')[0] == System.macAddress) {
+        isLocalDevice = true;
+      } else {
+        isLocalDevice = false;
+      }
       return nodeInfo;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
@@ -446,17 +410,59 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   Future<void> getLocalDeviceCode() async {
     nodeId = await LocalStorage.getItem(applianceCode) ?? "";
-    if (nodeId.isNotEmpty) {
-      localDeviceCode = nodeId.split('-')[1];
-      if (nodeId.split('-')[0] == System.macAddress) {
-        isLocalDevice = true;
-      } else {
+    if (applianceCode.length != 4) {
+      if (nodeId.isNotEmpty) {
+        localDeviceCode = nodeId.split('-')[1];
+        if (nodeId.split('-')[0] == System.macAddress) {
+          isLocalDevice = true;
+        } else {
+          isLocalDevice = false;
+        }
+      }else{
         isLocalDevice = false;
       }
+    } else {
+      isLocalDevice = true;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
+
+      ///homlux添加本地485空调设备
+      if (deviceList != null) {
+        for (int i = 0;
+        i < deviceList!.nameValuePairs!.airConditionList!.length;
+        i++) {
+          if ("${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}" ==
+              applianceCode) {
+            String? targetTemp = deviceList!
+                .nameValuePairs!.airConditionList![i].currTemperature;
+            String? currTemp =
+                deviceList!.nameValuePairs!.airConditionList![i].temperature;
+            String? operationMode =
+                deviceList!.nameValuePairs!.airConditionList![i].workModel;
+            String? OnOff =
+                deviceList!.nameValuePairs!.airConditionList![i].onOff;
+            String? windSpeed =
+                deviceList!.nameValuePairs!.airConditionList![i].windSpeed;
+            data = CAC485Data(
+                name: name,
+                online: deviceList!.nameValuePairs!.airConditionList![i].onlineState=="1"?true:false,
+                currTemp: int.parse(currTemp!, radix: 16).toString()!,
+                targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
+                operationMode: int.parse(operationMode!, radix: 16).toString()!,
+                OnOff: OnOff!,
+                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+          }
+        }
+      } else {
+        data = CAC485Data(
+            name: name,
+            online: true,
+            currTemp: "24",
+            targetTemp: "26",
+            operationMode: "4",
+            OnOff: "0",
+            windSpeed: "1");
+      }
     }
-    logger.i("空调本地地址:$nodeId");
-    logger.i(
-        "我的空调设备是不是本地:${isLocalDevice}--${nodeId.split('-')[0]}---${System.macAddress}");
   }
 }
 
@@ -477,7 +483,7 @@ class CAC485Data {
   // 开关状态
   String OnOff = "0";
 
-  bool online = false;
+  bool online = true;
 
   //风速
   String windSpeed = "1";
@@ -499,6 +505,7 @@ class CAC485Data {
     operationMode = data.endList[0].event.operationMode;
     OnOff = data.endList[0].event.OnOff;
     windSpeed = data.endList[0].event.windSpeed;
+    online = true;
   }
 
   CAC485Data.fromHomlux(dynamic data, String modelNumber) {}

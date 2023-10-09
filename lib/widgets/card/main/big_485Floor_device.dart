@@ -12,8 +12,9 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final String name;
   bool onOff;
   bool online;
+  bool localOnline = false;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   String applianceCode;
@@ -68,17 +69,26 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
       adapter.bindDataUpdateFunction(update485BigFloorData);
     }
   }
-  
+
   void update485BigFloorData() {
     if (mounted) {
+      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      //   return;
+      // }
       setState(() {
-        widget.temperature = int.parse(adapter.data!.targetTemp);
-        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
-        logger.i("大卡片地暖温度:${adapter.data!.targetTemp}");
+        widget.temperature = int.parse(adapter!.data!.targetTemp);
+        widget.onOff = adapter!.data!.OnOff == '1' ? true : false;
+        widget.localOnline= adapter!.data!.online;
+        widget.isNative= adapter!.isLocalDevice;
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
       });
     }
   }
-  
+
   @override
   void dispose() {
     adapter.unBindDataUpdateFunction(update485BigFloorData);
@@ -148,13 +158,30 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: adapter.applianceCode)) {
-        widget.online = false;
-        return '离线';
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=false;
+        if(widget.online){
+          return '在线';
+        }else{
+          return '离线';
+        }
       } else {
-        widget.online = true;
-        return '在线';
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        if(widget.online){
+          return '在线';
+        }else{
+          return '离线';
+        }
       }
     }
 
@@ -306,16 +333,34 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                         height: 36,
                         image: const AssetImage('assets/newUI/sub.png')),
                   ),
-                  Text("${widget.temperature}",
-                      style: TextStyle(
-                          height: 1.5,
-                          color: widget.onOff
-                              ? const Color(0XFFFFFFFF)
-                              : const Color(0XA3FFFFFF),
-                          fontSize: 60,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${widget.temperature}",
+                          style: TextStyle(
+                              height: 1.5,
+                              color: widget.onOff&&widget.online
+                                  ? const Color(0XFFFFFFFF)
+                                  : const Color(0XA3FFFFFF),
+                              fontSize: 60,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                        child:Text("℃",
+                            style: TextStyle(
+                                height: 1.5,
+                                color: widget.onOff&&widget.online
+                                    ? const Color(0XFFFFFFFF)
+                                    : const Color(0XA3FFFFFF),
+                                fontSize: 25,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
+
+                      ),
+                    ],
+                  ),
                   GestureDetector(
                     onTap: () => {
                       temperatureHandle(widget.temperature < widget.max
