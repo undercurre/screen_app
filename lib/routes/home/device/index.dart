@@ -34,10 +34,51 @@ class DevicePage extends StatefulWidget {
   // int currentPage = 0;
 
   // 启动定时器
-  void startPolling(BuildContext context) {
+  Future<void> startPolling(BuildContext context) async {
     const oneMinute = Duration(seconds: 180);
-    // 立即执行一次
-    autoDeleleLayout(context);
+    // 立即清除一次
+    final deviceModel = context.read<DeviceInfoListModel>();
+    final layoutModel = context.read<LayoutModel>();
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<String> layoutDeviceIds = layoutModel.layouts.map((e) => e.deviceId).toList();
+    List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
+    List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
+    compareDevice[1].forEach((compare) {
+      Layout curLayout =
+      layoutModel.getLayoutsByDevice(compare);
+      int curPageIndex = curLayout.pageIndex;
+      if (layoutModel.hasLayoutWithDeviceId(compare)) {
+        layoutModel.deleteLayout(compare);
+        // 检查还有没有不是空卡
+        Log.i('检查是否还有空卡');
+        bool hasNotNullCard = layoutModel.layouts.any((element) =>
+        element.cardType != CardType.Null &&
+            element.pageIndex == curPageIndex);
+        Log.i('是否有$curPageIndex页的其他空卡', curLayout.pageIndex);
+        if (!hasNotNullCard) {
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+        } else {
+          // 删除后还有其他有效卡片就补回去那张删掉的空卡片
+          // 因为要流式布局就要删掉空卡片，重新排过
+          List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
+              layoutModel.getLayoutsByPageIndex(curLayout.pageIndex));
+          layoutModel.layouts.removeWhere(
+                  (element) => element.pageIndex == curLayout.pageIndex);
+          for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
+            layoutModel.addLayout(curPageLayoutsAfterFill[o]);
+          }
+        }
+        // 看看是否删空
+        if (!layoutModel.layouts
+            .map((e) => e.pageIndex)
+            .contains(curLayout.pageIndex)) {
+          layoutModel.handleNullPage(curLayout.pageIndex);
+          curLayout.pageIndex =
+          (curLayout.pageIndex - 1) < 0 ? 0 : (curLayout.pageIndex - 1);
+        }
+      }
+    });
     // 使用周期性定时器，每分钟触发一次
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
       autoDeleleLayout(context);
@@ -45,7 +86,6 @@ class DevicePage extends StatefulWidget {
   }
 
   Future<void> autoDeleleLayout(BuildContext context) async {
-    Log.i('更新列表');
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
@@ -64,6 +104,7 @@ class DevicePage extends StatefulWidget {
         .toList();
     List<List<DeviceEntity>> compareDevice =
     Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    Log.i('对比后发现删除了', compareDevice[1]);
     compareDevice[1].forEach((compare) {
       Layout curLayout =
       layoutModel.getLayoutsByDevice(compare.applianceCode);
@@ -124,7 +165,9 @@ class _DevicePageState extends State<DevicePage> {
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
     deviceListModel.getDeviceList();
-    widget.startPolling(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      widget.startPolling(context);
+    });
   }
 
   @override
