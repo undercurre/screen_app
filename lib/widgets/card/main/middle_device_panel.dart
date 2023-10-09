@@ -246,7 +246,8 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                             }).show(context);
                       } else {
                         await adapter.fetchOrderPower(1);
-                        bus.emit('operateDevice', adapter.nodeId);
+                        bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
+
                       }
                     }
                   },

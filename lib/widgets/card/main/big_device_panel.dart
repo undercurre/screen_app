@@ -289,7 +289,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                   }).show(context);
             } else {
               await adapter.fetchOrderPower(index + 1);
-              bus.emit('operateDevice', adapter.nodeId);
+              bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
             }
           }
         },

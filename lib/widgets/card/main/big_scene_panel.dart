@@ -310,7 +310,8 @@ class _BigScenePanelCardWidgetState extends State<BigScenePanelCardWidget> {
                 });
               } else {
                 await adapter.fetchOrderPower(index + 1);
-                bus.emit('operateDevice', adapter.nodeId);
+                bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
+
               }
             }
           }

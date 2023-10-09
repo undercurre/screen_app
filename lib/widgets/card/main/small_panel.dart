@@ -235,7 +235,7 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
                 }).show(context);
           } else {
             await adapter.fetchOrderPower(1);
-            bus.emit('operateDevice', adapter.nodeId);
+            bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
           }
         }
       },
