@@ -309,12 +309,10 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   @override
   void init() {
     // Initialize the adapter and fetch data
-    deviceLocal485ControlChannel
-        .registerLocal485CallBack(_local485StateCallback);
+    deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     if (applianceCode.length != 4) {
       _startPushListen();
-      fetchData();
     } else {
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
@@ -405,8 +403,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   @override
   void destroy() {
-    deviceLocal485ControlChannel
-        .unregisterLocal485CallBack(_local485StateCallback);
+    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
     _stopPushListen();
   }
 

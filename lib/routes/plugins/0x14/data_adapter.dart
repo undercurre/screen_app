@@ -73,7 +73,6 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
 
   @override
   void init() {
-    fetchData();
     _startPushListen();
   }
 

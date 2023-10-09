@@ -24,9 +24,9 @@ class MiddleDeviceCardWidget extends StatefulWidget {
   final bool disabled;
   final Function? onTap; // 整卡点击事件
 
-  final DeviceCardDataAdapter? adapter;
+  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
 
-  const MiddleDeviceCardWidget(
+  MiddleDeviceCardWidget(
       {super.key,
       required this.applianceCode,
       required this.name,
@@ -34,12 +34,12 @@ class MiddleDeviceCardWidget extends StatefulWidget {
       required this.roomName,
       required this.online,
       required this.isFault,
-      required this.isNative,
+      required this.isNative, 
+      required this.adapterGenerateFunction,
       this.disableOnOff = true,
       this.hasMore = true,
       this.disabled = false,
       this.discriminative = false,
-      this.adapter,
       this.onTap});
 
   @override
@@ -47,39 +47,30 @@ class MiddleDeviceCardWidget extends StatefulWidget {
 }
 
 class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
+  
+  late DeviceCardDataAdapter adapter;
+  
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter?.bindDataUpdateFunction(updateCallback);
-    widget.adapter?.init();
-  }
-
-  @override
-  void didUpdateWidget(covariant MiddleDeviceCardWidget oldWidget) {
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
     if (!widget.disabled) {
-      oldWidget.adapter?.destroy();
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
+      adapter.bindDataUpdateFunction(updateCallback);
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateCallback);
-    widget.adapter?.destroy();
+    adapter.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
     setState(() {
       Log.i('中卡片状态更新');
       setState(() {
-        widget.adapter?.data = widget.adapter?.data;
+        adapter.data = adapter.data;
       });
     });
   }
@@ -110,19 +101,19 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         return '离线';
       }
       //
-      // if (widget.adapter?.dataState == DataState.LOADING) {
+      // if (adapter.dataState == DataState.LOADING) {
       //   return '';
       // }
       //
-      // if (widget.adapter?.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.NONE) {
       //   return '离线';
       // }
 
-      if (widget.adapter?.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic() ?? '';
+      return adapter.getCharacteristic() ?? '';
     }
 
     String getRoomName() {
@@ -161,7 +152,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool curPower = adapter.getPowerStatus() ?? false;
       bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
         return BoxDecoration(
@@ -235,10 +226,10 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         Log.i('disabled: ${widget.disabled}');
         if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
           widget.onTap?.call();
-          widget.adapter?.power(
-            widget.adapter?.getPowerStatus(),
+          adapter.power(
+            adapter.getPowerStatus(),
           );
-          bus.emit('operateDevice', widget.adapter!.getCardStatus()?["nodeId"] ?? widget.applianceCode);
+          bus.emit('operateDevice', adapter.getCardStatus()?["nodeId"] ?? widget.applianceCode);
         }
       },
       child: Container(
@@ -252,42 +243,42 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
-                  Log.i('点击进入插件', widget.adapter?.type);
+                  Log.i('点击进入插件', adapter.type);
                   if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
                     TipsUtils.toast(content: '设备已离线，请检查连接状态');
                     return;
                   }
                   if (!widget.disabled) {
-                    if (widget.adapter?.type == AdapterType.wifiLight) {
+                    if (adapter.type == AdapterType.wifiLight) {
                       Navigator.pushNamed(context, '0x13', arguments: {
                         "name": widget.name,
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       });
-                    } else if (widget.adapter?.type ==
+                    } else if (adapter.type ==
                         AdapterType.wifiCurtain) {
                       Navigator.pushNamed(context, '0x14', arguments: {
                         "name": widget.name,
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       });
-                    } else if (widget.adapter?.type ==
+                    } else if (adapter.type ==
                         AdapterType.zigbeeLight) {
                       Navigator.pushNamed(context, '0x21_light_colorful',
                           arguments: {
                             "name": widget.name,
-                            "adapter": widget.adapter
+                            "adapter": adapter
                           });
-                    } else if (widget.adapter?.type ==
+                    } else if (adapter.type ==
                         AdapterType.lightGroup) {
                       Navigator.pushNamed(context, 'lightGroup',
                           arguments: {
                             "name": widget.name,
-                            "adapter": widget.adapter
+                            "adapter": adapter
                           });
-                    } else if (widget.adapter?.type ==
+                    } else if (adapter.type ==
                         AdapterType.wifiAir) {
                       Navigator.pushNamed(context, '0xAC', arguments: {
                         "name": widget.name,
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       });
                     }
                   }

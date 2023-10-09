@@ -246,7 +246,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     if(applianceCode.length!=4){
       isLocalDevice=false;
       _startPushListen();
-      fetchData();
     }else{
       isLocalDevice=true;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;

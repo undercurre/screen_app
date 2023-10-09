@@ -237,7 +237,6 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     if (applianceCode.length != 4) {
       isLocalDevice = false;
       _startPushListen();
-      fetchData();
     } else {
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
@@ -245,17 +244,17 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       ///homlux添加本地485空调设备
       if (deviceList != null) {
         for (int i = 0;
-            i < deviceList!.nameValuePairs!.floorHotList!.length;
+            i < deviceList.nameValuePairs!.floorHotList!.length;
             i++) {
-          if ("${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}" ==
+          if ("${(deviceList.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList.nameValuePairs!.floorHotList![i].inSideAddress)!}" ==
               applianceCode) {
-            String? OnOff = deviceList!.nameValuePairs!.floorHotList![i].onOff;
+            String? OnOff = deviceList.nameValuePairs!.floorHotList![i].onOff;
             String? targetTemp =
-                deviceList!.nameValuePairs!.floorHotList![i].currTemperature;
+                deviceList.nameValuePairs!.floorHotList![i].currTemperature;
             data = Floor485Data(
               name: name,
-              online: deviceList!.nameValuePairs!.floorHotList![i].onlineState=="1"?true:false,
-              targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
+              online: deviceList.nameValuePairs!.floorHotList![i].onlineState=="1"?true:false,
+              targetTemp: int.parse(targetTemp!, radix: 16).toString(),
               OnOff: OnOff!,
             );
           }

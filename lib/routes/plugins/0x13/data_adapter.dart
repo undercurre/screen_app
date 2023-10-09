@@ -88,14 +88,12 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   final BuildContext context;
 
-  WIFILightDataAdapter(
-      super.platform, this.context, this.sn8, this.applianceCode) {
+  WIFILightDataAdapter(super.platform, this.context, this.sn8, this.applianceCode) {
     type = AdapterType.wifiLight;
   }
 
   @override
   void init() {
-    fetchData();
     _startPushListen();
   }
 
