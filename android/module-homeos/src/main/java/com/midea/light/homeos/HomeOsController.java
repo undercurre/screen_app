@@ -22,8 +22,14 @@ public class HomeOsController extends controller {
     @Override
     public void mqttMsgHandle(String topic, String msg) {
         super.mqttMsgHandle(topic, msg);
-        if(callback != null) {
-            callback.msg(topic, msg);
+        if(msg == null) return;
+        // 处理homeOs心跳
+        if(msg.contains("/controller/status")) {
+            heartBeat(String.valueOf(System.currentTimeMillis()));
+        } else {
+            if(callback != null) {
+                callback.msg(topic, msg);
+            }
         }
     }
 

@@ -219,25 +219,28 @@ class LayoutModel extends ChangeNotifier {
   bool isFillPage(int pageIndex) {
     int itemsPerPage = 16;
     List<Layout> layoutsOnPage =
-        layouts.where((element) => element.pageIndex == pageIndex).toList();
+        layouts.where((element) => element.pageIndex == pageIndex && element.cardType != CardType.Null).toList();
     List<int> gridFilledOnPage = [];
     layoutsOnPage.forEach((element) {
       gridFilledOnPage.addAll(element.grids);
     });
+    Log.i('$pageIndex页的grids', gridFilledOnPage);
     return gridFilledOnPage.length < itemsPerPage;
   }
 
   // 根据CardType判断第几页有适合的空位
   LayoutPosition getFlexiblePage(CardType cardType) {
     int maxPage = getMaxPageIndex();
+    Log.i('最大页数', maxPage);
+    Screen screenLayer = Screen();
     for (int i = 0; i <= maxPage; i++) {
       if (isFillPage(i)) {
+        Log.i('有空位', i);
         // 该页有空位
 
         // 获取该页的layouts
         List<Layout> layoutsInCurPage =
-            layouts.where((element) => element.pageIndex == i).toList();
-        Screen screenLayer = Screen();
+            layouts.where((element) => element.pageIndex == i && element.cardType != CardType.Null).toList();
         for (int j = 0; j < layoutsInCurPage.length; j++) {
           for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
             int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
@@ -247,8 +250,10 @@ class LayoutModel extends ChangeNotifier {
         }
         // 尝试填充
         List<int> fillCells = screenLayer.checkAvailability(cardType);
+        Log.i('尝试位置$i页$fillCells');
         if (fillCells.isNotEmpty) {
           // 有合适的位置
+          Log.i('输出合适的位置$i页$fillCells');
           return LayoutPosition(pageIndex: i, grids: fillCells);
         }
         screenLayer.resetGrid();

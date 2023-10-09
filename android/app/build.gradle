@@ -90,6 +90,7 @@ android {
     buildTypes {
 
         release {
+            debuggable false
             minifyEnabled false   //关闭混淆
             shrinkResources false // 关闭清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -97,6 +98,7 @@ android {
         }
 
         debug {
+            debuggable true
             minifyEnabled false // 开启混淆
             shrinkResources false // 自动清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -104,6 +106,7 @@ android {
         }
 
         profile {
+            debuggable true
             minifyEnabled false // 开启混淆
             shrinkResources false // 自动清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

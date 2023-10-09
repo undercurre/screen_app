@@ -232,12 +232,14 @@ public class SmartMideaPlayer {
                     case MusicPlayer.PlayMode.PLAY_MODE_REPEAT_ONE:
                         break;
                     case MusicPlayer.PlayMode.PLAY_MODE_SHUFFLE:
-                        int tempIndex = currentIndex;
-                        int index = new Random().nextInt(mSize);
-                        while (index == tempIndex) {
-                            index = new Random().nextInt(mSize);
+                        if(mSize > 1) { // 满足mSize大于等于一的情况，才执行下面的逻辑
+                            int tempIndex = currentIndex;
+                            int index = new Random().nextInt(mSize);
+                            while (index == tempIndex) {
+                                index = new Random().nextInt(mSize);
+                            }
+                            currentIndex = index;
                         }
-                        currentIndex = index;
                         break;
                     default:
                 }

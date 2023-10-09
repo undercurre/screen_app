@@ -278,6 +278,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   Future<void> controlCurtain(num value) async {
     int lastPosition = data!.curtainPosition;
     data!.curtainPosition = value.toInt();
+    data!.curtainStatus = 'stop';
     updateUI();
     controlLastTime = DateTime.now().millisecondsSinceEpoch;
     if (platform.inMeiju()) {
@@ -304,6 +305,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
 
   Future<void> controlCurtainFaker(num value) async {
     data!.curtainPosition = value.toInt();
+    data!.curtainStatus = 'stop';
     updateUI();
   }
 
