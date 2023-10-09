@@ -1,3 +1,5 @@
+import 'package:screen_app/common/exceptions/MideaException.dart';
+
 import '../gateway_platform.dart';
 import '../logcat_helper.dart';
 
@@ -6,11 +8,51 @@ import '../logcat_helper.dart';
 /// 编程核心：数据驱动UI
 typedef DataUpdateFunction = void Function();
 
+typedef AdapterGenerateFunction<T extends MideaDataAdapter> = T Function(String id);
 // 所有UI适配器的父类
 // 功能包括：运行的环境，统计适配器的刷新次数
 // 为了兼容多UI对应同一个类型的UI适配层，特意增加了key字段。规避这种情况下，难以统计具体UI的刷新次数
 abstract class MideaDataAdapter {
   Set<DataUpdateFunction>? _dataUpdateFunctionSet;
+
+  static Map<String, MideaDataAdapter> adapterMap = {};
+
+  static T getOrCreateAdapter<T extends MideaDataAdapter>(String id, AdapterGenerateFunction<T> function) {
+    if (MideaDataAdapter.contained(id)) {
+      return MideaDataAdapter.getAdapter(id);
+    } else {
+      var adapter = function.call(id);
+      MideaDataAdapter.addAdapter(id, adapter);
+      return adapter;
+    }
+  }
+
+  static T? getAdapter<T>(String id) {
+    if(adapterMap[id] != null) {
+      return null;
+    } else {
+      if(adapterMap[id] !is T) {
+        throw MideaException("[adapter] 重复 id 已被 ${adapterMap[id].runtimeType} 占用 传入的adapter类型为 ${T}");
+      }
+      return adapterMap[id] as T;
+    }
+  }
+
+  static bool contained(String id) {
+    return adapterMap.containsKey(id);
+  }
+
+  static void addAdapter(String id, MideaDataAdapter adapter) {
+    if(adapterMap.containsKey(id)) {
+      adapterMap[id] = adapter;
+    }
+  }
+
+  static void removeAdapter(String id) {
+    if(adapterMap.containsKey(id)) {
+      adapterMap.remove(id)?.destroy();
+    }
+  }
 
   /// 记录刷新次数
   int _refreshCount = 0;

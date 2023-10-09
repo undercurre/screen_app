@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
@@ -301,11 +302,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           disabled: params.disabled!,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId ?? '',
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => ScenePanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -1672,7 +1675,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 一路面板
   DeviceEntityTypeInP4.Zigbee_1339: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1691,7 +1694,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1100: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1710,7 +1713,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1081: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1729,7 +1732,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1099: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1748,7 +1751,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_67: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1767,7 +1770,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_68: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1786,7 +1789,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_69: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1805,7 +1808,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_41: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1824,7 +1827,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_34: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1843,7 +1846,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_17: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2478,7 +2481,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 一路多功能面板
   DeviceEntityTypeInP4.Zigbee_1347: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2487,17 +2490,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id,
+                    (id) => ScenePanelDataAdapter.create(
+                      params.applianceCode,
+                      params.masterId ?? '',
+                      params.modelNumber,
+                    ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1360: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2506,18 +2512,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => ScenePanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
   // 二路多功能面板
   DeviceEntityTypeInP4.Zigbee_1361: {
     CardType.Middle: (params) => MiddleScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2535,7 +2543,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1348: {
     CardType.Middle: (params) => MiddleScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2554,7 +2562,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // 三路多功能面板
   DeviceEntityTypeInP4.Zigbee_1362: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2573,7 +2581,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   DeviceEntityTypeInP4.Zigbee_1349: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,

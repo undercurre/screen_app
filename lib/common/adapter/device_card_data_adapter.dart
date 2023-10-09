@@ -23,6 +23,8 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   T? data;
 
+  Future<void> fetchData();
+
   /// 返回特定的状态属性，用于大卡片
   /// 例：return {"power": true, ... };
   Map<String, dynamic>? getCardStatus() {
