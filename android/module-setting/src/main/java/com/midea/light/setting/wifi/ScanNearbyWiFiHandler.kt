@@ -55,22 +55,30 @@ object ScanNearbyWiFiHandler {
     }
 
     fun start(context: Context) {
-        if (!register) {
-            context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
-                addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            })
-            register = true
+        try {
+            if (!register) {
+                context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
+                    addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+                })
+                register = true
+            }
+            wifiManager =
+                context.getSystemService(android.content.Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+            wifiManager.startScan()
+        } catch (e: Exception) {
+            e.printStackTrace();
         }
-        wifiManager =
-            context.getSystemService(android.content.Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-        wifiManager.startScan()
     }
 
     fun stop(context: Context) {
-        if (register) {
-            context.unregisterReceiver(mScanWiFiReceiver)
-            register = false
-            startScan = false
+        try {
+            if (register) {
+                context.unregisterReceiver(mScanWiFiReceiver)
+                register = false
+                startScan = false
+            }
+        } catch (e: Exception) {
+            e.printStackTrace();
         }
     }
 

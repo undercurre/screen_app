@@ -45,8 +45,8 @@ class MeiJuApi {
   final Dio _dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: const Duration(seconds: 20),
-    receiveTimeout: const Duration(seconds: 20),
+    connectTimeout: const Duration(seconds: 8),
+    receiveTimeout: const Duration(seconds: 8),
   ));
 
   static void init() {

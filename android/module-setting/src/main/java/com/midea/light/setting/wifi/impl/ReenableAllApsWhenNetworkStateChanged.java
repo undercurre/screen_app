@@ -87,15 +87,23 @@ public class ReenableAllApsWhenNetworkStateChanged {
 		@Override
 		public void onCreate() {
 			super.onCreate();
-			mReenabled = false;
-			mIntentFilter = new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-			registerReceiver(mReceiver, mIntentFilter);
+			try {
+				mReenabled = false;
+				mIntentFilter = new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+				registerReceiver(mReceiver, mIntentFilter);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		@Override
 		public void onDestroy() {
 			super.onDestroy();
-			unregisterReceiver(mReceiver);
+			try {
+				unregisterReceiver(mReceiver);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}
