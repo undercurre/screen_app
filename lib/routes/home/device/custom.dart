@@ -61,27 +61,28 @@ class _CustomPageState extends State<CustomPage> {
     return Stack(
       children: [
         Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF272F41), Color(0xFF080C14)],
-              ),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF272F41), Color(0xFF080C14)],
             ),
-            constraints:
-                BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            height: MediaQuery.of(context).size.height,
-            child: PageView.builder(
-                controller: _pageController,
-                scrollDirection: Axis.horizontal,
-                onPageChanged: (index) {
-                  pageCounterModel.currentPage = index;
-                },
-                itemCount: _screens.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _screens[index];
-                },
-              ),),
+          ),
+          constraints:
+              BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          height: MediaQuery.of(context).size.height,
+          child: PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.horizontal,
+            onPageChanged: (index) {
+              pageCounterModel.currentPage = index;
+            },
+            itemCount: _screens.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _screens[index];
+            },
+          ),
+        ),
         Positioned(
           bottom: 0,
           child: ClipRect(
@@ -131,8 +132,9 @@ class _CustomPageState extends State<CustomPage> {
                               // 初始化布局占位器
                               Screen screenLayer = Screen();
                               // 拿到当前页的layout
-                              List<Layout> layoutsInCurPage = layoutModel
-                                  .getLayoutsByPageIndex(pageCounterModel.currentPage);
+                              List<Layout> layoutsInCurPage =
+                                  layoutModel.getLayoutsByPageIndex(
+                                      pageCounterModel.currentPage);
                               if (layoutsInCurPage.isNotEmpty) {
                                 // 非空页
                                 for (int layoutInCurPageIndex = 0;
@@ -175,15 +177,28 @@ class _CustomPageState extends State<CustomPage> {
                                     result.grids = proFlexiblePage.grids;
                                     Log.i('找到了合适的位置',
                                         '${result.pageIndex}页${result.grids}');
+                                    // 找到并删掉空缺
+                                    Layout daiding = layoutModel.layouts
+                                        .where((element) =>
+                                            element.pageIndex ==
+                                                result.pageIndex &&
+                                            element.cardType == CardType.Null &&
+                                            Set<int>.from(element.grids)
+                                                .containsAll(result.grids) &&
+                                            Set<int>.from(result.grids)
+                                                .containsAll(element.grids))
+                                        .toList()[0];
+                                    layoutModel.deleteLayout(daiding.deviceId);
                                     WidgetsBinding.instance
                                         ?.addPostFrameCallback((_) {
                                       _pageController.animateToPage(
                                           result.pageIndex,
                                           duration:
-                                          const Duration(milliseconds: 300),
+                                              const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
-                                    pageCounterModel.currentPage = result.pageIndex;
+                                    pageCounterModel.currentPage =
+                                        result.pageIndex;
                                   } else {
                                     // 放到最后一页
                                     // 清空布局器
@@ -207,7 +222,7 @@ class _CustomPageState extends State<CustomPage> {
                                         ?.addPostFrameCallback((_) {
                                       _pageController.animateToPage(maxPage + 1,
                                           duration:
-                                          const Duration(milliseconds: 300),
+                                              const Duration(milliseconds: 300),
                                           curve: Curves.ease);
                                     });
                                     pageCounterModel.currentPage = maxPage + 1;
@@ -222,7 +237,8 @@ class _CustomPageState extends State<CustomPage> {
                                   // 拿到当前页的layout
                                   Log.i('屏幕没占满又放的下');
                                   result.grids = fillCells;
-                                  result.pageIndex = pageCounterModel.currentPage;
+                                  result.pageIndex =
+                                      pageCounterModel.currentPage;
                                   List<Layout> hasThisNullCardList =
                                       layoutsInCurPage
                                           .where((element) =>
@@ -342,15 +358,16 @@ class _CustomPageState extends State<CustomPage> {
                         element.cardType != CardType.Null &&
                         element.pageIndex == pageCounterModel.currentPage);
                     if (!hasNotNullCard) {
-                      layoutModel.layouts.removeWhere(
-                          (element) => element.pageIndex == pageCounterModel.currentPage);
+                      layoutModel.layouts.removeWhere((element) =>
+                          element.pageIndex == pageCounterModel.currentPage);
                     } else {
                       // 删除后还有其他有效卡片就补回去那张删掉的空卡片
                       // 因为要流式布局就要删掉空卡片，重新排过
                       List<Layout> curPageLayoutsAfterFill = Layout.flexLayout(
-                          layoutModel.getLayoutsByPageIndex(pageCounterModel.currentPage));
-                      layoutModel.layouts.removeWhere(
-                          (element) => element.pageIndex == pageCounterModel.currentPage);
+                          layoutModel.getLayoutsByPageIndex(
+                              pageCounterModel.currentPage));
+                      layoutModel.layouts.removeWhere((element) =>
+                          element.pageIndex == pageCounterModel.currentPage);
                       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
                         layoutModel.addLayout(curPageLayoutsAfterFill[o]);
                       }
