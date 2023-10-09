@@ -103,6 +103,8 @@ class HomluxLanControlDeviceManager {
   /// value为灯组信息
   Map<String, Map<String, dynamic>> groupMap = {};
 
+  /// 请求更新列表数据定时器
+  Timer? requestDataTimer;
 
   bool isEnable() {
     return sucSubscribe && connectOk;
@@ -135,9 +137,9 @@ class HomluxLanControlDeviceManager {
         lanDeviceControlChannel.getSceneInfo(uuid.v4());
         Log.file('[homeos] getGroupInfo()');
         lanDeviceControlChannel.getGroupInfo(uuid.v4());
-
-        Future.delayed(const Duration(seconds: 2), () {
-          bus.typeEmit(HomluxLanDeviceChange(), 500);
+        requestDataTimer?.cancel();
+        requestDataTimer = Timer(const Duration(seconds: 3), () {
+          bus.typeEmit(HomluxLanDeviceChange(), 1000);
         });
       }
 
@@ -577,8 +579,13 @@ class HomluxLanControlDeviceManager {
           lanDeviceControlChannel.getSceneInfo(uuid.v4());
           Log.file('[homeos] getGroupInfo()');
           lanDeviceControlChannel.getGroupInfo(uuid.v4());
+          requestDataTimer?.cancel();
+          requestDataTimer = Timer(const Duration(seconds: 3), () {
+            bus.typeEmit(HomluxLanDeviceChange(), 1000);
+          });
         } else if(args == 'connectLost') {
           connectOk = false;
+          requestDataTimer?.cancel();
         }
       };
       lanDeviceControlChannel.mqttCallback = (topic, msg) {
