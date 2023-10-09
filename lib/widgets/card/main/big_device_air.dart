@@ -24,17 +24,16 @@ class BigDeviceAirCardWidget extends StatefulWidget {
   final bool hasMore;
   final bool disabled;
 
-  //----
-  final DeviceCardDataAdapter? adapter;
+  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
 
-  const BigDeviceAirCardWidget(
+  BigDeviceAirCardWidget(
       {super.key,
       required this.name,
       required this.roomName,
       required this.online,
       required this.isFault,
       required this.isNative,
-      this.adapter,
+      required this.adapterGenerateFunction,  
       this.hasMore = true,
       this.disabled = false,
       this.disableOnOff = true,
@@ -46,48 +45,37 @@ class BigDeviceAirCardWidget extends StatefulWidget {
 }
 
 class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
+  
+  late DeviceCardDataAdapter adapter;
+  
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!widget.disabled) {
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant BigDeviceAirCardWidget oldWidget) {
-    if (!widget.disabled) {
-      oldWidget.adapter?.destroy();
-      widget.adapter?.bindDataUpdateFunction(updateCallback);
-      widget.adapter?.init();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(widget.disabled) {
+      adapter.bindDataUpdateFunction(updateCallback);
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.adapter?.unBindDataUpdateFunction(updateCallback);
-    widget.adapter?.destroy();
+    adapter.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
     setState(() {
       Log.i('大卡片状态更新');
       setState(() {
-        widget.adapter?.data = widget.adapter?.data;
+        adapter.data = adapter.data;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -110,19 +98,19 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
         return '离线';
       }
       //
-      // if (widget.adapter?.dataState == DataState.LOADING) {
+      // if (adapter.dataState == DataState.LOADING) {
       //   return '';
       // }
       //
-      // if (widget.adapter?.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.NONE) {
       //   return '离线';
       // }
 
-      if (widget.adapter?.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
 
-      return widget.adapter?.getCharacteristic() ?? '';
+      return adapter.getCharacteristic() ?? '';
     }
 
     String getDeviceName() {
@@ -170,7 +158,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower = widget.adapter?.getPowerStatus() ?? false;
+      bool curPower = adapter.getPowerStatus() ?? false;
       bool online =
           deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
@@ -262,8 +250,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                   if (!widget.disabled &&
                       deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode)) {
-                    widget.adapter?.power(
-                      widget.adapter?.getPowerStatus(),
+                    adapter.power(
+                      adapter.getPowerStatus(),
                     );
                     bus.emit('operateDevice', widget.applianceCode);
                   }
@@ -271,7 +259,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 child: Image(
                     width: 40,
                     height: 40,
-                    image: AssetImage(widget.adapter?.getPowerStatus() ?? false
+                    image: AssetImage(adapter.getPowerStatus() ?? false
                         ? 'assets/newUI/card_power_on.png'
                         : 'assets/newUI/card_power_off.png')),
               ),
@@ -290,7 +278,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
                   Navigator.pushNamed(context, '0xAC', arguments: {
                     "name": widget.name,
-                    "adapter": widget.adapter
+                    "adapter": adapter
                   });
                 },
                 child: widget.hasMore
@@ -391,13 +379,13 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                         if (!widget.disabled &&
                             deviceListModel.getOnlineStatus(
                                 deviceId: widget.applianceCode) &&
-                            (widget.adapter?.getPowerStatus() ?? false)) {
+                            (adapter.getPowerStatus() ?? false)) {
                           double value =
-                              widget.adapter!.getCardStatus()?["temperature"] +
-                                  widget.adapter!
+                              adapter!.getCardStatus()?["temperature"] +
+                                  adapter!
                                       .getCardStatus()?["smallTemperature"] -
                                   0.5;
-                          widget.adapter?.reduceTo(value.toInt());
+                          adapter.reduceTo(value.toInt());
                           bus.emit('operateDevice', widget.applianceCode);
                         }
                       },
@@ -406,7 +394,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                               255,
                               255,
                               255,
-                              (widget.adapter?.getPowerStatus() ?? false)
+                              (adapter.getPowerStatus() ?? false)
                                   ? 1
                                   : 0.7),
                           width: 36,
@@ -416,7 +404,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                     Text("${_getTempVal()}",
                         style: TextStyle(
                             height: 1.5,
-                            color: (widget.adapter?.getPowerStatus() ?? false)
+                            color: (adapter.getPowerStatus() ?? false)
                                 ? const Color(0XFFFFFFFF)
                                 : const Color(0XA3FFFFFF),
                             fontSize: 60,
@@ -428,13 +416,13 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                         if (!widget.disabled &&
                             deviceListModel.getOnlineStatus(
                                 deviceId: widget.applianceCode) &&
-                            (widget.adapter?.getPowerStatus() ?? false)) {
+                            (adapter.getPowerStatus() ?? false)) {
                           double value =
-                              widget.adapter!.getCardStatus()?["temperature"] +
-                                  widget.adapter!
+                              adapter!.getCardStatus()?["temperature"] +
+                                  adapter!
                                       .getCardStatus()?["smallTemperature"] +
                                   0.5;
-                          widget.adapter?.increaseTo(value.toInt());
+                          adapter.increaseTo(value.toInt());
                           bus.emit('operateDevice', widget.applianceCode);
                         }
                       },
@@ -443,7 +431,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                               255,
                               255,
                               255,
-                              (widget.adapter?.getPowerStatus() ?? false)
+                              (adapter.getPowerStatus() ?? false)
                                   ? 1
                                   : 0.7),
                           width: 36,
@@ -466,12 +454,12 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                 min: 16,
                 max: 30,
                 disabled: widget.disabled ||
-                    !(widget.adapter?.getPowerStatus() ?? false) ||
+                    !(adapter.getPowerStatus() ?? false) ||
                     !deviceListModel.getOnlineStatus(
                         deviceId: widget.applianceCode),
                 activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
                 onChanged: (val, color) {
-                  widget.adapter?.slider1To(val.toInt());
+                  adapter.slider1To(val.toInt());
                   bus.emit('operateDevice', widget.applianceCode);
                 },
               ),
@@ -483,10 +471,10 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   }
 
   num _getTempVal() {
-    if (widget.adapter == null) {
+    if (adapter == null) {
       return 0;
     }
-    return widget.adapter!.getCardStatus()?["temperature"] +
-        widget.adapter!.getCardStatus()?["smallTemperature"];
+    return adapter!.getCardStatus()?["temperature"] +
+        adapter!.getCardStatus()?["smallTemperature"];
   }
 }

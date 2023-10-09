@@ -78,7 +78,6 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
 
   @override
   void init() {
-    fetchData();
     _startPushListen();
   }
 

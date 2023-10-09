@@ -9,9 +9,11 @@ import '../gateway_platform.dart';
 import '../homlux/models/homlux_device_entity.dart';
 import '../homlux/models/homlux_panel_associate_scene_entity.dart';
 import '../homlux/models/homlux_response_entity.dart';
+import '../homlux/push/event/homlux_push_event.dart';
 import '../meiju/api/meiju_device_api.dart';
 import '../meiju/api/meiju_gateway_cloud_api.dart';
 import '../meiju/models/meiju_response_entity.dart';
+import '../meiju/push/event/meiju_push_event.dart';
 import '../models/endpoint.dart';
 import '../models/node_info.dart';
 import 'midea_data_adapter.dart';
@@ -89,13 +91,13 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   @override
   void init() {
-    // Initialize the adapter and fetch data
-    fetchData();
+    _startPushListen();
   }
 
   @override
   void destroy() {
     clearBindDataUpdateFunction();
+    _stopPushListen();
   }
 
   Future<NodeInfo<Endpoint<PanelEvent>>?> fetchMeijuData() async {
@@ -216,6 +218,40 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       }
     }
   }
+
+  void _throttledFetchData() {
+    fetchData();
+  }
+
+  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
+    if (args.nodeId == nodeId) {
+      _throttledFetchData();
+    }
+  }
+
+  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
+    if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
+      _throttledFetchData();
+    }
+  }
+
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      Log.develop('$hashCode bind');
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
+
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      Log.develop('$hashCode unbind');
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
+    } else {
+      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    }
+  }
 }
 
 // The rest of the code for ScenePanelData class remains the same as before
@@ -317,6 +353,8 @@ class PanelEvent extends Event {
       };
     }
   }
+
+
 }
 
 bool _isWaterElectron(String modelNumber) {

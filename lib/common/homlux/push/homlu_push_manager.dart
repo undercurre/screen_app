@@ -185,6 +185,7 @@ class HomluxPushManager {
             Log.e("[WebSocket] 发送心跳失败",e );
           }
 
+          Log.i("operatePushRecord 队列长度 ${operatePushRecord.length}");
           /// 执行延迟消息推送队列任务
           operatePushRecord.removeWhere((key, element) {
             int exeTime = element.value1;
@@ -213,8 +214,6 @@ class HomluxPushManager {
       // 1. 关闭旧连接, 定时器
       _isConnect = 0;
       retryConnectTimer?.cancel();
-      _globalTimer?.cancel();
-      _globalTimer = null;
       webSocket?.close();
       webSocket = null;
       bus.off('operateDevice');
@@ -249,8 +248,6 @@ class HomluxPushManager {
       // 1. 关闭旧连接, 定时器
       retryCount++;
       retryConnectTimer?.cancel();
-      _globalTimer?.cancel();
-      _globalTimer = null;
       await webSocket?.close();
       webSocket = null;
 

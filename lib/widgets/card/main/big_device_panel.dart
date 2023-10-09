@@ -28,12 +28,12 @@ class BigDevicePanelCardWidget extends StatefulWidget {
   final bool discriminative;
   final String applianceCode;
 
-  PanelDataAdapter adapter; // 数据适配器
+  AdapterGenerateFunction<PanelDataAdapter> adapterGenerateFunction;
 
   BigDevicePanelCardWidget({
     super.key,
     required this.icon,
-    required this.adapter,
+    required this.adapterGenerateFunction,
     required this.roomName,
     this.disableOnOff = true,
     required this.isOnline,
@@ -50,56 +50,35 @@ class BigDevicePanelCardWidget extends StatefulWidget {
 
 class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
-  void _throttledFetchData() {
-    widget.adapter.fetchData();
-  }
+  late PanelDataAdapter adapter;
 
   @override
   void initState() {
     super.initState();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
     if (!widget.disabled) {
-      _startPushListen();
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
+      adapter.bindDataUpdateFunction(updateData);
     }
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter.data.statusList = widget.adapter.data.statusList;
+        adapter.data.statusList = adapter.data.statusList;
       });
     }
   }
 
   @override
-  void didUpdateWidget(covariant BigDevicePanelCardWidget oldWidget) {
-    if (!widget.disabled) {
-      oldWidget.adapter.destroy();
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void dispose() {
-    _stopPushListen();
-    widget.adapter.unBindDataUpdateFunction(updateData);
-    widget.adapter.destroy();
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getRoomName() {
       String BigCardName = '';
@@ -127,7 +106,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -157,17 +136,17 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
       if (widget.disabled) {
         return '';
       }
-      // if (widget.adapter.dataState == DataState.LOADING ||
-      //     widget.adapter.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.LOADING ||
+      //     adapter.dataState == DataState.NONE) {
       //   return '在线';
       // }
       if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
         return '离线';
       }
-      if (widget.adapter.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
-      if (widget.adapter.data!.statusList.isNotEmpty) {
+      if (adapter.data!.statusList.isNotEmpty) {
         return '在线';
       } else {
         return '离线';
@@ -258,13 +237,13 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      if (widget.adapter.data.nameList.isNotEmpty)
+                      if (adapter.data.nameList.isNotEmpty)
                         _panelItem(0),
-                      if (widget.adapter.data.nameList.length >= 2)
+                      if (adapter.data.nameList.length >= 2)
                         _panelItem(1),
-                      if (widget.adapter.data.nameList.length >= 3)
+                      if (adapter.data.nameList.length >= 3)
                         _panelItem(2),
-                      if (widget.adapter.data.nameList.length >= 4)
+                      if (adapter.data.nameList.length >= 4)
                         _panelItem(3),
                     ],
                   ),
@@ -278,14 +257,14 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   }
 
   Widget _panelItem(int index) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 84,
       height: 120,
       child: GestureDetector(
         onTap: () async {
           if (!widget.disabled &&
-              widget.adapter.dataState == DataState.SUCCESS) {
+              adapter.dataState == DataState.SUCCESS) {
             if (!deviceListModel.getOnlineStatus(
                 deviceId: widget.applianceCode)) {
               MzDialog(
@@ -309,8 +288,8 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                     Navigator.pop(context);
                   }).show(context);
             } else {
-              await widget.adapter.fetchOrderPower(index + 1);
-              bus.emit('operateDevice', widget.adapter.nodeId.isEmpty ? widget.applianceCode : widget.adapter.nodeId);
+              await adapter.fetchOrderPower(index + 1);
+              bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
             }
           }
         },
@@ -325,7 +304,7 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
                   : const AssetImage("assets/newUI/panel_btn_off.png"),
             ),
             Text(
-              widget.adapter.data.nameList[index],
+              adapter.data.nameList[index],
               style: const TextStyle(
                   overflow: TextOverflow.ellipsis,
                   color: Color(0XFFFFFFFF),
@@ -341,13 +320,13 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
   }
 
   String _getIconSrc() {
-    if (widget.adapter.data.nameList.length == 1) {
+    if (adapter.data.nameList.length == 1) {
       return "assets/newUI/device/0x21_1339.png";
     }
-    if (widget.adapter.data.nameList.length == 2) {
+    if (adapter.data.nameList.length == 2) {
       return "assets/newUI/device/0x21_1340.png";
     }
-    if (widget.adapter.data.nameList.length == 3) {
+    if (adapter.data.nameList.length == 3) {
       return "assets/newUI/device/0x21_1341.png";
     }
     return "assets/newUI/device/0x21_1342.png";
@@ -355,10 +334,10 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
 
   bool _isPanelItemOn(int index) {
     if (!widget.disabled) {
-      if (index < 0 || index > widget.adapter.data.statusList.length - 1) {
+      if (index < 0 || index > adapter.data.statusList.length - 1) {
         return false;
       } else {
-        return widget.adapter.data.statusList[index];
+        return adapter.data.statusList[index];
       }
     } else {
       return false;
@@ -381,33 +360,5 @@ class _BigDevicePanelCardWidgetState extends State<BigDevicePanelCardWidget> {
         ],
       ),
     );
-  }
-
-  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
-    if (args.nodeId == widget.adapter.nodeId) {
-      _throttledFetchData();
-    }
-  }
-
-  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
-    if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
-      _throttledFetchData();
-    }
-  }
-
-  void _startPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
-  }
-
-  void _stopPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
   }
 }

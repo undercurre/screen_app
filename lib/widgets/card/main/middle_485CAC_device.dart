@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -14,20 +15,25 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final Widget icon;
   bool onOff;
   bool online;
-  bool localOnline=false;
   final bool isFault;
   bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  CACDataAdapter? adapter; // 数据适配器
   String temperature = "26"; // 温度值
+  bool localOnline = false;
+
+
+  bool disable;
+  AdapterGenerateFunction<CACDataAdapter> adapterGenerateFunction;
 
   Middle485CACDeviceCardWidget({
     super.key,
     required this.name,
     required this.applianceCode,
+    required this.disable,
+    required this.adapterGenerateFunction,
     required this.modelNumber,
     required this.masterId,
     required this.icon,
@@ -39,7 +45,6 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
     required this.online,
     required this.isFault,
     required this.isNative,
-    required this.adapter,
   });
 
   @override
@@ -49,40 +54,28 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
 
 class _Middle485CACDeviceCardWidgetState
     extends State<Middle485CACDeviceCardWidget> {
+
+  late CACDataAdapter adapter;
+
   @override
   void initState() {
     super.initState();
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    if(!widget.disable){
+      adapter.bindDataUpdateFunction(updateData);
+    }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.adapter!.init();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-  }
-
-  @override
-  void didUpdateWidget(covariant Middle485CACDeviceCardWidget oldWidget) {
-    oldWidget.adapter?.destroy();
-    widget.adapter!.bindDataUpdateFunction(updateData);
-    widget.adapter!.init();
-    setState(() {
-      widget.temperature = oldWidget.temperature;
-      widget.onOff = oldWidget.onOff;
-      widget.online = oldWidget.online;
-      widget.isNative= oldWidget.isNative;
-      widget.localOnline=oldWidget.localOnline;
-    });
-  }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        if (int.parse(widget.adapter!.data!.targetTemp) < 35) {
-          widget.temperature = widget.adapter!.data!.targetTemp;
-          widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
-          widget.localOnline=widget.adapter!.data!.online;
-          widget.isNative= widget.adapter!.isLocalDevice;
+        if (int.parse(adapter.data!.targetTemp) < 35) {
+          widget.temperature = adapter.data!.targetTemp;
+          widget.onOff = adapter.data!.OnOff == '1' ? true : false;
+          widget.localOnline= adapter.data!.online;
+          widget.isNative= adapter.isLocalDevice;
           if(widget.localOnline){
             widget.online = true;
           }else{
@@ -93,42 +86,37 @@ class _Middle485CACDeviceCardWidgetState
     }
   }
 
-  Future<void> updateDetail() async {
-    widget.adapter?.fetchData();
-  }
-
   void powerHandle(bool state) async {
     if (!widget.online) {
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
     if (widget.onOff == true) {
-      widget.adapter!.data!.OnOff = "0";
+      adapter.data!.OnOff = "0";
       widget.onOff = false;
       setState(() {});
-      widget.adapter?.orderPower(0);
+      adapter.orderPower(0);
     } else {
-      widget.adapter!.data!.OnOff = "1";
+      adapter.data!.OnOff = "1";
       widget.onOff = true;
       setState(() {});
-      widget.adapter?.orderPower(1);
+      adapter.orderPower(1);
     }
   }
 
   @override
   void dispose() {
-    widget.adapter!.unBindDataUpdateFunction(updateData);
-    widget.adapter!.destroy();
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter?.applianceCode,
+          deviceId: adapter.applianceCode,
           maxLength: 6,
           startLength: 3,
           endLength: 2);
@@ -143,7 +131,7 @@ class _Middle485CACDeviceCardWidgetState
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter?.applianceCode);
+          deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -154,43 +142,35 @@ class _Middle485CACDeviceCardWidgetState
     }
 
 
+    String getRightText() {
+      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=false;
+        if(widget.online){
+          return "${widget.temperature}℃";
 
-      String getRightText() {
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.adapter?.applianceCode)) {
-          if(widget.localOnline){
-            widget.online = true;
-          }else{
-            widget.online = false;
-          }
-          widget.localOnline=false;
-          // Future.delayed(const Duration(seconds: 3), () {
-          //   widget.adapter?.fetchData();
-          // });
-          if(widget.online){
-            return "${widget.temperature}℃";
+        }else{
+          return '离线';
+        }
+      } else {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        if(widget.online){
+          return "${widget.temperature}℃";
 
-          }else{
-            return '离线';
-          }
-        } else {
-          if(widget.localOnline){
-            widget.online = true;
-          }else{
-            widget.online = false;
-          }
-          widget.localOnline=true;
-          // Future.delayed(const Duration(seconds: 3), () {
-          //   widget.adapter?.fetchData();
-          // });
-          if(widget.online){
-            return "${widget.temperature}℃";
-
-          }else{
-            return '离线';
-          }
+        }else{
+          return '离线';
         }
       }
-
+    }
 
     return GestureDetector(
       onTap: () => {powerHandle(widget.onOff)},
@@ -209,7 +189,7 @@ class _Middle485CACDeviceCardWidgetState
                     {
                       Navigator.pushNamed(context, '0x21_485CAC', arguments: {
                         "name": getDeviceName(),
-                        "adapter": widget.adapter
+                        "adapter": adapter
                       })
                     }
                   else

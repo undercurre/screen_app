@@ -3,7 +3,6 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/global.dart';
 import '../../../../common/homlux/homlux_global.dart';
 import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
@@ -95,7 +94,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
         updateUI();
       }
     } else {
-      logger.i("新风调用刷新");
       deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
     }
   }
@@ -245,7 +243,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   void init() {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
-
+    _startPushListen();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -348,8 +346,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
       }else{
         isLocalDevice = false;
       }
-      _startPushListen();
-      fetchData();
     }else{
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;

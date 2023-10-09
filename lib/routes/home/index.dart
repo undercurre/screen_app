@@ -34,11 +34,9 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home>
-    with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind {
+class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind {
   late double po;
   var children = <Widget>[];
-  BindGatewayAdapter? bindGatewayAd;
 
   @override
   void initState() {
@@ -75,10 +73,6 @@ class HomeState extends State<Home>
       if (System.isLogin()) {
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
       }
-      if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-        aiMethodChannel
-            .registerAiControlDeviceErrorCallBack(_aiControlDeviceError);
-      }
       deviceLocal485ControlChannel.find485Device();
       // 初始化推送
       PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
@@ -89,22 +83,6 @@ class HomeState extends State<Home>
 
   void _aiSetVoiceCallback(int voice) {
     Global.soundValue = voice;
-  }
-
-  void _aiControlDeviceError() {
-    /// 判定当前网关是否已经绑定
-    bindGatewayAd?.destroy();
-    bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-    bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
-        (isBind, deviceID) {
-      if (!isBind) {
-        TipsUtils.toast(content: '智慧屏已删除，请重新登录');
-        Push.dispose();
-        System.logout("语音控制设备失败，进行");
-        Navigator.pushNamedAndRemoveUntil(
-            context, "Login", (route) => route.settings.name == "/");
-      }
-    }, () {});
   }
 
   @override
@@ -189,11 +167,7 @@ class HomeState extends State<Home>
   @override
   void dispose() {
     super.dispose();
-    bindGatewayAd?.destroy();
-    bindGatewayAd = null;
     aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
-    aiMethodChannel
-        .unregisterAiControlDeviceErrorCallBack(_aiControlDeviceError);
     debugPrint("dispose");
   }
 

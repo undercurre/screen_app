@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/adapter/device_card_data_adapter.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
@@ -6,6 +7,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
+import '../common/adapter/midea_data_adapter.dart';
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
@@ -127,6 +129,20 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.onlineStatus = e.onlineStatus!;
           return deviceObj;
         }).toList();
+
+    //     var deviceList;
+    //     deviceList.for((key, value) {
+    //       var deviceId = ;
+    //       if(MideaDataAdapter.getAdapter(deviceId) is DeviceCardDataAdapter) {
+    // (MideaDataAdapter.getAdapter(deviceId) as DeviceCardDataAdapter).fetchData();
+    // }
+    //   });
+    //     MideaDataAdapter.adapterMap.forEach((key, value) {
+    //       if(value is DeviceCardDataAdapter) {
+    //         var deviceAdapter = value as DeviceCardDataAdapter;
+    //         deviceAdapter.fetchData();
+    //       }
+    //     });
 
         MeijuGroup = (MeijuGroups.data!["applianceGroupList"] as List<dynamic>)
             .map<DeviceEntity>((e) {

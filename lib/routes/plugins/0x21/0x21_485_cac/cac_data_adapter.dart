@@ -313,7 +313,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     logger.i("空调适配器初始化");
     getLocalDeviceCode();
-
+    _startPushListen();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -421,13 +421,9 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
       }else{
         isLocalDevice = false;
       }
-      _startPushListen();
-      logger.i("空调调用刷新1111");
-      fetchData();
     } else {
       isLocalDevice = true;
-      Homlux485DeviceListEntity? deviceList =
-          HomluxGlobal.getHomlux485DeviceList;
+      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
 
       ///homlux添加本地485空调设备
       if (deviceList != null) {

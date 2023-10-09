@@ -31,18 +31,18 @@ class SmallScenePanelCardWidget extends StatefulWidget {
   final bool disabled;
   final bool discriminative;
   bool sceneOnOff = false;
-  ScenePanelDataAdapter adapter; // 数据适配器
+  AdapterGenerateFunction<ScenePanelDataAdapter> adapterGenerateFunction;
 
   SmallScenePanelCardWidget({
     super.key,
     required this.icon,
-    required this.adapter,
     required this.roomName,
     required this.isOnline,
     required this.name,
     required this.disabled,
     this.disableOnOff = true,
     this.discriminative = false, required this.applianceCode,
+    required this.adapterGenerateFunction
   });
 
   @override
@@ -51,61 +51,50 @@ class SmallScenePanelCardWidget extends StatefulWidget {
 }
 
 class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
-
-  void _throttledFetchData() {
-    widget.adapter.fetchData();
-  }
+  
+  late ScenePanelDataAdapter adapter;
 
   @override
   void initState() {
     super.initState();
-    if (!widget.disabled) {
-      _startPushListen();
-    }
+    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter.init();
+    adapter.bindDataUpdateFunction(updateData);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!widget.disabled) {
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
-    }
   }
 
   void updateData() {
     if (mounted) {
       setState(() {
-        widget.adapter.data.statusList[0] = widget.adapter.data.statusList[0];
-        widget.adapter.data.modeList = widget.adapter.data.modeList;
-        widget.adapter.data.sceneList = widget.adapter.data.sceneList;
+        adapter.data.statusList[0] = adapter.data.statusList[0];
+        adapter.data.modeList = adapter.data.modeList;
+        adapter.data.sceneList = adapter.data.sceneList;
       });
-      // Log.i('更新数据', widget.adapter.data.nameList);
+      // Log.i('更新数据', adapter.data.nameList);
     }
   }
 
   @override
   void didUpdateWidget(covariant SmallScenePanelCardWidget oldWidget) {
     if (!widget.disabled) {
-      oldWidget.adapter.destroy();
-      widget.adapter.init();
-      widget.adapter.bindDataUpdateFunction(updateData);
       super.didUpdateWidget(oldWidget);
     }
   }
 
   @override
   void dispose() {
-    _stopPushListen();
-    widget.adapter.unBindDataUpdateFunction(updateData);
-    widget.adapter.destroy();
+    adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
     if (sceneListCache.isEmpty) {
       sceneModel.getSceneList().then((value) {
@@ -115,7 +104,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.adapter.applianceCode, maxLength: 4, startLength: 1, endLength: 2);
+          deviceId: widget.applianceCode, maxLength: 4, startLength: 1, endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -142,18 +131,18 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       if (widget.disabled) {
         return '';
       }
-      // if (widget.adapter.dataState == DataState.LOADING ||
-      //     widget.adapter.dataState == DataState.NONE) {
+      // if (adapter.dataState == DataState.LOADING ||
+      //     adapter.dataState == DataState.NONE) {
       //   return '在线';
       // }
       if (!deviceListModel.getOnlineStatus(
           deviceId: widget.applianceCode)) {
         return '离线';
       }
-      if (widget.adapter.dataState == DataState.ERROR) {
+      if (adapter.dataState == DataState.ERROR) {
         return '离线';
       }
-      if (widget.adapter.data!.statusList.isNotEmpty) {
+      if (adapter.data!.statusList.isNotEmpty) {
         return '在线';
       } else {
         return '离线';
@@ -170,15 +159,15 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         return false;
       }
       // 模式
-      if (widget.adapter.data.modeList[0] == '2') {
+      if (adapter.data.modeList[0] == '2') {
         // 场景模式
         return widget.sceneOnOff;
       } else {
         Log.i('普通模式开关状态');
         // 普通模式
-        return widget.adapter.data!.statusList.isNotEmpty &&
-            widget.adapter.data!.statusList[0] &&
-            widget.adapter.dataState == DataState.SUCCESS;
+        return adapter.data!.statusList.isNotEmpty &&
+            adapter.data!.statusList[0] &&
+            adapter.dataState == DataState.SUCCESS;
       }
     }
 
@@ -231,7 +220,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
 
     String getRoomName() {
       String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: widget.adapter.applianceCode);
+          deviceId: adapter.applianceCode);
       if (widget.disabled) {
         return nameInModel;
       }
@@ -256,7 +245,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     deviceId: widget.applianceCode), child: GestureDetector(
       onTap: () async {
         Log.i('disabled', widget.disabled);
-        if (!widget.disabled && widget.adapter.dataState == DataState.SUCCESS) {
+        if (!widget.disabled && adapter.dataState == DataState.SUCCESS) {
           if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
             MzDialog(
                 title: '该设备已离线',
@@ -279,8 +268,8 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   Navigator.pop(context);
                 }).show(context);
           } else {
-            if (widget.adapter.data.modeList[0] == '2') {
-              sceneModel.sceneExec(widget.adapter.data.sceneList[0]);
+            if (adapter.data.modeList[0] == '2') {
+              sceneModel.sceneExec(adapter.data.sceneList[0]);
               setState(() {
                 widget.sceneOnOff = true;
               });
@@ -290,8 +279,8 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                 });
               });
             } else {
-              await widget.adapter.fetchOrderPower(1);
-              bus.emit('operateDevice', widget.adapter.nodeId.isEmpty ? widget.applianceCode : widget.adapter.nodeId);
+              await adapter.fetchOrderPower(1);
+              bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
             }
           }
         }
@@ -318,7 +307,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.adapter.data.modeList[0] == '0'
+                      adapter.data.modeList[0] == '0'
                           ? getDeviceName()
                           : _getName(sceneListCache),
                       maxLines: 1,
@@ -353,7 +342,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
   String _getName(List<SceneInfoEntity> sceneListCache) {
     if (sceneListCache.isEmpty) return '加载中';
 
-    String sceneIdToCompare = widget.adapter.data.sceneList[0];
+    String sceneIdToCompare = adapter.data.sceneList[0];
     SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
       return element.sceneId.toString() == sceneIdToCompare;
     }, orElse: () {
@@ -369,33 +358,5 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     }
   }
 
-  void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
-    if (args.nodeId == widget.adapter.nodeId) {
-      _throttledFetchData();
-    }
-  }
 
-  void homluxPush(HomluxDevicePropertyChangeEvent arg) {
-    if (arg.deviceInfo.eventData?.deviceId == widget.adapter.applianceCode) {
-      _throttledFetchData();
-    }
-  }
-
-  void _startPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      Log.develop('$hashCode bind');
-      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
-  }
-
-  void _stopPushListen() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      Log.develop('$hashCode unbind');
-      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
-    } else {
-      bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
-    }
-  }
 }

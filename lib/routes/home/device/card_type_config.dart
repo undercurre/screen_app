@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
@@ -301,11 +302,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           disabled: params.disabled!,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId ?? '',
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                    params.applianceCode,
+                    params.masterId ?? '',
+                    params.modelNumber,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -320,12 +324,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
-        ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                      params.applianceCode,
+                      params.masterId,
+                      params.modelNumber,
+                    ));
+          }),
   },
   DeviceEntityTypeInP4.Zigbee_homlux3: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
@@ -338,11 +344,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -357,11 +366,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -382,12 +394,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
-        ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
           name: params.name,
@@ -402,11 +416,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -419,11 +436,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   // homlux灯组
@@ -443,11 +463,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+              return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                  LightGroupDataAdapter(
+                      MideaRuntimePlatform.platform,
+                      params.context!,
+                      params.masterId ?? '',
+                      params.applianceCode ?? ''));
+            }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -463,11 +486,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                LightGroupDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -480,11 +506,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                LightGroupDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   // 编辑条
@@ -540,11 +569,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                LightGroupDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -560,11 +592,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                LightGroupDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -577,11 +612,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: LightGroupDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                LightGroupDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   // WIFI灯
@@ -601,8 +639,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.sn8 ?? '', params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFILightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!, params.sn8 ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -618,8 +661,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.sn8 ?? '', params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFILightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!, params.sn8 ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -632,8 +680,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFILightDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.sn8 ?? '', params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFILightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!, params.sn8 ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   // WIFI窗帘
@@ -653,8 +706,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           discriminative: params.discriminative ?? false,
           disableOnOff: params.disableOnOff ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFICurtainDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -670,8 +728,11 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
+                    params.context!, params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceCurtainCardWidget(
           applianceCode: params.applianceCode,
@@ -684,8 +745,11 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
+                    params.context!, params.applianceCode ?? ''));
+          }
         ),
   },
   // WIFI空调
@@ -705,8 +769,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFIAirDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFIAirDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -722,8 +791,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFIAirDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFIAirDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceAirCardWidget(
           applianceCode: params.applianceCode,
@@ -736,9 +810,12 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: WIFIAirDataAdapter(MideaRuntimePlatform.platform,
-              params.context!, params.applianceCode ?? ''),
-        ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                WIFIAirDataAdapter(MideaRuntimePlatform.platform,
+                    params.context!, params.applianceCode ?? ''));
+          }
+    ),
   },
   // Zigbee灯
   DeviceEntityTypeInP4.Zigbee_54: {
@@ -757,11 +834,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -777,11 +857,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -794,11 +877,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_55: {
@@ -817,11 +903,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -837,11 +926,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -854,11 +946,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_56: {
@@ -877,11 +972,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -897,11 +995,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -914,11 +1015,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_57: {
@@ -937,11 +1041,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -957,11 +1064,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -974,11 +1084,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           hasMore: params.hasMore ?? true,
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1254: {
@@ -997,11 +1110,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1017,11 +1133,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1034,11 +1153,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           hasMore: params.hasMore ?? true,
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1262: {
@@ -1057,11 +1179,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1077,11 +1202,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1094,11 +1222,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1263: {
@@ -1117,11 +1248,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1137,11 +1271,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1154,11 +1291,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           hasMore: params.hasMore ?? true,
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1276: {
@@ -1177,11 +1317,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1197,11 +1340,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1214,11 +1360,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1351: {
@@ -1237,11 +1386,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1257,11 +1409,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1274,11 +1429,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           hasMore: params.hasMore ?? true,
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1352: {
@@ -1297,11 +1455,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1317,11 +1478,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1334,11 +1498,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1353: {
@@ -1357,11 +1524,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1377,11 +1547,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1394,11 +1567,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1359: {
@@ -1417,11 +1593,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? false,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
           applianceCode: params.applianceCode,
@@ -1437,11 +1616,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
     CardType.Big: (params) => BigDeviceLightCardWidget(
           applianceCode: params.applianceCode,
@@ -1454,11 +1636,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           disableOnOff: params.disableOnOff ?? true,
           discriminative: params.discriminative ?? false,
           hasMore: params.hasMore ?? true,
-          adapter: ZigbeeLightDataAdapter(
-              MideaRuntimePlatform.platform,
-              params.context!,
-              params.masterId ?? '',
-              params.applianceCode ?? ''),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ZigbeeLightDataAdapter(
+                    MideaRuntimePlatform.platform,
+                    params.context!,
+                    params.masterId ?? '',
+                    params.applianceCode ?? ''));
+          }
         ),
   },
   // 485空调
@@ -1480,13 +1665,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: CACDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => CACDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId,
+              params.modelNumber,
+            ));
+          },
         ),
     CardType.Middle: (params) => Middle485CACDeviceCardWidget(
           name: params.name,
@@ -1505,13 +1693,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: CACDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => CACDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId,
+              params.modelNumber,
+            ));
+          },
         ),
     CardType.Big: (params) => Big485CACDeviceAirCardWidget(
           name: params.name,
@@ -1523,13 +1714,17 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           temperature: 26,
           min: 16,
           max: 30,
-          adapter: CACDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          applianceCode: params.applianceCode,
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => CACDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId,
+              params.modelNumber,
+            ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_3018: {
@@ -1550,13 +1745,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: AirDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => AirDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
     CardType.Middle: (params) => Middle485AirDeviceCardWidget(
           name: params.name,
@@ -1575,13 +1773,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: AirDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => AirDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
     CardType.Big: (params) => Big485AirDeviceAirCardWidget(
           name: params.name,
@@ -1590,13 +1791,17 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: AirDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          applianceCode: params.applianceCode,
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => AirDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_3019: {
@@ -1617,13 +1822,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: FloorDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => FloorDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
     CardType.Middle: (params) => Middle485FloorDeviceCardWidget(
           name: params.name,
@@ -1642,13 +1850,16 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          adapter: FloorDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => FloorDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
     CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
           name: params.name,
@@ -1660,19 +1871,23 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           temperature: 30,
           min: 5,
           max: 90,
-          adapter: FloorDataAdapter(
-            MideaRuntimePlatform.platform,
-            params.name,
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          applianceCode: params.applianceCode,
+          disable: params.disabled ?? false,
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => FloorDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.name,
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
         ),
   },
   // 一路面板
   DeviceEntityTypeInP4.Zigbee_1339: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1681,17 +1896,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1100: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1700,17 +1918,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1081: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1719,17 +1940,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1099: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1738,17 +1962,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_67: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1757,17 +1984,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_68: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1776,17 +2006,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_69: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1795,17 +2028,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_41: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1814,17 +2050,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_34: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1833,17 +2072,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_17: {
     CardType.Small: (params) => SmallPanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -1852,11 +2094,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -1872,11 +2117,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1102: {
@@ -1890,11 +2138,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1083: {
@@ -1908,11 +2159,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1101: {
@@ -1926,11 +2180,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_70: {
@@ -1944,11 +2201,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_71: {
@@ -1962,11 +2222,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_72: {
@@ -1980,11 +2243,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_42: {
@@ -1998,11 +2264,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_35: {
@@ -2016,11 +2285,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_18: {
@@ -2034,11 +2306,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   // 三路面板
@@ -2053,11 +2328,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2072,11 +2350,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2091,11 +2372,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           discriminative: params.discriminative ?? false,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2110,11 +2394,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2129,11 +2416,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2148,11 +2438,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2167,11 +2460,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2186,11 +2482,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2205,11 +2504,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2225,11 +2527,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2244,11 +2549,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2263,11 +2571,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2281,11 +2592,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
           discriminative: params.discriminative ?? false,
         ),
@@ -2300,11 +2614,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
           discriminative: params.discriminative ?? false,
         ),
@@ -2319,11 +2636,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
           discriminative: params.discriminative ?? false,
         ),
@@ -2338,11 +2658,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
           discriminative: params.discriminative ?? false,
         ),
@@ -2357,11 +2680,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
           discriminative: params.discriminative ?? false,
         ),
@@ -2378,11 +2704,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1112: {
@@ -2396,11 +2725,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1111: {
@@ -2414,11 +2746,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_80: {
@@ -2432,11 +2767,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_81: {
@@ -2450,11 +2788,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_22: {
@@ -2468,17 +2809,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   // 一路多功能面板
   DeviceEntityTypeInP4.Zigbee_1347: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2487,17 +2831,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id,
+                    (id) => ScenePanelDataAdapter.create(
+                      params.applianceCode,
+                      params.masterId ?? '',
+                      params.modelNumber,
+                    ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1360: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2506,18 +2853,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => ScenePanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
   // 二路多功能面板
   DeviceEntityTypeInP4.Zigbee_1361: {
     CardType.Middle: (params) => MiddleScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2526,16 +2875,18 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
-        ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          }),
   },
   DeviceEntityTypeInP4.Zigbee_1348: {
     CardType.Middle: (params) => MiddleScenePanelCardWidget(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2544,17 +2895,19 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
-        ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          }),
   },
   // 三路多功能面板
   DeviceEntityTypeInP4.Zigbee_1362: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2563,17 +2916,20 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1349: {
     CardType.Big: (params) => BigScenePanelCardWidgetThree(
-      discriminative: params.discriminative ?? false,
+          discriminative: params.discriminative ?? false,
           applianceCode: params.applianceCode,
           disabled: params.disabled!,
           name: params.name,
@@ -2582,11 +2938,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId,
+                  params.modelNumber,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2602,11 +2961,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2621,11 +2983,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: ScenePanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                ScenePanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2641,11 +3006,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2660,11 +3027,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2679,11 +3048,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2698,11 +3069,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2717,11 +3090,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2736,11 +3111,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2755,11 +3132,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2774,11 +3153,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
           roomName: params.roomName,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId!,
+              params.modelNumber!,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },
@@ -2794,11 +3175,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1110: {
@@ -2812,11 +3196,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_1109: {
@@ -2830,11 +3217,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_86: {
@@ -2848,11 +3238,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_87: {
@@ -2866,11 +3259,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_40: {
@@ -2884,11 +3280,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId!,
-            params.modelNumber!,
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   DeviceEntityTypeInP4.Zigbee_32: {
@@ -2902,11 +3301,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           isOnline: params.isOnline,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId ?? '',
-            params.modelNumber ?? '',
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+                PanelDataAdapter.create(
+                  params.applianceCode,
+                  params.masterId!,
+                  params.modelNumber!,
+                ));
+          },
         ),
   },
   // 一路单火面板
@@ -2921,11 +3323,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           ),
           roomName: params.roomName,
           discriminative: params.discriminative ?? false,
-          adapter: PanelDataAdapter.create(
-            params.applianceCode,
-            params.masterId ?? '',
-            params.modelNumber ?? '',
-          ),
+          adapterGenerateFunction: (id) {
+            return MideaDataAdapter.getOrCreateAdapter(id, (id) => PanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId,
+              params.modelNumber,
+            ));
+          },
           isOnline: params.isOnline,
         ),
   },

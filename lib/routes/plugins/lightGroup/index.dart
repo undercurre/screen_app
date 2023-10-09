@@ -42,7 +42,7 @@ class LightGroupPageState extends State<LightGroupPage> {
   @override
   Widget build(BuildContext context) {
 
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       if (deviceListModel.deviceListHomlux.isEmpty &&

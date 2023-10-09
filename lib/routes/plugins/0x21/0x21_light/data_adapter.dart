@@ -88,7 +88,6 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   @override
   void init() {
-    fetchData();
     _startPushListen();
   }
 

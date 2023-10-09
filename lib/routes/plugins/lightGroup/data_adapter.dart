@@ -87,7 +87,6 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
 
   @override
   void init() {
-    fetchData();
     _startPushListen();
   }
 

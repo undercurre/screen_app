@@ -231,10 +231,9 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   @override
   void init() {
-    // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
-
+    _startPushListen();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -340,8 +339,6 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       }else{
         isLocalDevice = false;
       }
-      _startPushListen();
-      fetchData();
     } else {
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList =
@@ -374,6 +371,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       }
     }
   }
+
 }
 
 // The rest of the code for PanelData class remains the same as before
@@ -387,7 +385,7 @@ class Floor485Data {
   // 开关状态
   String OnOff = "0";
 
-  bool online = true;
+  bool online = false;
 
 
   Floor485Data({
@@ -402,7 +400,6 @@ class Floor485Data {
     name = data.endList[0].name;
     targetTemp = data.endList[0].event.targetTemp;
     OnOff = data.endList[0].event.OnOff;
-    online = true;
   }
 
   Floor485Data.fromHomlux(dynamic data, String modelNumber) {}
