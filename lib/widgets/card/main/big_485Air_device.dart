@@ -10,8 +10,9 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
   final String name;
   bool onOff;
   bool online;
+  bool localOnline=false;
   final bool isFault;
-  final bool isNative;
+  bool isNative;
   final String roomName;
   int windSpeed = 4; // 风速值
   final Function? onMoreTap; // 右边的三点图标的点击事件
@@ -48,6 +49,12 @@ class _Big485AirDeviceAirCardWidgetState
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        widget.isNative= widget.adapter!.isLocalDevice;
+      });
+      updateDetail();
+    });
   }
 
   @override
@@ -73,6 +80,7 @@ class _Big485AirDeviceAirCardWidgetState
       setState(() {
         widget.onOff = widget.adapter!.data!.OnOff == '1' ? true : false;
         widget.windSpeed = int.parse(widget.adapter!.data!.windSpeed);
+        widget.localOnline=widget.adapter!.data!.online;
       });
     }
   }
@@ -151,7 +159,8 @@ class _Big485AirDeviceAirCardWidgetState
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return '加载中';
+        return widget.isNative?'新风${widget.adapter?.localDeviceCode.substring(2,4)}':'加载中';
+
       }
 
       return nameInModel;
@@ -170,13 +179,32 @@ class _Big485AirDeviceAirCardWidgetState
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.adapter?.applianceCode)) {
-        widget.online = false;
-        return '离线';
+      if (!deviceListModel.getOnlineStatus(deviceId: widget.adapter?.applianceCode)) {
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=false;
+        widget.adapter?.fetchData();
+        if(widget.online){
+          return '在线';
+        }else{
+          return '离线';
+        }
       } else {
-        widget.online = true;
-        return '在线';
+        if(widget.localOnline){
+          widget.online = true;
+        }else{
+          widget.online = false;
+        }
+        widget.localOnline=true;
+        widget.adapter?.fetchData();
+        if(widget.online){
+          return '在线';
+        }else{
+          return '离线';
+        }
       }
     }
 

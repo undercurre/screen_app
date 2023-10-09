@@ -3,6 +3,7 @@ package com.midea.light.device.explore.controller.control485;
 import android.serialport.SerialPort;
 import android.util.Log;
 
+import com.midea.light.RxBus;
 import com.midea.light.bean.OnlineState485Bean;
 import com.midea.light.device.explore.controller.control485.controller.AirConditionController;
 import com.midea.light.device.explore.controller.control485.controller.FloorHotController;
@@ -10,6 +11,9 @@ import com.midea.light.device.explore.controller.control485.controller.FreshAirC
 import com.midea.light.device.explore.controller.control485.controller.GetWayController;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Observer;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Subject;
+import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent;
+import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent;
+import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent;
 import com.midea.light.gateway.GateWayUtils;
 
 import java.io.IOException;
@@ -137,7 +141,7 @@ public class ControlManager implements Data485Subject {
             while (running) {
                 if (mInputStream != null) {
                     try {
-                        //阻塞判断,如果超过读取100000次还没数据就重新写新的数据
+                        //阻塞判断,如果超过读取100次还没数据就重新写新的数据
                         int size = 0;
                         if (mInputStream.available() > 0) {
                             size = mInputStream.read(buffer);
@@ -146,7 +150,7 @@ public class ControlManager implements Data485Subject {
                         } else {
                             read0Times++;
 //                            Log.e("sky", "1111xx的量:" + read0Times);
-                            if (read0Times == 100000) {
+                            if (read0Times == 100) {
                                 read0Times = 0;
                                 commandReset();
                             }
@@ -222,9 +226,16 @@ public class ControlManager implements Data485Subject {
 
                     } catch (InterruptedException e) {
                     }
+
                 } else {
                     Log.e("sky", "mInputStream为空");
                 }
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
 
         }
@@ -233,7 +244,7 @@ public class ControlManager implements Data485Subject {
     public class Consumer implements Runnable {
 
         private BlockingQueue<String> queue;
-
+        List<Byte> data = new ArrayList<>();
         //构造函数
         public Consumer(BlockingQueue<String> queue) {
             this.queue = queue;
@@ -250,7 +261,7 @@ public class ControlManager implements Data485Subject {
 //                      Log.e("sky", "拿到要执行的数据:"+str);
                         commandStrArry = str.split(" ");
                         if (mOutputStream != null) {
-                            List<Byte> data = new ArrayList<>();
+                            data.clear();
                             String[] strArry = str.split(" ");
                             for (int i = 0; i < strArry.length; i++) {
                                 data.add(hexToByte(strArry[i]));
@@ -302,6 +313,7 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
+                RxBus.getInstance().post(new AirConditionChangeEvent().setAirConditionModel(AirConditionController.getInstance().AirConditionList.get(i)));
             }
 //            Log.e("sky","空调全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);
@@ -317,6 +329,8 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
+                RxBus.getInstance().post(new FloorHotChangeEvent().setFloorHotModel(FloorHotController.getInstance().FloorHotList.get(i)));
+
             }
 //            Log.e("sky","地暖全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);
@@ -332,6 +346,8 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
+                RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirController.getInstance().FreshAirList.get(i)));
+
             }
 //            Log.e("sky","新风全部离线上报:"+ GsonUtils.stringify(diffStatelsit));
             GateWayUtils.updateOnlineState485(diffStatelsit);

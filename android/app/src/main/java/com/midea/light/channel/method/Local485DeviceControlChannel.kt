@@ -1,11 +1,15 @@
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.midea.light.RxBus
 import com.midea.light.bean.Add485DeviceBean.PLC.AddDev
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.device.explore.controller.control485.controller.AirConditionController
 import com.midea.light.device.explore.controller.control485.controller.FloorHotController
 import com.midea.light.device.explore.controller.control485.controller.FreshAirController
+import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent
+import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent
+import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent
 import com.midea.light.gateway.GateWayUtils
 import com.midea.light.setting.SystemUtil
 import com.midea.light.utils.GsonUtils
@@ -42,6 +46,32 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
             "find485Device" -> {
                 Log.e("sky", "查找本地485设备")
                 find485Device(result)
+            }
+            "get485DeviceStateByAddr" -> {
+                Log.e("sky", "查询485设备状态")
+                var addr = requireNotNull(call.argument<String?>("addr"))
+                for (i in AirConditionController.getInstance().AirConditionList.indices) {
+                    val deviceAddr =
+                        AirConditionController.getInstance().AirConditionList[i].outSideAddress + AirConditionController.getInstance().AirConditionList[i].inSideAddress
+                    if (deviceAddr == addr) {
+                        RxBus.getInstance().post(AirConditionChangeEvent().setAirConditionModel(AirConditionController.getInstance().AirConditionList[i]))
+                    }
+                }
+                for (i in FreshAirController.getInstance().FreshAirList.indices) {
+                    val deviceAddr =
+                        FreshAirController.getInstance().FreshAirList[i].outSideAddress + FreshAirController.getInstance().FreshAirList[i].inSideAddress
+                    if (deviceAddr == addr) {
+                        RxBus.getInstance().post(FreshAirChangeEvent().setFreshAirModel(FreshAirController.getInstance().FreshAirList[i]))
+                    }
+                }
+                for (i in FloorHotController.getInstance().FloorHotList.indices) {
+                    val deviceAddr =
+                        FloorHotController.getInstance().FloorHotList[i].outSideAddress + FloorHotController.getInstance().FloorHotList[i].inSideAddress
+                    if (deviceAddr == addr) {
+                        RxBus.getInstance().post(FloorHotChangeEvent().setFloorHotModel(FloorHotController.getInstance().FloorHotList[i]))
+                    }
+                }
+                result.success(true)
             }
             "ControlLocal485AirConditionPower" -> {
                 Log.e("sky", "本地485空调开关控制")
