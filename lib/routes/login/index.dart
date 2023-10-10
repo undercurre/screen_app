@@ -53,6 +53,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   String routeFrom = "";
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
   GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
+  GlobalKey<LinkNetworkState> networkKey = GlobalKey<LinkNetworkState>();
   SelectFamilyItem? selectFamily;
   Uuid uuid = Uuid();
 
@@ -84,7 +85,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
   /// 下一步
   void nextStep() async {
-    if (Platform.isAndroid && stepNum == 1 && !isConnected()) {
+    if (Platform.isAndroid && stepNum == 1 && !(networkKey.currentState?.isNetworkConnected() ?? false)) {
       TipsUtils.toast(content: '请连接网络');
       return;
     }
@@ -369,7 +370,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             width: 480,
             height: 340,
             alignment: AlignmentDirectional.centerStart,
-            child: const LinkNetwork(isNeedWifiSwitch: true),
+            child: LinkNetwork(key: networkKey),
           )),
       Step(
           '扫码登录',

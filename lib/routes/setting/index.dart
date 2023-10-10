@@ -121,6 +121,7 @@ class _SettingPageState extends State<SettingPage> {
                                     style: const TextStyle(
                                         color: Color(0XFFFFFFFF),
                                         fontSize: 24,
+                                        height: 1.8,
                                         fontFamily: "MideaType",
                                         fontWeight: FontWeight.normal,
                                         decoration: TextDecoration.none)

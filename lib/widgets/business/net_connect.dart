@@ -47,10 +47,10 @@ class _LinkNetworkModel with ChangeNotifier {
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
-    init();
-    // Timer(const Duration(milliseconds: 250), () async {
-    //   init();
-    // });
+    //init();
+    Timer(const Duration(milliseconds: 250), () async {
+      init();
+    });
   }
 
   void init() async {
@@ -81,7 +81,7 @@ class _LinkNetworkModel with ChangeNotifier {
 
     if (_data.supportWiFi && _data.isWiFiOn) {
       wifiScanOutTime?.cancel();
-      wifiScanOutTime = Timer(const Duration(minutes: 5), () {
+      wifiScanOutTime = Timer(const Duration(minutes: 10), () {
         netMethodChannel.stopScanNearbyWiFi();
       });
       netMethodChannel.startScanNearbyWiFi();
@@ -142,7 +142,7 @@ class _LinkNetworkModel with ChangeNotifier {
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
       if (wifiOpen) {
         wifiScanOutTime?.cancel();
-        wifiScanOutTime = Timer(const Duration(minutes: 5), () {
+        wifiScanOutTime = Timer(const Duration(minutes: 10), () {
           netMethodChannel.stopScanNearbyWiFi();
         });
         netMethodChannel.startScanNearbyWiFi();
@@ -187,15 +187,14 @@ class _LinkNetworkModel with ChangeNotifier {
 }
 
 class LinkNetwork extends StatefulWidget {
-  final bool isNeedWifiSwitch; // 是否需要Wifi开关栏
 
-  const LinkNetwork({super.key, this.isNeedWifiSwitch = false});
+  const LinkNetwork({super.key});
 
   @override
-  State<LinkNetwork> createState() => _LinkNetwork();
+  State<LinkNetwork> createState() => LinkNetworkState();
 }
 
-class _LinkNetwork extends State<LinkNetwork> {
+class LinkNetworkState extends State<LinkNetwork> {
   late _LinkNetworkModel _model;
 
   @override
@@ -228,6 +227,10 @@ class _LinkNetwork extends State<LinkNetwork> {
         devListModel.getDeviceList();
       }
     }
+  }
+
+  bool isNetworkConnected() {
+    return _model._data.currentConnect?.type == UpdateType.SUCCESS;
   }
 
   @override
