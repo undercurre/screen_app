@@ -204,8 +204,7 @@ class _DevicePageState extends State<DevicePage> {
             scrollDirection: Axis.horizontal,
             onPageChanged: (index) {
               context.read<PageCounter>().currentPage = index;
-              Log.i("scroll page = $index");
-              indicatorState.currentState?.updateIndicator();
+              indicatorState.currentState?.updateIndicator(index);
             },
             allowImplicitScrolling: true,
             itemCount: _screens.length,
@@ -233,7 +232,7 @@ class _DevicePageState extends State<DevicePage> {
           ),
         Indicator(
             key: indicatorState,
-            pageController: _pageController,
+            defaultPosition: context.read<PageCounter>().currentPage,
             itemCount: _screens.length)
       ],
     );

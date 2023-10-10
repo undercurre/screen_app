@@ -125,7 +125,7 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.homeInfo = item?.meijuData;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
   }
 
@@ -140,7 +140,8 @@ class System {
           ? SelectRoomItem.fromMeiJu(MeiJuGlobal.roomInfo!)
           : null;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
+      return null;
     }
   }
 
@@ -151,7 +152,7 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.roomInfo = roomItem?.meijuData;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
   }
 
@@ -162,7 +163,8 @@ class System {
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return MeiJuGlobal.gatewaySn;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
+      return null;
     }
   }
 
@@ -187,13 +189,14 @@ class System {
   }
 
   /// 获取屏的云端id
-  static Future<String?> get gatewayApplianceCode async {
+  static String? get gatewayApplianceCode {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       return HomluxGlobal.gatewayApplianceCode;
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return MeiJuGlobal.gatewayApplianceCode;
     } else {
-      throw Exception("No No No 运行环境为NONE 请勿调用此方法");
+      Log.file("No No No 运行环境为NONE 请勿调用此方法");
+      return null;
     }
   }
 
