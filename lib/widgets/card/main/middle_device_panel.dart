@@ -220,7 +220,7 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                 child: GestureDetector(
                   onTap: () async {
                     Log.i('disabled', widget.disabled);
-                    if (!widget.disabled) {
+                    if (!widget.disabled && adapter.dataState == DataState.SUCCESS) {
                       if (!deviceListModel.getOnlineStatus(
                           deviceId: widget.applianceCode)) {
                         MzDialog(
@@ -247,7 +247,6 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
                       } else {
                         await adapter.fetchOrderPower(1);
                         bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
-
                       }
                     }
                   },
