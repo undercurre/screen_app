@@ -4,9 +4,11 @@
 import 'dart:convert';
 
 import '../homlux_push_message_model.dart';
-// 更改家庭
+// 成员身份发生变化
+class HomluxChangeUserAuthEvent{}
+// 转让家庭家庭
 class HomluxChangHouseEvent{}
-// 转让家庭
+// 工程移交 转让家庭
 class HomluxProjectChangeHouse{}
 // 删除家庭用户
 class HomluxDeleteHouseUser{}

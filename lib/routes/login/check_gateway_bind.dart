@@ -7,6 +7,7 @@ import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
+import '../../common/homlux/api/homlux_user_api.dart';
 import '../../common/homlux/push/event/homlux_push_event.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/meiju/push/event/meiju_push_event.dart';
@@ -27,6 +28,20 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
   void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
     if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
       System.logout('接收到删除网关的推送, 网关设备code = ${event.deviceId}');
+    }
+  }
+
+  void apiCheckUserAuth(dynamic event) async {
+    if(System.inHomluxPlatform()) {
+      String? familyId = System.familyInfo?.familyId;
+      if(familyId == null) {
+        Log.e('程序异常，访问到的家庭Id为空');
+        return;
+      }
+      var res = await HomluxUserApi.queryHouseAuth(familyId);
+      if (res.isSuccess && (res.data?.isTourist() == true)) {
+        System.logout('当前用户身份为游客身份，无权限登录');
+      }
     }
   }
 
@@ -53,9 +68,8 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     super.initState();
 
     if(MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-      bus.typeOn<HomluxChangHouseEvent>(notifyHomluxLogout);
-      bus.typeOn<HomluxProjectChangeHouse>(notifyHomluxLogout);
       bus.typeOn<HomluxDeleteHouseUser>(notifyHomluxLogout);
+      bus.typeOn<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
       bus.typeOn<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
     } else if(MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       bus.typeOn<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
@@ -65,6 +79,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     checkGatewayTimer?.cancel();
     checkGatewayTimer = Timer.periodic(const Duration(hours: 1, minutes: 30), (timer) {
       apiCheckLogout();
+      apiCheckUserAuth(123);
     });
   }
 
@@ -77,6 +92,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     bus.typeOff<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
+    bus.typeOff<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
     checkGatewayTimer?.cancel();
   }
 
