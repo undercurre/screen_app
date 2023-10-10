@@ -235,7 +235,7 @@ public class ControlManager implements Data485Subject {
                 try {
                     Thread.sleep(30);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
                 }
 
             }
@@ -398,7 +398,6 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
-                RxBus.getInstance().post(new AirConditionChangeEvent().setAirConditionModel(AirConditionController.getInstance().AirConditionList.get(i)));
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
@@ -412,7 +411,6 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
-                RxBus.getInstance().post(new FloorHotChangeEvent().setFloorHotModel(FloorHotController.getInstance().FloorHotList.get(i)));
 
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
@@ -427,7 +425,6 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
-                RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirController.getInstance().FreshAirList.get(i)));
 
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
