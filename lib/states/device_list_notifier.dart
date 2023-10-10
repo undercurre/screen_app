@@ -53,7 +53,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
       tempList.addAll(MeijuGroup);
 
-      tempList.addAll(getLocalPanelDevices());
+      tempList.addAll(getMeiJuLocalPanelDevices(deviceListMeiju));
 
       deviceCacheList = tempList;
 
@@ -72,7 +72,7 @@ class DeviceInfoListModel extends ChangeNotifier {
         return deviceObj;
       }).toList();
 
-      tempList.addAll(getLocalPanelDevices());
+      tempList.addAll(getHomluxLocalPanelDevices(deviceListHomlux));
 
       deviceCacheList = tempList;
 
@@ -80,9 +80,58 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
   }
 
-  List<DeviceEntity> getLocalPanelDevices() {
+  List<DeviceEntity> getMeiJuLocalPanelDevices(List<MeiJuDeviceInfoEntity> deviceList) {
     String roomID = System.roomInfo?.id ?? '';
     String roomName = System.roomInfo?.name ?? '';
+
+    String? gatewayApplianceCode = System.gatewayApplianceCode;
+    if(deviceList.isNotEmpty && gatewayApplianceCode != null) {
+      for (var value in deviceList) {
+        if(value.applianceCode == gatewayApplianceCode) {
+          roomID = value.roomId ?? roomID;
+          roomName = value.roomName ?? roomName;
+          break;
+        }
+      }
+    }
+
+    DeviceEntity vLocalPanel1 = DeviceEntity();
+    vLocalPanel1.name = '灯1';
+    vLocalPanel1.applianceCode = 'localPanel1';
+    vLocalPanel1.type = 'localPanel1';
+    vLocalPanel1.modelNumber = 'xx';
+    vLocalPanel1.roomName = roomName;
+    vLocalPanel1.roomId = roomID;
+    vLocalPanel1.masterId = uuid.v4();
+    vLocalPanel1.onlineStatus = '1';
+
+    DeviceEntity vLocalPanel2 = DeviceEntity();
+    vLocalPanel2.name = '灯2';
+    vLocalPanel2.applianceCode = 'localPanel2';
+    vLocalPanel2.type = 'localPanel2';
+    vLocalPanel2.modelNumber = 'xx';
+    vLocalPanel2.roomName = roomName;
+    vLocalPanel2.roomId = roomID;
+    vLocalPanel2.masterId = uuid.v4();
+    vLocalPanel2.onlineStatus = '1';
+    return [vLocalPanel1, vLocalPanel2];
+  }
+
+
+  List<DeviceEntity> getHomluxLocalPanelDevices(List<HomluxDeviceEntity> deviceList) {
+    String roomID = System.roomInfo?.id ?? '';
+    String roomName = System.roomInfo?.name ?? '';
+
+    String? gatewayApplianceCode = System.gatewayApplianceCode;
+    if(deviceList.isNotEmpty && gatewayApplianceCode != null) {
+      for (var value in deviceList) {
+        if(value.deviceId == gatewayApplianceCode) {
+          roomID = value.roomId ?? roomID;
+          roomName = value.roomName ?? roomName;
+          break;
+        }
+      }
+    }
 
     DeviceEntity vLocalPanel1 = DeviceEntity();
     vLocalPanel1.name = '灯1';
@@ -150,7 +199,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         tempList.addAll(MeijuGroup);
 
-        tempList.addAll(getLocalPanelDevices());
+        tempList.addAll(getMeiJuLocalPanelDevices(deviceListMeiju));
 
         Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
 
@@ -245,7 +294,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           return deviceObj;
         }).toList();
 
-        tempList.addAll(getLocalPanelDevices());
+        tempList.addAll(getHomluxLocalPanelDevices(deviceListHomlux));
 
         updateAllAdapter(tempList.map((e) => e.applianceCode).toList());
 
