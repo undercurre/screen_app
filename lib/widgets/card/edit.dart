@@ -2,15 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/logcat_helper.dart';
+import 'package:screen_app/states/page_change_notifier.dart';
 
 import '../../states/layout_notifier.dart';
+import '../event_bus.dart';
 
 class EditCardWidget extends StatelessWidget {
   const EditCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final layoutModel = Provider.of<LayoutModel>(context);
+    final pageCounterModel = Provider.of<PageCounter>(context);
     return GestureDetector(
       onTap: () async {
         /// 跳到编辑页去
@@ -18,6 +20,7 @@ class EditCardWidget extends StatelessWidget {
           context,
           'Custom',
         );
+        bus.emit('mainToRecoverState', pageCounterModel.currentPage);
       },
       child: SizedBox(
         width: 440,

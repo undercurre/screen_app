@@ -171,21 +171,78 @@ class LayoutModel extends ChangeNotifier {
     }
   }
 
-  // 用于删除指定 deviceId 和 pageIndex 的布局对象。
-  Future<void> deleteLayout(String deviceId) async {
-    layouts.removeWhere((item) => item.deviceId == deviceId);
-    await _saveLayouts();
-    notifyListeners();
-  }
-
   // 用于根据设备ID获取相关的布局对象列表。
   Layout getLayoutsByDevice(String deviceId) {
-    return layouts.firstWhere((item) => item.deviceId == deviceId);
+    return layouts.firstWhere(
+      (item) => item.deviceId == deviceId,
+      orElse: () => Layout(
+        '-1',
+        DeviceEntityTypeInP4.DeviceNull,
+        CardType.Null,
+        -1,
+        [],
+        DataInputCard(
+            name: '',
+            type: '',
+            applianceCode: '',
+            roomName: '',
+            masterId: '',
+            modelNumber: '',
+            isOnline: '',
+            onlineStatus: ''),
+      ),
+    );
   }
 
   // 用于根据页面索引获取相关的布局对象列表
   List<Layout> getLayoutsByPageIndex(int pageIndex) {
     return layouts.where((item) => item.pageIndex == pageIndex).toList();
+  }
+
+  void handleNullPage(int nullPageIndex) {
+    if (layouts.isEmpty) {
+      setLayouts([]);
+    }
+
+    for (int i = 0; i < layouts.length; i++) {
+      if (layouts[i].pageIndex > nullPageIndex) {
+        layouts[i].pageIndex--;
+      }
+    }
+
+    _saveLayouts();
+    notifyListeners();
+  }
+
+  // 用于删除指定 deviceId 和 pageIndex 的布局对象。
+  Future<void> deleteLayout(String deviceId) async {
+    // 获取到provider中当前id的Layout数据
+    Layout curLayout = getLayoutsByDevice(deviceId);
+    // 获取当前布局的pageId
+    int curPageIndex = curLayout.pageIndex;
+    layouts.removeWhere((item) => item.deviceId == deviceId);
+    // 检查该页还有没有非空卡/非待定区/其他卡片
+    bool hasNotNullCard = layouts.any((element) =>
+        element.cardType != CardType.Null && element.pageIndex == curPageIndex);
+    // 如果没有其他卡片也就是说这一页因为这次删除而将变成一个空页
+    if (!hasNotNullCard) {
+      // 删除所有剩下的该页布局数据（剩下的都是待定区）
+      layouts.removeWhere((element) => element.pageIndex == curPageIndex);
+      // 把layouts的剩余布局数据的pageIndex重排一下
+      handleNullPage(curPageIndex);
+    } else {
+      // 如果还有其他卡片，对该页布局重新编排并填充待定区（flexLayout将抛回重新编排后这一整页的数据）
+      List<Layout> curPageLayoutsAfterFill =
+          Layout.flexLayout(getLayoutsByPageIndex(curPageIndex));
+      // 删掉这一页所有的数据
+      layouts.removeWhere((element) => element.pageIndex == curPageIndex);
+      // 重新插入这一页再编排后的数据
+      for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
+        addLayout(curPageLayoutsAfterFill[o]);
+      }
+      await _saveLayouts();
+      notifyListeners();
+    }
   }
 
   // 找到布局页数
@@ -218,8 +275,10 @@ class LayoutModel extends ChangeNotifier {
   // 根据pageIndex判断该页是否已经储存满
   bool isFillPage(int pageIndex) {
     int itemsPerPage = 16;
-    List<Layout> layoutsOnPage =
-        layouts.where((element) => element.pageIndex == pageIndex && element.cardType != CardType.Null).toList();
+    List<Layout> layoutsOnPage = layouts
+        .where((element) =>
+            element.pageIndex == pageIndex && element.cardType != CardType.Null)
+        .toList();
     List<int> gridFilledOnPage = [];
     layoutsOnPage.forEach((element) {
       gridFilledOnPage.addAll(element.grids);
@@ -239,8 +298,10 @@ class LayoutModel extends ChangeNotifier {
         // 该页有空位
 
         // 获取该页的layouts
-        List<Layout> layoutsInCurPage =
-            layouts.where((element) => element.pageIndex == i && element.cardType != CardType.Null).toList();
+        List<Layout> layoutsInCurPage = layouts
+            .where((element) =>
+                element.pageIndex == i && element.cardType != CardType.Null)
+            .toList();
         for (int j = 0; j < layoutsInCurPage.length; j++) {
           for (int k = 0; k < layoutsInCurPage[j].grids.length; k++) {
             int row = (layoutsInCurPage[j].grids[k] - 1) ~/ 4;
@@ -575,21 +636,6 @@ class LayoutModel extends ChangeNotifier {
         }
       }
     }
-    _saveLayouts();
-    notifyListeners();
-  }
-
-  void handleNullPage(int nullPageIndex) {
-    if (layouts.isEmpty) {
-      setLayouts([]);
-    }
-
-    for (int i = 0; i < layouts.length; i++) {
-      if (layouts[i].pageIndex > nullPageIndex) {
-        layouts[i].pageIndex--;
-      }
-    }
-
     _saveLayouts();
     notifyListeners();
   }

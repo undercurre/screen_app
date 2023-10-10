@@ -39,11 +39,11 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
 
   Air485Data? data = Air485Data(
-      name: "",
+      name: "新风",
       online: true,
-      operationMode: "1",
-      OnOff: "0",
-      windSpeed: "1");
+      operationMode: 1,
+      OnOff: true,
+      windSpeed: 1);
 
   DataState dataState = DataState.NONE;
 
@@ -55,6 +55,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
+  @override
   Future<void> fetchData() async {
     if(isLocalDevice==false){
       try {
@@ -74,9 +75,9 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
           data = Air485Data(
               name: name,
               online: true,
-              operationMode: "4",
-              OnOff: "0",
-              windSpeed: "1");
+              operationMode: 4,
+              OnOff: true,
+              windSpeed: 1);
           return;
         }
         // Data retrieval success
@@ -88,9 +89,9 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
         data = Air485Data(
             name: name,
             online: true,
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
+            operationMode: 4,
+            OnOff: true,
+            windSpeed: 1);
         updateUI();
       }
     } else {
@@ -269,17 +270,17 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
       data = Air485Data(
           name: name,
           online: state.online==1?true:false,
-          operationMode: state.mode.toString(),
-          OnOff: state.onOff.toString(),
-          windSpeed: state.speed.toString());
+          operationMode: state.mode,
+          OnOff: state.onOff==1?true:false,
+          windSpeed: state.speed);
       updateUI();
     }else if(state.modelId=="zhonghong.air.001"&&applianceCode==state.address){
       data = Air485Data(
           name: name,
           online: state.online==1?true:false,
-          operationMode: state.mode.toString(),
-          OnOff: state.onOff.toString(),
-          windSpeed: state.speed.toString());
+          operationMode: state.mode,
+          OnOff: state.onOff==1?true:false,
+          windSpeed: state.speed);
       updateUI();
     }
   }
@@ -359,18 +360,18 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
             data = Air485Data(
                 name: name,
                 online: deviceList!.nameValuePairs!.freshAirList![i].onlineState=="1"?true:false,
-                operationMode: int.parse(operationMode!, radix: 16).toString()!,
-                OnOff: OnOff!,
-                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+                operationMode: int.parse(operationMode!, radix: 16),
+                OnOff: OnOff=="1"?true:false,
+                windSpeed: int.parse(windSpeed!, radix: 16));
           }
         }
       }else{
         data = Air485Data(
             name: name,
             online: true,
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
+            operationMode: 4,
+            OnOff: true,
+            windSpeed: 1);
       }
     }
   }
@@ -383,21 +384,21 @@ class Air485Data {
   String name = '485新风';
 
   // 当前室温
-  String currTemp = '28';
+  int currTemp = 28;
 
   // 设定温度
-  String targetTemp = "26";
+  int targetTemp = 26;
 
   // 运行模式
-  String operationMode = "1";
+  int operationMode = 1;
 
   // 开关状态
-  String OnOff = "0";
+  bool OnOff = true;
 
   bool online = true;
 
   //风速
-  String windSpeed = "1";
+  int windSpeed = 1;
 
   Air485Data(
       {required this.name,
@@ -409,9 +410,9 @@ class Air485Data {
   Air485Data.fromMeiJu(
       NodeInfo<Endpoint<Air485Event>> data, String modelNumber) {
     name = data.endList[0].name;
-    operationMode = data.endList[0].event.operationMode;
-    OnOff = data.endList[0].event.OnOff;
-    windSpeed = data.endList[0].event.windSpeed;
+    operationMode = int.parse(data.endList[0].event.operationMode);
+    OnOff = data.endList[0].event.OnOff=="1"?true:false;
+    windSpeed = int.parse(data.endList[0].event.windSpeed);
     online = true;
   }
 

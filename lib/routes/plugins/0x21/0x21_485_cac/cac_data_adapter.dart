@@ -40,13 +40,13 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   bool isLocalDevice = false;
 
   CAC485Data? data = CAC485Data(
-      name: "",
+      name: "空调",
       online: true,
-      currTemp: "28",
-      targetTemp: "26",
-      operationMode: "1",
-      OnOff: "0",
-      windSpeed: "1");
+      currTemp: 28,
+      targetTemp: 26,
+      operationMode: 1,
+      OnOff: true,
+      windSpeed: 1);
 
   DataState dataState = DataState.NONE;
 
@@ -78,11 +78,11 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
           data = CAC485Data(
               name: name,
               online: true,
-              currTemp: "28",
-              targetTemp: "26",
-              operationMode: "4",
-              OnOff: "0",
-              windSpeed: "1");
+              currTemp: 28,
+              targetTemp: 26,
+              operationMode: 4,
+              OnOff: true,
+              windSpeed: 1);
           updateUI();
           return;
         }
@@ -95,11 +95,11 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         data = CAC485Data(
             name: name,
             online: true,
-            currTemp: "28",
-            targetTemp: "26",
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
+            currTemp: 28,
+            targetTemp: 26,
+            operationMode: 4,
+            OnOff: true,
+            windSpeed: 1);
         updateUI();
       }
     } else {
@@ -315,6 +315,8 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     logger.i("空调适配器初始化");
     getLocalDeviceCode();
     _startPushListen();
+
+
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -341,22 +343,22 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
       data = CAC485Data(
           name: name,
           online: state.online==1?true:false,
-          currTemp: state.currTemperature.toString(),
-          targetTemp: state.temper.toString(),
-          operationMode: state.mode.toString(),
-          OnOff: state.onOff.toString(),
-          windSpeed: state.speed.toString());
+          currTemp: state.currTemperature,
+          targetTemp: state.temper,
+          operationMode: state.mode,
+          OnOff: state.onOff==1?true:false,
+          windSpeed: state.speed);
       updateUI();
     } else if (state.modelId == "zhonghong.cac.002" &&
         applianceCode == state.address) {
       data = CAC485Data(
           name: name,
           online: state.online==1?true:false,
-          currTemp: state.currTemperature.toString(),
-          targetTemp: state.temper.toString(),
-          operationMode: state.mode.toString(),
-          OnOff: state.onOff.toString(),
-          windSpeed: state.speed.toString());
+          currTemp: state.currTemperature,
+          targetTemp: state.temper,
+          operationMode: state.mode,
+          OnOff: state.onOff==1?true:false,
+          windSpeed: state.speed);
       updateUI();
     }
   }
@@ -445,22 +447,22 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
             data = CAC485Data(
                 name: name,
                 online: deviceList!.nameValuePairs!.airConditionList![i].onlineState=="1"?true:false,
-                currTemp: int.parse(currTemp!, radix: 16).toString()!,
-                targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
-                operationMode: int.parse(operationMode!, radix: 16).toString()!,
-                OnOff: OnOff!,
-                windSpeed: int.parse(windSpeed!, radix: 16).toString()!);
+                currTemp: int.parse(currTemp!, radix: 16),
+                targetTemp: int.parse(targetTemp!, radix: 16),
+                operationMode: int.parse(operationMode!, radix: 16),
+                OnOff: OnOff=="1"?true:false,
+                windSpeed: int.parse(windSpeed!, radix: 16));
           }
         }
       } else {
         data = CAC485Data(
             name: name,
             online: true,
-            currTemp: "24",
-            targetTemp: "26",
-            operationMode: "4",
-            OnOff: "0",
-            windSpeed: "1");
+            currTemp: 24,
+            targetTemp: 26,
+            operationMode: 4,
+            OnOff: true,
+            windSpeed: 1);
       }
     }
   }
@@ -472,21 +474,21 @@ class CAC485Data {
   String name = '485空调';
 
   // 当前室温
-  String currTemp = '28';
+  int currTemp = 28;
 
   // 设定温度
-  String targetTemp = "26";
+  int targetTemp = 26;
 
   // 运行模式
-  String operationMode = "1";
+  int operationMode = 1;
 
   // 开关状态
-  String OnOff = "0";
+  bool OnOff = true;
 
   bool online = true;
 
   //风速
-  String windSpeed = "1";
+  int windSpeed = 1;
 
   CAC485Data(
       {required this.name,
@@ -500,11 +502,11 @@ class CAC485Data {
   CAC485Data.fromMeiJu(
       NodeInfo<Endpoint<CAC485Event>> data, String modelNumber) {
     name = data.endList[0].name;
-    currTemp = data.endList[0].event.currTemp;
-    targetTemp = data.endList[0].event.targetTemp;
-    operationMode = data.endList[0].event.operationMode;
-    OnOff = data.endList[0].event.OnOff;
-    windSpeed = data.endList[0].event.windSpeed;
+    currTemp = int.parse(data.endList[0].event.currTemp);
+    targetTemp =int.parse(data.endList[0].event.targetTemp) ;
+    operationMode = int.parse(data.endList[0].event.operationMode);
+    OnOff = data.endList[0].event.OnOff=="1"?true:false;
+    windSpeed = int.parse(data.endList[0].event.windSpeed);
     online = true;
   }
 

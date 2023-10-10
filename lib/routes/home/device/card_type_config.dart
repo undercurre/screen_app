@@ -4,7 +4,6 @@ import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
-import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/routes/plugins/lightGroup/data_adapter.dart';
 import 'package:screen_app/widgets/card/main/big_device_air.dart';
 import 'package:screen_app/widgets/card/main/big_device_curtain.dart';
@@ -1657,12 +1656,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1685,12 +1682,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1706,12 +1701,9 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         ),
     CardType.Big: (params) => Big485CACDeviceAirCardWidget(
           name: params.name,
-          onOff: true,
           roomName: params.roomName,
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          temperature: 26,
           min: 16,
           max: 30,
           applianceCode: params.applianceCode,
@@ -1737,12 +1729,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1765,12 +1755,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1786,9 +1774,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         ),
     CardType.Big: (params) => Big485AirDeviceAirCardWidget(
           name: params.name,
-          onOff: true,
           roomName: params.roomName,
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           applianceCode: params.applianceCode,
@@ -1814,12 +1800,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1842,12 +1826,10 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             image: AssetImage(
                 'assets/newUI/device/0x21_${params.modelNumber}.png'),
           ),
-          onOff: true,
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
@@ -1863,12 +1845,9 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         ),
     CardType.Big: (params) => Big485FloorDeviceAirCardWidget(
           name: params.name,
-          onOff: true,
           roomName: params.roomName,
-          online: params.isOnline == "0" ? false : true,
           isFault: false,
           isNative: System.inMeiJuPlatform() ? false : true,
-          temperature: 30,
           min: 5,
           max: 90,
           applianceCode: params.applianceCode,
