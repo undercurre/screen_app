@@ -227,7 +227,6 @@ class _DevicePageState extends State<DevicePage> {
             scrollDirection: Axis.horizontal,
             onPageChanged: (index) {
               context.read<PageCounter>().currentPage = index;
-              Log.i("scroll page = $index");
               indicatorState.currentState?.updateIndicator();
             },
             allowImplicitScrolling: true,
@@ -541,8 +540,8 @@ class Indicator extends StatefulWidget {
 }
 
 class _IndicatorState extends State<Indicator> {
+
   void updateIndicator() {
-    Log.i("update indicator ${widget.pageController.page}");
     setState(() {});
   }
 
