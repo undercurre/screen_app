@@ -44,14 +44,14 @@ public class ControlManager implements Data485Subject {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
     private static final int BAUD_RATE = 9600;
-    private boolean running = true, isFirstFrame = false, commandFinish = true, resetFlag = true;
+    private boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
-    private int totalSize = 0;
+    private int totalSize = 0,resetTime=0;
     private long read0Times = 0;
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
-    private Timer timer;
+    private Timer timer,heatBet;
     private Integer cacheTime = 2;
     private ExecutorService service, readService;
 
@@ -146,19 +146,21 @@ public class ControlManager implements Data485Subject {
                         if (mInputStream.available() > 0) {
                             size = mInputStream.read(buffer);
                             read0Times = 0;
-                            resetFlag=true;
+                            resetTime=0;
                         } else {
                             read0Times++;
-//                            Log.e("sky", "1111xx的量:" + read0Times);
                             if (read0Times == 200) {
                                 read0Times = 0;
-//                                commandReset();
+                                commandReset();
+                                if (resetTime==3){
+                                    upDataAllDeviceOffline();
+                                }
                             }
                         }
 
                         if (size > 0) {
                             read0Times = 0;
-                            resetFlag=true;
+                            resetTime=0;
 //                            Log.e("sky", "读到数据量:" + size);
 //                                //判断请求指令,根据请求指令来判断是否数据完整
                             if (isFirstFrame) {
@@ -292,15 +294,10 @@ public class ControlManager implements Data485Subject {
         totalSize = 0;
         total = new StringBuffer();
         queue.clear();
-//        Log.e("sky", "到了阈值resetFlag:"+resetFlag);
+        resetTime++;
         //整个网关断电,全部设备离线上报
-        if(resetFlag==true){
-            Log.e("sky", "485网关断开连接所有设备上报离线");
-            resetFlag=false;
-            upDataAllDeviceOffline();
-        }
-
     }
+
 
     private void upDataAllDeviceOffline() {
         if(AirConditionController.getInstance().AirConditionList.size()>0){
@@ -391,6 +388,52 @@ public class ControlManager implements Data485Subject {
         total.delete(0, total.length());
     }
 
+    private void upDataAllDeviceOnlineState() {
+        if(AirConditionController.getInstance().AirConditionList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <AirConditionController.getInstance().AirConditionList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(AirConditionController.getInstance().AirConditionList.get(i).getOnlineState()));
+                String address=AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.cac.002");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new AirConditionChangeEvent().setAirConditionModel(AirConditionController.getInstance().AirConditionList.get(i)));
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+
+        if(FloorHotController.getInstance().FloorHotList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <FloorHotController.getInstance().FloorHotList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(FloorHotController.getInstance().FloorHotList.get(i).getOnlineState()));
+                String address=FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress()+FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.heat.001");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new FloorHotChangeEvent().setFloorHotModel(FloorHotController.getInstance().FloorHotList.get(i)));
+
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+
+        if(FreshAirController.getInstance().FreshAirList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <FreshAirController.getInstance().FreshAirList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(FreshAirController.getInstance().FreshAirList.get(i).getOnlineState()));
+                String address=FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress()+FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.air.001");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirController.getInstance().FreshAirList.get(i)));
+
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+    }
+
     public void startFresh() {
         if (task != null) {
             task.cancel();
@@ -421,11 +464,26 @@ public class ControlManager implements Data485Subject {
             }
         };
         timer.schedule(task, 0, cacheTime);
+
+        if (heatBet != null) {
+            heatBet.cancel();
+        }
+        heatBet = new Timer();
+        TimerTask heatBetTask = new TimerTask() {
+            @Override
+            public void run() {
+                upDataAllDeviceOnlineState();
+            }
+        };
+        heatBet.schedule(heatBetTask, 10000, 180000);
     }
 
     public void stopFresh() {
         if (timer != null) {
             timer.cancel();
+        }
+        if (heatBet != null) {
+            heatBet.cancel();
         }
         if (task != null) {
             task.cancel();

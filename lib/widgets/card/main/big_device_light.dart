@@ -52,7 +52,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(widget.disabled) {
+    if(!widget.disabled) {
       adapter.bindDataUpdateFunction(updateCallback);
     }
   }

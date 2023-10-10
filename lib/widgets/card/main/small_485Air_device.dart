@@ -15,18 +15,14 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
   final String? modelNumber;
   final String? masterId;
   final Widget icon;
-  bool onOff;
-  bool online;
   final bool isFault;
-  bool isNative;
+  final bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  int windSpeed = 4; // 风速值
   final bool disable;
   final AdapterGenerateFunction<AirDataAdapter> adapterGenerateFunction;
-  bool localOnline=false;
 
   Small485AirDeviceCardWidget({
     super.key,
@@ -36,12 +32,10 @@ class Small485AirDeviceCardWidget extends StatefulWidget {
     required this.modelNumber,
     required this.masterId,
     required this.icon,
-    required this.onOff,
     required this.roomName,
     required this.characteristic,
     this.onTap,
     this.onMoreTap,
-    required this.online,
     required this.isFault,
     required this.isNative,
     required this.adapterGenerateFunction,
@@ -72,36 +66,25 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   void updateData() {
     if (mounted) {
-      // if(widget.localOnline==widget.adapter!.data!.online&&widget.windSpeed == int.parse(widget.adapter!.data!.windSpeed)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
+      // if(widget.localOnline==widget.adapter!.data!.online&&adapter.data!.windSpeed == int.parse(widget.adapter!.data!.windSpeed)&& adapter.data!.OnOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
       //   return;
       // }
       setState(() {
-        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
-        widget.windSpeed = int.parse(adapter.data!.windSpeed);
-        widget.localOnline= adapter.data!.online;
-        widget.isNative= adapter.isLocalDevice;
-        if(widget.localOnline) {
-          widget.online = true;
-        } else {
-          widget.online = false;
-        }
       });
     }
   }
 
   void powerHandle(bool state) async {
-    if (!widget.online) {
+    if (!adapter.data!.online) {
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
-    if (widget.onOff == true) {
-      adapter.data!.OnOff = "0";
-      widget.onOff = false;
+    if (adapter.data!.OnOff == true) {
+      adapter.data!.OnOff = false;
       setState(() {});
       adapter.orderPower(0);
     } else {
-      adapter.data!.OnOff = "1";
-      widget.onOff = true;
+      adapter.data!.OnOff = true;
       setState(() {});
       adapter.orderPower(1);
     }
@@ -144,60 +127,40 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=false;
-        // Future.delayed(const Duration(seconds: 3), () {
-        //   widget.adapter?.fetchData();
-        // });
-        if(widget.online){
+        if(adapter.isLocalDevice&&adapter.data!.online){
           int windSpeed = 1;
-          if (widget.windSpeed == 1) {
+          if (adapter.data!.windSpeed == 1) {
             windSpeed = 3;
-          } else if (widget.windSpeed == 2) {
+          } else if (adapter.data!.windSpeed == 2) {
             windSpeed = 2;
-          } else if (widget.windSpeed == 4) {
+          } else if (adapter.data!.windSpeed == 4) {
             windSpeed = 1;
           } else {
             windSpeed = 3;
           }
           return "$windSpeed档";
-        }else{
-          return '离线';
         }
+        return '离线';
       } else {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=true;
-        // Future.delayed(const Duration(seconds: 3), () {
-        //   widget.adapter?.fetchData();
-        // });
-        if(widget.online){
-          int windSpeed = 1;
-          if (widget.windSpeed == 1) {
-            windSpeed = 3;
-          } else if (widget.windSpeed == 2) {
-            windSpeed = 2;
-          } else if (widget.windSpeed == 4) {
-            windSpeed = 1;
-          } else {
-            windSpeed = 3;
-          }
-          return "$windSpeed档";
-        }else{
+        if(adapter.isLocalDevice&&!adapter.data!.online){
           return '离线';
         }
+        int windSpeed = 1;
+        if (adapter.data!.windSpeed == 1) {
+          windSpeed = 3;
+        } else if (adapter.data!.windSpeed == 2) {
+          windSpeed = 2;
+        } else if (adapter.data!.windSpeed == 4) {
+          windSpeed = 1;
+        } else {
+          windSpeed = 3;
+        }
+        return "$windSpeed档";
       }
     }
 
     return GestureDetector(
-      onTap: () => {powerHandle(widget.onOff)},
+      onTap: () => {powerHandle(adapter.data!.OnOff)},
       child: Container(
         width: 210,
         height: 88,
@@ -231,7 +194,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
                         ),
                       ),
                     ),
-                    if (widget.isNative)
+                    if (widget.isNative||adapter.isLocalDevice)
                       Container(
                         margin: const EdgeInsets.only(left: 0),
                         width: 36,
@@ -270,7 +233,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
             ),
             GestureDetector(
               onTap: () => {
-                if (widget.online)
+                if (adapter.data!.online)
                   {
                     Navigator.pushNamed(context, '0x21_485Air', arguments: {
                       "name": getDeviceName(),
@@ -307,7 +270,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
         ),
       );
     }
-    if (widget.onOff && widget.online) {
+    if (adapter.data!.OnOff && adapter.data!.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(
@@ -321,7 +284,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
         ),
       );
     }
-    if (!widget.online) {
+    if (!adapter.data!.online) {
       BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(

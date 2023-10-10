@@ -49,6 +49,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
+  @override
   Future<void> fetchData() async {
     if (isLocalDevice == false) {
       try {
@@ -68,8 +69,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           data = Floor485Data(
             name: name,
             online: true,
-            targetTemp: "26",
-            OnOff: "0",
+            targetTemp: 26,
+            OnOff: true,
           );
           return;
         }
@@ -82,8 +83,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         data = Floor485Data(
           name: name,
           online: true,
-          targetTemp: "26",
-          OnOff: "0",
+          targetTemp: 26,
+          OnOff: true,
         );
       }
     }else {
@@ -260,8 +261,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
-        targetTemp: state.temper.toString(),
-        OnOff: state.onOff.toString(),
+        targetTemp: state.temper,
+        OnOff: state.onOff==1?true:false,
       );
       logger.i("Local地暖温度:${data?.targetTemp}");
       updateUI();
@@ -269,8 +270,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
-        targetTemp: state.temper.toString(),
-        OnOff: state.onOff.toString(),
+        targetTemp: state.temper,
+        OnOff: state.onOff==1?true:false,
       );
       logger.i("Local地暖温度:${data?.targetTemp}");
       updateUI();
@@ -356,8 +357,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
             data = Floor485Data(
               name: name,
               online: deviceList!.nameValuePairs!.floorHotList![i].onlineState=="1"?true:false,
-              targetTemp: int.parse(targetTemp!, radix: 16).toString()!,
-              OnOff: OnOff!,
+              targetTemp: int.parse(targetTemp!, radix: 16),
+              OnOff: OnOff=="1"?true:false,
             );
           }
         }
@@ -365,8 +366,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         data = Floor485Data(
           name: name,
           online: true,
-          targetTemp: "26",
-          OnOff: "0",
+          targetTemp: 26,
+          OnOff: true,
         );
       }
     }
@@ -380,12 +381,12 @@ class Floor485Data {
   String name = '485地暖';
 
   // 设定温度
-  String targetTemp = "26";
+  int targetTemp = 26;
 
   // 开关状态
-  String OnOff = "0";
+  bool OnOff = true;
 
-  bool online = false;
+  bool online = true;
 
 
   Floor485Data({
@@ -398,8 +399,8 @@ class Floor485Data {
   Floor485Data.fromMeiJu(
       NodeInfo<Endpoint<Floor485Event>> data, String modelNumber) {
     name = data.endList[0].name;
-    targetTemp = data.endList[0].event.targetTemp;
-    OnOff = data.endList[0].event.OnOff;
+    targetTemp = int.parse(data.endList[0].event.targetTemp);
+    OnOff = data.endList[0].event.OnOff=="1"?true:false;
   }
 
   Floor485Data.fromHomlux(dynamic data, String modelNumber) {}

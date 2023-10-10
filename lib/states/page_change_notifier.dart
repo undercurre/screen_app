@@ -11,13 +11,11 @@ class PageCounter extends ChangeNotifier {
 
   void incrementPage() {
     _currentPage++;
-    notifyListeners(); // 通知监听器状态已更新
   }
 
   void decrementPage() {
     if (_currentPage > 1) {
       _currentPage--;
-      notifyListeners();
     }
   }
 }

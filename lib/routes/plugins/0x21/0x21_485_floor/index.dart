@@ -8,6 +8,7 @@ import 'package:screen_app/widgets/index.dart';
 import '../../../../common/global.dart';
 import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/plugins/slider_485_button_card.dart';
 import 'floor_data_adapter.dart';
 
 class FloorHeating485PageState extends State<FloorHeating485Page> {
@@ -23,13 +24,13 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   }
 
   Future<void> powerHandle() async {
-    if (adapter!.data!.OnOff == '1') {
-      adapter!.data!.OnOff = "0";
+    if (adapter!.data!.OnOff) {
+      adapter!.data!.OnOff = false;
       OnOff="0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
-      adapter!.data!.OnOff = "1";
+      adapter!.data!.OnOff = true;
       OnOff="1";
       setState(() {});
       adapter?.orderPower(1);
@@ -42,7 +43,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
     }
     adapter?.orderTemp(value.toInt());
     targetTemp = value.toString();
-    adapter!.data!.targetTemp = targetTemp;
+    adapter!.data!.targetTemp = value.toInt();
   }
 
   Future<void> updateDetail() async {
@@ -56,8 +57,8 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
       setState(() {
         name = args?['name'] ?? "";
         adapter = args?['adapter'];
-        targetTemp = adapter!.data!.targetTemp;
-        OnOff = adapter!.data!.OnOff;
+        targetTemp = adapter!.data!.targetTemp.toString();
+        OnOff = adapter!.data!.OnOff?"1":"0";
         adapter!.bindDataUpdateFunction(update485FloorDetialData);
         logger.i("初始化地暖详情");
       });
@@ -72,8 +73,8 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
       logger.i("详情地暖温度:${adapter!.data!.targetTemp}");
       setState(() {
         adapter?.data = adapter!.data;
-        targetTemp = adapter!.data!.targetTemp;
-        OnOff = adapter!.data!.OnOff;
+        targetTemp = adapter!.data!.targetTemp.toString();
+        OnOff = adapter!.data!.OnOff?"1":"0";
       });
     }
   }
@@ -163,7 +164,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
                         children: [
                           Container(
                             margin: const EdgeInsets.fromLTRB(0, 32, 16, 0),
-                            child: SliderButtonCard(
+                            child: Slider485ButtonCard(
                               disabled: OnOff == '0',
                               min: 5,
                               max: 90,
