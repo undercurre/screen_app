@@ -22,13 +22,13 @@ class FreshAir485PageState extends State<FreshAir485Page> {
   }
 
   Future<void> powerHandle() async {
-    if (adapter!.data!.OnOff == '1') {
-      adapter!.data!.OnOff = "0";
+    if (adapter!.data!.OnOff) {
+      adapter!.data!.OnOff = false;
       OnOff = "0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
-      adapter!.data!.OnOff = "1";
+      adapter!.data!.OnOff = true;
       OnOff = "1";
       setState(() {});
       adapter?.orderPower(1);
@@ -45,7 +45,7 @@ class FreshAir485PageState extends State<FreshAir485Page> {
       value = 1;
     }
     localWind = value.toInt();
-    adapter!.data!.windSpeed = value.toString();
+    adapter!.data!.windSpeed = value.toInt();
     setState(() {});
     adapter?.orderSpeed(value.toInt());
 
@@ -78,8 +78,8 @@ class FreshAir485PageState extends State<FreshAir485Page> {
       setState(() {
         name = args?['name'] ?? "";
         adapter = args?['adapter'];
-        localWind = int.parse(adapter!.data!.windSpeed);
-        OnOff = adapter!.data!.OnOff;
+        localWind = adapter!.data!.windSpeed;
+        OnOff = adapter!.data!.OnOff?"1":"0";
         adapter!.bindDataUpdateFunction(updateData);
       });
       updateDetail();
@@ -92,8 +92,8 @@ class FreshAir485PageState extends State<FreshAir485Page> {
       Log.i("进来更新状态");
       setState(() {
         adapter?.data = adapter!.data!;
-        localWind = int.parse(adapter!.data!.windSpeed);
-        OnOff = adapter!.data!.OnOff;
+        localWind = adapter!.data!.windSpeed;
+        OnOff = adapter!.data!.OnOff?"1":"0";
         Log.i("更新状态完成");
       });
     }

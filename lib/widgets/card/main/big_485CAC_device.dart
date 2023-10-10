@@ -11,15 +11,12 @@ import '../../util/nameFormatter.dart';
 
 class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  bool onOff = false;
-  bool online;
-  bool localOnline=false;
+  final bool localOnline=false;
   final bool isFault;
-  bool isNative;
+  final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
-  int temperature = 26; // 温度值
   final int min; // 温度最小值
   final int max; // 温度最大值
 
@@ -28,25 +25,22 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
 
   final void Function(bool toOn)? onPowerTap; // 开关点击
 
-  bool disable;
-  String applianceCode;
+  final bool disable;
+  final String applianceCode;
   AdapterGenerateFunction<CACDataAdapter> adapterGenerateFunction;
 
   Big485CACDeviceAirCardWidget(
       {super.key,
       required this.name,
       required this.applianceCode,
-      required this.onOff,
       required this.roomName,
       required this.disable,
       required this.adapterGenerateFunction,
       this.onMoreTap,
-      required this.online,
       required this.isFault,
       required this.isNative,
       this.onChanging,
       this.onChanged,
-      required this.temperature,
       required this.min,
       required this.max,
       this.onPowerTap});
@@ -71,22 +65,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
   void updateData() {
     if (mounted) {
-      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
-      //   return;
-      // }
-      setState(() {
-        if (int.parse(adapter!.data!.targetTemp) < 35) {
-          widget.temperature = int.parse(adapter!.data!.targetTemp);
-          widget.onOff = adapter!.data!.OnOff == '1' ? true : false;
-          widget.localOnline=adapter!.data!.online;
-          widget.isNative= adapter!.isLocalDevice;
-          if(widget.localOnline){
-            widget.online = true;
-          }else{
-            widget.online = false;
-          }
-        }
-      });
+      setState(() {});
     }
   }
 
@@ -98,34 +77,31 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   void powerHandle(bool state) async {
-    if (!widget.online) {
+    if (!adapter.data!.online) {
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
-    if (widget.onOff == true) {
-      adapter.data!.OnOff = "0";
-      widget.onOff = false;
+    if (adapter.data!.OnOff == true) {
+      adapter.data!.OnOff = false;
       setState(() {});
       adapter.orderPower(0);
     } else {
-      adapter.data!.OnOff = "1";
-      widget.onOff = true;
+      adapter.data!.OnOff = true;
       setState(() {});
       adapter.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if (!widget.onOff) {
+    if (!adapter.data!.OnOff) {
       return;
     }
-    if (!widget.online) {
+    if (!adapter.data!.online) {
       return;
     }
     adapter.orderTemp(value.toInt());
-    widget.temperature = value.toInt();
+    adapter.data!.targetTemp = value.toInt();
     setState(() {});
-    adapter.data!.targetTemp = value.toString();
   }
 
   @override
@@ -161,40 +137,18 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=false;
-        // adapter.fetchData();
-        if(widget.online){
-          return '在线';
-        }else{
-          return '离线';
-        }
+        return '离线';
       } else {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=true;
-        // adapter.fetchData();
-        if(widget.online){
-          return '在线';
-        }else{
-          return '离线';
-        }
+        return '在线';
       }
     }
 
     String getPowerIcon() {
-      if (widget.onOff && widget.online) {
+      if (adapter.data!.OnOff && adapter.data!.online) {
         return "assets/newUI/card_power_on.png";
-      } else if (!widget.online) {
+      } else if (!adapter.data!.online) {
         return "assets/newUI/card_power_off.png";
-      } else if (!widget.onOff) {
+      } else if (!adapter.data!.OnOff) {
         return "assets/newUI/card_power_off.png";
       } else {
         return "assets/newUI/card_power_on.png";
@@ -211,7 +165,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => powerHandle(widget.onOff),
+              onTap: () => powerHandle(adapter.data!.OnOff),
               child: Image(
                   width: 40, height: 40, image: AssetImage(getPowerIcon())),
             ),
@@ -221,7 +175,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
             right: 16,
             child: GestureDetector(
               onTap: () => {
-                if (widget.online)
+                if (adapter.data!.online)
                   {
                     Navigator.pushNamed(context, '0x21_485CAC', arguments: {
                       "name": getDeviceName(),
@@ -326,36 +280,54 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                 children: [
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(widget.temperature > widget.min
-                          ? widget.temperature - 1
+                      temperatureHandle(adapter.data!.targetTemp > widget.min
+                          ? adapter.data!.targetTemp - 1
                           : widget.min),
                     },
                     child: Image(
                         color: Color.fromRGBO(
-                            255, 255, 255, widget.onOff ? 1 : 0.7),
+                            255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/sub.png')),
                   ),
-                  Text("${widget.temperature}",
-                      style: TextStyle(
-                          height: 1.5,
-                          color: widget.onOff
-                              ? const Color(0XFFFFFFFF)
-                              : const Color(0XA3FFFFFF),
-                          fontSize: 60,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${adapter.data!.targetTemp}",
+                          style: TextStyle(
+                              height: 1.5,
+                              color: adapter.data!.OnOff
+                                  ? const Color(0XFFFFFFFF)
+                                  : const Color(0XA3FFFFFF),
+                              fontSize: 60,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none)),
+                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                        child:Text("℃",
+                            style: TextStyle(
+                                height: 1.5,
+                                color: adapter!.data!.OnOff&&adapter.data!.online
+                                    ? const Color(0XFFFFFFFF)
+                                    : const Color(0XA3FFFFFF),
+                                fontSize: 25,
+                                fontFamily: "MideaType",
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none)),
+                      ),
+                    ],
+                  ),
+
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(widget.temperature < widget.max
-                          ? widget.temperature + 1
+                      temperatureHandle(adapter.data!.targetTemp < widget.max
+                          ? adapter.data!.targetTemp + 1
                           : widget.max),
                     },
                     child: Image(
                         color: Color.fromRGBO(
-                            255, 255, 255, widget.onOff ? 1 : 0.7),
+                            255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/add.png')),
@@ -373,7 +345,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !widget.onOff || !widget.online,
+              disabled: !adapter.data!.OnOff || !adapter.data!.online,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
@@ -385,15 +357,15 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   int _getTempVal() {
-    return widget.temperature < widget.min
+    return adapter.data!.targetTemp < widget.min
         ? widget.min
-        : widget.temperature > widget.max
+        : adapter.data!.targetTemp > widget.max
             ? widget.max
-            : widget.temperature;
+            : adapter.data!.targetTemp;
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
+    if (adapter.data!.OnOff && adapter.data!.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

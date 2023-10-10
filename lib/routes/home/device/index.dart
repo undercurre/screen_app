@@ -547,6 +547,7 @@ class _IndicatorState extends State<Indicator> {
 
   @override
   Widget build(BuildContext context) {
+    int curPage = context.read<PageCounter>().currentPage;
     return Builder(builder: (context) {
       return Positioned(
           left: 215,
@@ -554,9 +555,7 @@ class _IndicatorState extends State<Indicator> {
           child: Stack(
             children: [
               Positioned(
-                left: (widget.pageController.page?.round() ?? 0) /
-                    (widget.itemCount - 1) *
-                    25,
+                left:widget.itemCount==1?0:curPage / (widget.itemCount - 1) * 25,
                 bottom: 0,
                 child: Container(
                   width: 26,

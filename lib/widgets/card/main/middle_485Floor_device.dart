@@ -12,15 +12,12 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   final String? modelNumber;
   final String? masterId;
   final Widget icon;
-  bool onOff;
-  bool online;
   final bool isFault;
   bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  String temperature = "26"; // 温度值
   bool localOnline = false;
 
   bool disable;
@@ -35,12 +32,10 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
     required this.modelNumber,
     required this.masterId,
     required this.icon,
-    required this.onOff,
     required this.roomName,
     required this.characteristic,
     this.onTap,
     this.onMoreTap,
-    required this.online,
     required this.isFault,
     required this.isNative
   });
@@ -64,36 +59,22 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
   void updateData() {
     if (mounted) {
-      // if(widget.localOnline==widget.adapter!.data!.online&&widget.temperature == int.parse(widget.adapter!.data!.targetTemp)&& widget.onOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
-      //   return;
-      // }
       setState(() {
-        widget.temperature = adapter.data!.targetTemp;
-        widget.onOff = adapter.data!.OnOff == '1' ? true : false;
-        widget.localOnline= adapter.data!.online;
-        widget.isNative=  adapter.isLocalDevice;
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
       });
     }
   }
 
   void powerHandle(bool state) async {
-    if (!widget.online) {
+    if (!adapter.data!.online) {
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
-    if (widget.onOff == true) {
-      adapter.data!.OnOff = "0";
-      widget.onOff = false;
+    if (adapter.data!.OnOff == true) {
+      adapter.data!.OnOff = false;
       setState(() {});
       adapter.orderPower(0);
     } else {
-      adapter.data!.OnOff = "1";
-      widget.onOff = true;
+      adapter.data!.OnOff = true;
       setState(() {});
       adapter.orderPower(1);
     }
@@ -136,37 +117,14 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=false;
-
-        if(widget.online){
-          return "${widget.temperature}℃";
-
-        }else{
-          return '离线';
-        }
+        return '离线';
       } else {
-        if(widget.localOnline){
-          widget.online = true;
-        }else{
-          widget.online = false;
-        }
-        widget.localOnline=true;
-        if(widget.online){
-          return "${widget.temperature}℃";
-
-        }else{
-          return '离线';
-        }
+        return "${adapter.data!.targetTemp}℃";
       }
     }
 
     return GestureDetector(
-      onTap: () => {powerHandle(widget.onOff)},
+      onTap: () => {powerHandle(adapter.data!.OnOff)},
       child: Container(
         width: 210,
         height: 196,
@@ -178,7 +136,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
               right: 16,
               child: GestureDetector(
                 onTap: () => {
-                  if (widget.online)
+                  if (adapter.data!.online)
                     {
                       Navigator.pushNamed(context, '0x21_485Floor', arguments: {
                         "name": getDeviceName(),
@@ -291,7 +249,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
   }
 
   BoxDecoration _getBoxDecoration() {
-    if (widget.onOff && widget.online) {
+    if (adapter.data!.OnOff && adapter.data!.online) {
       return const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
         gradient: LinearGradient(

@@ -44,10 +44,10 @@ public class ControlManager implements Data485Subject {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
     private static final int BAUD_RATE = 9600;
-    private boolean running = true, isFirstFrame = false, commandFinish = true, resetFlag = true;
+    private boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
-    private int totalSize = 0;
+    private int totalSize = 0,resetTime=0;
     private long read0Times = 0;
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
@@ -146,19 +146,21 @@ public class ControlManager implements Data485Subject {
                         if (mInputStream.available() > 0) {
                             size = mInputStream.read(buffer);
                             read0Times = 0;
-                            resetFlag=true;
+                            resetTime=0;
                         } else {
                             read0Times++;
-//                            Log.e("sky", "1111xx的量:" + read0Times);
                             if (read0Times == 200) {
                                 read0Times = 0;
-//                                commandReset();
+                                commandReset();
+                                if (resetTime==3){
+                                    upDataAllDeviceOffline();
+                                }
                             }
                         }
 
                         if (size > 0) {
                             read0Times = 0;
-                            resetFlag=true;
+                            resetTime=0;
 //                            Log.e("sky", "读到数据量:" + size);
 //                                //判断请求指令,根据请求指令来判断是否数据完整
                             if (isFirstFrame) {
@@ -292,15 +294,10 @@ public class ControlManager implements Data485Subject {
         totalSize = 0;
         total = new StringBuffer();
         queue.clear();
-//        Log.e("sky", "到了阈值resetFlag:"+resetFlag);
+        resetTime++;
         //整个网关断电,全部设备离线上报
-        if(resetFlag==true){
-            Log.e("sky", "485网关断开连接所有设备上报离线");
-            resetFlag=false;
-            upDataAllDeviceOffline();
-        }
-
     }
+
 
     private void upDataAllDeviceOffline() {
         if(AirConditionController.getInstance().AirConditionList.size()>0){
