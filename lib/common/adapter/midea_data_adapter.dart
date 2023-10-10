@@ -22,13 +22,19 @@ abstract class MideaDataAdapter {
       return MideaDataAdapter.getAdapter(id);
     } else {
       var adapter = function.call(id);
+      assert(() {
+        if(adapterMap.containsValue(adapter)) {
+          throw Exception("非法调用 当前的adapter 已经绑定");
+        }
+        return true;
+      }.call());
       MideaDataAdapter.addAdapter(id, adapter);
       return adapter;
     }
   }
 
   static T? getAdapter<T>(String id) {
-    if(adapterMap[id] != null) {
+    if(adapterMap[id] == null) {
       return null;
     } else {
       if(adapterMap[id] !is T) {
@@ -43,7 +49,7 @@ abstract class MideaDataAdapter {
   }
 
   static void addAdapter(String id, MideaDataAdapter adapter) {
-    if(adapterMap.containsKey(id)) {
+    if(!adapterMap.containsKey(id)) {
       adapterMap[id] = adapter;
     }
   }
@@ -111,6 +117,13 @@ abstract class MideaDataAdapter {
   /// 销毁Adapter
   void destroy() {
     clearBindDataUpdateFunction();
+    assert((){
+      if(adapterMap.containsValue(this)) {
+        Log.e("非法删除Adapter = $runtimeType, 该adapter已经记录到adapterMap，请调用removeAdapter方法回收Adapter");
+        adapterMap.removeWhere((key, value) => value == this);
+      }
+      return true;
+    }.call());
   }
 
 }

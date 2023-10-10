@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/develop/relay_page.dart';
 import 'package:screen_app/routes/develop/screen_on_off.dart';
+import 'package:screen_app/routes/develop/test_page_view.dart';
 import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/develop/zigbee_manager.dart';
 
@@ -24,6 +25,8 @@ class DeveloperHelperPage extends StatelessWidget {
       ),
       body: Column(
           children: [
+            item("进入PageView调试", () => Navigator
+                .push(context, MaterialPageRoute(builder: (context) => const TestPageView()))),
             item("进入添加Zigbee子设备", () => Navigator
                 .push(context, MaterialPageRoute(builder: (context) => ZigbeeDeviceManager()))),
             item("进入添加WiFi子设备", () => Navigator
