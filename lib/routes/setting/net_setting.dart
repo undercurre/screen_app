@@ -62,7 +62,7 @@ class NetSettingPage extends StatelessWidget {
                 ),
 
                 const Expanded(
-                  child: LinkNetwork(isNeedWifiSwitch: true),
+                  child: LinkNetwork(),
                 ),
 
               ],

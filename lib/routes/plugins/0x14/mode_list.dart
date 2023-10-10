@@ -6,4 +6,4 @@ var close = Mode('close', '全关', 'assets/imgs/plugins/0x14/all-close-on.png',
 
 var stop = Mode('stop', '暂停', 'assets/imgs/plugins/0x14/run.png', 'assets/imgs/plugins/0x14/pause.png');
 
-var curtainModes = <Mode>[open, close, stop];
+var curtainModes = <Mode>[open, stop, close];

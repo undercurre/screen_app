@@ -97,6 +97,7 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                   return MzCell(
                     title: "待机时间",
                     titleSize: 24,
+                    titleMaxWidth: 100,
                     hasArrow: true,
                     rightText: model.standbyTimeOpt.title,
                     rightTextColor: const Color(0x99FFFFFF),
