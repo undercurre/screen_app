@@ -107,14 +107,18 @@ class _CellState extends State<MzCell> {
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
         Container(
+          height: 46,
           constraints: BoxConstraints(
             maxWidth: widget.titleMaxWidth,
           ),
+          alignment: Alignment.centerLeft,
+          margin: EdgeInsets.only(bottom: StrUtils.isNotNullAndEmpty(widget.desc) ? 10 : 0),
           child: Text(
             widget.title!,
             maxLines: widget.titleMaxLines,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
+              height: 1.8,
               fontSize: widget.titleSize,
               fontFamily: "MideaType",
               fontWeight: widget.fontWeight,

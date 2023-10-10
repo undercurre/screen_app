@@ -13,6 +13,7 @@ import 'data_adapter.dart';
 class WifiCurtainPageState extends State<WifiCurtainPage> {
   WIFICurtainDataAdapter? dataAdapter;
   Mode? modeTap;
+  Timer? clickTimer;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -27,7 +28,6 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
       //selectKeys[dataAdapter?.data!.curtainStatus ?? "unknown"] = true;
       selectKeys["unknown"] = true;
     }
-    debugPrint('$selectKeys');
     return selectKeys;
   }
 
@@ -47,6 +47,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   void dispose() {
     super.dispose();
     dataAdapter?.unBindDataUpdateFunction(updateCallback);
+    clickTimer?.cancel();
   }
 
   void updateCallback() {
@@ -137,7 +138,8 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                                   setState(() {
                                     modeTap = mode;
                                   });
-                                  Timer(const Duration(milliseconds: 500), () {
+                                  clickTimer?.cancel();
+                                  clickTimer = Timer(const Duration(milliseconds: 500), () {
                                     setState(() {
                                       modeTap = null;
                                     });
