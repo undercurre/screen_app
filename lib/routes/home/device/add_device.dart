@@ -627,6 +627,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                       child: PageView(
                         controller: _pageController,
                         scrollDirection: Axis.horizontal,
+                        allowImplicitScrolling: true,
                         onPageChanged: (index) {
                           _handlePageChange(index);
                         },

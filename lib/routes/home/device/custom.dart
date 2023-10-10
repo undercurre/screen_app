@@ -7,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
+import 'package:screen_app/widgets/keep_alive_wrapper.dart';
 
 import '../../../channel/index.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
@@ -79,7 +80,7 @@ class _CustomPageState extends State<CustomPage> {
             },
             itemCount: _screens.length,
             itemBuilder: (BuildContext context, int index) {
-              return _screens[index];
+              return KeepAliveWrapper(child: _screens[index]);
             },
           ),
         ),
