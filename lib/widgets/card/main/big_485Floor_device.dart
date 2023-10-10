@@ -151,7 +151,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
     }
 
     String getPowerIcon() {
-      if (adapter!.data!.OnOff && adapter.data!.online) {
+      if (adapter.data!.OnOff && adapter.data!.online) {
         return "assets/newUI/card_power_on.png";
       } else if (!adapter.data!.online) {
         return "assets/newUI/card_power_off.png";
@@ -364,11 +364,11 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
   }
 
   int _getTempVal() {
-    return adapter!.data!.targetTemp < widget.min
+    return adapter.data!.targetTemp < widget.min
         ? widget.min
-        : adapter!.data!.targetTemp > widget.max
+        : adapter.data!.targetTemp > widget.max
             ? widget.max
-            : adapter!.data!.targetTemp;
+            : adapter.data!.targetTemp;
   }
 
   BoxDecoration _getBoxDecoration() {

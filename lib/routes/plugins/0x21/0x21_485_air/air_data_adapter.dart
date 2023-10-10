@@ -39,7 +39,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
 
   Air485Data? data = Air485Data(
-      name: "",
+      name: "新风",
       online: true,
       operationMode: 1,
       OnOff: true,

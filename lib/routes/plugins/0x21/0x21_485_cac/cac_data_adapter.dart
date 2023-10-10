@@ -40,7 +40,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   bool isLocalDevice = false;
 
   CAC485Data? data = CAC485Data(
-      name: "",
+      name: "空调",
       online: true,
       currTemp: 28,
       targetTemp: 26,

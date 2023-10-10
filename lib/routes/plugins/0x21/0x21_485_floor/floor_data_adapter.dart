@@ -38,7 +38,12 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   String modelNumber = '';
   bool isLocalDevice = false;
 
-  Floor485Data? data;
+  Floor485Data? data= Floor485Data(
+    name: "地暖",
+    online: true,
+    targetTemp: 26,
+    OnOff: true,
+  );
 
   DataState dataState = DataState.NONE;
 
