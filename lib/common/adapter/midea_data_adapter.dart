@@ -37,10 +37,11 @@ abstract class MideaDataAdapter {
     if(adapterMap[id] == null) {
       return null;
     } else {
-      if(adapterMap[id] !is T) {
+      if(adapterMap[id] is T) {
+        return adapterMap[id] as T;
+      } else {
         throw MideaException("[adapter] 重复 id 已被 ${adapterMap[id].runtimeType} 占用 传入的adapter类型为 ${T}");
       }
-      return adapterMap[id] as T;
     }
   }
 
