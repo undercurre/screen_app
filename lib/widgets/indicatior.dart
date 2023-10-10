@@ -1,23 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../common/logcat_helper.dart';
-
 class Indicator extends StatefulWidget {
-  final PageController pageController;
   final int itemCount;
+  final int defaultPosition;
 
-  const Indicator(
-      {super.key, required this.pageController, required this.itemCount});
+  const Indicator({super.key,
+    required this.defaultPosition,
+    required this.itemCount});
 
   @override
   State<Indicator> createState() => IndicatorState();
 }
 
 class IndicatorState extends State<Indicator> {
-  void updateIndicator() {
-    Log.i("update indicator ${widget.pageController.page}");
-    setState(() {});
+
+  late int position;
+
+
+  @override
+  void initState() {
+    super.initState();
+    position = widget.defaultPosition;
+  }
+
+  void updateIndicator(int position) {
+    setState(() {
+      this.position = position;
+    });
   }
 
   @override
@@ -29,9 +39,7 @@ class IndicatorState extends State<Indicator> {
           child: Stack(
             children: [
               Positioned(
-                left: (widget.pageController.page?.round() ?? 0) /
-                    (widget.itemCount - 1) *
-                    25,
+                left: widget.itemCount == 0 ? 0 : (position ?? 0) / (widget.itemCount - 1) * 25,
                 bottom: 0,
                 child: Container(
                   width: 26,
