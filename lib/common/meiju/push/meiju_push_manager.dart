@@ -310,6 +310,28 @@ class MeiJuPushManager {
                   }
                 }
               }
+            } else if(type == "thing/properties/change") {
+              String? deviceId = msgMap['applianceCode'];
+              if(deviceId == null) return;
+              if(!operatePushRecord.containsKey(deviceId)) {
+                operatePushRecord[deviceId] = getOrGeneratePair2(
+                    DateTime.now().millisecondsSinceEpoch + passivityDelayPush,
+                    "thing/properties/change",
+                        () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                );
+              } else {
+                var pair = operatePushRecord[deviceId]!;
+                if(pair.value2?.id != "thing/properties/change") {
+                  pair.value2 = switch(pair.value2) {
+                    null => PushEventFunction.create("thing/properties/change",
+                            () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))),
+                    _ => pair.value2!
+                      ..id = "gemini/appliance/event"
+                      ..call = () => bus.typeEmit(MeiJuWifiDevicePropertyChangeEvent(deviceId))
+                  };
+                  operatePushRecord[deviceId] = pair;
+                }
+              }
             } else if (type == 'appliance/status/report') {
               if(msgMap.containsKey('applianceId')) {
                 String deviceId = msgMap['applianceId'];
@@ -380,6 +402,8 @@ class MeiJuPushManager {
                   }
                 }
               }
+            } else {
+              Log.file('[WebSocket ] 该推送类型不进行处理 $type');
             }
           }
         }
