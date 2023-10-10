@@ -4,6 +4,7 @@ import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
+import 'package:screen_app/widgets/keep_alive_wrapper.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../../../common/global.dart';
@@ -117,32 +118,34 @@ class _CardDialogState extends State<CardDialog> {
                     child: PageView(
                       controller: _pageController,
                       scrollDirection: Axis.horizontal,
+                      allowImplicitScrolling: true,
                       children: [
                         if (buildMap[
                                 DeviceEntityTypeInP4Handle.getDeviceEntityType(
                                     widget.type,
                                     widget.modelNumber)]![CardType.Small] !=
                             null)
-                          UnconstrainedBox(
-                            child: buildMap[
-                                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Small]!(
-                              DataInputCard(
-                                  name: widget.name,
-                                  applianceCode: widget.applianceCode,
-                                  roomName: widget.roomName,
-                                  masterId: widget.masterId,
-                                  icon: widget.icon,
-                                  disabled: false,
-                                  discriminative: true,
-                                  modelNumber: widget.modelNumber,
-                                  disableOnOff: true,
-                                  isOnline: widget.onlineStatus,
-                                  hasMore: false,
-                                  context: context,
-                                  type: '',
-                                  onlineStatus: '1'),
+                          KeepAliveWrapper(
+                            child: UnconstrainedBox(
+                              child: buildMap[DeviceEntityTypeInP4Handle
+                                  .getDeviceEntityType(widget.type,
+                                      widget.modelNumber)]![CardType.Small]!(
+                                DataInputCard(
+                                    name: widget.name,
+                                    applianceCode: widget.applianceCode,
+                                    roomName: widget.roomName,
+                                    masterId: widget.masterId,
+                                    icon: widget.icon,
+                                    disabled: false,
+                                    discriminative: true,
+                                    modelNumber: widget.modelNumber,
+                                    disableOnOff: true,
+                                    isOnline: widget.onlineStatus,
+                                    hasMore: false,
+                                    context: context,
+                                    type: '',
+                                    onlineStatus: '1'),
+                              ),
                             ),
                           ),
                         if (buildMap[
@@ -150,26 +153,28 @@ class _CardDialogState extends State<CardDialog> {
                                     widget.type,
                                     widget.modelNumber)]![CardType.Middle] !=
                             null)
-                          Transform.scale(
-                            scale: 0.75,
-                            child: UnconstrainedBox(
-                              child: buildMap[DeviceEntityTypeInP4Handle
-                                  .getDeviceEntityType(widget.type,
-                                      widget.modelNumber)]![CardType.Middle]!(
-                                DataInputCard(
-                                  name: widget.name,
-                                  applianceCode: widget.applianceCode,
-                                  roomName: widget.roomName,
-                                  masterId: widget.masterId,
-                                  disabled: false,
-                                  discriminative: true,
-                                  modelNumber: widget.modelNumber,
-                                  disableOnOff: true,
-                                  isOnline: widget.onlineStatus,
-                                  hasMore: false,
-                                  context: context,
-                                  type: '',
-                                  onlineStatus: '1',
+                          KeepAliveWrapper(
+                            child: Transform.scale(
+                              scale: 0.75,
+                              child: UnconstrainedBox(
+                                child: buildMap[DeviceEntityTypeInP4Handle
+                                    .getDeviceEntityType(widget.type,
+                                        widget.modelNumber)]![CardType.Middle]!(
+                                  DataInputCard(
+                                    name: widget.name,
+                                    applianceCode: widget.applianceCode,
+                                    roomName: widget.roomName,
+                                    masterId: widget.masterId,
+                                    disabled: false,
+                                    discriminative: true,
+                                    modelNumber: widget.modelNumber,
+                                    disableOnOff: true,
+                                    isOnline: widget.onlineStatus,
+                                    hasMore: false,
+                                    context: context,
+                                    type: '',
+                                    onlineStatus: '1',
+                                  ),
                                 ),
                               ),
                             ),
@@ -179,26 +184,28 @@ class _CardDialogState extends State<CardDialog> {
                                     widget.type,
                                     widget.modelNumber)]![CardType.Other] !=
                             null)
-                          Transform.scale(
-                            scale: 0.75,
-                            child: UnconstrainedBox(
-                              child: buildMap[DeviceEntityTypeInP4Handle
-                                  .getDeviceEntityType(widget.type,
-                                      widget.modelNumber)]![CardType.Other]!(
-                                DataInputCard(
-                                  name: widget.name,
-                                  applianceCode: widget.applianceCode,
-                                  roomName: widget.roomName,
-                                  masterId: widget.masterId,
-                                  disabled: false,
-                                  discriminative: true,
-                                  modelNumber: widget.modelNumber,
-                                  disableOnOff: true,
-                                  isOnline: widget.onlineStatus,
-                                  hasMore: false,
-                                  context: context,
-                                  type: '',
-                                  onlineStatus: '1',
+                          KeepAliveWrapper(
+                            child: Transform.scale(
+                              scale: 0.75,
+                              child: UnconstrainedBox(
+                                child: buildMap[DeviceEntityTypeInP4Handle
+                                    .getDeviceEntityType(widget.type,
+                                        widget.modelNumber)]![CardType.Other]!(
+                                  DataInputCard(
+                                    name: widget.name,
+                                    applianceCode: widget.applianceCode,
+                                    roomName: widget.roomName,
+                                    masterId: widget.masterId,
+                                    disabled: false,
+                                    discriminative: true,
+                                    modelNumber: widget.modelNumber,
+                                    disableOnOff: true,
+                                    isOnline: widget.onlineStatus,
+                                    hasMore: false,
+                                    context: context,
+                                    type: '',
+                                    onlineStatus: '1',
+                                  ),
                                 ),
                               ),
                             ),
@@ -208,40 +215,41 @@ class _CardDialogState extends State<CardDialog> {
                                     widget.type,
                                     widget.modelNumber)]![CardType.Big] !=
                             null)
-                          Stack(
-                            children: [
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                child: Transform.translate(
-                                  offset: const Offset(-45, 0),
-                                  child: Transform.scale(
-                                    scale: 0.75,
-                                    child: buildMap[DeviceEntityTypeInP4Handle
-                                        .getDeviceEntityType(
-                                            widget.type,
-                                            widget
-                                                .modelNumber)]![CardType.Big]!(
-                                      DataInputCard(
-                                        name: widget.name,
-                                        applianceCode: widget.applianceCode,
-                                        roomName: widget.roomName,
-                                        masterId: widget.masterId,
-                                        disabled: false,
-                                        discriminative: true,
-                                        modelNumber: widget.modelNumber,
-                                        disableOnOff: true,
-                                        isOnline: widget.onlineStatus,
-                                        hasMore: false,
-                                        context: context,
-                                        type: '',
-                                        onlineStatus: '1',
+                          KeepAliveWrapper(
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  left: 0,
+                                  top: 0,
+                                  child: Transform.translate(
+                                    offset: const Offset(-45, 0),
+                                    child: Transform.scale(
+                                      scale: 0.75,
+                                      child: buildMap[DeviceEntityTypeInP4Handle
+                                              .getDeviceEntityType(widget.type,
+                                                  widget.modelNumber)]![
+                                          CardType.Big]!(
+                                        DataInputCard(
+                                          name: widget.name,
+                                          applianceCode: widget.applianceCode,
+                                          roomName: widget.roomName,
+                                          masterId: widget.masterId,
+                                          disabled: false,
+                                          discriminative: true,
+                                          modelNumber: widget.modelNumber,
+                                          disableOnOff: true,
+                                          isOnline: widget.onlineStatus,
+                                          hasMore: false,
+                                          context: context,
+                                          type: '',
+                                          onlineStatus: '1',
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                       ],
                       onPageChanged: (index) {
