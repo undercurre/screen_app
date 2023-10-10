@@ -51,7 +51,7 @@ public class ControlManager implements Data485Subject {
     private long read0Times = 0;
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
-    private Timer timer;
+    private Timer timer,heatBet;
     private Integer cacheTime = 2;
     private ExecutorService service, readService;
 
@@ -388,6 +388,52 @@ public class ControlManager implements Data485Subject {
         total.delete(0, total.length());
     }
 
+    private void upDataAllDeviceOnlineState() {
+        if(AirConditionController.getInstance().AirConditionList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <AirConditionController.getInstance().AirConditionList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(AirConditionController.getInstance().AirConditionList.get(i).getOnlineState()));
+                String address=AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.cac.002");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new AirConditionChangeEvent().setAirConditionModel(AirConditionController.getInstance().AirConditionList.get(i)));
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+
+        if(FloorHotController.getInstance().FloorHotList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <FloorHotController.getInstance().FloorHotList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(FloorHotController.getInstance().FloorHotList.get(i).getOnlineState()));
+                String address=FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress()+FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.heat.001");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new FloorHotChangeEvent().setFloorHotModel(FloorHotController.getInstance().FloorHotList.get(i)));
+
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+
+        if(FreshAirController.getInstance().FreshAirList.size()>0){
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
+            for (int i = 0; i <FreshAirController.getInstance().FreshAirList.size() ; i++) {
+                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                state.setStatus(Integer.parseInt(FreshAirController.getInstance().FreshAirList.get(i).getOnlineState()));
+                String address=FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress()+FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                state.setAddr(address);
+                state.setModelId("zhonghong.air.001");
+                diffStatelsit.add(state);
+                RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirController.getInstance().FreshAirList.get(i)));
+
+            }
+            GateWayUtils.updateOnlineState485(diffStatelsit);
+        }
+    }
+
     public void startFresh() {
         if (task != null) {
             task.cancel();
@@ -418,11 +464,26 @@ public class ControlManager implements Data485Subject {
             }
         };
         timer.schedule(task, 0, cacheTime);
+
+        if (heatBet != null) {
+            heatBet.cancel();
+        }
+        heatBet = new Timer();
+        TimerTask heatBetTask = new TimerTask() {
+            @Override
+            public void run() {
+                upDataAllDeviceOnlineState();
+            }
+        };
+        heatBet.schedule(heatBetTask, 10000, 180000);
     }
 
     public void stopFresh() {
         if (timer != null) {
             timer.cancel();
+        }
+        if (heatBet != null) {
+            heatBet.cancel();
         }
         if (task != null) {
             task.cancel();
