@@ -71,9 +71,6 @@ class _Small485FloorDeviceCardWidget
 
   void updateData() {
     if (mounted) {
-      // if(widget.localOnline==widget.adapter!.data!.online&&adapter.data!.targetTemp == int.parse(widget.adapter!.data!.targetTemp)&& adapter.data!.OnOff == (widget.adapter!.data!.OnOff == '1' ? true : false)){
-      //   return;
-      // }
       setState(() {
       });
     }
@@ -132,8 +129,14 @@ class _Small485FloorDeviceCardWidget
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(adapter.isLocalDevice&&adapter.data!.online){
+          return "${adapter.data!.targetTemp}℃";
+        }
         return '离线';
       } else {
+        if(adapter.isLocalDevice&&!adapter.data!.online){
+          return '离线';
+        }
         return "${adapter.data!.targetTemp}℃";
       }
     }

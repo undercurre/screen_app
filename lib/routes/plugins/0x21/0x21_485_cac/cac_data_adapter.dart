@@ -315,6 +315,8 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     logger.i("空调适配器初始化");
     getLocalDeviceCode();
     _startPushListen();
+
+
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {

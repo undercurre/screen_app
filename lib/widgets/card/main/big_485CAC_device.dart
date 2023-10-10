@@ -137,8 +137,14 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(adapter.isLocalDevice&&adapter.data!.online){
+          return '在线';
+        }
         return '离线';
       } else {
+        if(adapter.isLocalDevice&&!adapter.data!.online){
+          return '离线';
+        }
         return '在线';
       }
     }

@@ -128,8 +128,24 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
+        if(adapter.isLocalDevice&&adapter.data!.online){
+          int windSpeed = 1;
+          if (adapter.data!.windSpeed == 1) {
+            windSpeed = 3;
+          } else if (adapter.data!.windSpeed == 2) {
+            windSpeed = 2;
+          } else if (adapter.data!.windSpeed == 4) {
+            windSpeed = 1;
+          } else {
+            windSpeed = 3;
+          }
+          return "$windSpeed档";
+        }
         return '离线';
       } else {
+        if(adapter.isLocalDevice&&!adapter.data!.online){
+          return '离线';
+        }
         int windSpeed = 1;
         if (adapter.data!.windSpeed == 1) {
           windSpeed = 3;
