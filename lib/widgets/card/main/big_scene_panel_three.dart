@@ -98,12 +98,6 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
-    if (sceneListCache.isEmpty) {
-      sceneModel.getSceneList().then((value) {
-        sceneListCache = sceneModel.getCacheSceneList();
-      });
-    }
-
     String getRoomName() {
       String BigCardName = '';
 

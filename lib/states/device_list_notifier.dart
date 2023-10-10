@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/adapter/device_card_data_adapter.dart';
+import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
+import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../common/adapter/midea_data_adapter.dart';
@@ -130,20 +133,6 @@ class DeviceInfoListModel extends ChangeNotifier {
           return deviceObj;
         }).toList();
 
-    //     var deviceList;
-    //     deviceList.for((key, value) {
-    //       var deviceId = ;
-    //       if(MideaDataAdapter.getAdapter(deviceId) is DeviceCardDataAdapter) {
-    // (MideaDataAdapter.getAdapter(deviceId) as DeviceCardDataAdapter).fetchData();
-    // }
-    //   });
-    //     MideaDataAdapter.adapterMap.forEach((key, value) {
-    //       if(value is DeviceCardDataAdapter) {
-    //         var deviceAdapter = value as DeviceCardDataAdapter;
-    //         deviceAdapter.fetchData();
-    //       }
-    //     });
-
         MeijuGroup = (MeijuGroups.data!["applianceGroupList"] as List<dynamic>)
             .map<DeviceEntity>((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -166,6 +155,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
 
         deviceCacheList = tempList;
+
+        updateAllAdapter(tempList.map((e) => e.applianceCode).toList());
 
         return tempList;
       }
@@ -256,6 +247,8 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         tempList.addAll(getLocalPanelDevices());
 
+        updateAllAdapter(tempList.map((e) => e.applianceCode).toList());
+
         deviceCacheList = tempList;
 
         return tempList;
@@ -264,6 +257,28 @@ class DeviceInfoListModel extends ChangeNotifier {
     Log.i('更新列表数据——美居', deviceListMeiju.length);
     Log.i('更新列表数据——homlux', deviceListHomlux.length);
     return [];
+  }
+
+  void updateAllAdapter(List<String> existingApplianceCodes) {
+    List<String> lastedApplianceCodes = MideaDataAdapter.adapterMap.keys.toList();
+    existingApplianceCodes.forEach((element) {
+      if (MideaDataAdapter.getAdapter(element) is DeviceCardDataAdapter) {
+        // 普通设备Adapter
+        (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter)
+            .fetchData();
+      } else if (MideaDataAdapter.getAdapter(element) is PanelDataAdapter) {
+        // 面板设备Adapter
+        (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
+      } else if (MideaDataAdapter.getAdapter(element) is ScenePanelDataAdapter) {
+        // 面板设备Adapter
+        (MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).fetchData();
+      }
+    });
+    List<List<String>> compareDevice = Compare.compareData<String>(lastedApplianceCodes, existingApplianceCodes);
+    // 删除了的
+    compareDevice[1].forEach((element) {
+      MideaDataAdapter.removeAdapter(element);
+    });
   }
 
   String getDeviceName(

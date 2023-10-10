@@ -96,11 +96,6 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
     final sceneModel = Provider.of<SceneListModel>(context);
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
-    if (sceneListCache.isEmpty) {
-      sceneModel.getSceneList().then((value) {
-        sceneListCache = sceneModel.getCacheSceneList();
-      });
-    }
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
