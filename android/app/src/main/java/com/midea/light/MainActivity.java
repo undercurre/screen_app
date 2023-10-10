@@ -272,7 +272,6 @@ public class MainActivity extends FlutterActivity {
 
                     }
                 }, throwable -> Log.e("sky", "rxBus错误", throwable));
-        Log.e("sky", "RxBus注册");
         //485空调数据有变化接收到数据后推送到flutter层
         RxBus.getInstance().toObservableOnMain(this, AirConditionChangeEvent.class)
                 .subscribe(AirConditionChangeEvent -> {

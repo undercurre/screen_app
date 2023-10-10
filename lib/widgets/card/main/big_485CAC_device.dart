@@ -1,6 +1,8 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
@@ -53,8 +55,7 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
   _Big485CACDeviceAirCardWidgetState createState() => _Big485CACDeviceAirCardWidgetState();
 }
 
-class _Big485CACDeviceAirCardWidgetState
-    extends State<Big485CACDeviceAirCardWidget> {
+class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
 
   late CACDataAdapter adapter;
 
@@ -91,6 +92,7 @@ class _Big485CACDeviceAirCardWidgetState
 
   @override
   void dispose() {
+    Log.i("dispose销毁");
     adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }
@@ -165,7 +167,7 @@ class _Big485CACDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=false;
-        adapter.fetchData();
+        // adapter.fetchData();
         if(widget.online){
           return '在线';
         }else{
@@ -178,7 +180,7 @@ class _Big485CACDeviceAirCardWidgetState
           widget.online = false;
         }
         widget.localOnline=true;
-        adapter.fetchData();
+        // adapter.fetchData();
         if(widget.online){
           return '在线';
         }else{

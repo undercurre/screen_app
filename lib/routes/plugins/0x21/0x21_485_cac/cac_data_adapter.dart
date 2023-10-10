@@ -58,6 +58,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
+  @override
   Future<void> fetchData() async {
     if (isLocalDevice == false) {
       try {
@@ -319,7 +320,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     if (nodeId == args.nodeId) {
       logger.i("空调调用刷新2222");
-      fetchData();
+      // fetchData();
     }
   }
 
@@ -424,7 +425,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     } else {
       isLocalDevice = true;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
-
       ///homlux添加本地485空调设备
       if (deviceList != null) {
         for (int i = 0;

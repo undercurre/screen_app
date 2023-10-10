@@ -150,9 +150,9 @@ public class ControlManager implements Data485Subject {
                         } else {
                             read0Times++;
 //                            Log.e("sky", "1111xx的量:" + read0Times);
-                            if (read0Times == 100) {
+                            if (read0Times == 200) {
                                 read0Times = 0;
-                                commandReset();
+//                                commandReset();
                             }
                         }
 

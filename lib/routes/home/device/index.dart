@@ -220,9 +220,10 @@ class _DevicePageState extends State<DevicePage> {
               //   });
               // });
             },
+            allowImplicitScrolling:true,
             itemCount: _screens.length,
             itemBuilder: (context, index) {
-              return _screens[index];
+              return KeepAliveWrapper(child: _screens[index]);
             },
           ),
         if (layoutModel.layouts.isEmpty)
@@ -362,8 +363,7 @@ class _DevicePageState extends State<DevicePage> {
 
       // ************插入pageview
       _screens.add(
-        KeepAliveWrapper(
-          child: UnconstrainedBox(
+        UnconstrainedBox(
             key: UniqueKey(),
             child: Container(
               width: 480,
@@ -380,7 +380,6 @@ class _DevicePageState extends State<DevicePage> {
               ),
             ),
           ),
-        ),
       );
       // ************插入pageview
 
