@@ -10,9 +10,8 @@ import '../../util/nameFormatter.dart';
 
 class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  bool localOnline = false;
   final bool isFault;
-  bool isNative;
+  final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   final String applianceCode;
@@ -251,7 +250,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative)
+                if (widget.isNative||adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,

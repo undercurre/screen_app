@@ -19,7 +19,6 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-  bool localOnline = false;
 
 
   bool disable;
@@ -194,7 +193,7 @@ class _Middle485CACDeviceCardWidgetState
                       ),
                     ),
                   ),
-                  if (widget.isNative)
+                  if (widget.isNative||adapter.isLocalDevice)
                     Container(
                       alignment: Alignment.center,
                       width: 48,

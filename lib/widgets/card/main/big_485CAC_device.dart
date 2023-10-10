@@ -249,7 +249,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative)
+                if (widget.isNative||adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,
