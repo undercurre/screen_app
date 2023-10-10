@@ -61,6 +61,10 @@ abstract class MideaDataAdapter {
     }
   }
 
+  static void clearAllAdapter() {
+    adapterMap.clear();
+  }
+
   /// 记录刷新次数
   int _refreshCount = 0;
   /// 增加刷新标识

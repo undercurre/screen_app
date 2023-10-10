@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
 import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
+import '../adapter/midea_data_adapter.dart';
 import '../logcat_helper.dart';
 import '../utils.dart';
 import 'models/meiju_login_home_entity.dart';
@@ -117,6 +118,7 @@ class MeiJuGlobal {
     homeInfo = null;
     roomInfo = null;
     gatewayApplianceCode = null;
+    MideaDataAdapter.clearAllAdapter();
     LocalStorage.removeItem(MEIJU_FAMILY_INFO);
     LocalStorage.removeItem(MEIJU_ROOM_INFO);
     LocalStorage.removeItem(MEIJU_USER_INFO);

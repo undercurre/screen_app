@@ -6,6 +6,7 @@ import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/homlux/api/homlux_user_api.dart';
 
 import '../../channel/index.dart';
+import '../adapter/midea_data_adapter.dart';
 import '../logcat_helper.dart';
 import '../utils.dart';
 import 'generated/json/base/homlux_json_convert_content.dart' as json;
@@ -178,6 +179,7 @@ class HomluxGlobal {
     homluxUserInfo = null;
     aiToken = null;
     gatewayApplianceCode = null;
+    MideaDataAdapter.clearAllAdapter();
     LocalStorage.removeItem(HOMLUX_FAMILY_INFO);
     LocalStorage.removeItem(HOMLUX_ROOM_INFO);
     LocalStorage.removeItem(HOMLUX_TOKEN);

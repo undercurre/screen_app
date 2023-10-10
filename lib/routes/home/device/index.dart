@@ -157,6 +157,7 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> {
   PageController _pageController = PageController();
   List<Widget> _screens = [];
+  GlobalKey<_IndicatorState> indicatorState = GlobalKey();
 
   LayoutModel? layoutModel;
 
@@ -164,12 +165,13 @@ class _DevicePageState extends State<DevicePage> {
   void initState() {
     super.initState();
     _startPushListen();
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    Log.develop("DevicePageState initState");
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     deviceListModel.getDeviceList();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       widget.startPolling(context);
     });
+    bus.on("mainToRecoverState", changeToTargetPage);
   }
 
   @override
@@ -181,19 +183,25 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void dispose() {
     _stopPushListen();
+    Log.develop("DevicePageState dispose");
+    bus.off("mainToRecoverState", changeToTargetPage);
     widget.stopPolling();
     super.dispose();
   }
 
+  /// 显示更改页面的位置
+  void changeToTargetPage(dynamic position) {
+    if(mounted) {
+      final pageCounterModel = Provider.of<PageCounter>(context, listen: false);
+      Log.i('切换到页面：${pageCounterModel.currentPage}');
+      _pageController.jumpToPage(pageCounterModel.currentPage);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Debouncer debouncer = Debouncer(milliseconds: 2000);
     // 处理布局信息
     final layoutModel = Provider.of<LayoutModel>(context);
-    final pageCounterModel = Provider.of<PageCounter>(context);
-
-    // 滑动控制重置
-    _pageController = PageController(initialPage: pageCounterModel.currentPage);
     if (mounted) {
       try {
         getScreenList(layoutModel);
@@ -207,18 +215,13 @@ class _DevicePageState extends State<DevicePage> {
       children: [
         if (layoutModel.layouts.isNotEmpty)
           PageView.builder(
+            key: const ValueKey("123456"),
             controller: _pageController,
             scrollDirection: Axis.horizontal,
             onPageChanged: (index) {
               context.read<PageCounter>().currentPage = index;
-              _pageController.animateToPage(index,
-                  duration: const Duration(milliseconds: 10),
-                  curve: Curves.ease);
-              // debouncer.run(() {
-              //   setState(() {
-              //     widget.currentPage = index;
-              //   });
-              // });
+              Log.i("scroll page = $index");
+              indicatorState.currentState?.updateIndicator();
             },
             allowImplicitScrolling:true,
             itemCount: _screens.length,
@@ -244,6 +247,11 @@ class _DevicePageState extends State<DevicePage> {
               ),
             ),
           ),
+          Indicator(
+              key: indicatorState,
+              pageController: _pageController,
+              itemCount: _screens.length
+          )
       ],
     );
   }
@@ -514,3 +522,57 @@ class _DevicePageState extends State<DevicePage> {
     }
   }
 }
+
+class Indicator extends StatefulWidget {
+  final PageController pageController;
+  final int itemCount;
+
+  const Indicator({super.key, required this.pageController, required this.itemCount});
+
+  @override
+  State<Indicator> createState() => _IndicatorState();
+}
+
+class _IndicatorState extends State<Indicator> {
+
+  void updateIndicator() {
+    Log.i("update indicator ${widget.pageController.page}");
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+        builder: (context) {
+          return Positioned(
+              left: 215,
+              bottom: 12,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: (widget.pageController.page?.round() ?? 0) / (widget.itemCount - 1) * 25,
+                    bottom: 0,
+                    child: Container(
+                      width: 26,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8), // 背景颜色
+                        borderRadius: BorderRadius.circular(10.0), // 圆角半径
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 51,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1), // 背景颜色
+                      borderRadius: BorderRadius.circular(10.0), // 圆角半径
+                    ),
+                  ),
+                ],
+              ));
+        }
+    );
+  }
+}
+

@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
@@ -39,6 +40,7 @@ void main() async {
     assert((() {
       bus.clearAllListener();
       HomluxLanControlDeviceManager.getInstant().logout();
+      MideaDataAdapter.clearAllAdapter();
       return true;
     })());
     /// 增加全局异常捕获机制

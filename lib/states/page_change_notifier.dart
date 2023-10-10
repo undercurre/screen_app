@@ -7,7 +7,6 @@ class PageCounter extends ChangeNotifier {
 
   set currentPage(int value) {
     _currentPage = value;
-    notifyListeners(); // 通知监听器状态已更新
   }
 
   void incrementPage() {
