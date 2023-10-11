@@ -97,7 +97,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Future<void> orderPower(int onOff) async {
 
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
           onOff.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -126,7 +126,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   Future<void> orderTemp(int temp) async {
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
           temp.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
