@@ -9,11 +9,12 @@ class ZigbeeIcon {
   /// 轨道灯
   static final traceLight = ['1262'];
   /// 调光调色灯
-  static final controlLight = ['55','56'];
+  static final controlLight = ["56", "57", "58", "1359", "1351", "1352", "1353", "1276"];
   /// 开关面板
   static final switchDevice = ['68','71','74','76','85','87','78','81','83','88','1081', '1083', '1085', '1087', '1099'
       ,'1101','1103','1105','1107','1109','1115','1111','1113','1248','1249', '1255', '1256', '1257', '1243'
-    ,'1100','1102','1104','1106','1112','1114', '1267', '1108', '1110', '1145'];
+    ,'1100','1102','1104','1106','1112','1114', '1267', '1108', '1110', '1145', "1347", "1360", "1348", "1361",
+    "1349", "1362", "1350", "1363"];
   /// 窗帘电机
   static final curtain = ['47', '51'];
   /// 传感器
@@ -36,6 +37,12 @@ class ZigbeeIcon {
   static final infrared = ['25'];
   /// 插座
   static final socket = ['111', '1258', '1259'];
+  /// 空调
+  static final aircondition = ['3017'];
+  /// 新风
+  static final airconditionXf = ['3018'];
+  /// 地暖
+  static final fool = ['3019'];
 
   static String parse(String modelNum) {
     if(lock.any((element) => element == modelNum)) {
@@ -70,6 +77,12 @@ class ZigbeeIcon {
       return 'assets/imgs/zigbee/icon_infrared.png';
     } else if(socket.any((element) => element == modelNum)) {
       return 'assets/imgs/zigbee/icon_socket.png';
+    }  else if(aircondition.any((element) => element == modelNum)) {
+      return 'assets/imgs/zigbee/icon_air_condition.png';
+    }  else if(airconditionXf.any((element) => element == modelNum)) {
+      return 'assets/imgs/zigbee/icon_air_condition_xf.png';
+    } else if(fool.any((element) => element == modelNum)) {
+      return 'assets/imgs/zigbee/icon_air_fool.png';
     }
     return 'assets/imgs/zigbee/icon_default.png';
   }

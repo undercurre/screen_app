@@ -60,7 +60,8 @@ class MeiJuPushManager {
   static int retryCount = 0;
 
   static Timer? _globalTimer;
-  static int? _sendHearTimerInterval;
+  static int _sendHearTimerInterval = 60000;
+  static var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
   /// 记录用户操作的设备
   /// 操作设备之后，设备的推送事件将延迟10s
   /// 被动接收云端推送的设备的推送事件延迟3s
@@ -144,7 +145,6 @@ class MeiJuPushManager {
     if(_isConnect == 2) {
       Log.file('[ WebSocket ] 关闭连接，原因：$reason');
       _isConnect = 0;
-      _sendHearTimerInterval = null;
 
       _globalTimer?.cancel();
       _globalTimer = null;
@@ -173,7 +173,6 @@ class MeiJuPushManager {
       retryCount++;
       _isConnect = 1;
 
-      _sendHearTimerInterval = null;
       _globalTimer?.cancel();
       _globalTimer = null;
       operatePushRecord.clear();
@@ -196,15 +195,13 @@ class MeiJuPushManager {
         return;
       }
 
-      var lastBeatHearTime = DateTime.now().millisecondsSinceEpoch;
       _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         if(_isConnect == 2) {
           if(MeiJuGlobal.isLogin) {
             /// 发送订阅任务
             var currTimer = DateTime.now();
             /// 发送心跳业务
-            if(_sendHearTimerInterval != null &&
-                (currTimer.millisecondsSinceEpoch - lastBeatHearTime >= _sendHearTimerInterval!)) {
+            if((currTimer.millisecondsSinceEpoch - lastBeatHearTime >= _sendHearTimerInterval)) {
               _sendBeatHeart();
               lastBeatHearTime = currTimer.millisecondsSinceEpoch;
             }
