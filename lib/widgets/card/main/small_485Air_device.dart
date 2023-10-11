@@ -96,7 +96,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(

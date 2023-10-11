@@ -123,7 +123,7 @@ class _Big485AirDeviceAirCardWidgetState
   @override
   Widget build(BuildContext context) {
     final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+        Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(

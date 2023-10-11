@@ -93,7 +93,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
