@@ -5,8 +5,6 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/homlux/homlux_global.dart';
-import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -110,7 +108,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   }
 
   Future<void> orderPower(int onOff) async {
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionPower(
           onOff.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -140,7 +138,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   Future<void> orderMode(int mode) async {
 
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionModel(
           mode.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -171,13 +169,13 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   Future<void> orderTemp(int temp) async {
 
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
           temp.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
           temp.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -201,7 +199,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
           speed.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {

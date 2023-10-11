@@ -101,7 +101,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Future<void> orderPower(int onOff) async {
 
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirFreshPower(
           onOff.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -130,7 +130,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
           speed.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
