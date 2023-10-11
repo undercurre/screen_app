@@ -108,6 +108,7 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
 
   @override
   String? getCharacteristic() {
+    if (dataState != DataState.SUCCESS) return '26℃';
     return "${data!.temperature + data!.smallTemperature}℃";
   }
 
@@ -163,7 +164,7 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
           //开关
           mode: "auto",
           //模式
-          temperature: 0,
+          temperature: 26,
           //温度
           smallTemperature: 0,
           //温度小数

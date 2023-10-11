@@ -228,14 +228,18 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
 
     return GestureDetector(
       onTap: () {
+        if (adapter.dataState != DataState.SUCCESS) {
+          adapter.fetchData();
+          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          return;
+        }
         if (!deviceListModel.getOnlineStatus(
             deviceId: widget.applianceCode) && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
-      child: AbsorbPointer(absorbing: !deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode), child: Container(
+      child: AbsorbPointer(absorbing: (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS), child: Container(
         width: 440,
         height: 196,
         decoration: _getBoxDecoration(),
@@ -270,6 +274,10 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
+                  if (adapter.dataState != DataState.SUCCESS) {
+                    adapter.fetchData();
+                    TipsUtils.toast(content: '数据缺失，控制设备失败');
+                  }
                   if (!deviceListModel.getOnlineStatus(
                       deviceId: widget.applianceCode)) {
                     TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -477,8 +485,8 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
   }
 
   num _getTempVal() {
-    if (adapter == null) {
-      return 0;
+    if (adapter == null || adapter.dataState != DataState.SUCCESS) {
+      return 26;
     }
     return adapter!.getCardStatus()?["temperature"] +
         adapter!.getCardStatus()?["smallTemperature"];
