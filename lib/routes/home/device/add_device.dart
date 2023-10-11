@@ -229,20 +229,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
     devicesAll.removeWhere((element) => compareDevice[1].contains(element));
 
-    // 找到需要删除的设备
-    compareDevice[1].forEach((compare) {
-      // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
-      // 获取到provider中当前id的Layout数据
-      Layout curLayout = layoutModel.getLayoutsByDevice(compare.applianceCode);
-      // 没有找到的情况下，逻辑出错退出本函数逻辑
-      if (curLayout.deviceId == '-1') return;
-      // 删除该布局数据
-      layoutModel.deleteLayout(compare.applianceCode);
-      // 发起toast提醒用户
-      TipsUtils.toast(content: '已删除${compare.name}');
-    });
-    scenesAll.removeWhere((element) => compareScene[1].contains(element));
-
     for (DeviceEntity item in compareDevice[0]) {
       int index = deviceRes.indexOf(item);
       if (index >= 0 && index <= devicesAll.length) {

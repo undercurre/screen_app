@@ -230,6 +230,11 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     return GestureDetector(
       onTap: () {
+        if (adapter?.dataState != DataState.SUCCESS) {
+          adapter?.fetchData();
+          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          return;
+        }
         Log.i('点击卡片', deviceListModel.getOnlineStatus(deviceId: widget.applianceCode));
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
             !widget.disabled) {
@@ -239,7 +244,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       },
       child: AbsorbPointer(
         absorbing:
-            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+        (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter?.dataState != DataState.SUCCESS),
         child: GestureDetector(
           onTap: () {
             if (!widget.disabled &&
@@ -363,6 +368,10 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                     if (adapter?.type != AdapterType.panel)
                       GestureDetector(
                         onTap: () {
+                          if (adapter?.dataState != DataState.SUCCESS) {
+                            adapter?.fetchData();
+                            TipsUtils.toast(content: '数据缺失，控制设备');
+                          }
                           Log.i('点击进入插件',adapter?.type);
                           if (!deviceListModel.getOnlineStatus(
                               deviceId: widget.applianceCode)) {

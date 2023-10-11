@@ -321,7 +321,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     if (nodeId == args.nodeId) {
       logger.i("空调调用刷新2222");
-      // fetchData();
+      fetchData();
     }
   }
 
