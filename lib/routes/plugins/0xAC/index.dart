@@ -246,10 +246,10 @@ class AirConditionPageState extends State<AirConditionPage> {
                                     child: SliderButtonCard(
                                       disabled: dataAdapter?.data!.power == false ||
                                           dataAdapter?.data!.mode == 'fan',
-                                      min: 17,
-                                      max: 30,
+                                      min: dataAdapter?.data!.minTemperature ?? 16,
+                                      max: dataAdapter?.data!.maxTemperature ?? 30,
                                       step: 0.5,
-                                      value: (dataAdapter?.data!.temperature ?? 17) + (dataAdapter?.data!.smallTemperature ?? 0),
+                                      value: (dataAdapter?.data!.temperature ?? 16) + (dataAdapter?.data!.smallTemperature ?? 0),
                                       onChanged: dataAdapter?.controlTemperature,
                                     ),
                                   ),

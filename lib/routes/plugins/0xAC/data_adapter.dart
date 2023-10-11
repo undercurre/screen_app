@@ -24,6 +24,9 @@ class AirDataEntity {
   double smallTemperature = 0; //温度小数
   int wind = 102; // 风速
 
+  num minTemperature = 16; //可设置的最小温度
+  num maxTemperature = 30; //可设置的最大温度
+
   AirDataEntity({
     required power,
     required mode,
