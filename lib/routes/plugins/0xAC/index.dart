@@ -1,9 +1,11 @@
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/gateway_platform.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../widgets/business/dropdown_menu.dart' as ui;
 import 'data_adapter.dart';
 
@@ -81,6 +83,23 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceNameNormal(
+          deviceId: dataAdapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -121,7 +140,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                     onRightBtnTap: () {
                       dataAdapter?.controlPower();
                     },
-                    title: dataAdapter?.deviceName ?? "空调",
+                    title: getDeviceName(),
                     power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
