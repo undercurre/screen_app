@@ -48,7 +48,6 @@ class SmallPanelCardWidget extends StatefulWidget {
 }
 
 class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
-
   late PanelDataAdapter adapter;
 
   @override
@@ -60,7 +59,6 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
-
 
   void updateData() {
     if (mounted) {
@@ -79,12 +77,15 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
-      String nameInModel =
-          deviceListModel.getDeviceName(deviceId: adapter.applianceCode,
-          maxLength: 4, startLength: 1, endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: adapter.applianceCode,
+          maxLength: 4,
+          startLength: 1,
+          endLength: 2);
 
       if (widget.disabled) {
         return (nameInModel == '未知id' || nameInModel == '未知设备')
@@ -101,8 +102,8 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel =
+          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
       if (widget.disabled) {
         return nameInModel;
       }
@@ -200,96 +201,105 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
     }
 
     return GestureDetector(
-        onTap: () {
-          if (!deviceListModel.getOnlineStatus(
-              deviceId: widget.applianceCode) && !widget.disabled) {
-            TipsUtils.toast(content: '设备已离线，请检查连接状态');
-            return;
-          }
-        },
-        child: AbsorbPointer(absorbing: !deviceListModel.getOnlineStatus(
-    deviceId: widget.applianceCode), child: GestureDetector(
-      onTap: () async {
-        Log.i('disabled', widget.disabled);
-        if (!widget.disabled && adapter.dataState == DataState.SUCCESS) {
-          if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
-            MzDialog(
-                title: '该设备已离线',
-                titleSize: 28,
-                maxWidth: 432,
-                backgroundColor: const Color(0xFF494E59),
-                contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
-                contentSlot: const Text("设备离线，请检查网络是否正常",
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    style: TextStyle(
-                      color: Color(0xFFB6B8BC),
-                      fontSize: 24,
-                      height: 1.6,
-                      fontFamily: "MideaType",
-                      decoration: TextDecoration.none,
-                    )),
-                btns: ['确定'],
-                onPressed: (_, position, context) {
-                  Navigator.pop(context);
-                }).show(context);
-          } else {
-            await adapter.fetchOrderPower(1);
-            bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
-          }
+      onTap: () {
+        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
+            !widget.disabled) {
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
+          return;
         }
       },
-      child: Container(
-        width: 210,
-        height: 88,
-        padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
-        decoration: _getBoxDecoration(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              width: 40,
-              child: widget.icon,
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: Text(
-                      getDeviceName(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
+      child: AbsorbPointer(
+        absorbing: !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+        child: GestureDetector(
+          onTap: () async {
+            Log.i('disabled', widget.disabled);
+            if(widget.disabled) return;
+            if (adapter.dataState == DataState.SUCCESS) {
+              if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+                MzDialog(
+                    title: '该设备已离线',
+                    titleSize: 28,
+                    maxWidth: 432,
+                    backgroundColor: const Color(0xFF494E59),
+                    contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+                    contentSlot: const Text("设备离线，请检查网络是否正常",
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        style: TextStyle(
+                          color: Color(0xFFB6B8BC),
+                          fontSize: 24,
+                          height: 1.6,
                           fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none),
-                    ),
+                          decoration: TextDecoration.none,
+                        )),
+                    btns: ['确定'],
+                    onPressed: (_, position, context) {
+                      Navigator.pop(context);
+                    }).show(context);
+              } else {
+                await adapter.fetchOrderPower(1);
+                bus.emit(
+                    'operateDevice',
+                    adapter.nodeId.isEmpty
+                        ? widget.applianceCode
+                        : adapter.nodeId);
+              }
+            } else if(adapter.dataState == DataState.ERROR) {
+              /// 数据请求失败的情况下，触碰可以再次获取数据
+              adapter.fetchData();
+            }
+          },
+          child: Container(
+            width: 210,
+            height: 88,
+            padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
+            decoration: _getBoxDecoration(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  width: 40,
+                  child: widget.icon,
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 120,
+                        child: Text(
+                          getDeviceName(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none),
+                        ),
+                      ),
+                      if (deviceListModel.deviceListHomlux.isNotEmpty ||
+                          deviceListModel.deviceListMeiju.isNotEmpty)
+                        Text(
+                          '${getRoomName()}${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}',
+                          style: TextStyle(
+                              color: Colors.white.withOpacity(0.64),
+                              fontSize: 16,
+                              fontFamily: "MideaType",
+                              fontWeight: FontWeight.normal),
+                        ),
+                    ],
                   ),
-                  if (deviceListModel.deviceListHomlux.isNotEmpty ||
-                      deviceListModel.deviceListMeiju.isNotEmpty)
-                  Text(
-                    '${getRoomName()}${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.64),
-                        fontSize: 16,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),),);
+    );
   }
-
-
 }
