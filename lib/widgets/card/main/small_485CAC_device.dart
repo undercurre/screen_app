@@ -104,7 +104,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return '加载中';
+        return widget.isNative?'空调${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
       }
 
       return nameInModel;

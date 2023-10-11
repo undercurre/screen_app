@@ -108,7 +108,7 @@ class _Small485FloorDeviceCardWidget
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return '加载中';
+        return widget.isNative?'地暖${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
       }
 
       return nameInModel;
