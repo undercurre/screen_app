@@ -433,9 +433,12 @@ class LayoutModel extends ChangeNotifier {
 
   // 卡片大小替换
   Future<void> swapCardType(Layout layout, CardType targetType) async {
+    // 更换成原来的卡片，也就是没更换，直接弹出
     if (layout.cardType == targetType) {
       return;
     }
+
+    // 卡片类型直接修改
     layout.cardType = targetType;
     // 更换grid
     // 准备screenLayer
