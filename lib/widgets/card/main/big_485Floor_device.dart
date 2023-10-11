@@ -118,7 +118,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return '加载中';
+        return widget.isNative?'地暖${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
       }
 
       return nameInModel;

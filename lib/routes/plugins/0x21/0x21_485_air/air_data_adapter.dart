@@ -47,7 +47,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   DataState dataState = DataState.NONE;
 
-  String localDeviceCode="";
+  String localDeviceCode="0000";
 
 
   AirDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
@@ -349,6 +349,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
       }
     }else{
       isLocalDevice = true;
+      localDeviceCode=applianceCode;
       Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
       ///homlux添加本地485空调设备
       if(deviceList!=null){

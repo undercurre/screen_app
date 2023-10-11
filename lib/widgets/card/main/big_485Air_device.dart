@@ -135,7 +135,7 @@ class _Big485AirDeviceAirCardWidgetState
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
         return widget.isNative
-            ? '新风${adapter.localDeviceCode.substring(2, 4)}'
+            ? '新风${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}'
             : '加载中';
       }
 

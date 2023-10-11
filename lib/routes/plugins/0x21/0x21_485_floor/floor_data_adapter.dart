@@ -47,7 +47,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   DataState dataState = DataState.NONE;
 
-  String localDeviceCode = "";
+  String localDeviceCode = "0000";
 
   FloorDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
     type = AdapterType.floor485;
@@ -347,6 +347,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
       }
     } else {
       isLocalDevice = true;
+      localDeviceCode=applianceCode;
       Homlux485DeviceListEntity? deviceList =
           HomluxGlobal.getHomlux485DeviceList;
       ///homlux添加本地485空调设备
