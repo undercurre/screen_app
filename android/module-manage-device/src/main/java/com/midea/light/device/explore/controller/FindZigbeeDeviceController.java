@@ -63,6 +63,7 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
             String uid = Objects.requireNonNull(Portal.getBaseConfig().getUserId());
             String gatewayApplianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_GATEWAY_APPLIANCE_CODE));
             stopFindZigbee(homeGroupId, uid, gatewayApplianceCode);
+            audio = 0;
         }
     }
 
