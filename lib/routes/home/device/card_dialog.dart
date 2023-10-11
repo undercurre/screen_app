@@ -5,6 +5,7 @@ import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/widgets/card/main/big_device_light.dart';
 import 'package:screen_app/widgets/card/main/small_device.dart';
 import 'package:screen_app/widgets/keep_alive_wrapper.dart';
+import 'package:screen_app/widgets/paragraph_indicator.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../../../common/global.dart';
@@ -41,6 +42,8 @@ class CardDialog extends StatefulWidget {
 class _CardDialogState extends State<CardDialog> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  // 用于pageView的indicator（指示器）更新
+  GlobalKey<ParagraphIndicatorState> indicatorState = GlobalKey();
 
   @override
   void dispose() {
@@ -49,9 +52,8 @@ class _CardDialogState extends State<CardDialog> {
   }
 
   void _handlePageChange(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    _currentIndex = index;
+    indicatorState.currentState?.updateIndicator(index);
   }
 
   @override
@@ -259,88 +261,33 @@ class _CardDialogState extends State<CardDialog> {
                   ),
                 ]),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Small] !=
-                      null)
-                    Container(
-                      width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Small
-                          ? 22
-                          : 14,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                        color: _currentIndex == 0
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.6),
-                      ),
-                    ),
-                  if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Middle] !=
-                      null)
-                    Container(
-                      width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Middle
-                          ? 22
-                          : 14,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                        color: _currentIndex == 1
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.6),
-                      ),
-                    ),
-                  if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Other] !=
-                      null)
-                    Container(
-                      width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Other
-                          ? 22
-                          : 14,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                        color: _currentIndex == 1
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.6),
-                      ),
-                    ),
-                  if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                          widget.type, widget.modelNumber)]![CardType.Big] !=
-                      null)
-                    Container(
-                      width: _getCardType(widget.modelNumber, widget.type) ==
-                              CardType.Big
-                          ? 22
-                          : 14,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                        color: _currentIndex == 2
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.6),
-                      ),
-                    ),
-                ],
-              ),
+              ParagraphIndicator(
+                  key: indicatorState,
+                  defaultPosition: _currentIndex,
+                  itemCount: _getItemCount()),
             ],
           ),
         ),
       ),
     );
+  }
+
+  int _getItemCount() {
+    int lang = 0;
+    if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            widget.type, widget.modelNumber)]![CardType.Small] !=
+        null) lang ++;
+    if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        widget.type, widget.modelNumber)]![CardType.Middle] !=
+        null) lang ++;
+    if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        widget.type, widget.modelNumber)]![CardType.Other] !=
+        null) lang ++;
+    if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
+        widget.type, widget.modelNumber)]![CardType.Big] !=
+        null) lang ++;
+
+    return lang;
   }
 
   String _getTitle(CardType cardType) {
