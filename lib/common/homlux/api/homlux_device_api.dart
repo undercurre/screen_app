@@ -566,7 +566,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiLightOnOff(
       String deviceId, String deviceType, int onOff) {
     var cloudActions = [
-      <String, dynamic>{'power': onOff == 1 ? 'on' : 'off'}
+      <String, dynamic>{'power': onOff}
     ];
 
     /// 局域网 设备执行的action
@@ -596,7 +596,7 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiLightBrightness(
       String deviceId, String deviceType, int brightness) {
     var cloudActions = [
-      <String, dynamic>{'brightness': '$brightness'}
+      <String, dynamic>{'brightness': brightness}
     ];
 
     /// 局域网 设备执行的action
@@ -626,14 +626,14 @@ class HomluxDeviceApi {
   static Future<HomluxResponseEntity> controlWifiLightColorTemp(
       String deviceId, String deviceType, int colorTemp) {
     var cloudActions = [
-      <String, dynamic>{'colorTemperature': '$colorTemp'}
+      <String, dynamic>{'colorTemperature': colorTemp}
     ];
 
     /// 局域网 设备执行的action
     var lanActions = [
       <String, dynamic>{
         'modelName': 'light',
-        'deviceProperty': {'colorTemperature': '$colorTemp'}
+        'deviceProperty': {'colorTemperature': colorTemp}
       }
     ];
 
