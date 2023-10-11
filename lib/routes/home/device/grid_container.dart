@@ -168,7 +168,7 @@ class Screen {
           isCellOccupied(2, 2) ||
           isCellOccupied(2, 3)) {
       } else {
-        // return [5, 6, 7, 8, 9, 10, 11, 12];
+        return [5, 6, 7, 8, 9, 10, 11, 12];
       }
       if (isCellOccupied(2, 0) ||
           isCellOccupied(2, 1) ||

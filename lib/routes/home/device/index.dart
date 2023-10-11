@@ -86,18 +86,18 @@ class _DevicePageState extends State<DevicePage> {
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
-    element.type == DeviceEntityTypeInP4.Scene &&
-        element.type == DeviceEntityTypeInP4.Weather &&
-        element.type == DeviceEntityTypeInP4.Clock &&
-        element.type == DeviceEntityTypeInP4.DeviceEdit)
+            element.type != DeviceEntityTypeInP4.Scene &&
+            element.type != DeviceEntityTypeInP4.Weather &&
+            element.type != DeviceEntityTypeInP4.Clock &&
+            element.type != DeviceEntityTypeInP4.DeviceEdit)
         .map((e) => e.deviceId)
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds =
-    deviceRes.map((e) => e.applianceCode).toList();
+        deviceRes.map((e) => e.applianceCode).toList();
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice =
-    Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
+        Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 获取到diff的删除差值，并遍历每一个被删除的设备
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
@@ -106,7 +106,7 @@ class _DevicePageState extends State<DevicePage> {
       // 没有找到的情况下，逻辑出错退出本函数逻辑
       if (curLayout.deviceId == '-1') return;
       // 删除该布局数据
-      layoutModel.deleteLayout(compare);
+      layoutModel.deleteAndFlexLayout(compare);
     });
   }
 
@@ -116,26 +116,28 @@ class _DevicePageState extends State<DevicePage> {
   Future<void> autoDeleleLayout(BuildContext context) async {
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
+    // 拿到layout数据中的ids
+    List<String> layoutIds = layoutModel.layouts.map((e) => e.deviceId).toList();
     // 拉取缓存数据
-    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
+    List<DeviceEntity> deviceCache = deviceModel.deviceCacheList.where((element) => layoutIds.contains(element.applianceCode)).toList();
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
     // 过滤掉智慧屏不支持的设备
     deviceCache = deviceCache
         .where((element) =>
-    DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        element.type, element.modelNumber) !=
-        DeviceEntityTypeInP4.Default)
+            DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                element.type, element.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
         .toList();
     deviceRes = deviceRes
         .where((element) =>
-    DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        element.type, element.modelNumber) !=
-        DeviceEntityTypeInP4.Default)
+            DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                element.type, element.modelNumber) !=
+            DeviceEntityTypeInP4.Default)
         .toList();
     // diff两份数据
     List<List<DeviceEntity>> compareDevice =
-    Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
     // 找到需要删除的设备
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
@@ -144,7 +146,7 @@ class _DevicePageState extends State<DevicePage> {
       // 没有找到的情况下，逻辑出错退出本函数逻辑
       if (curLayout.deviceId == '-1') return;
       // 删除该布局数据
-      layoutModel.deleteLayout(compare.applianceCode);
+      layoutModel.deleteAndFlexLayout(compare.applianceCode);
       // 发起toast提醒用户
       TipsUtils.toast(content: '已删除${compare.name}');
     });
@@ -152,8 +154,10 @@ class _DevicePageState extends State<DevicePage> {
 
   // 用于pageView的controller
   PageController _pageController = PageController();
+
   // 用于存储pageView的页面
   List<Widget> _screens = [];
+
   // 用于pageView的indicator（指示器）更新
   GlobalKey<IndicatorState> indicatorState = GlobalKey();
 
@@ -172,7 +176,9 @@ class _DevicePageState extends State<DevicePage> {
     deviceListModel.getDeviceList();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 初始化清除断电干扰
-      firstInitForOffPower(context);
+      Future.delayed(const Duration(seconds: 3), () {
+        firstInitForOffPower(context);
+      });
       // 启动拉取定时器
       startPolling(context);
     });
@@ -272,15 +278,22 @@ class _DevicePageState extends State<DevicePage> {
     // 初始化布局占位器
     Screen screenLayer = Screen();
 
-    for (int pageCount = 0; pageCount <= hadPageCount; pageCount ++) {
+    for (int pageCount = 0; pageCount <= hadPageCount; pageCount++) {
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
-      List<Layout> layoutsInCurPage = layoutModel.getLayoutsByPageIndex(pageCount).where((element) => element.cardType != CardType.Null).toList();
+      List<Layout> layoutsInCurPage = layoutModel
+          .getLayoutsByPageIndex(pageCount)
+          .where((element) => element.cardType != CardType.Null)
+          .toList();
       // 防止空页被渲染
       if (layoutsInCurPage.isEmpty) continue;
-      for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex ++) {
+      for (int layoutInCurPageIndex = 0;
+          layoutInCurPageIndex < layoutsInCurPage.length;
+          layoutInCurPageIndex++) {
         // 取出当前布局的grids
-        for (int gridsIndex = 0; gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length; gridsIndex ++) {
+        for (int gridsIndex = 0;
+            gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length;
+            gridsIndex++) {
           // 把已经布局的数据在布局器中占位
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
           int row = (grid - 1) ~/ 4;
@@ -295,9 +308,14 @@ class _DevicePageState extends State<DevicePage> {
       bool isCanAdd = true;
       // 最后一页，尝试把editCard塞进去
       if (pageCount == hadPageCount) {
-        List<int> editCardFillCells = screenLayer.checkAvailability(CardType.Edit);
+        List<int> editCardFillCells =
+            screenLayer.checkAvailability(CardType.Edit);
         // 当占位成功
-        if (editCardFillCells.isNotEmpty) {
+        List<int> sumGrid = [];
+        layoutsInCurPage.forEach((element) {
+          sumGrid.addAll(element.grids);
+        });
+        if (editCardFillCells.isNotEmpty && editCardFillCells[0] > sumGrid.reduce(max)) {
           layoutsInCurPage.add(
             Layout(
               uuid.v4(),
@@ -435,6 +453,7 @@ class _DevicePageState extends State<DevicePage> {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
   }
+
   // 推送关闭中枢
   void _stopPushListen() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
