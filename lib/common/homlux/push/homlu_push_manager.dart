@@ -14,6 +14,7 @@ import '../../../widgets/event_bus.dart';
 import '../../helper.dart';
 import '../../meiju/push/meiju_push_manager.dart';
 import '../../system.dart';
+import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 // //设备属性变化
@@ -56,7 +57,7 @@ const _pingInterval = 30000;
 /// 用户主动操作设备的消息延长推送时间
 const int initiativeDelayPush = 20 * 1000;
 /// 被动操作设备的消息延长推送时间
-const int passivityDelayPush = 1 * 1000;
+const int passivityDelayPush = 1 * 1500;
 /// 最大连续重连次数
 const int _maxRetryCount = 20;
 
