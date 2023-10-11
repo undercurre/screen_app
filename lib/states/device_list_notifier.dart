@@ -349,6 +349,22 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
   }
 
+  String getDeviceNameNomal(
+      {String? deviceId}) {
+    if (deviceId != null) {
+      List<DeviceEntity> curOne = deviceCacheList
+          .where((element) => element.applianceCode == deviceId)
+          .toList();
+      if (curOne.isNotEmpty) {
+        return curOne[0].name;
+      } else {
+        return '未知设备';
+      }
+    } else {
+      return '未知id';
+    }
+  }
+
   String getDeviceRoomName(
       {String? deviceId,
       int maxLength = 4,
