@@ -117,7 +117,7 @@ class _Boot extends State<Boot> {
           if (isFinishLogin) {
             System.login();
           } else {
-            System.logout("数据迁移失败");
+            System.logout("数据迁移失败", false);
           }
         }
       } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
@@ -145,7 +145,7 @@ class _Boot extends State<Boot> {
           if (isFinishLogin) {
             System.login();
           } else {
-            System.logout("数据迁移失败");
+            System.logout("数据迁移失败", false);
           }
         }
       } else {

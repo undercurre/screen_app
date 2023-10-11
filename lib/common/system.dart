@@ -223,15 +223,19 @@ class System {
 
   /// 退出登录
   /// 会自动退出到登录页，event -> logout 会发送到Boot页，最后跳入到Login页面
-  static logout(String reason) {
+  static logout(String reason, [bool judgeToLogoutPage = true]) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogout(reason);
       HomluxPushManager.stopConnect();
-      bus.emit('logout');
+      if(judgeToLogoutPage) {
+        bus.emit('logout');
+      }
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.setLogout(reason);
       MeiJuPushManager.stopConnect();
-      bus.emit('logout');
+      if(judgeToLogoutPage) {
+        bus.emit('logout');
+      }
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
