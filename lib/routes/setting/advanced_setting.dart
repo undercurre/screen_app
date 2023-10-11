@@ -330,7 +330,7 @@ class AdvancedSettingPageState extends State<AdvancedSettingPage> {
     return MzCell(
       title: name,
       titleSize: 24,
-      titleMaxWidth: 100,
+      titleMaxWidth: 180,
       hasArrow: hasArrow,
       bgColor: Colors.transparent,
       hasBottomBorder: haveLine?? false,
