@@ -126,7 +126,8 @@ class MigrationOldVersionMeiJuDataState
           token['token']['accessToken'],
           token['token']['tokenPwd'],
           token['token']['expired'],
-          token['deviceId']);
+          token['deviceId'],
+          token['gatewayApplicationCode']);
 
       /// 迁移家庭
       await migrateHome(
@@ -323,7 +324,7 @@ class MigrationOldVersionMeiJuDataState
       String token,
       String tokenPwd,
       int expired,
-      String deviceId) async {
+      String deviceId,String gatewayApplicationCode) async {
     Global.user = null;
     MeiJuTokenEntity userEntity = MeiJuTokenEntity();
     userEntity.accessToken = token;
@@ -362,6 +363,8 @@ class MigrationOldVersionMeiJuDataState
     }
     MeiJuGlobal.token = userEntity;
     Global.profile.deviceId = deviceId;
+    MeiJuGlobal.gatewayApplianceCode=gatewayApplicationCode;
+
 
     return true;
   }

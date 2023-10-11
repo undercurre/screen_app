@@ -56,7 +56,8 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                 val iotUserId = MigrateTokenCache.getInstance().iotUserId
                 val dataDecodeKey = MigrateTokenCache.getInstance().dataDecodeKey
                 val dataEncodeKey = MigrateTokenCache.getInstance().dataEncodeKey
-                val deviceId = MigrateDeviceIdUtil.getDeviceId(context)
+                val deviceId = MigrateDeviceIdUtil.getInstance().getDeviceId(context)
+                val gatewayApplicationCode=MigrateDeviceIdUtil.getInstance().gatewayApplicationCode
                 if (StringUtils.isEmpty(token)
                     || StringUtils.isEmpty(userid)
                     || StringUtils.isEmpty(iotUserId)
@@ -72,6 +73,7 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                     json.put("dataDecodeKey", dataDecodeKey)
                     json.put("dataEncodeKey", dataEncodeKey)
                     json.put("deviceId", deviceId)
+                    json.put("gatewayApplicationCode", gatewayApplicationCode)
                     LogUtil.tag("migrate").msg(json.toString())
                     result.safeSuccess(json)
                 }

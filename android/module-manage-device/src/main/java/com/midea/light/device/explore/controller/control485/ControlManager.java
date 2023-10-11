@@ -472,7 +472,7 @@ public class ControlManager implements Data485Subject {
                 upDataAllDeviceOnlineState();
             }
         };
-        heatBet.schedule(heatBetTask, 10000, 180000);
+        heatBet.schedule(heatBetTask, 10000, 60000);
     }
 
     public void stopFresh() {
