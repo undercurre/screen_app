@@ -31,6 +31,10 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
     num soundVal = await settingMethodChannel.getSystemVoice();
     Setting.instant().volume = soundVal.toInt();
     soundValue = soundVal;
+    soundShowValue = Setting.instant().showVolume;
+    if(soundShowValue>100){
+      soundShowValue=80;
+    }
   }
 
   void _aiSetVoiceCallback(int voice) {
