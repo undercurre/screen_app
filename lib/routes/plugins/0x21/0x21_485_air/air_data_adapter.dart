@@ -350,30 +350,6 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     }else{
       isLocalDevice = true;
       localDeviceCode=applianceCode;
-      Homlux485DeviceListEntity? deviceList = HomluxGlobal.getHomlux485DeviceList;
-      ///homlux添加本地485空调设备
-      if(deviceList!=null){
-        for (int i = 0; i < deviceList!.nameValuePairs!.freshAirList!.length; i++) {
-          if("${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}"==applianceCode){
-            String? operationMode=deviceList!.nameValuePairs!.freshAirList![i].workModel;
-            String? OnOff=deviceList!.nameValuePairs!.freshAirList![i].onOff;
-            String? windSpeed=deviceList!.nameValuePairs!.freshAirList![i].windSpeed;
-            data = Air485Data(
-                name: name,
-                online: deviceList!.nameValuePairs!.freshAirList![i].onlineState=="1"?true:false,
-                operationMode: int.parse(operationMode!, radix: 16),
-                OnOff: OnOff=="1"?true:false,
-                windSpeed: int.parse(windSpeed!, radix: 16));
-          }
-        }
-      }else{
-        data = Air485Data(
-            name: name,
-            online: true,
-            operationMode: 4,
-            OnOff: true,
-            windSpeed: 1);
-      }
     }
   }
 

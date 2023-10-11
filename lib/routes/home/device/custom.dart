@@ -32,8 +32,11 @@ class CustomPage extends StatefulWidget {
 }
 
 class _CustomPageState extends State<CustomPage> {
+  // pageview的Controller
   PageController _pageController = PageController();
+  // 存储pageview的页面
   List<Widget> _screens = [];
+  // 当前拖拽的卡片id
   String dragingWidgetId = '';
 
   @override
@@ -51,10 +54,9 @@ class _CustomPageState extends State<CustomPage> {
     final layoutModel = Provider.of<LayoutModel>(context);
     final pageCounterModel = Provider.of<PageCounter>(context);
 
-    // 滑动控制重置
+    // 滑动控制重置，实现进入自定义就是在首页的最后位置
     _pageController = PageController(initialPage: pageCounterModel.currentPage);
-    // 获取屏幕信息
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     // 处理布局信息
     if (mounted) {
       getScreenList(layoutModel, pageCounterModel);
@@ -118,168 +120,7 @@ class _CustomPageState extends State<CustomPage> {
                             ? Colors.white.withOpacity(0.6)
                             : Colors.white,
                         onPressed: () async {
-                          if (layoutModel.layouts
-                                  .where((element) =>
-                                      element.cardType != CardType.Null)
-                                  .toList()
-                                  .length <
-                              10000) {
-                            final result =
-                                await Navigator.pushNamed(context, 'AddDevice');
-                            if (result != null) {
-                              result as Layout;
-                              // 处理回调的增加信息
-                              // 尝试增加在当页
-                              // 初始化布局占位器
-                              Screen screenLayer = Screen();
-                              // 拿到当前页的layout
-                              List<Layout> layoutsInCurPage =
-                                  layoutModel.getLayoutsByPageIndex(
-                                      pageCounterModel.currentPage);
-                              if (layoutsInCurPage.isNotEmpty) {
-                                // 非空页
-                                for (int layoutInCurPageIndex = 0;
-                                    layoutInCurPageIndex <
-                                        layoutsInCurPage.length;
-                                    layoutInCurPageIndex++) {
-                                  if (layoutsInCurPage[layoutInCurPageIndex]
-                                          .cardType ==
-                                      CardType.Null) continue;
-                                  // 取出当前布局的grids
-                                  for (int gridsIndex = 0;
-                                      gridsIndex <
-                                          layoutsInCurPage[layoutInCurPageIndex]
-                                              .grids
-                                              .length;
-                                      gridsIndex++) {
-                                    // 把已经布局的数据在布局器中占位
-                                    int grid =
-                                        layoutsInCurPage[layoutInCurPageIndex]
-                                            .grids[gridsIndex];
-                                    int row = (grid - 1) ~/ 4;
-                                    int col = (grid - 1) % 4;
-                                    screenLayer.setCellOccupied(row, col, true);
-                                  }
-                                }
-                                // 尝试占位
-                                List<int> fillCells = screenLayer
-                                    .checkAvailability(result.cardType);
-                                Log.i('新卡片占位尝试结果', fillCells);
-                                if (fillCells.isEmpty) {
-                                  Log.i('屏幕被占满或放不下');
-                                  // 屏幕占满或放不下
-                                  int maxPage = layoutModel.getMaxPageIndex();
-                                  // 找到有合适空位的一页
-                                  LayoutPosition proFlexiblePage = layoutModel
-                                      .getFlexiblePage(result.cardType);
-                                  if (proFlexiblePage.pageIndex > -1) {
-                                    result.pageIndex =
-                                        proFlexiblePage.pageIndex;
-                                    result.grids = proFlexiblePage.grids;
-                                    Log.i('找到了合适的位置',
-                                        '${result.pageIndex}页${result.grids}');
-                                    // 找到并删掉空缺
-                                    List<Layout> daiding = layoutModel.layouts
-                                        .where((element) =>
-                                            element.pageIndex ==
-                                                result.pageIndex &&
-                                            element.cardType == CardType.Null &&
-                                            result.grids.any((res) => element.grids.contains(res)))
-                                        .toList();
-                                    daiding.forEach((element) {
-                                      layoutModel.deleteLayout(element.deviceId);
-                                    });
-                                    WidgetsBinding.instance
-                                        ?.addPostFrameCallback((_) {
-                                      _pageController.animateToPage(
-                                          result.pageIndex,
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          curve: Curves.ease);
-                                    });
-                                    pageCounterModel.currentPage =
-                                        result.pageIndex;
-                                  } else {
-                                    // 放到最后一页
-                                    // 清空布局器
-                                    screenLayer.resetGrid();
-                                    // 占位
-                                    List<int> fillCells = screenLayer
-                                        .checkAvailability(result.cardType);
-                                    result.pageIndex = maxPage + 1;
-                                    result.grids = fillCells;
-                                    List<Layout> curPageLayouts =
-                                        Layout.flexLayout([result]);
-                                    layoutModel
-                                        .removeNullCardByPage(result.pageIndex);
-                                    for (int o = 0;
-                                        o < curPageLayouts.length;
-                                        o++) {
-                                      layoutModel.addLayout(curPageLayouts[o]);
-                                    }
-                                    // 跳到最后一页
-                                    WidgetsBinding.instance
-                                        ?.addPostFrameCallback((_) {
-                                      _pageController.animateToPage(maxPage + 1,
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          curve: Curves.ease);
-                                    });
-                                    pageCounterModel.currentPage = maxPage + 1;
-                                  }
-                                  result.data.disabled = true;
-                                  result.data.context = context;
-                                  result.data.disableOnOff = false;
-                                  result.data.applianceCode = result.deviceId;
-                                  layoutModel.addLayout(result);
-                                } else {
-                                  // 屏幕没占满又放的下,重构该页
-                                  // 拿到当前页的layout
-                                  Log.i('屏幕没占满又放的下');
-                                  result.grids = fillCells;
-                                  result.pageIndex =
-                                      pageCounterModel.currentPage;
-                                  List<Layout> hasThisNullCardList =
-                                      layoutsInCurPage
-                                          .where((element) =>
-                                              element.grids.every((element) =>
-                                                  fillCells
-                                                      .contains(element)) &&
-                                              element.cardType == CardType.Null)
-                                          .toList();
-                                  Log.i('找到了这张空卡片了吗',
-                                      hasThisNullCardList.map((e) => e.grids));
-                                  if (hasThisNullCardList.isNotEmpty) {
-                                    hasThisNullCardList.forEach((element) {
-                                      layoutModel
-                                          .deleteLayout(element.deviceId);
-                                    });
-                                    layoutModel.addLayout(result);
-                                  }
-                                }
-                              } else {
-                                // 空页直接插入
-                                result.pageIndex = pageCounterModel.currentPage;
-                                // 占位
-                                List<int> fillCells = screenLayer
-                                    .checkAvailability(result.cardType);
-                                result.grids = fillCells;
-                                result.data.disabled = true;
-                                result.data.disableOnOff = false;
-                                result.data.context = context;
-                                result.data.applianceCode = result.deviceId;
-                                List<Layout> curPageLayouts =
-                                    Layout.filledLayout([result]);
-                                Log.i('填充后的布局列表',
-                                    curPageLayouts.map((e) => e.grids));
-                                for (int o = 0;
-                                    o < curPageLayouts.length;
-                                    o++) {
-                                  layoutModel.addLayout(curPageLayouts[o]);
-                                }
-                              }
-                            }
-                          }
+                          addDevice(layoutModel, pageCounterModel);
                         },
                       ),
                       MzButton(
@@ -499,6 +340,142 @@ class _CustomPageState extends State<CustomPage> {
           ),
         ),
       );
+    }
+  }
+
+  Future<void> addDevice(LayoutModel layoutModel, PageCounter pageCounterModel) async {
+    // 卡片渲染数量限制
+    if (layoutModel.layouts.where((element) => element.cardType != CardType.Null).toList().length < 10000) {
+      // 获取选择设备页返回的数据
+      final result = await Navigator.pushNamed(context, 'AddDevice');
+      if (result != null) {
+        // 处理回调的增加信息
+        result as Layout;
+        // 尝试增加到当前页
+
+        // 初始化布局占位器
+        Screen screenLayer = Screen();
+        // 拿到当前页的layout
+        List<Layout> layoutsInCurPage = layoutModel.getLayoutsByPageIndex(pageCounterModel.currentPage);
+        if (layoutsInCurPage.isNotEmpty) {
+          // 非空页
+          for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex ++) {
+            // 不填充待定区占位
+            if (layoutsInCurPage[layoutInCurPageIndex].cardType == CardType.Null) continue;
+            // 取出当前布局的grids
+            for (int gridsIndex = 0; gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length; gridsIndex ++) {
+              // 把已经布局的有效数据在布局器中占位
+              int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
+              int row = (grid - 1) ~/ 4;
+              int col = (grid - 1) % 4;
+              screenLayer.setCellOccupied(row, col, true);
+            }
+          }
+          // 尝试占位
+          List<int> fillCells = screenLayer.checkAvailability(result.cardType);
+          // 占位不成功->当前页没有适合位置/当前页已满
+          if (fillCells.isEmpty) {
+            int maxPage = layoutModel.getMaxPageIndex();
+            // 找到现有所有页面中有合适空位的一页
+            LayoutPosition proFlexiblePage = layoutModel.getFlexiblePage(result.cardType);
+            if (proFlexiblePage.pageIndex > -1) {
+              result.pageIndex = proFlexiblePage.pageIndex;
+              result.grids = proFlexiblePage.grids;
+              // 找到并删掉空缺
+              List<Layout> daiding = layoutModel.layouts.where((element) => element.pageIndex == result.pageIndex && element.cardType == CardType.Null && result.grids.any((res) => element.grids.contains(res))).toList();
+              daiding.forEach((element) {
+                layoutModel.deleteLayout(element.deviceId);
+              });
+              WidgetsBinding.instance
+                  ?.addPostFrameCallback((_) {
+                _pageController.animateToPage(
+                    result.pageIndex,
+                    duration:
+                    const Duration(milliseconds: 300),
+                    curve: Curves.ease);
+              });
+              pageCounterModel.currentPage =
+                  result.pageIndex;
+            } else {
+              // 放到最后一页
+              // 清空布局器
+              screenLayer.resetGrid();
+              // 占位
+              List<int> fillCells = screenLayer
+                  .checkAvailability(result.cardType);
+              result.pageIndex = maxPage + 1;
+              result.grids = fillCells;
+              List<Layout> curPageLayouts =
+              Layout.flexLayout([result]);
+              layoutModel
+                  .removeNullCardByPage(result.pageIndex);
+              for (int o = 0;
+              o < curPageLayouts.length;
+              o++) {
+                layoutModel.addLayout(curPageLayouts[o]);
+              }
+              // 跳到最后一页
+              WidgetsBinding.instance
+                  ?.addPostFrameCallback((_) {
+                _pageController.animateToPage(maxPage + 1,
+                    duration:
+                    const Duration(milliseconds: 300),
+                    curve: Curves.ease);
+              });
+              pageCounterModel.currentPage = maxPage + 1;
+            }
+            result.data.disabled = true;
+            result.data.context = context;
+            result.data.disableOnOff = false;
+            result.data.applianceCode = result.deviceId;
+            layoutModel.addLayout(result);
+          } else {
+            // 屏幕没占满又放的下,重构该页
+            // 拿到当前页的layout
+            Log.i('屏幕没占满又放的下');
+            result.grids = fillCells;
+            result.pageIndex =
+                pageCounterModel.currentPage;
+            List<Layout> hasThisNullCardList =
+            layoutsInCurPage
+                .where((element) =>
+            element.grids.every((element) =>
+                fillCells
+                    .contains(element)) &&
+                element.cardType == CardType.Null)
+                .toList();
+            Log.i('找到了这张空卡片了吗',
+                hasThisNullCardList.map((e) => e.grids));
+            if (hasThisNullCardList.isNotEmpty) {
+              hasThisNullCardList.forEach((element) {
+                layoutModel
+                    .deleteLayout(element.deviceId);
+              });
+              layoutModel.addLayout(result);
+            }
+          }
+        } else {
+          // 空页直接插入
+          result.pageIndex = pageCounterModel.currentPage;
+          // 占位
+          List<int> fillCells = screenLayer
+              .checkAvailability(result.cardType);
+          result.grids = fillCells;
+          result.data.disabled = true;
+          result.data.disableOnOff = false;
+          result.data.context = context;
+          result.data.applianceCode = result.deviceId;
+          List<Layout> curPageLayouts =
+          Layout.filledLayout([result]);
+          Log.i('填充后的布局列表',
+              curPageLayouts.map((e) => e.grids));
+          for (int o = 0;
+          o < curPageLayouts.length;
+          o++) {
+            layoutModel.addLayout(curPageLayouts[o]);
+          }
+        }
+      }
     }
   }
 }
