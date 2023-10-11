@@ -172,6 +172,7 @@ class StandbySettingPageState extends State<StandbySettingPage> {
                 child: MzCell(
                   title: "待机样式",
                   titleSize: 24,
+                  titleMaxWidth: 100,
                   hasArrow: true,
                   rightText: parseScreenSaverName(screenSaverId),
                   rightTextColor: const Color(0x99FFFFFF),

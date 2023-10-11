@@ -214,8 +214,20 @@ class LayoutModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 用于删除指定 deviceId 和 pageIndex 的布局对象。
   Future<void> deleteLayout(String deviceId) async {
+    layouts.removeWhere((item) => item.deviceId == deviceId);
+    await _saveLayouts();
+    notifyListeners();
+  }
+
+  // 用于删除指定 deviceId 和 pageIndex 的布局对象。
+  Future<void> deleteLayoutList(List<String> deviceIds) async {
+    layouts.removeWhere((item) => deviceIds.contains(item.deviceId));
+    await _saveLayouts();
+    notifyListeners();
+  }
+  
+  Future<void> deleteAndFlexLayout(String deviceId) async {
     // 获取到provider中当前id的Layout数据
     Layout curLayout = getLayoutsByDevice(deviceId);
     // 获取当前布局的pageId
