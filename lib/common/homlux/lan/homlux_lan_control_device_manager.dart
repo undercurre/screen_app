@@ -17,7 +17,7 @@ import '../api/homlux_device_api.dart';
 import '../models/homlux_device_entity.dart';
 import '../models/homlux_response_entity.dart';
 import '../push/event/homlux_push_event.dart';
-import '../push/homlu_push_manager.dart';
+import '../push/homlux_push_manager.dart';
 import '../push/homlux_push_message_model.dart';
 
 

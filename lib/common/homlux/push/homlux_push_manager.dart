@@ -8,13 +8,12 @@ import 'package:screen_app/common/homlux/push/homlux_push_message_model.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
 import '../../helper.dart';
 import '../../meiju/push/meiju_push_manager.dart';
-import '../../system.dart';
-import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 // //设备属性变化
@@ -50,8 +49,6 @@ const TypeChangeUserAuth = 'change_house_user_auth';
 // 2.定义消息数据解析Bean
 // 3.发送消息
 
-/// 连接超时
-const _connectTimeout = 5;
 /// 心跳发送间隔
 const _pingInterval = 30000;
 /// 用户主动操作设备的消息延长推送时间
@@ -63,8 +60,7 @@ const int _maxRetryCount = 20;
 
 class HomluxPushManager {
 
-  static WebSocket? webSocket;
-  static Timer? retryConnectTimer;
+  static IOWebSocketChannel? _channel;
   static Timer? _globalTimer;
   static int _isConnect = 0;  // 0.未连接 1.连接中 2.已连接
   static int retryCount = 0;
@@ -132,10 +128,9 @@ class HomluxPushManager {
 
   static void _netConnectState(NetState? state) {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
-      Log.file('[WebSocket]homlux ws 检测到已连接网络');
       if(_isConnect == 0) {
         retryCount = 0;
-        _startConnect();
+        _startConnect('检测到已连接网络');
       }
     } else {
       _stopConnect('检测到未连接网络');
@@ -177,9 +172,8 @@ class HomluxPushManager {
           try {
             if (_isConnect == 2) {
               // 检测心跳、发送心跳
-              if (currTimer.millisecondsSinceEpoch - heartSendLastTime >=
-                  _pingInterval) {
-                webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
+              if (currTimer.millisecondsSinceEpoch - heartSendLastTime >= _pingInterval) {
+                _channel?.sink.add(jsonEncode({'topic': 'heartbeatTopic', 'message': {"code": 999}}));
                 heartSendLastTime = currTimer.millisecondsSinceEpoch;
               }
             }
@@ -215,43 +209,31 @@ class HomluxPushManager {
       Log.file('[WebSocket]homlux ws 关闭连接, 关闭原因：$reason');
       // 1. 关闭旧连接, 定时器
       _isConnect = 0;
-      retryConnectTimer?.cancel();
-      webSocket?.close();
-      webSocket = null;
+      _channel?.sink.close();
+      _channel = null;
       bus.off('operateDevice');
     }
   }
 
-  static _startConnect([int retrySeconds = 2]) async {
+  static _startConnect(String reason) async {
+    Log.i('[WebSocket] 启动原因 $reason');
 
     // 延迟两秒连接
     await Future.delayed(const Duration(seconds: 2));
 
     if(retryCount >= _maxRetryCount) {
-      Log.file('meiju ws 超过最大连接次数');
+      _stopConnect('meiju ws 超过最大连接次数');
       return;
     }
 
-    _isConnect = 1;
+    if(_isConnect == 0 && HomluxGlobal.isLogin) {
 
-    // 重连函数
-    void reconnectFunction() {
-      if(_isConnect != 1) {
-        Log.file('[WebSocket]homlux ws 即将重新连接');
-        retryConnectTimer?.cancel();
-        retryConnectTimer = Timer(Duration(seconds: retrySeconds), () {
-          startConnect(retrySeconds * 2);
-          retryConnectTimer = null;
-        });
-      }
-    }
+      _isConnect = 1;
 
       Log.file('[WebSocket]homlux ws 建立连接中 尝试次数$retryCount');
       // 1. 关闭旧连接, 定时器
       retryCount++;
-      retryConnectTimer?.cancel();
-      await webSocket?.close();
-      webSocket = null;
+      _channel?.sink.close();
 
       if (!HomluxGlobal.isLogin) {
         return;
@@ -266,25 +248,25 @@ class HomluxPushManager {
       // 2.建立新连接
       try {
         bus.off('operateDevice');
-        webSocket = await WebSocket.connect(
+        _channel = IOWebSocketChannel.connect(
             dotenv.get('HOMLUX_PUSH_WSS') + (HomluxGlobal.homluxHomeInfo?.houseId ?? ''),
-            headers: {
-              'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
-            });
-        webSocket?.pingInterval = const Duration(seconds: _pingInterval);
-        webSocket?.timeout(const Duration(seconds: _connectTimeout));
+            protocols: {
+              HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
+            },
+            // headers: {
+            //   'Sec-WebSocket-Protocol': HomluxGlobal.homluxQrCodeAuthEntity?.token ?? ''
+            // },
+            pingInterval: const Duration(seconds: 10),
+            connectTimeout: const Duration(seconds: 8));
 
         // 3.设置消息监听
-        webSocket?.listen((event) => _message(event, reconnectFunction),
-            onError: (err) => _error(err, reconnectFunction),
-            onDone: () => _done(reconnectFunction),
-            cancelOnError: false);
+        _channel?.stream.listen(_message, onError: _error, onDone: _done);
+
         _isConnect = 2;
         bus.on('operateDevice', _operateDevice);
       } catch (e) {
-        Log.file('[WebSocket] 执行异常，尝试重连 $e');
         _isConnect = 0;
-        reconnectFunction();
+        _startConnect('执行异常，尝试重连');
         return;
       }
 
@@ -296,7 +278,7 @@ class HomluxPushManager {
             var currTimer = DateTime.now();
             // 检测心跳、发送心跳
             if(currTimer.millisecondsSinceEpoch - heartSendLastTime >= _pingInterval) {
-              webSocket?.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
+              _channel?.sink.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
               heartSendLastTime = currTimer.millisecondsSinceEpoch;
             }
             /// 执行延迟消息推送队列任务
@@ -317,9 +299,10 @@ class HomluxPushManager {
         }
       });
 
+    }
   }
 
-  static _message(dynamic event, void Function() reconnectFunction) {
+  static _message(dynamic event) {
     Log.i('[WebSocket]homlux ws message $event');
     retryCount = 0;
     try {
@@ -400,7 +383,7 @@ class HomluxPushManager {
     }
   }
 
-  static _error(dynamic error, void Function() reconnectFunction) {
+  static _error(dynamic error) {
     Log.file('[WebSocket] homlux ws error $error');
     try {
 
@@ -409,12 +392,14 @@ class HomluxPushManager {
     }
   }
 
-  static _done(void Function() reconnectFunction) {
+  static _done() async {
     Log.file('[WebSocket]homlux ws done');
     try {
+      await Future.delayed(const Duration(seconds: 2));
       var state = NetUtils.getNetState();
       if(state != null) {
-        reconnectFunction();
+        _stopConnect('[WebSocket]网络状态失效');
+        _startConnect('接收到done事件重连');
       } else {
         _stopConnect('[WebSocket]网络状态失效');
       }
