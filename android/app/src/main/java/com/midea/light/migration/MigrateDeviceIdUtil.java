@@ -4,7 +4,10 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.midea.light.common.config.AppCommonConfig;
+import com.midea.light.device.explore.api.entity.ApplianceBean;
 import com.midea.light.log.LogUtil;
+import com.midea.light.repositories.setting.AbstractMMKVSetting;
 import com.midea.smart.open.common.auth.MD5;
 
 import java.util.UUID;
@@ -13,9 +16,14 @@ import java.util.UUID;
  * 获取设备ID
  * deviceID的组成为：渠道标志+识别符来源标志+hash后的终端识别符
  */
-public class MigrateDeviceIdUtil {
-
+public class MigrateDeviceIdUtil extends AbstractMMKVSetting {
+    private static final String FILE_NAME = "devices_repository";
+    private static MigrateDeviceIdUtil INSTANT = new MigrateDeviceIdUtil();
     private static final boolean debug = false;
+
+    public static MigrateDeviceIdUtil getInstance() {
+        return INSTANT;
+    }
 
     /**
      * 渠道标志为：
@@ -30,7 +38,7 @@ public class MigrateDeviceIdUtil {
      * @param context
      * @return
      */
-    public static String getDeviceId(Context context) {
+    public String getDeviceId(Context context) {
 
 
         StringBuilder deviceId = new StringBuilder();
@@ -78,6 +86,12 @@ public class MigrateDeviceIdUtil {
         }
     }
 
+    public String getGatewayApplicationCode(){
+        ApplianceBean mApplianceBean= get("gateway_bind_detail", ApplianceBean.class);
+        return mApplianceBean.getApplianceCode();
+
+    }
+
     /**
      * 得到全局唯一UUID
      */
@@ -89,5 +103,15 @@ public class MigrateDeviceIdUtil {
             MigrateTokenCache.getInstance().saveDevicesId(uuid);
         }
         return uuid;
+    }
+
+    @Override
+    protected String getFileName() {
+        return FILE_NAME;
+    }
+
+    @Override
+    protected String getFileDir() {
+        return AppCommonConfig.SYSTEM_SETTING_DIR;
     }
 }

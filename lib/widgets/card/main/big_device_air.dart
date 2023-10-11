@@ -385,6 +385,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                                   adapter!
                                       .getCardStatus()?["smallTemperature"] -
                                   0.5;
+                          if (value < 16) {
+                            return;
+                          }
                           adapter.reduceTo(value.toInt());
                           bus.emit('operateDevice', widget.applianceCode);
                         }
@@ -422,6 +425,9 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                                   adapter!
                                       .getCardStatus()?["smallTemperature"] +
                                   0.5;
+                          if (value > 30) {
+                            return;
+                          }
                           adapter.increaseTo(value.toInt());
                           bus.emit('operateDevice', widget.applianceCode);
                         }
