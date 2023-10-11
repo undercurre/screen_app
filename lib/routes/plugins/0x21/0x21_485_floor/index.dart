@@ -13,6 +13,7 @@ import 'floor_data_adapter.dart';
 
 class FloorHeating485PageState extends State<FloorHeating485Page> {
   String targetTemp = "30";
+  String currentTemp = "32";
   String OnOff = "1";
   FloorDataAdapter? adapter;
   String name = "";
@@ -58,6 +59,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
         name = args?['name'] ?? "";
         adapter = args?['adapter'];
         targetTemp = adapter!.data!.targetTemp.toString();
+        currentTemp=adapter!.data!.currentTemp.toString();
         OnOff = adapter!.data!.OnOff?"1":"0";
         adapter!.bindDataUpdateFunction(update485FloorDetialData);
         logger.i("初始化地暖详情");
@@ -70,11 +72,12 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
 
   void update485FloorDetialData() {
     if (mounted) {
-      logger.i("详情地暖温度:${adapter!.data!.targetTemp}");
+      logger.i("详情地暖室内温度:${adapter!.data!.currentTemp}");
       setState(() {
         adapter?.data = adapter!.data;
         targetTemp = adapter!.data!.targetTemp.toString();
         OnOff = adapter!.data!.OnOff?"1":"0";
+        currentTemp=adapter!.data!.currentTemp.toString();
       });
     }
   }
@@ -119,14 +122,42 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
       ),
       child: Stack(
         children: [
+          Positioned(
+            top: 65,
+            left: 10,
+            child: Text(
+              "$currentTemp°",
+              style: const TextStyle(
+                color: Color(0XFFFFFFFF),
+                fontSize: 55.0,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w200,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
           const Positioned(
-            top: 96,
+              top: 155,
+              left: 15,
+              child: Text(
+                "室内温度",
+                style: TextStyle(
+                  color: Color(0x77ffffff),
+                  fontSize: 16.0,
+                  fontFamily: "MideaType",
+                  fontWeight: FontWeight.w200,
+                  decoration: TextDecoration.none,
+                ),
+              )),
+
+          const Positioned(
+            top: 120,
             left: 0,
             child: Image(
               width: 276,
               height: 386,
               image: AssetImage(
-                  "assets/imgs/plugins/0xAC_floorHeating/floor_heating_dev.png"),
+                  "assets/imgs/plugins/0xAC_floorHeating/floor_heating_485.png"),
             ),
           ),
           Column(
