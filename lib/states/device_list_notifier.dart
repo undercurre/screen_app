@@ -349,7 +349,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
   }
 
-  String getDeviceNameNomal(
+  String getDeviceNameNormal(
       {String? deviceId}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList

@@ -88,7 +88,7 @@ class AirConditionPageState extends State<AirConditionPage> {
 
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceNameNomal(
+      String nameInModel = deviceListModel.getDeviceNameNormal(
           deviceId: dataAdapter?.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
