@@ -26,6 +26,9 @@ import 'card_type_config.dart';
 import 'grid_container.dart';
 import 'layout_data.dart';
 
+/// 非待机首页刷新时间 3分钟
+const int normalLoopTime = 3 * 60;
+
 class DevicePage extends StatefulWidget {
   DevicePage({Key? key}) : super(key: key);
 
@@ -41,11 +44,27 @@ class _DevicePageState extends State<DevicePage> {
   target: 启动定时器-->每 180秒/3分钟 刷新一次列表
   */
   Future<void> startPolling(BuildContext context) async {
-    const oneMinute = Duration(seconds: 180);
+    const oneMinute = Duration(seconds: normalLoopTime);
     // 使用周期性定时器，每分钟触发一次
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
       autoDeleleLayout(context);
     });
+  }
+
+  /// [standby] true 进入待机模式 false 退出待机模式
+  void standbyChange(bool standby) {
+    if(!standby) {
+      Log.i('[首页] 退出待机强制刷新页面');
+      autoDeleleLayout(context);
+      _timer?.cancel();
+      _timer = Timer.periodic(const Duration(seconds: normalLoopTime), (Timer timer) async {
+        Log.i('[首页] 时间间隔到，刷新页面');
+        autoDeleleLayout(context);
+      });
+    } else {
+      Log.i('[首页] 取消后台更新页面定时器');
+      _timer?.cancel();
+    }
   }
 
   /*
@@ -145,6 +164,7 @@ class _DevicePageState extends State<DevicePage> {
     _startPushListen();
     // 启动首页页数重置bus监听（主要用户custom中造成的页面滑动返回后首页同步这个pageIndex）
     bus.on("mainToRecoverState", changeToTargetPage);
+    bus.on("eventStandbyActive", standbyChange);
     Log.develop("DevicePageState initState");
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
@@ -169,6 +189,7 @@ class _DevicePageState extends State<DevicePage> {
     _stopPushListen();
     Log.develop("DevicePageState dispose");
     // 关闭custom页数更改bus
+    bus.off("eventStandbyActive", standbyChange);
     bus.off("mainToRecoverState", changeToTargetPage);
     // 终止定时器
     stopPolling();
