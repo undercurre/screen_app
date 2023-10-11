@@ -96,7 +96,8 @@ class _BigDeviceCurtainCardWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -235,6 +236,11 @@ class _BigDeviceCurtainCardWidgetState
 
     return GestureDetector(
       onTap: () {
+        if (adapter.dataState != DataState.SUCCESS) {
+          adapter.fetchData();
+          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          return;
+        }
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
             !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -243,7 +249,8 @@ class _BigDeviceCurtainCardWidgetState
       },
       child: AbsorbPointer(
         absorbing:
-            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
+                adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -263,6 +270,11 @@ class _BigDeviceCurtainCardWidgetState
                 right: 16,
                 child: GestureDetector(
                   onTap: () {
+                    if (adapter.dataState != DataState.SUCCESS) {
+                      adapter.fetchData();
+                      TipsUtils.toast(content: '数据缺失，控制设备失败');
+                      return;
+                    }
                     if (!deviceListModel.getOnlineStatus(
                         deviceId: widget.applianceCode)) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -374,8 +386,7 @@ class _BigDeviceCurtainCardWidgetState
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          "${adapter!.getCardStatus()?['curtainPosition']}",
+                      Text("${adapter!.getCardStatus()?['curtainPosition']}",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 60,

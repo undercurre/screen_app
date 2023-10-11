@@ -139,7 +139,7 @@ class NightModePageState extends State<NightModePage> {
                 child: MzCell(
                   title: "设置时间段",
                   titleSize: 24,
-                  titleMaxWidth: 100,
+                  titleMaxWidth: 140,
                   hasArrow: true,
                   rightText: duration,
                   rightTextColor: const Color(0x99FFFFFF),

@@ -301,7 +301,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("${adapter!.data!.targetTemp}",
+                      Text("${adapter.data!.targetTemp>90?26:adapter.data!.targetTemp}",
                           style: TextStyle(
                               height: 1.5,
                               color: adapter!.data!.OnOff&&adapter.data!.online

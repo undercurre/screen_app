@@ -26,7 +26,7 @@ class SelectHomeState extends State<SelectHome> {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             title: item?.familyName,
             titleMaxLines: 1,
-            titleMaxWidth: 320,
+            titleMaxWidth: 280,
             titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
             titleSize: 24,
             descSize: 18,

@@ -249,6 +249,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     return GestureDetector(
       onTap: () {
+        if (adapter.dataState != DataState.SUCCESS) {
+          adapter.fetchData();
+          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          return;
+        }
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
             !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -257,7 +262,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       },
       child: AbsorbPointer(
         absorbing:
-            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -296,6 +301,11 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 right: 16,
                 child: GestureDetector(
                   onTap: () {
+                    if (adapter.dataState != DataState.SUCCESS) {
+                      adapter.fetchData();
+                      TipsUtils.toast(content: '数据缺失，控制设备失败');
+                      return;
+                    }
                     if (!deviceListModel.getOnlineStatus(
                         deviceId: widget.applianceCode)) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');

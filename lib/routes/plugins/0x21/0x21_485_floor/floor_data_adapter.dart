@@ -4,8 +4,6 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/homlux/homlux_global.dart';
-import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -42,6 +40,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     name: "地暖",
     online: true,
     targetTemp: 26,
+    currentTemp:30,
     OnOff: true,
   );
 
@@ -76,6 +75,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
             online: true,
             targetTemp: 26,
             OnOff: true,
+            currentTemp: 30,
           );
           return;
         }
@@ -89,6 +89,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           name: name,
           online: true,
           targetTemp: 26,
+          currentTemp: 30,
           OnOff: true,
         );
       }
@@ -99,7 +100,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Future<void> orderPower(int onOff) async {
 
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
           onOff.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -128,7 +129,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   Future<void> orderTemp(int temp) async {
-    if (localDeviceCode.isNotEmpty) {
+    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
           temp.toString(), localDeviceCode);
     } else if (applianceCode.length == 4) {
@@ -261,24 +262,27 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   void _local485StateCallback(Local485DeviceState state) {
-    if (state.modelId == "zhonghong.heat.001" &&
-        localDeviceCode == state.address) {
+    if (state.modelId == "zhonghong.heat.001" && localDeviceCode == state.address) {
+      logger.i("111Local地暖温度:${state.temper}---室内温度:${state.currTemperature}");
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
         targetTemp: state.temper,
         OnOff: state.onOff==1?true:false,
+        currentTemp: state.currTemperature,
       );
-      logger.i("Local地暖温度:${data?.targetTemp}");
+      logger.i("222Local地暖温度:${data?.targetTemp}---室内温度:${data?.currentTemp}");
       updateUI();
     }else if(state.modelId=="zhonghong.heat.001"&&applianceCode==state.address){
+      logger.i("333Local地暖温度:${data?.currentTemp}");
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
         targetTemp: state.temper,
         OnOff: state.onOff==1?true:false,
+        currentTemp: state.currTemperature,
+
       );
-      logger.i("Local地暖温度:${data?.targetTemp}");
       updateUI();
     }
   }
@@ -361,6 +365,8 @@ class Floor485Data {
   // 设定温度
   int targetTemp = 26;
 
+  int currentTemp=20;
+
   // 开关状态
   bool OnOff = true;
 
@@ -372,12 +378,14 @@ class Floor485Data {
     required this.online,
     required this.targetTemp,
     required this.OnOff,
+    required this.currentTemp,
   });
 
   Floor485Data.fromMeiJu(
       NodeInfo<Endpoint<Floor485Event>> data, String modelNumber) {
     name = data.endList[0].name;
     targetTemp = int.parse(data.endList[0].event.targetTemp);
+    currentTemp = int.parse(data.endList[0].event.currTemp);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;
   }
 
@@ -388,11 +396,14 @@ class Floor485Event extends Event {
   // 设定温度
   String targetTemp = "26";
 
+  String currTemp = "30";
+
   // 开关状态
   String OnOff = "0";
 
   Floor485Event({
     required this.targetTemp,
+    required this.currTemp,
     required this.OnOff,
   });
 
@@ -400,10 +411,12 @@ class Floor485Event extends Event {
     return Floor485Event(
       OnOff: json['OnOff'].toString(),
       targetTemp: json['targetTemp'].toString(),
+      currTemp: json['currTemp'].toString(),
+
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'OnOff': OnOff, 'targetTemp': targetTemp};
+    return {'OnOff': OnOff, 'targetTemp': targetTemp, 'currTemp': currTemp};
   }
 }
