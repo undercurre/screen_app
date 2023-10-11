@@ -348,34 +348,6 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     } else {
       isLocalDevice = true;
       localDeviceCode=applianceCode;
-      Homlux485DeviceListEntity? deviceList =
-          HomluxGlobal.getHomlux485DeviceList;
-      ///homlux添加本地485空调设备
-      if (deviceList != null) {
-        for (int i = 0;
-        i < deviceList!.nameValuePairs!.floorHotList!.length;
-        i++) {
-          if ("${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}" ==
-              applianceCode) {
-            String? OnOff = deviceList!.nameValuePairs!.floorHotList![i].onOff;
-            String? targetTemp =
-                deviceList!.nameValuePairs!.floorHotList![i].currTemperature;
-            data = Floor485Data(
-              name: name,
-              online: deviceList!.nameValuePairs!.floorHotList![i].onlineState=="1"?true:false,
-              targetTemp: int.parse(targetTemp!, radix: 16),
-              OnOff: OnOff=="1"?true:false,
-            );
-          }
-        }
-      } else {
-        data = Floor485Data(
-          name: name,
-          online: true,
-          targetTemp: 26,
-          OnOff: true,
-        );
-      }
     }
   }
 
