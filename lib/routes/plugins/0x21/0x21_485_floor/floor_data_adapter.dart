@@ -104,7 +104,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
           onOff.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -133,7 +133,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
           temp.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];

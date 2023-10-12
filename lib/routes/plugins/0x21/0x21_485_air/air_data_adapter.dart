@@ -105,7 +105,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirFreshPower(
           onOff.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -134,7 +134,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirFreshWindSpeed(
           speed.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];

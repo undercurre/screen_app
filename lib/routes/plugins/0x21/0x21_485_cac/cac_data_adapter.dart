@@ -1,5 +1,3 @@
-import 'package:screen_app/common/global.dart';
-
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
@@ -111,7 +109,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirConditionPower(
           onOff.toString(), applianceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -141,7 +139,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirConditionModel(
           mode.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
@@ -202,7 +200,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     } else if (applianceCode.length == 4) {
       deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
           speed.toString(), localDeviceCode);
-    } else if (nodeId != null) {
+    } else if (nodeId.isNotEmpty) {
       bus.emit('operateDevice', nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         localDeviceCode = nodeId.split('-')[1];
