@@ -223,7 +223,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                         )
                     ) : null,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    width: 108,
+                    width: 120,
                     alignment: Alignment.center,
                     child: Text(NameFormatter.formatName(item.name ?? '未知房间', 6),
                         style: const TextStyle(
