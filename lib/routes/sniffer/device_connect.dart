@@ -222,13 +222,13 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                           borderRadius: BorderRadius.all(Radius.circular(13))
                         )
                     ) : null,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    width: 120,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    width: 180,
                     alignment: Alignment.center,
-                    child: Text(NameFormatter.formatName(item.name ?? '未知房间', 6),
+                    child: Text(NameFormatter.formLimitString(item.name ?? '未知房间', 6,3,2),
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
-                            fontSize: 24,
+                            fontSize: 18,
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.w400)),
                   ),
