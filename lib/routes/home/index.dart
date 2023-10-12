@@ -9,6 +9,7 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import '../../common/adapter/bind_gateway_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
+import '../../common/setting.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
@@ -83,6 +84,7 @@ class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleSt
 
   void _aiSetVoiceCallback(int voice) {
     Global.soundValue = voice;
+    Setting.instant().showVolume = (voice / 15 * 100).toInt();
   }
 
   @override
