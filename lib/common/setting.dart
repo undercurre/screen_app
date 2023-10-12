@@ -212,9 +212,24 @@ class Setting {
     final now = DateTime.now();
     final index = now.hour * 60 + now.minute;
     final start = duration.value1;
-    final end = duration.value2;
+    var end = duration.value2;
+    if (end > 1440) {
+      end = end - 1440;
+    }
     debugPrint('start = $start end = $end index = $index');
-    return index >= start && index < end;
+    if (start < end) {
+      return index >= start && index < end;
+    } else if (start > end) {
+      if (index >= start && index <= 1440) {
+        return true;
+      } else if (index >= 0 && index <= end) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   /// 获取AI使能

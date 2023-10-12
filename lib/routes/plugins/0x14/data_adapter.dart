@@ -57,7 +57,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
-  int controlLastTime = 0;
+  Timer? delayTimer;
 
   CurtainDataEntity? data = CurtainDataEntity(
     curtainPosition: 0,
@@ -165,6 +165,13 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     fetchData();
   }
 
+  void delayFetchData() {
+    delayTimer?.cancel();
+    delayTimer = Timer(const Duration(seconds: 5), () {
+      fetchData();
+    });
+  }
+
   /// 查询状态
   Future<void> fetchData() async {
     try {
@@ -233,7 +240,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
       data!.curtainPosition = 0;
     }
     updateUI();
-    controlLastTime = DateTime.now().millisecondsSinceEpoch;
+    delayFetchData();
     if (platform.inMeiju()) {
       var command = {
         "curtain_status": data!.curtainStatus,
@@ -279,7 +286,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     data!.curtainPosition = value.toInt();
     data!.curtainStatus = 'stop';
     updateUI();
-    controlLastTime = DateTime.now().millisecondsSinceEpoch;
+    delayFetchData();
     if (platform.inMeiju()) {
       var command = {
         "curtain_position": value,
@@ -342,5 +349,6 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   void destroy() {
     super.destroy();
     _stopPushListen();
+    delayTimer?.cancel();
   }
 }
