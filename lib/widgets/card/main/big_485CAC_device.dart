@@ -71,7 +71,6 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
   @override
   void dispose() {
-    Log.i("dispose销毁");
     adapter.unBindDataUpdateFunction(updateData);
     super.dispose();
   }

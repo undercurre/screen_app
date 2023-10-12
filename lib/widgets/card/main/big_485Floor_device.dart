@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
-import '../../../common/global.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
