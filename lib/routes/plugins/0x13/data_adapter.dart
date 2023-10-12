@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/models/homlux_response_entity.dart';
@@ -16,6 +14,9 @@ import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
+import '../../../common/meiju/meiju_global.dart';
+import '../../../common/meiju/models/meiju_device_info_entity.dart';
+import '../../../common/system.dart';
 
 class LightDataEntity {
   int brightness = 1; // 亮度
@@ -110,6 +111,27 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   @override
   void init() {
     _startPushListen();
+    getSN8();
+  }
+
+  Future<void> getSN8() async {
+    if (platform.inMeiju() && sn8.isEmpty) {
+      String id = System.familyInfo?.familyId ?? "";
+      if (id.isEmpty) {
+        return;
+      }
+      MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> res =
+      await MeiJuDeviceApi.queryDeviceListByHomeId(
+          MeiJuGlobal.token!.uid, id);
+      if (res.isSuccess) {
+        res.data?.forEach((element) {
+          if (element.applianceCode == applianceCode) {
+            sn8 = element.sn8;
+            return;
+          }
+        });
+      }
+    }
   }
 
   @override
