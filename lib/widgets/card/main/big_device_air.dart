@@ -412,7 +412,7 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                           height: 36,
                           image: const AssetImage('assets/newUI/sub.png')),
                     ),
-                    Text("${_getTempVal()}",
+                    Text("${_getTempVal()}℃",
                         style: TextStyle(
                             height: 1.5,
                             color: (adapter.getPowerStatus() ?? false)

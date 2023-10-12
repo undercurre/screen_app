@@ -15,6 +15,7 @@ import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
+import '../../../common/logcat_helper.dart';
 import '../../../common/system.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
@@ -235,6 +236,7 @@ class DataInputCard {
       isFault: json['isFault'] as bool?,
       isNative: json['isNative'] as bool?,
       disableOnOff: json['disableOnOff'] as bool?,
+      sn8: json['sn8'] as String?
     );
   }
 
@@ -257,6 +259,9 @@ class DataInputCard {
     }
     if (disabled != null) {
       data['disabled'] = disabled;
+    }
+    if (sn8 != null) {
+      data['sn8'] = sn8;
     }
     if (hasMore != null) {
       data['hasMore'] = hasMore;
