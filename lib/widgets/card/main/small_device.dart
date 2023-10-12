@@ -230,6 +230,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     return GestureDetector(
       onTap: () {
+        if (widget.disabled) return;
         if (adapter?.dataState != DataState.SUCCESS) {
           adapter?.fetchData();
           TipsUtils.toast(content: '数据缺失，控制设备失败');
