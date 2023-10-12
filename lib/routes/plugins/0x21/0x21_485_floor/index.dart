@@ -21,25 +21,24 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   void goBack() {
     bus.emit('updateDeviceCardState');
     Navigator.pop(context);
-
   }
 
   Future<void> powerHandle() async {
     if (adapter!.data!.OnOff) {
       adapter!.data!.OnOff = false;
-      OnOff="0";
+      OnOff = "0";
       setState(() {});
       adapter?.orderPower(0);
     } else {
       adapter!.data!.OnOff = true;
-      OnOff="1";
+      OnOff = "1";
       setState(() {});
       adapter?.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if(OnOff == '0'){
+    if (OnOff == '0') {
       return;
     }
     adapter?.orderTemp(value.toInt());
@@ -54,13 +53,14 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
       setState(() {
         name = args?['name'] ?? "";
         adapter = args?['adapter'];
         targetTemp = adapter!.data!.targetTemp.toString();
-        currentTemp=adapter!.data!.currentTemp.toString();
-        OnOff = adapter!.data!.OnOff?"1":"0";
+        currentTemp = adapter!.data!.currentTemp.toString();
+        OnOff = adapter!.data!.OnOff ? "1" : "0";
         adapter!.bindDataUpdateFunction(update485FloorDetialData);
         logger.i("初始化地暖详情");
       });
@@ -76,8 +76,8 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
       setState(() {
         adapter?.data = adapter!.data;
         targetTemp = adapter!.data!.targetTemp.toString();
-        OnOff = adapter!.data!.OnOff?"1":"0";
-        currentTemp=adapter!.data!.currentTemp.toString();
+        OnOff = adapter!.data!.OnOff ? "1" : "0";
+        currentTemp = adapter!.data!.currentTemp.toString();
       });
     }
   }
@@ -91,7 +91,8 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -107,6 +108,7 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
 
       return nameInModel;
     }
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -123,17 +125,36 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
       child: Stack(
         children: [
           Positioned(
-            top: 65,
-            left: 10,
-            child: Text(
-              "$currentTemp°",
-              style: const TextStyle(
-                color: Color(0XFFFFFFFF),
-                fontSize: 55.0,
-                fontFamily: "MideaType",
-                fontWeight: FontWeight.w200,
-                decoration: TextDecoration.none,
-              ),
+            top: 50,
+            left: 5,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  currentTemp,
+                  style: const TextStyle(
+                    color: Color(0XFFFFFFFF),
+                    fontSize: 66.0,
+                    fontFamily: "MideaType",
+                    fontWeight: FontWeight.w200,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(5, 25, 0, 0),
+                  child: Text(
+                    "℃",
+                    style: TextStyle(
+                      color: Color(0xff959595),
+                      fontSize: 20.0,
+                      fontFamily: "MideaType",
+                      fontWeight: FontWeight.w200,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
           const Positioned(
@@ -149,7 +170,6 @@ class FloorHeating485PageState extends State<FloorHeating485Page> {
                   decoration: TextDecoration.none,
                 ),
               )),
-
           const Positioned(
             top: 120,
             left: 0,

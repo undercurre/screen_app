@@ -24,7 +24,7 @@ public class HomeOsController extends controller {
         super.mqttMsgHandle(topic, msg);
         if(msg == null) return;
         // 处理homeOs心跳
-        if(msg.contains("/controller/status")) {
+        if(msg.contains("/local/controller/status")) {
             heartBeat(String.valueOf(System.currentTimeMillis()));
         } else {
             if(callback != null) {

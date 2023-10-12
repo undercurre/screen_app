@@ -164,7 +164,7 @@ class MeiJuPushManager {
     await Future.delayed(const Duration(seconds: 2));
 
     if(retryCount >= _maxRetryCount) {
-      Log.file('[ WebSocket ]超过最大连接次数');
+      _stopConnect('[ WebSocket ]超过最大连接次数');
       return;
     }
 
@@ -423,8 +423,9 @@ class MeiJuPushManager {
     Log.file('[ WebSocket ] onError $err');
   }
 
-  static void _onDone() {
+  static void _onDone() async {
     if (MeiJuGlobal.isLogin) {
+      await Future.delayed(const Duration(seconds: 2));
       var state = NetUtils.getNetState();
       if(state != null) {
         _stopConnect('接收到done事件，断开连接');

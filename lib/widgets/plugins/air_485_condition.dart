@@ -28,17 +28,38 @@ class _AirCondition extends State<AirCondition485> {
       Positioned(
         top: 65,
         left: 10,
-        child: Text(
-          "${widget.temperature!}°",
-          style: const TextStyle(
-            color: Color(0XFFFFFFFF),
-            fontSize: 66.0,
-            fontFamily: "MideaType",
-            fontWeight: FontWeight.w200,
-            decoration: TextDecoration.none,
-          ),
+        child:  Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.temperature!,
+              style: const TextStyle(
+                color: Color(0XFFFFFFFF),
+                fontSize: 66.0,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w200,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+              child: Text(
+              "℃",
+              style: TextStyle(
+                color: Color(0xff959595),
+                fontSize: 20.0,
+                fontFamily: "MideaType",
+                fontWeight: FontWeight.w200,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            )
+
+          ],
         ),
       ),
+
       const Positioned(
           top: 175,
           left: 15,

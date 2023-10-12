@@ -1,7 +1,7 @@
 
 
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/homlux/push/homlu_push_manager.dart';
+import 'package:screen_app/common/homlux/push/homlux_push_manager.dart';
 import 'package:screen_app/common/meiju/push/meiju_push_manager.dart';
 
 import '../logcat_helper.dart';

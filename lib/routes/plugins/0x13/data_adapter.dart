@@ -41,6 +41,20 @@ class LightDataEntity {
       power = data["power"];
       screenModel = data["screenModel"];
       timeOff = int.parse(data["timeOff"]);
+    } else if (sn8 == "7909AC81") {
+      brightness = int.parse(data["brightness"]);
+      if (brightness < 100) {
+        brightness--;
+      }
+      if (brightness < 0) {
+        brightness = 1;
+      }
+      colorTemp = int.parse(data["color_temperature"]);
+      power = data["power"] == 'on';
+      screenModel = data["scene_light"] ?? 'manual';
+      timeOff = int.parse(data["delay_light_off"]);
+      maxColorTemp = int.parse(data["temperature_max"] ?? '5700');
+      minColorTemp = int.parse(data["temperature_min"] ?? '3000');
     } else {
       brightness = ((int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"])) / 255 * 100).toInt();
       colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt() ;

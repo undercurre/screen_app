@@ -5,7 +5,6 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -320,7 +319,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     if (nodeId == args.nodeId) {
-      logger.i("空调调用刷新2222");
       fetchData();
     }
   }
@@ -384,7 +382,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
       }
       return nodeInfo;
     } catch (e) {
-      Log.i('getNodeInfo Error', e);
       return NodeInfo(
         devId: '',
         registerUsers: [],

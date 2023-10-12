@@ -82,7 +82,7 @@ class ZigbeeIcon {
     }  else if(airconditionXf.any((element) => element == modelNum)) {
       return 'assets/imgs/zigbee/icon_air_condition_xf.png';
     } else if(fool.any((element) => element == modelNum)) {
-      return 'assets/imgs/zigbee/icon_air_fool.png';
+      return 'assets/imgs/zigbee/icon_fool.png';
     }
     return 'assets/imgs/zigbee/icon_default.png';
   }
