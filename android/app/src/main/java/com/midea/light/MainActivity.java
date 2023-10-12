@@ -25,7 +25,6 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
 import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
@@ -183,7 +182,7 @@ public class MainActivity extends FlutterActivity {
         //云端下发控制指令
         RxBus.getInstance().toObservableOnMain(this, PLCControlEvent.class)
                 .subscribe(PLCControlEvent -> {
-                    Log.e("sky", "接收到下发控制请求" + new Gson().toJson(PLCControlEvent));
+//                    Log.e("sky", "接收到下发控制请求" + new Gson().toJson(PLCControlEvent));
                     if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.cac")) {
                         for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
                             String deviceAddr = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
