@@ -1,10 +1,8 @@
-import 'package:screen_app/common/global.dart';
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -94,7 +92,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         );
       }
     }else {
-      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.heat.001");
     }
   }
 
@@ -263,7 +261,6 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   void _local485StateCallback(Local485DeviceState state) {
     if (state.modelId == "zhonghong.heat.001" && localDeviceCode == state.address) {
-      logger.i("111Local地暖温度:${state.temper}---室内温度:${state.currTemperature}");
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
@@ -271,10 +268,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         OnOff: state.onOff==1?true:false,
         currentTemp: state.currTemperature,
       );
-      logger.i("222Local地暖温度:${data?.targetTemp}---室内温度:${data?.currentTemp}");
       updateUI();
     }else if(state.modelId=="zhonghong.heat.001"&&applianceCode==state.address){
-      logger.i("333Local地暖温度:${data?.currentTemp}");
       data = Floor485Data(
         name: name,
         online: state.online==1?true:false,
@@ -306,10 +301,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         isLocalDevice = false;
       }
       LocalStorage.setItem(applianceCode, nodeId);
-      Log.i('地暖拿到的nodeid:$nodeId');
       return nodeInfo;
     } catch (e) {
-      Log.i('getNodeInfo Error', e);
       return NodeInfo(
         devId: '',
         registerUsers: [],
@@ -338,6 +331,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Future<void> getLocalDeviceCode() async {
     nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+    String macAddr = await aboutSystemChannel.getMacAddress();
+    System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
     if (applianceCode.length != 4) {
       if (nodeId.isNotEmpty) {
         localDeviceCode = nodeId.split('-')[1];

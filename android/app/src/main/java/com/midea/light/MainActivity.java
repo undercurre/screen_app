@@ -295,7 +295,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("onOff", onOff);
                     json.put("online", online);
                     json.put("currTemperature", currTemperature);
-                    Log.e("sky","通知flutter更新空调:"+json);
+//                    Log.e("sky","通知flutter更新空调:"+json);
 
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
@@ -321,7 +321,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("onOff", onOff);
                     json.put("online", online);
                     json.put("currTemperature", 0);
-                    Log.e("sky","通知flutter更新新风:"+json);
+//                    Log.e("sky","通知flutter更新新风:"+json);
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));
@@ -344,7 +344,7 @@ public class MainActivity extends FlutterActivity {
                     json.put("onOff", onOff);
                     json.put("online", online);
                     json.put("currTemperature", currTemperature);
-                    Log.e("sky","通知flutter更新地暖:"+json);
+//                    Log.e("sky","通知flutter更新地暖:"+json);
                     mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
 
                 }, throwable -> Log.e("sky", "rxbus错误", throwable));

@@ -1,7 +1,5 @@
 package com.midea.light.device.explore.controller.control485.controller;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.midea.light.RxBus;
 import com.midea.light.bean.OnlineState485Bean;
@@ -210,7 +208,7 @@ public class FreshAirController implements Data485Observer {
                             setWindSpeed(FreshAirList.get(j), arrayData[9 + (i * 10)]);
                             FreshAirList.get(j).setErrorCode(arrayData[11 + (i * 10)]);
                             //有数据变化就发event
-                            Log.e("sky", "新风数据有变化");
+//                            Log.e("sky", "新风数据有变化");
                             RxBus.getInstance().post(new FreshAirChangeEvent().setFreshAirModel(FreshAirList.get(j)));
                             ArrayList<Update485DeviceBean.PLC.AttributeUpdate> deviceList = new ArrayList<>();
                             Update485DeviceBean.PLC.AttributeUpdate Attribute = new Update485DeviceBean.PLC.AttributeUpdate();
@@ -272,7 +270,6 @@ public class FreshAirController implements Data485Observer {
         sb.append(device.getInSideAddress());
         sb.append(" ");
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
-        Log.e("sky","新风指令内容:"+sb);
         ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
     }

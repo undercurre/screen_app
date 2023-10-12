@@ -3,8 +3,6 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
-import '../../../../common/homlux/homlux_global.dart';
-import '../../../../common/homlux/models/homlux_485_device_list_entity.dart';
 import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
@@ -95,7 +93,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
         updateUI();
       }
     } else {
-      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.air.001");
     }
   }
 
@@ -336,6 +334,8 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
   Future<void> getLocalDeviceCode() async {
     nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+    String macAddr = await aboutSystemChannel.getMacAddress();
+    System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
     if(applianceCode.length!=4){
       if (nodeId.isNotEmpty) {
         localDeviceCode = nodeId.split('-')[1];

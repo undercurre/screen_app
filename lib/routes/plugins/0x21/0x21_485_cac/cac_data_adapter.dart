@@ -57,7 +57,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   // Method to retrieve data from both platforms and construct PanelData object
   @override
   Future<void> fetchData() async {
-    logger.i("进来空调调用刷新");
     if (isLocalDevice == false) {
       try {
         dataState = DataState.LOADING;
@@ -101,8 +100,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         updateUI();
       }
     } else {
-      logger.i("homlux空调调用刷新");
-      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode);
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.cac.002");
     }
   }
 
@@ -310,7 +308,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
   void init() {
     // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
-    logger.i("空调适配器初始化");
     getLocalDeviceCode();
     _startPushListen();
 
@@ -337,7 +334,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   void _local485StateCallback(Local485DeviceState state) {
     if (state.modelId == "zhonghong.cac.002" && localDeviceCode == state.address) {
-      logger.i("111收到空调变化:${state.online}");
       data = CAC485Data(
           name: name,
           online: state.online==1?true:false,
@@ -348,7 +344,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
           windSpeed: state.speed);
       updateUI();
     } else if (state.modelId == "zhonghong.cac.002" && applianceCode == state.address) {
-      logger.i("222收到空调变化:${state.online}");
       data = CAC485Data(
           name: name,
           online: state.online==1?true:false,
@@ -410,6 +405,8 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   Future<void> getLocalDeviceCode() async {
     nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+    String macAddr = await aboutSystemChannel.getMacAddress();
+    System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
     if (applianceCode.length != 4) {
       if (nodeId.isNotEmpty) {
         localDeviceCode = nodeId.split('-')[1];

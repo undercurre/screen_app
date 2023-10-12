@@ -6,7 +6,6 @@ import 'package:screen_app/common/homlux/models/homlux_485_device_list_entity.da
 
 import '../common/gateway_platform.dart';
 import '../common/homlux/homlux_global.dart';
-import '../common/logcat_helper.dart';
 import '../common/meiju/api/meiju_device_api.dart';
 import '../common/meiju/meiju_global.dart';
 import '../common/meiju/models/meiju_device_info_entity.dart';
@@ -31,7 +30,6 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
     final args = call.arguments;
     switch (method) {
       case "Local485DeviceUpdate":
-        Log.i("Channel收到设备变化:$args");
         Local485DeviceState deviceState = Local485DeviceState.fromJson(args);
         transmitDataLocal485ChangeCallBack(deviceState);
         break;
@@ -69,8 +67,8 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
     HomluxGlobal.homlux485DeviceList = deviceList;
   }
 
-  void get485DeviceStateByAddr(String addr){
-    methodChannel.invokeMethod("get485DeviceStateByAddr", {"addr": addr});
+  void get485DeviceStateByAddr(String addr,String type){
+    methodChannel.invokeMethod("get485DeviceStateByAddr", {"addr": addr,"type":type});
   }
 
   void controlLocal485AirConditionPower(String power, String addr) async {
@@ -155,7 +153,6 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
                 (value) => {device485NodeId.add(value)});
           }
         }
-        Log.i('美居设备485的NodeID列表数量:${device485NodeId.length}');
         send485DeviceList(device485NodeId);
       }
     }
