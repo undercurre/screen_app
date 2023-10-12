@@ -176,7 +176,7 @@ class _CustomPageState extends State<CustomPage> {
         Widget cardWithSwap = layout.cardType != CardType.Null
             ? GestureDetector(
                 onTap: () {
-                  _getDeviceDialog(context, layout);
+                  _getDeviceDialog(context, layout, pageCounterModel);
                 },
                 child: AbsorbPointer(absorbing: true, child: cardWidget),
               )
@@ -362,6 +362,7 @@ class _CustomPageState extends State<CustomPage> {
               List<Layout> daiding = layoutModel.layouts.where((element) => element.pageIndex == result.pageIndex && element.cardType == CardType.Null && result.grids.any((res) => element.grids.contains(res))).toList();
               layoutModel.deleteLayoutList(daiding.map((e) => e.deviceId).toList());
               layoutModel.addLayout(result);
+              Log.i('此时合适一页页码为${ proFlexiblePage.pageIndex }');
               // 跳到这个找到合适位置的页数
               WidgetsBinding.instance
                   ?.addPostFrameCallback((_) {
@@ -381,6 +382,7 @@ class _CustomPageState extends State<CustomPage> {
               for (int o = 0; o < curPageLayoutsInLast.length; o ++) {
                 layoutModel.addLayout(curPageLayoutsInLast[o]);
               }
+              Log.i('此时最后一页页码为${ maxPage + 1 }');
               // 跳到新增的最后一页
               WidgetsBinding.instance
                   ?.addPostFrameCallback((_) {
@@ -414,28 +416,33 @@ class _CustomPageState extends State<CustomPage> {
       }
     }
   }
-}
 
-_getDeviceDialog(BuildContext context, Layout layout) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return CardDialog(
-        name: layout.data.name,
-        type: layout.data.type,
-        applianceCode: layout.data.applianceCode,
-        modelNumber: layout.data.modelNumber,
-        icon: layout.data.icon,
-        roomName: layout.data.roomName,
-        masterId: layout.data.masterId,
-        onlineStatus: layout.data.onlineStatus,
-      );
-    },
-  ).then(
-    (value) {
-      if (value != null) {
-        context.read<LayoutModel>().swapCardType(layout, value);
-      }
-    },
-  );
+  _getDeviceDialog(BuildContext context, Layout layout, PageCounter pageCounterModel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CardDialog(
+          name: layout.data.name,
+          type: layout.data.type,
+          applianceCode: layout.data.applianceCode,
+          modelNumber: layout.data.modelNumber,
+          icon: layout.data.icon,
+          roomName: layout.data.roomName,
+          masterId: layout.data.masterId,
+          onlineStatus: layout.data.onlineStatus,
+        );
+      },
+    ).then(
+          (value) async {
+        if (value != null) {
+          int zhuandaoPage = await context.read<LayoutModel>().swapCardType(layout, value);
+          WidgetsBinding.instance
+              ?.addPostFrameCallback((_) {
+            _pageController.animateToPage(zhuandaoPage, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          });
+          pageCounterModel.currentPage = zhuandaoPage;
+        }
+      },
+    );
+  }
 }

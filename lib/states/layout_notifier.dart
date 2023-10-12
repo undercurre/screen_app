@@ -432,10 +432,10 @@ class LayoutModel extends ChangeNotifier {
   }
 
   // 卡片大小替换
-  Future<void> swapCardType(Layout layout, CardType targetType) async {
+  Future<int> swapCardType(Layout layout, CardType targetType) async {
     // 更换成原来的卡片，也就是没更换，直接弹出
     if (layout.cardType == targetType) {
-      return;
+      return layout.pageIndex;
     }
 
     // 卡片类型直接修改
@@ -445,6 +445,7 @@ class LayoutModel extends ChangeNotifier {
     Screen screenLayer = Screen();
     // 拿到当前页的布局, 并做好新占位前的screenLayer占位
     List<Layout> curLayouts = getLayoutsByPageIndex(layout.pageIndex);
+    Log.i('${layout.pageIndex}页的布局', curLayouts.map((e) => e.grids));
     if (curLayouts.isNotEmpty) {
       for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < curLayouts.length; layoutInCurPageIndex ++) {
         if (curLayouts[layoutInCurPageIndex].deviceId != layout.deviceId && curLayouts[layoutInCurPageIndex].cardType != CardType.Null) {
@@ -471,6 +472,7 @@ class LayoutModel extends ChangeNotifier {
       for (int k = 0; k < curPageLayouts.length; k++) {
         addLayout(curPageLayouts[k]);
       }
+      return layout.pageIndex;
     } else {
       // 新占位失败，转到最后一页
       screenLayer.resetGrid();
@@ -510,6 +512,7 @@ class LayoutModel extends ChangeNotifier {
         for (int k = 0; k < backAdded.length; k++) {
           addLayout(backAdded[k]);
         }
+        return maxPage;
       } else {
         // 最后一页也没有空间了，开一页新的
         screenLayer.resetGrid();
@@ -524,7 +527,11 @@ class LayoutModel extends ChangeNotifier {
         // 新增目标
         List<int> fillCellsNew = screenLayer.checkAvailability(targetType);
         Layout newLayout = Layout(layout.deviceId, layout.type, targetType, maxPage + 1, fillCellsNew, layout.data);
-        addLayout(newLayout);
+        List backAdded = Layout.filledLayout([newLayout]);
+        for (int p = 0; p < backFilled.length; p++) {
+          addLayout(backAdded[p]);
+        }
+        return maxPage + 1;
       }
     }
     _saveLayouts();
