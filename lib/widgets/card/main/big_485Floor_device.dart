@@ -311,14 +311,14 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                               fontFamily: "MideaType",
                               fontWeight: FontWeight.normal,
                               decoration: TextDecoration.none)),
-                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 37),
                         child:Text("℃",
                             style: TextStyle(
                                 height: 1.5,
                                 color: adapter!.data!.OnOff&&adapter.data!.online
                                     ? const Color(0XFFFFFFFF)
                                     : const Color(0XA3FFFFFF),
-                                fontSize: 25,
+                                fontSize: 18,
                                 fontFamily: "MideaType",
                                 fontWeight: FontWeight.normal,
                                 decoration: TextDecoration.none)),
