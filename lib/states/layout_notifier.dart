@@ -414,6 +414,20 @@ class LayoutModel extends ChangeNotifier {
     // 占位
     Screen screenLayer = Screen();
     for (int k = 0; k < cardTypeSort.length; k++) {
+      if (cardTypeSort[k] == CardType.Null) continue;
+      List<int> fillCells = screenLayer.checkAvailability(cardTypeSort[k]);
+      for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
+        // 把已经布局的数据在布局器中占位
+        int grid = fillCells[gridsIndex];
+        int row = (grid - 1) ~/ 4;
+        int col = (grid - 1) % 4;
+        screenLayer.setCellOccupied(row, col, true);
+      }
+      sortedLayout[k].grids = fillCells;
+    }
+
+    for (int k = 0; k < cardTypeSort.length; k++) {
+      if (cardTypeSort[k] != CardType.Null) continue;
       List<int> fillCells = screenLayer.checkAvailability(cardTypeSort[k]);
       for (int gridsIndex = 0; gridsIndex < fillCells.length; gridsIndex++) {
         // 把已经布局的数据在布局器中占位
