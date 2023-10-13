@@ -57,13 +57,14 @@ class _Boot extends State<Boot> {
             if(MeiJuGlobal.token != null && MeiJuGlobal.homeInfo != null && MeiJuGlobal.roomInfo != null && MeiJuGlobal.gatewayApplianceCode != null) {
               await ChangePlatformHelper.changeToMeiju(false);
               MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+              await gatewayChannel.setMeijuPlatFormFlag();
             } else if (HomluxGlobal.homluxQrCodeAuthEntity != null && HomluxGlobal.homluxUserInfo != null && HomluxGlobal.homluxRoomInfo != null && HomluxGlobal.gatewayApplianceCode != null && HomluxGlobal.homluxHomeInfo!=null) {
               await ChangePlatformHelper.changeToHomlux(false);
               MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
             } else {
               MideaRuntimePlatform.platform = GatewayPlatform.NONE;
             }
-            Abc();
+            judgePage();
           }
           break;
         }
@@ -118,7 +119,7 @@ class _Boot extends State<Boot> {
     }.call();
   }
 
-  void Abc(){
+  void judgePage(){
     bool isLogin = System.isLogin();
     bool familyInfo = System.familyInfo != null;
     bool roomInfo = System.roomInfo != null;
