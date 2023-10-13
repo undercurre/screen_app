@@ -204,13 +204,11 @@ class MigrationOldVersionMeiJuDataState
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       await migrateChannel.setMeiJuIsMigrate();
-      callback.call();
       Setting.instant().isAllowChangePlatform = false;
-      // Future.delayed(Duration.zero).then((value) {
-      //   Navigator.popAndPushNamed(context, 'Home');
-      // });
+      logger.i("迁移完成token:${MeiJuGlobal.token}---homeInfo:${MeiJuGlobal.homeInfo}-----roomInfo:${MeiJuGlobal.roomInfo}----gatewayApplianceCode:${MeiJuGlobal.gatewayApplianceCode}");
+      callback.call();
     } catch (e) {
-      logger.e(e);
+      logger.e("迁移失败$e");
       await migrateChannel.setMeiJuIsMigrate();
       callback.call();
 
@@ -373,7 +371,6 @@ class MigrationOldVersionMeiJuDataState
     Global.profile.deviceId = deviceId;
     MeiJuGlobal.gatewayApplianceCode=gatewayApplicationCode;
 
-
     return true;
   }
 
@@ -478,12 +475,13 @@ class MigrationOldVersionMeiJuDataState
       /// 保存当前的数据
       Setting.instant()
           .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
-      await migrateChannel.setHomluxIsMigrate();
-      callback.call();
+      await migrateChannel.setMeiJuIsMigrate();
       Setting.instant().isAllowChangePlatform = false;
+      callback.call();
     } catch (e) {
       logger.e(e);
-      await migrateChannel.setHomluxIsMigrate();
+      Setting.instant().isAllowChangePlatform = false;
+      await migrateChannel.setMeiJuIsMigrate();
       callback.call();
     }
   }
