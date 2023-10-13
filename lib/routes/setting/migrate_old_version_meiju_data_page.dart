@@ -193,11 +193,11 @@ class MigrationOldVersionMeiJuDataState
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
+      Log.i('生成数据', layoutData.map((e) => e.grids));
 
       await context.read<LayoutModel>().setLayouts(layoutData);
 
-
-      Log.i('房间${userData['room']['name']}数据', layoutData.map((e) => e.grids));
+      Log.i('最终数据', context.read<LayoutModel>().layouts.map((e) => e.grids));
 
       /// 保存当前的数据
       // Global.saveProfile();
