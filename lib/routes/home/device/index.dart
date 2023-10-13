@@ -124,36 +124,41 @@ class _DevicePageState extends State<DevicePage> {
     List<String> layoutIds = layoutModel.layouts.map((e) => e.deviceId).toList();
     // 拉取缓存数据
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList.where((element) => layoutIds.contains(element.applianceCode)).toList();
+    Set<DeviceEntity> deviceCacheSetDeepCopy = Set.from(deviceCache);
+    List<DeviceEntity> deviceCaCheListDeepCopy = deviceCacheSetDeepCopy.toList();
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
     sceneModel.getSceneList();
-    // 过滤掉智慧屏不支持的设备
-    deviceCache = deviceCache
+    // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
+    List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
-            DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                element.type, element.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+    element.type != DeviceEntityTypeInP4.Scene &&
+        element.type != DeviceEntityTypeInP4.Weather &&
+        element.type != DeviceEntityTypeInP4.Clock &&
+        element.type != DeviceEntityTypeInP4.DeviceEdit)
+        .map((e) => e.deviceId)
         .toList();
-    deviceRes = deviceRes
-        .where((element) =>
-            DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                element.type, element.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
-        .toList();
-    // diff两份数据
-    List<List<DeviceEntity>> compareDevice =
-        Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
+    // 再拿到网络设备列表映射成ids
+    List<String> netListDeviceIds =
+    deviceRes.map((e) => e.applianceCode).toList();
+    // 做diff对比上面拿到的两个ids
+    List<List<String>> compareDevice =
+    Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 找到需要删除的设备
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
       // 获取到provider中当前id的Layout数据
-      Layout curLayout = layoutModel.getLayoutsByDevice(compare.applianceCode);
+      Layout curLayout = layoutModel.getLayoutsByDevice(compare);
       // 没有找到的情况下，逻辑出错退出本函数逻辑
       if (curLayout.deviceId == '-1') return;
       // 删除该布局数据
-      layoutModel.deleteAndFlexLayout(compare.applianceCode);
+      layoutModel.deleteAndFlexLayout(compare);
       // 发起toast提醒用户
-      TipsUtils.toast(content: '已删除${compare.name}');
+      TipsUtils.toast(content: '已删除${deviceCaCheListDeepCopy.firstWhere((element) => element.applianceCode == compare, orElse: () {
+          DeviceEntity deviceObj = DeviceEntity();
+          deviceObj.name = '一个设备';
+          return deviceObj;
+      }).name}');
     });
   }
 
