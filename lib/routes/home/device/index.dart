@@ -154,11 +154,15 @@ class _DevicePageState extends State<DevicePage> {
       // 删除该布局数据
       layoutModel.deleteAndFlexLayout(compare);
       // 发起toast提醒用户
-      TipsUtils.toast(content: '已删除${deviceCaCheListDeepCopy.firstWhere((element) => element.applianceCode == compare, orElse: () {
-          DeviceEntity deviceObj = DeviceEntity();
-          deviceObj.name = '一个设备';
-          return deviceObj;
-      }).name}');
+      // 获取设备名字
+      String deletedDeviceName = deviceCaCheListDeepCopy.firstWhere((element) => element.applianceCode == compare, orElse: () {
+        DeviceEntity deviceObj = DeviceEntity();
+        deviceObj.name = '未知的设备';
+        return deviceObj;
+      }).name;
+      if (deletedDeviceName != '未知的设备') {
+        TipsUtils.toast(content: '已删除$deletedDeviceName');
+      }
     });
   }
 
