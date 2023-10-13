@@ -158,7 +158,7 @@ class _MiddleDevicePanelCardWidgetState extends State<MiddleDevicePanelCardWidge
       },
       child: AbsorbPointer(
         absorbing:
-            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 210,
           height: 196,
