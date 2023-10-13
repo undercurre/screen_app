@@ -206,7 +206,9 @@ class MigrationOldVersionMeiJuDataState
        Log.i('生成数据', layoutData.map((e) => e.grids));
       final layoutModel = context.read<LayoutModel>();
       await Future.delayed(const Duration(seconds: 3), () async {
-        await layoutModel.setLayouts(layoutData);
+        if(layoutData.isNotEmpty){
+          await layoutModel.setLayouts(layoutData);
+        }
       });
        Log.i('最终数据', context.read<LayoutModel>().layouts.map((e) => e.grids));
 
@@ -484,7 +486,9 @@ class MigrationOldVersionMeiJuDataState
 
       final layoutModel = context.read<LayoutModel>();
       await Future.delayed(const Duration(seconds: 3), () async {
-        await layoutModel.setLayouts(layoutData);
+        if(layoutData.isNotEmpty){
+          await layoutModel.setLayouts(layoutData);
+        }
       });
 
       Log.i('房间数据', layoutData);
