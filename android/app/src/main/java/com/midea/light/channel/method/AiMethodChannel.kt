@@ -78,6 +78,14 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                             call.argument<String?>("houseId").toString(),
                             call.argument<String?>("aiClientId").toString()
                         )
+                    }else{
+                        MainApplication.mMainActivity.initialMeiJuAi(
+                            call.argument<String?>("deviceSn").toString(),
+                            call.argument<String?>("deviceId").toString(),
+                            call.argument<String?>("macAddress").toString().replace
+                                (":", ""),
+                            call.argument<Boolean?>("aiEnable") == true
+                        )
                     }
                 }
             }
