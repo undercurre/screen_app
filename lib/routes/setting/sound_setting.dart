@@ -115,7 +115,7 @@ class _SoundSettingPageState extends State<SoundSettingPage> {
                     Positioned(
                       left: 20,
                       top: 12,
-                      child: Text("音量 | $soundShowValue%",
+                      child: Text("音量 | ${soundShowValue>100?80:soundShowValue}%",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 24,
