@@ -203,13 +203,12 @@ class MigrationOldVersionMeiJuDataState
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
-      // Log.i('生成数据', layoutData.map((e) => e.grids));
+       Log.i('生成数据', layoutData.map((e) => e.grids));
       final layoutModel = context.read<LayoutModel>();
       await Future.delayed(const Duration(seconds: 3), () async {
         await layoutModel.setLayouts(layoutData);
       });
-
-      // Log.i('最终数据', context.read<LayoutModel>().layouts.map((e) => e.grids));
+       Log.i('最终数据', context.read<LayoutModel>().layouts.map((e) => e.grids));
 
       /// 保存当前的数据
       // Global.saveProfile();
