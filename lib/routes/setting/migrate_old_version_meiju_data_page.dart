@@ -11,6 +11,7 @@ import 'package:screen_app/models/index.dart';
 import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/homlux/homlux_global.dart';
 import '../../common/homlux/models/homlux_family_entity.dart';
 import '../../common/homlux/models/homlux_qr_code_auth_entity.dart';
@@ -124,6 +125,7 @@ class MigrationOldVersionMeiJuDataState
   /// 迁移数据
   void migrationData(void Function() callback) async {
     try {
+      await SharedPreferences.getInstance();
       Map<String, dynamic>? token = await migrateChannel.syncToken();
       Map<String, dynamic>? userData = await migrateChannel.syncUserData();
       if (token == null || userData == null) {
@@ -200,8 +202,10 @@ class MigrationOldVersionMeiJuDataState
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
       Log.i('生成数据', layoutData.map((e) => e.grids));
-
-      await context.read<LayoutModel>().setLayouts(layoutData);
+      final layoutModel = context.read<LayoutModel>();
+      await Future.delayed(const Duration(seconds: 3), () async {
+        await layoutModel.setLayouts(layoutData);
+      });
 
       Log.i('最终数据', context.read<LayoutModel>().layouts.map((e) => e.grids));
 
@@ -475,7 +479,10 @@ class MigrationOldVersionMeiJuDataState
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
-      await context.read<LayoutModel>().setLayouts(layoutData);
+      final layoutModel = context.read<LayoutModel>();
+      await Future.delayed(const Duration(seconds: 3), () async {
+        await layoutModel.setLayouts(layoutData);
+      });
 
       Log.i('房间数据', layoutData);
 
