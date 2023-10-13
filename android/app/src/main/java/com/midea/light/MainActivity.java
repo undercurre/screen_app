@@ -428,6 +428,11 @@ public class MainActivity extends FlutterActivity {
                         });
                         break;
                     }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }.start();
