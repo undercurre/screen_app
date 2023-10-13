@@ -456,7 +456,7 @@ class MigrationOldVersionMeiJuDataState
         return deviceType.toString();
       }
 
-      devices.forEach((e) {
+      for (var e in devices) {
         DeviceEntity deviceObj = DeviceEntity();
         deviceObj.name = e["deviceName"];
         deviceObj.applianceCode = e["deviceId"];
@@ -471,7 +471,7 @@ class MigrationOldVersionMeiJuDataState
             DeviceEntityTypeInP4.Default) {
           devicesReal.add(deviceObj);
         }
-      });
+      }
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
