@@ -179,8 +179,10 @@ class MigrationOldVersionMeiJuDataState
       await migrateHomeFromCloud(userData['home']['homegroupId']);
 
       /// 获取当前房间的设备数据
-      var rooms = userData["room"];
-      List<dynamic> devices =  rooms["applianceList"];
+      List<dynamic> devices = await MeiJuDeviceApi.queryDeviceListByRoomId(
+          MeiJuGlobal.token!.uid,
+          userData['home']['homegroupId'],
+          userData['room']['roomId']);
       List<DeviceEntity> devicesReal = [];
 
       devices.forEach((e) {
@@ -193,7 +195,6 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.roomName = e["roomName"];
         deviceObj.masterId = e["masterId"];
         deviceObj.onlineStatus = e["onlineStatus"];
-        Log.i("设备名称:${deviceObj.name}");
         if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
             e["type"], e["modelNumber"]) !=
             DeviceEntityTypeInP4.Default) {
