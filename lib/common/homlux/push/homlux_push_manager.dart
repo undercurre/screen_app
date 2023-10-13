@@ -270,35 +270,6 @@ class HomluxPushManager {
         return;
       }
 
-      _globalTimer?.cancel();
-      _globalTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-        if(_isConnect == 2) {
-          if(HomluxGlobal.isLogin) {
-            /// 发送订阅任务
-            var currTimer = DateTime.now();
-            // 检测心跳、发送心跳
-            if(currTimer.millisecondsSinceEpoch - heartSendLastTime >= _pingInterval) {
-              _channel?.sink.add(jsonEncode({'topic': 'heartbeatTopic', 'message': 999}));
-              heartSendLastTime = currTimer.millisecondsSinceEpoch;
-            }
-            /// 执行延迟消息推送队列任务
-            operatePushRecord.removeWhere((key, element) {
-              int exeTime = element.value1;
-              if(currTimer.millisecondsSinceEpoch >= exeTime) {
-                element.value2?.call();
-                recyclePair(element);
-              }
-              return currTimer.millisecondsSinceEpoch >= exeTime;
-            });
-
-          } else {
-            _stopConnect('检测到退出登录，即将断开推送连接');
-          }
-        } else {
-          timer.cancel();
-        }
-      });
-
     }
   }
 
