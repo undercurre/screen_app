@@ -18,6 +18,7 @@ import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../../states/scene_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import '../../../widgets/indicatior.dart';
 import '../../../widgets/util/compare.dart';
@@ -79,10 +80,12 @@ class _DevicePageState extends State<DevicePage> {
    */
   Future<void> firstInitForOffPower(BuildContext context) async {
     // 立即清除一次
+    final sceneModel = context.read<SceneListModel>();
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     // 获取设备列表的网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    sceneModel.getSceneList();
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
@@ -114,6 +117,7 @@ class _DevicePageState extends State<DevicePage> {
    target: 在定时器运行拉取到网络数据的瞬间，自动删除已经被删除的设备
    */
   Future<void> autoDeleleLayout(BuildContext context) async {
+    final sceneModel = context.read<SceneListModel>();
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     // 拿到layout数据中的ids
@@ -122,6 +126,7 @@ class _DevicePageState extends State<DevicePage> {
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList.where((element) => layoutIds.contains(element.applianceCode)).toList();
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    sceneModel.getSceneList();
     // 过滤掉智慧屏不支持的设备
     deviceCache = deviceCache
         .where((element) =>

@@ -167,7 +167,11 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   @override
   Future<dynamic> slider1To(int? value) async {
-    return controlBrightness(value as num, null);
+    if (value == null) {
+      return;
+    }
+    int limitVal = value < 1 ? 1 : value > 100 ? 100 : value;
+    return controlBrightness(limitVal, null);
   }
 
   @override
