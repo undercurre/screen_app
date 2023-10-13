@@ -12,7 +12,9 @@ import 'package:screen_app/states/device_change_notifier.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../common/homlux/api/homlux_device_api.dart';
 import '../../common/homlux/homlux_global.dart';
+import '../../common/homlux/models/homlux_device_entity.dart';
 import '../../common/homlux/models/homlux_family_entity.dart';
 import '../../common/homlux/models/homlux_qr_code_auth_entity.dart';
 import '../../common/homlux/models/homlux_room_list_entity.dart';
@@ -437,8 +439,10 @@ class MigrationOldVersionMeiJuDataState
       await migrateHomluxGateWayApplianceCode(gatewayApplianceCode['deviceId']);
 
       /// 获取当前房间的设备数据
-      var rooms = userData["room"];
-      List<dynamic> devices =  rooms["applianceList"];
+
+      var res  = await HomluxDeviceApi.queryDeviceListByRoomId(roomData['roomId']);
+      List<HomluxDeviceEntity>? devices = res.data;
+
       List<DeviceEntity> devicesReal = [];
 
       String getModelNumber(String proType,int deviceType, int switchInfoDTOListLength) {
@@ -460,18 +464,18 @@ class MigrationOldVersionMeiJuDataState
         return deviceType.toString();
       }
 
-      for (var e in devices) {
+      for (HomluxDeviceEntity e in devices!) {
         DeviceEntity deviceObj = DeviceEntity();
-        deviceObj.name = e["deviceName"];
-        deviceObj.applianceCode = e["deviceId"];
-        deviceObj.type = e["proType"];
-        int switchInfoDTOListLength = e["switchInfoDTOList"].length ?? 0;
-        deviceObj.modelNumber = getModelNumber(e["proType"], e["deviceType"], switchInfoDTOListLength);
+        deviceObj.name = e.deviceName!;
+        deviceObj.applianceCode = e.deviceId!;
+        deviceObj.type = e.proType!;
+        int switchInfoDTOListLength = e.switchInfoDTOList?.length ?? 0;
+        deviceObj.modelNumber = getModelNumber(e.proType!, e.deviceType!, switchInfoDTOListLength);
         deviceObj.roomName = e.roomName!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
         if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            e["type"], e["modelNumber"]) !=
+            deviceObj.type, deviceObj.modelNumber) !=
             DeviceEntityTypeInP4.Default) {
           devicesReal.add(deviceObj);
         }
