@@ -112,6 +112,6 @@ public class MigrateDeviceIdUtil extends AbstractMMKVSetting {
 
     @Override
     protected String getFileDir() {
-        return AppCommonConfig.SYSTEM_SETTING_DIR;
+        return AppCommonConfig.DEVICE_SETTING_DIR;
     }
 }
