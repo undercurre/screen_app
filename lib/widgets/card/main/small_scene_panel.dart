@@ -356,6 +356,4 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       return '加载中';
     }
   }
-
-
 }

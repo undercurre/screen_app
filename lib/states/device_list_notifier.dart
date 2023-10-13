@@ -495,33 +495,17 @@ class DeviceInfoListModel extends ChangeNotifier {
       }
     }
 
-    // 最后一页填充空缺
+    // 轮询填充空缺
     int lastPageIndex = getMaxPageIndex(transformList);
-    List<Layout> lastPageLayouts = transformList
-        .where((element) => element.pageIndex == lastPageIndex)
-        .toList();
-    screenLayer.resetGrid();
-    for (int layoutInCurPageIndex = 0;
-        layoutInCurPageIndex < lastPageLayouts.length;
-        layoutInCurPageIndex++) {
-      // 取出当前布局的grids
-      for (int gridsIndex = 0;
-          gridsIndex < lastPageLayouts[layoutInCurPageIndex].grids.length;
-          gridsIndex++) {
-        // 把已经布局的数据在布局器中占位
-        int grid = lastPageLayouts[layoutInCurPageIndex].grids[gridsIndex];
-        int row = (grid - 1) ~/ 4;
-        int col = (grid - 1) % 4;
-        screenLayer.setCellOccupied(row, col, true);
-      }
-    }
-
-    List<Layout> lastPageLayoutsAfterFilled =
-        Layout.filledLayout(lastPageLayouts);
-    Log.i('生成的最后一页', lastPageLayoutsAfterFilled);
-    for (int o = 0; o < lastPageLayoutsAfterFilled.length; o++) {
-      if (lastPageLayoutsAfterFilled[o].cardType == CardType.Null) {
-        transformList.add(lastPageLayoutsAfterFilled[o]);
+    for (int l = 0; l <= lastPageIndex; l ++) {
+      // 取得当前页布局
+      List<Layout> waitForFillPageLayouts = transformList.where((element) => element.pageIndex == l).toList();
+      // 填充
+      List<Layout> lastPageLayoutsAfterFilled = Layout.filledLayout(waitForFillPageLayouts);
+      for (int o = 0; o < lastPageLayoutsAfterFilled.length; o++) {
+        if (lastPageLayoutsAfterFilled[o].cardType == CardType.Null) {
+          transformList.add(lastPageLayoutsAfterFilled[o]);
+        }
       }
     }
 
