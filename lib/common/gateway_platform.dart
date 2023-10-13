@@ -134,7 +134,7 @@ class ChangePlatformHelper {
 
           MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
           HomluxApi.init();
-          System.initForHomlux();
+          await System.initForHomlux();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
           HomluxLanControlDeviceManager.getInstant().init();
@@ -150,7 +150,7 @@ class ChangePlatformHelper {
       try {
         MeiJuGlobal.setLogout("从Meiju切换到Homlux平台");
         HomluxApi.init();
-        System.initForHomlux();
+        await System.initForHomlux();
         AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
         PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
         HomluxLanControlDeviceManager.getInstant().init();
