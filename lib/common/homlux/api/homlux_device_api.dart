@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:screen_app/common/exceptions/MideaException.dart';
 import 'package:screen_app/common/homlux/api/homlux_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.dart';
@@ -159,62 +160,67 @@ class HomluxDeviceApi {
   /// [deviceId] 设备id
   /// ****************
   static Future<HomluxResponseEntity<HomluxDeviceEntity>>
-      queryDeviceStatusByDeviceId(String deviceId, {CancelToken? cancelToken, bool forceRequestNetwork = false}) async {
+      queryDeviceStatusByDeviceId(String deviceId, {CancelToken? cancelToken, bool forceRequestNetwork = true}) async {
     Log.i('[device-api] 请求设备状态 deviceId=$deviceId forceRequestNetwork=$forceRequestNetwork');
     /// 从本地缓存中，还原设备状态
     await _recoverForDevices(deviceId);
 
-    // 去获取设备状态。优先局域网状态
-    if (!forceRequestNetwork && devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
-      HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
-
-      if (responseEntity.isSuccess) {
-        HomluxDeviceEntity curEntity = devices[deviceId]!;
-
-        /// [{
-        //             "modelName": "wallSwicth2",
-        //             "online": 1,
-        //             "deviceProperty": {
-        //                 "ccc": "7",
-        //                 "ddd": "5"
-        //             }
-        //         }]
-        var status = responseEntity.result as List<Map<String, dynamic>>;
-        var newStatus = <String, dynamic>{};
-        for (var statu in status) {
-          var name = statu['modelName'] as String;
-          var value = statu['deviceProperty'] as Map;
-          newStatus[name] = value;
-          curEntity.onLineStatus = statu['online'] ?? 0;
-        }
-        curEntity.mzgdPropertyDTOList = HomluxDeviceMzgdPropertyDTOList.fromJson(newStatus);
-        HomluxResponseEntity<HomluxDeviceEntity> response =
-            HomluxResponseEntity()
-              ..code = 0
-              ..msg = '请求成功'
-              ..result = curEntity;
-        Log.file('[device-api]设备状态返回 ${response.toJson()}');
-        return response;
-      } else {
-        Log.file('[device-api] 获取局域网状态失败：$deviceId');
+    try {
+      HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<
+          HomluxDeviceEntity>(
+          '/v1/device/queryDeviceInfoByDeviceId',
+          cancelToken: cancelToken,
+          options: Options(method: 'POST'),
+          data: {'deviceId': deviceId});
+      /// 更新最新的数据到缓存中
+      if (entity.isSuccess && entity.data != null) {
+        devices[deviceId] = entity.data!;
+        LocalStorage.setItem('homlux_lan_device_save_$deviceId', jsonEncode(entity.data!.toJson()));
       }
+
+      Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
+      return entity;
+
+    } catch(e) {
+      // 去获取设备状态。优先局域网状态
+      if (devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
+        HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
+
+        if (responseEntity.isSuccess) {
+          HomluxDeviceEntity curEntity = devices[deviceId]!;
+
+          /// [{
+          //             "modelName": "wallSwicth2",
+          //             "online": 1,
+          //             "deviceProperty": {
+          //                 "ccc": "7",
+          //                 "ddd": "5"
+          //             }
+          //         }]
+          var status = responseEntity.result as List<Map<String, dynamic>>;
+          var newStatus = <String, dynamic>{};
+          for (var statu in status) {
+            var name = statu['modelName'] as String;
+            var value = statu['deviceProperty'] as Map;
+            newStatus[name] = value;
+            curEntity.onLineStatus = statu['online'] ?? 0;
+          }
+          curEntity.mzgdPropertyDTOList = HomluxDeviceMzgdPropertyDTOList.fromJson(newStatus);
+          HomluxResponseEntity<HomluxDeviceEntity> response =
+          HomluxResponseEntity()
+            ..code = 0
+            ..msg = '请求成功'
+            ..result = curEntity;
+          Log.file('[device-api]设备状态返回 ${response.toJson()}');
+          return response;
+        } else {
+          Log.file('[device-api] 获取局域网状态失败：$deviceId');
+        }
+      }
+
     }
 
-    HomluxResponseEntity<HomluxDeviceEntity> entity =
-        await HomluxApi.request<HomluxDeviceEntity>(
-            '/v1/device/queryDeviceInfoByDeviceId',
-            cancelToken: cancelToken,
-            options: Options(method: 'POST'),
-            data: {'deviceId': deviceId});
-
-    /// 更新最新的数据到缓存中
-    if (entity.isSuccess && entity.data != null) {
-      devices[deviceId] = entity.data!;
-      LocalStorage.setItem('homlux_lan_device_save_$deviceId', jsonEncode(entity.data!.toJson()));
-    }
-
-    Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
-    return entity;
+    throw MideaException("[device-api] 请求设备状态失败");
   }
 
   /// ******************

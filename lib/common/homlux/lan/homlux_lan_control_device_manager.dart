@@ -163,8 +163,9 @@ class HomluxLanControlDeviceManager {
         /// 获取设备列表中的设备状态
         lanDeviceControlChannel.getDeviceStatus(uuid.v4(), null);
 
-        Future.delayed(const Duration(seconds: 2), () {
-          bus.typeEmit(HomluxLanDeviceChange(), 500);
+        requestDataTimer?.cancel();
+        requestDataTimer = Timer(const Duration(seconds: 3), () {
+          bus.typeEmit(HomluxLanDeviceChange(), 1000);
         });
       }
 
