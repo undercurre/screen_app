@@ -31,6 +31,7 @@ import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.common.utils.NetUtil;
 import com.midea.light.device.explore.controller.control485.ControlManager;
 import com.midea.light.device.explore.controller.control485.controller.AirConditionController;
 import com.midea.light.device.explore.controller.control485.controller.FloorHotController;
@@ -149,7 +150,7 @@ public class MainActivity extends FlutterActivity {
                     new Thread() {
                         public void run() {
                             if (mGateWayDistributionEvent.getState() == 60) {
-                                runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId",null));
+                                runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId", null));
                             }
                         }
                     }.start();
@@ -259,7 +260,7 @@ public class MainActivity extends FlutterActivity {
                     int currTemperature = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getCurrTemperature(), 16);
                     int onOff = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnOff(), 16);
                     int online = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnlineState(), 16);
-                    if(speed==0){
+                    if (speed == 0) {
                         return;
                     }
                     JSONObject json = new JSONObject();
@@ -285,7 +286,7 @@ public class MainActivity extends FlutterActivity {
                     int speed = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getWindSpeed(), 16);
                     int onOff = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnOff(), 16);
                     int online = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnlineState(), 16);
-                    if(speed==0){
+                    if (speed == 0) {
                         return;
                     }
                     JSONObject json = new JSONObject();
@@ -410,19 +411,27 @@ public class MainActivity extends FlutterActivity {
     }
 
     public void initialHomluxAI(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
-        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, entity -> {
-            if (entity != null) {
-                com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(), entity.getResult().getAccessTokenExpireTime(), aiEnable, isWakUp -> {
-                    LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
-                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
-                }, Voice -> {
-                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
-                    LogUtil.i("Homlux语音大小 " + Voice);
-                });
+        new Thread() {
+            public void run() {
+                while (true) {
+                    if (NetUtil.checkNet()) {
+                        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, entity -> {
+                            if (entity != null) {
+                                com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(), entity.getResult().getAccessTokenExpireTime(), aiEnable, isWakUp -> {
+                                    LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
+                                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
+                                }, Voice -> {
+                                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
+                                    LogUtil.i("Homlux语音大小 " + Voice);
+                                });
+                            }
+                        });
+                        break;
+                    }
+                }
             }
-        });
+        }.start();
     }
-
 
     private void setDeviceInfor(String sn, String deviceId, String mac) {
         com.midea.light.ai.AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
@@ -750,7 +759,6 @@ public class MainActivity extends FlutterActivity {
         }
 
     }
-
 
 
 }
