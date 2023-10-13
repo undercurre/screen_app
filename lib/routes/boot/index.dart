@@ -50,9 +50,11 @@ class _Boot extends State<Boot> {
           if (platform == 1) {
             await ChangePlatformHelper.changeToMeiju(false);
             MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+            judgePage();
           } else if (platform == 2) {
             await ChangePlatformHelper.changeToHomlux(false);
             MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+            judgePage();
           } else {
             if(MeiJuGlobal.token != null && MeiJuGlobal.homeInfo != null && MeiJuGlobal.roomInfo != null && MeiJuGlobal.gatewayApplianceCode != null) {
               await ChangePlatformHelper.changeToMeiju(false);
