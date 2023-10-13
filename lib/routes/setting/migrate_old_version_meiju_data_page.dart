@@ -23,6 +23,8 @@ import '../../common/meiju/models/meiju_login_home_entity.dart';
 import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../common/meiju/models/meiju_user_entity.dart';
 import '../../states/device_list_notifier.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
+import '../home/device/card_type_config.dart';
 import '../home/device/layout_data.dart';
 
 /// 定义同步失败异常
@@ -188,7 +190,11 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.masterId = e["masterId"];
         deviceObj.onlineStatus = e["onlineStatus"];
         Log.i("设备名称:${deviceObj.name}");
-        devicesReal.add(deviceObj);
+        if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            e["type"], e["modelNumber"]) !=
+            DeviceEntityTypeInP4.Default) {
+          devicesReal.add(deviceObj);
+        }
       });
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
@@ -460,14 +466,16 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.roomName = e.roomName!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
-        devicesReal.add(deviceObj);
+        if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+            e["type"], e["modelNumber"]) !=
+            DeviceEntityTypeInP4.Default) {
+          devicesReal.add(deviceObj);
+        }
       });
 
       List<Layout> layoutData = await context.read<DeviceInfoListModel>().transformLayoutFromDeviceList(devicesReal);
 
-      layoutData.forEach((element) {
-        context.read<LayoutModel>().setLayouts(layoutData);
-      });
+      await context.read<LayoutModel>().setLayouts(layoutData);
 
       Log.i('房间数据', layoutData);
 
