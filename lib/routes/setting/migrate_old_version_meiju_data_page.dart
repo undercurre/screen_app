@@ -201,8 +201,7 @@ class MigrationOldVersionMeiJuDataState
 
       /// 保存当前的数据
       // Global.saveProfile();
-      Setting.instant()
-          .saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
+      Setting.instant().saveVersionCompatibility(await aboutSystemChannel.getAppVersion());
       await migrateChannel.setMeiJuIsMigrate();
       Setting.instant().isAllowChangePlatform = false;
       logger.i("迁移完成token:${MeiJuGlobal.token}---homeInfo:${MeiJuGlobal.homeInfo}-----roomInfo:${MeiJuGlobal.roomInfo}----gatewayApplianceCode:${MeiJuGlobal.gatewayApplianceCode}");
