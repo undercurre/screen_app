@@ -47,8 +47,8 @@ class BigDevicePanelCardWidgetThree extends StatefulWidget {
       _BigDevicePanelCardWidgetThreeState();
 }
 
-class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidgetThree> {
-  
+class _BigDevicePanelCardWidgetThreeState
+    extends State<BigDevicePanelCardWidgetThree> {
   late PanelDataAdapter adapter;
 
   @override
@@ -78,7 +78,8 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -180,7 +181,8 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
       },
       child: AbsorbPointer(
         absorbing:
-            !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
+                adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -251,12 +253,9 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      if (adapter.data.nameList.isNotEmpty)
-                        _panelItem(0),
-                      if (adapter.data.nameList.length >= 2)
-                        _panelItem(1),
-                      if (adapter.data.nameList.length >= 3)
-                        _panelItem(2),
+                      if (adapter.data.nameList.isNotEmpty) _panelItem(0),
+                      if (adapter.data.nameList.length >= 2) _panelItem(1),
+                      if (adapter.data.nameList.length >= 3) _panelItem(2),
                     ],
                   ),
                 ),
@@ -269,15 +268,15 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
   }
 
   Widget _panelItem(int index) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 84,
       height: 120,
       child: GestureDetector(
         onTap: () async {
           Log.i('disabled', widget.disabled);
-          if (!widget.disabled &&
-              adapter.dataState == DataState.SUCCESS) {
+          if (!widget.disabled && adapter.dataState == DataState.SUCCESS) {
             if (!deviceListModel.getOnlineStatus(
                 deviceId: widget.applianceCode)) {
               MzDialog(
@@ -302,7 +301,11 @@ class _BigDevicePanelCardWidgetThreeState extends State<BigDevicePanelCardWidget
                   }).show(context);
             } else {
               await adapter.fetchOrderPower(index + 1);
-              bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
+              bus.emit(
+                  'operateDevice',
+                  adapter.nodeId.isEmpty
+                      ? widget.applianceCode
+                      : adapter.nodeId);
             }
           }
         },
