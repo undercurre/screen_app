@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
+import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
@@ -31,7 +34,7 @@ class _Boot extends State<Boot> {
     });
 
     () async {
-      checkGetWay();
+      bootFinish();
     }.call();
   }
 
@@ -51,7 +54,16 @@ class _Boot extends State<Boot> {
             await ChangePlatformHelper.changeToHomlux(false);
             MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
           } else {
-            MideaRuntimePlatform.platform = GatewayPlatform.NONE;
+            if(MeiJuGlobal.token != null && MeiJuGlobal.homeInfo != null && MeiJuGlobal.roomInfo != null && MeiJuGlobal.gatewayApplianceCode != null) {
+              await ChangePlatformHelper.changeToMeiju(false);
+              MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+            } else if (HomluxGlobal.homluxQrCodeAuthEntity != null && HomluxGlobal.homluxUserInfo != null && HomluxGlobal.homluxRoomInfo != null && HomluxGlobal.gatewayApplianceCode != null && HomluxGlobal.homluxHomeInfo!=null) {
+              await ChangePlatformHelper.changeToHomlux(false);
+              MideaRuntimePlatform.platform = GatewayPlatform.HOMLUX;
+            } else {
+              MideaRuntimePlatform.platform = GatewayPlatform.NONE;
+            }
+            Abc();
           }
           break;
         }
@@ -60,7 +72,6 @@ class _Boot extends State<Boot> {
       }
       maxTryCount--;
     }
-    checkLogin();
   }
 
   @override
@@ -90,73 +101,42 @@ class _Boot extends State<Boot> {
 
     /// 数据迁移逻辑
     () async {
-      if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
         String? isMigrate = await migrateChannel.meiJuIsMigrate();
         if (isMigrate == "0" && !System.isLogin()) {
           // Log.file("进入迁移界面$isMigrate----${System.isLogin()}");
           Future.delayed(Duration.zero).then((_) {
-            Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage');
+            Navigator.pushNamed(context, 'MigrationOldVersionMeiJuDataPage').then((value) {
+              Log.i('迁移返回');
+              checkGetWay();
+            });
           });
         } else {
-          await migrateChannel.setHomluxIsMigrate();
-          bool isLogin = System.isLogin();
-          bool familyInfo = System.familyInfo != null;
-          bool roomInfo = System.roomInfo != null;
-          Log.i('isLogin = $isLogin '
-              'familyInfo = $familyInfo '
-              'roomInfo = $roomInfo');
-          var isFinishLogin = System.isLogin() &&
-              System.familyInfo != null &&
-              System.roomInfo != null;
-          await migrateChannel.setMeiJuIsMigrate();
-          Setting.instant().isAllowChangePlatform = false;
-          Navigator.pushNamed(
-            context,
-            isFinishLogin ? 'Home' : 'Login',
-          );
-          if (isFinishLogin) {
-            System.login();
-          } else {
-            System.logout("数据迁移失败", false);
-          }
+          checkGetWay();
         }
-      } else if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-        String? isMigrate = await migrateChannel.homluxIsMigrate();
-        if (isMigrate == "0" && !System.isLogin()) {
-          Future.delayed(Duration.zero).then((_) {
-            Navigator.pushNamed(context, 'MigrationOldVersionHomLuxDataPage');
-          });
-        } else {
-          bool isLogin = System.isLogin();
-          bool familyInfo = System.familyInfo != null;
-          bool roomInfo = System.roomInfo != null;
-          Log.i('isLogin = $isLogin '
-              'familyInfo = $familyInfo '
-              'roomInfo = $roomInfo');
-          var isFinishLogin = System.isLogin() &&
-              System.familyInfo != null &&
-              System.roomInfo != null;
-          await migrateChannel.setHomluxIsMigrate();
-          Setting.instant().isAllowChangePlatform = false;
-          Navigator.pushNamed(
-            context,
-            isFinishLogin ? 'Home' : 'Login',
-          );
-          if (isFinishLogin) {
-            System.login();
-          } else {
-            System.logout("数据迁移失败", false);
-          }
-        }
-      } else {
-        Setting.instant().isAllowChangePlatform = false;
-        Navigator.pushNamed(
-          context,
-          'Login',
-        );
-      }
+
       return;
     }.call();
+  }
+
+  void Abc(){
+    bool isLogin = System.isLogin();
+    bool familyInfo = System.familyInfo != null;
+    bool roomInfo = System.roomInfo != null;
+    Log.i('isLogin = $isLogin '
+        'familyInfo = $familyInfo '
+        'roomInfo = $roomInfo');
+    var isFinishLogin = System.isLogin() &&
+        System.familyInfo != null &&
+        System.roomInfo != null;
+    Navigator.pushNamed(
+      context,
+      isFinishLogin ? 'Home' : 'Login',
+    );
+    if (isFinishLogin) {
+      System.login();
+    } else {
+      System.logout("数据迁移失败", false);
+    }
   }
 }
 

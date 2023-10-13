@@ -94,7 +94,7 @@ class MigrationOldVersionHomLuxDataState
     if (state != null && !startMigrate) {
       startMigrate = true;
       Future.delayed(const Duration(seconds: 15))
-          .then((value) => migrationData());
+          .then((value) => migrationHomluxData());
     }
   }
 
@@ -105,7 +105,7 @@ class MigrationOldVersionHomLuxDataState
   }
 
   /// 迁移数据
-  void migrationData() async {
+  void migrationHomluxData() async {
     try {
       Map<String, dynamic>? token = await migrateChannel.syncHomluxToken();
       Map<String, dynamic>? userData =
@@ -121,10 +121,10 @@ class MigrationOldVersionHomLuxDataState
       }
 
       /// 迁移token
-      await migrateToken(token['token']['refreshToken'], token['token']['token']);
+      await migrateHomluxToken(token['token']['refreshToken'], token['token']['token']);
 
       /// 迁移用户信息
-      await migrateUserData(
+      await migrateHomluxUserData(
           userData['headImageUrl'],
           userData['mobilePhone'],
           userData['name'] ?? "",
@@ -134,7 +134,7 @@ class MigrationOldVersionHomLuxDataState
           userData['wxId']);
 
       /// 迁移房间
-      await migrateRoom(
+      await migrateHomluxRoom(
           roomData['roomId'],
           roomData['roomName'],
           roomData['roomIcon'],
@@ -142,7 +142,7 @@ class MigrationOldVersionHomLuxDataState
           roomData['deviceNum']);
 
       /// 迁移家庭
-      await migrateFamily(
+      await migrateHomluxFamily(
           familyData['houseId'],
           familyData['houseName'],
           familyData['houseCreatorFlag'],
@@ -152,7 +152,7 @@ class MigrationOldVersionHomLuxDataState
           familyData['userNum']);
 
       /// 迁移网关ApplianceCode
-      await migrateGateWayApplianceCode(gatewayApplianceCode['deviceId']);
+      await migrateHomluxGateWayApplianceCode(gatewayApplianceCode['deviceId']);
 
       /// 获取当前房间的设备数据
       var rooms = userData["room"];
@@ -218,21 +218,21 @@ class MigrationOldVersionHomLuxDataState
     }
   }
 
-  Future<bool> migrateUserData(String headImageUrl, String mobilePhone,
+  Future<bool> migrateHomluxUserData(String headImageUrl, String mobilePhone,
       String name, String nickName, int sex, String userId, String wxId) async {
     HomluxUserInfoEntity entity = HomluxUserInfoEntity(name:name,headImageUrl:headImageUrl,mobilePhone:mobilePhone,nickName:nickName,sex:sex,userId:userId,wxId:wxId);
     HomluxGlobal.homluxUserInfo = entity;
     return true;
   }
 
-  Future<bool> migrateRoom(String roomId, String roomName, String roomIcon,
+  Future<bool> migrateHomluxRoom(String roomId, String roomName, String roomIcon,
       int deviceLightOnNum, int deviceNum) async {
     RealHomluxRoomInfo entity = RealHomluxRoomInfo(roomId:roomId,roomName:roomName,deviceLightOnNum:deviceLightOnNum,deviceNum:deviceNum);
     HomluxGlobal.homluxRoomInfo = HomluxRoomInfo(roomInfo: entity);
     return true;
   }
 
-  Future<bool> migrateFamily(
+  Future<bool> migrateHomluxFamily(
       String houseId,
       String houseName,
       bool houseCreatorFlag,
@@ -252,14 +252,14 @@ class MigrationOldVersionHomLuxDataState
     return true;
   }
 
-  Future<bool> migrateToken(String refreshToken, String token) async {
+  Future<bool> migrateHomluxToken(String refreshToken, String token) async {
     HomluxQrCodeAuthEntity mHomluxQrCodeAuthEntity = HomluxQrCodeAuthEntity(
         authorizeStatus: 1, refreshToken: refreshToken, token: token);
     HomluxGlobal.homluxQrCodeAuthEntity = mHomluxQrCodeAuthEntity;
     return true;
   }
 
-  Future<bool> migrateGateWayApplianceCode(String gateWayApplianceCode) async {
+  Future<bool> migrateHomluxGateWayApplianceCode(String gateWayApplianceCode) async {
     HomluxGlobal.gatewayApplianceCode=gateWayApplianceCode;
     return true;
   }
