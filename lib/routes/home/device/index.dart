@@ -145,6 +145,7 @@ class _DevicePageState extends State<DevicePage> {
     List<List<String>> compareDevice =
     Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 找到需要删除的设备
+    Log.i('找到要删除的设备', compareDevice[1]);
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
       // 获取到provider中当前id的Layout数据

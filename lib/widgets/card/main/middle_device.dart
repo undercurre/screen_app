@@ -216,7 +216,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         onTap: () {
           if (adapter.dataState != DataState.SUCCESS) {
             adapter.fetchData();
-            TipsUtils.toast(content: '数据缺失，控制设备失败');
+            // TipsUtils.toast(content: '数据缺失，控制设备失败');
           }
           if (!deviceListModel.getOnlineStatus(
               deviceId: widget.applianceCode) && !widget.disabled) {
@@ -248,7 +248,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                 onTap: () {
                   if (adapter.dataState != DataState.SUCCESS) {
                     adapter.fetchData();
-                    TipsUtils.toast(content: '数据缺失，控制设备失败');
+                    // TipsUtils.toast(content: '数据缺失，控制设备失败');
                     return;
                   }
                   Log.i('点击进入插件', adapter.type);

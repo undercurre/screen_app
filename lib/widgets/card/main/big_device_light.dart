@@ -251,7 +251,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
           adapter.fetchData();
-          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
@@ -303,7 +303,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   onTap: () {
                     if (adapter.dataState != DataState.SUCCESS) {
                       adapter.fetchData();
-                      TipsUtils.toast(content: '数据缺失，控制设备失败');
+                      // TipsUtils.toast(content: '数据缺失，控制设备失败');
                       return;
                     }
                     if (!deviceListModel.getOnlineStatus(

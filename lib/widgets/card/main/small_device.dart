@@ -233,7 +233,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         if (widget.disabled) return;
         if (adapter?.dataState != DataState.SUCCESS) {
           adapter?.fetchData();
-          TipsUtils.toast(content: '数据缺失，控制设备失败');
+          // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
         Log.i('点击卡片', deviceListModel.getOnlineStatus(deviceId: widget.applianceCode));
@@ -371,7 +371,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                         onTap: () {
                           if (adapter?.dataState != DataState.SUCCESS) {
                             adapter?.fetchData();
-                            TipsUtils.toast(content: '数据缺失，控制设备');
+                            // TipsUtils.toast(content: '数据缺失，控制设备');
                           }
                           Log.i('点击进入插件',adapter?.type);
                           if (!deviceListModel.getOnlineStatus(
