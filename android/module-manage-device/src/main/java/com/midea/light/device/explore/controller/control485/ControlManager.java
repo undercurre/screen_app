@@ -52,7 +52,7 @@ public class ControlManager implements Data485Subject {
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
     private Timer timer,heatBet;
-    private Integer cacheTime = 2;
+    private Integer cacheTime = 5;
     private ExecutorService service, readService;
 
 
@@ -443,17 +443,17 @@ public class ControlManager implements Data485Subject {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().findAllAirConditionOnlineState();
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().getAllAirConditionParamete();
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().findAllFreshAirOnlineState();
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().getAllFreshAirParamete();
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().findAllFloorHotOnlineState();
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                     GetWayController.getInstance().getAllFloorHotParamete();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
