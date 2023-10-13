@@ -38,10 +38,22 @@ class DeviceDataEntity {
   });
 
   DeviceDataEntity.fromMeiJu(NodeInfo<Endpoint<ZigbeeLightEvent>> data) {
-    brightness = int.parse(data.endList[0].event.Level ?? '1');
-    colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
+    if(data.endList[0].event.Level is int) {
+      brightness = data.endList[0].event.Level;
+    } else if(data.endList[0].event.Level is String) {
+      brightness = int.parse(data.endList[0].event.Level ?? '1');
+    }
+    if(data.endList[0].event.ColorTemp is int) {
+      colorTemp = data.endList[0].event.ColorTemp;
+    } else if(data.endList[0].event.ColorTemp is String) {
+      colorTemp = int.parse(data.endList[0].event.ColorTemp ?? '0');
+    }
+    if(data.endList[0].event.DelayClose is int) {
+      delayClose = data.endList[0].event.DelayClose;
+    } else if(data.endList[0].event.DelayClose is String) {
+      delayClose = int.parse(data.endList[0].event.DelayClose);
+    }
     power = data.endList[0].event.OnOff == '1' || data.endList[0].event.OnOff == 1;
-    delayClose = int.parse(data.endList[0].event.DelayClose);
   }
 
   DeviceDataEntity.fromHomlux(HomluxDeviceEntity data) {
