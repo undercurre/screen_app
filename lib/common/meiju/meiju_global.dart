@@ -1,8 +1,10 @@
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/channel/index.dart';
+import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/generated/json/base/meiju_json_convert_content.dart';
 
 import '../adapter/midea_data_adapter.dart';
@@ -42,6 +44,7 @@ class MeiJuGlobal {
   static MeiJuRoomEntity? _roomEntity;
   static String? _gatewayApplianceCode;// 屏下网关的deviceId -- 登录之后才会返回
   static String? _gatewaySn;  // 屏下网关的sn
+  static Timer? refreshTokenTimer; // 每3个小时刷一次token
 
   MeiJuGlobal._();
 
@@ -118,6 +121,8 @@ class MeiJuGlobal {
     homeInfo = null;
     roomInfo = null;
     gatewayApplianceCode = null;
+    refreshTokenTimer?.cancel();
+    refreshTokenTimer = null;
     MideaDataAdapter.clearAllAdapter();
     LocalStorage.removeItem(MEIJU_FAMILY_INFO);
     LocalStorage.removeItem(MEIJU_ROOM_INFO);
@@ -129,7 +134,17 @@ class MeiJuGlobal {
   }
 
   static void setLogin() {
-
+    refreshTokenTimer?.cancel();
+    /// 设置登录方法一分钟之后，主动刷新token。
+    /// 之后间隔3小时刷新一次
+    refreshTokenTimer = Timer(const Duration(minutes: 1), () {
+      if (token == null) return;
+      MeiJuApi.tryToRefreshToken();
+      refreshTokenTimer = Timer.periodic(const Duration(hours: 3), (timer) {
+        if (token == null) return;
+        MeiJuApi.tryToRefreshToken();
+      });
+    });
   }
 
 }

@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../widgets/event_bus.dart';
 import '../../logcat_helper.dart';
 import '../../system.dart';
 import '../../utils.dart';
@@ -417,6 +416,12 @@ class MeiJuApi {
     var entity = MeiJuResponseEntity<T>.fromJson(res.data);
     // 多增加[isIOTLogoutCode] 已防止美智平台接口直接将iot的错误码返回到客户端
     if (isMZLogoutCode(entity.code) || isIOTLogoutCode(entity.code)) {
+      tryToRefreshToken();
+    } else if(res.data['result'] != null && res.data['result'] is String
+        && res.data['result'].toString().contains('invalid_token')) {
+      // 特殊处理 美智中台接口会返回下面报错数据
+      // {"result":"{\"error_description\":\"The access token is invalid or has expired\",\"error\":\"invalid_token\"}\n",
+      // "code":0,"msg":"成功!","success":true,"timestamp":1697439277668}
       tryToRefreshToken();
     }
     return entity;
