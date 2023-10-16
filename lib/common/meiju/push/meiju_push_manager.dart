@@ -308,7 +308,8 @@ class MeiJuPushManager {
                   }
                 }
               }
-            } else if(type == "thing/properties/change") {
+            }
+            else if(type == "thing/properties/change") {
               String? deviceId = msgMap['applianceCode'];
               if(deviceId == null) return;
               if(!operatePushRecord.containsKey(deviceId)) {
@@ -330,7 +331,8 @@ class MeiJuPushManager {
                   operatePushRecord[deviceId] = pair;
                 }
               }
-            } else if (type == 'appliance/status/report') {
+            }
+            else if (type == 'appliance/status/report') {
               if(msgMap.containsKey('applianceId')) {
                 String deviceId = msgMap['applianceId'];
                 if(!operatePushRecord.containsKey(deviceId)) {
@@ -353,7 +355,8 @@ class MeiJuPushManager {
                   }
                 }
               }
-            } else if(type == 'appliance/online/status/off') {
+            }
+            else if(type == 'appliance/online/status/off') {
               // 设备离线通知
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
@@ -377,7 +380,8 @@ class MeiJuPushManager {
                   }
                 }
               }
-            } else if(type == 'appliance/online/status/on') {
+            }
+            else if(type == 'appliance/online/status/on') {
               // 设备在线通知
               if (msgMap.containsKey('applianceCode')) {
                 String deviceId = msgMap['applianceCode'];
