@@ -64,7 +64,11 @@ class AliPushChannel constructor(override val context: Context) : AbsMZMethodCha
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "getAliPushDeviceId" -> {
-                result.safeSuccess(AliPushRepository.getInstance().aliPushDeviceId)
+                if(AliPushRepository.getInstance().aliPushDeviceId == null) {
+                    result.safeSuccess("");
+                } else {
+                    result.safeSuccess(AliPushRepository.getInstance().aliPushDeviceId)
+                }
             } else -> {
             // 对应的方法没有报错
             onCallNotImplement(result)

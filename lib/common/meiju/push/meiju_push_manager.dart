@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/channel/index.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/push/event/meiju_push_event.dart';
 import 'package:uuid/uuid.dart';
@@ -153,7 +154,7 @@ class MeiJuPushManager {
 
       _channel?.sink.close();
 
-      // _aliPushUnBind();
+      _aliPushUnBind();
 
       bus.off('operateDevice');
     }
@@ -180,8 +181,8 @@ class MeiJuPushManager {
       bus.off('operateDevice');
 
       try {
-        // _aliPushBind();
-        // _updatePushToken();
+        _aliPushBind();
+        _updatePushToken();
         _channel = IOWebSocketChannel.connect(await getWebSocketAddress(),
             pingInterval: const Duration(seconds: 10),
             connectTimeout: const Duration(seconds: 8));
@@ -450,6 +451,11 @@ class MeiJuPushManager {
   }
 
   static _aliPushBind() async {
+    String deviceId = await aliPushChannel.getDeviceId();
+    if(StrUtils.isNullOrEmpty(deviceId)) {
+      Log.file("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
+      return;
+    }
     MeiJuApi.requestMideaIot(
         "/push/bind",
         data: {
@@ -458,7 +464,7 @@ class MeiJuPushManager {
           'android': {
             'model' : 'ALIYUN',
             'bundle_id' : 'com.media.light',
-            'token' : await aliPushChannel.getDeviceId(),
+            'token' : deviceId,
             'deviceId' : System.deviceId
           }
         },
@@ -473,6 +479,11 @@ class MeiJuPushManager {
   }
 
   static _aliPushUnBind() async {
+    String deviceId = await aliPushChannel.getDeviceId();
+    if(StrUtils.isNullOrEmpty(deviceId)) {
+      Log.file("[ WebSocket ] 解绑阿里推送失败 deviceId为空");
+      return;
+    }
     MeiJuApi.requestMideaIot(
         "/push/bind",
         data: {
@@ -481,7 +492,7 @@ class MeiJuPushManager {
           'android': {
             'model' : 'ALIYUN',
             'token' : '',
-            'cur_token' : await aliPushChannel.getDeviceId(),
+            'cur_token' : deviceId,
             'deviceId' : System.deviceId
           }
         },
@@ -496,11 +507,16 @@ class MeiJuPushManager {
   }
 
   static _updatePushToken() async {
+    String deviceId = await aliPushChannel.getDeviceId();
+    if(StrUtils.isNullOrEmpty(deviceId)) {
+      Log.file("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
+      return;
+    }
     await MeiJuApi.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/user/push/token/update",
         data: {
           'uid': MeiJuGlobal.token?.uid,
-          'pushToken': await aliPushChannel.getDeviceId(),
+          'pushToken': deviceId,
           'clientType': 1,
           'pushType': 5,
           'reqId': const Uuid().v4(),

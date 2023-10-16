@@ -24,7 +24,10 @@ class AndroidCrashReportHandler extends ReportHandler {
   @override
   Future<bool> handle(Report error, BuildContext? context) {
     if(error.error is DioException || error.error is DioError
-        || error.error is MideaException || error.error is SocketException) {
+        || error.error is MideaException
+        || error.error is HandshakeException
+        || error.error is WebSocketException
+        || error.error is SocketException) {
         Log.file(error.error);
     } else if(error.error is TimeoutException) {
 
