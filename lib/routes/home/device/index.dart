@@ -220,6 +220,7 @@ class _DevicePageState extends State<DevicePage> {
   /// 显示更改页面的位置
   void changeToTargetPage(dynamic position) {
     if (mounted) {
+      if(position >= _screens.length) return;
       final pageCounterModel = Provider.of<PageCounter>(context, listen: false);
       Log.i('切换到页面：${pageCounterModel.currentPage}');
       _pageController.jumpToPage(pageCounterModel.currentPage);
