@@ -153,7 +153,7 @@ class MeiJuPushManager {
 
       _channel?.sink.close();
 
-      _aliPushUnBind();
+      // _aliPushUnBind();
 
       bus.off('operateDevice');
     }
@@ -180,8 +180,8 @@ class MeiJuPushManager {
       bus.off('operateDevice');
 
       try {
-        _aliPushBind();
-        _updatePushToken();
+        // _aliPushBind();
+        // _updatePushToken();
         _channel = IOWebSocketChannel.connect(await getWebSocketAddress(),
             pingInterval: const Duration(seconds: 10),
             connectTimeout: const Duration(seconds: 8));
