@@ -192,6 +192,7 @@ class _DevicePageState extends State<DevicePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 初始化清除断电干扰
       Future.delayed(const Duration(seconds: 3), () {
+        if(!mounted) return;
         firstInitForOffPower(context);
       });
       // 启动拉取定时器
@@ -422,6 +423,9 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   void meijuPushDelete(MeiJuDeviceDelEvent args) {
+    if(!mounted) {
+      return;
+    }
     autoDeleleLayout(context);
   }
 
