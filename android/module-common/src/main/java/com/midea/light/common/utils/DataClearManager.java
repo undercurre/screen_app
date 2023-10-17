@@ -156,6 +156,7 @@ public class DataClearManager {
         cleanDatabases();
         cleanSharedPreference();
         cleanFiles();
+        cleanUserData();
         for (String filePath : filepath) {
             cleanCustomCache(filePath);
         }
@@ -166,6 +167,10 @@ public class DataClearManager {
      */
     private static void cleanInternalCache() {
         deleteFilesByDirectory(BaseApplication.getContext().getCacheDir());
+    }
+
+    private static void cleanUserData() {
+        deleteFilesByDirectory(new File("/data/user/0/" + BaseApplication.getContext().getPackageName()+"/cache"));
     }
 
     /**
@@ -220,13 +225,14 @@ public class DataClearManager {
      * @param directory File
      */
     private static void deleteFilesByDirectory(File directory) {
-        if (directory != null && directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (null != files) {
-                for (File item : files) {
-                    item.delete();
-                }
-            }
-        }
+        FileUtils.deleteFolderFile(directory.getAbsolutePath());
+//        if (directory != null && directory.exists() && directory.isDirectory()) {
+//            File[] files = directory.listFiles();
+//            if (null != files) {
+//                for (File item : files) {
+//                    item.delete();
+//                }
+//            }
+//        }
     }
 }

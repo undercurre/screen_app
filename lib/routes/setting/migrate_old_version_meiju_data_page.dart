@@ -58,11 +58,27 @@ class MigrationOldVersionMeiJuDataState
   @override
   void initState() {
     super.initState();
+    isNeedMigration();
     _timer = Timer(const Duration(minutes: 2), () {
       if (!startMigrate) {
         Navigator.pop(context, true);
       }
     });
+  }
+
+  Future<void> isNeedMigration() async {
+    try{
+      Map<String, dynamic>? token = await migrateChannel.syncToken();
+      Map<String, dynamic>? userData = await migrateChannel.syncUserData();
+      if (token == null||userData==null ) {
+        if (!startMigrate&&mounted) {
+          Navigator.pop(context, true);
+        }
+      }
+    }catch(e){
+      Navigator.pop(context, true);
+    }
+
   }
 
   @override
