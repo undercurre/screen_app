@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/main.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
@@ -89,11 +90,9 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   DeviceDataEntity? data = DeviceDataEntity(
       brightness: 1, colorTemp: 0, power: false, delayClose: 0);
 
-  final BuildContext context;
-
   Timer? delayTimer;
 
-  ZigbeeLightDataAdapter(super.platform, this.context, this.masterId, this.applianceCode) {
+  ZigbeeLightDataAdapter(super.platform, this.masterId, this.applianceCode) {
     type = AdapterType.zigbeeLight;
     Log.develop('$hashCode construct');
   }
@@ -440,13 +439,13 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
 
   void homluxMovePush(HomluxMovSubDeviceEvent event) {
     if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
-      context.read<DeviceInfoListModel>().getDeviceList();
+      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 
   void homluxOfflinePush(HomluxDeviceOnlineStatusChangeEvent event) {
     if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
-      context.read<DeviceInfoListModel>().getDeviceList();
+      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 
@@ -460,7 +459,7 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
   void meijuPushOnline(MeiJuDeviceOnlineStatusChangeEvent args) {
     Log.file('$applianceCode接收到推送，即将请求设备状态 MeiJuDeviceOnlineStatusChangeEvent ${args.deviceId}');
     if (args.deviceId == masterId) {
-      context.read<DeviceInfoListModel>().getDeviceList();
+      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
     }
   }
 

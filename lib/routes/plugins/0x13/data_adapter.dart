@@ -101,9 +101,8 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
       timeOff: 0,
       screenModel: 'manual');
 
-  final BuildContext context;
 
-  WIFILightDataAdapter(super.platform, this.context, this.sn8, this.applianceCode) {
+  WIFILightDataAdapter(super.platform, this.sn8, this.applianceCode) {
     Log.i('获取到当前吸顶灯的sn8', this.sn8);
     type = AdapterType.wifiLight;
   }

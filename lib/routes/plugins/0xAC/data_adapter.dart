@@ -73,9 +73,8 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
     wind: 102,
   );
 
-  final BuildContext context;
 
-  WIFIAirDataAdapter(super.platform, this.context, this.applianceCode) {
+  WIFIAirDataAdapter(super.platform, this.applianceCode) {
     type = AdapterType.wifiAir;
   }
 

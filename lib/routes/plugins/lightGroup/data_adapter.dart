@@ -76,12 +76,11 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   GroupDataEntity? data =
       GroupDataEntity(brightness: 0, colorTemp: 0, power: false, maxColorTemp: 6500, minColorTemp: 2700);
 
-  final BuildContext context;
 
   Timer? delayTimer;
 
   LightGroupDataAdapter(
-      super.platform, this.context, this.masterId, this.applianceCode) {
+      super.platform, this.masterId, this.applianceCode) {
     type = AdapterType.lightGroup;
   }
 

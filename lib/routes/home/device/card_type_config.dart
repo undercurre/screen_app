@@ -402,7 +402,6 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }),
@@ -424,7 +423,6 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -444,7 +442,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -471,7 +469,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
               return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                   LightGroupDataAdapter(
                       MideaRuntimePlatform.platform,
-                      params.context!,
+                      
                       params.masterId ?? '',
                       params.applianceCode ?? ''));
             }
@@ -494,7 +492,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 LightGroupDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -514,7 +512,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 LightGroupDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -577,7 +575,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 LightGroupDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -600,7 +598,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 LightGroupDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -620,7 +618,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 LightGroupDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -647,7 +645,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFILightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!, params.sn8 ?? '',
+                     params.sn8 ?? '',
                     params.applianceCode ?? ''));
           }
         ),
@@ -669,7 +667,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFILightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!, params.sn8 ?? '',
+                     params.sn8 ?? '',
                     params.applianceCode ?? ''));
           }
         ),
@@ -688,7 +686,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFILightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!, params.sn8 ?? '',
+                     params.sn8 ?? '',
                     params.applianceCode ?? ''));
           }
         ),
@@ -714,7 +712,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFICurtainDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.applianceCode ?? ''));
           }
         ),
@@ -735,7 +733,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
-                    params.context!, params.applianceCode ?? ''));
+                     params.applianceCode ?? ''));
           }
         ),
     CardType.Big: (params) => BigDeviceCurtainCardWidget(
@@ -752,7 +750,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFICurtainDataAdapter(MideaRuntimePlatform.platform,
-                    params.context!, params.applianceCode ?? ''));
+                     params.applianceCode ?? ''));
           }
         ),
   },
@@ -777,7 +775,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFIAirDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.applianceCode ?? ''));
           }
         ),
@@ -799,7 +797,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFIAirDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.applianceCode ?? ''));
           }
         ),
@@ -817,7 +815,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 WIFIAirDataAdapter(MideaRuntimePlatform.platform,
-                    params.context!, params.applianceCode ?? ''));
+                     params.applianceCode ?? ''));
           }
     ),
   },
@@ -842,7 +840,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -865,7 +863,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -885,7 +883,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -911,7 +909,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -934,7 +932,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -954,7 +952,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -980,7 +978,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1003,7 +1001,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1023,7 +1021,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1049,7 +1047,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1072,7 +1070,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1092,7 +1090,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1118,7 +1116,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1141,7 +1139,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1161,7 +1159,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1187,7 +1185,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1210,7 +1208,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1230,7 +1228,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1256,7 +1254,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1279,7 +1277,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1299,7 +1297,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1325,7 +1323,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1348,7 +1346,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1368,7 +1366,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1394,7 +1392,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1417,7 +1415,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1437,7 +1435,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1463,7 +1461,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1486,7 +1484,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1506,7 +1504,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1532,7 +1530,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1555,7 +1553,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1575,7 +1573,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1601,7 +1599,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1624,7 +1622,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }
@@ -1644,7 +1642,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
             return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
                 ZigbeeLightDataAdapter(
                     MideaRuntimePlatform.platform,
-                    params.context!,
+                    
                     params.masterId ?? '',
                     params.applianceCode ?? ''));
           }

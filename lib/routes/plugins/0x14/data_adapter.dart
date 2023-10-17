@@ -65,9 +65,8 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     curtainDirection: 'positive',
   );
 
-  final BuildContext context;
 
-  WIFICurtainDataAdapter(super.platform, this.context, this.applianceCode) {
+  WIFICurtainDataAdapter(super.platform, this.applianceCode) {
     type = AdapterType.wifiCurtain;
   }
 
