@@ -157,9 +157,12 @@ class DeviceInfoListModel extends ChangeNotifier {
   Future<List<DeviceEntity>> getDeviceList() async {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       final familyInfo = System.familyInfo;
+      if(MeiJuGlobal.token==null||familyInfo==null){
+        return [];
+      }
       MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> MeijuRes =
           await MeiJuDeviceApi.queryDeviceListByHomeId(
-              MeiJuGlobal.token!.uid, familyInfo!.familyId);
+              MeiJuGlobal.token!.uid, familyInfo.familyId);
 
       MeiJuResponseEntity<Map<String, dynamic>> MeijuGroups =
           await MeiJuDeviceApi.getGroupList();
