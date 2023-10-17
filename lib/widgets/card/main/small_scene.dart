@@ -51,9 +51,11 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
             widget.onOff = true;
           });
           Future.delayed(const Duration(seconds: 2), () {
-            setState(() {
-              widget.onOff = false;
-            });
+            if(mounted){
+              setState(() {
+                widget.onOff = false;
+              });
+            }
           });
         } else {
           return;
