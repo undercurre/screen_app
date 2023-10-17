@@ -36,13 +36,13 @@ class LightDataEntity {
   });
 
   LightDataEntity.fromMeiJu(dynamic data, String sn8) {
-    if (sn8 == "79009833") {
+    if (sn8.isNotEmpty&&sn8 == "79009833") {
       brightness = int.parse(data["brightValue"]) < 1 ? 1 : data["brightValue"];
       colorTemp = int.parse(data["color_temperature"]);
       power = data["power"];
       screenModel = data["screenModel"];
       timeOff = int.parse(data["timeOff"]);
-    } else if (sn8 == "7909AC81") {
+    } else if (sn8.isNotEmpty&&sn8 == "7909AC81") {
       brightness = int.parse(data["brightness"]);
       if (brightness < 100) {
         brightness--;
@@ -298,7 +298,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8 == '79009833') {
+      if (sn8.isNotEmpty&&sn8 == '79009833') {
         var command = {"timeOff": data!.timeOff};
         res = await MeiJuDeviceApi.sendPDMControlOrder(
             categoryCode: '0x13',
@@ -333,7 +333,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8 == '79009833') {
+      if (sn8.isNotEmpty&&sn8 == '79009833') {
         var command = {"dimTime": 0, "screenModel": mode.key};
         res = await MeiJuDeviceApi.sendPDMControlOrder(
           categoryCode: '0x13',
@@ -372,7 +372,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
     if (platform.inMeiju()) {
       var res;
-      if (sn8 == '79009833') {
+      if (sn8.isNotEmpty&&sn8 == '79009833') {
         var command = {
           "dimTime": 0,
           "brightValue":
@@ -384,7 +384,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
           applianceCode: applianceCode,
           command: command,
         );
-      } else if (sn8 == '79010914') {
+      } else if (sn8.isNotEmpty&&sn8 == '79010914') {
         var command = {
           "brightness":
           int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))
@@ -425,7 +425,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8 == '79009833') {
+      if (sn8.isNotEmpty&&sn8 == '79009833') {
         var command = {
           "dimTime": 0,
           "colorTemperatureValue": int.parse(
@@ -438,7 +438,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
           applianceCode: applianceCode,
           command: command,
         );
-      } else if (sn8 == '79010914') {
+      } else if (sn8.isNotEmpty&&sn8 == '79010914') {
         var command = {
           "color_temperature":
           int.parse((data!.colorTemp / 100 * 255).toStringAsFixed(0))
