@@ -112,8 +112,10 @@ class ManagerDeviceChannel(context: Context) : AbsMZMethodChannel(context) {
                 devices.forEach { wifi ->
                     val ssid = wifi.get("ssid")
                     val bssid = wifi.get("bssid")
-                    val scanResult = requireNotNull(wifiDevices.find { it.scanResult.SSID == ssid && it.scanResult.BSSID == bssid })
-                    scanResults.add(scanResult)
+                    val result= wifiDevices.find { it.scanResult.SSID == ssid && it.scanResult.BSSID == bssid }
+                    if(result!=null){
+                        scanResults.add(result)
+                    }
                 }
 
                 if (CollectionUtil.isEmpty(scanResults)) {
