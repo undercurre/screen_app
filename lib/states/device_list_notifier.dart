@@ -210,6 +210,9 @@ class DeviceInfoListModel extends ChangeNotifier {
       }
     } else {
       final familyInfo = System.familyInfo;
+      if(familyInfo==null){
+        return [];
+      }
       HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes =
           await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo!.familyId);
       if (HomluxRes.isSuccess) {
