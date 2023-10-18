@@ -39,7 +39,7 @@ class IndicatorState extends State<Indicator> {
           child: Stack(
             children: [
               Positioned(
-                left: widget.itemCount == 0 ? 0 : (position ?? 0) / (widget.itemCount - 1) * 25,
+                left: widget.itemCount <= 1 ? 0 : (position ?? 0) / (widget.itemCount - 1) * 25,
                 bottom: 0,
                 child: Container(
                   width: 26,
