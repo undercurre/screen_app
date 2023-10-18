@@ -318,8 +318,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     existingApplianceCodes.forEach((element) {
       if (MideaDataAdapter.getAdapter(element) is DeviceCardDataAdapter) {
         // 普通设备Adapter
-        (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter)
-            .fetchData();
+        (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).fetchData();
       } else if (MideaDataAdapter.getAdapter(element) is PanelDataAdapter) {
         // 面板设备Adapter
         (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
