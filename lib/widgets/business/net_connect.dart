@@ -14,9 +14,7 @@ import '../../channel/index.dart';
 import '../../channel/models/net_state.dart';
 import '../../channel/models/wifi_scan_result.dart';
 import '../../common/helper.dart';
-import '../../common/logcat_helper.dart';
 import '../../common/utils.dart';
-import '../../states/device_list_notifier.dart';
 import '../../states/weather_change_notifier.dart';
 import '../mz_cell.dart';
 import '../mz_switch.dart';
@@ -221,11 +219,6 @@ class LinkNetworkState extends State<LinkNetwork> {
     if (_model._data.currentConnect?.type == UpdateType.SUCCESS) {
       final weatherModel = Provider.of<WeatherModel>(context, listen: false);
       weatherModel.loadSelectedDistrict();
-
-      if (System.isLogin()) {
-        final devListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
-        devListModel.getDeviceList();
-      }
     }
   }
 
