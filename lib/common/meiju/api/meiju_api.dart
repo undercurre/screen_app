@@ -80,7 +80,7 @@ class MeiJuApi {
     options.headers ??= {};
     var data = {
       'userId': MeiJuGlobal.token?.uid,
-      'deviceId': MeiJuGlobal.token?.deviceId,
+      'deviceId': System.deviceId,
       'appId': dotenv.get('APP_ID'),
       'appSecret': dotenv.get('APP_SECRET'),
       'itAccessToken': MeiJuGlobal.token?.accessToken,
@@ -105,7 +105,7 @@ class MeiJuApi {
 
     if (MeiJuGlobal.isLogin) {
       headers.addAll({
-        'deviceId': MeiJuGlobal.token?.deviceId,
+        'deviceId': System.deviceId,
       });
 
       params['userId'] = MeiJuGlobal.token?.uid;
