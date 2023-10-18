@@ -56,7 +56,7 @@ const int initiativeDelayPush = 20 * 1000;
 /// 被动操作设备的消息延长推送时间
 const int passivityDelayPush = 1 * 1500;
 /// 最大连续重连次数
-const int _maxRetryCount = 20;
+const int _maxRetryCount = 10;
 
 class HomluxPushManager {
 
@@ -274,7 +274,6 @@ class HomluxPushManager {
 
   static _message(dynamic event) {
     Log.i('[WebSocket]homlux ws message $event');
-    retryCount = 0;
     try {
 
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
@@ -288,7 +287,7 @@ class HomluxPushManager {
       if(topic == 'heartbeatTopic') {
         return;
       }
-
+      retryCount = 0;
       HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
       if(entity.result?.eventType == TypeDeviceProperty) {
         var deviceId = entity.result?.eventData?.deviceId;
