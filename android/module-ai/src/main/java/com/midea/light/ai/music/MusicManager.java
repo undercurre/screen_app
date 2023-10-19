@@ -10,6 +10,7 @@ import android.os.Message;
 
 import com.midea.light.RxBus;
 import com.midea.light.ai.AiManager;
+import com.midea.light.ai.MideaLightMusicInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class MusicManager {
         }
     };
 
-    public void setPlayList(ArrayList<MusicInfo> musicInfoList) {
+    public void setPlayList(ArrayList<MideaLightMusicInfo> musicInfoList) {
         if (sever != null) {
             RxBus.getInstance().post(new MusicPlayStateEvent(PLAY));
             sever.setMusicInfoList(musicInfoList);
@@ -62,7 +63,7 @@ public class MusicManager {
         }
     }
 
-    public List<MusicInfo> getPlayList() {
+    public List<MideaLightMusicInfo> getPlayList() {
         if (sever != null) {
             return sever.getMusicInfoList();
         } else {
@@ -188,7 +189,7 @@ public class MusicManager {
         }
     }
 
-    public MusicInfo getPlayMusicInfor() {
+    public MideaLightMusicInfo getPlayMusicInfor() {
         if (sever != null) {
             return sever.getPlayMusicInfo();
         } else {

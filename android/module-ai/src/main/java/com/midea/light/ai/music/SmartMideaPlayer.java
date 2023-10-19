@@ -3,6 +3,7 @@ package com.midea.light.ai.music;
 import android.media.AudioManager;
 
 import com.midea.light.RxBus;
+import com.midea.light.ai.MideaLightMusicInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ public class SmartMideaPlayer {
     private int currentPosition = 0;
     private int currentIndex = 0;
     private int PLAY_MODE = 1;
-    private List<MusicInfo> MusicList=new ArrayList<>();
-    private MusicInfo currentMusic;
+    private List<MideaLightMusicInfo> MusicList=new ArrayList<>();
+    private MideaLightMusicInfo currentMusic;
     private int mSize;
     private static SmartMideaPlayer sInstance;
     private OnFinishListener onFinishListener;
@@ -162,7 +163,7 @@ public class SmartMideaPlayer {
         });
     }
 
-    public MusicInfo getCurrentMusic() {
+    public MideaLightMusicInfo getCurrentMusic() {
         return currentMusic;
     }
 
@@ -198,7 +199,7 @@ public class SmartMideaPlayer {
         return ijkMediaPlayer.isPlaying();
     }
 
-    public void playList(List<MusicInfo> musicList) {
+    public void playList(List<MideaLightMusicInfo> musicList) {
         this.MusicList = new ArrayList<>(musicList);
         mSize = MusicList.size();
         currentMusic = MusicList.get(0);

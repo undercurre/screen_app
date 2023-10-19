@@ -1,18 +1,14 @@
 package com.midea.light.ai.services;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +24,7 @@ import com.midea.light.ai.AiSpeech.AiDialog;
 import com.midea.light.ai.AiSpeech.Player;
 import com.midea.light.ai.AiSpeech.TTSItem;
 import com.midea.light.ai.AiSpeech.WeatherDialog;
+import com.midea.light.ai.MideaLightMusicInfo;
 import com.midea.light.ai.brocast.NetWorkStateReceiver;
 import com.midea.light.ai.impl.AISetVoiceCallBack;
 import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
@@ -37,7 +34,6 @@ import com.midea.light.ai.impl.ServerBindCallBack;
 import com.midea.light.ai.impl.ServerInitialBack;
 import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.music.MusicBean;
-import com.midea.light.ai.music.MusicInfo;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
 import com.midea.light.log.LogUtil;
@@ -294,7 +290,7 @@ public class MideaAiService extends Service {
                             new JSONArray(object.getJSONObject("skill").getJSONObject("data").getJSONObject("generalSkill").getJSONArray("listItems").toString());
                     MusicBean.DataBean.GeneralSkillBean xx = new MusicBean.DataBean.GeneralSkillBean();
                     for (int i = 0; i < data_array.length(); i++) {
-                        MusicInfo infor = new MusicInfo();
+                        MideaLightMusicInfo infor = new MideaLightMusicInfo();
                         if ("music".equals(Type)) {
                             infor.setMusicUrl(data_array.getJSONObject(i).getString("musicUrl"));
                             infor.setSong(data_array.getJSONObject(i).getString("song"));
@@ -814,7 +810,7 @@ public class MideaAiService extends Service {
         super.onDestroy();
     }
 
-    public static String getWakeupInfo() {
+    private static String getWakeupInfo() {
         try {
             JSONObject resultObj = new JSONObject();
             resultObj.put("player_status", 2004);
@@ -956,7 +952,7 @@ public class MideaAiService extends Service {
         return current;
     }
 
-    public boolean isNumeric(String str) {
+    private boolean isNumeric(String str) {
 
         Pattern pattern = Pattern.compile("[0-9]*");
 
@@ -1238,8 +1234,15 @@ public class MideaAiService extends Service {
         MusicPlayControl = CallBack;
     }
 
-    public void reportPlayerStatusToCloud(TTSItem tar_item, String str_status) {
+    public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) {
         try {
+            TTSItem tar_item = new TTSItem(MusicUrl);
+            tar_item.setAutoResume(true);
+            tar_item.setUrlType("media");
+            tar_item.setLabel(Song);
+            tar_item.setSkillType("");
+            tar_item.setSeq(index + 1);
+
             if (tar_item == null) {
                 Log.e(TAG, "tar_item is null");
                 return;
@@ -1270,31 +1273,6 @@ public class MideaAiService extends Service {
         }
     }
 
-    public void registerNetworkReceiver() {
-        try {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            registerReceiver(NetWorkStateReceiver.getInstant(), filter);
-            IntentFilter filter2 = new IntentFilter();
-            filter2.addAction(Intent.ACTION_TIME_TICK);
-            registerReceiver(receiver, filter2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void unreregisterNetworkReceiver() {
-        try {
-            unregisterReceiver(NetWorkStateReceiver.getInstant());
-            unregisterReceiver(receiver);
-        }catch (RuntimeException e){
-
-        }
-
-    }
-
     public void dismissAiDialog() {
         if (mAiDialog != null) {
             mAiDialog.dismissDialog();
@@ -1306,25 +1284,5 @@ public class MideaAiService extends Service {
             mWeatherDialog.dismissDialog();
         }
     }
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Intent.ACTION_TIME_TICK)) {
-                if (NetWorkStateReceiver.getInstant().netWorkAvailable()) {
-                    String linkstatus = "{\"link_status\":1}";
-                    if (mMediaMwEngine != null) {
-//                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
-                    }
-                } else {
-                    String linkstatus = "{\"link_status\":0}";
-                    if (mMediaMwEngine != null) {
-//                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
-                    }
-                }
-            }
-        }
-    };
 
 }

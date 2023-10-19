@@ -1,5 +1,7 @@
 package com.midea.light.ai.music;
 
+import com.midea.light.ai.MideaLightMusicInfo;
+
 import java.util.ArrayList;
 
 public class MusicBean {
@@ -43,13 +45,13 @@ public class MusicBean {
       }
 
       public static class GeneralSkillBean {
-         private ArrayList<MusicInfo> listItems=new ArrayList<>();
+         private ArrayList<MideaLightMusicInfo> listItems=new ArrayList<>();
 
-         public ArrayList<MusicInfo> getListItems() {
+         public ArrayList<MideaLightMusicInfo> getListItems() {
             return listItems;
          }
 
-         public void setListItems(ArrayList<MusicInfo> listItems) {
+         public void setListItems(ArrayList<MideaLightMusicInfo> listItems) {
             this.listItems = listItems;
          }
 

@@ -13,9 +13,11 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.midea.light.ai.MideaLightMusicInfo;
+
 public class MusicPlayerService extends Service {
 
-    public static ArrayList<MusicInfo> musicInfoList; //音乐列表
+    public static ArrayList<MideaLightMusicInfo> musicInfoList; //音乐列表
     public static int position = 0;  //音乐索引
     public static SmartMideaPlayer mediaPlayer; //音乐播放器
     public MusicBind musicBind = new MusicBind();
@@ -90,7 +92,7 @@ public class MusicPlayerService extends Service {
     /*
     设置音乐列表
      */
-    public void setMusicInfoList(ArrayList<MusicInfo> list) {
+    public void setMusicInfoList(ArrayList<MideaLightMusicInfo> list) {
         musicInfoList = list;
         SmartMideaPlayer.getInstance().playList(musicInfoList);
         position = 0;
@@ -174,7 +176,7 @@ public class MusicPlayerService extends Service {
         return SmartMideaPlayer.getInstance().getCurrentTime();
     }
 
-    public List<MusicInfo> getMusicInfoList() {
+    public List<MideaLightMusicInfo> getMusicInfoList() {
         return musicInfoList;
     }
 
@@ -185,7 +187,7 @@ public class MusicPlayerService extends Service {
         SmartMideaPlayer.getInstance().claerMusicList();
     }
 
-    public MusicInfo getPlayMusicInfo() {
+    public MideaLightMusicInfo getPlayMusicInfo() {
         if (musicInfoList != null) {
             return SmartMideaPlayer.getInstance().getCurrentMusic();
         } else {

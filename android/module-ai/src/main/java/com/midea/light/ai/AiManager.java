@@ -169,14 +169,8 @@ public class AiManager {
     }
 
     public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) {
-        TTSItem ttsItem = new TTSItem(MusicUrl);
-        ttsItem.setAutoResume(true);
-        ttsItem.setUrlType("media");
-        ttsItem.setLabel(Song);
-        ttsItem.setSkillType("");
-        ttsItem.setSeq(index + 1);
         if (sever != null) {
-            sever.reportPlayerStatusToCloud(ttsItem, str_status);
+            sever.reportPlayerStatusToCloud(MusicUrl, Song, index, str_status);
         }
     }
 
