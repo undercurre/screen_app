@@ -284,7 +284,7 @@ class ScenePanelData {
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
 
-    modeList = data.endList.map((e) => e.event.buttonMode).toList();
+    modeList = data.endList.map((e) => e.event.buttonMode.toString()).toList();
 
     sceneList = sceneNet;
   }
