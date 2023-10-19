@@ -85,6 +85,7 @@ enum DeviceEntityTypeInP4 {
   Zigbee_1254,
   Zigbee_1262,
   Zigbee_1263,
+  Zigbee_3037,
   // zigbee窗帘
   Zigbee_1364,
   // zigbee面板
@@ -1302,6 +1303,75 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
                     params.applianceCode ?? ''));
           }
         ),
+  },
+  DeviceEntityTypeInP4.Zigbee_3037: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0x21_1263.png'),
+        ),
+        roomName: params.roomName,
+        onTap: () => params.onTap,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+              ZigbeeLightDataAdapter(
+                  MideaRuntimePlatform.platform,
+
+                  params.masterId ?? '',
+                  params.applianceCode ?? ''));
+        }
+    ),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0x21_55.png'),
+        ),
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+              ZigbeeLightDataAdapter(
+                  MideaRuntimePlatform.platform,
+
+                  params.masterId ?? '',
+                  params.applianceCode ?? ''));
+        }
+    ),
+    CardType.Big: (params) => BigDeviceLightCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        hasMore: params.hasMore ?? true,
+        disableOnOff: params.disableOnOff ?? true,
+        discriminative: params.discriminative ?? false,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+              ZigbeeLightDataAdapter(
+                  MideaRuntimePlatform.platform,
+
+                  params.masterId ?? '',
+                  params.applianceCode ?? ''));
+        }
+    ),
   },
   DeviceEntityTypeInP4.Zigbee_1276: {
     CardType.Small: (params) => SmallDeviceCardWidget(
