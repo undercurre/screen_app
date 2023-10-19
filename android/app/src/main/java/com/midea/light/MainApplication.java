@@ -14,6 +14,7 @@ import com.midea.light.issued.IssuedManager;
 import com.midea.light.issued.distribution.GateWayDistributionIssuedMatch;
 import com.midea.light.issued.plc.PLCControlIssuedMatch;
 import com.midea.light.issued.relay.RelayIssuedMatch;
+import com.midea.light.issued.switchModel.SwitchModelIssuedMatch;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
@@ -82,6 +83,8 @@ public class MainApplication extends BaseApplication {
         IssuedManager.getInstance().register(new GateWayDistributionIssuedMatch());
         // #注册485设备控制下发捕抓器
         IssuedManager.getInstance().register(new PLCControlIssuedMatch());
+        // #注册按键模式捕捉器
+        IssuedManager.getInstance().register(new SwitchModelIssuedMatch());
 
         GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
         GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());

@@ -5,7 +5,6 @@ import com.midea.light.config.IRelayControl;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.setting.SystemUtil;
 
-
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
@@ -25,26 +24,40 @@ public class RelayControl implements IRelayControl {
 
     @Override
     public void controlRelay1Open(boolean open) {
-        SystemUtil.CommandGP(0, open);
-        reportRelayStateChange(REPORT_1);
+        //只有继电器模式为0时才去控制继电器
+        if( RelayRepository.getInstance().getGP0Model()==0){
+            SystemUtil.CommandGP(0, open);
+        }
         RelayRepository.getInstance().setGP0State(open);
+        reportRelayStateChange(REPORT_1);
     }
 
     @Override
     public void controlRelay2Open(boolean open) {
-        SystemUtil.CommandGP(1, open);
-        reportRelayStateChange(REPORT_2);
+        //只有继电器模式为0时才去控制继电器
+        if(RelayRepository.getInstance().getGP1Model()==0){
+            SystemUtil.CommandGP(1, open);
+        }
         RelayRepository.getInstance().setGP1State(open);
+        reportRelayStateChange(REPORT_2);
     }
 
     @Override
     public boolean isRelay1Open() {
-        return SystemUtil.readGP(0);
+        if(RelayRepository.getInstance().getGP0Model()==0){
+            return SystemUtil.readGP(0);
+        }else{
+            return RelayRepository.getInstance().getGP0State();
+        }
     }
 
     @Override
     public boolean isRelay2Open() {
-        return SystemUtil.readGP(1);
+        if(RelayRepository.getInstance().getGP1Model()==0){
+            return SystemUtil.readGP(1);
+        }else{
+            return RelayRepository.getInstance().getGP1State();
+        }
     }
 
     public void reportRelayStateChange(int state) {

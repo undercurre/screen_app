@@ -13,6 +13,9 @@ public class RelayRepository extends AbstractMMKVSetting {
     private static final String FILE_NAME = "RelayRepository";
     private static final String GP0_STATE = "GP_0_state";
     private static final String GP1_STATE = "GP_1_state";
+    private static final String GP0_MODEL = "GP_0_model";
+    private static final String GP1_MODEL = "GP_1_model";
+
     /**
      * 本实例
      */
@@ -74,6 +77,32 @@ public class RelayRepository extends AbstractMMKVSetting {
 
     public void setGP1State(boolean state) {
         save(GP1_STATE, state);
+    }
+
+    public void setGP0Model(int state) {
+        save(GP0_MODEL, state);
+    }
+
+    public void setGP1Model(int state) {
+        save(GP1_MODEL, state);
+    }
+
+    public int getGP0Model() {
+        Integer result= get(GP0_MODEL, Integer.class);
+        if(result!=null){
+            return result;
+        }else{
+            return 0;
+        }
+    }
+
+    public int getGP1Model() {
+        Integer result= get(GP1_MODEL, Integer.class);
+        if(result!=null){
+            return result;
+        }else{
+            return 0;
+        }
     }
 
 }
