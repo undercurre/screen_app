@@ -149,9 +149,20 @@ class MzSettingItem extends StatelessWidget {
             onLongTap?.call();
           });
         },
+        onScaleStart: (e) {
+          if (onLongTap == null) return;
+          tapTimer?.cancel();
+          tapTimer = null;
+        },
+        onTapCancel: () {
+          if (onLongTap == null) return;
+          tapTimer?.cancel();
+          tapTimer = null;
+        },
         onTapUp: (e) {
           if (onLongTap == null) return;
           tapTimer?.cancel();
+          tapTimer = null;
         },
         child: widget,
       );

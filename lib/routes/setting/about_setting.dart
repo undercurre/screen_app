@@ -409,7 +409,9 @@ class _AboutSettingPageState extends State<AboutSettingPage> {
                         ),
                         MzSettingItem(
                           onLongTap: () {
-                            Navigator.of(context).pushNamed("developer");
+                            if(context.read<AboutSettingProvider>().debug == true) {
+                              Navigator.of(context).pushNamed("developer");
+                            }
                           },
                           longTapSecond: 5,
                           leftText: 'MAC地址',

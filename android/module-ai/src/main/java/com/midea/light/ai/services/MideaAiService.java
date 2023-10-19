@@ -91,7 +91,7 @@ public class MideaAiService extends Service {
     public void setServerInitialBack(ServerInitialBack initialBack, ServerBindCallBack BindCallBack) {
         this.initialBack = initialBack;
         this.BindCallBack = BindCallBack;
-        registerNetworkReceiver();
+        //registerNetworkReceiver();
     }
 
     //client 能够经过Binder获取Service实例
@@ -980,7 +980,7 @@ public class MideaAiService extends Service {
     public void stop() {
         mIsRecording = false;
         mMediaMwEngine = null;
-        unreregisterNetworkReceiver();
+        //unreregisterNetworkReceiver();
         stopRecord();
     }
 
