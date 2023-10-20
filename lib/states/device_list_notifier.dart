@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/device_card_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
@@ -6,6 +7,7 @@ import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
+import 'package:screen_app/states/relay_change_notifier.dart';
 import 'package:screen_app/widgets/util/compare.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
@@ -19,6 +21,7 @@ import '../common/meiju/api/meiju_device_api.dart';
 import '../common/meiju/models/meiju_device_info_entity.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
 import '../common/system.dart';
+import '../main.dart';
 import '../models/device_entity.dart';
 import '../routes/home/device/card_type_config.dart';
 import '../routes/home/device/layout_data.dart';
@@ -120,6 +123,7 @@ class DeviceInfoListModel extends ChangeNotifier {
   List<DeviceEntity> getHomluxLocalPanelDevices(List<HomluxDeviceEntity> deviceList) {
     String roomID = System.roomInfo?.id ?? '';
     String roomName = System.roomInfo?.name ?? '';
+    final relayModel =  navigatorKey.currentContext!.read<RelayModel>();
 
     String? gatewayApplianceCode = System.gatewayApplianceCode;
     if(deviceList.isNotEmpty && gatewayApplianceCode != null) {
@@ -133,7 +137,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
 
     DeviceEntity vLocalPanel1 = DeviceEntity();
-    vLocalPanel1.name = '灯1';
+    vLocalPanel1.name = relayModel.localRelay1Name;
     vLocalPanel1.applianceCode = 'localPanel1';
     vLocalPanel1.type = 'localPanel1';
     vLocalPanel1.modelNumber = 'xx';
@@ -143,7 +147,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     vLocalPanel1.onlineStatus = '1';
 
     DeviceEntity vLocalPanel2 = DeviceEntity();
-    vLocalPanel2.name = '灯2';
+    vLocalPanel2.name = relayModel.localRelay2Name;
     vLocalPanel2.applianceCode = 'localPanel2';
     vLocalPanel2.type = 'localPanel2';
     vLocalPanel2.modelNumber = 'xx';
