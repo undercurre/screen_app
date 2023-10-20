@@ -12,7 +12,6 @@ import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,7 +20,6 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.exoplayer.C;
 import com.google.gson.Gson;
 import com.midea.aispeech.Mw;
 import com.midea.light.ai.AiSpeech.AIDeviceInfo;
@@ -39,13 +37,6 @@ import com.midea.light.ai.IMideaLightServerInitialCallBack;
 import com.midea.light.ai.IMideaLightWakUpStateCallBack;
 import com.midea.light.ai.MideaLightMusicInfo;
 import com.midea.light.ai.brocast.NetWorkStateReceiver;
-import com.midea.light.ai.impl.AISetVoiceCallBack;
-import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
-import com.midea.light.ai.impl.FlashMusicListCallBack;
-import com.midea.light.ai.impl.MusicPlayControlBack;
-import com.midea.light.ai.impl.ServerBindCallBack;
-import com.midea.light.ai.impl.ServerInitialBack;
-import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.music.MusicBean;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
@@ -168,6 +159,7 @@ public class MideaAiService extends Service {
 
         @Override
         public void startRecord() throws RemoteException {
+            MideaAiService.this.stopRecord();
             MideaAiService.this.startRecord();
         }
 
