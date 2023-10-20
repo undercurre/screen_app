@@ -18,6 +18,7 @@ import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../../states/relay_change_notifier.dart';
 import '../../../states/scene_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import '../../../widgets/indicatior.dart';
@@ -120,6 +121,9 @@ class _DevicePageState extends State<DevicePage> {
     final sceneModel = context.read<SceneListModel>();
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
+    final relayModel =  context.read<RelayModel>();
+    // 刷新两路继电器名称
+    relayModel.getLocalRelayName();
     // 拿到layout数据中的ids
     List<String> layoutIds = layoutModel.layouts.map((e) => e.deviceId).toList();
     // 拉取缓存数据

@@ -5,6 +5,7 @@ import 'package:screen_app/common/index.dart';
 
 import '../channel/index.dart';
 import '../common/adapter/panel_data_adapter.dart';
+import '../common/gateway_platform.dart';
 import '../common/homlux/api/homlux_device_api.dart';
 import '../common/homlux/models/homlux_device_entity.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
@@ -29,9 +30,6 @@ class RelayModel extends ChangeNotifier {
     bus.on("relay1StateChange", relay1StateChange);
     bus.on("relay2StateChange", relay2StateChange);
 
-    Timer.periodic(const Duration(seconds: 180), (Timer timer) async {
-      getLocalRelayName();
-    });
     getLocalRelayName();
 
   }
@@ -61,15 +59,15 @@ class RelayModel extends ChangeNotifier {
   }
 
   void getLocalRelayName() async {
-    if(System.gatewayApplianceCode!=null){
-      HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
-      await HomluxDeviceApi.queryDeviceStatusByDeviceId(System.gatewayApplianceCode!);
-      HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
-      if (nodeInfo != null) {
-        localRelay1Name=nodeInfo.switchInfoDTOList![0].switchName!;
-        localRelay2Name=nodeInfo.switchInfoDTOList![1].switchName!;
-        notifyListeners();
-      }
+    if(MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX&&System.gatewayApplianceCode!=null){
+        HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
+        await HomluxDeviceApi.queryDeviceStatusByDeviceId(System.gatewayApplianceCode!);
+        HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+        if (nodeInfo != null) {
+          localRelay1Name=nodeInfo.switchInfoDTOList![0].switchName!;
+          localRelay2Name=nodeInfo.switchInfoDTOList![1].switchName!;
+          notifyListeners();
+        }
     }
   }
 
