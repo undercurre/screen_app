@@ -41,6 +41,7 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> with WidgetNetState {
   // 准备一个定时器
   Timer? _timer;
+  Timer? _netTimer;
 
   /*
   target: 启动定时器-->每 180秒/3分钟 刷新一次列表
@@ -72,7 +73,11 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   void netChange(MZNetState? state) {
     if(state != null) {
       Log.i('[首页] 检测网络切换，强制刷新首页');
-      autoDeleleLayout(context);
+      _netTimer?.cancel();
+      _netTimer = Timer(const Duration(seconds: 10), () {
+        Log.i("[首页] 10s延迟到期，即将请求");
+        autoDeleleLayout(context);
+      });
       startPolling(context);
     }
   }
@@ -82,6 +87,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
    */
   void stopPolling() {
     _timer?.cancel();
+    _netTimer?.cancel();
   }
 
   /*
