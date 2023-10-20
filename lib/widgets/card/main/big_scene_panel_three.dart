@@ -277,6 +277,32 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
   Widget _panelItem(int index, SceneListModel sceneModel,
       List<SceneInfoEntity> sceneListCache) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+
+    String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.applianceCode, maxLength: 4, startLength: 1, endLength: 2);
+      if (sceneListCache.isEmpty) return nameInModel;
+
+      if (panelIndex >= 0 && panelIndex < adapter.data.sceneList.length) {
+        String sceneIdToCompare = adapter.data.sceneList[panelIndex];
+        SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+          return element.sceneId.toString() == sceneIdToCompare;
+        }, orElse: () {
+          SceneInfoEntity sceneObj = SceneInfoEntity();
+          sceneObj.name = nameInModel;
+          return sceneObj;
+        });
+
+        if (curScene != null) {
+          return curScene.name;
+        } else {
+          return nameInModel;
+        }
+      } else {
+        return nameInModel;
+      }
+    }
+
     return SizedBox(
       width: 84,
       height: 120,
@@ -379,29 +405,6 @@ class _BigScenePanelCardWidgetThreeState extends State<BigScenePanelCardWidgetTh
       }
     } else {
       return false;
-    }
-  }
-
-  String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
-    if (sceneListCache.isEmpty) return '加载中';
-
-    if (panelIndex >= 0 && panelIndex < adapter.data.sceneList.length) {
-      String sceneIdToCompare = adapter.data.sceneList[panelIndex];
-      SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
-        return element.sceneId.toString() == sceneIdToCompare;
-      }, orElse: () {
-        SceneInfoEntity sceneObj = SceneInfoEntity();
-        sceneObj.name = '加载中';
-        return sceneObj;
-      });
-
-      if (curScene != null) {
-        return curScene.name;
-      } else {
-        return '加载中';
-      }
-    } else {
-      return '加载中';
     }
   }
 

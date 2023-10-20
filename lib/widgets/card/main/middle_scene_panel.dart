@@ -31,25 +31,25 @@ class MiddleScenePanelCardWidget extends StatefulWidget {
   List<bool> sceneOnOff = [false, false];
   AdapterGenerateFunction<ScenePanelDataAdapter> adapterGenerateFunction;
 
-  MiddleScenePanelCardWidget({
-    super.key,
-    required this.icon,
-    required this.roomName,
-    required this.isOnline,
-    required this.name,
-    this.disableOnOff = true,
-    required this.disabled,
-    this.discriminative = false,
-    required this.applianceCode,
-    required this.adapterGenerateFunction
-  });
+  MiddleScenePanelCardWidget(
+      {super.key,
+      required this.icon,
+      required this.roomName,
+      required this.isOnline,
+      required this.name,
+      this.disableOnOff = true,
+      required this.disabled,
+      this.discriminative = false,
+      required this.applianceCode,
+      required this.adapterGenerateFunction});
 
   @override
-  _MiddleScenePanelCardWidgetState createState() => _MiddleScenePanelCardWidgetState();
+  _MiddleScenePanelCardWidgetState createState() =>
+      _MiddleScenePanelCardWidgetState();
 }
 
-class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget> {
-
+class _MiddleScenePanelCardWidgetState
+    extends State<MiddleScenePanelCardWidget> {
   late ScenePanelDataAdapter adapter;
 
   @override
@@ -57,7 +57,7 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disabled) {
+    if (!widget.disabled) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
@@ -94,7 +94,8 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
   @override
   Widget build(BuildContext context) {
     final sceneModel = Provider.of<SceneListModel>(context);
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     List<SceneInfoEntity> sceneListCache = sceneModel.getCacheSceneList();
 
@@ -117,6 +118,34 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
       }
 
       return nameInModel;
+    }
+
+    String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
+      String nameInModel = deviceListModel.getDeviceName(
+          deviceId: widget.applianceCode,
+          maxLength: 4,
+          startLength: 1,
+          endLength: 2);
+      if (sceneListCache.isEmpty) return nameInModel;
+
+      if (panelIndex >= 0 && panelIndex < adapter.data.sceneList.length) {
+        String sceneIdToCompare = adapter.data.sceneList[panelIndex];
+        SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+          return element.sceneId.toString() == sceneIdToCompare;
+        }, orElse: () {
+          SceneInfoEntity sceneObj = SceneInfoEntity();
+          sceneObj.name = nameInModel;
+          return sceneObj;
+        });
+
+        if (curScene != null) {
+          return curScene.name;
+        } else {
+          return nameInModel;
+        }
+      } else {
+        return nameInModel;
+      }
     }
 
     String _getRightText() {
@@ -148,8 +177,8 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel =
+          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
       if (widget.disabled) {
         return nameInModel;
       }
@@ -177,7 +206,8 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
       },
       child: AbsorbPointer(
         absorbing:
-        (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
+                adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 210,
           height: 196,
@@ -271,8 +301,7 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
                             }).show(context);
                       } else {
                         if (adapter.data.modeList[0] == '2') {
-                          sceneModel
-                              .sceneExec(adapter.data.sceneList[0]);
+                          sceneModel.sceneExec(adapter.data.sceneList[0]);
                           setState(() {
                             widget.sceneOnOff[0] = true;
                           });
@@ -283,8 +312,11 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
                           });
                         } else {
                           await adapter.fetchOrderPower(1);
-                          bus.emit('operateDevice', adapter.nodeId.isEmpty ? widget.applianceCode : adapter.nodeId);
-
+                          bus.emit(
+                              'operateDevice',
+                              adapter.nodeId.isEmpty
+                                  ? widget.applianceCode
+                                  : adapter.nodeId);
                         }
                       }
                     }
@@ -353,8 +385,7 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
                             }).show(context);
                       } else {
                         if (adapter.data.modeList[1] == '2') {
-                          sceneModel
-                              .sceneExec(adapter.data.sceneList[1]);
+                          sceneModel.sceneExec(adapter.data.sceneList[1]);
                           setState(() {
                             widget.sceneOnOff[1] = true;
                           });
@@ -427,29 +458,6 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
     );
   }
 
-  String _getSceneName(int panelIndex, List<SceneInfoEntity> sceneListCache) {
-    if (sceneListCache.isEmpty) return '加载中';
-
-    if (panelIndex >= 0 && panelIndex < adapter.data.sceneList.length) {
-      String sceneIdToCompare = adapter.data.sceneList[panelIndex];
-      SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
-        return element.sceneId.toString() == sceneIdToCompare;
-      }, orElse: () {
-        SceneInfoEntity sceneObj = SceneInfoEntity();
-        sceneObj.name = '加载中';
-        return sceneObj;
-      });
-
-      if (curScene != null) {
-        return curScene.name;
-      } else {
-        return '加载中';
-      }
-    } else {
-      return '加载中';
-    }
-  }
-
   bool _getIconOnOff(int panelIndex) {
     // 禁用——关闭
     if (widget.disabled) return false;
@@ -462,5 +470,4 @@ class _MiddleScenePanelCardWidgetState extends State<MiddleScenePanelCardWidget>
       return widget.sceneOnOff[panelIndex];
     }
   }
-
 }
