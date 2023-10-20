@@ -65,14 +65,11 @@ public class MainApplication extends BaseApplication {
                 .withMMKVCryptKey(AppCommonConfig.MMKV_CRYPT_KEY)
                 .build());
 
-        // 初始化Bugly
-        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
-        //带上设备的mac地址
-        CrashReport.putUserData(this, "mac_address",  MacUtil.macAddress("wlan0"));
-        // 设置是否位开发设备
-        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
+        boolean isMainProcess = ProcessUtil.isInMainProcess(this);
+        // #初始化Bugly
+        BuglyManager.init(BuildConfig.DEBUG, (throwable, randomCode) -> false);
 
-        if(!ProcessUtil.isInMainProcess(this)) {
+        if(!isMainProcess) {
             AliPushChannel.aliPushInit(this);
             return;
         }
@@ -80,7 +77,6 @@ public class MainApplication extends BaseApplication {
         /// *************  注意注意 *******************
         /// 下面的初始化，只能在com.midea.light进程中初始化
         AliPushChannel.aliPushInit(this);
-
 
         // 初始化网关
         GateWayUtils.init();

@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.midea.light.BaseApplication;
 import com.midea.light.ai.impl.AISetVoiceCallBack;
 import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
 import com.midea.light.ai.impl.FlashMusicListCallBack;
@@ -19,12 +20,14 @@ import com.midea.light.ai.impl.ServerInitialBack;
 import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.services.MideaAiService;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.thread.MainThread;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Timer;
 
 public class AiManager {
     private IMideaLightAIdlInterface sever;
@@ -40,7 +43,6 @@ public class AiManager {
     private MusicPlayControlBack MusicPlayControl;
     private AISetVoiceCallBack SetVoiceCallBack;
     private AiControlDeviceErrorCallBack ControlDeviceErrorCallBack;
-
     private Intent intent;
 
     private AiManager() {}
@@ -83,9 +85,9 @@ public class AiManager {
         mHandler.sendMessage(message);
     }
 
-    public void startAiServer(Context activity, ServerBindCallBack BindCallBack, ServerInitialBack InitialBack) {
-        this.context = activity;
-        intent = new Intent(activity, MideaAiService.class);
+    public void startAiServer(ServerBindCallBack BindCallBack, ServerInitialBack InitialBack) {
+        this.context = BaseApplication.getContext();
+        intent = new Intent(context, MideaAiService.class);
         this.context.bindService(intent, conn, BIND_AUTO_CREATE);
         this.BindCallBack = BindCallBack;
         this.InitialBack = InitialBack;
@@ -103,7 +105,19 @@ public class AiManager {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.e("sky", "MideaAiService已关闭");
+            Log.e("sky", "语音服务异常断开");
+            sever = null;
+            //ServiceConnection.onServiceDisconnected() 方法是在 Service 和客户端之间的连接意外中断时调用的。
+            // 这种情况通常是由于 Service 崩溃或被系统杀死导致的。
+            MainThread.postDelayed(() -> {
+                try {
+                    intent = new Intent(context, MideaAiService.class);
+                    context.bindService(intent, conn, BIND_AUTO_CREATE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, 10 * 1000);
+
         }
     };
 

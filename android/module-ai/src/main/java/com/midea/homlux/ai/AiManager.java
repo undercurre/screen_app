@@ -18,6 +18,7 @@ import com.midea.light.ai.IHomluxAIInterface;
 import com.midea.light.ai.IHomluxAISetVoiceCallBack;
 import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.ai.IMideaLightWakUpStateCallBack;
+import com.midea.light.thread.MainThread;
 
 
 public class AiManager {
@@ -88,7 +89,15 @@ public class AiManager {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mMyBinder = null;
-            Log.i("sky", "语音连接断开");
+            Log.i("sky", "语音异常连接断开");
+            MainThread.postDelayed(() -> {
+                try {
+                    Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
+                    AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, 10 * 1000);
         }
     };
 

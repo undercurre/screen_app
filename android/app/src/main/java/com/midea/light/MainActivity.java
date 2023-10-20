@@ -397,7 +397,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void startMeiJuAiService(String sn, String deviceId, String mac, boolean aiEnable) {
-        com.midea.light.ai.AiManager.getInstance().startAiServer(this, isBind -> {
+        com.midea.light.ai.AiManager.getInstance().startAiServer(isBind -> {
             if (isBind) {
                 setDeviceInfor(sn, deviceId, mac);
             }
