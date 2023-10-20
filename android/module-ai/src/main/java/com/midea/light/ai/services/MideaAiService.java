@@ -267,7 +267,6 @@ public class MideaAiService extends Service {
         mIsRecording = false;
         if (mAudioRecord != null) {
             mAudioRecord.release();
-            Log.e(TAG, "停止Record");
             mAudioRecord = null;
         }
     }
@@ -362,7 +361,7 @@ public class MideaAiService extends Service {
         if (data.contains("场景设置")) {
             return;
         }
-        LogUtil.i("下发指令值：" + data);
+        Log.e("sky", "下发指令值：" + data);
         try {
             dismissWeatherDialog();
             JSONObject object = new JSONObject(data);

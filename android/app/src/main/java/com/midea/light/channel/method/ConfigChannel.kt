@@ -37,15 +37,7 @@ class ConfigChannel(override val context: Context) : AbsMZMethodChannel(context)
                 assert(call.hasArgument("env"))
                 val env = call.argument<String>("env")
                 AppCommonConfig.init(if(env == "prod") AppCommonConfig.CONFIG_TYPE_PRODUCT else AppCommonConfig.CONFIG_TYPE_DEVELOP)
-                //思必驰语音sdk初始化
-                val dcaConfig = DcaConfig.Builder()
-                        .apiKey(AppCommonConfig.DCA_API_KEY)
-                        .apiSecret(AppCommonConfig.DCA_API_SECRET)
-                        .openDebugLog(true)
-                        .publicKey(AppCommonConfig.DCA_PUB_KEY)
-                        .build()
-                DcaSdk.initialize(MainApplication.getContext(), dcaConfig) //初始化dca sdk
-
+                com.midea.homlux.ai.AiManager.getInstance().setEnv(env)
             }
         }
     }

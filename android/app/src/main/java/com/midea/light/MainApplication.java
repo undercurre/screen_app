@@ -50,12 +50,6 @@ public class MainApplication extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化日志库
-        if(!ProcessUtil.isInMainProcess(this)) {
-            AliPushChannel.aliPushInit(this);
-            return;
-        }
-        AliPushChannel.aliPushInit(this);
-
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
                 .withEnable(DEBUG)
                 .withStackFrom(0)
@@ -70,6 +64,24 @@ public class MainApplication extends BaseApplication {
                 .withLogTag("MSmartKVRepository")
                 .withMMKVCryptKey(AppCommonConfig.MMKV_CRYPT_KEY)
                 .build());
+
+        // 初始化Bugly
+        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
+        //带上设备的mac地址
+        CrashReport.putUserData(this, "mac_address",  MacUtil.macAddress("wlan0"));
+        // 设置是否位开发设备
+        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
+
+        if(!ProcessUtil.isInMainProcess(this)) {
+            AliPushChannel.aliPushInit(this);
+            return;
+        }
+
+        /// *************  注意注意 *******************
+        /// 下面的初始化，只能在com.midea.light进程中初始化
+        AliPushChannel.aliPushInit(this);
+
+
         // 初始化网关
         GateWayUtils.init();
         // #设置继电器控制器
@@ -88,12 +100,6 @@ public class MainApplication extends BaseApplication {
 
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
-        // 初始化Bugly
-        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
-        //带上设备的mac地址
-        CrashReport.putUserData(this, "mac_address",  MacUtil.macAddress("wlan0"));
-        // 设置是否位开发设备
-        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
 
 
 

@@ -17,9 +17,22 @@
             android:exported="false"
             android:process=":aiMeiJu" />
 
-        <service android:name="com.midea.homlux.ai.services.MideaAiService"/>
-        <service android:name="com.midea.homlux.ai.music.MusicPlayerService"/>
-        <service android:name="com.midea.homlux.ai.services.DDSService" />
+        <service
+            android:name="com.midea.homlux.ai.services.MideaAiService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aiHomlux" />
+        <service
+            android:name="com.midea.homlux.ai.music.MusicPlayerService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aiHomlux"/>
+        <service
+            android:name="com.midea.homlux.ai.services.DDSService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aiHomlux"/>
+
     </application>
 
 </manifest>
