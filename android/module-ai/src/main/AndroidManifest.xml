@@ -2,11 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application android:allowBackup="true">
-        <service android:name="com.midea.light.ai.services.MideaAiService"></service>
-        <service android:name="com.midea.light.ai.music.MusicPlayerService"></service>
-        <service android:name="com.midea.homlux.ai.services.MideaAiService"></service>
-        <service android:name="com.midea.homlux.ai.music.MusicPlayerService"></service>
+
+        <service
+            android:name="com.midea.light.ai.services.MideaAiService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aiMeiJu" />
+
+        <service
+            android:name="com.midea.light.ai.music.MusicPlayerService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aiMeiJu" />
+
+        <service android:name="com.midea.homlux.ai.services.MideaAiService"/>
+        <service android:name="com.midea.homlux.ai.music.MusicPlayerService"/>
         <service android:name="com.midea.homlux.ai.services.DDSService" />
     </application>
+
 </manifest>

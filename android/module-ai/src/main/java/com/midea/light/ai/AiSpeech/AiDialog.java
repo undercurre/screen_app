@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -181,8 +182,12 @@ public class AiDialog extends Dialog {
     }
 
     public void dismissDialog() {
-        if(sever.mWakUpStateCallBack!=null){
-            sever.mWakUpStateCallBack.wakUpState(false);
+        if (sever.wakUpStateCallBack != null) {
+            try {
+                sever.wakUpStateCallBack.wakUpState(false);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
 //        GateWayLightControlUtil.stopLightShow();
         dismiss();

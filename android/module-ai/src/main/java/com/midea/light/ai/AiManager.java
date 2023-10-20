@@ -7,8 +7,9 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
+import android.util.Log;
 
-import com.midea.light.ai.AiSpeech.TTSItem;
 import com.midea.light.ai.impl.AISetVoiceCallBack;
 import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
 import com.midea.light.ai.impl.FlashMusicListCallBack;
@@ -21,8 +22,12 @@ import com.midea.light.common.utils.DialogUtil;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 public class AiManager {
-    private MideaAiService sever;
+    private IMideaLightAIdlInterface sever;
     private Context context;
     private String sn;
     private String deviceType;
@@ -38,9 +43,7 @@ public class AiManager {
 
     private Intent intent;
 
-    private AiManager() {
-
-    }
+    private AiManager() {}
 
     public static AiManager Instance = new AiManager();
 
@@ -48,9 +51,25 @@ public class AiManager {
         return Instance;
     }
 
-    private void addService(MideaAiService s) {
+    private void addService(IMideaLightAIdlInterface s) {
         sever = s;
-        sever.setServerInitialBack(InitialBack, BindCallBack);
+        try {
+            sever.setServerInitialBack(new IMideaLightServerInitialCallBack.Stub() {
+                @Override
+                public void isInitial(boolean isInitial) throws RemoteException {
+                    Log.e("sky", "语音初始化完成");
+                    InitialBack.isInitial(isInitial);
+                }
+            }, new IMideaLightServerBindCallBack.Stub() {
+                @Override
+                public void isServerBind(boolean isbind) throws RemoteException {
+                    Log.e("sky", "service bind 完成");
+                    BindCallBack.isServerBind(isbind);
+                }
+            });
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
         BindCallBack.isServerBind(true);
     }
 
@@ -72,58 +91,114 @@ public class AiManager {
         this.InitialBack = InitialBack;
     }
 
+
+
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            MideaAiService.MyBinder mMyBinder = (MideaAiService.MyBinder) binder;
-            addService(mMyBinder.getService());
+            Log.e("sky", "MideaAiService已启动");
+            IMideaLightAIdlInterface.Stub.asInterface(binder);
+            addService(IMideaLightAIdlInterface.Stub.asInterface(binder));
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
+            Log.e("sky", "MideaAiService已关闭");
         }
     };
 
 
-    public void addFlashMusicListCallBack(FlashMusicListCallBack CallBack) {
-        this.CallBack = CallBack;
+    public void addFlashMusicListCallBack(FlashMusicListCallBack callBack) {
+        this.CallBack = callBack;
         if (sever != null) {
-            sever.setFlashMusicListCallBack(CallBack);
+            try {
+                sever.setFlashMusicListCallBack(new IMideaLightFlashMusicListCallback.Stub(){
+                    @Override
+                    public void FlashMusicList(MideaLightMusicInfo[] musics) throws RemoteException {
+                        ArrayList<MideaLightMusicInfo> list = new ArrayList<>();
+                        if(musics != null) {
+                            Collections.addAll(list, musics);
+                        }
+                        CallBack.FlashMusicList(list);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void addWakUpStateCallBack(WakUpStateCallBack CallBack) {
-        this.mWakUpStateCallBack = CallBack;
+    public void addWakUpStateCallBack(WakUpStateCallBack callBack) {
+        this.mWakUpStateCallBack = callBack;
         if (sever != null) {
-            sever.addWakUpStateCallBack(mWakUpStateCallBack);
+            try {
+                sever.addWakUpStateCallBack(new IMideaLightWakUpStateCallBack.Stub() {
+                    @Override
+                    public void wakUpState(boolean isWakUp) throws RemoteException {
+                        mWakUpStateCallBack.wakUpState(isWakUp);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void addMusicPlayControlBack(MusicPlayControlBack CallBack) {
-        this.MusicPlayControl = CallBack;
+    public void addMusicPlayControlBack(MusicPlayControlBack callBack) {
+        this.MusicPlayControl = callBack;
         if (sever != null) {
-            sever.addMusicPlayControlCallBack(MusicPlayControl);
+            try {
+                sever.addMusicPlayControlCallBack(new IMideaLightMusicPlayControlBack.Stub() {
+                    @Override
+                    public void playControl(String Control) throws RemoteException {
+                        MusicPlayControl.playControl(Control);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void addAISetVoiceCallBack(AISetVoiceCallBack CallBack) {
-        this.SetVoiceCallBack = CallBack;
+    public void addAISetVoiceCallBack(AISetVoiceCallBack callBack) {
+        this.SetVoiceCallBack = callBack;
         if (sever != null) {
-            sever.addAISetVoiceCallBack(SetVoiceCallBack);
+            try {
+                sever.addAISetVoiceCallBack(new IMideaLightAISetVoiceCallBack.Stub() {
+                    @Override
+                    public void SetVoice(int Voice) throws RemoteException {
+                        SetVoiceCallBack.SetVoice(Voice);
+                    }
+                });
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    public void addControlDeviceErrorCallBack(AiControlDeviceErrorCallBack CallBack) {
-        this.ControlDeviceErrorCallBack = CallBack;
+    public void addControlDeviceErrorCallBack(AiControlDeviceErrorCallBack callBack) {
+        this.ControlDeviceErrorCallBack = callBack;
         if (sever != null) {
-            sever.addAIControlDeviceErrorCallBack(ControlDeviceErrorCallBack);
+            try {
+                sever.addAIControlDeviceErrorCallBack(new IMideaLightAiControlDeviceErrorCallBack.Stub() {
+                    @Override
+                    public void ControlDeviceError() throws RemoteException {
+                        ControlDeviceErrorCallBack.ControlDeviceError();
+                    }
+                });
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void getMusicList() {
         if (sever != null) {
-            sever.getMusicList();
+            try {
+                sever.getMusicList();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -133,7 +208,11 @@ public class AiManager {
             switch (message.arg1) {
                 case 1:
                     if (sever != null) {
-                        sever.start(context, sn, deviceType, deviceCode, mac);
+                        try {
+                            sever.start(sn, deviceType, deviceCode, mac);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
             }
@@ -144,19 +223,28 @@ public class AiManager {
     public void setAiEnable(boolean aiEnable) {
         if (sever != null) {
             if (aiEnable) {
-                sever.isAiEnable = true;
-                sever.startRecord();
+                try {
+                    sever.startRecord();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             } else {
-                sever.isAiEnable = false;
-                sever.stopRecord();
+                try {
+                    sever.stopRecord();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
-
         }
     }
 
     public void wakeupAi() {
         if (sever != null) {
-            sever.wakeupByHand();
+            try {
+                sever.wakeupByHand();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else {
             DialogUtil.showToast("小美语音服务启动失败,请重启设备");
         }
@@ -164,13 +252,22 @@ public class AiManager {
 
     public void updateVoiceToCloud(int voice) {
         if (sever != null) {
-            sever.updateVoiceToCloud(voice);
+            try {
+                sever.updateVoiceToCloud(voice);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) {
         if (sever != null) {
-            sever.reportPlayerStatusToCloud(MusicUrl, Song, index, str_status);
+            try {
+                sever.reportPlayerStatusToCloud(MusicUrl, Song, index, str_status);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -178,29 +275,10 @@ public class AiManager {
         try {
             if (sever != null) {
                 sever.stop();
-                context.unbindService(conn);
-                sever.stopService(intent);
-                sever.stopSelf();
             }
+            context.unbindService(conn);
         } catch (Exception e) {
-
-        }
-
-    }
-
-    public boolean isAiStop() {
-        if (sever == null) {
-            return true;
-        } else {
-            if (sever != null) {
-                if (sever.mMediaMwEngine == null) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
+            e.printStackTrace();
         }
     }
 
