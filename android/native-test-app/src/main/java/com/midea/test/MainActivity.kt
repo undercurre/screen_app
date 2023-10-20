@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.midea.test.ui.page.Home
 import com.midea.test.ui.page.Homos
 import com.midea.test.ui.page.OTA
+import com.midea.test.ui.page.ProcessComServicePage
 import com.midea.test.ui.theme.AndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,15 +25,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 @Composable
 fun MyAppNavHost(modifier: Modifier = Modifier,
                  navController: NavHostController = rememberNavController(),
                  startDestination: String = "profile") {
-    NavHost(modifier = modifier, navController = navController, startDestination = "ota") {
+    NavHost(modifier = modifier, navController = navController, startDestination = "pcs") {
         composable("/") { Home() }
         composable("homos") { Homos() }
         composable("ota") { OTA() }
+        composable("pcs") { ProcessComServicePage() }
     }
 }
