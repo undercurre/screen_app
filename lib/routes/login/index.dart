@@ -115,170 +115,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       } else {
         // 运行在其他平台上
         showBindingDialog(true);
-        final deviceInfoListModel =
-            Provider.of<DeviceInfoListModel>(context, listen: false);
-        final layoutModel = Provider.of<LayoutModel>(context, listen: false);
-        if (Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
-          // 换房间，重新初始布局该房间
-          await layoutModel.removeLayouts();
-          if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-            var res = await HomluxDeviceApi.queryDeviceListByRoomId(
-                System.roomInfo!.id!);
-            List<HomluxDeviceEntity>? devices = res.data;
-            if (devices != null) {
-              List<DeviceEntity> devicesReal = [];
-
-              devices.forEach((e) {
-                DeviceEntity deviceObj = DeviceEntity();
-                deviceObj.name = e.deviceName!;
-                deviceObj.applianceCode = e.deviceId!;
-                deviceObj.type = e.proType!;
-                deviceObj.modelNumber = getModelNumber(e);
-                deviceObj.roomName = e.roomName!;
-                deviceObj.roomId = System.roomInfo?.id;
-                deviceObj.masterId = e.gatewayId ?? '';
-                deviceObj.onlineStatus = e.onLineStatus.toString();
-                if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                        deviceObj.type, deviceObj.modelNumber) !=
-                    DeviceEntityTypeInP4.Default) {
-                  devicesReal.add(deviceObj);
-                }
-              });
-              if (devicesReal.isNotEmpty) {
-                List<Layout> layoutData = deviceInfoListModel
-                    .transformLayoutFromDeviceList(devicesReal);
-                await layoutModel.setLayouts(layoutData);
-              } else {
-                await layoutModel.loadLayouts();
-              }
-            }
-          } else {
-            List<dynamic> devices =
-                await MeiJuDeviceApi.queryDeviceListByRoomId(
-                    MeiJuGlobal.token!.uid,
-                    System.familyInfo!.familyId,
-                    System.roomInfo!.id!);
-            List<DeviceEntity> devicesReal = [];
-
-            devices.forEach((e) {
-              DeviceEntity deviceObj = DeviceEntity();
-              deviceObj.name = e["name"];
-              deviceObj.applianceCode = e["applianceCode"];
-              deviceObj.type = e["type"];
-              deviceObj.modelNumber = e["modelNumber"];
-              deviceObj.sn8 = e["sn8"];
-              deviceObj.roomName = e["roomName"];
-              deviceObj.masterId = e["masterId"];
-              deviceObj.onlineStatus = e["onlineStatus"];
-              if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                      e["type"], e["modelNumber"]) !=
-                  DeviceEntityTypeInP4.Default) {
-                devicesReal.add(deviceObj);
-              }
-            });
-            Log.i('有效布局', devicesReal);
-            if (devicesReal.isNotEmpty) {
-              List<Layout> layoutData = deviceInfoListModel
-                  .transformLayoutFromDeviceList(devicesReal);
-              await layoutModel.setLayouts(layoutData);
-            } else {
-              List<Layout> defaultList = [
-                Layout(
-                    'clock',
-                    DeviceEntityTypeInP4.Clock,
-                    CardType.Other,
-                    0,
-                    [1, 2, 5, 6],
-                    DataInputCard(
-                        name: '时钟',
-                        applianceCode: 'clock',
-                        roomName: '屏内',
-                        isOnline: '',
-                        type: 'clock',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: '1')),
-                Layout(
-                    'weather',
-                    DeviceEntityTypeInP4.Weather,
-                    CardType.Other,
-                    0,
-                    [3, 4, 7, 8],
-                    DataInputCard(
-                        name: '天气',
-                        applianceCode: 'weather',
-                        roomName: '屏内',
-                        isOnline: '',
-                        type: 'weather',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: '1')),
-                Layout(
-                    'localPanel1',
-                    DeviceEntityTypeInP4.LocalPanel1,
-                    CardType.Small,
-                    0,
-                    [9, 10],
-                    DataInputCard(
-                        name: '灯1',
-                        applianceCode: 'localPanel1',
-                        roomName: '屏内',
-                        isOnline: '',
-                        type: 'localPanel1',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: '1')),
-                Layout(
-                    'localPanel2',
-                    DeviceEntityTypeInP4.LocalPanel2,
-                    CardType.Small,
-                    0,
-                    [11, 12],
-                    DataInputCard(
-                        name: '灯2',
-                        applianceCode: 'localPanel2',
-                        roomName: '屏内',
-                        isOnline: '',
-                        type: 'localPanel2',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: '1')),
-                Layout(
-                    uuid.v4(),
-                    DeviceEntityTypeInP4.DeviceNull,
-                    CardType.Null,
-                    0,
-                    [13, 14],
-                    DataInputCard(
-                        name: '',
-                        applianceCode: '',
-                        roomName: '',
-                        isOnline: '',
-                        type: '',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: '')),
-                Layout(
-                    uuid.v4(),
-                    DeviceEntityTypeInP4.DeviceNull,
-                    CardType.Null,
-                    0,
-                    [15, 16],
-                    DataInputCard(
-                        name: '',
-                        applianceCode: '',
-                        roomName: '',
-                        isOnline: '',
-                        type: '',
-                        masterId: '',
-                        modelNumber: '',
-                        onlineStatus: ''))
-              ];
-              await layoutModel.setLayouts(defaultList);
-              Log.i('插入默认布局');
-            }
-          }
-        }
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
@@ -315,6 +151,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   }
 
   void prepare2goHome() {
+    prepareLayout();
     Timer(const Duration(seconds: 3), () {
       Navigator.pop(context);
       if (mounted) {
@@ -331,6 +168,173 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         stepNum = 2;
       }
     });
+  }
+
+  void prepareLayout() async {
+    final deviceInfoListModel =
+    Provider.of<DeviceInfoListModel>(context, listen: false);
+    final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+    if (Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
+      // 换房间，重新初始布局该房间
+      await layoutModel.removeLayouts();
+      if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+        var res = await HomluxDeviceApi.queryDeviceListByRoomId(
+            System.roomInfo!.id!);
+        List<HomluxDeviceEntity>? devices = res.data;
+        if (devices != null) {
+          List<DeviceEntity> devicesReal = [];
+
+          devices.forEach((e) {
+            DeviceEntity deviceObj = DeviceEntity();
+            deviceObj.name = e.deviceName!;
+            deviceObj.applianceCode = e.deviceId!;
+            deviceObj.type = e.proType!;
+            deviceObj.modelNumber = getModelNumber(e);
+            deviceObj.roomName = e.roomName!;
+            deviceObj.roomId = System.roomInfo?.id;
+            deviceObj.masterId = e.gatewayId ?? '';
+            deviceObj.onlineStatus = e.onLineStatus.toString();
+            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                deviceObj.type, deviceObj.modelNumber) !=
+                DeviceEntityTypeInP4.Default) {
+              devicesReal.add(deviceObj);
+            }
+          });
+          if (devicesReal.isNotEmpty) {
+            List<Layout> layoutData = deviceInfoListModel
+                .transformLayoutFromDeviceList(devicesReal);
+            await layoutModel.setLayouts(layoutData);
+          } else {
+            await layoutModel.loadLayouts();
+          }
+        }
+      } else {
+        List<dynamic> devices =
+            await MeiJuDeviceApi.queryDeviceListByRoomId(
+            MeiJuGlobal.token!.uid,
+            System.familyInfo!.familyId,
+            System.roomInfo!.id!);
+        List<DeviceEntity> devicesReal = [];
+
+        devices.forEach((e) {
+          DeviceEntity deviceObj = DeviceEntity();
+          deviceObj.name = e["name"];
+          deviceObj.applianceCode = e["applianceCode"];
+          deviceObj.type = e["type"];
+          deviceObj.modelNumber = e["modelNumber"];
+          deviceObj.sn8 = e["sn8"];
+          deviceObj.roomName = e["roomName"];
+          deviceObj.masterId = e["masterId"];
+          deviceObj.onlineStatus = e["onlineStatus"];
+          if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+              e["type"], e["modelNumber"]) !=
+              DeviceEntityTypeInP4.Default) {
+            devicesReal.add(deviceObj);
+          }
+        });
+        Log.i('有效布局', devicesReal);
+        if (devicesReal.isNotEmpty) {
+          List<Layout> layoutData = deviceInfoListModel
+              .transformLayoutFromDeviceList(devicesReal);
+          await layoutModel.setLayouts(layoutData);
+        } else {
+          List<Layout> defaultList = [
+            Layout(
+                'clock',
+                DeviceEntityTypeInP4.Clock,
+                CardType.Other,
+                0,
+                [1, 2, 5, 6],
+                DataInputCard(
+                    name: '时钟',
+                    applianceCode: 'clock',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'clock',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'weather',
+                DeviceEntityTypeInP4.Weather,
+                CardType.Other,
+                0,
+                [3, 4, 7, 8],
+                DataInputCard(
+                    name: '天气',
+                    applianceCode: 'weather',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'weather',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'localPanel1',
+                DeviceEntityTypeInP4.LocalPanel1,
+                CardType.Small,
+                0,
+                [9, 10],
+                DataInputCard(
+                    name: '灯1',
+                    applianceCode: 'localPanel1',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'localPanel1',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'localPanel2',
+                DeviceEntityTypeInP4.LocalPanel2,
+                CardType.Small,
+                0,
+                [11, 12],
+                DataInputCard(
+                    name: '灯2',
+                    applianceCode: 'localPanel2',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'localPanel2',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                0,
+                [13, 14],
+                DataInputCard(
+                    name: '',
+                    applianceCode: '',
+                    roomName: '',
+                    isOnline: '',
+                    type: '',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '')),
+            Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                0,
+                [15, 16],
+                DataInputCard(
+                    name: '',
+                    applianceCode: '',
+                    roomName: '',
+                    isOnline: '',
+                    type: '',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: ''))
+          ];
+          await layoutModel.setLayouts(defaultList);
+          Log.i('插入默认布局');
+        }
+      }
+    }
   }
 
   @override

@@ -413,6 +413,7 @@ class DeviceInfoListModel extends ChangeNotifier {
     int page = 0;
     for (int i = 0; i < devices.length; i++) {
       if (devices[i].applianceCode == System.gatewayApplianceCode) continue;
+      if (devices[i].applianceCode == 'G-${System.gatewayApplianceCode}') continue;
       // 当前设备的映射type
       DeviceEntityTypeInP4 curDeviceEntity =
           DeviceEntityTypeInP4Handle.getDeviceEntityType(
