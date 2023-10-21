@@ -1,7 +1,9 @@
 package com.midea.light;
 
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.multidex.MultiDex;
 
@@ -24,12 +26,14 @@ import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
 import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
+import com.midea.light.utils.RootCmd;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = false;
@@ -72,6 +76,27 @@ public class MainApplication extends BaseApplication {
         if(!isMainProcess) {
             AliPushChannel.aliPushInit(this);
             return;
+        } else {
+            // 每次主进程重启，都将删除ai相关进程
+            try{
+                new Thread(() -> {
+                    ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+                    for (ActivityManager.RunningAppProcessInfo process : processes) {
+                        if("com.midea.light:aiHomlux".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiHomlux");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiHomlux");
+                        }
+
+                        if("com.midea.light:aiMeiJu".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiMeiJu");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiMeiJu");
+                        }
+                    }
+                }).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         /// *************  注意注意 *******************

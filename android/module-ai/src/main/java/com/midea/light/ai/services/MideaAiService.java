@@ -159,8 +159,10 @@ public class MideaAiService extends Service {
 
         @Override
         public void startRecord() throws RemoteException {
-            MideaAiService.this.stopRecord();
-            MideaAiService.this.startRecord();
+            synchronized (binder) {
+                MideaAiService.this.stopRecord();
+                MideaAiService.this.startRecord();
+            }
         }
 
         @Override
@@ -178,8 +180,6 @@ public class MideaAiService extends Service {
     public void start(Context context, String sn, String deviceType, String deviceCode, String mac) {
         this.Acontext = context;
         Player.getInstance().setmContext(Acontext);
-        Intent starter = new Intent(context, MideaAiService.class);
-        context.startService(starter);
         AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
         mAIDeviceInfo.setSn(sn);
         mAIDeviceInfo.setModel("172");
@@ -886,18 +886,6 @@ public class MideaAiService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-        super.onRebind(intent);
-        if (serverBindCallBack != null) {
-            try {
-                serverBindCallBack.isServerBind(true);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
