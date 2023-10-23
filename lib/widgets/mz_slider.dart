@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -29,6 +30,9 @@ class MzSlider extends StatefulWidget {
   // 是否禁用操作
   final bool disabled;
 
+  // 滑动条底部颜色
+  final Color seekbarBgColor;
+
   // 滑动回调，传递出进度值和当前颜色
   final void Function(num value, Color activeColor)? onChanging;
   final void Function(num value, Color activeColor)? onChanged;
@@ -41,6 +45,9 @@ class MzSlider extends StatefulWidget {
 
   // 组件内边距，用于拓展手势区域，提高用户体验
   final EdgeInsetsGeometry padding;
+
+  // 滑条颜色是否一直填满
+  final bool isBarColorKeepFull;
 
   const MzSlider({
     super.key,
@@ -59,6 +66,8 @@ class MzSlider extends StatefulWidget {
     this.step = 1,
     this.disabled = false,
     this.padding = const EdgeInsets.all(20),
+    this.isBarColorKeepFull = false,
+    this.seekbarBgColor = const Color(0xFF000000)
   });
 
   @override
@@ -80,6 +89,9 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   bool isPanUpdate = false;
   bool isPanning = false;
   late Offset latestPosition;
+
+  Timer? feedTimer;
+  int timeDrag = 0;
 
   @override
   void initState() {
@@ -104,14 +116,23 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    if (controller?.status == AnimationStatus.forward) {
+      controller!.stop();
+      controller!.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
       onHorizontalDragUpdate: (e) => onPanUpdate(e),
-      onHorizontalDragEnd: (e) => onPanUp(),
-      onPanEnd: (e) => onPanUp(),
-      onPanCancel: () => onPanUp(),
+      //onHorizontalDragEnd: (e) => onPanUp(),
+      //onPanEnd: (e) => onPanUp(),
+      onTap: () => onPanUp(),
       child: Container(
         padding: widget.padding,
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -126,7 +147,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 key: _railKey,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1F1F1F),
+                  color: widget.seekbarBgColor,
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -141,7 +162,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                      colors: widget.disabled ? disableColor : activeColor),
+                      colors: widget.disabled ? disableColor : widget.isBarColorKeepFull ? widget.activeColors : activeColor),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -149,7 +170,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: activeRailWidth,
+                    width: widget.isBarColorKeepFull ? widget.width : activeRailWidth,
                   ),
                 ),
               ),
@@ -199,8 +220,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
 
   // 获取当前圆点的滑动条颜色
   List<Color> get disableColor {
-    Color leftColor = const Color(0xFF8F8F8F);
-    Color rightColor = const Color(0xFF8F8F8F);
+    Color leftColor = const Color(0xFF515151);
+    Color rightColor = const Color(0xFF515151);
     int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
             leftColor.red)
         .round();
@@ -217,7 +238,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 leftColor.alpha)
             .round();
     return [
-      const Color(0xFF8F8F8F),
+      const Color(0xFF515151),
       Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
     ];
   }
@@ -346,6 +367,16 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       toValue = clampValue(percentageValue);
     });
     widget.onChanging?.call(emitValue, activeColor[1]);
+
+    timeDrag = DateTime.now().millisecondsSinceEpoch;
+    feedTimer ??= Timer.periodic(const Duration(milliseconds: 300), (timer) {
+      int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - timeDrag > 300) {
+        feedTimer?.cancel();
+        feedTimer = null;
+        onPanUp();
+      }
+    });
   }
 
   void onPanUp() {

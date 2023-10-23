@@ -1,19 +1,41 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/api/gateway_api.dart';
-import 'package:screen_app/common/push.dart';
-import 'package:screen_app/models/index.dart';
-import 'package:screen_app/states/index.dart';
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
+import 'package:screen_app/common/meiju/api/meiju_api.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
+import 'package:screen_app/widgets/mz_buttion.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../common/adapter/bind_gateway_data_adapter.dart';
+import '../../common/adapter/select_family_data_adapter.dart';
+import '../../common/adapter/select_room_data_adapter.dart';
+import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
+import '../../common/logcat_helper.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/setting.dart';
+import '../../models/device_entity.dart';
+import '../../states/device_list_notifier.dart';
+import '../../states/layout_notifier.dart';
 import '../../widgets/business/net_connect.dart';
 import '../../widgets/business/select_home.dart';
 import '../../widgets/business/select_room.dart';
+import '../../widgets/mz_dialog.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import '../../widgets/util/net_utils.dart';
+import '../home/device/card_type_config.dart';
+import '../home/device/grid_container.dart';
+import '../home/device/layout_data.dart';
+import 'chose_platform.dart';
 import 'scan_code.dart';
-
 
 class Step {
   String title;
@@ -25,80 +47,102 @@ class Step {
 class _LoginPage extends State<LoginPage> with WidgetNetState {
   /// 当前步骤，1-4
   var stepNum = 1;
+  bool isNeedChoosePlatform = false;
+  BindGatewayAdapter? bindGatewayAd;
+  bool isNeedShowClearAlert = false;
+  String routeFrom = "";
+  GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
+  GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
+  GlobalKey<LinkNetworkState> networkKey = GlobalKey<LinkNetworkState>();
+  SelectFamilyItem? selectFamily;
+  Uuid uuid = Uuid();
+
+  void showBindingDialog(bool show) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext dialogContext) {
+        return const BindingDialog();
+      },
+    );
+  }
 
   /// 上一步
   void prevStep() {
     if (stepNum == 1) {
       return;
     }
-    if (stepNum == 3) {
-      Global.profile.homeInfo = null;
-    }
-    if (stepNum == 4) {
-      Global.profile.roomInfo = null;
-    }
     setState(() {
       --stepNum;
     });
+    if (stepNum == 3) {
+      System.familyInfo = null;
+      System.roomInfo = null;
+      isNeedShowClearAlert = false;
+    }
   }
 
   /// 下一步
   void nextStep() async {
-    if (Platform.isAndroid && stepNum == 1 && !isConnected()) {
+    if (Platform.isAndroid && stepNum == 1 && !(networkKey.currentState?.isNetworkConnected() ?? false)) {
       TipsUtils.toast(content: '请连接网络');
       return;
     }
 
     if (stepNum == 3) {
-      if(Global.profile.homeInfo == null) {
+      if (System.familyInfo == null) {
         // 必须选择家庭信息才能进行下一步
-        TipsUtils.toast(content: '请选择家庭');
+        // 检查家庭是否有权限
+        selectHomeKey.currentState?.checkAndSelect();
         return;
       }
     }
 
     if (stepNum == 4) {
       // 必须选择房间信息才能进行下一步
-      if (Global.profile.roomInfo == null) {
+      if (System.roomInfo == null) {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
+      if (isNeedShowClearAlert) {
+        showClearAlert(context);
+        return;
+      }
       // todo: linux运行屏蔽，push前解放
-
       if (Platform.isLinux) {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        GatewayApi.check((bind,code) {
-          if(!bind) {
-            UserApi.bindHome(
-                sn: Global.profile.deviceSn ?? Global.profile.deviceId ?? '',
-                applianceType: '0x16').then((bindRes) {
-                if (!bindRes.isSuccess) {
-                  TipsUtils.toast(content: '绑定家庭失败');
-                } else {
-                  Global.saveProfile();
-                  //导航到新路由
-                  if (mounted) {
-                    Navigator.popAndPushNamed(context, 'Home');
-                    Push.sseInit();
-                  }
-                }
+        showBindingDialog(true);
+        // 判断是否绑定网关
+        bindGatewayAd?.destroy();
+        bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
+            (isBind, deviceID) {
+          if (!isBind) {
+            // 绑定网关
+            bindGatewayAd
+                ?.bindGateway(System.familyInfo!, System.roomInfo!)
+                .then((isSuccess) {
+              if (isSuccess) {
+                Setting.instant().lastBindHomeName =
+                    System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId =
+                    System.familyInfo?.familyId ?? "";
+                Setting.instant().isAllowChangePlatform = false;
+                prepare2goHome();
+              } else {
+                TipsUtils.toast(content: '绑定家庭失败');
+                Navigator.pop(context);
+                selectRoomKey.currentState?.refreshList();
+              }
             });
           } else {
-            Global.profile.applianceCode = code;
-            Global.saveProfile();
-            //导航到新路由
-            if (mounted) {
-              Navigator.popAndPushNamed(context, 'Home');
-              Push.sseInit();
-            }
+            prepare2goHome();
           }
-        }, () {
-          //接口请求报错
-        });
+        }, () {});
       }
-
       return;
     }
     setState(() {
@@ -106,106 +150,480 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     });
   }
 
+  void prepare2goHome() {
+    prepareLayout();
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pop(context);
+      if (mounted) {
+        setState(() {
+          ++stepNum;
+        });
+      }
+    });
+    Timer(const Duration(seconds: 6), () {
+      //导航到新路由
+      if (mounted) {
+        Navigator.popAndPushNamed(context, 'Home');
+        System.login();
+        stepNum = 2;
+      }
+    });
+  }
+
+  void prepareLayout() async {
+    final deviceInfoListModel =
+    Provider.of<DeviceInfoListModel>(context, listen: false);
+    final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+    if (Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
+      // 换房间，重新初始布局该房间
+      await layoutModel.removeLayouts();
+      if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+        var res = await HomluxDeviceApi.queryDeviceListByRoomId(
+            System.roomInfo!.id!);
+        List<HomluxDeviceEntity>? devices = res.data;
+        if (devices != null) {
+          List<DeviceEntity> devicesReal = [];
+
+          devices.forEach((e) {
+            DeviceEntity deviceObj = DeviceEntity();
+            deviceObj.name = e.deviceName!;
+            deviceObj.applianceCode = e.deviceId!;
+            deviceObj.type = e.proType!;
+            deviceObj.modelNumber = getModelNumber(e);
+            deviceObj.roomName = e.roomName!;
+            deviceObj.roomId = System.roomInfo?.id;
+            deviceObj.masterId = e.gatewayId ?? '';
+            deviceObj.onlineStatus = e.onLineStatus.toString();
+            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                deviceObj.type, deviceObj.modelNumber) !=
+                DeviceEntityTypeInP4.Default) {
+              devicesReal.add(deviceObj);
+            }
+          });
+          if (devicesReal.isNotEmpty) {
+            List<Layout> layoutData = deviceInfoListModel
+                .transformLayoutFromDeviceList(devicesReal);
+            await layoutModel.setLayouts(layoutData);
+          } else {
+            await layoutModel.loadLayouts();
+          }
+        }
+      } else {
+        List<dynamic> devices =
+            await MeiJuDeviceApi.queryDeviceListByRoomId(
+            MeiJuGlobal.token!.uid,
+            System.familyInfo!.familyId,
+            System.roomInfo!.id!);
+        List<DeviceEntity> devicesReal = [];
+
+        devices.forEach((e) {
+          DeviceEntity deviceObj = DeviceEntity();
+          deviceObj.name = e["name"];
+          deviceObj.applianceCode = e["applianceCode"];
+          deviceObj.type = e["type"];
+          deviceObj.modelNumber = e["modelNumber"];
+          deviceObj.sn8 = e["sn8"];
+          deviceObj.roomName = e["roomName"];
+          deviceObj.masterId = e["masterId"];
+          deviceObj.onlineStatus = e["onlineStatus"];
+          if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+              e["type"], e["modelNumber"]) !=
+              DeviceEntityTypeInP4.Default) {
+            devicesReal.add(deviceObj);
+          }
+        });
+        Log.i('有效布局', devicesReal);
+        if (devicesReal.isNotEmpty) {
+          List<Layout> layoutData = deviceInfoListModel
+              .transformLayoutFromDeviceList(devicesReal);
+          await layoutModel.setLayouts(layoutData);
+        } else {
+          List<Layout> defaultList = [
+            Layout(
+                'clock',
+                DeviceEntityTypeInP4.Clock,
+                CardType.Other,
+                0,
+                [1, 2, 5, 6],
+                DataInputCard(
+                    name: '时钟',
+                    applianceCode: 'clock',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'clock',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'weather',
+                DeviceEntityTypeInP4.Weather,
+                CardType.Other,
+                0,
+                [3, 4, 7, 8],
+                DataInputCard(
+                    name: '天气',
+                    applianceCode: 'weather',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'weather',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'localPanel1',
+                DeviceEntityTypeInP4.LocalPanel1,
+                CardType.Small,
+                0,
+                [9, 10],
+                DataInputCard(
+                    name: '灯1',
+                    applianceCode: 'localPanel1',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'localPanel1',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                'localPanel2',
+                DeviceEntityTypeInP4.LocalPanel2,
+                CardType.Small,
+                0,
+                [11, 12],
+                DataInputCard(
+                    name: '灯2',
+                    applianceCode: 'localPanel2',
+                    roomName: '屏内',
+                    isOnline: '',
+                    type: 'localPanel2',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '1')),
+            Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                0,
+                [13, 14],
+                DataInputCard(
+                    name: '',
+                    applianceCode: '',
+                    roomName: '',
+                    isOnline: '',
+                    type: '',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: '')),
+            Layout(
+                uuid.v4(),
+                DeviceEntityTypeInP4.DeviceNull,
+                CardType.Null,
+                0,
+                [15, 16],
+                DataInputCard(
+                    name: '',
+                    applianceCode: '',
+                    roomName: '',
+                    isOnline: '',
+                    type: '',
+                    masterId: '',
+                    modelNumber: '',
+                    onlineStatus: ''))
+          ];
+          await layoutModel.setLayouts(defaultList);
+          Log.i('插入默认布局');
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
     // 初始化
-    if (Global.isLogin) {
-      stepNum = 3;
-    } else if (Platform.isAndroid && isConnected()) {
-      stepNum = 2;
+    if (!System.inNonePlatform()) {
+      if (System.isLogin()) {
+        stepNum = 3;
+      } else if (Platform.isAndroid && isConnected()) {
+        stepNum = 2;
+      }
     }
+
+    isNeedChoosePlatform = System.inNonePlatform();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
+      if (args != null) {
+        routeFrom = args["from"] ?? "";
+        if (routeFrom == "changePlatform") {
+          setState(() {
+            isNeedChoosePlatform = true;
+          });
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     var stepList = [
-      Step('连接网络', const LinkNetwork()),
-      Step('扫码登录', ScanCode(onSuccess: nextStep)),
+      Step(
+          '连接网络',
+          Container(
+            width: 480,
+            height: 340,
+            alignment: AlignmentDirectional.centerStart,
+            child: LinkNetwork(key: networkKey),
+          )),
+      Step(
+          '扫码登录',
+          Column(children: [
+            Container(
+                margin: const EdgeInsets.only(top: 5),
+                child: ScanCode(onSuccess: nextStep)),
+          ])),
       Step(
           '选择家庭',
           SelectHome(
-              value: Global.profile.homeInfo?.homegroupId ?? '',
-              onChange: (HomeEntity home) {
-                debugPrint('Select: ${home.toJson()}');
-                Global.profile.homeInfo = home;
-
+              key: selectHomeKey,
+              defaultFamily: selectFamily,
+              onChange: (SelectFamilyItem? home) {
+                debugPrint('Select: ${home?.toJson()}');
+                selectFamily = home;
+                System.familyInfo = home;
+                checkIsNeedShowClearAlert();
+                nextStep();
               })),
       Step(
           '选择房间',
           SelectRoom(
-              value: Global.profile.roomInfo?.roomId ?? '',
-              onChange: (RoomEntity room) {
+              key: selectRoomKey,
+              onChange: (SelectRoomItem room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
-                Global.profile.roomInfo = room;
-                context.read<RoomModel>().roomInfo = room;
+                System.roomInfo = room;
               })),
     ];
 
-    var stepItem = stepList[stepNum - 1];
+    var stepItem = stepNum > stepList.length ? null : stepList[stepNum - 1];
 
-    var buttonStyle = TextButton.styleFrom(
-      backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      padding: const EdgeInsets.all(20.0),
-      textStyle: const TextStyle(
-          fontSize: 17, color: Color.fromRGBO(1, 255, 255, 0.85)),
-    );
-
-    return DecoratedBox(
-        decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 1)),
-        child: Center(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LoginHeader(
-                stepSum: stepList.length,
-                stepNum: stepNum,
-                title: stepItem.title),
-                Expanded(flex: 1, child: stepItem.view),
-            Row(children: [
-              if (stepNum > 1)
-                Expanded(
-                    child: TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    prevStep();
-                  },
-                  child: const Text('上一步',
-                      style: TextStyle(
-                        color: Color.fromRGBO(255, 255, 255, 0.85),
-                      )),
-                )),
-              if (stepNum > 2)
-                const SizedBox(
-                  width: 4,
+    return Stack(
+      children: [
+        if (isNeedChoosePlatform)
+          ChosePlatform(
+            isChose: routeFrom == "changePlatform",
+            onFinished: () {
+              setState(() {
+                isNeedChoosePlatform = false;
+              });
+            },
+          ),
+        if (!isNeedChoosePlatform)
+          DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF272F41), Color(0xFF080C14)],
                 ),
-              if (stepNum != 2)
-                Expanded(
-                    child: TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    nextStep();
-                  },
-                  child: stepNum == 4
-                      ? const Text('完成',
-                          style: TextStyle(
-                            color: Color.fromRGBO(0, 145, 255, 1),
-                          ))
-                      : const Text('下一步',
-                          style: TextStyle(
-                            color: Color.fromRGBO(255, 255, 255, 0.85),
-                          )),
-                )),
-            ])
-          ],
-        )));
+              ),
+              child: Center(
+                  child: stepNum == 5
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check,
+                              size: 96,
+                              color: Colors.white,
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(top: 50),
+                              child: const Text(
+                                '已成功绑定帐号',
+                                style: TextStyle(fontSize: 24),
+                              ),
+                            )
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            LoginHeader(
+                                stepSum: stepList.length,
+                                stepNum: stepNum,
+                                title: stepItem?.title ?? ''),
+                            if (stepItem?.view != null)
+                              Container(
+                                child: stepItem?.view,
+                              ),
+                          ],
+                        ))),
+        if (stepNum == 1 && !isNeedChoosePlatform)
+          Positioned(
+              bottom: 0,
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.05),
+                        width: MediaQuery.of(context).size.width,
+                        height: 72,
+                        child: Center(
+                            child: MzButton(
+                          width: 240,
+                          height: 56,
+                          borderRadius: 29,
+                          backgroundColor: const Color(0xFF267AFF),
+                          borderColor: Colors.transparent,
+                          borderWidth: 1,
+                          text: '下一步',
+                          onPressed: () {
+                            nextStep();
+                          },
+                        )),
+                      ))))
+        else if (stepNum == 2 && !isNeedChoosePlatform)
+          Positioned(
+              bottom: 0,
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.05),
+                        width: MediaQuery.of(context).size.width,
+                        height: 72,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (Setting.instant().isAllowChangePlatform)
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF949CA8),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: '切换平台',
+                                onPressed: () {
+                                  setState(() {
+                                    isNeedChoosePlatform = true;
+                                    routeFrom = "";
+                                  });
+                                },
+                              ),
+                            MzButton(
+                              width: Setting.instant().isAllowChangePlatform
+                                  ? 168
+                                  : 240,
+                              height: 56,
+                              borderRadius: 29,
+                              backgroundColor: const Color(0xFF267AFF),
+                              borderColor: Colors.transparent,
+                              borderWidth: 1,
+                              text: '上一步',
+                              onPressed: () {
+                                prevStep();
+                              },
+                            )
+                          ],
+                        ),
+                      ))))
+        else if (stepNum != 5 && !isNeedChoosePlatform)
+          Positioned(
+              bottom: 0,
+              child: ClipRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                          color: Colors.white.withOpacity(0.05),
+                          padding: const EdgeInsets.symmetric(horizontal: 48),
+                          width: MediaQuery.of(context).size.width,
+                          height: 72,
+                          child: Center(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF949CA8),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: '上一步',
+                                onPressed: () {
+                                  prevStep();
+                                },
+                              ),
+                              MzButton(
+                                width: 168,
+                                height: 56,
+                                borderRadius: 29,
+                                backgroundColor: const Color(0xFF267AFF),
+                                borderColor: Colors.transparent,
+                                borderWidth: 1,
+                                text: stepNum == 4 ? '完成' : '下一步',
+                                onPressed: () {
+                                  nextStep();
+                                },
+                              )
+                            ],
+                          ))))))
+      ],
+    );
+  }
+
+  void checkIsNeedShowClearAlert() {
+    int lenDiff = (Setting.instant().lastBindHomeId.length -
+            (System.familyInfo?.familyId.length ?? 0))
+        .abs();
+    if (Setting.instant().lastBindHomeId.isNotEmpty &&
+        Setting.instant().lastBindHomeId != System.familyInfo?.familyId &&
+        lenDiff < 3) {
+      isNeedShowClearAlert = true;
+    }
+  }
+
+  void showClearAlert(BuildContext context) async {
+    var name = Setting.instant().lastBindHomeName;
+    MzDialog(
+        title: '绑定至新家庭',
+        titleSize: 28,
+        maxWidth: 432,
+        backgroundColor: const Color(0xFF494E59),
+        contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+        contentSlot: Text("智慧屏已绑定在家庭“$name”，绑定至新家庭将清除所有本地数据，是否继续？",
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            style: const TextStyle(
+              color: Color(0xFFB6B8BC),
+              fontSize: 24,
+              height: 1.6,
+              fontFamily: "MideaType",
+              decoration: TextDecoration.none,
+            )),
+        btns: ['取消', '确定'],
+        onPressed: (_, position, context) {
+          Navigator.pop(context);
+          if (position == 1) {
+            isNeedShowClearAlert = false;
+            nextStep();
+          }
+        }).show(context);
   }
 
   @override
   void netChange(MZNetState? state) {
     debugPrint('netChange: $state');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    bindGatewayAd?.destroy();
+    bindGatewayAd = null;
   }
 }
 
@@ -234,29 +652,13 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var stepNumView = Positioned(
-      top: 10,
-      left: -15,
-      child: Text(
-        stepNum.toString().padLeft(2, '0'),
-        textAlign: TextAlign.left,
-        style: const TextStyle(
-          color: Colors.white24,
-          fontSize: 60.0,
-          height: 1,
-          fontFamily: "MideaType",
-          decoration: TextDecoration.none,
-        ),
-      ),
-    );
-
     var titleView = Padding(
-      padding: const EdgeInsets.fromLTRB(0, 18, 0, 6),
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
       child: Text(title,
           textAlign: TextAlign.left,
           style: const TextStyle(
-            color: Colors.white24,
-            fontSize: 26.0,
+            color: Colors.white,
+            fontSize: 28.0,
             height: 1,
             fontFamily: "MideaType",
             decoration: TextDecoration.none,
@@ -281,9 +683,7 @@ class LoginHeader extends StatelessWidget {
         stepList.add(lineActiveImg);
       } else if (stepNum < i && i > 1) {
         stepList.add(linePassiveImg);
-      } else {
-
-      }
+      } else {}
 
       if (stepNum > i) {
         stepList.add(stepFinishedImg);
@@ -293,23 +693,57 @@ class LoginHeader extends StatelessWidget {
         stepList.add(stepPassiveImg);
       }
     }
-    var stepBarView = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: stepList,
+    num index = min(4, stepNum);
+    var stepBarView = Container(
+        margin: const EdgeInsets.all(9.0),
+        child: Image(image: AssetImage('assets/newUI/step_$index.png')));
+
+    var headerView = Column(
+      children: [titleView, stepBarView],
     );
 
-    var headerView = DecoratedBox(
+    return Stack(
+        alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
+        children: [headerView]);
+  }
+}
+
+class BindingDialog extends StatelessWidget {
+  const BindingDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: 412,
+        height: 270,
+        padding: const EdgeInsets.symmetric(vertical: 45, horizontal: 30),
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/imgs/login/header-bg.png"),
-            fit: BoxFit.cover,
-          ),
+          color: Color(0xFF494E59),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
         ),
         child: Column(
-          children: [titleView, stepBarView],
-        ));
-
-    return Stack(alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-        children: [headerView, stepNumView]);
+          children: [
+            Expanded(
+                flex: 1,
+                child: Container(
+                    alignment: Alignment.center,
+                    child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          CupertinoActivityIndicator(radius: 25),
+                          Text(
+                            '正在绑定中，请稍后',
+                            style: TextStyle(
+                              color: Color.fromRGBO(255, 255, 255, 0.72),
+                              fontSize: 24,
+                            ),
+                          ),
+                        ]))),
+          ],
+        ),
+      ),
+    );
   }
 }

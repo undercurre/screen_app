@@ -3,6 +3,7 @@ package com.midea.light.channel.method
 import android.content.Context
 import com.midea.iot.sdk.common.security.SecurityUtils
 import com.midea.light.BuildConfig
+import com.midea.light.MainApplication
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.common.utils.DataClearManager
 import com.midea.light.setting.SystemUtil
@@ -41,7 +42,7 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
                 result.safeSuccess(appVersion)
             }
             "getGatewayVersion" -> {
-                val gatewayVersion = SystemUtil.getGatewayVersion()
+                val gatewayVersion = SystemUtil.getGatewayVersion(MainApplication.gatewayPlatform)
                 result.safeSuccess(gatewayVersion)
             }
             "getMacAddress" -> {
@@ -97,8 +98,9 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
 
     private fun onHandlerSystemVersion(result: MethodChannel.Result) {
         val appVersion = SystemUtil.getAppVersion(context)
-        val gatewayVersion = SystemUtil.getGatewayVersion()
-        onCallSuccess(result, "0000$appVersion$gatewayVersion")
+        val gatewayVersion = SystemUtil.getGatewayVersion(MainApplication.gatewayPlatform)
+        val romVersion = SystemUtil.getRomVersion()
+        onCallSuccess(result, "$romVersion$appVersion$gatewayVersion")
     }
 
     private fun onHandlerIpAddress(result: MethodChannel.Result) {

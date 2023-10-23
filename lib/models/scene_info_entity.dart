@@ -41,4 +41,14 @@ class SceneInfoEntity {
   String toString() {
     return jsonEncode(this);
   }
+
+  @override
+  bool operator == (Object other) {
+    if (identical(this, other)) return true;
+
+    return other is SceneInfoEntity && other.sceneId == sceneId && other.name == name && other.image == image;
+  }
+
+  @override
+  int get hashCode => sceneId.hashCode ^ name.hashCode;
 }

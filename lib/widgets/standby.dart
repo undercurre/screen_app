@@ -11,6 +11,7 @@ class ShowStandby {
   static void startTimer() async {
     debugPrint('[ShowStandby]standbyTimer begin');
     settingMethodChannel.noticeNativeStandbySate(false);
+    settingMethodChannel.setNearWakeup(false);
     await Future.delayed(const Duration(seconds: 0));
 
     var standbyNotifier = Provider.of<StandbyChangeNotifier>(
@@ -25,7 +26,7 @@ class ShowStandby {
     }
 
     standbyNotifier.standbyTimer =
-        Timer(Duration(seconds: getStandbyTimeOpt(standbyNotifier)), () {
+        Timer.periodic(Duration(seconds: getStandbyTimeOpt(standbyNotifier)), (timer) {
 
           debugPrint('standbyPageActive = ${standbyNotifier.standbyPageActive}');
 
@@ -33,20 +34,26 @@ class ShowStandby {
         return;
       }
 
-      if (standbyNotifier.standbyTimeOpt.value == -1) {
-        /// 设置为永不待机模式
-        /// 如果当前时间段为息屏，则启动特殊的屏保
-        if(Setting.instant().isStandByDuration()) {
-          standbyNotifier.standbyPageActive = true;
-          navigatorKey.currentState?.pushNamed("SpecialBlackBgSaverScreen");
-          settingMethodChannel.noticeNativeStandbySate(true);
-        }
-      } else {
-        /// 普通待机模式
+      /// 如果当前时间段为息屏，则启动特殊的屏保
+      if(Setting.instant().nightModeEnable && Setting.instant().isStandByDuration()) {
         standbyNotifier.standbyPageActive = true;
-        navigatorKey.currentState?.pushNamed("ScreenSaver");
+        navigatorKey.currentState?.pushNamed("SpecialBlackBgSaverScreen");
         settingMethodChannel.noticeNativeStandbySate(true);
-        debugPrint('StandbyPage pushed');
+      } else {
+        if (standbyNotifier.standbyTimeOpt.value == -1) {
+          /// 设置为永不待机模式
+        } else {
+          if(Setting.instant().screenSaverReplaceToOff) {
+            /// 待机改为直接熄屏
+            settingMethodChannel.setScreenClose(true);
+          } else {
+            /// 普通待机模式
+            standbyNotifier.standbyPageActive = true;
+            navigatorKey.currentState?.pushNamed("ScreenSaver");
+            settingMethodChannel.noticeNativeStandbySate(true);
+          }
+          debugPrint('StandbyPage pushed');
+        }
       }
 
     });

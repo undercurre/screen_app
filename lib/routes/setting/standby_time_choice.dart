@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/index.dart';
 
+import '../../common/setting.dart';
 import '../../widgets/mz_radio.dart';
 
 class StandbyTimeChoicePage extends StatefulWidget {
@@ -14,6 +17,7 @@ class StandbyTimeChoicePage extends StatefulWidget {
 class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
   late double po;
   late int groupValue;
+  List optionsList = ['30秒后', '1分钟后', '3分钟后', '5分钟后', '永不'];
 
   @override
   void initState() {
@@ -30,339 +34,165 @@ class _StandbyTimeChoicePage extends State<StandbyTimeChoicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Container(
-        width: 480,
-        height: 480,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
-        child: Column(
-          children: [
-            SizedBox(
-              width: 480,
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(24, 0, 0, 0),
-                    child: const Text("待机设置",
-                        style: TextStyle(
-                          color: Color(0XFFFFFFFF),
-                          fontSize: 30.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    iconSize: 60.0,
-                    icon: Image.asset(
-                      "assets/imgs/icon/tuichu.png",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState(() {
-                    groupValue = 0;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                      child: const Text("30秒后",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 18, 10, 0),
-                      child:  MzRadio<int>(
-                        activeColor: const Color(0XFF267AFF),
-                        groupValue: groupValue,
-                        value: 0,
-                        onTap: (value) {
-                          setState((){
-                            groupValue=value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState(() {
-                    groupValue = 1;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                      child: const Text("1分钟后",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                      child:  MzRadio<int>(
-                        activeColor: const Color(0XFF267AFF),
-                        groupValue: groupValue,
-                        value: 1,
-                        onTap: (value) {
-                          setState((){
-                            groupValue=value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState(() {
-                    groupValue = 2;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                      child: const Text("3分钟后",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                      child:  MzRadio<int>(
-                        activeColor: const Color(0XFF267AFF),
-                        groupValue: groupValue,
-                        value: 2,
-                        onTap: (value){
-                          setState((){
-                            groupValue=value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Container(
-              width: 464,
-              height: 2,
-              margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState(() {
-                    groupValue = 3;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                      child: const Text("5分钟后",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                      child:  MzRadio<int>(
-                        activeColor: const Color(0XFF267AFF),
-                        groupValue: groupValue,
-                        value: 3,
-                        onTap: (value){
-                          setState((){
-                            groupValue=value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState(() {
-                    groupValue = 4;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 9, 0, 0),
-                      child: const Text("永不",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 18.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 10, 0),
-                      child:  MzRadio<int>(
-                        activeColor: const Color(0XFF267AFF),
-                        groupValue: groupValue,
-                        value: 4,
-                        onTap: (value) {
-                          setState((){
-                            groupValue=value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Container(
-              width: 464,
-              height: 1,
-              margin: const EdgeInsets.fromLTRB(0, 9, 0, 0),
-              decoration: const BoxDecoration(
-                color: Color(0xff232323),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                      width: 240,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(0),
-                        color: const Color(0xFF282828),
-                      ),
-                      child: const Center(
-                        child: Text("取消",
-                            style: TextStyle(
-                              color: Color(0XFFFFFFFF),
-                              fontSize: 18.0,
-                              fontFamily: "MideaType",
-                              fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none,
-                            )),
-                      )),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = groupValue;
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                      width: 240,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(0),
-                        color: const Color(0xFF267AFF),
-                      ),
-                      child: const Center(
-                        child: Text("确认",
-                            style: TextStyle(
-                              color: Color(0XFFFFFFFF),
-                              fontSize: 18.0,
-                              fontFamily: "MideaType",
-                              fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none,
-                            )),
-                      )),
-                ),
-
+        child: Container(
+          width: 480,
+          height: 480,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF272F41),
+                Color(0xFF080C14),
               ],
             ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 480,
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(Setting.instant().standbyTimeOptNum);
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back.png",
+                      ),
+                    ),
+                    const Text("待机设置",
+                        style: TextStyle(
+                            color: Color(0XD8FFFFFF),
+                            fontSize: 28,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)
+                    ),
+                    const SizedBox(
+                      height: 64,
+                      width: 64,
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 480,
+                height: 10,
+              ),
 
-          ],
-        ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    ListView.builder(
+                        itemCount: optionsList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            width: 432,
+                            height: 72,
+                            decoration: BoxDecoration(
+                                color: const Color.fromRGBO(255, 255, 255, 0.05),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(index == 0 ? 24 : 0),
+                                  topRight: Radius.circular(index == 0 ? 24 : 0),
+                                  bottomLeft: Radius.circular(index == optionsList.length - 1 ? 24 : 0),
+                                  bottomRight: Radius.circular(index == optionsList.length - 1 ? 24 : 0),
+                                )
+                            ),
+                            margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                            child: Stack(
+                              children: [
+                                if(index > 0) Positioned(
+                                  top: 0,
+                                  left: 20,
+                                  child: Container(
+                                    width: 392,
+                                    height: 1,
+                                    decoration: const BoxDecoration(
+                                        color: Color(0x19FFFFFF)
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 14,
+                                  left: 22,
+                                  child: Text("${optionsList[index]}",
+                                      style: const TextStyle(
+                                          color: Color(0XD8FFFFFF),
+                                          fontSize: 24,
+                                          fontFamily: "MideaType",
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.none)
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 22,
+                                  right: 22,
+                                  child: MzRadio<int>(
+                                    activeColor: const Color(0XFF267AFF),
+                                    groupValue: groupValue,
+                                    value: index,
+                                    onTap: (value) {
+                                      setState((){
+                                        groupValue = value!;
+                                      });
+                                      Setting.instant().standbyTimeOptNum = value!;
+                                      Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = value;
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }
+                    ),
+
+                    // Positioned(
+                    //   bottom: 0,
+                    //   left: 0,
+                    //   child: ClipRect(
+                    //     child: BackdropFilter(
+                    //       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    //       child: Container(
+                    //         width: 480,
+                    //         height: 88,
+                    //         alignment: Alignment.center,
+                    //         color: Colors.white.withOpacity(0.1),
+                    //         child: GestureDetector(
+                    //           onTap: () {
+                    //             Provider.of<StandbyChangeNotifier>(context, listen: false).setTimerByNum = groupValue;
+                    //             Navigator.pop(context);
+                    //           },
+                    //           child: Container(
+                    //             width: 240,
+                    //             height: 56,
+                    //             decoration: const BoxDecoration(
+                    //               borderRadius: BorderRadius.all(Radius.circular(28)),
+                    //               color: Color(0xFF267AFF),
+                    //             ),
+                    //             alignment: Alignment.center,
+                    //             child: const Text('确定',
+                    //                 style: TextStyle(
+                    //                     color: Color(0XD8FFFFFF),
+                    //                     fontSize: 24,
+                    //                     fontFamily: "MideaType",
+                    //                     fontWeight: FontWeight.normal,
+                    //                     decoration: TextDecoration.none)
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // )
+                  ],
+                )
+              ),
+            ],
+          ),
       )),
     );
   }

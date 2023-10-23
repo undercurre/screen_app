@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.midea.light.RxBus;
+import com.midea.light.ai.MideaLightMusicInfo;
 import com.midea.light.common.utils.DialogUtil;
 
 import java.util.ArrayList;
@@ -21,10 +22,10 @@ public class MusicPlayer {
 
     private static String TAG = "MusicPlayer";
 
-    private List<MusicInfo> MusicList;
+    private List<MideaLightMusicInfo> MusicList;
     private MediaPlayer mPlayer = new MediaPlayer();
 
-    private MusicInfo currentMusic;
+    private MideaLightMusicInfo currentMusic;
 
     private int mSize;
 
@@ -93,7 +94,7 @@ public class MusicPlayer {
     public MusicPlayer() {
     }
 
-    public void playList(List<MusicInfo> musicList) {
+    public void playList(List<MideaLightMusicInfo> musicList) {
         this.MusicList = new ArrayList<>(musicList);
         mSize = MusicList.size();
         currentMusic = MusicList.get(0);
@@ -190,11 +191,11 @@ public class MusicPlayer {
         return 0;
     }
 
-    public MusicInfo getCurrentMusic() {
+    public MideaLightMusicInfo getCurrentMusic() {
         return currentMusic;
     }
 
-    public MusicInfo getNextMusic() {
+    public MideaLightMusicInfo getNextMusic() {
         if (currentIndex + 1 < MusicList.size()) {
             Log.e(TAG, "next music,currentIndex:" + (currentIndex + 1));
             return MusicList.get(currentIndex + 1);
@@ -204,7 +205,7 @@ public class MusicPlayer {
         }
     }
 
-    public MusicInfo getPrevMusic() {
+    public MideaLightMusicInfo getPrevMusic() {
         if (currentIndex - 1 >= 0) {
             Log.e(TAG, "prev music,currentIndex:" + (currentIndex - 1));
             return MusicList.get(currentIndex - 1);
@@ -231,7 +232,7 @@ public class MusicPlayer {
         }
     }
 
-    public void playItem(MusicInfo item) {
+    public void playItem(MideaLightMusicInfo item) {
         currentMusic = item;
         if (mPlayer != null) {
             if (mPlayer.isPlaying()) mPlayer.pause();
@@ -444,7 +445,7 @@ public class MusicPlayer {
         currentMusic = null;
     }
 
-    public List<MusicInfo> getTtsList() {
+    public List<MideaLightMusicInfo> getTtsList() {
         return MusicList;
     }
 

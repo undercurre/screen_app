@@ -3,10 +3,7 @@ package com.midea.light.channel.method
 import android.content.Context
 import com.midea.light.channel.AbsMZMethodChannel
 import com.midea.light.log.LogUtil
-import com.midea.light.migration.MigrateDeviceIdUtil
-import com.midea.light.migration.MigrateTokenCache
-import com.midea.light.migration.MigrateUserDataCache
-import com.midea.light.migration.MigrateWiFiRecordCache
+import com.midea.light.migration.*
 import com.midea.light.utils.CollectionUtil
 import com.midea.smart.open.common.util.StringUtils
 import io.flutter.plugin.common.BinaryMessenger
@@ -38,15 +35,15 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val method = call.method;
-        when(method) {
+        when (method) {
             "syncWiFi" -> {
                 val wifis = MigrateWiFiRecordCache.getInstance().alreadyLoginWiFis
                 LogUtil.tag("migrate").array(wifis)
-                if(CollectionUtil.isEmpty(wifis)) {
+                if (CollectionUtil.isEmpty(wifis)) {
                     result.safeError()
                 } else {
                     val jsonArray = JSONArray(wifis)
-                    if(jsonArray.length() <= 0) {
+                    if (jsonArray.length() <= 0) {
                         result.safeError()
                     } else {
                         result.safeSuccess(jsonArray)
@@ -59,12 +56,14 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                 val iotUserId = MigrateTokenCache.getInstance().iotUserId
                 val dataDecodeKey = MigrateTokenCache.getInstance().dataDecodeKey
                 val dataEncodeKey = MigrateTokenCache.getInstance().dataEncodeKey
-                val deviceId = MigrateDeviceIdUtil.getDeviceId(context)
-                if(StringUtils.isEmpty(token)
+                val deviceId = MigrateDeviceIdUtil.getInstance().getDeviceId(context)
+                val gatewayApplicationCode=MigrateDeviceIdUtil.getInstance().gatewayApplicationCode
+                if (StringUtils.isEmpty(token)
                     || StringUtils.isEmpty(userid)
                     || StringUtils.isEmpty(iotUserId)
                     || StringUtils.isEmpty(dataDecodeKey)
-                    || StringUtils.isEmpty(dataEncodeKey)) {
+                    || StringUtils.isEmpty(dataEncodeKey)
+                ) {
                     result.safeError()
                 } else {
                     val json = JSONObject()
@@ -74,6 +73,7 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
                     json.put("dataDecodeKey", dataDecodeKey)
                     json.put("dataEncodeKey", dataEncodeKey)
                     json.put("deviceId", deviceId)
+                    json.put("gatewayApplicationCode", gatewayApplicationCode)
                     LogUtil.tag("migrate").msg(json.toString())
                     result.safeSuccess(json)
                 }
@@ -81,11 +81,94 @@ class MigrationDataChannel(override val context: Context) : AbsMZMethodChannel(c
             "syncUserData" -> {
                 val userInfo = MigrateUserDataCache.create().userInfo
                 LogUtil.tag("migrate").msg(userInfo)
-                if(StringUtils.isEmpty(userInfo)) {
+                if (StringUtils.isEmpty(userInfo)) {
                     result.safeError()
                 } else {
                     result.safeSuccess(JSONObject(userInfo))
                 }
+            }
+
+            "meiJuIsMigrate" -> {
+                val meiJuIsMigrate = MigrateUserDataCache.create().meiJuIsMigrate
+                LogUtil.tag("migrate").msg(meiJuIsMigrate)
+                if (StringUtils.isEmpty(meiJuIsMigrate)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(meiJuIsMigrate)
+                }
+            }
+
+            "setMeiJuIsMigrate" -> {
+                MigrateUserDataCache.create().setMeiJuIsMigrate()
+                result.safeSuccess("1")
+            }
+
+            //homlux数据迁移
+            "syncHomluxToken" -> {
+                val token = MigrateHomluxCache.getInstance().token
+                if (StringUtils.isEmpty(token)) {
+                    result.safeError()
+                } else {
+                    val json = JSONObject()
+                    json.put("token", JSONObject(token))
+                    LogUtil.tag("migrate").msg(json.toString())
+                    result.safeSuccess(json)
+                }
+            }
+
+            "syncHomluxUserData" -> {
+                val userData = MigrateHomluxCache.getInstance().userData
+                LogUtil.tag("migrate").msg(userData)
+                if (StringUtils.isEmpty(userData)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(userData))
+                }
+            }
+
+            "syncHomluxFamily" -> {
+                val family = MigrateHomluxCache.getInstance().family
+                LogUtil.tag("migrate").msg(family)
+                if (StringUtils.isEmpty(family)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(family))
+                }
+            }
+
+            "syncHomluxRoom" -> {
+                val room = MigrateHomluxCache.getInstance().room
+                LogUtil.tag("migrate").msg(room)
+                if (StringUtils.isEmpty(room)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(room))
+                }
+            }
+
+            "syncGatewayApplianceCode" -> {
+                val bindGatewayInfo = MigrateHomluxCache.getInstance().bindGatewayInfo
+                LogUtil.tag("migrate").msg(bindGatewayInfo)
+                if (StringUtils.isEmpty(bindGatewayInfo)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(JSONObject(bindGatewayInfo))
+                }
+            }
+
+            "homluxIsMigrate" -> {
+                val homluxIsMigrate = MigrateHomluxCache.getInstance().homluxIsMigrate
+                LogUtil.tag("migrate").msg(homluxIsMigrate)
+                if (StringUtils.isEmpty(homluxIsMigrate)) {
+                    result.safeError()
+                } else {
+                    result.safeSuccess(homluxIsMigrate)
+                }
+            }
+
+            "setHomluxIsMigrate" -> {
+                MigrateHomluxCache.getInstance().setHomluxIsMigrate()
+                result.safeSuccess("1")
             }
         }
 

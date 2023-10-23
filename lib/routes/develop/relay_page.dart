@@ -28,6 +28,13 @@ class RelayPageState extends State<RelayPage> {
     bus.on("relay2StateChange", relay2StateChange);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    bus.off("relay1StateChange", relay1StateChange);
+    bus.off("relay2StateChange", relay2StateChange);
+  }
+
   void relay1StateChange(dynamic open) {
     setState(() {
       relay1 = open as bool;

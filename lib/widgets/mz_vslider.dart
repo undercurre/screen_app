@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/global.dart';
+
+import '../common/logcat_helper.dart';
 
 class MzVSlider extends StatefulWidget {
   // 渐变色数组
@@ -81,6 +84,9 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
   bool isPanning = false;
   late Offset latestPosition = Offset.zero;
 
+  Timer? feedTimer;
+  int timeDrag = 0;
+
   @override
   void initState() {
     super.initState();
@@ -109,8 +115,8 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
       onVerticalDragUpdate: (e) => onPanUpdate(e),
-      onPanEnd: (e) => onPanUp(),
-      onPanCancel: () => onPanUp(),
+      //onPanEnd: (e) => onPanUp(),
+      onTap: () => onPanUp(),
       child: Container(
         padding: widget.padding,
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -125,8 +131,10 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 key: _railKey,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1F1F1F),
-                  borderRadius: widget.rounded ? BorderRadius.circular(widget.width / 2) : BorderRadius.circular(widget.radius),
+                  color: const Color.fromRGBO(255, 255, 255, 0.1),
+                  borderRadius: widget.rounded
+                      ? BorderRadius.circular(widget.width / 2)
+                      : BorderRadius.circular(widget.radius),
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
@@ -135,15 +143,28 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: widget.disabled ? disableColor : activeColor),
-                  borderRadius: widget.rounded ? BorderRadius.circular(widget.width / 2) : BorderRadius.circular(widget.radius),
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.tightFor(
-                    height: activeRailHeight,
-                    width: widget.width,
+              ClipRRect(
+                borderRadius: widget.rounded
+                    ? BorderRadius.circular(widget.width / 2)
+                    : BorderRadius.circular(widget.radius),
+                child: Container(
+                  color: const Color.fromRGBO(255, 255, 255, 0.1),
+                  height: widget.height,
+                  width: widget.width,
+                  alignment: Alignment.bottomCenter,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: widget.disabled ? disableColor : activeColor),
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints.tightFor(
+                        height: activeRailHeight,
+                        width: widget.width,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -159,28 +180,65 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
   List<Color> get activeColor {
     Color leftColor = widget.activeColors[0];
     Color rightColor = widget.activeColors[1];
-    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) + leftColor.red).round();
-    int curGreen = ((rightColor.green - leftColor.green) * valueToPercentage(value) + leftColor.green).round();
-    int curBlue = ((rightColor.blue - leftColor.blue) * valueToPercentage(value) + leftColor.blue).round();
-    int curAlpha = ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) + leftColor.alpha).round();
-    return [widget.activeColors[0], Color.fromARGB(curAlpha, curRed, curGreen, curBlue)];
+    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
+            leftColor.red)
+        .round();
+    int curGreen =
+        ((rightColor.green - leftColor.green) * valueToPercentage(value) +
+                leftColor.green)
+            .round();
+    int curBlue =
+        ((rightColor.blue - leftColor.blue) * valueToPercentage(value) +
+                leftColor.blue)
+            .round();
+    int curAlpha =
+        ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) +
+                leftColor.alpha)
+            .round();
+    return [
+      widget.activeColors[0],
+      Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
+    ];
   }
 
   // 获取当前圆点的滑动条颜色
   List<Color> get disableColor {
     Color leftColor = const Color(0xFF8F8F8F);
     Color rightColor = const Color(0xFF8F8F8F);
-    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) + leftColor.red).round();
-    int curGreen = ((rightColor.green - leftColor.green) * valueToPercentage(value) + leftColor.green).round();
-    int curBlue = ((rightColor.blue - leftColor.blue) * valueToPercentage(value) + leftColor.blue).round();
-    int curAlpha = ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) + leftColor.alpha).round();
-    return [const Color(0xFF8F8F8F), Color.fromARGB(curAlpha, curRed, curGreen, curBlue)];
+    int curRed = ((rightColor.red - leftColor.red) * valueToPercentage(value) +
+            leftColor.red)
+        .round();
+    int curGreen =
+        ((rightColor.green - leftColor.green) * valueToPercentage(value) +
+                leftColor.green)
+            .round();
+    int curBlue =
+        ((rightColor.blue - leftColor.blue) * valueToPercentage(value) +
+                leftColor.blue)
+            .round();
+    int curAlpha =
+        ((rightColor.alpha - leftColor.alpha) * valueToPercentage(value) +
+                leftColor.alpha)
+            .round();
+    return [
+      const Color(0xFF8F8F8F),
+      Color.fromARGB(curAlpha, curRed, curGreen, curBlue)
+    ];
   }
 
   // 获取激活部分滑动条高度
   double get activeRailHeight {
-    if (widget.height + valueToPercentage(value) * (widget.width - widget.height) < 0) {
-      logger.i('错误原因', {widget.height, widget.width, value, widget.max, widget.min, valueToPercentage(value)});
+    if (widget.height +
+            valueToPercentage(value) * (widget.width - widget.height) <
+        0) {
+      logger.i('错误原因', {
+        widget.height,
+        widget.width,
+        value,
+        widget.max,
+        widget.min,
+        valueToPercentage(value)
+      });
     }
     return valueToPercentage(value) * (widget.height);
   }
@@ -211,10 +269,16 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
 
   num steppingValue(num nextValue) {
     if (widget.step <= 0) return nextValue;
-    final currentStep = num.parse((nextValue / widget.step).toStringAsFixed(precision));
-    final leftStep = num.parse((currentStep.floor() * widget.step).toStringAsFixed(precision));
-    final rightStep = num.parse(((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
-    final closestStep = (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0 ? rightStep : leftStep;
+    final currentStep =
+        num.parse((nextValue / widget.step).toStringAsFixed(precision));
+    final leftStep = num.parse(
+        (currentStep.floor() * widget.step).toStringAsFixed(precision));
+    final rightStep = num.parse(
+        ((currentStep.floor() + 1) * widget.step).toStringAsFixed(precision));
+    final closestStep =
+        (nextValue - leftStep).abs() - (nextValue - rightStep).abs() > 0
+            ? rightStep
+            : leftStep;
     return closestStep;
   }
 
@@ -231,8 +295,10 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
         duration: widget.duration,
         vsync: this,
       );
-      CurvedAnimation curve = CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
-      Animation<num> animation = Tween(begin: oldValue, end: newValue).animate(curve);
+      CurvedAnimation curve =
+          CurvedAnimation(parent: controller!, curve: Curves.easeInOut);
+      Animation<num> animation =
+          Tween(begin: oldValue, end: newValue).animate(curve);
       animation.addListener(() {
         setState(() {
           value = animation.value;
@@ -249,8 +315,11 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
   /// 事件处理
   void onPanDown(DragDownDetails e) {
     if (widget.disabled) return;
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = ((railRenderObject.paintBounds.height-railRenderObject.globalToLocal(latestPosition).dy) / railRenderObject.paintBounds.height);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = ((railRenderObject.paintBounds.height -
+            railRenderObject.globalToLocal(latestPosition).dy) /
+        railRenderObject.paintBounds.height);
     latestPosition = e.globalPosition;
     isPanning = true;
     isPanUpdate = false;
@@ -263,8 +332,11 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
     isPanUpdate = true;
     latestPosition = e.globalPosition;
     //用户手指滑动时，更新偏移，重新构建
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = ((railRenderObject.paintBounds.height-railRenderObject.globalToLocal(latestPosition).dy) / railRenderObject.paintBounds.height);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = ((railRenderObject.paintBounds.height -
+            railRenderObject.globalToLocal(latestPosition).dy) /
+        railRenderObject.paintBounds.height);
     final percentageValue = percentageToValue(percentage);
     final emitValue = clampValue(steppingValue(percentageValue));
     setState(() {
@@ -272,12 +344,25 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
       toValue = clampValue(percentageValue);
     });
     widget.onChanging?.call(emitValue, activeColor[1]);
+
+    timeDrag = DateTime.now().millisecondsSinceEpoch;
+    feedTimer ??= Timer.periodic(const Duration(milliseconds: 300), (timer) {
+      int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - timeDrag > 300) {
+        feedTimer?.cancel();
+        feedTimer = null;
+        onPanUp();
+      }
+    });
   }
 
   void onPanUp() {
     if (widget.disabled) return;
-    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = ((railRenderObject.paintBounds.height-railRenderObject.globalToLocal(latestPosition).dy) / railRenderObject.paintBounds.height);
+    RenderBox railRenderObject =
+        _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = ((railRenderObject.paintBounds.height -
+            railRenderObject.globalToLocal(latestPosition).dy) /
+        railRenderObject.paintBounds.height);
     final temp = clampValue(steppingValue(percentageToValue(percentage)));
     isPanning = false;
     setState(() {
@@ -285,5 +370,8 @@ class _MzSliderState extends State<MzVSlider> with TickerProviderStateMixin {
       toValue = temp;
     });
     widget.onChanged?.call(toValue, activeColor[1]);
+
+    feedTimer?.cancel();
+    feedTimer = null;
   }
 }

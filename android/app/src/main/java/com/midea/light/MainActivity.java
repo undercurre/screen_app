@@ -1,6 +1,7 @@
 package com.midea.light;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,22 +23,36 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import com.midea.light.ai.AiManager;
+import androidx.annotation.NonNull;
+
+import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
+import com.midea.light.common.utils.NetUtil;
+import com.midea.light.device.explore.controller.control485.ControlManager;
+import com.midea.light.device.explore.controller.control485.controller.AirConditionController;
+import com.midea.light.device.explore.controller.control485.controller.FloorHotController;
+import com.midea.light.device.explore.controller.control485.controller.FreshAirController;
+import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent;
+import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent;
+import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent;
+import com.midea.light.issued.distribution.GateWayDistributionEvent;
+import com.midea.light.issued.plc.PLCControlEvent;
 import com.midea.light.log.LogUtil;
 import com.midea.light.push.AliPushReceiver;
 import com.midea.light.setting.SystemUtil;
+import com.midea.light.setting.ota.OTAUpgradeHelper;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister;
@@ -90,10 +105,227 @@ public class MainActivity extends FlutterActivity {
             Sensor ps = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
             mSensorManager.registerListener(sensorEventListener, ps, SensorManager.SENSOR_DELAY_NORMAL);
         }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_TIME_TICK);
-        registerReceiver(receiver, filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_TIME_TICK);
+            registerReceiver(receiver, filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SLKClear();
+        ZH485Device();
+        checkInstallResourceExitInLocal();
+    }
+
+    /**
+     * 检查本地是否存在安装资源，并进行安装
+     */
+    public void checkInstallResourceExitInLocal() {
+        if (OTAUpgradeHelper.checkInstallResourceExistLocally()) {
+            Intent intent = new Intent(this, LocalResourceInstallActivity.class);
+            this.startActivity(intent);
+        }
+    }
+
+    /**
+     * 中宏485设备接收网关消息处理
+     */
+    @SuppressLint("CheckResult")
+    private void ZH485Device() {
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                    ControlManager.getInstance().initial();
+                    ControlManager.getInstance().regestOber();
+                    ControlManager.getInstance().startFresh();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
+        //485设备配网新增
+        RxBus.getInstance().toObservableOnMain(this, GateWayDistributionEvent.class)
+                .subscribe(mGateWayDistributionEvent -> {
+                    new Thread() {
+                        public void run() {
+                            if (mGateWayDistributionEvent.getState() == 60) {
+                                runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId", null));
+                            }
+                        }
+                    }.start();
+
+                }, throwable -> Log.e("sky", "rxBus错误", throwable));
+
+        //云端下发控制指令
+        RxBus.getInstance().toObservableOnMain(this, PLCControlEvent.class)
+                .subscribe(PLCControlEvent -> {
+//                    Log.e("sky", "接收到下发控制请求" + new Gson().toJson(PLCControlEvent));
+                    if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.cac")) {
+                        for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
+                            String deviceAddr = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                    AirConditionController.getInstance().close(AirConditionController.getInstance().AirConditionList.get(i));
+                                } else {
+                                    AirConditionController.getInstance().open(AirConditionController.getInstance().AirConditionList.get(i));
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
+                                    String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
+                                    if (speed.length() == 1) {
+                                        speed = "0" + speed;
+                                    }
+                                    AirConditionController.getInstance().setWindSpeedLevl(AirConditionController.getInstance().AirConditionList.get(i), speed);
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
+                                    String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
+                                    if (temp.length() == 1) {
+                                        temp = "0" + temp;
+                                    }
+                                    AirConditionController.getInstance().setTemp(AirConditionController.getInstance().AirConditionList.get(i), temp);
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
+                                    String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
+                                    if (modele.length() == 1) {
+                                        modele = "0" + modele;
+                                    }
+                                    AirConditionController.getInstance().setModel(AirConditionController.getInstance().AirConditionList.get(i), modele);
+                                }
+                            }
+                        }
+
+                    } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.air")) {
+                        for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+                            String deviceAddr = FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                    FreshAirController.getInstance().close(FreshAirController.getInstance().FreshAirList.get(i));
+                                } else {
+                                    FreshAirController.getInstance().open(FreshAirController.getInstance().FreshAirList.get(i));
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
+                                    String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
+                                    if (speed.length() == 1) {
+                                        speed = "0" + speed;
+                                    }
+                                    FreshAirController.getInstance().setWindSpeedLevl(FreshAirController.getInstance().FreshAirList.get(i), speed);
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
+                                    String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
+                                    if (modele.length() == 1) {
+                                        modele = "0" + modele;
+                                    }
+                                    FreshAirController.getInstance().setModel(FreshAirController.getInstance().FreshAirList.get(i), modele);
+                                }
+                            }
+                        }
+
+                    } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.heat.")) {
+                        for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+                            String deviceAddr = FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                    FloorHotController.getInstance().close(FloorHotController.getInstance().FloorHotList.get(i));
+                                } else {
+                                    FloorHotController.getInstance().open(FloorHotController.getInstance().FloorHotList.get(i));
+                                }
+                                if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
+                                    if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() <= 90 && PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() >= 5) {
+                                        String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
+                                        if (temp.length() == 1) {
+                                            temp = "0" + temp;
+                                        }
+                                        FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i), temp);
+                                    }
+                                }
+//                               if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null&&null!=PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()&&PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()==0){
+//                                   FloorHotController.getInstance().setFrostProtectionOff(FloorHotController.getInstance().FloorHotList.get(i));
+//                               }else{
+//                                   FloorHotController.getInstance().setFrostProtectionOn(FloorHotController.getInstance().FloorHotList.get(i));
+//                               }
+                            }
+                        }
+
+
+                    }
+                }, throwable -> Log.e("sky", "rxBus错误", throwable));
+        //485空调数据有变化接收到数据后推送到flutter层
+        RxBus.getInstance().toObservableOnMain(this, AirConditionChangeEvent.class)
+                .subscribe(AirConditionChangeEvent -> {
+                    String modelId = "zhonghong.cac.002";
+                    String address = AirConditionChangeEvent.getAirConditionModel().getOutSideAddress() + AirConditionChangeEvent.getAirConditionModel().getInSideAddress();
+                    int mode = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getWorkModel(), 16);
+                    int speed = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getWindSpeed(), 16);
+                    int temper = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getTemperature(), 16);
+                    int currTemperature = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getCurrTemperature(), 16);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getAirConditionModel().getOnlineState(), 16);
+                    if (speed == 0) {
+                        return;
+                    }
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", mode);
+                    json.put("speed", speed);
+                    json.put("temper", temper);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    json.put("currTemperature", currTemperature);
+//                    Log.e("sky","通知flutter更新空调:"+json);
+
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
+
+                }, throwable -> Log.e("sky", "rxbus错误", throwable));
+
+        //485新风数据有变化接收到数据后推送到flutter层
+        RxBus.getInstance().toObservableOnMain(this, FreshAirChangeEvent.class)
+                .subscribe(AirConditionChangeEvent -> {
+                    String modelId = "zhonghong.air.001";
+                    String address = AirConditionChangeEvent.getFreshAirModel().getOutSideAddress() + AirConditionChangeEvent.getFreshAirModel().getInSideAddress();
+                    int speed = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getWindSpeed(), 16);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getFreshAirModel().getOnlineState(), 16);
+                    if (speed == 0) {
+                        return;
+                    }
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", 1);
+                    json.put("speed", speed);
+                    json.put("temper", 26);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    json.put("currTemperature", 0);
+//                    Log.e("sky","通知flutter更新新风:"+json);
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
+
+                }, throwable -> Log.e("sky", "rxbus错误", throwable));
+
+        //485地暖数据有变化接收到数据后推送到flutter层
+        RxBus.getInstance().toObservableOnMain(this, FloorHotChangeEvent.class)
+                .subscribe(AirConditionChangeEvent -> {
+                    String modelId = "zhonghong.heat.001";
+                    String address = AirConditionChangeEvent.getFloorHotModel().getOutSideAddress() + AirConditionChangeEvent.getFloorHotModel().getInSideAddress();
+                    int temper = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getTemperature(), 16);
+                    int currTemperature = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getCurrTemperature(), 16);
+                    int onOff = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnOff(), 16);
+                    int online = Integer.parseInt(AirConditionChangeEvent.getFloorHotModel().getOnlineState(), 16);
+                    JSONObject json = new JSONObject();
+                    json.put("modelId", modelId);
+                    json.put("address", address);
+                    json.put("mode", 1);
+                    json.put("speed", 1);
+                    json.put("temper", temper);
+                    json.put("onOff", onOff);
+                    json.put("online", online);
+                    json.put("currTemperature", currTemperature);
+//                    Log.e("sky","通知flutter更新地暖:"+json);
+                    mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("Local485DeviceUpdate", json);
+
+                }, throwable -> Log.e("sky", "rxbus错误", throwable));
+
     }
 
 
@@ -110,21 +342,29 @@ public class MainActivity extends FlutterActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(receiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initReceive() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
-        filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
-        filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
-        //注册广播接收
-        registerReceiver(receiver,filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("com.alibaba.push2.action.NOTIFICATION_OPENED");
+            filter.addAction("com.alibaba.push2.action.NOTIFICATION_REMOVED");
+            filter.addAction("com.alibaba.sdk.android.push.RECEIVE");
+            filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+            AliPushReceiver receiver = new AliPushReceiver(mChannels.aliPushChannel);
+            //注册广播接收
+            registerReceiver(receiver, filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void initNotifyChannel(){
+    private void initNotifyChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager mNotificationManager = (NotificationManager) BaseApplication.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
             // 通知渠道的id。
@@ -148,36 +388,46 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    public void initialAi(String sn, String deviceId, String mac, boolean aiEnable) {
+    public void initialMeiJuAi(String sn, String deviceId, String mac, boolean aiEnable) {
         new Thread(() -> {
             //复制assets/xiaomei文件夹中的文件到SD卡
             FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
-            runOnUiThread(() -> startAiService(sn, deviceId, mac, aiEnable));
+            runOnUiThread(() -> startMeiJuAiService(sn, deviceId, mac, aiEnable));
         }).start();
     }
 
-    private void startAiService(String sn, String deviceId, String mac, boolean aiEnable) {
-        AiManager.getInstance().startAiServer(this, isBind -> {
+    private void startMeiJuAiService(String sn, String deviceId, String mac, boolean aiEnable) {
+        com.midea.light.ai.AiManager.getInstance().startAiServer(isBind -> {
             if (isBind) {
                 setDeviceInfor(sn, deviceId, mac);
             }
         }, isInitial -> {
             if (isInitial) {
-                AiManager.getInstance().setAiEnable(aiEnable);
+                com.midea.light.ai.AiManager.getInstance().setAiEnable(aiEnable);
             } else {
                 runOnUiThread(() -> DialogUtil.showToast("语音初始化失败,请重新启动智慧屏"));
             }
         });
     }
 
+    public void initialHomluxAI(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
+        com.midea.homlux.ai.AiManager.getInstance().init(uid, token, aiEnable, houseId, aiClientId, isWakUp -> {
+            LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
+        }, Voice -> {
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
+            LogUtil.i("Homlux语音大小 " + Voice);
+        });
+    }
+
     private void setDeviceInfor(String sn, String deviceId, String mac) {
-        AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
+        com.midea.light.ai.AiManager.getInstance().setDeviceInfor(sn, "0x16", deviceId, mac);
         MusicManager.getInstance().startMusicServer(this);
-        AiManager.getInstance().addFlashMusicListCallBack(list -> {
+        com.midea.light.ai.AiManager.getInstance().addFlashMusicListCallBack(list -> {
             isFlashMusic = true;
             MusicManager.getInstance().setPlayList(list);
         });
-        AiManager.getInstance().addWakUpStateCallBack(b -> {
+        com.midea.light.ai.AiManager.getInstance().addWakUpStateCallBack(b -> {
             if (b) {
                 isFlashMusic = false;
                 if (!isScreenOn()) {
@@ -205,7 +455,7 @@ public class MainActivity extends FlutterActivity {
             }
 
         });
-        AiManager.getInstance().addMusicPlayControlBack(Control -> {
+        com.midea.light.ai.AiManager.getInstance().addMusicPlayControlBack(Control -> {
             if (MusicManager.getInstance().getPlayMusicInfor() == null) {
                 return;
             }
@@ -213,19 +463,19 @@ public class MainActivity extends FlutterActivity {
                 case "RESUME":
                     isMusicPlay = true;
                     MusicManager.getInstance().startMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "PAUSE":
                     isMusicPlay = false;
                     MusicManager.getInstance().pauseMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "pause");
                     break;
                 case "STOP":
                     isMusicPlay = false;
                     MusicManager.getInstance().stopMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "stop");
                     break;
                 case "prev":
@@ -235,7 +485,7 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
                     MusicManager.getInstance().prevMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(), MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
                 case "next":
@@ -245,14 +495,14 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
                     MusicManager.getInstance().nextMusic();
-                    AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
+                    com.midea.light.ai.AiManager.getInstance().reportPlayerStatusToCloud(MusicManager.getInstance().getPlayMusicInfor().getMusicUrl(),
                             MusicManager.getInstance().getPlayMusicInfor().getSong(),
                             MusicManager.getInstance().getCurrentIndex(), "play");
                     break;
             }
         });
-        AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
-        AiManager.getInstance().addControlDeviceErrorCallBack(() -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiControlDeviceError",
+        com.midea.light.ai.AiManager.getInstance().addAISetVoiceCallBack(Voice -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice)));
+        com.midea.light.ai.AiManager.getInstance().addControlDeviceErrorCallBack(() -> runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiControlDeviceError",
                 true)));
     }
 
@@ -491,10 +741,11 @@ public class MainActivity extends FlutterActivity {
                 }
             };
             thread.start();
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 
     }
+
 
 }

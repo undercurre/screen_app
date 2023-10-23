@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:screen_app/common/utils.dart';
 
@@ -35,6 +37,11 @@ class WiFiScanResult {
   bool operator ==(Object other) {
     if(other.runtimeType != runtimeType) return false;
     return other is WiFiScanResult && other.ssid == ssid && other.bssid == bssid;
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(_$ScanResultToJson(this));
   }
 
   @override

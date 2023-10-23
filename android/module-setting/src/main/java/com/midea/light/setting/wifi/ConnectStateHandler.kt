@@ -79,18 +79,25 @@ object ConnectStateHandler {
                         WiFi状态: ${ if(wifiState == 2) "连接成功" else "连接失败" }  ${if(wifiInfo != null) wifiInfo.ssid else ""}
                     """.trimIndent()
             )
-
-            context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
-                addAction(CONNECTIVITY_ACTION)
-            })
+            try {
+                context.registerReceiver(mScanWiFiReceiver, IntentFilter().apply {
+                    addAction(CONNECTIVITY_ACTION)
+                })
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             register = true
         }
     }
 
     fun stop(context: Context) {
-        if(register) {
-            context.unregisterReceiver(mScanWiFiReceiver)
-            register = false
+        try {
+            if (register) {
+                context.unregisterReceiver(mScanWiFiReceiver)
+                register = false
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

@@ -1,54 +1,47 @@
 package com.midea.light;
 
 
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.ActivityManager;
 import android.content.Context;
-import android.content.IntentFilter;
-import android.graphics.Color;
-import android.os.Build;
-import android.os.Process;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.alibaba.sdk.android.push.CloudPushService;
-import com.alibaba.sdk.android.push.CommonCallback;
-import com.alibaba.sdk.android.push.noonesdk.PushInitConfig;
-import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
-import com.midea.light.basic.BuildConfig;
+import androidx.multidex.MultiDex;
+
+import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.config.GatewayConfig;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.issued.IssuedManager;
+import com.midea.light.issued.distribution.GateWayDistributionIssuedMatch;
+import com.midea.light.issued.plc.PLCControlIssuedMatch;
 import com.midea.light.issued.relay.RelayIssuedMatch;
 import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
-import com.midea.light.push.AliPushReceiver;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
 import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
-import com.midea.light.utils.CommandExecution;
+import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
-import com.midea.light.channel.method.*;
+import com.midea.light.utils.RootCmd;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.midea.light.channel.Channels;
-
-import androidx.multidex.MultiDex;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 public class MainApplication extends BaseApplication {
-    public static final Boolean DEBUG = BuildConfig.DEBUG;
+    public static final Boolean DEBUG = false;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
     public static MainActivity mMainActivity;
     public static boolean standbyState=false;
+
+    public static GatewayPlatform gatewayPlatform = GatewayPlatform.NONE;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -61,13 +54,6 @@ public class MainApplication extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化日志库
-
-        if(!ProcessUtil.isInMainProcess(this)){
-            AliPushChannel.aliPushInit(this);
-            return;
-        }
-        AliPushChannel.aliPushInit(this);
-
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
                 .withEnable(DEBUG)
                 .withStackFrom(0)
@@ -82,6 +68,41 @@ public class MainApplication extends BaseApplication {
                 .withLogTag("MSmartKVRepository")
                 .withMMKVCryptKey(AppCommonConfig.MMKV_CRYPT_KEY)
                 .build());
+
+        boolean isMainProcess = ProcessUtil.isInMainProcess(this);
+        // #初始化Bugly
+        BuglyManager.init(BuildConfig.DEBUG, (throwable, randomCode) -> false);
+
+        if(!isMainProcess) {
+            AliPushChannel.aliPushInit(this);
+            return;
+        } else {
+            // 每次主进程重启，都将删除ai相关进程
+            try{
+                new Thread(() -> {
+                    ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+                    for (ActivityManager.RunningAppProcessInfo process : processes) {
+                        if("com.midea.light:aiHomlux".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiHomlux");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiHomlux");
+                        }
+
+                        if("com.midea.light:aiMeiJu".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiMeiJu");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiMeiJu");
+                        }
+                    }
+                }).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        /// *************  注意注意 *******************
+        /// 下面的初始化，只能在com.midea.light进程中初始化
+        AliPushChannel.aliPushInit(this);
+
         // 初始化网关
         GateWayUtils.init();
         // #设置继电器控制器
@@ -90,16 +111,18 @@ public class MainApplication extends BaseApplication {
         IssuedManager.getInstance().register(new RelayIssuedMatch());
         // #注册语音播报捕抓器
         IssuedManager.getInstance().register(new VoiceIssuedMatch());
+        // #注册网关配网状态捕抓器
+        IssuedManager.getInstance().register(new GateWayDistributionIssuedMatch());
+        // #注册485设备控制下发捕抓器
+        IssuedManager.getInstance().register(new PLCControlIssuedMatch());
 
         GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
         GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
 
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
-        // 初始化Bugly
-        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
-        // 设置是否位开发设备
-        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
+
+
 
         //wifi 10秒刷新一次
 //        CommandExecution.execCommand("wpa_cli bss_expire_age 10", true);
@@ -110,28 +133,26 @@ public class MainApplication extends BaseApplication {
 
     }
 
-
-    private static String getProcessName(int pid) {
-        BufferedReader reader = null;
+    private String executeCommand(String command) {
+        Process process = null;
         try {
-            reader = new BufferedReader(new FileReader("/proc/" + pid + "/cmdline"));
-            String processName = reader.readLine();
-            if (!TextUtils.isEmpty(processName)) {
-                processName = processName.trim();
-            }
-            return processName;
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            process = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        InputStream inputStream = process.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder output = new StringBuilder();
+        String line;
+        while (true) {
+            try {
+                if (!((line = bufferedReader.readLine()) != null)) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            output.append(line).append("\n");
+        }
+        return output.toString();
     }
 
 }

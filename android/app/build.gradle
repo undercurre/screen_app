@@ -90,6 +90,7 @@ android {
     buildTypes {
 
         release {
+            debuggable false
             minifyEnabled false   //关闭混淆
             shrinkResources false // 关闭清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -97,6 +98,15 @@ android {
         }
 
         debug {
+            debuggable true
+            minifyEnabled false // 开启混淆
+            shrinkResources false // 自动清理无用资源
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig null
+        }
+
+        profile {
+            debuggable true
             minifyEnabled false // 开启混淆
             shrinkResources false // 自动清理无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -139,6 +149,12 @@ android {
         source '../..'
     }
 
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
 }
 
 dependencies {
@@ -149,9 +165,10 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation("com.android.support:multidex:1.0.3")
     implementation(project(":module-setting"))
-    implementation implementation(project(':module-manage-device',))
+    implementation(project(":module-manage-device"))
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
+    implementation(project(":module-homeos"))
 
     implementation rootProject.ext.nexus.basic
     implementation rootProject.ext.nexus.log

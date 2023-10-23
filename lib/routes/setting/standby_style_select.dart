@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/setting/screen_saver/index.dart';
 
@@ -225,7 +226,9 @@ class _StandbyStyleItemState extends State<_StandbyStyleItem> {
                   .push(MaterialPageRoute(builder: (context) => PreviewStandbyPage(widget.position) ))
                   .then((value) {
                     debugPrint('选中的位置是$value');
-                    widget.onChange?.call(value);
+                    if(value!=null){
+                      widget.onChange?.call(value);
+                    }
                   });
             },
             child: Image.asset(widget.imgPath),

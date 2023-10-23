@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:screen_app/common/global.dart';
 
 import 'models/music_state.dart';
 
@@ -49,6 +50,7 @@ class AiMethodChannel {
   }
 
   Future<bool> initialAi(value) async {
+    logger.i("初始化语音参数$value");
     bool result =  await _AiMethodChannel.invokeMethod('InitialAi',value);
     return result;
   }
@@ -60,6 +62,11 @@ class AiMethodChannel {
 
   Future<bool> enableAi(value) async {
     bool result =  await _AiMethodChannel.invokeMethod('EnableAi', value);
+    return result;
+  }
+
+  Future<String> aes128Encode(String value,String seed) async {
+    String result =  await _AiMethodChannel.invokeMethod('Aes128Encode', {"data":value,"seed":seed});
     return result;
   }
 
@@ -75,6 +82,11 @@ class AiMethodChannel {
 
   Future<String> musicPrev() async {
     String result =  await _AiMethodChannel.invokeMethod('AiMusicPrevious');
+    return result;
+  }
+
+  Future<String> stopAi() async {
+    String result = await _AiMethodChannel.invokeMethod('StopAi');
     return result;
   }
 

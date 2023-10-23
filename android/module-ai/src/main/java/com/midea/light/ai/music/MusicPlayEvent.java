@@ -1,9 +1,11 @@
 package com.midea.light.ai.music;
 
 
+import com.midea.light.ai.MideaLightMusicInfo;
+
 public class MusicPlayEvent {
 
-    public MusicPlayEvent(MusicInfo mMusicInfo) {
+    public MusicPlayEvent(MideaLightMusicInfo mMusicInfo) {
 
     }
 }

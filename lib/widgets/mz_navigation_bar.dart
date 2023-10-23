@@ -43,12 +43,12 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
     // 电源按钮
     Widget? powerBtn = widget.hasPower
         ? Padding(
-            padding: const EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 24),
             child: Image.asset(
-              widget.power ? 'assets/imgs/plugins/common/power_on.png' : 'assets/imgs/plugins/common/power_off.png',
+              widget.power ? 'assets/newUI/nav_power_on.png' : 'assets/newUI/nav_power_off.png',
               alignment: Alignment.centerRight,
-              width: 60,
-              height: 60,
+              width: 48,
+              height: 48,
             ))
         : null;
 
@@ -78,7 +78,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
                       width: widget.sideBtnWidth,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20),
-                        child: Image.asset('assets/imgs/plugins/common/arrow_left.png',
+                        child: Image.asset('assets/newUI/back.png',
                             alignment: Alignment.centerLeft, // 图标距离左端(40 / widget.sideBtnWidth - 1)*widget.sideBtnWidth/2 约20
                             width: 40,
                             height: 40),
@@ -95,6 +95,7 @@ class _MzNavigationBarState extends State<MzNavigationBar> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         widget.title,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           height: 1.6,
                           fontSize: 24,

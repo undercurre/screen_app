@@ -117,14 +117,23 @@ class ModeItem extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 15),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: selected ? (hasHeightlight ? Colors.white : const Color(0x4c000000)) : const Color(0x4c000000),
               borderRadius: BorderRadius.circular(25.0),
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: selected ?
+                  (hasHeightlight ?
+                    [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)]
+                      : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)])
+                    : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)],
+              ),
             ),
             child: Image(
+              opacity: selected ? null : const AlwaysStoppedAnimation(0.5),
               height: 42,
               width: 42,
               image: AssetImage(
-                selected ? (hasHeightlight ? mode.onIcon : mode.offIcon) : mode.offIcon,
+                mode.offIcon,
               ),
             ),
           ),

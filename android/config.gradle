@@ -1,10 +1,10 @@
-//    作者：RicardoMJiang
+//    作者：RicardoDMJiang
 //    链接：https://juejin.cn/post/6947675376835362846
 
 ext {
 
     ProjectVatiant = [
-            COMPILESDKVERSION  : 33,
+            COMPILESDKVERSION  : 34,
             BUILDERTOOLSVERSION: "29.0.2",
             TARGETSDKVERSION   : 26,
             MINSDKVERSION      : 24,
@@ -229,10 +229,10 @@ ext {
             it_server   : "com.midea.light:m-smart-server-api:0.1.11-SNAPSHOT",
             mz_server   : "com.midea.light:m-smart-aio-server-api:0.0.17-SNAPSHOT",
             hybrid      : "com.midea.light:m-smart-xwalk-hybrid:0.0.5-SNAPSHOT",
-            gateway     : "com.midea.light:m-smart-gateway:0.0.7",
+            gateway     : "com.midea.light:m-smart-gateway-4ch:0.0.8-SNAPSHOT",
             mtk8365     : "com.midea.light:m-smart-mtk8365-setting:0.0.2",
             card        : "com.midea.light:m-smart-card-center:0.0.3-SNAPSHOT",
-            ota_upgrade: "com.midea.light:m-smart-upgrade:0.0.42-SNAPSHOT"
+            ota_upgrade: "com.midea.light:m-smart-upgrade:0.1.4-SNAPSHOT"
 
     ]
 

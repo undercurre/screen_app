@@ -3,8 +3,11 @@
 // _LinkNetwork页面的 dataclass
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/index.dart';
+import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:screen_app/widgets/mz_wifi_image.dart';
 
 import '../../channel/index.dart';
@@ -12,7 +15,9 @@ import '../../channel/models/net_state.dart';
 import '../../channel/models/wifi_scan_result.dart';
 import '../../common/helper.dart';
 import '../../common/utils.dart';
+import '../../states/weather_change_notifier.dart';
 import '../mz_cell.dart';
+import '../mz_switch.dart';
 
 // _LinkNetwork页面的 dataclass
 class _LinkNetworkData {
@@ -28,21 +33,25 @@ class _LinkNetworkData {
 // _LinkNetwork 界面的 业务逻辑层
 class _LinkNetworkModel with ChangeNotifier {
   late _LinkNetworkData _data;
+  DateTime? lastTime;
+  Timer? wifiScanOutTime;
 
-  List<dynamic> get pageData => <dynamic>[
+  List<dynamic> get pageData =>
+      <dynamic>[
         'headerTag',
-        if (_data.supportWiFi && _data.isWiFiOn) ...?_data.wifiList
+        if (_data.supportWiFi && _data.isWiFiOn) ...?_data.wifiList,
+        'lastTag'
       ];
 
   _LinkNetworkModel(BuildContext context) {
     _data = _LinkNetworkData(isWiFiOn: false, isEthernetOn: false);
+    //init();
     Timer(const Duration(milliseconds: 250), () async {
       init();
     });
   }
 
   void init() async {
-
     bool supportWifi = await netMethodChannel.supportWiFiControl();
     bool supportEthernet = await netMethodChannel.supportEthernetControl();
     bool wifiOpen = await netMethodChannel.wifiIsOpen();
@@ -54,7 +63,7 @@ class _LinkNetworkModel with ChangeNotifier {
     _data.isEthernetOn = ethernetOpen;
 
     /// 假如WiFi与EthernetOpen同时连接，则断开全部
-    if(wifiOpen && ethernetOpen) {
+    if (wifiOpen && ethernetOpen) {
       await netMethodChannel.enableWiFi(false);
       await netMethodChannel.enableEthernet(false);
       _data.isWiFiOn = false;
@@ -68,17 +77,21 @@ class _LinkNetworkModel with ChangeNotifier {
     netMethodChannel.startObserverNetState();
     netMethodChannel.registerNetChangeCallBack(_connectStateCallback);
 
-    if(_data.supportWiFi && _data.isWiFiOn) {
-      netMethodChannel.scanNearbyWiFi();
+    if (_data.supportWiFi && _data.isWiFiOn) {
+      wifiScanOutTime?.cancel();
+      wifiScanOutTime = Timer(const Duration(minutes: 10), () {
+        netMethodChannel.stopScanNearbyWiFi();
+      });
+      netMethodChannel.startScanNearbyWiFi();
     }
 
     notifyListeners();
-
   }
 
   @override
   void dispose() {
     super.dispose();
+    wifiScanOutTime?.cancel();
     netMethodChannel.stopObserverNetState();
     netMethodChannel.stopScanNearbyWiFi();
     netMethodChannel.unregisterNetChangeCallBack(_connectStateCallback);
@@ -90,17 +103,31 @@ class _LinkNetworkModel with ChangeNotifier {
     int wifiState = state.wifiState;
     if (wifiState == 2) {
       _data.currentConnect = UpdateState.success(state.wiFiScanResult!);
-      _data.wifiList?.removeWhere((element) => element == state.wiFiScanResult);
+      _data.wifiList?.removeWhere((element) =>
+      element.bssid == state.wiFiScanResult?.bssid);
     } else {
-      _data.currentConnect = null;
+      // _data.currentConnect = null;
     }
     notifyListeners();
   }
 
   void _wiFiListCallback(List<WiFiScanResult> list) {
+    if (lastTime != null) {
+      if (DateTime
+          .now()
+          .millisecondsSinceEpoch - lastTime!.millisecondsSinceEpoch < 5000) {
+        return;
+      }
+    }
+    lastTime = DateTime.now();
+    if (_data.currentConnect != null &&
+        _data.currentConnect?.type == UpdateType.SUCCESS) {
+      list.removeWhere((element) =>
+      element.bssid == _data.currentConnect?.data.bssid);
+    }
     _data.wifiList = list.toSet();
-    if(_data.currentConnect?.type == UpdateType.SUCCESS) {
-      _data.wifiList?.removeWhere((element) => element == _data.currentConnect?.data);
+    if (_data.isWiFiOn && (_data.wifiList?.isEmpty ?? true)) {
+      return;
     }
     notifyListeners();
   }
@@ -111,8 +138,12 @@ class _LinkNetworkModel with ChangeNotifier {
       _data.wifiList = null;
       _data.isWiFiOn = wifiOpen && _data.supportWiFi;
       _data.currentConnect = wifiOpen ? _data.currentConnect : null;
-      if(wifiOpen) {
-        netMethodChannel.scanNearbyWiFi();
+      if (wifiOpen) {
+        wifiScanOutTime?.cancel();
+        wifiScanOutTime = Timer(const Duration(minutes: 10), () {
+          netMethodChannel.stopScanNearbyWiFi();
+        });
+        netMethodChannel.startScanNearbyWiFi();
       } else {
         netMethodChannel.stopScanNearbyWiFi();
       }
@@ -124,14 +155,13 @@ class _LinkNetworkModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void connectWiFi(
-      {required WiFiScanResult result,
-      String? password,
-      required void Function(bool) callback}) async {
+  void connectWiFi({required WiFiScanResult result,
+    String? password,
+    required void Function(bool) callback}) async {
     _data.currentConnect = UpdateState.loading(result);
     notifyListeners();
     bool connect =
-        await netMethodChannel.connectedWiFi(result.ssid, password, true);
+    await netMethodChannel.connectedWiFi(result.ssid, password, true);
     if (connect) {
       _data.currentConnect = UpdateState.success(result);
       callback.call(true);
@@ -155,14 +185,14 @@ class _LinkNetworkModel with ChangeNotifier {
 }
 
 class LinkNetwork extends StatefulWidget {
+
   const LinkNetwork({super.key});
 
   @override
-  State<LinkNetwork> createState() => _LinkNetwork();
+  State<LinkNetwork> createState() => LinkNetworkState();
 }
 
-class _LinkNetwork extends State<LinkNetwork> {
-
+class LinkNetworkState extends State<LinkNetwork> {
   late _LinkNetworkModel _model;
 
   @override
@@ -177,133 +207,233 @@ class _LinkNetwork extends State<LinkNetwork> {
     super.dispose();
   }
 
+  final ScrollController _controller = ScrollController();
+
+  @override
+  deactivate() {
+    updateWeatherIfWifiOn();
+    super.deactivate();
+  }
+
+  void updateWeatherIfWifiOn() {
+    if (_model._data.currentConnect?.type == UpdateType.SUCCESS) {
+      final weatherModel = Provider.of<WeatherModel>(context, listen: false);
+      weatherModel.loadSelectedDistrict();
+    }
+  }
+
+  bool isNetworkConnected() {
+    return _model._data.currentConnect?.type == UpdateType.SUCCESS;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<_LinkNetworkModel>.value(
         value: _model,
         child: Consumer<_LinkNetworkModel>(builder: (_, model, child) {
-          return ListView.builder(
-              itemCount: model.pageData.length,
-              itemBuilder: (BuildContext context, int index) {
-                // 有线网络
-                if (model.pageData[index] == 'headerTag') {
-                  return header(model);
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ListView.builder(
+                controller: _controller,
+                itemCount: model.pageData.length,
+                itemBuilder: (BuildContext context, int index) {
+                  if (model.pageData[index] == 'headerTag') {
+                    return switchBar(model);
+                  } else if (model.pageData[index] == 'lastTag') {
+                    return lastTag(model);
+                  } else {
+                    WiFiScanResult item = model
+                        .pageData[index] as WiFiScanResult;
+                    return MzCell(
+                        rightIcon: Row(
+                          children: [
+                            if (item.auth == 'encryption') const Padding(
+                              padding: EdgeInsets.only(right: 12.0),
+                              child: Image(
+                                height: 32,
+                                width: 32,
+                                image: AssetImage('assets/newUI/lock.png'),
+                              ),
+                            ),
+                            MzWiFiImage(
+                                level: item.level.toInt(),
+                                size: const Size.square(28)),
+                          ],
+                        ),
+                        title: item.ssid,
+                        titleMaxLines: 1,
+                        titleSize: 20,
+                        titleMaxWidth: 260,
+                        hasBottomBorder: true,
+                        topLeftRadius: index == 1 ? 16 : 0,
+                        topRightRadius: index == 1 ? 16 : 0,
+                        bgColor: const Color.fromRGBO(255, 255, 255, 0.05),
+                        onTap: () {
+                          if (item.auth == 'open') {
+                            // 尝试连接开放型WiFi
+                            model.connectWiFi(result: item,
+                                password: null,
+                                callback: (result) {});
+                          } else if (item.alreadyConnected) {
+                            // 尝试连接曾经的WiFi
+                            _controller.animateTo(
+                              0.0,
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                            model.connectWiFi(
+                                result: item,
+                                password: null,
+                                callback: (result) {
+                                  if (!result) {
+                                    showInputPasswordDialog(
+                                        item, model, _controller);
+                                  }
+                                });
+                          } else {
+                            // 连接新WiFi
+                            showInputPasswordDialog(item, model, _controller);
+                          }
+                        }
+                    );
+                  }
                 }
-                WiFiScanResult item =
-                    model.pageData[index] as WiFiScanResult;
-                // wifi的子Item
-                return MzCell(
-                  avatarIcon: MzWiFiImage(level: item.level.toInt(), size: const Size.square(28)),
-                  rightIcon: item.auth == 'encryption' ? const Icon(Icons.lock_outline_sharp, color: Color.fromRGBO(255, 255, 255, 0.85)) : null,
-                  title: item.ssid,
-                  titleSize: 18.0,
-                  hasTopBorder: true,
-                  bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-                  onTap: () {
-                    if (item.auth == 'open') {
-                      // 尝试连接开放型WiFi
-                      model.connectWiFi(
-                          result: item,
-                          password: null,
-                          callback: (result) {});
-                    } else if (item.alreadyConnected) {
-                      // 尝试连接曾经的WiFi
-                      model.connectWiFi(
-                          result: item,
-                          password: null,
-                          callback: (result) {
-                            if (!result) {
-                              showInputPasswordDialog(item, model);
-                            }
-                          });
-                    } else {
-                      // 连接新WiFi
-                      showInputPasswordDialog(item, model);
-                    }
-                  },
-                );
-              });
-        }));
+            ),
+          );
+        })
+    );
   }
 
-  Widget header(_LinkNetworkModel model) {
+
+  Widget switchBar(_LinkNetworkModel model) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Visibility(
-            visible: model._data.supportEthernet,
-            child: MzCell(
-                key: UniqueKey(),
-                title: '有线网络',
-                titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-                titleSize: 24.0,
-                hasTopBorder: true,
-                hasSwitch: true,
-                initSwitchValue: model._data.isEthernetOn,
-                onSwitch: (open) => model.changeSwitch(!open, open))),
-        Visibility(
-            visible: model._data.supportWiFi,
-            child: MzCell(
-                key: UniqueKey(),
-                title: '无线局域网',
-                titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
-                titleSize: 24.0,
-                hasTopBorder: true,
-                hasSwitch: true,
-                initSwitchValue: model._data.isWiFiOn,
-                onSwitch: (open) => model.changeSwitch(open, !open))),
-        Visibility(
-            visible: model._data.currentConnect != null &&
-                model._data.currentConnect!.type != UpdateType.ERROR,
-            child: MzCell(
-              avatarIcon: MzWiFiImage(level: model._data.currentConnect?.data.level.toInt() ?? 0, size: const Size.square(24)),
-              rightIcon: model._data.currentConnect?.data.auth == 'encryption'
-                  ? const Icon(Icons.lock_outline_sharp,
-                      color: Color.fromRGBO(255, 255, 255, 0.85))
-                  : null,
-              rightText: model.connectedState(model._data.currentConnect),
-              title: model._data.currentConnect?.data.ssid,
-              titleSize: 18.0,
-              hasTopBorder: true,
-              onLongPress: () {
-                if (model._data.currentConnect?.type == UpdateType.SUCCESS) {
-                  showIgnoreDialog(model._data.currentConnect!.data);
-                }
-              },
-              bgColor: const Color.fromRGBO(216, 216, 216, 0.1),
-            )),
-        DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(
-                top: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.3))),
+        Container(
+          decoration: BoxDecoration(
+              color: const Color(0x0CFFFFFF),
+              borderRadius: BorderRadius.circular(16)
           ),
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(36, 4, 36, 4),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: const [
-                    Text('其他网络',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 0.68),
-                          fontSize: 13.0,
-                          fontFamily: "PingFangSC-Regular",
-                          decoration: TextDecoration.none,
-                        )),
-                  ])),
+          child: Column(
+            children: [
+              MzCell(
+                title: "无线局域网",
+                titleSize: 24,
+                titleColor: const Color(0xFFFFFFFF),
+                bgColor: Colors.transparent,
+                hasBottomBorder: model._data.currentConnect?.type ==
+                    UpdateType.LONGING
+                    || model._data.currentConnect?.type == UpdateType.SUCCESS
+                    ? true
+                    : false,
+                rightSlot: MzSwitch(
+                  value: model._data.isWiFiOn,
+                  onTap: (e) => model.changeSwitch(!model._data.isWiFiOn, true),
+                ),
+              ),
+              if(model._data.currentConnect?.type == UpdateType.LONGING
+                  || model._data.currentConnect?.type == UpdateType.SUCCESS)
+                MzCell(
+                  title: model._data.currentConnect?.data.ssid ?? "",
+                  titleSize: 20,
+                  titleMaxWidth: 230,
+                  titleMaxLines: 1,
+                  titleColor: const Color(0xD8FFFFFF),
+                  bgColor: Colors.transparent,
+                  rightSlot: model._data.currentConnect?.type ==
+                      UpdateType.LONGING ?
+                  const CupertinoActivityIndicator(radius: 12) :
+                  Row(
+                    children: [
+                      if (model._data.currentConnect?.data.auth ==
+                          'encryption') const Padding(
+                        padding: EdgeInsets.only(right: 12),
+                        child: Image(
+                          height: 32,
+                          width: 32,
+                          image: AssetImage('assets/newUI/lock.png'),
+                        ),
+                      ),
+                      MzWiFiImage(
+                          level: model._data.currentConnect?.data.level
+                              .toInt() ?? 0,
+                          size: const Size.square(28)),
+                    ],
+                  ),
+                  tag: model._data.currentConnect?.type == UpdateType.SUCCESS
+                      ? "已连接"
+                      : null,
+                  onLongPress: () {
+                    if (model._data.currentConnect?.type ==
+                        UpdateType.SUCCESS) {
+                      showIgnoreDialog(model);
+                    }
+                  },
+                ),
+            ],
+          ),
+        ),
+
+        if (model.pageData.length > 2) Container(
+          width: 432,
+          height: 62,
+          margin: const EdgeInsets.only(left: 16),
+          alignment: Alignment.centerLeft,
+          child: const Text(
+            '可用网络',
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w400,
+              color: Color.fromRGBO(255, 255, 255, 0.85),
+            ),
+          ),
         )
       ],
     );
   }
 
-  void showInputPasswordDialog(
-      WiFiScanResult result, _LinkNetworkModel model, [bool connectedError = false]) async {
+  Widget lastTag(_LinkNetworkModel model) {
+    if (model.pageData.length == 2 && model._data.currentConnect?.type == UpdateType.SUCCESS) {
+      return Container(
+        margin: const EdgeInsets.only(top: 20),
+        child: const CupertinoActivityIndicator(radius: 20),
+      );
+    } else {
+      if (model.pageData.length > 4) {
+        return Container(
+          width: 432,
+          height: 44,
+          decoration: const BoxDecoration(
+              color: Color.fromRGBO(255, 255, 255, 0.05),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16))
+          ),
+          margin: const EdgeInsets.only(bottom: 40),
+          alignment: Alignment.center,
+          child: const Text(
+            '已经到底了~',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: Color.fromRGBO(255, 255, 255, 0.85)
+            ),
+          ),
+        );
+      } else {
+        return const SizedBox();
+      }
+    }
+  }
+
+  void showInputPasswordDialog(WiFiScanResult result, _LinkNetworkModel model,
+      ScrollController mScrollController,
+      [bool connectedError = false]) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return InputPasswordDialog(
             connectedError: connectedError,
             result: result,
+            mScrollController: mScrollController,
             confirmAction: (_, password) {
               model.connectWiFi(
                   result: result,
@@ -311,7 +441,8 @@ class _LinkNetwork extends State<LinkNetwork> {
                   callback: (suc) {
                     if (!suc) {
                       // 连接失败继续显示弹窗
-                      showInputPasswordDialog(result, model, true);
+                      showInputPasswordDialog(
+                          result, model, mScrollController, true);
                     }
                   });
             },
@@ -319,7 +450,7 @@ class _LinkNetwork extends State<LinkNetwork> {
         });
   }
 
-  void showIgnoreDialog(WiFiScanResult result) async {
+  void showIgnoreDialog(_LinkNetworkModel result) async {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -332,16 +463,22 @@ class _LinkNetwork extends State<LinkNetwork> {
 }
 
 class IgnorePasswordDialog extends StatelessWidget {
-  final WiFiScanResult result;
+  final _LinkNetworkModel result;
+
   const IgnorePasswordDialog({super.key, required this.result});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.transparent,
       child: Container(
-        color: const Color(0xff1b1b1b),
-        width: 423,
-        height: 204,
+        width: 432,
+        height: 232,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+        decoration: const BoxDecoration(
+          color: Color(0xFF494E59),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
+        ),
         child: Column(
           children: [
             Expanded(
@@ -349,7 +486,7 @@ class IgnorePasswordDialog extends StatelessWidget {
                 child: Container(
                   alignment: Alignment.center,
                   child: Text(
-                    '忽略“${result.ssid}”',
+                    '忽略“${result._data.currentConnect?.data.ssid}”',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -358,42 +495,72 @@ class IgnorePasswordDialog extends StatelessWidget {
                 )),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  flex: 1,
-                  child: TextButton(
-                    style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff282828)),
-                        shape: MaterialStateProperty.all(
-                            const RoundedRectangleBorder())),
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      '取消',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: TextButton(
-                    style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff267AFF)),
-                        shape: MaterialStateProperty.all(
-                            const RoundedRectangleBorder())),
+                MzButton(
+                    width: 152,
+                    height: 56,
+                    backgroundColor: const Color(0xFF939AA6),
+                    borderColor: Colors.transparent,
+                    borderWidth: 0,
+                    isShowShadow: false,
+                    borderRadius: 29.0,
+                    text: '取消',
                     onPressed: () {
-                      netMethodChannel.forgetWiFi(result.ssid, result.bssid);
                       Navigator.pop(context);
-                    },
-                    child: const Text(
-                      '确定',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
+                    }),
+                MzButton(
+                  width: 152,
+                  height: 56,
+                  borderRadius: 29.0,
+                  backgroundColor: const Color(0xFF267AFF),
+                  borderColor: Colors.transparent,
+                  borderWidth: 0,
+                  isShowShadow: false,
+                  text: '确认',
+                  onPressed: () {
+                    netMethodChannel.forgetWiFi(
+                        result._data.currentConnect!.data.ssid,
+                        result._data.currentConnect!.data.bssid);
+                    result._data.currentConnect = null;
+                    Navigator.pop(context);
+                  },
                 )
+                // Expanded(
+                //   flex: 1,
+                //   child: TextButton(
+                //     style: ButtonStyle(
+                //         elevation: MaterialStateProperty.all(0),
+                //         backgroundColor:
+                //             MaterialStateProperty.all(const Color(0xff282828)),
+                //         shape: MaterialStateProperty.all(
+                //             const RoundedRectangleBorder())),
+                //     onPressed: () => Navigator.pop(context),
+                //     child: const Text(
+                //       '取消',
+                //       style: TextStyle(color: Colors.white, fontSize: 18),
+                //     ),
+                //   ),
+                // ),
+                // Expanded(
+                //   flex: 1,
+                //   child: TextButton(
+                //     style: ButtonStyle(
+                //         elevation: MaterialStateProperty.all(0),
+                //         backgroundColor:
+                //             MaterialStateProperty.all(const Color(0xff267AFF)),
+                //         shape: MaterialStateProperty.all(
+                //             const RoundedRectangleBorder())),
+                //     onPressed: () {
+                //       netMethodChannel.forgetWiFi(result.ssid, result.bssid);
+                //       Navigator.pop(context);
+                //     },
+                //     child: const Text(
+                //       '确定',
+                //       style: TextStyle(color: Colors.white, fontSize: 18),
+                //     ),
+                //   ),
+                // )
               ],
             ),
           ],
@@ -407,9 +574,14 @@ class InputPasswordDialog extends StatefulWidget {
   final WiFiScanResult result;
   final void Function(WiFiScanResult result, String password) confirmAction;
   final bool connectedError;
+  final ScrollController mScrollController;
 
-  const InputPasswordDialog(
-      {super.key, required this.result, required this.confirmAction, required this.connectedError});
+
+  const InputPasswordDialog({super.key,
+    required this.result,
+    required this.confirmAction,
+    required this.connectedError,
+    required this.mScrollController});
 
   @override
   State<StatefulWidget> createState() {
@@ -420,16 +592,24 @@ class InputPasswordDialog extends StatefulWidget {
 class _InputPasswordDialogState extends State<InputPasswordDialog> {
   var closeEye = true;
   final TextEditingController _nameController = TextEditingController();
+  bool isLengthOk = false;
+
   _InputPasswordDialogState();
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.transparent,
       child: Container(
-        width: 423,
-        height: 204,
-        color: const Color(0xff1b1b1b),
+        width: 435,
+        height: 240,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+        decoration: const BoxDecoration(
+          color: Color(0xFF494E59),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
+        ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
                 flex: 1,
@@ -438,39 +618,74 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text(
-                            '输入“${widget.result.ssid}”的密码',
-                            style: const TextStyle(color: Colors.white, fontSize: 24)),
-                        if(widget.connectedError)
+                        Text('输入“${toLimitString(widget.result.ssid)}”的密码',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 24)),
+                        if (widget.connectedError)
                           const Text(
-                            '密码错误',
-                            style: TextStyle(color: Colors.red, fontSize: 16),
+                            '密码错误！',
+                            style: TextStyle(
+                                color: Color(0xFFFF1111), fontSize: 16),
                           ),
-                    ],))),
+                      ],
+                    ))),
             Expanded(
                 flex: 1,
                 child: Container(
                     alignment: Alignment.center,
                     child: SizedBox(
-                      width: 357,
-                      height: 50,
+                      width: 348,
+                      height: 56,
                       child: Container(
-                        decoration:
-                            BoxDecoration(color: Color.fromRGBO(40, 40, 40, 1)),
-                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        width: 348,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color.fromRGBO(216, 216, 216, 0.2),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(12.0)),
+                          border:
+                          widget.connectedError ? Border.all(color: const Color
+                              .fromRGBO(255, 0, 0, 1)) : null,
+                        ),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('密码 '),
+                            Row(
+                              children: [
+                                const Text('密码',
+                                    style: TextStyle(fontSize: 18.0)),
+                                Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10.0, right: 20.0),
+                                    child: const Text('|',
+                                        style: TextStyle(fontSize: 18.0))),
+                              ],
+                            ),
                             Expanded(
                                 child: TextField(
-                              controller: _nameController,
-                              obscureText: closeEye,
-                              maxLines: 1,
-                              decoration:
-                                  InputDecoration(border: InputBorder.none),
-                            )),
+                                  keyboardType: TextInputType.visiblePassword,
+                                  autocorrect: false,
+                                  style: const TextStyle(fontSize: 18.0),
+                                  controller: _nameController,
+                                  obscureText: closeEye,
+                                  maxLines: 1,
+                                  decoration: const InputDecoration(
+                                      border: InputBorder.none),
+                                  onChanged: (str) {
+                                    if (str.length == 7) {
+                                      setState(() {
+                                        isLengthOk = false;
+                                      });
+                                    } else if (str.length == 8) {
+                                      setState(() {
+                                        isLengthOk = true;
+                                      });
+                                    }
+                                  },
+                                )
+                            ),
                             IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -479,63 +694,80 @@ class _InputPasswordDialogState extends State<InputPasswordDialog> {
                                 },
                                 icon: closeEye
                                     ? Image.asset(
-                                        'assets/imgs/icon/eye-close.png')
+                                    'assets/newUI/eyeClose.png')
                                     : Image.asset(
-                                        'assets/imgs/icon/eye-open.png'))
+                                    'assets/newUI/eyeOpen.png'))
                           ],
                         ),
                       ),
                     ))),
             Expanded(
                 flex: 1,
-                child: Container(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                          child: TextButton(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MzButton(
+                        width: 152,
+                        height: 56,
+                        borderRadius: 29.0,
+                        backgroundColor: const Color(0xFF939AA6),
+                        borderColor: Colors.transparent,
+                        borderWidth: 0,
+                        isShowShadow: false,
+                        text: '取消',
                         onPressed: () {
                           Navigator.pop(context);
-                        },
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(40, 40, 40, 1)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        child: const Text(
-                          '取消',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      )),
-                      Container(width: 1),
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                            const Color(0xff267AFF)),
-                            shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder())),
-                        onPressed: () {
-                          if (StrUtils.isNullOrEmpty(_nameController.text) ||
-                              _nameController.text.length < 8) {
-                            TipsUtils.toast(content: "请输入8位密码");
-                          } else {
-                            widget.confirmAction
-                                .call(widget.result, _nameController.text);
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: const Text(
-                          '加入',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      )),
-                    ],
-                  ),
+                        }),
+                    MzButton(
+                      width: 152,
+                      height: 56,
+                      borderRadius: 29.0,
+                      backgroundColor: isLengthOk
+                          ? const Color(0xFF267AFF)
+                          : const Color(0xFF4065A7),
+                      borderColor: Colors.transparent,
+                      borderWidth: 0,
+                      isShowShadow: false,
+                      isClickable: (StrUtils.isNullOrEmpty(
+                          _nameController.text) ||
+                          _nameController.text.length < 8) ? false : true,
+                      text: '加入',
+                      textColor: isLengthOk
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xC8FFFFFF),
+                      onPressed: () {
+                        if (StrUtils.isNullOrEmpty(_nameController.text) ||
+                            _nameController.text.length < 8) {
+                          // TipsUtils.toast(content: "请输入8位密码");
+                        } else {
+                          widget.mScrollController.animateTo(
+                            0.0,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
+                          widget.confirmAction
+                              .call(widget.result, _nameController.text);
+                          Navigator.pop(context);
+                        }
+                      },
+                    )
+                  ],
                 )),
           ],
         ),
       ),
     );
+  }
+
+  String toLimitString(String str) {
+    if (str.isNotEmpty) {
+      if (str.length < 13) {
+        return str;
+      } else {
+        return '${str.substring(0, 9)}...${str.substring(str.length - 1)}';
+      }
+    }
+    return str;
   }
 }

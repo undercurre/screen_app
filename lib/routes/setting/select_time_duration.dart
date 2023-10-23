@@ -1,12 +1,12 @@
 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_app/common/helper.dart';
 import 'package:screen_app/common/index.dart';
 
 import '../../common/setting.dart';
-
-
+import '../../widgets/mz_switch.dart';
 
 class SelectTimeDurationPage extends StatefulWidget {
 
@@ -63,110 +63,159 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
   Widget build(BuildContext context) {
     debugPrint(" _SelectTimeDurationState => build");
     return Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 22, 24, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("执行时间", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24
-                      )),
-                      Ink(
-                        decoration: const ShapeDecoration(
-                          color: Color(0x20ffffff),
-                          shape: CircleBorder(),
-                        ),
-                        child: IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            icon: const Icon(
-                              Icons.close_sharp,
-                              size: 30,
-                              color: Color(0xff979797))
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    "",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white.withOpacity(0.57),
-                    ),
-                  ),
-                ),
-                Expanded(
-                    child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 52, 0, 64),
-                        child: twoWheel(hours, minutes)
-                    )
-                )
+      body: Center(
+        child: Container(
+          width: 480,
+          height: 480,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF272F41),
+                Color(0xFF080C14),
               ],
             ),
-            Container(
-              alignment: Alignment.bottomLeft,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0))),
-                            backgroundColor: const Color(0xff282828),
-                            fixedSize: const Size(double.infinity, 64)
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text(
-                          "取消",
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 480,
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back.png",
+                      ),
+                    ),
+                    const Text("夜间模式",
+                        style: TextStyle(
+                            color: Color(0XD8FFFFFF),
+                            fontSize: 28,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back_home.png",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 480,
+                height: 10,
+              ),
+
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 32,
+                      top: 128,
+                      child: Container(
+                        width: 176,
+                        height: 1,
+                        color: const Color(0x4C979797),
+                      ),
+                    ),
+                    Positioned(
+                      left: 32,
+                      top: 176,
+                      child: Container(
+                        width: 176,
+                        height: 1,
+                        color: const Color(0x4C979797),
+                      ),
+                    ),
+                    Positioned(
+                      right: 32,
+                      top: 128,
+                      child: Container(
+                        width: 176,
+                        height: 1,
+                        color: const Color(0x4C979797),
+                      ),
+                    ),
+                    Positioned(
+                      right: 32,
+                      top: 176,
+                      child: Container(
+                        width: 176,
+                        height: 1,
+                        color: const Color(0x4C979797),
+                      ),
+                    ),
+                    Container(
+                        margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+
+                        child: twoWheel(hours, minutes)
+                    ),
+
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: ClipRect(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            width: 480,
+                            height: 88,
+                            alignment: Alignment.center,
+                            color: Colors.white.withOpacity(0.1),
+                            child: GestureDetector(
+                              onTap: () {
+                                final startTime = generateTime(startHour, startMinute, 0);
+                                final endTime = generateTime(endHour, endMinute, _showNextDay ? 24 * 60 : 0);
+                                if(startTime >= endTime) {
+                                  TipsUtils.toast(content: "请选择正确的时间段");
+                                } else {
+                                  Setting.instant().setScreedDuration(Pair.of(startTime, endTime));
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Container(
+                                width: 240,
+                                height: 56,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(28)),
+                                  color: Color(0xFF267AFF),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text('确定',
+                                    style: TextStyle(
+                                        color: Color(0XD8FFFFFF),
+                                        fontSize: 24,
+                                        fontFamily: "MideaType",
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.none)
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      )),
-                  Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0))),
-                            backgroundColor: const Color(0xff267aff),
-                            fixedSize: const Size(double.infinity, 64)
-                        ),
-                        onPressed: () {
-                          final startTime = generateTime(startHour, startMinute, 0);
-                          final endTime = generateTime(endHour, endMinute, _showNextDay ? 24 * 60 : 0);
-                          if(startTime >= endTime) {
-                            TipsUtils.toast(content: "请选择正确的时间段");
-                          } else {
-                            Navigator.of(context).pop(
-                                Pair.of(startTime, endTime)
-                            );
-                          }
-                        },
-                        child: const Text(
-                            "确定",
-                            style: TextStyle(
-                                fontSize: 24,
-                                color: Colors.white
-                            )
-                        ),
-                      ))
-                ],
-              ),
-            )
-          ],
-        )
+                      ),
+                    )
+                  ],
+                ),
+              )
+
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -213,7 +262,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                   numberFormat.format(hours[index]),
                                   style: const TextStyle(
                                       color: Color(0xffffffff),
-                                      fontSize: 20
+                                      fontSize: 24
                                   ),
                                 );
                               },
@@ -226,7 +275,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                       " : ",
                       style: TextStyle(
                           color: Color(0xffffffff),
-                          fontSize: 20
+                          fontSize: 24
                       ),
                     ),
                   ),
@@ -252,7 +301,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                   numberFormat.format(minutes[index]),
                                   style: const TextStyle(
                                       color: Color(0xffffffff),
-                                      fontSize: 20
+                                      fontSize: 24
                                   ),
                                 );
                               },
@@ -267,7 +316,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
         const VerticalDivider(
           width: 1,
           indent: 10,
-          endIndent: 0,
+          endIndent: 100,
           color: Color(0xff979797),
         ),
         Expanded(
@@ -314,7 +363,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                         numberFormat.format(hours[index]),
                                         style: const TextStyle(
                                             color: Color(0xffffffff),
-                                            fontSize: 20
+                                            fontSize: 24
                                         ),
                                       );
                                     },
@@ -327,7 +376,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                             " : ",
                             style: TextStyle(
                                 color: Color(0xffffffff),
-                                fontSize: 20
+                                fontSize: 24
                             ),
                           ),
                         ),
@@ -353,7 +402,7 @@ class _SelectTimeDurationState extends State<SelectTimeDurationPage> {
                                         numberFormat.format(minutes[index]),
                                         style: const TextStyle(
                                             color: Color(0xffffffff),
-                                            fontSize: 20
+                                            fontSize: 24
                                         ),
                                       );
                                     },

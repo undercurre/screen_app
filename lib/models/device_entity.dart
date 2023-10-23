@@ -8,25 +8,27 @@ class DeviceEntity {
   DeviceEntity();
 
   dynamic bindType;
-  late String applianceCode;
-  late String sn;
-  late String onlineStatus;
-  late String type;
-  late String modelNumber;
-  late String name;
+  late String applianceCode = '';
+  late String sn = '';
+  late String onlineStatus = '';
+  late String type = '';
+  late String modelNumber = '';
+  late String name = '';
   String? des;
-  late String activeStatus;
-  late String activeTime;
-  late String isSupportFetchStatus;
+  late String activeStatus = '';
+  late String activeTime = '';
+  late String isSupportFetchStatus = '';
   String? cardStatus;
-  late String hotspotName;
-  late String masterId;
-  late String attrs;
+  late String hotspotName = '';
+  late String masterId = '';
+  late String attrs = '';
   String? btMac;
-  late String btToken;
+  late String btToken = '';
   String? sn8;
-  late String isOtherEquipment;
-  late Map<String, dynamic> ability;
+  String? roomName;
+  String? roomId;
+  late String isOtherEquipment = '';
+  late Map<String, dynamic> ability = {};
   String? moduleType;
   Map<String, dynamic>? detail;
 
@@ -38,4 +40,14 @@ class DeviceEntity {
   String toString() {
     return jsonEncode(this);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is DeviceEntity && other.applianceCode == applianceCode;
+  }
+
+  @override
+  int get hashCode => applianceCode.hashCode;
 }

@@ -1,13 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../channel/index.dart';
-import '../../common/global.dart';
-import '../../common/helper.dart';
 import '../../common/setting.dart';
-import '../../states/standby_notifier.dart';
-import '../../widgets/mz_slider_noball.dart';
+import '../../widgets/mz_cell.dart';
+import '../../widgets/mz_switch.dart';
 
 class DisplaySettingPage extends StatefulWidget {
   const DisplaySettingPage({super.key});
@@ -17,23 +15,29 @@ class DisplaySettingPage extends StatefulWidget {
 }
 
 class DisplaySettingPageState extends State<DisplaySettingPage> {
-  late double po;
-  bool autoLight = Global.autoLight;
-  bool nearWakeup = Global.nearWakeup;
-  num lightValue = Global.lightValue;
+  bool autoLight = Setting.instant().screenAutoEnable;
+  bool nearWakeup = Setting.instant().nearWakeupEnable;
+  num lightValue = Setting.instant().screenBrightness;
   String duration = '';
   late int screenSaverId;
+  Timer? sliderTimer;
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    print("initState");
     initial();
     screenSaverId = Setting.instant().screenSaverId;
+
+    /// 取消自动调光
+    onAutoLightClick(false);
   }
 
   initial() async {
+    num lightVal = await settingMethodChannel.getSystemLight();
+    Setting.instant().screenBrightness = lightVal.toInt();
+    lightValue = lightVal;
+
     setState(() {
       duration = Setting.instant().getScreedDurationDetail();
     });
@@ -43,313 +47,239 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Container(
-        width: 480,
-        height: 480,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
-        child: Column(
-          children: [
-            SizedBox(
-              width: 480,
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    iconSize: 60.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/fanhui.png",
-                    ),
-                  ),
-                  const Text("显示设置",
-                      style: TextStyle(
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 30.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.settings.name == 'Home');
-                    },
-                    iconSize: 60.0,
-                    icon: Image.asset(
-                      "assets/imgs/setting/zhuye.png",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 480,
-              height: 1,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
-            ),
-            Expanded(
-                child: ListView(
-              scrollDirection: Axis.vertical,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                      child: const Text("自动亮度",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 24.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                      child: CupertinoSwitch(
-                        value: autoLight,
-                        activeColor: Colors.blue,
-                        onChanged: (bool value) {
-                          print("开启状态:$value");
-                          settingMethodChannel.setAutoLight(value);
-                          setState(() {
-                            autoLight = value;
-                            Global.autoLight = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-                      child: Image.asset(
-                        "assets/imgs/setting/liangdu01.png",width: 30,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-                      child: mz_slider_noball(
-                        width: 340,
-                        max: 255,
-                        value: lightValue.toDouble(),
-                        activeColors: const [Color(0xFF267AFF), Color(0xFF267AFF)],
-                        onChanged: (value, actieColor) => {
-                          settingMethodChannel.setSystemLight(value),
-                          setState(() {
-                            lightValue = value;
-                            Global.lightValue = lightValue;
-                          })
-                        },
-                        onChanging: (value, actieColor) => {
-                          settingMethodChannel.setSystemLight(value),
-                          setState(() {
-                            lightValue = value;
-                            Global.lightValue = lightValue;
-                          })
-                        },
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-                      child: Image.asset(
-                        "assets/imgs/setting/liangdu.png",width: 30,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
-                  child: const Text('开启自动亮度后，屏幕亮度会根据环境亮度自适应，当手动调节亮度的时候会关闭自动亮度。',
-                      style: TextStyle(
-                        color: Color(0XFF979797),
-                        fontSize: 14.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(28, 18, 0, 0),
-                      child: const Text("靠近唤醒",
-                          style: TextStyle(
-                            color: Color(0XFFFFFFFF),
-                            fontSize: 24.0,
-                            fontFamily: "MideaType",
-                            fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none,
-                          )),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 18, 20, 0),
-                      child: CupertinoSwitch(
-                        value: nearWakeup,
-                        activeColor: Colors.blue,
-                        onChanged: (bool value) {
-                          settingMethodChannel.setNearWakeup(value);
-                          setState(() {
-                            nearWakeup = value;
-                            Global.nearWakeup = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 464,
-                  height: 1,
-                  margin: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff232323),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(28, 8, 28, 8),
-                  child: const Text('当人靠近距离50cm时，从待机状态进入到首页状态。                     ',
-                      style: TextStyle(
-                        color: Color(0XFF979797),
-                        fontSize: 14.0,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none,
-                      )),
-                ),
-                Consumer<StandbyChangeNotifier>(builder: (_, model, child) {
-                  return settingItem("待机设置", model.standbyTimeOpt.title, () {
-                    Navigator.pushNamed(
-                      context,
-                      'StandbyTimeChoicePage',
-                    );
-                  });
-                }),
-                const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
-                Consumer<StandbyChangeNotifier>(builder: (_, model, child) {
-                  return settingItem("待机样式", parseScreenSaverName(screenSaverId), () {
-                    Navigator.of(context)
-                        .pushNamed('SelectStandbyStylePage')
-                        .then((value) {
-                      if (value != null) {
-                        setState(() {
-                          screenSaverId = value as int;
-                        });
-                      }
-                    });
-                  }, model.standbyTimeOpt.value != -1);
-                }
-                ),
-                const Divider(height: 1, indent: 0, endIndent: 0, color: Color(0xff232323)),
-                settingItem("息屏时间段", duration, () {
-                  Navigator.of(context).pushNamed("SelectTimeDurationPage").then((value) {
-                    final result = value as Pair<int, int>;
-                    final startTime = result.value1;
-                    final endTime = result.value2;
-                    debugPrint("开始时间：$startTime 结束时间: $endTime");
-                    () async {
-                      await Setting.instant().setScreedDuration(result);
-                    }().then((value) => setState((){
-                      duration = Setting.instant().getScreedDurationDetail();
-                    }));
-                  });
-                })
+        child: Container(
+          width: 480,
+          height: 480,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF272F41),
+                Color(0xFF080C14),
               ],
-            ))
+            ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 480,
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back.png",
+                      ),
+                    ),
+                    const Text("显示设置",
+                        style: TextStyle(
+                            color: Color(0XD8FFFFFF),
+                            fontSize: 28,
+                            fontFamily: "MideaType",
+                            fontWeight: FontWeight.normal,
+                            decoration: TextDecoration.none)
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.settings.name == 'Home');
+                      },
+                      iconSize: 64,
+                      icon: Image.asset(
+                        "assets/newUI/back_home.png",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  scrollDirection: Axis.vertical,
+                  children: [
+                    // Container(
+                    //   width: 432,
+                    //   height: 72,
+                    //   margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    //   decoration: const BoxDecoration(
+                    //       color: Color(0x0DFFFFFF),
+                    //       borderRadius: BorderRadius.all(Radius.circular(16))
+                    //   ),
+                    //   child: Stack(
+                    //     children: [
+                    //       const Positioned(
+                    //         left: 20,
+                    //         top: 12,
+                    //         child: Text("自动调节屏幕亮度",
+                    //             style: TextStyle(
+                    //                 color: Color(0XFFFFFFFF),
+                    //                 fontSize: 24,
+                    //                 fontFamily: "MideaType",
+                    //                 fontWeight: FontWeight.normal,
+                    //                 decoration: TextDecoration.none)
+                    //         ),
+                    //       ),
+                    //       Positioned(
+                    //         right: 20,
+                    //         top: 20,
+                    //         child: MzSwitch(
+                    //           value: autoLight,
+                    //           onTap: (e) => onAutoLightClick(!autoLight),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    Container(
+                      width: 432,
+                      height: 144,
+                      margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                      decoration: const BoxDecoration(
+                          color: Color(0x0DFFFFFF),
+                          borderRadius: BorderRadius.all(Radius.circular(16))
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            left: 20,
+                            top: 12,
+                            child: Text("屏幕亮度 | ${(lightValue / 255 * 100).toInt()==0?1:(lightValue / 255 * 100).toInt()}%",
+                                style: const TextStyle(
+                                    color: Color(0XFFFFFFFF),
+                                    fontSize: 24,
+                                    fontFamily: "MideaType",
+                                    fontWeight: FontWeight.normal,
+                                    decoration: TextDecoration.none)
+                            ),
+                          ),
+                          Positioned(
+                            top: 72,
+                            left: 20,
+                            child: Container(
+                              width: 392,
+                              height: 1,
+                              decoration: const BoxDecoration(
+                                  color: Color(0x19FFFFFF)
+                              ),
+                            ),
+                          ),
+
+                          Positioned(
+                            top: 80,
+                            left: 0,
+                            child: SizedBox(
+                              width: 432,
+                              height: 50,
+                              child: SliderTheme(
+                                data: SliderThemeData(
+                                  trackHeight: 3,
+                                  activeTrackColor: Colors.white,
+                                  inactiveTrackColor: const Color(0xFF51555E),
+                                  thumbColor: Colors.white,
+                                  thumbShape: CustomThumbShape(12, Colors.white),
+                                ),
+                                child: Slider(
+                                    min: 0,
+                                    max: 255,
+                                    value: lightValue.toDouble(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        lightValue = value.toInt();
+                                      });
+                                      sliderToSetLight();
+                                    },
+                                    onChangeEnd: (value) {
+                                      sliderToSetLightEnd();
+                                    },
+                                  ),
+                              )
+                            )
+                          )
+                        ],
+                      ),
+                    ),
+
+                    // Container(
+                    //   width: 432,
+                    //   height: 72,
+                    //   margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    //   decoration: const BoxDecoration(
+                    //       color: Color(0x0DFFFFFF),
+                    //       borderRadius: BorderRadius.all(Radius.circular(16))
+                    //   ),
+                    //   child: Stack(
+                    //     children: [
+                    //       const Positioned(
+                    //         left: 20,
+                    //         top: 12,
+                    //         child: Text("靠近唤醒",
+                    //             style: TextStyle(
+                    //                 color: Color(0XFFFFFFFF),
+                    //                 fontSize: 24,
+                    //                 fontFamily: "MideaType",
+                    //                 fontWeight: FontWeight.normal,
+                    //                 decoration: TextDecoration.none)
+                    //         ),
+                    //       ),
+                    //       Positioned(
+                    //         right: 20,
+                    //         top: 20,
+                    //         child: MzSwitch(
+                    //           value: nearWakeup,
+                    //           onTap: (e) => onNearWakeupClick(!nearWakeup),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    Container(
+                      width: 432,
+                      margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      decoration: const BoxDecoration(
+                          color: Color(0x0DFFFFFF),
+                          borderRadius: BorderRadius.all(Radius.circular(16))
+                      ),
+                      child: Column(
+                        children: [
+                          MzCell(
+                            title: "待机设置",
+                            titleSize: 24,
+                            hasArrow: true,
+                            hasBottomBorder: true,
+                            bgColor: Colors.transparent,
+                            padding: const EdgeInsets.all(0),
+                            onTap: () {
+                              Navigator.of(context).pushNamed("StandbySettingPage");
+                            },
+                          ),
+
+                          MzCell(
+                            title: "夜间模式",
+                            titleSize: 24,
+                            hasArrow: true,
+                            bgColor: Colors.transparent,
+                            padding: const EdgeInsets.all(0),
+                            onTap: () {
+                              Navigator.of(context).pushNamed("NightModePage");
+                            },
+                          ),
+
+                        ],
+                      ),
+                    ),
+
+                ],
+              ))
           ],
         ),
       )),
-    );
-  }
-
-  Widget settingItem(String name, String value, GestureTapCallback? onTap, [bool enable = true]) {
-    return GestureDetector(
-      onTap: () {
-        if(enable) {
-          onTap?.call();
-        }
-      },
-      child: Opacity(
-        opacity: enable? 1.0: 0.3,
-        child: Container(
-          color: Colors.black,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                child: Text(name,
-                    style: const TextStyle(
-                      color: Color(0XFFFFFFFF),
-                      fontSize: 24.0,
-                      fontFamily: "MideaType",
-                      fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.none,
-                    )),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(28, 18, 0, 18),
-                    child: Text(value,
-                        style: const TextStyle(
-                          color: Color(0XFF0091FF),
-                          fontSize: 18.0,
-                          fontFamily: "MideaType",
-                          fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 18, 10, 18),
-                    child: Image.asset(
-                      "assets/imgs/icon/arrow-right.png",
-                      width: 30,
-                      height: 30,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -363,33 +293,96 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
     }
   }
 
+  void onAutoLightClick(bool isOn) {
+    settingMethodChannel.setAutoLight(isOn);
+    setState(() {
+      autoLight = isOn;
+      Setting.instant().screenAutoEnable = isOn;
+    });
+  }
+
+  void onNearWakeupClick(bool isOn) {
+    settingMethodChannel.setNearWakeup(isOn);
+    setState(() {
+      nearWakeup = isOn;
+      Setting.instant().nearWakeupEnable = isOn;
+    });
+  }
+
+  void sliderToSetLight() {
+    sliderTimer ??= Timer.periodic(const Duration(milliseconds: 500) , (timer) {
+        settingMethodChannel.setSystemLight(lightValue.toInt());
+      });
+  }
+
+  void sliderToSetLightEnd() {
+    if (sliderTimer != null) {
+      if (sliderTimer!.isActive) {
+        sliderTimer!.cancel();
+      }
+      sliderTimer = null;
+    }
+    settingMethodChannel.setSystemLight(lightValue.toInt());
+    Setting.instant().screenBrightness = lightValue.toInt();
+  }
+
   @override
   void didUpdateWidget(DisplaySettingPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print("didUpdateWidget ");
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    print("deactivate");
   }
 
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    print("reassemble");
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies");
+  }
+}
+
+class CustomThumbShape extends SliderComponentShape {
+  /// 滑块半径
+  final double _thumbRadius;
+  /// 滑块颜色
+  final Color _thumbColor;
+
+  CustomThumbShape(this._thumbRadius, this._thumbColor);
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(_thumbRadius);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset center, {required Animation<double> activationAnimation, required Animation<double> enableAnimation, required bool isDiscrete, required TextPainter labelPainter, required RenderBox parentBox, required SliderThemeData sliderTheme, required TextDirection textDirection, required double value, required double textScaleFactor, required Size sizeWithOverflow}) {
+    final Canvas canvas = context.canvas;
+
+    // 圆圈
+    final Paint paint = Paint()
+    // 抗锯齿
+      ..isAntiAlias = true
+    // 描边宽度
+      ..strokeWidth = 4.0
+      ..color = _thumbColor
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      center,
+      _thumbRadius,
+      paint,
+    );
+
   }
 }

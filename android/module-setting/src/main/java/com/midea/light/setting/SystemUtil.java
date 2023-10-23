@@ -13,20 +13,24 @@ import android.net.NetworkInfo;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 
 import com.jhxs.ltmidea.tools.RelayControl;
 import com.midea.light.BaseApplication;
+import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.bean.SNCodeBean;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.gateway.GateWayRepository;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.gateway.GatewayCallback;
+import com.midea.light.ld.setting.BuildConfig;
 import com.midea.light.utils.CommandExecution;
 import com.midea.light.utils.MacUtil;
 import com.midea.smart.open.common.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -35,13 +39,64 @@ import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.content.Context.AUDIO_SERVICE;
 
 class JHSystemUtil {
 
+    final static String REGEX = "MSP-A040A-B1_PX30_V(...)";
+
     static {
         System.loadLibrary("ltmidea");
+    }
+
+    /**
+     * 获取系统版本
+     * @return
+     */
+    public static int _getRomVersion() {
+        //        px30_evb-userdebug 8.1.0 1669166465 MSP-A040A-B1_PX30_V1.0
+        try {
+            Class systemProperties = Class.forName("android.os.SystemProperties");
+            Method get = systemProperties.getDeclaredMethod("get", String.class);
+            get.setAccessible(true);
+            String property = (String) get.invoke(null, "ro.build.display.id");
+            if (!StringUtils.isEmpty(property)) {
+                Pattern p = Pattern.compile(REGEX);
+                Matcher m = p.matcher(property);
+                if (m.find()) {
+                    Log.i("room", "room version = " + m.group(1));
+                    try {
+                        return (int) Math.floor(Float.parseFloat(m.group(1)) * 10);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                 IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        if (BuildConfig.DEBUG) {
+            throw new RuntimeException("获取不到系统版本信息失败");
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    public static String getRomVersion() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(_getRomVersion());
+        // 小于四位前面补零
+        if (builder.length() < 4) {
+            for (int i = builder.length(); i < 4; i++) {
+                builder.insert(0, "0");
+            }
+        }
+        return builder.toString();
     }
 
     /**
@@ -287,6 +342,10 @@ class JHSystemUtil {
 }
 
 class LDSystemUtil {
+
+    public static String getRomVersion() {
+        return "0099";
+    }
     /**
      * 移除所有的数据
      */
@@ -481,6 +540,17 @@ class LDSystemUtil {
 }
 
 public class SystemUtil {
+
+    // 获取Rom版本信息
+    // 例子 0012
+    public static String getRomVersion() {
+        if (AppCommonConfig.getChannel().equals("JH")) {
+            return JHSystemUtil.getRomVersion();
+        } else {
+            return LDSystemUtil.getRomVersion();
+        }
+    }
+
     /**
      * 移除所有的数据
      */
@@ -648,7 +718,7 @@ public class SystemUtil {
         }
     }
 
-    /**
+    /**f
      * 继电器控制
      */
     @SuppressLint("WrongConstant")
@@ -715,9 +785,31 @@ public class SystemUtil {
 
     public static String getMacAddress() {
         if (AppCommonConfig.getChannel().equals("JH")) {
-            return MacUtil.macAddress("wlan0");
+            if(!MacUtil.macAddress("wlan0").equals("00.00.00.00.00.00")){
+                SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-JH", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("M-Smart-4-MAC-JH", MacUtil.macAddress("wlan0")).commit();
+            }
+            SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-JH", Context.MODE_PRIVATE);
+            String mac= sp.getString("M-Smart-4-MAC-JH","");
+            if(!mac.isEmpty()){
+                return mac;
+            }else{
+                return MacUtil.macAddress("wlan0");
+            }
         } else {
-            return MacUtil.macAddress("p2p0");
+            if(!MacUtil.macAddress("p2p0").equals("00.00.00.00.00.00")){
+                SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-LD", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("M-Smart-4-MAC-LD", MacUtil.macAddress("p2p0")).commit();
+            }
+            SharedPreferences sp = BaseApplication.getContext().getSharedPreferences("M-Smart-4-MAC-LD", Context.MODE_PRIVATE);
+            String mac= sp.getString("M-Smart-4-MAC-LD","");
+            if(!mac.isEmpty()){
+                return mac;
+            }else{
+                return MacUtil.macAddress("p2p0");
+            }
         }
     }
 
@@ -756,12 +848,16 @@ public class SystemUtil {
         return GatewayVersionUtil.getAppVersion(context);
     }
 
-    public static String getGatewayVersion() {
-        return GatewayVersionUtil.getGatewayVersion();
+    public static String getGatewayVersion(GatewayPlatform gatewayPlatform) {
+        return GatewayVersionUtil.getGatewayVersion(gatewayPlatform);
     }
 
-    public static String getSystemVersion(Context context) {
-        return GatewayVersionUtil.getSystemVersion(context);
+    public static String getSystemVersion(Context context, GatewayPlatform gatewayPlatform) {
+        return GatewayVersionUtil.getSystemVersion(context, gatewayPlatform);
+    }
+
+    public static String getSystemVersionIgnorePrefix(Context context, GatewayPlatform gatewayPlatform) {
+        return GatewayVersionUtil.getSystemVersionIgnorePrefix(context, gatewayPlatform);
     }
 
 }

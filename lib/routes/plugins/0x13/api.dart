@@ -11,14 +11,16 @@ class WrapWIFILight implements DeviceInterface {
   @override
   Future<Map<String, dynamic>> getDeviceDetail(DeviceEntity deviceInfo) async {
     if (deviceInfo.sn8 == '79009833') {
-      var res = await WIFILightApi.getLightDetailByPDM(deviceInfo.applianceCode);
+      var res =
+          await WIFILightApi.getLightDetailByPDM(deviceInfo.applianceCode);
       if (res.code == 0) {
         return res.result;
       } else {
         return {};
       }
     } else {
-      var res = await WIFILightApi.getDeviceDetailByLua(deviceInfo.applianceCode);
+      var res =
+          await WIFILightApi.getDeviceDetailByLua(deviceInfo.applianceCode);
       if (res.code == 0) {
         return res.result;
       } else {
@@ -37,22 +39,29 @@ class WrapWIFILight implements DeviceInterface {
   }
 
   @override
-  bool isSupport (DeviceEntity deviceInfo) {
+  bool isSupport(DeviceEntity deviceInfo) {
     // 过滤sn8
     return true;
   }
 
   @override
-  bool isPower (DeviceEntity deviceInfo) {
-    return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty ? (deviceInfo.detail!["power"] is bool ? deviceInfo.detail!["power"] : deviceInfo.detail!["power"] == 'on') : false;
+  bool isPower(DeviceEntity deviceInfo) {
+    return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty
+        ? (deviceInfo.detail!["power"] is bool
+            ? deviceInfo.detail!["power"]
+            : deviceInfo.detail!["power"] == 'on')
+        : false;
   }
 
   @override
-  String getAttr (DeviceEntity deviceInfo) {
+  String getAttr(DeviceEntity deviceInfo) {
     // logger.i('设备', deviceInfo.detail!);
-    return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty ?
-    (deviceInfo.detail!["brightValue"] != null ?
-    (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0) : (int.parse(deviceInfo.detail!["brightness"]) * 100 / 255).toStringAsFixed(0)) : '' ;
+    return deviceInfo.detail != null && deviceInfo.detail!.isNotEmpty
+        ? (deviceInfo.detail!["brightValue"] != null
+            ? (deviceInfo.detail!["brightValue"] * 100 / 255).toStringAsFixed(0)
+            : (int.parse(deviceInfo.detail!["brightness"]) * 100 / 255)
+                .toStringAsFixed(0))
+        : '';
   }
 
   @override
@@ -80,7 +89,8 @@ class WIFILightApi {
   }
 
   /// 查询设备状态lua
-  static Future<MzResponseEntity> getDeviceDetailByLua(String applianceCode) async {
+  static Future<MzResponseEntity> getDeviceDetailByLua(
+      String applianceCode) async {
     var res = await Api.requestMzIot<Map<String, dynamic>>(
         "/v1/category/midea/device/status/query",
         data: {
@@ -115,7 +125,6 @@ class WIFILightApi {
     return res;
   }
 
-
   /// 设置延时关灯（物模型）
   static Future<MzResponseEntity> delayPDM(String deviceId, bool onOff) async {
     var res = await DeviceApi.sendPDMOrder(
@@ -144,8 +153,8 @@ class WIFILightApi {
 
   /// 模式控制（lua）
   static Future<MzResponseEntity> modeLua(String deviceId, String mode) async {
-    var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"scene_light": mode});
+    var res =
+        await DeviceApi.sendLuaOrder('0x13', deviceId, {"scene_light": mode});
 
     return res;
   }
@@ -153,17 +162,24 @@ class WIFILightApi {
   /// 亮度控制（物模型）
   static Future<MzResponseEntity> brightnessPDM(
       String deviceId, num brightness) async {
-    var res = await DeviceApi.sendPDMOrder('0x13', 'controlBrightValue',
-        deviceId, {"dimTime": 0, "brightValue": int.parse((brightness / 100 * 255).toStringAsFixed(0))},
+    var res = await DeviceApi.sendPDMOrder(
+        '0x13',
+        'controlBrightValue',
+        deviceId,
+        {
+          "dimTime": 0,
+          "brightValue": int.parse((brightness / 100 * 255).toStringAsFixed(0))
+        },
         method: 'POST');
 
     return res;
   }
 
   /// 亮度控制（lua）
-  static Future<MzResponseEntity> brightnessLua(String deviceId, num brightness) async {
-    var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"brightness": int.parse((brightness / 100 * 255).toStringAsFixed(0))});
+  static Future<MzResponseEntity> brightnessLua(
+      String deviceId, num brightness) async {
+    var res = await DeviceApi.sendLuaOrder('0x13', deviceId,
+        {"brightness": int.parse((brightness / 100 * 255).toStringAsFixed(0))});
 
     return res;
   }
@@ -175,16 +191,23 @@ class WIFILightApi {
         '0x13',
         'controlColorTemperatureValue',
         deviceId,
-        {"dimTime": 0, "colorTemperatureValue": int.parse((colorTemperature / 100 * 255).toStringAsFixed(0))},
+        {
+          "dimTime": 0,
+          "colorTemperatureValue":
+              int.parse((colorTemperature / 100 * 255).toStringAsFixed(0))
+        },
         method: 'POST');
 
     return res;
   }
 
   /// 色温控制（lua）
-  static Future<MzResponseEntity> colorTemperatureLua(String deviceId, num colorTemperature) async {
-    var res = await DeviceApi.sendLuaOrder(
-        '0x13', deviceId, {"color_temperature": int.parse((colorTemperature / 100 * 255).toStringAsFixed(0))});
+  static Future<MzResponseEntity> colorTemperatureLua(
+      String deviceId, num colorTemperature) async {
+    var res = await DeviceApi.sendLuaOrder('0x13', deviceId, {
+      "color_temperature":
+          int.parse((colorTemperature / 100 * 255).toStringAsFixed(0))
+    });
 
     return res;
   }

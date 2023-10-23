@@ -44,6 +44,8 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
 
     private int cnt = 0;
 
+    private int audio = 1;
+
     public FindZigbeeDeviceController(PortalContext context) {
         super(context);
     }
@@ -54,12 +56,14 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
             String homeGroupId = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_HOME_GROUP_ID));
             String uid = Objects.requireNonNull(Portal.getBaseConfig().getUserId());
             String gatewayApplianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_GATEWAY_APPLIANCE_CODE));
+            audio = 1;
             startFindZigbee(homeGroupId, uid, gatewayApplianceCode);
         } else if (Portal.METHOD_SCAN_ZIGBEE_STOP.equals(method)) {
             String homeGroupId = Objects.requireNonNull(bundle.getString(Portal.PARAM_SCAN_HOME_GROUP_ID));
             String uid = Objects.requireNonNull(Portal.getBaseConfig().getUserId());
             String gatewayApplianceCode = Objects.requireNonNull(bundle.getString(Portal.PARAM_GATEWAY_APPLIANCE_CODE));
             stopFindZigbee(homeGroupId, uid, gatewayApplianceCode);
+            audio = 0;
         }
     }
 
@@ -107,12 +111,14 @@ public class FindZigbeeDeviceController extends AbstractController implements IS
                         root.addProperty("topic", "/subdevice/add");
                         JsonObject command = new JsonObject();
                         command.addProperty("expire", 60);
-                        command.addProperty("buzz", 1);
+                        command.addProperty("buzz", audio);
                         root.add("command", command);
 
                         Boolean result = getApiService().transmitCommandToGateway(uid, applianceCode,
                                             SecurityUtils.encodeAES128(root.toString(), Portal.getBaseConfig().getSeed()),
                                             homeGroupId, TimeUtil.getTimestamp(), UUID.randomUUID().toString());
+
+                        audio = 0;
 
                         LogUtil.i("Zigbee Search result = " + result);
                     }

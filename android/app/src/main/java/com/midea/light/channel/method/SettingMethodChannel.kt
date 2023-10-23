@@ -4,10 +4,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.AudioManager
 import android.os.PowerManager
 import com.midea.light.MainApplication
+import com.midea.light.R
 import com.midea.light.common.config.AppCommonConfig
 import com.midea.light.channel.AbsMZMethodChannel
+import com.midea.light.common.utils.DialogUtil
+import com.midea.light.common.utils.SoundPoolManager
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
 import io.flutter.plugin.common.BinaryMessenger
@@ -69,21 +73,30 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             "registerScreenBroadcast" -> {
                 if (!screenReceiverRegister) {
                     screenReceiverRegister = true
-                    context.registerReceiver(mScreenReceiver, IntentFilter().apply {
-                        this.addAction(Intent.ACTION_SCREEN_ON)
-                        this.addAction(Intent.ACTION_SCREEN_OFF)
-                    })
+                    try {
+                        context.registerReceiver(mScreenReceiver, IntentFilter().apply {
+                            this.addAction(Intent.ACTION_SCREEN_ON)
+                            this.addAction(Intent.ACTION_SCREEN_OFF)
+                        })
+                    } catch (e: Exception) {
+                        e.printStackTrace();
+                    }
                 }
             }
             "unRegisterScreenBroadcast" -> {
-                if(screenReceiverRegister) {
-                    screenReceiverRegister = false
-                    context.unregisterReceiver(mScreenReceiver)
+                try {
+                    if (screenReceiverRegister) {
+                        screenReceiverRegister = false
+                        context.unregisterReceiver(mScreenReceiver)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace();
                 }
             }
             "SettingMediaVoiceValue" -> {
                 SystemUtil.setSystemAudio(call.arguments as Int)
                 result.success(SystemUtil.getSystemAudio())
+                SoundPoolManager.getInstance().play(R.raw.argon, 1.0f, AudioManager.STREAM_MUSIC, 0, 1.0f);
             }
             "GettingMediaVoiceValue" -> {
                 result.success(SystemUtil.getSystemAudio())
@@ -125,6 +138,14 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
             }
             "GettingAutoLight" -> {
                 result.success(SystemUtil.isScreenAutoMode())
+            }
+            "showLoading" -> {
+                DialogUtil.showLoadingMessage(context,call.arguments as String)
+                result.success(true)
+            }
+            "dismissLoading" -> {
+                DialogUtil.closeLoadingDialog()
+                result.success(true)
             }
             else -> {
                 // 对应的方法没有报错

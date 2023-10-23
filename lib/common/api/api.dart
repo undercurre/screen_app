@@ -12,6 +12,8 @@ import 'package:screen_app/widgets/event_bus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../global.dart';
+import '../meiju/meiju_global.dart';
+import '../system.dart';
 
 const uuid = Uuid();
 
@@ -31,8 +33,8 @@ class Api {
   static Dio dio = Dio(BaseOptions(
     headers: {},
     method: 'POST',
-    connectTimeout: 20000,
-    receiveTimeout: 20000,
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
   ));
 
   /// 私有的命名构造函数
@@ -171,7 +173,7 @@ class Api {
         entity.code == TOKEN_INVALID ||
         entity.code == TOKEN_EXPIRED ||
         entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
+      System.logout("过期api请求，退出登录 2222");
       throw DioError(
           requestOptions: res.requestOptions,
           response: res
@@ -265,7 +267,7 @@ class Api {
         entity.code == TOKEN_INVALID ||
         entity.code == TOKEN_EXPIRED ||
         entity.code == ACCOUNT_LOGOUT) {
-      bus.emit('logout');
+      System.logout("api过期，退出登录 333");
       throw DioError(
           requestOptions: res.requestOptions,
           response: res
@@ -309,24 +311,16 @@ class Api {
   }
 
   static var forceRefresh = true;
-  static final _lock = Lock();
 
   static tryToRefresh() async {
-    try {
-      _lock.lock();
-      if(Global.isLogin) {
-        if(forceRefresh) {
-          forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
-          Global.saveProfile();
-        } else if(isWillLoginExpire) {
-          !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
-        }
+    if(Global.isLogin) {
+      if(forceRefresh) {
+        forceRefresh = !await iotAutoLogin(0) || !await iotAutoLogin(1) || !await mzAutoLogin();
+        Global.saveProfile();
+      } else if(isWillLoginExpire) {
+        !await iotAutoLogin(0)  || !await iotAutoLogin(1) || !await mzAutoLogin();
       }
-    } finally{
-      _lock.unlock();
     }
-
-
   }
 
   /// IOT接口发起公共接口
@@ -457,17 +451,17 @@ class Api {
       'frontendType': 'ANDROID',
     });
 
-    if (Global.isLogin) {
+    if (MeiJuGlobal.isLogin) {
       headers.addAll({
-        'deviceId': Global.user?.deviceId,
+        'deviceId': MeiJuGlobal.token?.deviceId,
       });
 
-      params['userId'] = Global.user?.uid;
+      params['userId'] = MeiJuGlobal.token?.uid;
     }
 
-    if (StrUtils.isNotNullAndEmpty(Global.user?.mzAccessToken)) {
+    if (StrUtils.isNotNullAndEmpty(MeiJuGlobal.token?.mzAccessToken)) {
       headers.addAll({
-        'Authorization': 'Bearer ${Global.user?.mzAccessToken}',
+        'Authorization': 'Bearer ${MeiJuGlobal.token?.mzAccessToken}',
       });
     }
 

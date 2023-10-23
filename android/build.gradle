@@ -1,6 +1,11 @@
 apply from: './config.gradle'
 // 指定本地maven仓库地址
 def localMavenAddress= System.getenv("MAVEN_LOCAL_ADDRESS")
+if (localMavenAddress==null){
+    if (System.getProperty("os.name").contains("Mac")){
+        localMavenAddress="file://"+System.getenv("HOME")+"/.m2/repository/"
+    }
+}
 
 buildscript {
     ext {
@@ -68,6 +73,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

@@ -1,208 +1,50 @@
-import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_app/common/global.dart';
-import 'package:screen_app/common/push.dart';
-import 'package:screen_app/routes/plugins/0xAC/api.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../states/device_change_notifier.dart';
-import '../../../widgets/event_bus.dart';
-import '../../home/device/service.dart';
+import '../../../common/gateway_platform.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../widgets/business/dropdown_menu.dart' as ui;
+import 'data_adapter.dart';
 
 class AirConditionPageState extends State<AirConditionPage> {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
-
-  Map<String, dynamic> deviceWatch = {
-    "deviceId": "",
-    "deviceName": '空调',
-    "detail": {
-      "mode": 'auto',
-      "temperature": 26,
-      "small_temperature": 0.5,
-      "wind_speed": 102
-    }
-  };
-
-  var localPower = 'off';
-  var localMode = 'auto';
-  var localTemp = 26;
-  num localSmallTemp = 0.5;
-  var localWind = 102;
-
-  bool menuVisible = false;
-  bool istouching = false;
+  WIFIAirDataAdapter? dataAdapter;
 
   void goBack() {
-    bus.emit('updateDeviceCardState');
     Navigator.pop(context);
-  }
-
-  Future<void> powerHandle() async {
-    var res = await AirConditionApi.powerLua(
-        deviceWatch["deviceId"], !(localPower == 'on'));
-
-    if (res.isSuccess) {
-      setState(() {
-        localPower = localPower == "on" ? "off" : "on";
-      });
-    }
-  }
-
-  Future<void> gearHandle(num value) async {
-    var exValue = localWind;
-    setState(() {
-      localWind = value.toInt() > 0 ? (value.toInt() - 1) * 20 : 1;
-      istouching = true;
-    });
-    var res = await AirConditionApi.gearLua(
-        deviceWatch["deviceId"], value > 0 ? (value - 1) * 20 : 1);
-
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-
-    } else {
-      setState(() {
-        localWind = exValue;
-      });
-    }
-  }
-
-  Future<void> temperatureHandle(num value) async {
-    int integerPart = value.toInt(); // 将浮点数转换为整数
-    num decimalPart = value - integerPart; // 通过减去整数部分来获得小数部分
-
-    setState(() {
-      localTemp = integerPart;
-      localSmallTemp = decimalPart;
-      istouching = true;
-    });
-
-    var res =
-        await AirConditionApi.temperatureLua(deviceWatch["deviceId"], localTemp, localSmallTemp);
-
-    var timeout = const Duration(seconds: 1000);
-
-    // 延时调用一次 1秒后执行
-    Timer(timeout, () {
-      setState(() {
-        istouching = false;
-      });
-    });
-
-    if (res.isSuccess) {
-    }
-  }
-
-  Future<void> modeHandle(String mode) async {
-    var res = await AirConditionApi.modeLua(deviceWatch["deviceId"], mode);
-
-    if (res.isSuccess) {
-      setState(() {
-        localMode = mode;
-      });
-    }
   }
 
   List<Map<String, dynamic>> modeList = [];
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[localMode] = true;
+    selectKeys[dataAdapter?.data!.mode ?? "auto"] = true;
     return selectKeys;
-  }
-
-  Future<void> updateDetail() async {
-    var deviceInfo = context
-        .read<DeviceListModel>()
-        .getDeviceInfoById(deviceWatch["deviceId"]);
-    var detail = await DeviceService.getDeviceDetail(deviceInfo);
-    logger.i('空调详情', detail);
-    setState(() {
-      deviceWatch["detail"] = detail;
-      localPower = detail["power"];
-      localMode = detail["mode"];
-      localTemp = detail["temperature"];
-      localSmallTemp = detail["small_temperature"];
-      localWind = detail["wind_speed"];
-    });
-    debugPrint('插件中获取到的详情：$deviceWatch');
-    if (mounted) {
-      context.read<DeviceListModel>().updateDeviceDetail(deviceInfo);
-    }
   }
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceWatch["deviceId"] = args['deviceId'];
-      var deviceDetail = context
-          .read<DeviceListModel>()
-          .getDeviceDetailById(deviceWatch["deviceId"]);
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
       setState(() {
-        deviceWatch = deviceDetail;
-        localPower = args["power"] ? 'on' : 'off';
-        localMode = deviceDetail["detail"]["mode"];
-        localTemp = deviceDetail["detail"]["temperature"];
-        localSmallTemp = deviceDetail["detail"]["small_temperature"];
-        localWind = deviceDetail["detail"]["wind_speed"];
+        dataAdapter = args?['adapter'];
       });
-      deviceWatch = context
-          .read<DeviceListModel>()
-          .getDeviceDetailById(deviceWatch["deviceId"]);
-      debugPrint('插件中获取到的详情：$deviceWatch');
-
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            updateDetail();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-            updateDetail();
-          }
-        }
-      }));
-
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-            if (istouching) return;
-            Timer(const Duration(milliseconds: 1000), () {
-              updateDetail();
-            });
-          }
-        }
-      }));
+      dataAdapter?.bindDataUpdateFunction(updateCallback);
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    dataAdapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    setState(() {});
   }
 
   List<Map<String, String>> btnList = [
@@ -235,19 +77,40 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   Map<String, String> getCurModeConfig() {
     Map<String, String> curMode =
-        btnList.where((element) => element["key"] == localMode).toList()[0];
+        btnList.where((element) => element["key"] == (dataAdapter?.data!.mode ?? "auto")).toList()[0];
     return curMode;
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+
+
+    String getDeviceName() {
+      String nameInModel = deviceListModel.getDeviceNameNormal(
+          deviceId: dataAdapter?.applianceCode);
+
+      if (deviceListModel.deviceListHomlux.isEmpty &&
+          deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return nameInModel;
+    }
+
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
         ),
       ),
       child: Stack(
@@ -256,10 +119,11 @@ class AirConditionPageState extends State<AirConditionPage> {
               left: 0,
               top: 0,
               child: AirCondition(
-                temperature: localTemp,
-                windSpeed: localWind,
-                mode: localMode,
-              )),
+                temperature: dataAdapter?.data!.temperature,
+                windSpeed: dataAdapter?.data!.wind,
+                mode: dataAdapter?.data!.mode,
+              )
+          ),
           Flex(
             direction: Axis.vertical,
             children: <Widget>[
@@ -273,9 +137,11 @@ class AirConditionPageState extends State<AirConditionPage> {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onRightBtnTap: powerHandle,
-                    title: deviceWatch["deviceName"],
-                    power: localPower == 'on',
+                    onRightBtnTap: () {
+                      dataAdapter?.controlPower();
+                    },
+                    title: getDeviceName(),
+                    power: dataAdapter?.data!.power ?? false,
                     hasPower: true,
                   ),
                 ),
@@ -298,7 +164,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       onRefresh: () async {
-                        updateDetail();
+                        dataAdapter?.fetchData();
                       },
                       child: SingleChildScrollView(
                         child: Row(
@@ -320,7 +186,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                     child: FunctionCard(
                                       title: '模式',
                                       child: ui.DropdownMenu(
-                                        disabled: localPower == 'off',
+                                        disabled: dataAdapter?.data!.power == false,
                                         menu: btnList.map(
                                           (item) {
                                             return PopupMenuItem<String>(
@@ -331,48 +197,30 @@ class AirConditionPageState extends State<AirConditionPage> {
                                                   child: Container(
                                                     width: 130,
                                                     height: 50,
-                                                    margin: const EdgeInsets
-                                                        .symmetric(vertical: 4),
+                                                    margin: const EdgeInsets.symmetric(vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: localMode == item['key'] // TODO: 完善
+                                                      color: dataAdapter?.data!.mode== item['key']
                                                           ? const Color(
-                                                              0xff575757)
+                                                              0x26101010)
                                                           : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
+                                                      borderRadius: BorderRadius.circular(12),
                                                     ),
-                                                    child: Opacity(
-                                                      opacity: true // TODO: 完善
-                                                          ? 1
-                                                          : 0.7,
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Image.asset(
-                                                              item['icon']!),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    7, 0, 7, 0),
-                                                            child: Text(
-                                                              item['text']!,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 18,
-                                                                fontFamily:
-                                                                    "MideaType",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w200,
-                                                              ),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Image.asset(item['icon']!),
+                                                        Padding(
+                                                          padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                                          child: Text(
+                                                            item['text']!,
+                                                            style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontFamily: "MideaType",
+                                                              fontWeight: FontWeight.w200,
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
@@ -380,42 +228,33 @@ class AirConditionPageState extends State<AirConditionPage> {
                                             );
                                           },
                                         ).toList(),
-                                        trigger: Opacity(
-                                          opacity: menuVisible ? 0.5 : 1,
-                                          child: Row(
-                                            children: [
-                                              Image.asset(getCurModeConfig()[
-                                                      "icon"] ??
-                                                  "assets/imgs/plugins/0xAC/zidong_icon.png"),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        7, 0, 7, 0),
-                                                child: Text(
-                                                  getCurModeConfig()["text"] ??
-                                                      '自动',
-                                                  style: const TextStyle(
-                                                    color: Color(0X7FFFFFFF),
-                                                    fontSize: 18.0,
-                                                    fontFamily: "MideaType",
-                                                    fontWeight: FontWeight.w200,
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  ),
+                                        trigger: Row(
+                                          children: [
+                                            Image.asset(getCurModeConfig()[
+                                            "icon"] ??
+                                                "assets/imgs/plugins/0xAC/zidong_icon.png"),
+                                            Padding(
+                                              padding:
+                                              const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                              child: Text(
+                                                getCurModeConfig()["text"] ??
+                                                    '自动',
+                                                style: const TextStyle(
+                                                  color: Color(0XFFFFFFFF),
+                                                  fontSize: 18.0,
+                                                  fontFamily: "MideaType",
+                                                  fontWeight: FontWeight.w200,
+                                                  decoration:
+                                                  TextDecoration.none,
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
-                                        onVisibleChange: (visible) {
-                                          setState(() {
-                                            menuVisible = visible;
-                                          });
-                                        },
                                         onSelected: (dynamic mode) {
                                           if (mode != null &&
                                               mode != getSelectedKeys()) {
-                                            modeHandle(mode);
+                                            dataAdapter?.controlMode(mode);
                                           }
                                         },
                                       ),
@@ -424,23 +263,23 @@ class AirConditionPageState extends State<AirConditionPage> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: localPower == 'off' ||
-                                          localMode == 'fan',
-                                      min: 17,
-                                      max: 30,
+                                      disabled: dataAdapter?.data!.power == false ||
+                                          dataAdapter?.data!.mode == 'fan',
+                                      min: dataAdapter?.data!.minTemperature ?? 16,
+                                      max: dataAdapter?.data!.maxTemperature ?? 30,
                                       step: 0.5,
-                                      value: localTemp + localSmallTemp,
-                                      onChanged: temperatureHandle,
+                                      value: (dataAdapter?.data!.temperature ?? 16) + (dataAdapter?.data!.smallTemperature ?? 0),
+                                      onChanged: dataAdapter?.controlTemperature,
                                     ),
                                   ),
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      disabled: localPower == 'off' ||
-                                          localMode == 'auto' ||
-                                          localMode == 'dry',
-                                      value: (localWind / 20).truncate() + 1,
-                                      onChanged: gearHandle,
+                                      disabled: dataAdapter?.data!.power == false ||
+                                          dataAdapter?.data!.mode == 'auto' ||
+                                          dataAdapter?.data!.mode == 'dry',
+                                      value: ((dataAdapter?.data!.wind ?? 0) / 20).truncate() + 1,
+                                      onChanged: dataAdapter?.controlGear,
                                     ),
                                   ),
                                 ],

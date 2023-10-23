@@ -122,8 +122,8 @@ class SelfDiscoveryState extends State<SelfDiscoveryPage> {
   // // TODO 完善数据查询 @魏
   // Future<void> initQuery() async {
   //   // ! 模拟发现设备过程
-  //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-  //     timer.cancel();
+  //   _timer = Timer.periodic(const Duration(seconds: 1), (clock.dart) async {
+  //     clock.dart.cancel();
   //
   //     // 格式化数据
   //     setState(() => dList = mockData.map((d) {

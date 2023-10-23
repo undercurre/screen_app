@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+
 android {
     namespace 'com.midea.test'
     compileSdk 33
@@ -26,6 +27,11 @@ android {
         }
     }
 
+    //开启ViewBinding
+    buildFeatures {
+        viewBinding true
+    }
+
     //配置签名
     signingConfigs {
         config {
@@ -35,6 +41,12 @@ android {
             keyPassword KEYPASSWORD
         }
 
+    }
+
+    flavorDimensions 'hardware'
+    productFlavors {
+        JH { dimension 'hardware' }
+        LD { dimension 'hardware' }
     }
 
     buildTypes {
@@ -88,8 +100,13 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     implementation rootProject.ext.nexus.rxbus
+    implementation rootProject.ext.nexus.log
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
+    implementation(project(":module-manage-device"))
+    implementation(project(":module-homeos"))
+    implementation(project(":module-setting"))
+    implementation rootProject.ext.nexus.ota_upgrade
 
 
 

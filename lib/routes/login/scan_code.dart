@@ -1,124 +1,128 @@
-import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../channel/index.dart';
+import '../../common/adapter/midea_data_adapter.dart';
+import '../../common/adapter/qr_code_data_adapter.dart';
+import '../../common/gateway_platform.dart';
 import '../../common/index.dart';
 
 class _ScanCode extends State<ScanCode> {
-  String qrLink = '';
-  String? sessionId;
-  Timer? updateQrCodeTime;
-  Timer? updateLoginStatusTime;
+
+  QRCodeDataAdapter? qrDataAd;
 
   @override
   void initState() {
     super.initState();
     //初始化状态
-    debugPrint("scan_code.dart-initState");
-    updateQrCode();
-    updateLoginStatus();
+    qrDataAd = QRCodeDataAdapter(MideaRuntimePlatform.platform);
+    /// 授权成功回调
+    qrDataAd?.setAuthQrCodeSucCallback(() {
+      TipsUtils.toast(content: '授权成功', duration: 1000);
+      widget.onSuccess!();
+    });
+    /// 更新二维码数据回调
+    qrDataAd?.bindDataUpdateFunction(() {
+      if(qrDataAd?.qrCodeState == DataState.ERROR) {
+        TipsUtils.toast(content: qrDataAd?.errorTip ?? "请检查你的网络", duration: 1000);
+      }
+      setState(() {});
+    });
+    /// 请求数据
+    qrDataAd?.requireQrCode();
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("build");
 
-    var hiView = const Image(image: AssetImage("assets/imgs/login/hello.png"));
-
-    return Stack(
-      children: [
-        Center(
-          child: StrUtils.isNotNullAndEmpty(qrLink)
-              ? GestureDetector(
-                  onTap: () {
-                    updateQrCode();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: QrImage(
-                      data: qrLink,
-                      version: QrVersions.auto,
-                      size: 270.0,
-                      padding: const EdgeInsets.all(20),
-                    ),
-                  ),
-                )
-              : const CircularProgressIndicator(),
-        ),
-        Positioned(
-            bottom: 24, right: 16, width: 103, height: 141, child: hiView),
-      ],
+    return Container(
+      width: 480,
+      height: 290,
+      alignment: Alignment.center,
+      child: Stack(
+        children: [
+          if (qrDataAd?.qrCodeState == DataState.SUCCESS && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) const Positioned(
+            right: 14,
+            bottom: 11,
+            child: Image(
+              image: AssetImage("assets/imgs/login/hello.png"),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: 480,
+              alignment: Alignment.center,
+              child: Text(
+                MideaRuntimePlatform.platform == GatewayPlatform.MEIJU ? '请使用美居APP扫一扫' : "请使用美的照明小程序扫一扫",
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromRGBO(255, 255, 255, 0.8),
+                  letterSpacing: 0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+          ),
+          if (qrDataAd?.qrCodeState != DataState.LOADING && StrUtils.isNotNullAndEmpty(qrDataAd?.qrCodeEntity?.qrcode)) Positioned(
+            left: 120,
+            top: 10,
+            child: GestureDetector(
+              onTap: () {
+                qrDataAd?.requireQrCode();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: QrImage(
+                  data: qrDataAd?.qrCodeEntity?.qrcode ?? '',
+                  version: QrVersions.auto,
+                  size: 240.0,
+                  padding: const EdgeInsets.all(20),
+                ),
+              ),
+            ),
+          ),
+          if (qrDataAd?.qrCodeState == DataState.ERROR) Positioned(
+            left: 197,
+            top: 90,
+            child: GestureDetector(
+              onTap: () {
+                qrDataAd?.requireQrCode();
+              },
+              child: const Image(
+                height: 80,
+                width: 80,
+                image: AssetImage("assets/newUI/login/reload.png"),
+              ),
+            ),
+          ),
+          if (qrDataAd?.qrCodeState == DataState.LOADING) Positioned(
+            left: 0,
+            top: 0,
+            child: Container(
+              width: 480,
+              height: 260,
+              alignment: Alignment.center,
+              child: const CupertinoActivityIndicator(radius: 25),
+            ),
+          )
+        ],
+      ),
     );
   }
 
   @override
   void dispose() {
     super.dispose();
-    debugPrint("scan_code.dart-dispose");
-    updateQrCodeTime?.cancel();
-    updateLoginStatusTime?.cancel();
+    qrDataAd?.destroy();
+    qrDataAd = null;
   }
 
-  /// 绑定二维码url
-  void updateQrCode() async {
-    var res = await UserApi.getQrCode();
-
-    if (res.isSuccess) {
-      setState(() {
-        // 拼接二维码url
-        qrLink = '${res.data.shortUrl}?id=${Global.productCode}';
-      });
-
-      sessionId = res.data.sessionId;
-      var effectTimeSecond = res.data.effectTimeSecond;
-
-      updateQrCodeTime = Timer(Duration(seconds: effectTimeSecond - 20), () {
-        updateQrCode();
-      });
-    }
-  }
-
-  /// 大屏端轮询授权状态接口
-  void updateLoginStatus() async {
-    var delaySec = 1; // 1s轮询间隔
-    if (StrUtils.isNullOrEmpty(sessionId)) {
-      updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
-        updateLoginStatus();
-      });
-      return;
-    }
-
-    var res = await UserApi.getAccessToken(sessionId ?? '');
-
-    if (res.isSuccess) {
-      updateQrCodeTime?.cancel(); // 取消登录状态查询定时
-
-      String? sn;
-      try {
-        sn = await aboutSystemChannel.getGatewaySn(true, Global.user?.seed);
-      } catch (error) {
-        logger.e('getGatewaySn-error: $error');
-      }
-      debugPrint('getGatewaySn: $sn');
-
-      Global.profile.deviceSn = sn;
-
-      // await System.refreshToken();
-
-      debugPrint('getAccessToken: ${res.toJson()}');
-      TipsUtils.toast(content: '授权成功');
-      widget.onSuccess!();
-    } else {
-      updateLoginStatusTime = Timer(Duration(seconds: delaySec), () {
-        updateLoginStatus();
-      });
-    }
-  }
 }
 
 class ScanCode extends StatefulWidget {

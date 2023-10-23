@@ -68,7 +68,7 @@ github_client_app
 [文档地址](https://pub.flutter-io.cn/packages/logger)
 
 ## 字体定义
-- `fontFamily: "MideaType"`
+- `fontFamily: "`MideaType`"`
 - `fontWeight`，默认值是`regular`，另外定义了 `w100` ~ `w900`，w100对应纤细体，w900对应粗体
 
 ```dart

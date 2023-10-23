@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.midea.light.bean.GatewayPlatform;
+
 /**
  * @ClassName GatewayVersionUtil
  * @Description 为了适配Flutter，在外定制一层
@@ -15,16 +17,22 @@ public class GatewayVersionUtil {
     public static int compare(@NonNull String v1, @NonNull String v2) {
         return com.midea.light.gateway.GatewayVersionUtil.compare(v1, v2);
     }
-    public static String getSystemVersion(Context context) {
+    public static String getSystemVersion(Context context, GatewayPlatform gatewayPlatform) {
         return "0000" +
                 getAppVersion(context) +
-                getGatewayVersion();
+                getGatewayVersion(gatewayPlatform);
     }
-    public static String getGatewayVersion() {
-        return com.midea.light.gateway.GatewayVersionUtil.getGatewayVersion();
+
+    public static String getSystemVersionIgnorePrefix(Context context, GatewayPlatform gatewayPlatform) {
+        return getAppVersion(context) +
+                getGatewayVersion(gatewayPlatform);
+    }
+
+    public static String getGatewayVersion(GatewayPlatform gatewayPlatform) {
+        return com.midea.light.gateway.GatewayVersionUtil.getGatewayVersion(gatewayPlatform.rawPlatform());
     }
     public static String getAppVersion(Context context) {
-        String version =  com.midea.light.gateway.GatewayVersionUtil.getAppVersion(context);
+        String version =  com.midea.light.gateway.GatewayVersionUtil.getAppVersion();
         StringBuilder builder = new StringBuilder();
         String[] s = version.split("\\.");
         for (String s1 : s) {

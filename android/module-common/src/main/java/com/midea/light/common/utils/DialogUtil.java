@@ -3,27 +3,29 @@ package com.midea.light.common.utils;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.midea.light.BaseApplication;
-import com.midea.light.common.R;
 
 import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.midea.light.BaseApplication;
+import com.midea.light.common.R;
+
 /**
  * Created by MAIJW1 on 2018-3-16.
  */
 
 public class DialogUtil {
-
+    private static LoadingDialog loadingDialog;
 
     /**
      * Toast实例，用于对本页出现的所有Toast进行处理
@@ -105,6 +107,32 @@ public class DialogUtil {
         void select(int position);
 
     }
+
+    public static void showLoadingMessage(Context context, String mess) {
+        LoadingDialog.Builder loadBuilder = new LoadingDialog.Builder(context)
+                .setMessage(mess)
+                .setCancelable(true)
+                .setCancelOutside(true);
+        loadingDialog = loadBuilder.create();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+        } else {
+            loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        }
+        loadingDialog.show();
+    }
+    public static void closeLoadingDialog() {
+        try {
+            if (loadingDialog != null) {
+                loadingDialog.dismiss();
+                loadingDialog = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public static void showDialog(Context context, String Title, String message, String posBtn, String negBtn, final DialogListener listener) {
         final AlertDialog.Builder normalDialog =

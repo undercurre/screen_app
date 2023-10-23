@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/index.dart';
-import 'package:screen_app/models/index.dart';
 import 'package:screen_app/widgets/index.dart';
 import 'package:screen_app/widgets/safe_state.dart';
 
 import '../../channel/index.dart';
 import '../../channel/models/manager_devic.dart';
-import '../../common/global.dart';
+import '../../common/logcat_helper.dart';
+import '../../common/meiju/meiju_global.dart';
+import '../../common/meiju/models/meiju_room_entity.dart';
 import '../../widgets/event_bus.dart';
+import '../../widgets/mz_buttion.dart';
+import '../../widgets/util/nameFormatter.dart';
 import '../../widgets/util/net_utils.dart';
 
 class DeviceConnectViewModel {
@@ -20,7 +24,7 @@ class DeviceConnectViewModel {
   /// 还待添加的设备
   List<IFindDeviceResult> toBeAddedList = [];
   /// 房间列表
-  List<RoomEntity> rooms = [];
+  List<MeiJuRoomEntity> rooms = [];
 
   bool startBinding = false;
 
@@ -34,7 +38,7 @@ class DeviceConnectViewModel {
           bindResult.roomName = roomName;
           _state.setSafeState(() { });
         });
-        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId!, bindResult.applianceCode);
+        deviceManagerChannel.modifyDevicePosition(homeGroupId, value.roomId, bindResult.applianceCode);
         break;
       }
     }
@@ -47,8 +51,9 @@ class DeviceConnectViewModel {
     if(args is! Map<String, dynamic>) {
       throw Exception('请传入正确的参数 ${args.runtimeType}');
     }
-    startBind(args['devices']);
+
     rooms = args['rooms'];
+    startBind(args['devices']);
   }
 
   /// 发起绑定
@@ -102,11 +107,17 @@ class DeviceConnectViewModel {
     NetUtils.checkConnectedWiFiRecord().then((value) {
       if(value == null) throw Exception('当前的wifi密码保存失败');
       deviceManagerChannel.setBindWiFiCallback((result) {
-        logger.i('wifi设备绑定结果: $result');
+        Log.file('wifi设备绑定结果: $result');
         if(toBeAddedList.contains(result.findResult)) {
           if(result.code != 0) {
             TipsUtils.toast(content: '绑定${result.findResult.name}失败');
           } else {
+            for (var room in rooms) {
+              if (room.roomId == result.bindResult!.roomId.toString()) {
+                result.bindResult!.roomName = room.name!;
+              }
+            }
+
             alreadyAddedList.add(result);
           }
           toBeAddedList.remove(result.findResult);
@@ -118,8 +129,8 @@ class DeviceConnectViewModel {
           value.bssid,
           value.password,
           value.encryptType,
-          Global.profile.homeInfo?.homegroupId ?? "",
-          Global.profile.roomInfo?.roomId ?? "",
+          MeiJuGlobal.homeInfo?.homegroupId ?? "",
+          MeiJuGlobal.roomInfo?.roomId ?? "",
           findResult // 指定需要绑定的wifi设备
       );
     });
@@ -132,11 +143,17 @@ class DeviceConnectViewModel {
 
   void bindZigbee(List<FindZigbeeResult> findResult)  {
     deviceManagerChannel.setBindZigbeeListener((result) {
-      logger.i('zigbee设备绑定结果: $result');
+      Log.i('zigbee设备绑定结果: $result');
       if(toBeAddedList.contains(result.findResult)) {
         if(result.code != 0) {
           TipsUtils.toast(content: '绑定${result.findResult.name}失败');
         } else {
+          for (var room in rooms) {
+            if (room.roomId == result.bindResult!.roomId.toString()) {
+              result.bindResult!.roomName = room.name!;
+            }
+          }
+
           alreadyAddedList.add(result);
         }
         toBeAddedList.remove(result.findResult);
@@ -144,14 +161,14 @@ class DeviceConnectViewModel {
       }
     });
     deviceManagerChannel.bindZigbee(
-        Global.profile.homeInfo?.homegroupId ?? "",
-        Global.profile.roomInfo?.roomId ?? "",
+        MeiJuGlobal.homeInfo?.homegroupId ?? "",
+        MeiJuGlobal.roomInfo?.roomId ?? "",
         findResult // 指定需要绑定的zigbee设备
     );
   }
 
   void stopBindZigbee() {
-    deviceManagerChannel.stopFindZigbee(Global.profile.homeInfo?.homegroupId ?? "", Global.profile.applianceCode ?? "");
+    deviceManagerChannel.stopFindZigbee(MeiJuGlobal.homeInfo?.homegroupId ?? "", MeiJuGlobal.gatewayApplianceCode ?? "");
     deviceManagerChannel.setBindZigbeeListener(null);
   }
 
@@ -183,7 +200,7 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                   Container(
                     width: 100,
                     alignment: Alignment.center,
-                    child: Text(item.name,
+                    child: Text(NameFormatter.formatName(item.name ?? '未知房间', 6),
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 24,
@@ -191,50 +208,48 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
                             fontWeight: FontWeight.w400)),
               )).toList(),
               value: d.bindResult!.roomName,
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              alignment: AlignmentDirectional.topCenter,
+              borderRadius: const BorderRadius.all(Radius.circular(13)),
+              alignment: AlignmentDirectional.topStart,
               items: viewModel.rooms
-                  .map<DropdownMenuItem<String>>((RoomEntity item) {
+                  .map<DropdownMenuItem<String>>((MeiJuRoomEntity item) {
                 return DropdownMenuItem<String>(
                   alignment: Alignment.center,
                   value: item.name,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: d.bindResult!.roomName == item.name ? const ShapeDecoration(
-                        color: Color(0xff575757),
+                        color: Color(0x26101010),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(3))
+                          borderRadius: BorderRadius.all(Radius.circular(13))
                         )
                     ) : null,
-                    // padding: const EdgeInsets.symmetric(horizontal: 5),
-                    width: 120,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    width: 180,
                     alignment: Alignment.center,
-                    child: Text(item.name,
+                    child: Text(NameFormatter.formLimitString(item.name ?? '未知房间', 6,3,2),
                         style: const TextStyle(
                             overflow: TextOverflow.ellipsis,
-                            fontSize: 24,
+                            fontSize: 18,
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.w400)),
                   ),
                 );
               }).toList(),
-              dropdownColor: const Color(0XFF626262),
+              dropdownColor: const Color(0XFF88909F),
               focusColor: Colors.blue,
               icon: const Icon(Icons.keyboard_arrow_down_outlined),
               iconSize: 30,
+              menuMaxHeight: 252,
               iconEnabledColor: Colors.white,
               onChanged: (String? data) {
                 /// 改变房间
                 viewModel.changeRoom(
                     d.bindResult!,
                     data!,
-                    Global.profile.homeInfo!.homegroupId
+                    MeiJuGlobal.homeInfo!.homegroupId
                 );
               }
             )),
         hasBottomBorder: true,
-        padding:
-        const EdgeInsets.symmetric(vertical: 17, horizontal: 26),
       );
     }).toList();
   }
@@ -258,14 +273,6 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
 
   @override
   Widget saveBuild(BuildContext context) {
-    ButtonStyle buttonStyle = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(43, 43, 43, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
-    ButtonStyle buttonStyleOn = TextButton.styleFrom(
-        backgroundColor: const Color.fromRGBO(38, 122, 255, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        padding: const EdgeInsets.symmetric(vertical: 16));
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -277,31 +284,46 @@ class DeviceConnectState extends SafeState<DeviceConnectPage> {
           MzNavigationBar(
             leftBtnVisible: false,
             onLeftBtnTap: () => viewModel.goBack(context),
-            title: '设备连接',
-            desc: '已成功添加${viewModel.alreadyAddedList.length}台设备',
+            title: '设备连接(${viewModel.alreadyAddedList.length}/${viewModel.toBeAddedList.length + viewModel.alreadyAddedList.length})',
             isLoading: viewModel.toBeAddedList.isNotEmpty,
-            hasBottomBorder: true,
+            hasBottomBorder: false,
           ),
 
           Positioned(
               top: 70,
               left: 7,
-              right: 7,
+              right: 0,
               bottom: 64,
               child: ListView(children: _listView())),
 
           Positioned(
-              left: 0,
-              bottom: 0,
-              width: MediaQuery.of(context).size.width,
-              child: TextButton(
-                  style: viewModel.toBeAddedList.isEmpty ? buttonStyleOn : buttonStyle,
-                  onPressed: () => viewModel.goBack(context),
-                  child: Text(viewModel.toBeAddedList.isEmpty ? '完成添加' : '停止添加',
-                      style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontFamily: 'MideaType')))),
+            left: 0,
+            bottom: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 72,
+                  color: const Color(0x19FFFFFF),
+                  alignment: Alignment.center,
+                  child: MzButton(
+                    width: 240,
+                    height: 56,
+                    borderRadius: 29,
+                    backgroundColor: viewModel.toBeAddedList.isEmpty ? const Color(0xFF267AFF) : const Color(0xFF4E77BD),
+                    borderColor: Colors.transparent,
+                    borderWidth: 0,
+                    text: viewModel.toBeAddedList.isEmpty ? "完成添加" : "停止添加",
+                    onPressed: () {
+                      viewModel.goBack(context);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+
         ],
       ),
     );
