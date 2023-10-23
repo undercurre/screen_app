@@ -1,6 +1,8 @@
 package com.midea.light.channel.method
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import com.midea.iot.sdk.common.security.SecurityUtils
 import com.midea.light.BuildConfig
 import com.midea.light.MainApplication
@@ -40,6 +42,17 @@ class AboutMethodChannel(context: Context) : AbsMZMethodChannel(context) {
             "getAppVersion" -> {
                 val appVersion = SystemUtil.getAppVersion(context)
                 result.safeSuccess(appVersion)
+            }
+            "translateToProductionTestPage" -> {
+                val intent = Intent(Intent.ACTION_MAIN)
+                /**知道要跳转应用的包命与目标Activity*/
+                val componentName = ComponentName(
+                    "com.jhdzwh.interfacejump",
+                    "com.jhdzwh.interfacejump.ui.MainActivity"
+                )
+                intent.component = componentName
+                context.startActivity(intent)
+                result.success(true)
             }
             "getGatewayVersion" -> {
                 val gatewayVersion = SystemUtil.getGatewayVersion(MainApplication.gatewayPlatform)

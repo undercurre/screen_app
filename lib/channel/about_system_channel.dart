@@ -14,6 +14,10 @@ class AboutSystemChannel extends AbstractChannel {
     return await methodChannel.invokeMethod('getAppVersion');
   }
 
+  void translateToProductionTestPage() {
+    methodChannel.invokeMethod('translateToProductionTestPage');
+  }
+
   Future<String> getGatewayVersion() async {
     return await methodChannel.invokeMethod('getGatewayVersion');
   }

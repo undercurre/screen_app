@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:screen_app/channel/index.dart';
+import 'package:screen_app/widgets/gesture/mutil_click.dart';
 
 import '../../common/gateway_platform.dart';
 import '../../common/utils.dart';
@@ -44,15 +46,18 @@ class _ChosePlatform extends State<ChosePlatform> {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 32),
-            child: const Text("请选择登录平台",
-                style: TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 24,
-                    fontFamily: "MideaType",
-                    fontWeight: FontWeight.w500)
-            ),
-          ),
-
+            child: GestureDetector(
+              onLongPress: () {
+                aboutSystemChannel.translateToProductionTestPage();
+              },
+              child: const Text("请选择登录平台",
+              style: TextStyle(
+              color: Color(0XFFFFFFFF),
+              fontSize: 24,
+              fontFamily: "MideaType",
+              fontWeight: FontWeight.w500),
+            )
+          )),
           _card("美的美居",
               "assets/newUI/login/meiju_logo.png",
               MideaRuntimePlatform.platform == GatewayPlatform.MEIJU, () {
