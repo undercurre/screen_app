@@ -76,7 +76,7 @@ class FileOutput extends LogOutput {
 
 class MPrettyPrinter extends PrettyPrinter {
 
-  MPrettyPrinter(): super(printTime: true);
+  MPrettyPrinter(): super(printTime: true, errorMethodCount: 200);
 
   @override
   String getTime(DateTime time) {

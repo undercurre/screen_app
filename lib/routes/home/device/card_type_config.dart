@@ -172,6 +172,8 @@ enum DeviceEntityTypeInP4 {
   Zigbee_homlux2,
   Zigbee_homlux3,
   Zigbee_homlux4,
+  // homlux旋钮调光面板
+  Zigbee_homluxKonbDimmingPanel,
   // homluxZigbee灯
   Zigbee_homluxZigbeeLight,
   // homlux灯组
@@ -296,6 +298,28 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         ),
   },
   // homlux面板
+  DeviceEntityTypeInP4.Zigbee_homluxKonbDimmingPanel: {
+    CardType.Small: (params) => SmallScenePanelCardWidget(
+      discriminative: params.discriminative ?? false,
+      applianceCode: params.applianceCode,
+      name: params.name,
+      icon: const Image(
+        image: AssetImage(
+            'assets/newUI/device/0x21_homluxKonbDimmingPanel.png'),
+      ),
+      roomName: params.roomName,
+      disabled: params.disabled!,
+      adapterGenerateFunction: (id) {
+        return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
+            ScenePanelDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+      },
+      isOnline: params.isOnline,
+    ),
+  },
   DeviceEntityTypeInP4.Zigbee_homlux1: {
     CardType.Small: (params) => SmallScenePanelCardWidget(
           discriminative: params.discriminative ?? false,

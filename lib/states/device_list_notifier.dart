@@ -655,7 +655,11 @@ String getModelNumber(HomluxDeviceEntity e) {
   if (e.proType == '0x21' && ac485List.contains(e.deviceType)) {
     return e.deviceType.toString();
   } else if (e.proType == '0x21') {
-    return 'homlux${e.switchInfoDTOList?.length}';
+    if(e.productId == "midea.knob.001.003") {
+      return "homluxKonbDimmingPanel";
+    } else {
+      return 'homlux${e.switchInfoDTOList?.length}';
+    }
   }
 
   if (e.proType == '0x13' && e.deviceType == 2) {

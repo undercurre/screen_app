@@ -26,6 +26,9 @@ class DeviceEntityTypeInP4Handle {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
           return deviceType;
         }
+        if(deviceType.name == modelNum) {
+          return deviceType;
+        }
       } else if (type.contains('localPanel1')) {
         return DeviceEntityTypeInP4.LocalPanel1;
       } else if (type.contains('localPanel2')) {
