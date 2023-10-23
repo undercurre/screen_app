@@ -3,9 +3,11 @@ package com.midea.light.common.utils;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -112,6 +114,11 @@ public class DialogUtil {
                 .setCancelable(true)
                 .setCancelOutside(true);
         loadingDialog = loadBuilder.create();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+        } else {
+            loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        }
         loadingDialog.show();
     }
     public static void closeLoadingDialog() {

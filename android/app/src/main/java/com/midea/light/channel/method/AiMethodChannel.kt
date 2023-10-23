@@ -1,5 +1,6 @@
 package com.midea.light.channel.method
 
+import android.app.ActivityManager
 import android.content.Context
 import android.util.Log
 import com.midea.iot.sdk.common.security.SecurityUtils
@@ -95,11 +96,14 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                     Log.e("sky", "停止美居ai")
                     com.midea.light.ai.AiManager.getInstance().stopAi()
                     com.midea.homlux.ai.AiManager.getInstance().stopAi()
+                    com.midea.light.ai.music.MusicManager.getInstance().stopMusicServer(context)
+                    com.midea.homlux.ai.music.MusicManager.getInstance().stopMusicServer(context)
                 } else if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
                     Log.e("sky", "停止HomluxAi")
                     com.midea.homlux.ai.AiManager.getInstance().stopAi()
                     com.midea.light.ai.AiManager.getInstance().stopAi()
-
+                    com.midea.light.ai.music.MusicManager.getInstance().stopMusicServer(context)
+                    com.midea.homlux.ai.music.MusicManager.getInstance().stopMusicServer(context)
                 }
             }
             "WakeUpAi" -> {

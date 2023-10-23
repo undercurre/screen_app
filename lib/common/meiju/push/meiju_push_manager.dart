@@ -46,7 +46,7 @@ const int initiativeDelayPush = 20 * 1000;
 /// 被动操作设备的消息延长推送时间
 const int passivityDelayPush = 3 * 1000;
 /// 最大连续重连次数
-const int _maxRetryCount = 20;
+const int _maxRetryCount = 10;
 
 class PushEventFunction {
   String id;
@@ -233,14 +233,13 @@ class MeiJuPushManager {
     map['event_type'] = 5;
     map['sign'] = null;
     map['data'] = null;
-    Log.i('[ WebSocket ] send beat heart ${convert.jsonEncode(map)}');
+    Log.file('[ WebSocket ] send beat heart ${convert.jsonEncode(map)}');
     _channel?.sink.add(convert.jsonEncode(map));
   }
 
   static void _onData(event) {
-    retryCount = 0;
     Map<String,dynamic> eventMap = json.decode(event);
-    Log.i('[ WebSocket ] 接收到的Push消息: $eventMap');
+    Log.file('[ WebSocket ] 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
         Log.file('[ WebSocket ] recv beat heart');
@@ -249,9 +248,10 @@ class MeiJuPushManager {
         String data = eventMap['data'];
         Map<String,dynamic> dataMap = json.decode(data);
         _sendHearTimerInterval = dataMap['heatbeat_interval'];
-        Log.i('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
+        Log.file('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
         break;
       case 2:
+        retryCount = 0;
         String data = eventMap['data'];
         var splits = data.split(';');
         if (splits.length > 3) {

@@ -232,7 +232,7 @@ class Push {
         },
         options: Options(
             method: 'POST',
-            headers: {'Authorization':HttpClientBasicCredentials(dotenv.get('ALI_PUSH_USER_NAME'),dotenv.get('ALI_PUSH_PASSWORD'))}
+            headers: {HttpHeaders.authorizationHeader : "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}"}
         ));
 
   }

@@ -28,6 +28,12 @@ android {
         }
     }
 
+    flavorDimensions 'hardware'
+    productFlavors {
+        JH { dimension 'hardware' }
+        LD { dimension 'hardware' }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

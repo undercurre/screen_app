@@ -6,19 +6,24 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.midea.light.ai.IMideaLightFinishListener;
+import com.midea.light.ai.IMideaLightMusicPlayerInterface;
+import com.midea.light.ai.MideaLightMusicInfo;
+
 public class MusicPlayerService extends Service {
 
-    public static ArrayList<MusicInfo> musicInfoList; //音乐列表
+    public static ArrayList<MideaLightMusicInfo> musicInfoList; //音乐列表
     public static int position = 0;  //音乐索引
     public static SmartMideaPlayer mediaPlayer; //音乐播放器
-    public MusicBind musicBind = new MusicBind();
     //当前播放时间
     private int currentTime;
     //音乐时长
@@ -28,15 +33,148 @@ public class MusicPlayerService extends Service {
     */
     public static Boolean MUSIC_STATE = false;
 
-    public class MusicBind extends Binder {
-        /*
-        获取Service
-         */
-        public MusicPlayerService getService() {
-            MusicPlayer.getInstance().setContext(getBaseContext());
-            return MusicPlayerService.this;
+    private IBinder binder = new IMideaLightMusicPlayerInterface.Stub() {
+
+        @Override
+        public void setMusicInfoList(MideaLightMusicInfo[] musicInfoList) throws RemoteException {
+            ArrayList<MideaLightMusicInfo> list = new ArrayList<>();
+            if(musicInfoList != null) {
+                Collections.addAll(list, musicInfoList);
+            }
+            MusicPlayerService.this.setMusicInfoList(list);
         }
-    }
+
+        @Override
+        public MideaLightMusicInfo[] getMusicInfoList() throws RemoteException {
+            if(MusicPlayerService.this.getMusicInfoList() != null) {
+                return MusicPlayerService.this.getMusicInfoList().toArray(new MideaLightMusicInfo[0]);
+            }
+            return null;
+        }
+
+        @Override
+        public void claerMusicInfoList() throws RemoteException {
+            MusicPlayerService.this.claerMusicInfoList();
+        }
+
+        @Override
+        public MideaLightMusicInfo getPlayMusicInfo() throws RemoteException {
+            return MusicPlayerService.this.getPlayMusicInfo();
+        }
+
+        @Override
+        public void setPlayMode(int mode) throws RemoteException {
+            MusicPlayerService.this.setPlayMode(mode);
+        }
+
+        @Override
+        public int getPlayMode() throws RemoteException {
+            return MusicPlayerService.this.getPlayMode();
+        }
+
+        @Override
+        public boolean isPlaying() throws RemoteException {
+            return MusicPlayerService.this.isPlaying();
+        }
+
+        @Override
+        public void playIndexMusic(int index) throws RemoteException {
+            MusicPlayerService.this.playIndexMusic(index);
+        }
+
+        @Override
+        public void setOnFinishListener(IMideaLightFinishListener OnFinishListener) throws RemoteException {
+            MusicPlayerService.this.setOnFinishListener(new SmartMideaPlayer.OnFinishListener() {
+                @Override
+                public void onAllFinish() {
+                    try {
+                        OnFinishListener.onAllFinish();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onNextPartStart() {
+                    try {
+                        OnFinishListener.onNextPartStart();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onLastPartEnd() {
+                    try {
+                        OnFinishListener.onLastPartEnd();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void clearOnFinishListener() throws RemoteException {
+            MusicPlayerService.this.clearOnFinishListener();
+        }
+
+        @Override
+        public void seekToProgress(int position) throws RemoteException {
+            MusicPlayerService.this.seekToProgress(position);
+        }
+
+        @Override
+        public void startMusic() throws RemoteException {
+            MusicPlayerService.this.startMusic();
+        }
+
+        @Override
+        public void pauseMusic() throws RemoteException {
+            MusicPlayerService.this.pauseMusic();
+        }
+
+        @Override
+        public void nextMusic() throws RemoteException {
+            MusicPlayerService.this.nextMusic();
+        }
+
+        @Override
+        public void prevMusic() throws RemoteException {
+            MusicPlayerService.this.prevMusic();
+        }
+
+        @Override
+        public void stopMusic() throws RemoteException {
+            MusicPlayerService.this.stopMusic();
+        }
+
+        @Override
+        public int getCurrentIndex() throws RemoteException {
+            return MusicPlayerService.this.getCurrentIndex();
+        }
+
+        @Override
+        public String getMaxTime() throws RemoteException {
+            return MusicPlayerService.this.getMaxTime();
+        }
+
+        @Override
+        public int getProgress() throws RemoteException {
+            return MusicPlayerService.this.getProgress();
+        }
+
+        @Override
+        public int getMaxProgress() throws RemoteException {
+            return MusicPlayerService.this.getMaxProgress();
+        }
+
+        @Override
+        public String getCurrentTime() throws RemoteException {
+            return MusicPlayerService.this.getCurrentTime();
+        }
+
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -54,7 +192,7 @@ public class MusicPlayerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return musicBind;
+        return binder;
     }
 
     /*
@@ -90,7 +228,7 @@ public class MusicPlayerService extends Service {
     /*
     设置音乐列表
      */
-    public void setMusicInfoList(ArrayList<MusicInfo> list) {
+    public void setMusicInfoList(ArrayList<MideaLightMusicInfo> list) {
         musicInfoList = list;
         SmartMideaPlayer.getInstance().playList(musicInfoList);
         position = 0;
@@ -174,7 +312,7 @@ public class MusicPlayerService extends Service {
         return SmartMideaPlayer.getInstance().getCurrentTime();
     }
 
-    public List<MusicInfo> getMusicInfoList() {
+    public List<MideaLightMusicInfo> getMusicInfoList() {
         return musicInfoList;
     }
 
@@ -185,7 +323,7 @@ public class MusicPlayerService extends Service {
         SmartMideaPlayer.getInstance().claerMusicList();
     }
 
-    public MusicInfo getPlayMusicInfo() {
+    public MideaLightMusicInfo getPlayMusicInfo() {
         if (musicInfoList != null) {
             return SmartMideaPlayer.getInstance().getCurrentMusic();
         } else {

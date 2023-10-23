@@ -397,7 +397,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void startMeiJuAiService(String sn, String deviceId, String mac, boolean aiEnable) {
-        com.midea.light.ai.AiManager.getInstance().startAiServer(this, isBind -> {
+        com.midea.light.ai.AiManager.getInstance().startAiServer(isBind -> {
             if (isBind) {
                 setDeviceInfor(sn, deviceId, mac);
             }
@@ -411,31 +411,13 @@ public class MainActivity extends FlutterActivity {
     }
 
     public void initialHomluxAI(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
-        new Thread() {
-            public void run() {
-                while (true) {
-                    if (NetUtil.checkNet()) {
-                        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, entity -> {
-                            if (entity != null) {
-                                com.midea.homlux.ai.AiManager.getInstance().startDuiAi(MainActivity.this, uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(), entity.getResult().getAccessTokenExpireTime(), aiEnable, isWakUp -> {
-                                    LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
-                                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
-                                }, Voice -> {
-                                    runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
-                                    LogUtil.i("Homlux语音大小 " + Voice);
-                                });
-                            }
-                        });
-                        break;
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }.start();
+        com.midea.homlux.ai.AiManager.getInstance().init(uid, token, aiEnable, houseId, aiClientId, isWakUp -> {
+            LogUtil.i("Homlux语音是否被唤醒 " + isWakUp);
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", isWakUp ? 1 : 0));
+        }, Voice -> {
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
+            LogUtil.i("Homlux语音大小 " + Voice);
+        });
     }
 
     private void setDeviceInfor(String sn, String deviceId, String mac) {
