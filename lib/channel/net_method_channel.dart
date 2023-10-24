@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 
+import '../common/logcat_helper.dart';
 import './models/wifi_scan_result.dart';
 
 class NetMethodChannel extends AbstractChannel {
@@ -41,14 +42,21 @@ class NetMethodChannel extends AbstractChannel {
       case "replyConnectChange":
         debugPrint("接收到replyConnectChange");
         NetState netState = NetState.fromJson(args);
-        _currentNetState = netState;
-        transmitDataToNetChangeCallBack(netState);
-        debugPrint(
-            """
+        if(currentNetState.ethernetState == netState.ethernetState
+            && currentNetState.wifiState == netState.wifiState
+            && currentNetState.wiFiScanResult == netState.wiFiScanResult) {
+          Log.i('[网络] 网络状态无变化，无需通知网络状态更改');
+        } else {
+          Log.i('[网络] 网络状态发生变化，通知更改');
+          _currentNetState = netState;
+          transmitDataToNetChangeCallBack(netState);
+          debugPrint(
+              """
                   以太网状态：${netState.ethernetState == 2 ? "连接成功" : "连接失败" }
                         WiFi状态: ${ netState.wifiState == 2 ? "连接成功" : "连接失败" }  ${netState.wiFiScanResult?.ssid}
                   """
-        );
+          );
+        }
         break;
       default:
         throw Exception("没有支持的方法");

@@ -463,12 +463,16 @@ class MigrationOldVersionMeiJuDataState
 
       List<DeviceEntity> devicesReal = [];
 
-      String getModelNumber(String proType,int deviceType, int switchInfoDTOListLength) {
+      String getModelNumber(String proType,int deviceType, int switchInfoDTOListLength, String? productId) {
         List<int> ac485List = [3017, 3018, 3019];
         if (proType == '0x21' && ac485List.contains(deviceType)) {
           return deviceType.toString();
         } else if (proType == '0x21') {
-          return 'homlux${switchInfoDTOListLength}';
+          if(productId == "midea.knob.001.003") {
+            return "homluxKonbDimmingPanel";
+          } else {
+            return 'homlux${switchInfoDTOListLength}';
+          }
         }
 
         if (proType == '0x13' && deviceType == 2) {
@@ -488,7 +492,7 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.applianceCode = e.deviceId!;
         deviceObj.type = e.proType!;
         int switchInfoDTOListLength = e.switchInfoDTOList?.length ?? 0;
-        deviceObj.modelNumber = getModelNumber(e.proType!, e.deviceType!, switchInfoDTOListLength);
+        deviceObj.modelNumber = getModelNumber(e.proType!, e.deviceType!, switchInfoDTOListLength, e.productId);
         deviceObj.roomName = e.roomName!;
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();

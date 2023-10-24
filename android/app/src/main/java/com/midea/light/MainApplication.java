@@ -1,7 +1,9 @@
 package com.midea.light;
 
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.multidex.MultiDex;
 
@@ -25,12 +27,14 @@ import com.midea.light.setting.relay.VoiceIssuedMatch;
 import com.midea.light.utils.AndroidManifestUtil;
 import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
+import com.midea.light.utils.RootCmd;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class MainApplication extends BaseApplication {
     public static final Boolean DEBUG = false;
@@ -51,12 +55,6 @@ public class MainApplication extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化日志库
-        if(!ProcessUtil.isInMainProcess(this)) {
-            AliPushChannel.aliPushInit(this);
-            return;
-        }
-        AliPushChannel.aliPushInit(this);
-
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
                 .withEnable(DEBUG)
                 .withStackFrom(0)
@@ -71,6 +69,41 @@ public class MainApplication extends BaseApplication {
                 .withLogTag("MSmartKVRepository")
                 .withMMKVCryptKey(AppCommonConfig.MMKV_CRYPT_KEY)
                 .build());
+
+        boolean isMainProcess = ProcessUtil.isInMainProcess(this);
+        // #初始化Bugly
+        BuglyManager.init(BuildConfig.DEBUG, (throwable, randomCode) -> false);
+
+        if(!isMainProcess) {
+            AliPushChannel.aliPushInit(this);
+            return;
+        } else {
+            // 每次主进程重启，都将删除ai相关进程
+            try{
+                new Thread(() -> {
+                    ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+                    for (ActivityManager.RunningAppProcessInfo process : processes) {
+                        if("com.midea.light:aiHomlux".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiHomlux");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiHomlux");
+                        }
+
+                        if("com.midea.light:aiMeiJu".equals(process.processName)) {
+                            Log.i("sky", "即将删除进程com.midea.light:aiMeiJu");
+                            RootCmd.execRootCmdSilent("killall com.midea.light:aiMeiJu");
+                        }
+                    }
+                }).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        /// *************  注意注意 *******************
+        /// 下面的初始化，只能在com.midea.light进程中初始化
+        AliPushChannel.aliPushInit(this);
+
         // 初始化网关
         GateWayUtils.init();
         // #设置继电器控制器
@@ -91,12 +124,6 @@ public class MainApplication extends BaseApplication {
 
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
-        // 初始化Bugly
-        CrashReport.initCrashReport(this, AndroidManifestUtil.getMetaDataString(BaseApplication.getContext(), "BUGLY_ID"), DEBUG);
-        //带上设备的mac地址
-        CrashReport.putUserData(this, "mac_address",  MacUtil.macAddress("wlan0"));
-        // 设置是否位开发设备
-        CrashReport.setIsDevelopmentDevice(BaseApplication.getContext(), DEBUG);
 
 
 

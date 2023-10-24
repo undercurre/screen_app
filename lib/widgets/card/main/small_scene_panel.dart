@@ -228,6 +228,28 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
       return nameInModel;
     }
 
+    String _getName(BuildContext context) {
+      List<SceneInfoEntity> sceneListCache = context.read<SceneListModel>().getCacheSceneList();
+      String nameInModel = deviceListModel.getDeviceName(deviceId: widget.applianceCode, maxLength: 4, startLength: 1, endLength: 2);
+      if (sceneListCache.isEmpty) {
+        return nameInModel;
+      }
+      String sceneIdToCompare = adapter.data.sceneList[0];
+      SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
+        return element.sceneId.toString() == sceneIdToCompare;
+      }, orElse: () {
+        SceneInfoEntity sceneObj = SceneInfoEntity();
+        sceneObj.name = nameInModel;
+        return sceneObj;
+      });
+
+      if (curScene != null) {
+        return curScene.name;
+      } else {
+        return nameInModel;
+      }
+    }
+
     return GestureDetector(
         onTap: () {
           if (adapter.dataState != DataState.SUCCESS) {
@@ -308,7 +330,7 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
                     child: Text(
                       adapter.data.modeList[0] == '0'
                           ? getDeviceName()
-                          : _getName(sceneListCache),
+                          : _getName(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -336,24 +358,5 @@ class _SmallScenePanelCardWidgetState extends State<SmallScenePanelCardWidget> {
         ),
       ),
     ),),);
-  }
-
-  String _getName(List<SceneInfoEntity> sceneListCache) {
-    if (sceneListCache.isEmpty) return '加载中';
-
-    String sceneIdToCompare = adapter.data.sceneList[0];
-    SceneInfoEntity curScene = sceneListCache.firstWhere((element) {
-      return element.sceneId.toString() == sceneIdToCompare;
-    }, orElse: () {
-      SceneInfoEntity sceneObj = SceneInfoEntity();
-      sceneObj.name = '加载中';
-      return sceneObj;
-    });
-
-    if (curScene != null) {
-      return curScene.name;
-    } else {
-      return '加载中';
-    }
   }
 }

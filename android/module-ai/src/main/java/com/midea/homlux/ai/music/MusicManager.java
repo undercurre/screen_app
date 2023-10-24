@@ -40,9 +40,25 @@ public class MusicManager {
 
 
     public void startMusicServer(Context activity) {
-        this.activity=activity;
-        Intent intent = new Intent(activity, MusicPlayerService.class);
-        activity.bindService(intent, conn, BIND_AUTO_CREATE);
+        try {
+            this.activity=activity;
+            Intent intent = new Intent(activity, MusicPlayerService.class);
+            activity.bindService(intent, conn, BIND_AUTO_CREATE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void stopMusicServer(Context activity) {
+        try {
+            if(sever != null) {
+                sever.stopMusic();
+            }
+            activity.unbindService(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private final ServiceConnection conn = new ServiceConnection() {

@@ -1,7 +1,6 @@
 package com.midea.light.ai.services;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,11 +12,11 @@ import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -28,19 +27,21 @@ import com.midea.light.ai.AiSpeech.AiDialog;
 import com.midea.light.ai.AiSpeech.Player;
 import com.midea.light.ai.AiSpeech.TTSItem;
 import com.midea.light.ai.AiSpeech.WeatherDialog;
+import com.midea.light.ai.IMideaLightAISetVoiceCallBack;
+import com.midea.light.ai.IMideaLightAIdlInterface;
+import com.midea.light.ai.IMideaLightAiControlDeviceErrorCallBack;
+import com.midea.light.ai.IMideaLightFlashMusicListCallback;
+import com.midea.light.ai.IMideaLightMusicPlayControlBack;
+import com.midea.light.ai.IMideaLightServerBindCallBack;
+import com.midea.light.ai.IMideaLightServerInitialCallBack;
+import com.midea.light.ai.IMideaLightWakUpStateCallBack;
+import com.midea.light.ai.MideaLightMusicInfo;
 import com.midea.light.ai.brocast.NetWorkStateReceiver;
-import com.midea.light.ai.impl.AISetVoiceCallBack;
-import com.midea.light.ai.impl.AiControlDeviceErrorCallBack;
-import com.midea.light.ai.impl.FlashMusicListCallBack;
-import com.midea.light.ai.impl.MusicPlayControlBack;
-import com.midea.light.ai.impl.ServerBindCallBack;
-import com.midea.light.ai.impl.ServerInitialBack;
-import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.music.MusicBean;
-import com.midea.light.ai.music.MusicInfo;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
 import com.midea.light.log.LogUtil;
+import com.midea.light.thread.MainThread;
 import com.midea.light.utils.CollectionUtil;
 
 import org.json.JSONArray;
@@ -61,16 +62,11 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 public class MideaAiService extends Service {
     private Context Acontext;
     boolean wakeUpState = false, isManLoadMusic = false;
-    private static final String TAG = "AudioDemo";
+    private static final String TAG = "sky";
     public Mw mMediaMwEngine;
     public static final int SAMPLE_RATE_IN_HZ = 32000;//采样率，线mic：32000，环mic：48000
     public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;//音频数据格式
-    private FlashMusicListCallBack mFlashMusicListCallBack;
-    public WakUpStateCallBack mWakUpStateCallBack;
-    private MusicPlayControlBack MusicPlayControl;
-    private AISetVoiceCallBack voiceCallBack;
-    private AiControlDeviceErrorCallBack ControlDeviceErrorCallBack;
 
     private ArrayList<TTSItem> ttsList;
 
@@ -81,34 +77,109 @@ public class MideaAiService extends Service {
     public boolean isClickOut = false;
 
     private AudioRecord mAudioRecord = null;
-    public boolean mIsRecording = false, isAiEnable = false;
-    private ServerInitialBack initialBack;
+    public boolean mIsRecording = false;
     private AiDialog mAiDialog;
     private WeatherDialog mWeatherDialog;
+    IMideaLightServerInitialCallBack serverInitialCallBack;
+    IMideaLightServerBindCallBack serverBindCallBack;
 
-    private ServerBindCallBack BindCallBack;
+    IMideaLightFlashMusicListCallback flashMusicListCallback;
 
-    public void setServerInitialBack(ServerInitialBack initialBack, ServerBindCallBack BindCallBack) {
-        this.initialBack = initialBack;
-        this.BindCallBack = BindCallBack;
-        registerNetworkReceiver();
-    }
+    IMideaLightAISetVoiceCallBack aiSetVoiceCallBack;
 
-    //client 能够经过Binder获取Service实例
-    public class MyBinder extends Binder {
-        public MideaAiService getService() {
-            return MideaAiService.this;
+    IMideaLightAiControlDeviceErrorCallBack aiControlDeviceErrorCallBack;
+
+    public IMideaLightWakUpStateCallBack wakUpStateCallBack;
+
+    IMideaLightMusicPlayControlBack musicPlayControlBack;
+
+    private final IBinder binder = new IMideaLightAIdlInterface.Stub() {
+
+        @Override
+        public void setServerInitialBack(IMideaLightServerInitialCallBack initialBack, IMideaLightServerBindCallBack BindCallBack) throws RemoteException {
+            serverBindCallBack = BindCallBack;
+            serverInitialCallBack = initialBack;
+            registerNetworkReceiver();
         }
-    }
 
-    //经过binder实现调用者client与Service之间的通讯
-    private MyBinder binder = new MyBinder();
+        @Override
+        public void setFlashMusicListCallBack(IMideaLightFlashMusicListCallback CallBack) throws RemoteException {
+            flashMusicListCallback = CallBack;
+        }
+
+        @Override
+        public void addAISetVoiceCallBack(IMideaLightAISetVoiceCallBack CallBack) throws RemoteException {
+            aiSetVoiceCallBack = CallBack;
+        }
+
+        @Override
+        public void addAIControlDeviceErrorCallBack(IMideaLightAiControlDeviceErrorCallBack CallBack) throws RemoteException {
+            aiControlDeviceErrorCallBack = CallBack;
+        }
+
+        @Override
+        public void addWakUpStateCallBack(IMideaLightWakUpStateCallBack CallBack) throws RemoteException {
+            wakUpStateCallBack = CallBack;
+        }
+
+        @Override
+        public void addMusicPlayControlCallBack(IMideaLightMusicPlayControlBack CallBack) throws RemoteException {
+            musicPlayControlBack = CallBack;
+        }
+
+        @Override
+        public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) throws RemoteException {
+            MideaAiService.this.reportPlayerStatusToCloud(MusicUrl, Song, index, str_status);
+        }
+
+        @Override
+        public void getMusicList() throws RemoteException {
+            MideaAiService.this.getMusicList();
+        }
+
+        @Override
+        public void updateVoiceToCloud(int voice) throws RemoteException {
+            MideaAiService.this.updateVoiceToCloud(voice);
+        }
+
+        @Override
+        public void stop() throws RemoteException {
+            MideaAiService.this.stop();
+        }
+
+        @Override
+        public void outt() throws RemoteException {
+            MideaAiService.this.out();
+        }
+
+        @Override
+        public void wakeupByHand() throws RemoteException {
+            MideaAiService.this.wakeupByHand();
+        }
+
+        @Override
+        public void startRecord() throws RemoteException {
+            synchronized (binder) {
+                MideaAiService.this.stopRecord();
+                MideaAiService.this.startRecord();
+            }
+        }
+
+        @Override
+        public void stopRecord() throws RemoteException {
+            MideaAiService.this.stopRecord();
+        }
+
+        @Override
+        public void start(String sn, String deviceType, String deviceCode, String mac) throws RemoteException {
+            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac);
+        }
+
+    };
 
     public void start(Context context, String sn, String deviceType, String deviceCode, String mac) {
         this.Acontext = context;
         Player.getInstance().setmContext(Acontext);
-        Intent starter = new Intent(context, MideaAiService.class);
-        context.startService(starter);
         AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
         mAIDeviceInfo.setSn(sn);
         mAIDeviceInfo.setModel("172");
@@ -122,8 +193,11 @@ public class MideaAiService extends Service {
         String deviceInfo = json;
 
         Log.e(TAG, "deviceInfo:" + deviceInfo);
-        mAiDialog = new AiDialog(Acontext, this);
-        mWeatherDialog = new WeatherDialog(Acontext, this);
+
+        MainThread.run(() -> {
+            mAiDialog = new AiDialog(Acontext, this);
+            mWeatherDialog = new WeatherDialog(Acontext, this);
+        });
 
         Thread thread = new Thread() {
             public void run() {
@@ -139,56 +213,60 @@ public class MideaAiService extends Service {
                 int state = mMediaMwEngine.registerEvent(0, type, func);
                 Log.e(TAG, "获取语音证书状态:" + state);
                 player = Player.getInstance();
-                initialBack.isInitial(true);
+                try {
+                    serverInitialCallBack.isInitial(true);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
         };
         thread.start();
     }
 
     public void startRecord() {
-        if (isAiEnable) {
-            final int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT);
-            try {
-                if (mAudioRecord == null) {
-                    mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT, minBufferSize);
-                }
-                if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-                    Log.e(TAG, "AudioRecord 初始化失败");
-                    stopRecord();
-                    initialBack.isInitial(false);
-                    return;
-                }
-                mAudioRecord.startRecording();
-                mIsRecording = true;
-                Log.e(TAG, "开启录音");
-                final byte data[] = new byte[6144];
-                Thread thread = new Thread() {
-                    public void run() {
-                        while (mIsRecording) {
-                            int read = mAudioRecord.read(data, 0, data.length);
-                            if (mAudioRecord.getRecordingState() == 3) {
-                                if (read != AudioRecord.ERROR_INVALID_OPERATION) {
-                                    mMediaMwEngine.audioDataToSpeech(data, data.length);
-                                }
-                            }
-
-                        }
-                    }
-                };
-                thread.start();
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            } catch (Exception d) {
-                Log.e(TAG, "语音异常:" + d.getMessage());
+        Log.e("sky", "开始录音");
+        final int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT);
+        try {
+            if (mAudioRecord == null) {
+                mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT, minBufferSize);
             }
+            if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
+                Log.e(TAG, "AudioRecord 初始化失败");
+                stopRecord();
+                serverInitialCallBack.isInitial(false);
+                return;
+            }
+            mAudioRecord.startRecording();
+            mIsRecording = true;
+            Log.e(TAG, "开启录音");
+            final byte data[] = new byte[6144];
+            Thread thread = new Thread() {
+                public void run() {
+                    while (mIsRecording) {
+                        int read = mAudioRecord.read(data, 0, data.length);
+                        if (mAudioRecord.getRecordingState() == 3) {
+                            if (read != AudioRecord.ERROR_INVALID_OPERATION) {
+                                mMediaMwEngine.audioDataToSpeech(data, data.length);
+                            }
+                        }
+
+                    }
+                }
+            };
+            thread.start();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (Exception d) {
+            Log.e(TAG, "语音异常:" + d.getMessage());
         }
+
     }
 
     public void stopRecord() {
+        Log.e("sky", "停止录音");
         mIsRecording = false;
         if (mAudioRecord != null) {
             mAudioRecord.release();
-            Log.e(TAG, "停止Record");
             mAudioRecord = null;
         }
     }
@@ -283,7 +361,7 @@ public class MideaAiService extends Service {
         if (data.contains("场景设置")) {
             return;
         }
-        LogUtil.i("下发指令值：" + data);
+        Log.e("sky", "下发指令值：" + data);
         try {
             dismissWeatherDialog();
             JSONObject object = new JSONObject(data);
@@ -294,7 +372,7 @@ public class MideaAiService extends Service {
                             new JSONArray(object.getJSONObject("skill").getJSONObject("data").getJSONObject("generalSkill").getJSONArray("listItems").toString());
                     MusicBean.DataBean.GeneralSkillBean xx = new MusicBean.DataBean.GeneralSkillBean();
                     for (int i = 0; i < data_array.length(); i++) {
-                        MusicInfo infor = new MusicInfo();
+                        MideaLightMusicInfo infor = new MideaLightMusicInfo();
                         if ("music".equals(Type)) {
                             infor.setMusicUrl(data_array.getJSONObject(i).getString("musicUrl"));
                             infor.setSong(data_array.getJSONObject(i).getString("song"));
@@ -307,8 +385,8 @@ public class MideaAiService extends Service {
                         }
                         xx.getListItems().add(infor);
                     }
-                    if (mFlashMusicListCallBack != null) {
-                        mFlashMusicListCallBack.FlashMusicList(xx.getListItems());
+                    if (flashMusicListCallback != null) {
+                        flashMusicListCallback.FlashMusicList(xx.getListItems().toArray(new MideaLightMusicInfo[0]));
                     }
                 } else {
                     {
@@ -454,6 +532,8 @@ public class MideaAiService extends Service {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -635,35 +715,43 @@ public class MideaAiService extends Service {
             String player = object.getString("player");
             if (!TextUtils.isEmpty(player)) {
                 if (player.equals("PAUSE")) {
-                    if (MusicPlayControl != null) {
-                        MusicPlayControl.playControl("PAUSE");
+                    if (musicPlayControlBack != null) {
+                        musicPlayControlBack.playControl("PAUSE");
                     }
                 } else if (player.equals("RESUME")) {
-                    if (MusicPlayControl != null) {
-                        MusicPlayControl.playControl("RESUME");
+                    if (musicPlayControlBack != null) {
+                        musicPlayControlBack.playControl("RESUME");
                     }
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void wakeup() {
-        if (mWakUpStateCallBack != null) {
-            mWakUpStateCallBack.wakUpState(true);
-        }
-        if (mAiDialog == null) {
-            mAiDialog = new AiDialog(Acontext, this);
-        }
-        if (mAiDialog.isShowing()) {
+        try {
+            if (wakUpStateCallBack != null) {
+                wakUpStateCallBack.wakUpState(true);
+            }
+            if (mAiDialog == null) {
+                mAiDialog = new AiDialog(Acontext, this);
+            }
+            if (mAiDialog.isShowing()) {
+                mAiDialog.wakeupInitialData();
+                return;
+            }
+            mAiDialog.create();
             mAiDialog.wakeupInitialData();
-            return;
-        }
-        mAiDialog.create();
-        mAiDialog.wakeupInitialData();
-        mAiDialog.show();
+            mAiDialog.show();
+
 //        GateWayLightControlUtil.aiLightShow();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     String ask = "";
@@ -738,8 +826,12 @@ public class MideaAiService extends Service {
             mWeatherDialog.timeOut();
         }
 //        GateWayLightControlUtil.stopLightShow();
-        if (mWakUpStateCallBack != null) {
-            mWakUpStateCallBack.wakUpState(false);
+        if (wakUpStateCallBack != null) {
+            try {
+                wakUpStateCallBack.wakUpState(false);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -797,14 +889,6 @@ public class MideaAiService extends Service {
     }
 
     @Override
-    public void onRebind(Intent intent) {
-        super.onRebind(intent);
-        if (BindCallBack != null) {
-            BindCallBack.isServerBind(true);
-        }
-    }
-
-    @Override
     public boolean onUnbind(Intent intent) {
         return true;
     }
@@ -814,7 +898,7 @@ public class MideaAiService extends Service {
         super.onDestroy();
     }
 
-    public static String getWakeupInfo() {
+    private static String getWakeupInfo() {
         try {
             JSONObject resultObj = new JSONObject();
             resultObj.put("player_status", 2004);
@@ -894,8 +978,12 @@ public class MideaAiService extends Service {
 
         Log.e("sky", "音量调整到:" + voice);
         am.setStreamVolume(AudioManager.STREAM_MUSIC, voice, AudioManager.FLAG_PLAY_SOUND);
-        if (voiceCallBack != null) {
-            voiceCallBack.SetVoice(voice);
+        if (aiSetVoiceCallBack != null) {
+            try {
+                aiSetVoiceCallBack.SetVoice(voice);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
 
 
@@ -916,8 +1004,12 @@ public class MideaAiService extends Service {
     }
 
     private void alarm(String ans) {
-        if (mWakUpStateCallBack != null) {
-            mWakUpStateCallBack.wakUpState(true);
+        if (wakUpStateCallBack != null) {
+            try {
+                wakUpStateCallBack.wakUpState(true);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
         if (mAiDialog.isShowing()) {
             setAnsString(ans);
@@ -956,7 +1048,7 @@ public class MideaAiService extends Service {
         return current;
     }
 
-    public boolean isNumeric(String str) {
+    private boolean isNumeric(String str) {
 
         Pattern pattern = Pattern.compile("[0-9]*");
 
@@ -1004,39 +1096,39 @@ public class MideaAiService extends Service {
                 if (data_array.getJSONObject(0).getString("skillType").equals("music") || data_array.getJSONObject(0).getString("skillType").equals("crosstalk") || data_array.getJSONObject(0).getString("skillType").equals("otherAudio") || data_array.getJSONObject(0).getString("skillType").equals("story") || data_array.getJSONObject(0).getString("skillType").equals("joke")) {
                     MusicBean mMusicBean = GsonUtils.getBeanFromJSONString(data_array.getJSONObject(0).toString(), MusicBean.class);
                     mMusicBean.getData().getGeneralSkill().getListItems();
-                    if (mFlashMusicListCallBack != null) {
-                        mFlashMusicListCallBack.FlashMusicList(mMusicBean.getData().getGeneralSkill().getListItems());
+                    if (flashMusicListCallback != null) {
+                        flashMusicListCallback.FlashMusicList(mMusicBean.getData().getGeneralSkill().getListItems().toArray(new MideaLightMusicInfo[0]));
                     }
                 } else if (data_array.getJSONObject(0).getString("skillType").equals("mediaControl")) {
                     if (data_array.getJSONObject(0).getJSONObject("data").has("player")) {
                         if (data_array.getJSONObject(0).getJSONObject("data").getString("player").contains("RESUME")) {
                             Log.e("sky", "收到继续播放指令");
-                            if (MusicPlayControl != null) {
-                                MusicPlayControl.playControl("RESUME");
+                            if (musicPlayControlBack != null) {
+                                musicPlayControlBack.playControl("RESUME");
                             }
                             dismissAiDialog();
                         } else if (data_array.getJSONObject(0).getJSONObject("data").getString("player").contains("PAUSE")) {
                             Log.e("sky", "收到暂停指令");
-                            if (MusicPlayControl != null) {
-                                MusicPlayControl.playControl("PAUSE");
+                            if (musicPlayControlBack != null) {
+                                musicPlayControlBack.playControl("PAUSE");
                             }
                         } else if (data_array.getJSONObject(0).getJSONObject("data").getString("player").contains("STOP")) {
                             Log.e("sky", "收到停止指令");
-                            if (MusicPlayControl != null) {
-                                MusicPlayControl.playControl("STOP");
+                            if (musicPlayControlBack != null) {
+                                musicPlayControlBack.playControl("STOP");
                             }
                         }
                     } else if (data_array.getJSONObject(0).getJSONObject("data").has("playbackCtrlViaTts")) {
                         if (data_array.getJSONObject(0).getJSONObject("data").getString("playbackCtrlViaTts").contains("prev")) {
                             Log.e("sky", "收到上一曲指令");
-                            if (MusicPlayControl != null) {
-                                MusicPlayControl.playControl("prev");
+                            if (musicPlayControlBack != null) {
+                                musicPlayControlBack.playControl("prev");
                             }
                             dismissAiDialog();
                         } else if (data_array.getJSONObject(0).getJSONObject("data").getString("playbackCtrlViaTts").contains("next")) {
                             Log.e("sky", "收到下一曲指令");
-                            if (MusicPlayControl != null) {
-                                MusicPlayControl.playControl("next");
+                            if (musicPlayControlBack != null) {
+                                musicPlayControlBack.playControl("next");
                             }
                             dismissAiDialog();
                         }
@@ -1056,6 +1148,8 @@ public class MideaAiService extends Service {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -1090,18 +1184,6 @@ public class MideaAiService extends Service {
 
     public void updateVoiceToCloud(int voice) {
 //        mMediaMwEngine.deviceStatusToCloudResp(volStatus(voice));
-    }
-
-    public void setFlashMusicListCallBack(FlashMusicListCallBack CallBack) {
-        mFlashMusicListCallBack = CallBack;
-    }
-
-    public void addAISetVoiceCallBack(AISetVoiceCallBack CallBack) {
-        voiceCallBack = CallBack;
-    }
-
-    public void addAIControlDeviceErrorCallBack(AiControlDeviceErrorCallBack CallBack) {
-        ControlDeviceErrorCallBack = CallBack;
     }
 
     private boolean isMusic(String data) {
@@ -1154,9 +1236,9 @@ public class MideaAiService extends Service {
             if (nlu.has("skillType")) {
                 if (nlu.getString("skillType").contains("DeviceControl")) {
                     JSONArray ttsArray = object.getJSONObject("nlu").getJSONObject("tts").optJSONArray("data");
-                    if(ttsArray.getJSONObject(0).getString("text").contains("家电设备信息")||ttsArray.getJSONObject(0).getString("text").contains("绑定设备")){
+                    if (ttsArray.getJSONObject(0).getString("text").contains("家电设备信息") || ttsArray.getJSONObject(0).getString("text").contains("绑定设备")) {
                         isDeviceControl = true;
-                    }else{
+                    } else {
                         isDeviceControl = false;
                     }
                 } else {
@@ -1170,7 +1252,6 @@ public class MideaAiService extends Service {
         }
         return isDeviceControl;
     }
-
 
 
     private Handler mHandler = new Handler(new Handler.Callback() {
@@ -1230,16 +1311,15 @@ public class MideaAiService extends Service {
         mMediaMwEngine.getNLPwithText("我要听歌");
     }
 
-    public void addWakUpStateCallBack(WakUpStateCallBack CallBack) {
-        mWakUpStateCallBack = CallBack;
-    }
-
-    public void addMusicPlayControlCallBack(MusicPlayControlBack CallBack) {
-        MusicPlayControl = CallBack;
-    }
-
-    public void reportPlayerStatusToCloud(TTSItem tar_item, String str_status) {
+    public void reportPlayerStatusToCloud(String MusicUrl, String Song, int index, String str_status) {
         try {
+            TTSItem tar_item = new TTSItem(MusicUrl);
+            tar_item.setAutoResume(true);
+            tar_item.setUrlType("media");
+            tar_item.setLabel(Song);
+            tar_item.setSkillType("");
+            tar_item.setSeq(index + 1);
+
             if (tar_item == null) {
                 Log.e(TAG, "tar_item is null");
                 return;
@@ -1270,31 +1350,6 @@ public class MideaAiService extends Service {
         }
     }
 
-    public void registerNetworkReceiver() {
-        try {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            registerReceiver(NetWorkStateReceiver.getInstant(), filter);
-            IntentFilter filter2 = new IntentFilter();
-            filter2.addAction(Intent.ACTION_TIME_TICK);
-            registerReceiver(receiver, filter2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void unreregisterNetworkReceiver() {
-        try {
-            unregisterReceiver(NetWorkStateReceiver.getInstant());
-            unregisterReceiver(receiver);
-        }catch (RuntimeException e){
-
-        }
-
-    }
-
     public void dismissAiDialog() {
         if (mAiDialog != null) {
             mAiDialog.dismissDialog();
@@ -1307,24 +1362,21 @@ public class MideaAiService extends Service {
         }
     }
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Intent.ACTION_TIME_TICK)) {
-                if (NetWorkStateReceiver.getInstant().netWorkAvailable()) {
-                    String linkstatus = "{\"link_status\":1}";
-                    if (mMediaMwEngine != null) {
-//                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
-                    }
-                } else {
-                    String linkstatus = "{\"link_status\":0}";
-                    if (mMediaMwEngine != null) {
-//                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
-                    }
-                }
-            }
+    public void registerNetworkReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(NetWorkStateReceiver.getInstant(), filter);
+    }
+
+    public void unreregisterNetworkReceiver() {
+        try {
+            unregisterReceiver(NetWorkStateReceiver.getInstant());
+        } catch (RuntimeException e){
+            e.printStackTrace();
         }
-    };
+
+    }
 
 }

@@ -78,8 +78,6 @@ class _App extends State<App> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // ChangeNotifierProvider(create: (_) => DeviceListModel()),
-        // ChangeNotifierProvider(create: (_) => RoomModel()),
         ChangeNotifierProvider(create: (_) => StandbyChangeNotifier()),
         ChangeNotifierProvider(create: (_) => GlobalRouteObserverNotifier()),
         ChangeNotifierProvider(create: (_) => LayoutModel()),

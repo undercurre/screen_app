@@ -10,6 +10,7 @@ import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 import 'package:screen_app/widgets/keep_alive_wrapper.dart';
 import 'package:screen_app/widgets/util/debouncer.dart';
+import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../common/api/api.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
@@ -38,17 +39,20 @@ class DevicePage extends StatefulWidget {
   State<StatefulWidget> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> {
+class _DevicePageState extends State<DevicePage> with WidgetNetState {
   // 准备一个定时器
   Timer? _timer;
+  Timer? _netTimer;
 
   /*
   target: 启动定时器-->每 180秒/3分钟 刷新一次列表
   */
-  Future<void> startPolling(BuildContext context) async {
+  void startPolling(BuildContext context) {
     const oneMinute = Duration(seconds: normalLoopTime);
     // 使用周期性定时器，每分钟触发一次
+    _timer?.cancel();
     _timer = Timer.periodic(oneMinute, (Timer timer) async {
+      Log.i('[首页] 时间间隔到，刷新页面');
       autoDeleleLayout(context);
     });
   }
@@ -58,14 +62,24 @@ class _DevicePageState extends State<DevicePage> {
     if(!standby) {
       Log.i('[首页] 退出待机强制刷新页面');
       autoDeleleLayout(context);
-      _timer?.cancel();
-      _timer = Timer.periodic(const Duration(seconds: normalLoopTime), (Timer timer) async {
-        Log.i('[首页] 时间间隔到，刷新页面');
-        autoDeleleLayout(context);
-      });
+      startPolling(context);
     } else {
       Log.i('[首页] 取消后台更新页面定时器');
       _timer?.cancel();
+    }
+  }
+
+  // [检测网络切换]
+  @override
+  void netChange(MZNetState? state) {
+    if(state != null) {
+      Log.i('[首页] 检测网络切换，强制刷新首页');
+      _netTimer?.cancel();
+      _netTimer = Timer(const Duration(seconds: 10), () {
+        Log.i("[首页] 10s延迟到期，即将请求");
+        autoDeleleLayout(context);
+      });
+      startPolling(context);
     }
   }
 
@@ -74,6 +88,7 @@ class _DevicePageState extends State<DevicePage> {
    */
   void stopPolling() {
     _timer?.cancel();
+    _netTimer?.cancel();
   }
 
   /*

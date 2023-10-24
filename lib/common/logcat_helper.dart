@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
 import 'dart:io';
 
@@ -24,9 +25,14 @@ class FileOutput extends LogOutput {
 
   @override
   void init() {
-    randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
-    if(randomAccessFile!.lengthSync() > fileLimit) {
-      randomAccessFile!.setPositionSync(0);
+    try {
+      randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
+      if (randomAccessFile!.lengthSync() > fileLimit) {
+        randomAccessFile!.setPositionSync(0);
+      }
+    } catch(e) {
+      debugPrint(e.toString());
+      randomAccessFile = null;
     }
   }
 
@@ -70,7 +76,7 @@ class FileOutput extends LogOutput {
 
 class MPrettyPrinter extends PrettyPrinter {
 
-  MPrettyPrinter(): super(printTime: true);
+  MPrettyPrinter(): super(printTime: true, errorMethodCount: 200);
 
   @override
   String getTime(DateTime time) {
