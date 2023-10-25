@@ -34,16 +34,10 @@ class MiddleSceneCardWidget extends StatefulWidget {
 }
 
 class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
-  SelectRoomDataAdapter? roomDataAd;
 
   @override
   void initState() {
     super.initState();
-    roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-    roomDataAd?.bindDataUpdateFunction(() {
-      setState(() {});
-    });
-    roomDataAd?.queryRoomList(System.familyInfo!);
   }
 
   @override
@@ -55,14 +49,7 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
   Widget build(BuildContext context) {
     final sceneListModel = Provider.of<SceneListModel>(context);
     String sceneName = sceneListModel.getSceneName(widget.sceneId);
-    String sceneRoomId = sceneListModel.getSceneRoomId(widget.sceneId);
-    String sceneRoomName = roomDataAd?.familyListEntity?.familyList
-            .firstWhere((element) => element.id == sceneRoomId, orElse: () {
-          SelectRoomItem defaultRoom = SelectRoomItem();
-          defaultRoom.name = '';
-          return defaultRoom;
-        }).name ??
-        '';
+    String sceneRoomName = sceneListModel.getSceneRoomName(widget.sceneId);
     return GestureDetector(
       onTap: () {
         if (!widget.disabled) {

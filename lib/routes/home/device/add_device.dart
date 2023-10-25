@@ -189,6 +189,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
     Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
     Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
+    sceneListModel.roomDataAd.queryRoomList(System.familyInfo!);
 
     List<DeviceEntity> deviceRes = [];
     List<SceneInfoEntity> sceneRes = [];
