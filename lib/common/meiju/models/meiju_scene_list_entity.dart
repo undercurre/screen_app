@@ -16,6 +16,7 @@ class MeiJuSceneListEntity {
 class MeiJuSceneEntity {
   final String? sceneId;
   final String? name;
+  final String? roomId;
   final String? image;
   final int? sceneType;
   final int? sceneStatus;
@@ -42,6 +43,7 @@ class MeiJuSceneEntity {
   const MeiJuSceneEntity({
     this.sceneId,
     this.name,
+    this.roomId,
     this.image,
     this.sceneType,
     this.sceneStatus,

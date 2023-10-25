@@ -18,7 +18,6 @@ class SceneListModel extends ChangeNotifier {
   List<HomluxSceneEntity> sceneListHomlux = [];
 
   SceneListModel() {
-    logger.i('场景model加载');
     getSceneList();
   }
 
@@ -31,6 +30,7 @@ class SceneListModel extends ChangeNotifier {
           sceneObj.name = e.name;
           sceneObj.sceneId = e.sceneId;
           sceneObj.image = e.image;
+          sceneObj.roomId = e.roomId;
           return sceneObj;
         }).toList();
       } else {
@@ -42,6 +42,7 @@ class SceneListModel extends ChangeNotifier {
         sceneObj.name = e.sceneName;
         sceneObj.sceneId = e.sceneId;
         sceneObj.image = e.sceneIcon;
+        sceneObj.roomId = e.roomId;
         return sceneObj;
       }).toList();
     }
@@ -58,6 +59,7 @@ class SceneListModel extends ChangeNotifier {
             sceneObj.name = e.name;
             sceneObj.sceneId = e.sceneId;
             sceneObj.image = e.image;
+            sceneObj.roomId = e.roomId;
             return sceneObj;
         }).toList();
       }
@@ -70,6 +72,7 @@ class SceneListModel extends ChangeNotifier {
           sceneObj.name = e.sceneName;
           sceneObj.sceneId = e.sceneId;
           sceneObj.image = e.sceneIcon;
+          sceneObj.roomId = e.roomId;
           return sceneObj;
         }).toList();
       }
@@ -85,6 +88,48 @@ class SceneListModel extends ChangeNotifier {
     } else {
       HomluxResponseEntity HomluxRes = await HomluxSceneApi.execScene(sceneId);
       return HomluxRes.code == 0;
+    }
+  }
+
+  String getSceneRoomId(String sceneId) {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return '';
+    } else {
+      return sceneListHomlux.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+        HomluxSceneEntity defaultScene = HomluxSceneEntity();
+        defaultScene.roomId = '';
+        return defaultScene;
+      }).roomId ?? '';
+    }
+  }
+
+  String getSceneName(String sceneId) {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return sceneListMeiju.list?.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+        MeiJuSceneEntity defaultScene = MeiJuSceneEntity(name: '');
+        return defaultScene;
+      }).name ?? '';
+    } else {
+      return sceneListHomlux.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+        HomluxSceneEntity defaultScene = HomluxSceneEntity();
+        defaultScene.sceneName = '';
+        return defaultScene;
+      }).sceneName ?? '';
+    }
+  }
+
+  String getSceneIcon(String sceneId) {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      return sceneListMeiju.list?.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+        MeiJuSceneEntity defaultScene = MeiJuSceneEntity(name: '');
+        return defaultScene;
+      }).image ?? '';
+    } else {
+      return sceneListHomlux.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+        HomluxSceneEntity defaultScene = HomluxSceneEntity();
+        defaultScene.sceneName = '';
+        return defaultScene;
+      }).sceneIcon ?? '';
     }
   }
 }

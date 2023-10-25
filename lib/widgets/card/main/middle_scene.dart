@@ -11,7 +11,7 @@ import '../../../common/logcat_helper.dart';
 import '../../../common/system.dart';
 import '../../../states/scene_list_notifier.dart';
 
-class SmallSceneCardWidget extends StatefulWidget {
+class MiddleSceneCardWidget extends StatefulWidget {
   bool onOff = false;
   final String name;
   final String icon;
@@ -19,7 +19,7 @@ class SmallSceneCardWidget extends StatefulWidget {
   final bool discriminative;
   final bool disabled;
 
-  SmallSceneCardWidget({
+  MiddleSceneCardWidget({
     super.key,
     required this.name,
     required this.icon,
@@ -30,10 +30,10 @@ class SmallSceneCardWidget extends StatefulWidget {
   });
 
   @override
-  _SmallSceneCardWidgetState createState() => _SmallSceneCardWidgetState();
+  _MiddleSceneCardWidgetState createState() => _MiddleSceneCardWidgetState();
 }
 
-class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
+class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
   SelectRoomDataAdapter? roomDataAd;
 
   @override
@@ -57,11 +57,11 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
     String sceneName = sceneListModel.getSceneName(widget.sceneId);
     String sceneRoomId = sceneListModel.getSceneRoomId(widget.sceneId);
     String sceneRoomName = roomDataAd?.familyListEntity?.familyList
-        .firstWhere((element) => element.id == sceneRoomId, orElse: () {
-      SelectRoomItem defaultRoom = SelectRoomItem();
-      defaultRoom.name = '';
-      return defaultRoom;
-    }).name ??
+            .firstWhere((element) => element.id == sceneRoomId, orElse: () {
+          SelectRoomItem defaultRoom = SelectRoomItem();
+          defaultRoom.name = '';
+          return defaultRoom;
+        }).name ??
         '';
     return GestureDetector(
       onTap: () {
@@ -83,9 +83,9 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
       },
       child: Container(
         width: 210,
-        height: 88,
+        height: 196,
         padding:
-            const EdgeInsets.only(top: 16, left: 20, right: 20, bottom: 16),
+            const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
         decoration: widget.onOff
             ? BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -118,20 +118,28 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                   transform: const GradientRotation(213 * (3.1415926 / 360.0)),
                 ),
               ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              width: 40,
-              child: Image(
-                image: isNumeric(widget.icon)
-                    ? AssetImage('assets/newUI/scene/${widget.icon}.png')
-                    : AssetImage('assets/newUI/scene/default.png'),
+            Transform.scale(
+              scale: 1.6,
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Image(
+                  width: 40,
+                  height: 40,
+                  image: isNumeric(widget.icon)
+                      ? AssetImage('assets/newUI/scene/${widget.icon}.png')
+                      : const AssetImage('assets/newUI/scene/default.png'),
+                ),
               ),
             ),
             SizedBox(
               width: 100,
-              height: 56,
+              height: 68,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -139,7 +147,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                   Container(
                       constraints: const BoxConstraints(
                         maxWidth: 98,
-                        maxHeight: 56,
+                        maxHeight: 68,
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +158,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                             style: const TextStyle(
                               height: 1.2,
                               color: Colors.white,
-                              fontSize: 22,
+                              fontSize: 24,
                               fontFamily: 'MideaType',
                               fontWeight: FontWeight.w400,
                             ),
@@ -161,7 +169,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                             style: TextStyle(
                               height: 1,
                               color: Colors.white.withOpacity(0.64),
-                              fontSize: 16,
+                              fontSize: 20,
                               fontFamily: 'MideaType',
                               fontWeight: FontWeight.w400,
                             ),

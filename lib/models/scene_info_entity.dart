@@ -14,6 +14,7 @@ class SceneInfoEntity {
   dynamic corpus;
   dynamic homegroupId;
   dynamic weekly;
+  dynamic roomId;
   dynamic labelId;
   dynamic enable;
   dynamic appId;
@@ -46,9 +47,9 @@ class SceneInfoEntity {
   bool operator == (Object other) {
     if (identical(this, other)) return true;
 
-    return other is SceneInfoEntity && other.sceneId == sceneId && other.name == name && other.image == image;
+    return other is SceneInfoEntity && other.sceneId == sceneId;
   }
 
   @override
-  int get hashCode => sceneId.hashCode ^ name.hashCode;
+  int get hashCode => sceneId.hashCode;
 }
