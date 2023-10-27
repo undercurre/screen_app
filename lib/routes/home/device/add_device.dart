@@ -9,6 +9,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
 import 'package:screen_app/routes/home/device/card_dialog.dart';
+import 'package:screen_app/routes/home/device/card_dialog_scene.dart';
 import 'package:screen_app/routes/home/device/card_type_config.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/routes/home/device/layout_data.dart';
@@ -65,12 +66,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
   List<MeiJuRoomEntity>? meijuRoomList;
   List<HomluxRoomInfo>? homluxRoomList;
   late Timer _timer;
-  double selectRoomVisible=1;
+  double selectRoomVisible = 1;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-       _timer= Timer(const Duration(seconds: 15), () {
+      _timer = Timer(const Duration(seconds: 15), () {
         settingMethodChannel.dismissLoading();
       });
       getRoomList();
@@ -80,13 +81,13 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   Future<void> getRoomList() async {
     settingMethodChannel.showLoading("设备加载中");
-    if(NetUtils.getNetState()==null){
+    if (NetUtils.getNetState() == null) {
       settingMethodChannel.dismissLoading();
       TipsUtils.toast(content: '请检查网络');
     }
     try {
-      SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(
-          MideaRuntimePlatform.platform);
+      SelectRoomDataAdapter roomDataAd =
+          SelectRoomDataAdapter(MideaRuntimePlatform.platform);
       await roomDataAd?.queryRoomList(System.familyInfo!);
       homluxRoomList = roomDataAd.homluxRoomList;
       meijuRoomList = roomDataAd.meijuRoomList;
@@ -120,26 +121,26 @@ class _AddDevicePageState extends State<AddDevicePage> {
         }
       }
 
-      final sceneListModel = Provider.of<SceneListModel>(
-          context, listen: false);
+      final sceneListModel =
+          Provider.of<SceneListModel>(context, listen: false);
       final deviceListModel =
-      Provider.of<DeviceInfoListModel>(context, listen: false);
+          Provider.of<DeviceInfoListModel>(context, listen: false);
       List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
       List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
       if (deviceRes.length > 8) {
         devicesAll = deviceRes
             .sublist(0, 8)
             .where((e) =>
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            e.type, e.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+                DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                    e.type, e.modelNumber) !=
+                DeviceEntityTypeInP4.Default)
             .toList();
       } else {
         devicesAll = deviceRes
             .where((e) =>
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            e.type, e.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+                DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                    e.type, e.modelNumber) !=
+                DeviceEntityTypeInP4.Default)
             .toList();
       }
       if (sceneRes.length > 8) {
@@ -155,20 +156,21 @@ class _AddDevicePageState extends State<AddDevicePage> {
         devicesAll.addAll(deviceRes
             .sublist(8)
             .where((e) =>
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            e.type, e.modelNumber) !=
-            DeviceEntityTypeInP4.Default)
+                DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                    e.type, e.modelNumber) !=
+                DeviceEntityTypeInP4.Default)
             .toList());
       }
-    } catch(e) {
+    } catch (e) {
       Log.i('设备、场景数据加载失败');
     }
 
-    Log.i('其他组件', others
-        .where((element) => !layoutModel.layouts
-        .map((e) => e.deviceId)
-        .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
-        element.type.toString()))));
+    Log.i(
+        '其他组件',
+        others.where((element) => !layoutModel.layouts
+            .map((e) => e.deviceId)
+            .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
+                element.type.toString()))));
     others = others
         .where((element) => !layoutModel.layouts
             .map((e) => e.deviceId)
@@ -187,6 +189,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
     Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
     Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
+    sceneListModel.roomDataAd.queryRoomList(System.familyInfo!);
 
     List<DeviceEntity> deviceRes = [];
     List<SceneInfoEntity> sceneRes = [];
@@ -219,6 +222,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
       sceneRes = sceneCache;
     }
 
+    Log.i('Scene Cache', sceneCache);
     List<List<DeviceEntity>> compareDevice =
         Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
     List<List<SceneInfoEntity>> compareScene =
@@ -249,13 +253,13 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   void selectRoom(String roomID) async {
+    Log.i('选房间开始时', scenesAll.map((e) => e.roomId));
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
     } else {
       HomluxGlobal.selectRoomId = roomID;
     }
-    List<DeviceEntity> devicesTemp =
-        devicesAll.where((element) => element.roomId == roomID).toList();
+    List<DeviceEntity> devicesTemp = devicesAll.where((element) => element.roomId == roomID).toList();
     deleteDevices.clear();
     for (DeviceEntity device in devicesTemp) {
       if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
@@ -264,9 +268,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
     }
 
     ///首页如果有灯1灯2就去掉
-    List<String> deleteID=[];
-    for(Layout lay in layoutModel.layouts){
-      if(lay.data.applianceCode=="localPanel1"||lay.data.applianceCode=="localPanel2"){
+    List<String> deleteID = [];
+    for (Layout lay in layoutModel.layouts) {
+      if (lay.data.applianceCode == "localPanel1" ||
+          lay.data.applianceCode == "localPanel2") {
         deleteID.add(lay.data.applianceCode);
       }
     }
@@ -279,8 +284,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     }
 
     for (DeviceEntity device in devicesTemp) {
-      for(String id in deleteID){
-        if(device.applianceCode==id){
+      for (String id in deleteID) {
+        if (device.applianceCode == id) {
           deleteDevices.add(device);
         }
       }
@@ -291,7 +296,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<DeviceEntity> devicesLightGroup = [];
     List<DeviceEntity> devicesPanel = [];
     for (DeviceEntity device in devicesTemp) {
-      if (device.applianceCode=="localPanel1"||device.applianceCode=="localPanel2") {
+      if (device.applianceCode == "localPanel1" ||
+          device.applianceCode == "localPanel2") {
         devicesLocalLight.add(device);
       }
     }
@@ -316,8 +322,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     devices.addAll(devicesPanel);
     devices.addAll(devicesTemp);
 
-
-    List<SceneInfoEntity> scenesTemp =scenesAll;
+    List<SceneInfoEntity> scenesTemp = scenesAll.where((element) => element.roomId == roomID).toList();
     deleteScenes.clear();
     scenes.clear();
     for (SceneInfoEntity scene in scenesAll) {
@@ -326,6 +331,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     scenesTemp.removeWhere((i) => deleteScenes.contains(i));
+    Log.i('选房间$roomID后的${scenesAll.map((e) => e.roomId)}scenes$deleteDevices', scenesTemp);
     scenes.addAll(scenesTemp);
     setState(() {});
     settingMethodChannel.dismissLoading();
@@ -383,10 +389,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
   void _handlePageChange(int index) {
     setState(() {
       _currentIndex = index;
-      if(index==0){
-        selectRoomVisible=1;
-      }else{
-        selectRoomVisible=0;
+      if (index == 0 || index == 1) {
+        selectRoomVisible = 1;
+      } else {
+        selectRoomVisible = 0;
       }
     });
   }
@@ -551,9 +557,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
                     Opacity(
                       opacity: selectRoomVisible,
                       child: ui.DropdownMenu(
-                        disabled: selectRoomVisible==0?true:false,
+                        disabled: selectRoomVisible == 0 ? true : false,
                         menu: btnList.map(
-                              (item) {
+                          (item) {
                             return PopupMenuItem<String>(
                               padding: EdgeInsets.zero,
                               value: item['key'],
@@ -563,7 +569,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                     width: 130,
                                     height: 50,
                                     margin:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                        const EdgeInsets.symmetric(vertical: 4),
                                     decoration: BoxDecoration(
                                       color: const Color(0x26101010),
                                       borderRadius: BorderRadius.circular(12),
@@ -575,7 +581,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         child: Text(
                                           maxLines: 1,
                                           textAlign: TextAlign.center,
-                                          NameFormatter.formatNamePopRoom(item['text']!, 6),
+                                          NameFormatter.formatNamePopRoom(
+                                              item['text']!, 6),
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontFamily: "MideaType",
@@ -595,7 +602,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                           child: Text(
                             maxLines: 1,
                             textAlign: TextAlign.right,
-                            NameFormatter.formatName( getCurRoomConfig()["text"] ?? '卧室', 4),
+                            NameFormatter.formatName(
+                                getCurRoomConfig()["text"] ?? '卧室', 4),
                             style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 18.0,
@@ -617,7 +625,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                         },
                       ),
                     ),
-
                   ],
                 ),
                 Expanded(
@@ -646,7 +653,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                       child: Container(
                                         padding: const EdgeInsets.all(10),
                                         child: SmallDeviceCardWidget(
-                                          applianceCode: devices[index].applianceCode,
+                                          applianceCode:
+                                              devices[index].applianceCode,
                                           name: devices[index].name,
                                           icon: Image(
                                             image: AssetImage(_getIconUrl(
@@ -690,7 +698,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 );
                               },
                             ),
-                          if (devices.isEmpty&&NetUtils.getNetState()!=null)
+                          if (devices.isEmpty && NetUtils.getNetState() != null)
                             Container(
                                 child: Column(children: [
                               Image(
@@ -703,18 +711,22 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                 ),
                               )
                             ])),
-                          if(NetUtils.getNetState()==null)
+                          if (NetUtils.getNetState() == null)
                             Container(
                                 child: Column(children: [
-                                  const Image(width: 300,height:300,image: AssetImage('assets/newUI/net_error.png')),
-                                  Text(
-                                    '网络异常，请检查你的网络',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.4),
-                                      fontSize: 24,
-                                    ),
-                                  )
-                                ])),
+                              const Image(
+                                  width: 300,
+                                  height: 300,
+                                  image:
+                                      AssetImage('assets/newUI/net_error.png')),
+                              Text(
+                                '网络异常，请检查你的网络',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 24,
+                                ),
+                              )
+                            ])),
                           if (scenes.isNotEmpty)
                             GridView.builder(
                               gridDelegate:
@@ -755,28 +767,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                                         top: 0,
                                         child: GestureDetector(
                                           onTap: () {
-                                            resultData = Layout(
-                                              scenes[index].sceneId,
-                                              DeviceEntityTypeInP4.Scene,
-                                              CardType.Small,
-                                              -1,
-                                              [],
-                                              DataInputCard(
-                                                name: scenes[index].name,
-                                                applianceCode:
-                                                    scenes[index].sceneId,
-                                                roomName: '',
-                                                sceneId: scenes[index].sceneId,
-                                                icon: scenes[index].image,
-                                                isOnline: '',
-                                                disabled: true,
-                                                type: 'scene',
-                                                masterId: '',
-                                                modelNumber: '',
-                                                onlineStatus: '1',
-                                              ),
-                                            );
-                                            Navigator.pop(context, resultData);
+                                            _getSceneDialog(index, resultData);
                                           },
                                           child: Container(
                                             width: 32,
@@ -960,6 +951,45 @@ class _AddDevicePageState extends State<AddDevicePage> {
     );
   }
 
+  _getSceneDialog(index, Layout resultData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CardDialogScene(
+          name: scenes[index].name,
+          sceneId: scenes[index].sceneId,
+          icon: scenes[index].image
+        );
+      },
+    ).then(
+      (value) {
+        if (value == null) return;
+        resultData = Layout(
+          scenes[index].sceneId,
+          DeviceEntityTypeInP4.Scene,
+          value,
+          -1,
+          [],
+          DataInputCard(
+            name: scenes[index].name,
+            applianceCode:
+            scenes[index].sceneId,
+            roomName: '',
+            sceneId: scenes[index].sceneId,
+            icon: scenes[index].image,
+            isOnline: '',
+            disabled: true,
+            type: 'scene',
+            masterId: '',
+            modelNumber: '',
+            onlineStatus: '1',
+          ),
+        );
+        Navigator.pop(context, resultData);
+      },
+    );
+  }
+
   _getDeviceDialog(index, Layout resultData) {
     DeviceEntityTypeInP4 curDeviceEntity =
         DeviceEntityTypeInP4Handle.getDeviceEntityType(
@@ -980,7 +1010,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
       },
     ).then(
       (value) {
-        if(value == null) return;
+        if (value == null) return;
         resultData = Layout(
           devices[index].applianceCode,
           curDeviceEntity,
@@ -1037,5 +1067,3 @@ class AllowMultipleGestureRecognizer extends TapGestureRecognizer {
     acceptGesture(pointer);
   }
 }
-
-

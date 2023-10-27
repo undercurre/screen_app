@@ -74,6 +74,7 @@ class HomluxUserApi {
           data: {'houseId': houseId});
 
       if(res.isSuccess) {
+        Log.i('查询房间成功', res.result?.roomInfoWrap?.map((e) => e.roomName));
         saveCache(res, res.result == null);
       }
       return res;

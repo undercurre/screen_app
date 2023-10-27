@@ -25,6 +25,7 @@ import '../../../widgets/card/main/big_scene_panel_three.dart';
 import '../../../widgets/card/main/middle_485Air_device.dart';
 import '../../../widgets/card/main/middle_485CAC_device.dart';
 import '../../../widgets/card/main/middle_485Floor_device.dart';
+import '../../../widgets/card/main/middle_scene.dart';
 import '../../../widgets/card/main/middle_scene_panel.dart';
 import '../../../widgets/card/main/small_485Air_device.dart';
 import '../../../widgets/card/main/small_485CAC_device.dart';
@@ -563,6 +564,15 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disabled: params.disabled ?? false,
       );
     },
+    CardType.Middle: (params) {
+      return MiddleSceneCardWidget(
+        name: params.name,
+        icon: params.icon ?? '1',
+        sceneId: params.sceneId ?? '0000',
+        discriminative: params.discriminative ?? false,
+        disabled: params.disabled ?? false,
+      );
+    }
   },
   // 本地线控器
   DeviceEntityTypeInP4.LocalPanel1: {

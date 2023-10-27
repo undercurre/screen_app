@@ -148,6 +148,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
     sceneModel.getSceneList();
+    sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
@@ -474,10 +475,19 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     autoDeleleLayout(context);
   }
 
+  void homluxRoomUpdate(HomluxChangeRoomNameEven arg) {
+    final sceneModel = context.read<SceneListModel>();
+    sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList();
   }
+
+
 
   // 推送启动中枢
   void _startPushListen() {
@@ -488,6 +498,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
@@ -502,6 +513,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOff<HomluxChangeRoomNameEven>(homluxRoomUpdate);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
     }

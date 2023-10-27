@@ -103,6 +103,10 @@ SceneInfoEntity $SceneInfoEntityFromJson(Map<String, dynamic> json) {
 	if (name != null) {
 		sceneInfoEntity.name = name;
 	}
+	final dynamic roomId = jsonConvert.convert<dynamic>(json['roomId']);
+	if (name != null) {
+		sceneInfoEntity.roomId = roomId;
+	}
 	return sceneInfoEntity;
 }
 
@@ -133,5 +137,6 @@ Map<String, dynamic> $SceneInfoEntityToJson(SceneInfoEntity entity) {
 	data['sceneType'] = entity.sceneType;
 	data['createTime'] = entity.createTime;
 	data['name'] = entity.name;
+	data['roomId'] = entity.roomId;
 	return data;
 }

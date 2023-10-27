@@ -7,14 +7,14 @@ part of 'meiju_scene_list_entity.dart';
 // **************************************************************************
 
 MeiJuSceneListEntity _$MeiJuSceneListEntityFromJson(Map<String, dynamic> json) {
-      var entity = MeiJuSceneListEntity();
-      entity.list = meijuJsonConvert.fromJsonAsT<List<MeiJuSceneEntity>>(json['list']);
-      return entity;
+  var entity = MeiJuSceneListEntity();
+  entity.list =
+      meijuJsonConvert.fromJsonAsT<List<MeiJuSceneEntity>>(json['list']);
+  return entity;
 }
 
 Map<String, dynamic> _$MeiJuSceneListEntityToJson(
         MeiJuSceneListEntity instance) =>
-
     <String, dynamic>{
       'list': instance.list,
     };
@@ -23,6 +23,7 @@ MeiJuSceneEntity _$MeiJuSceneEntityFromJson(Map<String, dynamic> json) =>
     MeiJuSceneEntity(
       sceneId: json['sceneId'].toString() as String?,
       name: json['name'] as String?,
+      roomId: json['roomId'] as String?,
       image: json['image'] as String?,
       sceneType: json['sceneType'] as int?,
       sceneStatus: json['sceneStatus'] as int?,
@@ -50,6 +51,7 @@ Map<String, dynamic> _$MeiJuSceneEntityToJson(MeiJuSceneEntity instance) =>
     <String, dynamic>{
       'sceneId': instance.sceneId,
       'name': instance.name,
+      'roomId': instance.roomId,
       'image': instance.image,
       'sceneType': instance.sceneType,
       'sceneStatus': instance.sceneStatus,

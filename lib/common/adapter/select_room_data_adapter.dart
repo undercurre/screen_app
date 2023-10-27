@@ -25,7 +25,7 @@ class SelectRoomItem {
   HomluxRoomInfo? _homluxData;
   MeiJuRoomEntity? _meijuData;
 
-
+  SelectRoomItem();
 
   SelectRoomItem.fromMeiJu(MeiJuRoomEntity data)
       : name = data.name,
