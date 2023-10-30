@@ -15,6 +15,7 @@ import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
+import '../../../common/adapter/knob_panel_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/system.dart';
 import '../../../widgets/card/edit.dart';
@@ -31,6 +32,7 @@ import '../../../widgets/card/main/small_485Air_device.dart';
 import '../../../widgets/card/main/small_485CAC_device.dart';
 import '../../../widgets/card/main/small_485Floor_device.dart';
 import '../../../widgets/card/main/small_device.dart';
+import '../../../widgets/card/main/small_knob_panel.dart';
 import '../../../widgets/card/main/small_panel.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/card/other/clock.dart';
@@ -300,7 +302,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   },
   // homlux面板
   DeviceEntityTypeInP4.Zigbee_homluxKonbDimmingPanel: {
-    CardType.Small: (params) => SmallScenePanelCardWidget(
+    CardType.Small: (params) => SmallKnobPanelCardWidget(
       discriminative: params.discriminative ?? false,
       applianceCode: params.applianceCode,
       name: params.name,
@@ -312,7 +314,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
       disabled: params.disabled!,
       adapterGenerateFunction: (id) {
         return MideaDataAdapter.getOrCreateAdapter(id, (id) =>
-            ScenePanelDataAdapter.create(
+            KnobPanelDataAdapter.create(
               params.applianceCode,
               params.masterId ?? '',
               params.modelNumber,
