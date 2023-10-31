@@ -15,7 +15,7 @@
 		"deviceProfile": "eim/WNYMRzYQi3qB465A6W/1LRWoimT6cE6blut0bzHYoJsXyH5RfITdm5qJlpyarJqcjZqL3cXdxsjNmZ7KyM2ZnJ7Ny5mZncbHysqaz8aZy5zMyMebnZrd092ek5OQiN3FztPdj42Qm4qci7ab3cXdzcjHysjKz8bM3dPdm5qJlpyasZ6Smt3F3ZnNzJmdns6em8bMyMuby8jGmZzHnprPz5qbm87Oxsqe3dPdjJyQj5rdxaTdnpOT3aKC"
 	},
 	"front": {
-		"sspeBinPath": "/sdcard/res/sspe_aec_uda_wkp_30mm_ch4_mic2_ref2_v2.0.0.125_gain14.bin",
+		"sspeBinPath": "/sdcard/res/sspe_aec_uda_wkp_30mm_ch4_2mic_1ref_release-v2.0.0.130.bin",
 		"wakeupBinPath": "/sdcard/res/wkp_aihome_mzgd_20221202_pre.bin",
 		"env":"words=xiao mei xiao mei,xiu mei xiu mei,xiao_mei_xiao_mei,xiu_mei_xiu_mei,xiao mei xiu mei,xiu mei xiao mei;thresh=0.60,0.45,0.75,0.4,0.54,0.66;thresh_high=10,10,0.9,0.5,10,10;thresh_low=0.3,0.25,0.01,0.01,0.01,0.01;custom=0,0,1,1,0,0;net=1,1,1,1,1,1;",
 		"rollBack": 600
