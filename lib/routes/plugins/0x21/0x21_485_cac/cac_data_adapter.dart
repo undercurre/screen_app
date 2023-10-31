@@ -3,6 +3,7 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
+import '../../../../common/global.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -367,6 +368,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
               applianceCode, masterId, (json) => CAC485Event.fromJson(json));
       nodeId = nodeInfo.nodeId;
       localDeviceCode = nodeId.split('-')[1];
+      logger.i("拿到的nodeId:$nodeId----拿到的nodeInfo:$nodeInfo");
       LocalStorage.setItem(applianceCode, nodeId);
       if (nodeId.split('-')[0] == System.macAddress) {
         isLocalDevice = true;
