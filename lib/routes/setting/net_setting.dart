@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../states/weather_change_notifier.dart';
 import '../../widgets/business/net_connect.dart';
 
 class NetSettingPage extends StatelessWidget {
@@ -8,6 +10,7 @@ class NetSettingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final weatherModel = Provider.of<WeatherModel>(context);
     return Scaffold(
       body: Center(
           child: Container(
@@ -33,6 +36,7 @@ class NetSettingPage extends StatelessWidget {
                     children: [
                       IconButton(
                         onPressed: () {
+                          weatherModel.fetchWeatherData();
                           Navigator.pop(context);
                         },
                         iconSize: 64,
@@ -50,6 +54,7 @@ class NetSettingPage extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {
+                          weatherModel.fetchWeatherData();
                           Navigator.popUntil(context, (route) => route.settings.name == 'Home');
                         },
                         iconSize: 64,
