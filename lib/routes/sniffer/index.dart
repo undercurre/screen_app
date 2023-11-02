@@ -164,10 +164,11 @@ class SnifferViewModel {
       debugPrint('zigbeeList: $result');
       zigbeeList.addAll(
           result.where((element) => !zigbeeList.contains(element)).toList());
+
       combineList.addAll(zigbeeList
           .where((element1) =>
               !combineList.any((element2) => element2.data == element1))
-          .map((e) => SelectDeviceModel.create(e)));
+          .map((e) => SelectDeviceModel.create(e,true)));
       notifyStateChange(() {});
     });
 
