@@ -8,6 +8,9 @@ import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
 import '../../common/setting.dart';
+import '../../main.dart';
+import '../../states/weather_change_notifier.dart';
+import '../../widgets/util/net_utils.dart';
 import './device/index.dart';
 import '../../channel/index.dart';
 import '../../common/adapter/ai_data_adapter.dart';
@@ -32,7 +35,7 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind {
+class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind , WidgetNetState{
   late double po;
   var children = <Widget>[];
 
@@ -180,5 +183,15 @@ class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleSt
   void didChangeDependencies() {
     super.didChangeDependencies();
     debugPrint("didChangeDependencies");
+  }
+
+  @override
+  void netChange(MZNetState? state) {
+    if(state!=null){
+      final weatherModel = Provider.of<WeatherModel>(navigatorKey.currentContext!);
+      weatherModel.fetchWeatherData();
+    }
+
+    // TODO: implement netChange
   }
 }
