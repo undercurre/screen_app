@@ -1,7 +1,6 @@
 package com.midea.light.device.explore.controller.control485.controller;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.midea.light.RxBus;
@@ -285,8 +284,9 @@ public class AirConditionController implements Data485Observer {
         sb.append(device.getInSideAddress());
         sb.append(" ");
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
+        ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
-        Log.e("sky","单属性控制发出去的指令:"+sb);
+//        Log.e("sky","单属性控制发出去的指令:"+sb);
 
     }
 
@@ -325,7 +325,7 @@ public class AirConditionController implements Data485Observer {
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
         ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
-        Log.e("sky","多属性控制发出去的指令:"+sb);
+//        Log.e("sky","多属性控制发出去的指令:"+sb);
     }
 
 }
