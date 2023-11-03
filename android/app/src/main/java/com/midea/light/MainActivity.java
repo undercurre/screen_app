@@ -160,7 +160,6 @@ public class MainActivity extends FlutterActivity {
         RxBus.getInstance().toObservableOnMain(this, PLCControlEvent.class)
                 .subscribe(PLCControlEvent -> {
                     Log.e("sky", "接收到下发控制请求" + new Gson().toJson(PLCControlEvent));
-//                    sleep(1000);
                     if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.cac")) {
                                 for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
                                     String deviceAddr = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
