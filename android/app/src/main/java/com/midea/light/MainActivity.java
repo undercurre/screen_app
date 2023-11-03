@@ -26,13 +26,11 @@ import android.view.KeyEvent;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
-import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.light.ai.music.MusicManager;
 import com.midea.light.ai.utils.FileUtils;
 import com.midea.light.channel.Channels;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
-import com.midea.light.common.utils.NetUtil;
 import com.midea.light.device.explore.controller.control485.ControlManager;
 import com.midea.light.device.explore.controller.control485.controller.AirConditionController;
 import com.midea.light.device.explore.controller.control485.controller.FloorHotController;
@@ -136,7 +134,7 @@ public class MainActivity extends FlutterActivity {
         new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(10000);
+                    sleep(10000);
                     ControlManager.getInstance().initial();
                     ControlManager.getInstance().regestOber();
                     ControlManager.getInstance().startFresh();
@@ -162,93 +160,114 @@ public class MainActivity extends FlutterActivity {
         RxBus.getInstance().toObservableOnMain(this, PLCControlEvent.class)
                 .subscribe(PLCControlEvent -> {
                     Log.e("sky", "接收到下发控制请求" + new Gson().toJson(PLCControlEvent));
+//                    sleep(1000);
                     if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.cac")) {
-                        for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
-                            String deviceAddr = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
-                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
-                                    AirConditionController.getInstance().close(AirConditionController.getInstance().AirConditionList.get(i));
-                                } else {
-                                    AirConditionController.getInstance().open(AirConditionController.getInstance().AirConditionList.get(i));
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
-                                    String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
-                                    if (speed.length() == 1) {
-                                        speed = "0" + speed;
-                                    }
-                                    AirConditionController.getInstance().setWindSpeedLevl(AirConditionController.getInstance().AirConditionList.get(i), speed);
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
-                                    String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
-                                    if (temp.length() == 1) {
-                                        temp = "0" + temp;
-                                    }
-                                    AirConditionController.getInstance().setTemp(AirConditionController.getInstance().AirConditionList.get(i), temp);
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
-                                    String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
-                                    if (modele.length() == 1) {
-                                        modele = "0" + modele;
-                                    }
-                                    AirConditionController.getInstance().setModel(AirConditionController.getInstance().AirConditionList.get(i), modele);
-                                }
-                            }
-                        }
-
-                    } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.air")) {
-                        for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
-                            String deviceAddr = FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
-                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
-                                    FreshAirController.getInstance().close(FreshAirController.getInstance().FreshAirList.get(i));
-                                } else {
-                                    FreshAirController.getInstance().open(FreshAirController.getInstance().FreshAirList.get(i));
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
-                                    String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
-                                    if (speed.length() == 1) {
-                                        speed = "0" + speed;
-                                    }
-                                    FreshAirController.getInstance().setWindSpeedLevl(FreshAirController.getInstance().FreshAirList.get(i), speed);
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
-                                    String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
-                                    if (modele.length() == 1) {
-                                        modele = "0" + modele;
-                                    }
-                                    FreshAirController.getInstance().setModel(FreshAirController.getInstance().FreshAirList.get(i), modele);
-                                }
-                            }
-                        }
-
-                    } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.heat.")) {
-                        for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
-                            String deviceAddr = FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
-                            if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
-                                    FloorHotController.getInstance().close(FloorHotController.getInstance().FloorHotList.get(i));
-                                } else {
-                                    FloorHotController.getInstance().open(FloorHotController.getInstance().FloorHotList.get(i));
-                                }
-                                if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
-                                    if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() <= 90 && PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() >= 5) {
-                                        String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
-                                        if (temp.length() == 1) {
-                                            temp = "0" + temp;
+                                for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
+                                    String deviceAddr = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                                    if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                        String onOff=null,temperture=null,model=null,winSpeed=null;
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                            onOff="00";
+                                        } else if(PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 1){
+                                            onOff="01";
                                         }
-                                        FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i), temp);
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
+                                            String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
+                                            if (speed.length() == 1) {
+                                                speed = "0" + speed;
+                                            }
+                                            winSpeed=speed;
+                                        }
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
+                                            String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
+                                            if (temp.length() == 1) {
+                                                temp = "0" + temp;
+                                            }
+                                            temperture=temp;
+                                        }
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
+                                            String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
+                                            if (modele.length() == 1) {
+                                                modele = "0" + modele;
+                                            }
+                                            model=modele;
+                                        }
+                                        if(onOff!=null&&temperture==null&&model==null&&winSpeed==null){
+                                            if(onOff.equals("00")){
+                                                AirConditionController.getInstance().close(AirConditionController.getInstance().AirConditionList.get(i));
+                                            }else if(onOff.equals("01")){
+                                                AirConditionController.getInstance().open(AirConditionController.getInstance().AirConditionList.get(i));
+                                            }
+                                        }else if(temperture!=null&&onOff==null&&model==null&&winSpeed==null){
+                                            AirConditionController.getInstance().setTemp(AirConditionController.getInstance().AirConditionList.get(i), temperture);
+                                        }else if(model!=null&&onOff==null&&temperture==null&&winSpeed==null){
+                                            AirConditionController.getInstance().setModel(AirConditionController.getInstance().AirConditionList.get(i), model);
+                                        }else if(winSpeed!=null&&onOff==null&&temperture==null&&model==null){
+                                            AirConditionController.getInstance().setWindSpeedLevl(AirConditionController.getInstance().AirConditionList.get(i), winSpeed);
+                                        }else{
+                                            AirConditionController.getInstance().controlOneDeviceAllAttr(AirConditionController.getInstance().AirConditionList.get(i),onOff,temperture,winSpeed,model);
+                                        }
                                     }
                                 }
+                            } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.air")) {
+                                for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+                                    String deviceAddr = FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                                    if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                            FreshAirController.getInstance().close(FreshAirController.getInstance().FreshAirList.get(i));
+
+                                        } else if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 1) {
+                                            FreshAirController.getInstance().open(FreshAirController.getInstance().FreshAirList.get(i));
+
+                                        }
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed() != null) {
+                                            String speed = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getWindSpeed());
+                                            if (speed.length() == 1) {
+                                                speed = "0" + speed;
+                                            }
+                                            FreshAirController.getInstance().setWindSpeedLevl(FreshAirController.getInstance().FreshAirList.get(i), speed);
+
+                                        }
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode() != null) {
+                                            String modele = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getOperationMode());
+                                            if (modele.length() == 1) {
+                                                modele = "0" + modele;
+                                            }
+                                            FreshAirController.getInstance().setModel(FreshAirController.getInstance().FreshAirList.get(i), modele);
+
+                                        }
+                                    }
+                                }
+
+                            } else if (PLCControlEvent.getPLCControlDevice().getModelId().contains("zhonghong.heat.")) {
+                                for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+                                    String deviceAddr = FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                                    if (deviceAddr.equals(PLCControlEvent.getPLCControlDevice().getAddr())) {
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 0) {
+                                            FloorHotController.getInstance().close(FloorHotController.getInstance().FloorHotList.get(i));
+
+                                        } else if (PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() != null && PLCControlEvent.getPLCControlDevice().getEvent().getOnOff() == 1) {
+                                            FloorHotController.getInstance().open(FloorHotController.getInstance().FloorHotList.get(i));
+
+                                        }
+                                        if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() != null) {
+                                            if (PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() <= 90 && PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp() >= 5) {
+                                                String temp = Integer.toHexString(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp());
+                                                if (temp.length() == 1) {
+                                                    temp = "0" + temp;
+                                                }
+                                                FloorHotController.getInstance().setTemp(FloorHotController.getInstance().FloorHotList.get(i), temp);
+                                            }
+                                        }
 //                               if(PLCControlEvent.getPLCControlDevice().getEvent().getTargetTemp()!=null&&null!=PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()&&PLCControlEvent.getPLCControlDevice().getEvent().getFrostProtection()==0){
 //                                   FloorHotController.getInstance().setFrostProtectionOff(FloorHotController.getInstance().FloorHotList.get(i));
 //                               }else{
 //                                   FloorHotController.getInstance().setFrostProtectionOn(FloorHotController.getInstance().FloorHotList.get(i));
 //                               }
+                                    }
+                                }
                             }
-                        }
 
-
-                    }
                 }, throwable -> Log.e("sky", "rxBus错误", throwable));
         //485空调数据有变化接收到数据后推送到flutter层
         RxBus.getInstance().toObservableOnMain(this, AirConditionChangeEvent.class)
@@ -658,7 +677,7 @@ public class MainActivity extends FlutterActivity {
                             new Thread() {
                                 public void run() {
                                     try {
-                                        Thread.sleep(1000);
+                                        sleep(1000);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -703,7 +722,7 @@ public class MainActivity extends FlutterActivity {
                     new Thread() {
                         public void run() {
                             try {
-                                Thread.sleep(1000);
+                                sleep(1000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
