@@ -1,7 +1,8 @@
 package com.midea.light.homeos;
 
 /**
- * 增加请求超时机制
+ * 对controller做第二次封装，处理心跳包 和 设置消息监听
+ *
  */
 public class HomeOsController extends controller {
 
