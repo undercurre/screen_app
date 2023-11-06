@@ -133,6 +133,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                     System.familyInfo?.familyId ?? "";
                 Setting.instant().isAllowChangePlatform = false;
                 gatewayChannel.resetRelayModel();
+                logger.i("绑定网关");
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');

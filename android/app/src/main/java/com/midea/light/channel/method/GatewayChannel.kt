@@ -128,6 +128,10 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
                 RelayRepository.getInstance().gP1Model=0
                 GatewayConfig.relayControl.controlRelay1Open(false)
                 GatewayConfig.relayControl.controlRelay2Open(false)
+                val relay1= GatewayConfig.relayControl.isRelay1Open
+                MainThread.run { mMethodChannel.invokeMethod("relay1Report", relay1) }
+                val relay2= GatewayConfig.relayControl.isRelay2Open
+                MainThread.run { mMethodChannel.invokeMethod("relay2Report", relay2) }
                 result.safeSuccess(true)
             }
             "checkGatewayPlatform" -> {

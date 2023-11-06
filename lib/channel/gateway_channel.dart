@@ -52,7 +52,7 @@ class GatewayChannel extends AbstractChannel {
 
   /// 复位继电器模式
   Future<bool> resetRelayModel() async {
-    return await methodChannel.invokeMethod("resetRelayModel") as bool;
+    return await methodChannel.invokeMethod("resetRelayModel");
   }
 
 
