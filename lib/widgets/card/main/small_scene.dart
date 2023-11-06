@@ -129,8 +129,8 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                         maxHeight: 56,
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                        crossAxisAlignment:  CrossAxisAlignment.start,
                         children: [
                           Text(
                             NameFormatter.formLimitString(sceneName, 4, 1, 2),
@@ -142,7 +142,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                          Text(
+                          if (System.inHomluxPlatform()) Text(
                             NameFormatter.formLimitString(
                                 sceneRoomName, 4, 1, 2),
                             style: TextStyle(

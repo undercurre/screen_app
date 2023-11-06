@@ -253,7 +253,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   void selectRoom(String roomID) async {
-    Log.i('选房间开始时', scenesAll.map((e) => e.roomId));
+    Log.i('选房间开始时', scenesAll.map((e) => e.name));
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
     } else {
@@ -321,8 +321,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
     devices.addAll(devicesLightGroup);
     devices.addAll(devicesPanel);
     devices.addAll(devicesTemp);
-
-    List<SceneInfoEntity> scenesTemp = scenesAll.where((element) => element.roomId == roomID).toList();
+    List<SceneInfoEntity> scenesTemp = scenesAll;
+    if (System.inHomluxPlatform()) {
+      scenesTemp = scenesAll.where((element) => element.roomId == roomID).toList();
+    }
     deleteScenes.clear();
     scenes.clear();
     for (SceneInfoEntity scene in scenesAll) {
@@ -389,10 +391,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
   void _handlePageChange(int index) {
     setState(() {
       _currentIndex = index;
-      if (index == 0 || index == 1) {
-        selectRoomVisible = 1;
+      if (System.inHomluxPlatform()) {
+        if (index == 0 || index == 1) {
+          selectRoomVisible = 1;
+        } else {
+          selectRoomVisible = 0;
+        }
       } else {
-        selectRoomVisible = 0;
+        if (index == 0) {
+          selectRoomVisible = 1;
+        } else {
+          selectRoomVisible = 0;
+        }
       }
     });
   }
