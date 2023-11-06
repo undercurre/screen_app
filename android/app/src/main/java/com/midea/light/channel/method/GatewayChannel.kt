@@ -123,6 +123,13 @@ class GatewayChannel(override val context: Context) : AbsMZMethodChannel(context
                 GateWayUtils.resetGateway()
                 result.safeSuccess(true)
             }
+            "resetRelayModel" -> {
+                RelayRepository.getInstance().gP0Model=0
+                RelayRepository.getInstance().gP1Model=0
+                GatewayConfig.relayControl.controlRelay1Open(false)
+                GatewayConfig.relayControl.controlRelay2Open(false)
+                result.safeSuccess(true)
+            }
             "checkGatewayPlatform" -> {
                 // 检查当前运行的环境
                 //0NONE 1美居 2美的照明

@@ -50,6 +50,11 @@ class GatewayChannel extends AbstractChannel {
     return await methodChannel.invokeMethod('setMeijuPlatFormFlag');
   }
 
+  /// 复位继电器模式
+  Future<bool> resetRelayModel() async {
+    return await methodChannel.invokeMethod("resetRelayModel") as bool;
+  }
+
 
   @override
   Future<dynamic> onMethodCallHandler(MethodCall call) async {
