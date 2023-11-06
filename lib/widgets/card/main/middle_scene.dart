@@ -137,7 +137,7 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
                         maxHeight: 68,
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -150,7 +150,7 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                          Text(
+                          if (System.inHomluxPlatform()) Text(
                             NameFormatter.formLimitString(
                                 sceneRoomName, 4, 1, 2),
                             style: TextStyle(
