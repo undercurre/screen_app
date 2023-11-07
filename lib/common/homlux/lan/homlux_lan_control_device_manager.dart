@@ -122,6 +122,15 @@ class HomluxLanControlDeviceManager {
       var data = json['data'];
 
       /// 设备状态控制
+      /// {
+      //     "data":{
+      //         "errorCode":"fail",
+      //         "devId":"E0798DFFFECEC4A0"
+      //     },
+      //     "topic":"/local/subdeviceControl/ack",
+      //     "reqId":"8ae04988-617e-409f-b904-5c2198079c45",
+      //     "ts":"20231107095706"
+      // }
       if('/local/subdeviceControl/ack' == topic) {
         var hangUpTask = findTask(reqId!);
         if(hangUpTask != null) {
