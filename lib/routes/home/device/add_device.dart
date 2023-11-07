@@ -103,6 +103,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   initCache() async {
+    final stopwatch1 = Stopwatch()..start(); // 开始计时
     try {
       if (System.inMeiJuPlatform()) {
         ///需要保留上次选的房间的话就打开
@@ -121,46 +122,61 @@ class _AddDevicePageState extends State<AddDevicePage> {
         }
       }
 
-      final sceneListModel =
-          Provider.of<SceneListModel>(context, listen: false);
+      // final sceneListModel =
+      //     Provider.of<SceneListModel>(context, listen: false);
       final deviceListModel =
           Provider.of<DeviceInfoListModel>(context, listen: false);
       List<DeviceEntity> deviceRes = deviceListModel.getCacheDeviceList();
-      List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
-      if (deviceRes.length > 8) {
-        devicesAll = deviceRes
-            .sublist(0, 8)
-            .where((e) =>
-                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                    e.type, e.modelNumber) !=
-                DeviceEntityTypeInP4.Default)
-            .toList();
-      } else {
-        devicesAll = deviceRes
-            .where((e) =>
-                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                    e.type, e.modelNumber) !=
-                DeviceEntityTypeInP4.Default)
-            .toList();
-      }
-      if (sceneRes.length > 8) {
-        scenesAll = sceneRes.sublist(0, 8);
-      } else {
-        scenesAll = sceneRes;
-      }
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (sceneRes.length > 8) {
-        scenesAll.addAll(sceneRes.sublist(8));
-      }
-      if (deviceRes.length > 8) {
-        devicesAll.addAll(deviceRes
-            .sublist(8)
-            .where((e) =>
-                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                    e.type, e.modelNumber) !=
-                DeviceEntityTypeInP4.Default)
-            .toList());
-      }
+      devicesAll = deviceRes
+          .where((e) =>
+              DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                  e.type, e.modelNumber) !=
+              DeviceEntityTypeInP4.Default)
+          .toList();
+      // List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
+      // if (deviceRes
+      //         .where((element) => element.roomId == roomID)
+      //         .toList()
+      //         .length >
+      //     8) {
+      //   devicesAll = deviceRes
+      //       .where((element) => element.roomId == roomID)
+      //       .toList()
+      //       .where((e) =>
+      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
+      //               e.type, e.modelNumber) !=
+      //           DeviceEntityTypeInP4.Default)
+      //       .toList()
+      //       .sublist(0, 8);
+      // } else {
+      //   devicesAll = deviceRes
+      //       .where((element) => element.roomId == roomID)
+      //       .toList()
+      //       .where((e) =>
+      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
+      //               e.type, e.modelNumber) !=
+      //           DeviceEntityTypeInP4.Default)
+      //       .toList();
+      // }
+      // if (sceneRes.length > 8) {
+      //   scenesAll = sceneRes.sublist(0, 8);
+      // } else {
+      //   scenesAll = sceneRes;
+      // }
+      // await Future.delayed(const Duration(milliseconds: 500));
+      // if (sceneRes.length > 8) {
+      //   scenesAll.addAll(sceneRes.sublist(8));
+      // }
+      // if (deviceRes.length > 8) {
+      //   devicesAll.addAll(deviceRes
+      //       .sublist(8)
+      //       .where((e) =>
+      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
+      //               e.type, e.modelNumber) !=
+      //           DeviceEntityTypeInP4.Default)
+      //       .toList());
+      // }
+      selectRoom(roomID);
     } catch (e) {
       Log.i('设备、场景数据加载失败');
     }
@@ -177,16 +193,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
             .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
                 element.type.toString())))
         .toList();
-
+    stopwatch1.stop(); // 结束第一段时间
+    Log.i('Time for segment 1: ${stopwatch1.elapsed.inMilliseconds}ms');
     initData();
   }
 
   initData() async {
+    final stopwatch2 = Stopwatch()..start(); // 开始计时
     final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
-    List<DeviceEntity> deviceCache = deviceListModel.getCacheDeviceList();
-    List<SceneInfoEntity> sceneCache = sceneListModel.getCacheSceneList();
+    List<DeviceEntity> deviceCache = [...devicesAll];
+    List<SceneInfoEntity> sceneCache = [];
     Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
     Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
     sceneListModel.roomDataAd.queryRoomList(System.familyInfo!);
@@ -195,7 +213,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<SceneInfoEntity> sceneRes = [];
 
     try {
+      final stopwatch2half5 = Stopwatch()..start(); // 开始计时
       await Future.wait([deviceFuture, sceneFuture]);
+      stopwatch2half5.stop(); // 结束第二段时间
+      Log.i(
+          'Time for segment 2half5: ${stopwatch2half5.elapsed.inMilliseconds}ms');
       deviceRes = await deviceFuture;
       sceneRes = await sceneFuture;
       Log.i("Device Results1: $deviceRes");
@@ -250,16 +272,21 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     selectRoom(roomID);
+    stopwatch2.stop(); // 结束第二段时间
+    Log.i('Time for segment 2: ${stopwatch2.elapsed.inMilliseconds}ms');
   }
 
   void selectRoom(String roomID) async {
+    final stopwatch3 = Stopwatch()..start(); // 开始计时
     Log.i('选房间开始时', scenesAll.map((e) => e.name));
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
     } else {
       HomluxGlobal.selectRoomId = roomID;
     }
-    List<DeviceEntity> devicesTemp = devicesAll.where((element) => element.roomId == roomID).toList();
+    List<DeviceEntity> devicesTemp =
+        devicesAll.where((element) => element.roomId == roomID).toList();
+    Log.i('添加设备——筛选', devicesAll.map((e) => e.name));
     deleteDevices.clear();
     for (DeviceEntity device in devicesTemp) {
       if (layoutModel.hasLayoutWithDeviceId(device.applianceCode)) {
@@ -323,7 +350,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     devices.addAll(devicesTemp);
     List<SceneInfoEntity> scenesTemp = scenesAll;
     if (System.inHomluxPlatform()) {
-      scenesTemp = scenesAll.where((element) => element.roomId == roomID).toList();
+      scenesTemp =
+          scenesAll.where((element) => element.roomId == roomID).toList();
     }
     deleteScenes.clear();
     scenes.clear();
@@ -333,11 +361,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     scenesTemp.removeWhere((i) => deleteScenes.contains(i));
-    Log.i('选房间$roomID后的${scenesAll.map((e) => e.roomId)}scenes$deleteDevices', scenesTemp);
+    Log.i('选房间$roomID后的${scenesAll.map((e) => e.roomId)}scenes$deleteDevices',
+        scenesTemp);
     scenes.addAll(scenesTemp);
     setState(() {});
     settingMethodChannel.dismissLoading();
     _timer.cancel();
+    stopwatch3.stop(); // 结束第二段时间
+    Log.i('Time for segment 3: ${stopwatch3.elapsed.inMilliseconds}ms');
   }
 
   bool isLightGroup(String? type, String modelNum) {
@@ -966,10 +997,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
       context: context,
       builder: (BuildContext context) {
         return CardDialogScene(
-          name: scenes[index].name,
-          sceneId: scenes[index].sceneId,
-          icon: scenes[index].image
-        );
+            name: scenes[index].name,
+            sceneId: scenes[index].sceneId,
+            icon: scenes[index].image);
       },
     ).then(
       (value) {
@@ -982,8 +1012,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
           [],
           DataInputCard(
             name: scenes[index].name,
-            applianceCode:
-            scenes[index].sceneId,
+            applianceCode: scenes[index].sceneId,
             roomName: '',
             sceneId: scenes[index].sceneId,
             icon: scenes[index].image,

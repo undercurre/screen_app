@@ -7,6 +7,7 @@ import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
+import '../../channel/index.dart';
 import '../../common/homlux/api/homlux_user_api.dart';
 import '../../common/homlux/push/event/homlux_push_event.dart';
 import '../../common/logcat_helper.dart';
@@ -27,6 +28,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
 
   void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
     if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
+      gatewayChannel.resetRelayModel();
       System.logout('接收到删除网关的推送, 网关设备code = ${event.deviceId}');
     }
   }
