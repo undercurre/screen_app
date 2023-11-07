@@ -127,6 +127,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 ?.bindGateway(System.familyInfo!, System.roomInfo!)
                 .then((isSuccess) {
               if (isSuccess) {
+                prepare2goHome();
                 Setting.instant().lastBindHomeName =
                     System.familyInfo?.familyName ?? "";
                 Setting.instant().lastBindHomeId =
@@ -134,7 +135,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 Setting.instant().isAllowChangePlatform = false;
                 gatewayChannel.resetRelayModel();
                 logger.i("绑定网关");
-                prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
                 Navigator.pop(context);
