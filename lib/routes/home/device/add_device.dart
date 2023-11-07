@@ -103,6 +103,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
   }
 
   initCache() async {
+    final stopwatch1 = Stopwatch()..start(); // 开始计时
     try {
       if (System.inMeiJuPlatform()) {
         ///需要保留上次选的房间的话就打开
@@ -161,6 +162,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                 DeviceEntityTypeInP4.Default)
             .toList());
       }
+      selectRoom(roomID);
     } catch (e) {
       Log.i('设备、场景数据加载失败');
     }
@@ -177,11 +179,13 @@ class _AddDevicePageState extends State<AddDevicePage> {
             .contains(DeviceEntityTypeInP4Handle.extractLowercaseEntityType(
                 element.type.toString())))
         .toList();
-
+    stopwatch1.stop(); // 结束第一段时间
+    Log.i('Time for segment 1: ${stopwatch1.elapsed.inMilliseconds}ms');
     initData();
   }
 
   initData() async {
+    final stopwatch2 = Stopwatch()..start(); // 开始计时
     final sceneListModel = Provider.of<SceneListModel>(context, listen: false);
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
@@ -195,7 +199,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
     List<SceneInfoEntity> sceneRes = [];
 
     try {
+      final stopwatch2half5 = Stopwatch()..start(); // 开始计时
       await Future.wait([deviceFuture, sceneFuture]);
+      stopwatch2half5.stop(); // 结束第二段时间
+      Log.i('Time for segment 2half5: ${stopwatch2half5.elapsed.inMilliseconds}ms');
       deviceRes = await deviceFuture;
       sceneRes = await sceneFuture;
       Log.i("Device Results1: $deviceRes");
@@ -250,9 +257,12 @@ class _AddDevicePageState extends State<AddDevicePage> {
       }
     }
     selectRoom(roomID);
+    stopwatch2.stop(); // 结束第二段时间
+    Log.i('Time for segment 2: ${stopwatch2.elapsed.inMilliseconds}ms');
   }
 
   void selectRoom(String roomID) async {
+    final stopwatch3 = Stopwatch()..start(); // 开始计时
     Log.i('选房间开始时', scenesAll.map((e) => e.name));
     if (System.inMeiJuPlatform()) {
       MeiJuGlobal.selectRoomId = roomID;
@@ -338,6 +348,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
     setState(() {});
     settingMethodChannel.dismissLoading();
     _timer.cancel();
+    stopwatch3.stop(); // 结束第二段时间
+    Log.i('Time for segment 3: ${stopwatch3.elapsed.inMilliseconds}ms');
   }
 
   bool isLightGroup(String? type, String modelNum) {
