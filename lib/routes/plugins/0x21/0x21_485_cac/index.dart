@@ -354,7 +354,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: OnOff == '0',
+                                      disabled: OnOff == '0'||mode=='4',
                                       min: 16,
                                       max: 30,
                                       step: 1,
@@ -365,7 +365,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: GearCard(
-                                      disabled: OnOff == '0',
+                                      disabled: OnOff == '0'||mode=='2',
                                       value: setWinSpeed(windSpeed),
                                       maxGear: 3,
                                       minGear: 1,
