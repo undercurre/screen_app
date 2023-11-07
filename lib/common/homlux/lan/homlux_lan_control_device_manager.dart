@@ -121,6 +121,20 @@ class HomluxLanControlDeviceManager {
       var topic = json['topic'] as String?;
       var data = json['data'];
 
+      /// 设备状态控制
+      if('/local/subdeviceControl/ack' == topic) {
+        var hangUpTask = findTask(reqId!);
+        if(hangUpTask != null) {
+          if(data['errorCode'] == 'fail') {
+            /// 控制失败
+            hangUpTask.handle.suc(_errorResponseEntity);
+          } else {
+            /// 控制成功
+            hangUpTask.handle.suc(_successResponseEntity);
+          }
+        }
+      }
+
       /// host被解绑
       if('/local/host/leave' == topic) {
         logout();
@@ -605,8 +619,16 @@ class HomluxLanControlDeviceManager {
     if (sucSubscribe && connectOk) {
       if (deviceMap.containsKey(deviceID)) {
         Log.file('homlux 局域网控制 设备 \n ${deviceMap[deviceID]}');
-        lanDeviceControlChannel.deviceControl(uuid.v4(), deviceID, actions);
-        return _successResponseEntity;
+        String reqId = uuid.v4();
+        /// 1. 发送控制指令
+        lanDeviceControlChannel.deviceControl(reqId, deviceID, actions);
+        /// 2. 等待处理结果返回
+        HomluxResponseEntity result = await hangUp(HangUpTask<HomluxResponseEntity>.create(
+            id: reqId,
+            handle: HangUpHandle(),
+            timeoutComputation: () => _errorResponseEntity));
+        Log.file('homlux 局域网控制 设备 \n $deviceID ${result.isSuccess? '控制成功': '控制失败'}');
+        return result;
       } else {
         Log.file('homlux 局域网控制 本地设备列表不包含此设备 $deviceID');
       }
