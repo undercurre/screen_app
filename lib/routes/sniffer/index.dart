@@ -126,16 +126,19 @@ class SnifferViewModel {
   /// 跳转到连接页
   void toDeviceConnect(BuildContext context) {
     if (!hasSelected()) {
+      settingMethodChannel.dismissLoading();
       TipsUtils.toast(content: '请选择要绑定的设备');
       return;
     }
 
     NetUtils.checkConnectedWiFiRecord().then((value) {
       if (value == null) {
+        settingMethodChannel.dismissLoading();
         _state.showIgnoreWiFiDialog(value);
       } else {
         getHomeData().then((value) {
           if (value != null) {
+            settingMethodChannel.dismissLoading();
             Navigator.pushNamed(context, 'DeviceConnectPage', arguments: {
               'devices': combineList
                   .where((element) => element.selected)
@@ -144,9 +147,11 @@ class SnifferViewModel {
               'rooms': value
             });
           } else {
+            settingMethodChannel.dismissLoading();
             TipsUtils.toast(content: '获取房间失败');
           }
         }, onError: (e) {
+          settingMethodChannel.dismissLoading();
           TipsUtils.toast(content: '获取房间失败');
         });
       }
@@ -464,6 +469,7 @@ class SnifferState extends SafeState<SnifferPage>
                           ? "确认选择(${viewModel.selectCnt()})"
                           : "选择设备",
                       onPressed: () {
+                        settingMethodChannel.showLoading("加载中");
                         viewModel.toDeviceConnect(context);
                       },
                     ),

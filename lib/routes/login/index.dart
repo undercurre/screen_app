@@ -14,6 +14,7 @@ import 'package:screen_app/widgets/mz_buttion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../channel/index.dart';
 import '../../common/adapter/bind_gateway_data_adapter.dart';
 import '../../common/adapter/select_family_data_adapter.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
@@ -131,6 +132,8 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 Setting.instant().lastBindHomeId =
                     System.familyInfo?.familyId ?? "";
                 Setting.instant().isAllowChangePlatform = false;
+                gatewayChannel.resetRelayModel();
+                logger.i("绑定网关");
                 prepare2goHome();
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
