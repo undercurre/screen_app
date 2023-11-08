@@ -40,7 +40,6 @@ import com.midea.light.ai.brocast.NetWorkStateReceiver;
 import com.midea.light.ai.music.MusicBean;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
-import com.midea.light.log.LogUtil;
 import com.midea.light.thread.MainThread;
 import com.midea.light.utils.CollectionUtil;
 
@@ -171,13 +170,13 @@ public class MideaAiService extends Service {
         }
 
         @Override
-        public void start(String sn, String deviceType, String deviceCode, String mac) throws RemoteException {
-            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac);
+        public void start(String sn, String deviceType, String deviceCode, String mac,String env) throws RemoteException {
+            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac,env);
         }
 
     };
 
-    public void start(Context context, String sn, String deviceType, String deviceCode, String mac) {
+    public void start(Context context, String sn, String deviceType, String deviceCode, String mac, String env) {
         this.Acontext = context;
         Player.getInstance().setmContext(Acontext);
         AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
@@ -186,6 +185,7 @@ public class MideaAiService extends Service {
         mAIDeviceInfo.setCategory(deviceType.replace("0x", ""));
         mAIDeviceInfo.setIot_id(deviceCode);
         mAIDeviceInfo.setMac(mac);
+        mAIDeviceInfo.setEnv(env);
         mAIDeviceInfo.setCfg_path("/sdcard/res/config.json");
 
         String json = mGson.toJson(mAIDeviceInfo);

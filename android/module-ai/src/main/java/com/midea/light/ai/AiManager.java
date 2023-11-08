@@ -19,15 +19,14 @@ import com.midea.light.ai.impl.ServerBindCallBack;
 import com.midea.light.ai.impl.ServerInitialBack;
 import com.midea.light.ai.impl.WakUpStateCallBack;
 import com.midea.light.ai.services.MideaAiService;
+import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.thread.MainThread;
 
-import static android.content.Context.BIND_AUTO_CREATE;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Timer;
+
+import static android.content.Context.BIND_AUTO_CREATE;
 
 public class AiManager {
     private IMideaLightAIdlInterface sever;
@@ -223,7 +222,7 @@ public class AiManager {
                 case 1:
                     if (sever != null) {
                         try {
-                            sever.start(sn, deviceType, deviceCode, mac);
+                            sever.start(sn, deviceType, deviceCode, mac, AppCommonConfig.CONFIG_ENV.equals("development") ? "sit" : "pro");
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
