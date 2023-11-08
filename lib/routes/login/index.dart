@@ -130,10 +130,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 .then((isSuccess) {
               if (isSuccess) {
                 prepare2goHome();
-                Setting.instant().lastBindHomeName =
-                    System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId =
-                    System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
                 Setting.instant().isAllowChangePlatform = false;
                 gatewayChannel.resetRelayModel();
                 Log.i("绑定网关");
@@ -145,6 +145,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             });
           } else {
             prepare2goHome();
+            Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+            Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+            Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+            Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
           }
         }, () {});
       }
@@ -404,6 +408,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择房间',
           SelectRoom(
               key: selectRoomKey,
+              defaultRoomId: Setting.instant().lastBindRoomId,
               onChange: (SelectRoomItem room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 System.roomInfo = room;

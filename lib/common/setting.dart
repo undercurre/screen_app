@@ -76,6 +76,10 @@ class Setting {
   late String _lastBindHomeName;
   /// 最后绑定的家庭Id
   late String _lastBindHomeId;
+  /// 最后绑定的房间名称
+  late String _lastBindRoomName;
+  /// 最后绑定的房间id
+  late String _lastBindRoomId;
 
   void init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -83,7 +87,7 @@ class Setting {
     int? screedStartTime = _prefs.getInt("setting_screed_start_time") ?? (23 * 60);//23:00
     int? screedEndTime = _prefs.getInt("setting_screed_end_time") ?? (31 * 60);//第二天07:00
 
-    _screedDuration = Pair.of(screedStartTime!, screedEndTime!);
+    _screedDuration = Pair.of(screedStartTime, screedEndTime);
     _nightModeEnable = _prefs.getBool('setting_night_mode_enable') ?? false;
 
     standbyTimeOptNum = _prefs.getInt(_standbyTimeKey) ?? 3; /// 默认选序号3的选项（从0开始）
@@ -104,6 +108,8 @@ class Setting {
 
     _lastBindHomeName = _prefs.getString("last_bind_home_name") ?? "";
     _lastBindHomeId = _prefs.getString("last_bind_home_id") ?? "";
+    _lastBindRoomId = _prefs.getString("last_bind_room_id") ?? "";
+    _lastBindRoomName = _prefs.getString("last_bind_room_name") ?? "";
 
     _isAllowChangePlatform = _prefs.getBool('allow_change_platform') ?? true;
 
@@ -360,6 +366,20 @@ class Setting {
     _lastBindHomeId = val;
   }
 
+  /// 获取最后绑定的房间id
+  String get lastBindRoomId => _lastBindRoomId;
+  /// 设置最后绑定的房间id
+  set lastBindRoomId(String val) {
+    _prefs.setString('last_bind_room_id', val);
+    _lastBindRoomId = val;
+  }
+  /// 获取最后绑定的房间名称
+  String get lastBindRoomName => _lastBindRoomName;
+  /// 设置最后绑定的房间名称
+  set lastBindRoomName(String val) {
+    _prefs.setString('last_bind_room_name', val);
+    _lastBindRoomName = val;
+  }
   /// 获取是否允许登录页切换平台
   bool get isAllowChangePlatform => _isAllowChangePlatform;
 

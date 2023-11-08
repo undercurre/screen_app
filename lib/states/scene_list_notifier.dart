@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:screen_app/common/global.dart';
 import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_scene_list_entity.dart';
@@ -8,7 +7,6 @@ import '../common/adapter/select_room_data_adapter.dart';
 import '../common/gateway_platform.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
 import '../common/homlux/models/homlux_scene_entity.dart';
-import '../common/logcat_helper.dart';
 import '../common/meiju/api/meiju_scene_api.dart';
 import '../common/meiju/models/meiju_response_entity.dart';
 import '../common/system.dart';
@@ -107,7 +105,7 @@ class SceneListModel extends ChangeNotifier {
         defaultScene.roomId = '';
         return defaultScene;
       }).roomId ?? '';
-      return roomDataAd.familyListEntity?.familyList.firstWhere((element) => element.id == sceneRoomId, orElse: () {
+      return roomDataAd.roomListEntity?.roomList.firstWhere((element) => element.id == sceneRoomId, orElse: () {
         SelectRoomItem defaultRoom = SelectRoomItem();
         defaultRoom.name = '';
         return defaultRoom;
