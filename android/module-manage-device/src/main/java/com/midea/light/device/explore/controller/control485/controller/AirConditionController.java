@@ -1,5 +1,7 @@
 package com.midea.light.device.explore.controller.control485.controller;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.midea.light.RxBus;
 import com.midea.light.bean.OnlineState485Bean;
@@ -284,5 +286,46 @@ public class AirConditionController implements Data485Observer {
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
         ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
+//        Log.e("sky","单属性控制发出去的指令:"+sb);
+
     }
+
+    public void controlOneDeviceAllAttr(AirConditionModel device, String onOff, String tempture, String speed, String model) {
+        if(TextUtils.isEmpty(onOff)){
+            onOff=device.getOnOff();
+        }
+        if(TextUtils.isEmpty(tempture)){
+            tempture=device.getTemperature();
+        }
+        if(TextUtils.isEmpty(model)){
+            model=device.getWorkModel();
+        }
+        if(TextUtils.isEmpty(speed)){
+            speed=device.getWindSpeed();
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append("01");
+        sb.append(" ");
+        sb.append("60");
+        sb.append(" ");
+        sb.append(onOff);
+        sb.append(" ");
+        sb.append(tempture);
+        sb.append(" ");
+        sb.append(model);
+        sb.append(" ");
+        sb.append(speed);
+        sb.append(" ");
+        sb.append("01");
+        sb.append(" ");
+        sb.append(device.getOutSideAddress());
+        sb.append(" ");
+        sb.append(device.getInSideAddress());
+        sb.append(" ");
+        sb.append(SumUtil.sum(sb.toString().toUpperCase()));
+        ControlManager.getInstance().clearFlashCommand();
+        ControlManager.getInstance().write(sb.toString());
+//        Log.e("sky","多属性控制发出去的指令:"+sb);
+    }
+
 }

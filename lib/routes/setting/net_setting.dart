@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../widgets/business/net_connect.dart';
 
 class NetSettingPage extends StatelessWidget {

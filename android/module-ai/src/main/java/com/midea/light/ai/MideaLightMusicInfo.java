@@ -13,7 +13,7 @@ public class MideaLightMusicInfo implements Parcelable {
 
     public MideaLightMusicInfo() {}
 
-    private Integer duration;
+    private Integer duration=0;
     @SerializedName(value = "song", alternate = {"title", "text"})
     private String song="";
     private String singer="";

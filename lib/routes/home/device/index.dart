@@ -19,6 +19,7 @@ import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
+import '../../../states/relay_change_notifier.dart';
 import '../../../states/scene_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import '../../../widgets/indicatior.dart';
@@ -135,6 +136,9 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final sceneModel = context.read<SceneListModel>();
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
+    final relayModel =  context.read<RelayModel>();
+    // 刷新两路继电器名称
+    relayModel.getLocalRelayName();
     // 拿到layout数据中的ids
     List<String> layoutIds = layoutModel.layouts.map((e) => e.deviceId).toList();
     // 拉取缓存数据
@@ -144,6 +148,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
     sceneModel.getSceneList();
+    sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
@@ -470,10 +475,19 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     autoDeleleLayout(context);
   }
 
+  void homluxRoomUpdate(HomluxChangeRoomNameEven arg) {
+    final sceneModel = context.read<SceneListModel>();
+    sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList();
   }
+
+
 
   // 推送启动中枢
   void _startPushListen() {
@@ -484,6 +498,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
@@ -498,6 +513,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOff<HomluxChangeRoomNameEven>(homluxRoomUpdate);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
     }

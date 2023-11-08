@@ -37,6 +37,12 @@ import static com.midea.light.device.explore.controller.control485.agreement.Flo
 import static com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr.ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr.ALL_FRESH_AIR_QUERY_PARELETE_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.FreshAirAgr.FRESH_AIR_QUERY_CODE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_AIR_CONDITION_ONLINE_STATE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_AIR_CONDITION_PARAMETE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_FLOOR_HOT_ONLINE_STATE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_FLOOR_HOT_PARAMETE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_FRESH_AIR_ONLINE_STATE;
+import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_FRESH_AIR_PARAMETE;
 
 public class ControlManager implements Data485Subject {
 
@@ -52,7 +58,7 @@ public class ControlManager implements Data485Subject {
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
     private Timer timer,heatBet;
-    private Integer cacheTime = 5;
+    private Integer cacheTime = 900;
     private ExecutorService service, readService;
 
 
@@ -111,10 +117,14 @@ public class ControlManager implements Data485Subject {
     }
 
     public void clearFlashCommand() {
-        queue.clear();
-        commandFinish = true;
-        totalSize = 0;
-        total = new StringBuffer();
+        List<String> removeList=new ArrayList<>();
+        removeList.add(GET_ALL_AIR_CONDITION_ONLINE_STATE.data);
+        removeList.add(GET_ALL_AIR_CONDITION_PARAMETE.data);
+        removeList.add(GET_ALL_FRESH_AIR_ONLINE_STATE.data);
+        removeList.add(GET_ALL_FRESH_AIR_PARAMETE.data);
+        removeList.add(GET_ALL_FLOOR_HOT_ONLINE_STATE.data);
+        removeList.add(GET_ALL_FLOOR_HOT_PARAMETE.data);
+        queue.removeAll(removeList);
     }
 
     private void startReadRunnable() {
@@ -149,10 +159,11 @@ public class ControlManager implements Data485Subject {
                             resetTime=0;
                         } else {
                             read0Times++;
-                            if (read0Times == 200) {
+                            if (read0Times == 50) {
                                 read0Times = 0;
                                 commandReset();
                                 if (resetTime==3){
+                                    queue.clear();
                                     upDataAllDeviceOffline();
                                 }
                             }
@@ -260,7 +271,7 @@ public class ControlManager implements Data485Subject {
                     isFirstFrame = true;
                     commandFinish = false;
                     if (null != str) {
-//                      Log.e("sky", "拿到要执行的数据:"+str);
+//                      Log.e("sky", "拿到要执行的数据:"+str+"---queue大小:"+queue.size());
                         commandStrArry = str.split(" ");
                         if (mOutputStream != null) {
                             data.clear();
@@ -289,13 +300,12 @@ public class ControlManager implements Data485Subject {
     }
 
     private void commandReset() {
-        mInputStream = mSerialPort.getInputStream();
+//        mInputStream = mSerialPort.getInputStream();
         commandFinish = true;
         totalSize = 0;
         total = new StringBuffer();
-        queue.clear();
         resetTime++;
-        //整个网关断电,全部设备离线上报
+//        Log.e("sky", "commandReset:50次了");
     }
 
 
@@ -442,22 +452,12 @@ public class ControlManager implements Data485Subject {
         task = new TimerTask() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(5);
-                    GetWayController.getInstance().findAllAirConditionOnlineState();
-                    Thread.sleep(5);
-                    GetWayController.getInstance().getAllAirConditionParamete();
-                    Thread.sleep(5);
-                    GetWayController.getInstance().findAllFreshAirOnlineState();
-                    Thread.sleep(5);
-                    GetWayController.getInstance().getAllFreshAirParamete();
-                    Thread.sleep(5);
-                    GetWayController.getInstance().findAllFloorHotOnlineState();
-                    Thread.sleep(5);
-                    GetWayController.getInstance().getAllFloorHotParamete();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                GetWayController.getInstance().findAllAirConditionOnlineState();
+                GetWayController.getInstance().getAllAirConditionParamete();
+                GetWayController.getInstance().findAllFreshAirOnlineState();
+                GetWayController.getInstance().getAllFreshAirParamete();
+                GetWayController.getInstance().findAllFloorHotOnlineState();
+                GetWayController.getInstance().getAllFloorHotParamete();
             }
         };
         timer.schedule(task, 0, cacheTime);

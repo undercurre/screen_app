@@ -29,7 +29,7 @@ class WeatherModel extends ChangeNotifier {
 
   // 定义一个方法来启动定时器
   void startWeatherTimer() {
-    _fetchWeatherData();
+    fetchWeatherData();
     // 每隔一定时间执行一次请求天气数据的操作
     const Duration interval = Duration(hours: 4); // 4小时更新一次
 
@@ -40,12 +40,12 @@ class WeatherModel extends ChangeNotifier {
 
     // 创建新的定时器并执行请求天气数据的操作
     _weatherTimer = Timer.periodic(interval, (Timer timer) {
-      _fetchWeatherData(); // 请求天气数据的方法
+      fetchWeatherData(); // 请求天气数据的方法
     });
   }
 
   // 请求天气数据的方法
-  Future<void> _fetchWeatherData() async {
+  Future<void> fetchWeatherData() async {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       if (selectedDistrict != null) {
         MeiJuResponseEntity<MeiJuWeatherEntity> res = await MeiJuWeatherApi.getWeather(cityId: selectedDistrict.areaid);
@@ -112,7 +112,7 @@ class WeatherModel extends ChangeNotifier {
 
   Future<void> updateSelectedDistrict(District district) async {
     selectedDistrict = district;
-    _fetchWeatherData();
+    fetchWeatherData();
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedDistrict', jsonEncode(district.toJson()));
     notifyListeners();

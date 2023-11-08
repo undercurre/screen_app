@@ -7,6 +7,7 @@ import 'package:screen_app/common/global.dart';
 
 import '../../../common/logcat_helper.dart';
 import '../../../states/relay_change_notifier.dart';
+import '../../util/nameFormatter.dart';
 
 class LocalRelayWidget extends StatefulWidget {
   final int relayIndex;
@@ -70,7 +71,7 @@ class _LocalRelayWidgetState extends State<LocalRelayWidget> {
                   SizedBox(
                     width: 120,
                     child: Text(
-                      widget.relayIndex == 1 ? '灯1' : '灯2',
+                      widget.relayIndex == 1 ? NameFormatter.formatName(relayModel.localRelay1Name, 4) : NameFormatter.formatName(relayModel.localRelay2Name, 4),
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         height: 1.2,

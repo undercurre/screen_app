@@ -168,8 +168,7 @@ class _SettingPageState extends State<SettingPage> {
                                 'NetSettingPage',
                               )
                             }, true),
-                            if (MideaRuntimePlatform.platform.inMeiju()
-                             && !Setting.instant().engineeringModeEnable)
+                            if (MideaRuntimePlatform.platform.inMeiju())
                               settingCell("assets/newUI/add_device.png", "发现设备", () => {
                                 if(MeiJuGlobal.isLogin) {
                                   Navigator.pushNamed(

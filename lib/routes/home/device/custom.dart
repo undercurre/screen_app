@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
+import 'package:screen_app/routes/home/device/card_dialog_scene.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/keep_alive_wrapper.dart';
 
@@ -176,7 +177,7 @@ class _CustomPageState extends State<CustomPage> {
         Widget cardWithSwap = layout.cardType != CardType.Null
             ? GestureDetector(
                 onTap: () {
-                  _getDeviceDialog(context, layout, pageCounterModel);
+                  layout.type != DeviceEntityTypeInP4.Scene ? _getDeviceDialog(context, layout, pageCounterModel) : _getSceneDialog(context, layout, pageCounterModel);
                 },
                 child: AbsorbPointer(absorbing: true, child: cardWidget),
               )
@@ -430,6 +431,30 @@ class _CustomPageState extends State<CustomPage> {
           roomName: layout.data.roomName,
           masterId: layout.data.masterId,
           onlineStatus: layout.data.onlineStatus,
+        );
+      },
+    ).then(
+          (value) async {
+        if (value != null) {
+          int zhuandaoPage = await context.read<LayoutModel>().swapCardType(layout, value);
+          WidgetsBinding.instance
+              ?.addPostFrameCallback((_) {
+            _pageController.animateToPage(zhuandaoPage, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          });
+          pageCounterModel.currentPage = zhuandaoPage;
+        }
+      },
+    );
+  }
+
+  _getSceneDialog(BuildContext context, Layout layout, PageCounter pageCounterModel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CardDialogScene(
+            name: layout.data.name,
+            sceneId: layout.data.sceneId ?? '0000',
+            icon: layout.data.icon
         );
       },
     ).then(

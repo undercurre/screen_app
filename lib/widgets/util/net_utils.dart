@@ -74,7 +74,7 @@ class NetUtils {
     return netMethodChannel.checkConnectedWiFiRecord();
   }
 
-  // 监听网络状态
+  /// 监听网络状态
   static void registerListenerNetState(void Function(NetState? state) method) {
     netMethodChannel.registerNetChangeCallBack(method);
   }

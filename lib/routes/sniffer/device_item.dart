@@ -6,7 +6,7 @@ import '../../channel/models/manager_devic.dart';
 class SelectDeviceModel {
   bool selected = false;
   IFindDeviceResult data;
-  SelectDeviceModel.create(this.data);
+  SelectDeviceModel.create(this.data, [this.selected = false]);
 
   @override
   operator ==(Object other) {

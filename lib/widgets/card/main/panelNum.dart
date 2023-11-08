@@ -71,5 +71,6 @@ Map<String, CardType> panelList = {
   'homlux1': CardType.Small,
   'homlux2': CardType.Middle,
   'homlux3': CardType.Big,
-  'homlux4': CardType.Big
+  'homlux4': CardType.Big,
+  'homluxKonbDimmingPanel': CardType.Small,
 };

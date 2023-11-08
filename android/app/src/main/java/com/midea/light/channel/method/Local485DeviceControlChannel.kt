@@ -120,7 +120,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
             "ControlLocal485AirConditionPower" -> {
                 var power = requireNotNull(call.argument<String?>("power"))
                 var addr = requireNotNull(call.argument<String?>("addr"))
-//                Log.e("sky", "控制地址:" + addr + "---控制内容:" + power)
+                Log.e("sky", "控制地址:" + addr + "---控制开关内容:" + power)
                 for (i in AirConditionController.getInstance().AirConditionList.indices) {
                     val deviceAddr =
                         AirConditionController.getInstance().AirConditionList[i].outSideAddress + AirConditionController.getInstance().AirConditionList[i].inSideAddress
@@ -139,6 +139,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
             "ControlLocal485AirConditionTemper" -> {
                 var temp = requireNotNull(call.argument<String?>("temper"))
                 var addr = requireNotNull(call.argument<String?>("addr"))
+                Log.e("sky", "控制地址:" + addr + "---控制温度内容:" + temp)
                 for (i in AirConditionController.getInstance().AirConditionList.indices) {
                     val deviceAddr =
                         AirConditionController.getInstance().AirConditionList[i].outSideAddress + AirConditionController.getInstance().AirConditionList[i].inSideAddress
@@ -154,6 +155,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
             "ControlLocal485AirConditionWindSpeed" -> {
                 var windSpeed = requireNotNull(call.argument<String?>("windSpeed"))
                 var addr = requireNotNull(call.argument<String?>("addr"))
+                Log.e("sky", "控制地址:" + addr + "---控制风速内容:" + windSpeed)
                 for (i in AirConditionController.getInstance().AirConditionList.indices) {
                     val deviceAddr =
                         AirConditionController.getInstance().AirConditionList[i].outSideAddress + AirConditionController.getInstance().AirConditionList[i].inSideAddress
@@ -169,6 +171,7 @@ class Local485DeviceControlChannel(context: Context) : AbsMZMethodChannel(contex
             "ControlLocal485AirConditionModel" -> {
                 var model = requireNotNull(call.argument<String?>("model"))
                 var addr = requireNotNull(call.argument<String?>("addr"))
+                Log.e("sky", "控制地址:" + addr + "---控制模式内容:" + model)
                 for (i in AirConditionController.getInstance().AirConditionList.indices) {
                     val deviceAddr =
                         AirConditionController.getInstance().AirConditionList[i].outSideAddress + AirConditionController.getInstance().AirConditionList[i].inSideAddress

@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
@@ -11,7 +10,7 @@ import '../../util/nameFormatter.dart';
 
 class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
-  final bool localOnline=false;
+  final bool localOnline = false;
   final bool isFault;
   final bool isNative;
   final String roomName;
@@ -46,11 +45,12 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       this.onPowerTap});
 
   @override
-  _Big485CACDeviceAirCardWidgetState createState() => _Big485CACDeviceAirCardWidgetState();
+  _Big485CACDeviceAirCardWidgetState createState() =>
+      _Big485CACDeviceAirCardWidgetState();
 }
 
-class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
-
+class _Big485CACDeviceAirCardWidgetState
+    extends State<Big485CACDeviceAirCardWidget> {
   late CACDataAdapter adapter;
 
   @override
@@ -58,7 +58,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disable){
+    if (!widget.disable) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
@@ -92,6 +92,9 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
   }
 
   Future<void> temperatureHandle(num value) async {
+    if(adapter.data!.operationMode == 4){
+      return;
+    }
     if (!adapter.data!.OnOff) {
       return;
     }
@@ -105,7 +108,8 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -116,15 +120,17 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'空调${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
+        return widget.isNative
+            ? '空调${adapter.localDeviceCode.isNotEmpty ? adapter.localDeviceCode.substring(2, 4) : ""}'
+            : '加载中';
       }
 
       return nameInModel;
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel =
+          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -136,12 +142,12 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
+        if (adapter.isLocalDevice && adapter.data!.online) {
           return '在线';
         }
         return '离线';
       } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
+        if (adapter.isLocalDevice && !adapter.data!.online) {
           return '离线';
         }
         return '在线';
@@ -248,7 +254,7 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative||adapter.isLocalDevice)
+                if (widget.isNative || adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,
@@ -285,9 +291,10 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                 children: [
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(adapter.data!.targetTemp > widget.min
-                          ? adapter.data!.targetTemp - 1
-                          : widget.min),
+                      temperatureHandle(
+                          adapter.data!.targetTemp > widget.min
+                              ? adapter.data!.targetTemp - 1
+                              : widget.min),
                     },
                     child: Image(
                         color: Color.fromRGBO(
@@ -299,7 +306,8 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("${adapter.data!.targetTemp>30?"26":adapter.data!.targetTemp}",
+                      Text(
+                          "${adapter.data!.targetTemp > 30 ? "26" : adapter.data!.targetTemp}",
                           style: TextStyle(
                               height: 1.5,
                               color: adapter.data!.OnOff
@@ -309,13 +317,15 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                               fontFamily: "MideaType",
                               fontWeight: FontWeight.normal,
                               decoration: TextDecoration.none)),
-                      Padding( padding: const EdgeInsets.fromLTRB(0, 0, 0, 37),
-                        child:Text("℃",
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 37),
+                        child: Text("℃",
                             style: TextStyle(
                                 height: 1.5,
-                                color: adapter!.data!.OnOff&&adapter.data!.online
-                                    ? const Color(0XFFFFFFFF)
-                                    : const Color(0XA3FFFFFF),
+                                color:
+                                    adapter!.data!.OnOff && adapter.data!.online
+                                        ? const Color(0XFFFFFFFF)
+                                        : const Color(0XA3FFFFFF),
                                 fontSize: 18,
                                 fontFamily: "MideaType",
                                 fontWeight: FontWeight.normal,
@@ -323,12 +333,12 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
                       ),
                     ],
                   ),
-
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(adapter.data!.targetTemp < widget.max
-                          ? adapter.data!.targetTemp + 1
-                          : widget.max),
+                      temperatureHandle(
+                          adapter.data!.targetTemp < widget.max
+                              ? adapter.data!.targetTemp + 1
+                              : widget.max),
                     },
                     child: Image(
                         color: Color.fromRGBO(
@@ -350,7 +360,9 @@ class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWid
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !adapter.data!.OnOff || !adapter.data!.online,
+              disabled: !adapter.data!.OnOff ||
+                  !adapter.data!.online ||
+                  adapter.data!.operationMode == 4,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
