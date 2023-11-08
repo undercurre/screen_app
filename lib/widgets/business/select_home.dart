@@ -19,7 +19,6 @@ class SelectHomeState extends State<SelectHome> {
     var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
     for (var i = 0; i < len; i++) {
       var item = familyDataAd?.familyListEntity?.familyList[i];
-
       listView.add(
         MzCell(
             height: 99,
@@ -120,11 +119,11 @@ class SelectHomeState extends State<SelectHome> {
   }
 
   void initDefaultSelect() {
-    if (widget.defaultFamily == null) return;
+    if (widget.defaultFamilyId == null) return;
     var len = familyDataAd?.familyListEntity?.familyList.length ?? 0;
     for (var i = 0; i < len; i++) {
       var item = familyDataAd?.familyListEntity?.familyList[i];
-      if (item?.familyId == widget.defaultFamily?.familyId) {
+      if (item?.familyId == widget.defaultFamilyId) {
         selectVal = i;
         itemTemp = item;
         return;
@@ -159,9 +158,9 @@ class SelectHome extends StatefulWidget {
 
   /// 家庭变更事件
   final ValueChanged<SelectFamilyItem?>? onChange;
-  final SelectFamilyItem? defaultFamily;
+  final String? defaultFamilyId;
 
-  const SelectHome({super.key, this.onChange, this.defaultFamily});
+  const SelectHome({super.key, this.onChange, this.defaultFamilyId});
 
   @override
   State<SelectHome> createState() => SelectHomeState();

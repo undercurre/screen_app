@@ -8,10 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
-import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../channel/index.dart';
@@ -55,7 +53,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
   GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
   GlobalKey<LinkNetworkState> networkKey = GlobalKey<LinkNetworkState>();
-  SelectFamilyItem? selectFamily;
+  String? selectFamilyId;
   Uuid uuid = Uuid();
 
   void showBindingDialog(bool show) async {
@@ -71,6 +69,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
 
   /// 上一步
   void prevStep() {
+    /// 从选择家庭返回的时候，需重置为空
+    if (stepNum <= 3) {
+      selectFamilyId = null;
+    }
     if (stepNum == 1) {
       return;
     }
@@ -134,7 +136,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                     System.familyInfo?.familyId ?? "";
                 Setting.instant().isAllowChangePlatform = false;
                 gatewayChannel.resetRelayModel();
-                logger.i("绑定网关");
+                Log.i("绑定网关");
               } else {
                 TipsUtils.toast(content: '绑定家庭失败');
                 Navigator.pop(context);
@@ -390,10 +392,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择家庭',
           SelectHome(
               key: selectHomeKey,
-              defaultFamily: selectFamily,
+              defaultFamilyId: selectFamilyId ?? Setting.instant().lastBindHomeId,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
-                selectFamily = home;
+                selectFamilyId = home?.familyId;
                 System.familyInfo = home;
                 checkIsNeedShowClearAlert();
                 nextStep();
