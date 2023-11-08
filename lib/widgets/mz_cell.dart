@@ -110,7 +110,6 @@ class _CellState extends State<MzCell> {
           constraints: BoxConstraints(
             maxWidth: widget.titleMaxWidth,
           ),
-          margin: EdgeInsets.only(bottom: StrUtils.isNotNullAndEmpty(widget.desc) ? 10 : 0),
           child: Text(
             widget.title!,
             maxLines: widget.titleMaxLines,
@@ -130,7 +129,7 @@ class _CellState extends State<MzCell> {
       if (StrUtils.isNotNullAndEmpty(widget.tag))
         Container(
           margin: const EdgeInsets.only(left: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
           decoration: const BoxDecoration(
               color: Color.fromRGBO(216, 216, 216, 0.3),
               borderRadius: BorderRadius.all(Radius.circular(12.0))),
@@ -166,7 +165,7 @@ class _CellState extends State<MzCell> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: widget.descSize ?? 13,
+            fontSize: widget.descSize,
             fontFamily: "MideaType",
             fontWeight: FontWeight.w100,
             decoration: TextDecoration.none,
@@ -187,10 +186,13 @@ class _CellState extends State<MzCell> {
       Expanded(
           flex: 1,
           child: widget.titleSlot == null
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: middleCell,
+              ? Padding(
+                    padding: EdgeInsets.only(bottom: StrUtils.isNotNullAndEmpty(widget.desc) ? 10 : 0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: middleCell,
+                    ),
                 )
               : widget.titleSlot!),
 
