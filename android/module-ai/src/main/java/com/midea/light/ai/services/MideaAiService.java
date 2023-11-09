@@ -62,7 +62,7 @@ public class MideaAiService extends Service {
     private Context Acontext;
     boolean wakeUpState = false, isManLoadMusic = false;
     private static final String TAG = "sky";
-    public Mw mMediaMwEngine;
+    public Mw mMediaMwEngine=Mw.getInstance();
     public static final int SAMPLE_RATE_IN_HZ = 32000;//采样率，线mic：32000，环mic：48000
     public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;//音频数据格式
@@ -176,7 +176,7 @@ public class MideaAiService extends Service {
 
     };
 
-    public void start(Context context, String sn, String deviceType, String deviceCode, String mac, String env) {
+    public synchronized void start(Context context, String sn, String deviceType, String deviceCode, String mac, String env) {
         this.Acontext = context;
         Player.getInstance().setmContext(Acontext);
         AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
@@ -186,6 +186,7 @@ public class MideaAiService extends Service {
         mAIDeviceInfo.setIot_id(deviceCode);
         mAIDeviceInfo.setMac(mac);
         mAIDeviceInfo.setEnv(env);
+        mAIDeviceInfo.setLink_status(1);
         mAIDeviceInfo.setCfg_path("/sdcard/res/config.json");
 
         String json = mGson.toJson(mAIDeviceInfo);
@@ -201,23 +202,25 @@ public class MideaAiService extends Service {
 
         Thread thread = new Thread() {
             public void run() {
-                mMediaMwEngine = new Mw();
-                mMediaMwEngine.init(deviceInfo);
-                Log.e(TAG, "CRC mMediaMwEngine created");
-                if (mMediaMwEngine.getLicense() != 0) {
-                    Log.e(TAG, "license not exist!!!");
-                    mMediaMwEngine.registerLicense(mAIDeviceInfo.getMac());
-                    return;
+                synchronized (MideaAiService.this) {
+                    mMediaMwEngine.init(deviceInfo);
+                    Log.e(TAG, "CRC mMediaMwEngine created");
+                    if (mMediaMwEngine.getLicense() != 0) {
+                        Log.e(TAG, "license not exist!!!");
+                        mMediaMwEngine.registerLicense(mAIDeviceInfo.getMac());
+                        return;
+                    }
+                    String[] type = {"Mw"};
+                    int state = mMediaMwEngine.registerEvent(0, type, func);
+                    Log.e(TAG, "获取语音证书状态:" + state);
+                    player = Player.getInstance();
+                    try {
+                        serverInitialCallBack.isInitial(true);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
-                String[] type = {"Mw"};
-                int state = mMediaMwEngine.registerEvent(0, type, func);
-                Log.e(TAG, "获取语音证书状态:" + state);
-                player = Player.getInstance();
-                try {
-                    serverInitialCallBack.isInitial(true);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+
             }
         };
         thread.start();
@@ -896,6 +899,10 @@ public class MideaAiService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIsRecording = false;
+        mMediaMwEngine = null;
+        unreregisterNetworkReceiver();
+        stopRecord();
     }
 
     private static String getWakeupInfo() {

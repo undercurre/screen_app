@@ -65,7 +65,6 @@ public class AiManager {
                 @Override
                 public void isServerBind(boolean isbind) throws RemoteException {
                     Log.e("sky", "service bind 完成");
-                    BindCallBack.isServerBind(isbind);
                 }
             });
         } catch (RemoteException e) {
