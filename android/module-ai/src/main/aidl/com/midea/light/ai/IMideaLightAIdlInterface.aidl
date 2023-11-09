@@ -38,6 +38,6 @@ interface IMideaLightAIdlInterface {
 
     void stopRecord();
 
-    void start(String sn, String deviceType, String deviceCode, String mac);
+    void start(String sn, String deviceType, String deviceCode, String mac,String env);
 
 }

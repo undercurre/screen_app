@@ -8,6 +8,26 @@ public class AIDeviceInfo {
     private String mac;
     private String cfg_path;
 
+    public int getLink_status() {
+        return link_status;
+    }
+
+    public void setLink_status(int link_status) {
+        this.link_status = link_status;
+    }
+
+    private int link_status;
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
+    }
+
+    private String env;
+
     public String getIp() {
         return ip;
     }
