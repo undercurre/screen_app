@@ -221,4 +221,27 @@ class HomluxUserApi {
         data: {'houseId': houseId});
   }
 
+  /// 修改设备房间
+  /// [deviceType] 1 网关 2 子设备 3wifi设备
+  /// [type] type :0 仅更改设备 1 仅更改房间 2 所有都更改 3 仅开关更改
+  static Future<HomluxResponseEntity> modifyDevice(String deviceType, String type, String houseId,
+      String roomId, String deviceId, {CancelToken? cancelToken}) {
+    return HomluxApi.requestSafety(
+      '/v1/device/batchUpdate',
+      cancelToken: cancelToken,
+      options: Options(method: 'POST'),
+      data: {
+        'deviceInfoUpdateVoList': [
+          {
+            'deviceType': deviceType,
+            'type': type,
+            'roomId': roomId,
+            'houseId': houseId,
+            'deviceId': deviceId
+          }
+        ]
+      }
+    );
+  }
+
 }

@@ -121,13 +121,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-        bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
-            (isBind, deviceID) {
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, device) {
           if (!isBind) {
             // 绑定网关
-            bindGatewayAd
-                ?.bindGateway(System.familyInfo!, System.roomInfo!)
-                .then((isSuccess) {
+            bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
               if (isSuccess) {
                 prepare2goHome();
                 Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
@@ -144,13 +141,27 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               }
             });
           } else {
-            prepare2goHome();
-            Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
-            Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
-            Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
-            Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+            assert(System.roomInfo!= null);
+            bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
+              if(value) {
+                Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
+                prepare2goHome();
+                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+              } else {
+                TipsUtils.toast(content: '绑定家庭失败');
+                Navigator.pop(context);
+                selectRoomKey.currentState?.refreshList();
+              }
+            });
           }
-        }, () {});
+        }, () {
+          TipsUtils.toast(content: '绑定家庭失败');
+          Navigator.pop(context);
+          selectRoomKey.currentState?.refreshList();
+        });
       }
       return;
     }

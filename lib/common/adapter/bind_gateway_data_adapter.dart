@@ -8,6 +8,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/api/meiju_user_api.dart';
 
 import '../../channel/index.dart';
+import '../../models/device_entity.dart';
 import '../helper.dart';
 import '../homlux/models/homlux_family_entity.dart';
 import '../homlux/models/homlux_room_list_entity.dart';
@@ -23,13 +24,12 @@ class BindGatewayAdapter extends MideaDataAdapter {
 
   /// 是否已经绑定网关
   void checkGatewayBindState(SelectFamilyItem selectFamily,
-      void Function(bool, String?) result, void Function() error) async {
+      void Function(bool, DeviceEntity?) result, void Function() error) async {
     if (platform == GatewayPlatform.MEIJU) {
       MeiJuLoginHomeEntity familyEntity = selectFamily.meijuData;
       _meijuCheck(familyEntity.homegroupId).then((value) {
         Log.i('是否绑定${value.value1} 设备ID${value.value2}');
         if(value.value1) {
-          MeiJuGlobal.gatewayApplianceCode = value.value2;
           Log.file('检查设备已经绑定, 设备ID为${MeiJuGlobal.gatewayApplianceCode}');
         }
         result.call(value.value1, value.value2);
@@ -37,12 +37,10 @@ class BindGatewayAdapter extends MideaDataAdapter {
         error.call();
       });
     } else if (platform == GatewayPlatform.HOMLUX) {
-      HomluxFamilyEntity familyEntity =
-          selectFamily.homluxData as HomluxFamilyEntity;
+      HomluxFamilyEntity familyEntity = selectFamily.homluxData as HomluxFamilyEntity;
       _homluxCheck(familyEntity.houseId).then((value) {
         Log.i('是否绑定${value.value1} 设备ID${value.value2}');
         if(value.value1) {
-          HomluxGlobal.gatewayApplianceCode = value.value2;
           Log.file('检查设备已经绑定, 设备ID为${HomluxGlobal.gatewayApplianceCode}');
         }
         result.call(value.value1, value.value2);
@@ -50,6 +48,44 @@ class BindGatewayAdapter extends MideaDataAdapter {
         Log.i('查询绑定失败');
         error.call();
       });
+    }
+  }
+
+  /// 修改网关到指定房间
+  /// 此方法只能登录页调用，包含登录页的业务逻辑，其它地方不要随意调用
+  Future<bool> modifyDevice(SelectFamilyItem selectFamily, SelectRoomItem selectRoom, DeviceEntity device) async {
+    /// 此等情况无需修改房间
+    if (selectRoom.id == device.roomId) {
+      MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
+      Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+      Log.i('迁移的房间id，与设备的所在的房间id一致.${selectRoom.id} 无需迁移，直接返回');
+      return true;
+    }
+    if(platform == GatewayPlatform.HOMLUX) {
+      var deviceType = '1';
+      var type = '1';
+      var houseId = selectFamily.familyId;
+      var roomId = selectRoom.id;
+      var deviceId = device.applianceCode;
+      var httpResult = await HomluxUserApi.modifyDevice(deviceType, type, houseId, roomId!, deviceId);
+      if(httpResult.isSuccess) {
+        MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
+        Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+      }
+      return httpResult.isSuccess;
+    } else if(platform == GatewayPlatform.MEIJU) {
+      var homeGroupId = selectFamily.familyId;
+      var roomId = selectRoom.id;
+      var applianceCode = device.applianceCode;
+      var httpResult = await MeiJuUserApi.modifyDeviceRoom(homeGroupId!, roomId!, applianceCode);
+      if(httpResult.isSuccess) {
+        MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
+        Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+      }
+      return httpResult.isSuccess;
+    } else {
+      Log.e('异常执行程序 modifyDevice');
+      return false;
     }
   }
 
@@ -95,34 +131,53 @@ class BindGatewayAdapter extends MideaDataAdapter {
 
   /// bool 是否绑定
   /// String? 网关云ID
-  Future<Pair<bool, String?>> _meijuCheck(String homeId) async {
+  Future<Pair<bool, DeviceEntity?>> _meijuCheck(String homeId) async {
     String seed = MeiJuGlobal.token?.seed ?? '';
     var sn = await aboutSystemChannel.getGatewaySn(true, seed); //获取加密sn
     var res = await MeiJuUserApi.getHomeDetail(homegroupId: homeId);
 
-    /// 网关云ID
-    String? applianceCode;
+    DeviceEntity? deviceObj;
     bool bind = res.data!.homeList![0].roomList!.any((element) =>
-        element.applianceList?.any((element) {
-          applianceCode = element.applianceCode;
-          return element.sn == sn;
-        }) ??
-        false);
+        element.applianceList?.any((e) {
+          if(e.sn == sn) {
+            deviceObj = DeviceEntity();
+            deviceObj!.name = e.name;
+            deviceObj!.applianceCode = e.applianceCode;
+            deviceObj!.type = e.type;
+            deviceObj!.modelNumber = e.modelNumber;
+            deviceObj!.sn8 = e.sn8;
+            deviceObj!.roomName = element.name;
+            deviceObj!.roomId = element.roomId;
+            deviceObj!.masterId = e.masterId;
+            deviceObj!.onlineStatus = e.onlineStatus;
+          }
+          return e.sn == sn;
+        }) ?? false);
 
-    return Pair.of(bind, applianceCode);
+    return Pair.of(bind, deviceObj);
   }
 
   /// bool 是否绑定
   /// String? 网关云ID
-  Future<Pair<bool, String?>> _homluxCheck(String homeId) async {
+  Future<Pair<bool, DeviceEntity?>> _homluxCheck(String homeId) async {
     var sn = await aboutSystemChannel.getGatewaySn(); //获取不加密sn
     var res = await HomluxDeviceApi.queryDeviceListByHomeId(homeId);
-    String? deviceId;
-    bool bind = res.result?.any((element) {
-          deviceId = element.deviceId;
-          return sn == element.sn;
-        }) ??
-        false;
-    return Pair.of(bind, deviceId);
+
+    DeviceEntity? deviceObj;
+    bool bind = res.result?.any((e) {
+          if(sn == e.sn) {
+            deviceObj = DeviceEntity();
+            deviceObj!.name = e.deviceName!;
+            deviceObj!.applianceCode = e.deviceId!;
+            deviceObj!.type = e.proType!;
+            // deviceObj.modelNumber = getModelNumber(e);
+            deviceObj!.roomName = e.roomName!;
+            deviceObj!.roomId = e.roomId!;
+            deviceObj!.masterId = e.gatewayId ?? '';
+            deviceObj!.onlineStatus = e.onLineStatus.toString();
+          }
+          return sn == e.sn;
+    }) ?? false;
+    return Pair.of(bind, deviceObj);
   }
 }

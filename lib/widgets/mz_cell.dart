@@ -64,7 +64,7 @@ class MzCell extends StatefulWidget {
     this.onSwitch,
     this.onTap,
     this.onLongPress,
-    this.titleMaxWidth = 280,
+    this.titleMaxWidth = 200,
     this.topLeftRadius = 0,
     this.topRightRadius = 0,
     this.bottomLeftRadius = 0,
@@ -106,10 +106,9 @@ class _CellState extends State<MzCell> {
     List<Widget> compositeTitle = <Widget>[
       // 插入标题
       if (StrUtils.isNotNullAndEmpty(widget.title))
-        Container(
-          constraints: BoxConstraints(
-            maxWidth: widget.titleMaxWidth,
-          ),
+        Flexible(
+          flex: 1,
+          fit: FlexFit.loose,
           child: Text(
             widget.title!,
             maxLines: widget.titleMaxLines,
@@ -128,7 +127,7 @@ class _CellState extends State<MzCell> {
       // 插入tag
       if (StrUtils.isNotNullAndEmpty(widget.tag))
         Container(
-          margin: const EdgeInsets.only(left: 10),
+          margin: const EdgeInsets.only(left: 10, right: 10),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
           decoration: const BoxDecoration(
               color: Color.fromRGBO(216, 216, 216, 0.3),
@@ -152,10 +151,12 @@ class _CellState extends State<MzCell> {
     // 中间列
     List<Widget> middleCell = <Widget>[
       // 标题行
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: compositeTitle,
+      Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: compositeTitle,
+        ),
       ),
 
       // 插入描述

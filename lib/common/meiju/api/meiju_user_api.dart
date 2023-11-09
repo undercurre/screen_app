@@ -62,12 +62,11 @@ class MeiJuUserApi {
   }
 
   /// 获取家庭信息 homegroupId 为空时，返回所有的家庭信息
-  static Future<MeiJuResponseEntity<MeiJuHomeInfoListEntity>>
-      getHomeDetail({
+  static Future<MeiJuResponseEntity<MeiJuHomeInfoListEntity>> getHomeDetail({
     String? homegroupId,
     String? roomId,
   }) async {
-    var res = await MeiJuApi.requestMideaIot<MeiJuHomeInfoListEntity>(
+    var res = await MeiJuApi.requestMideaIotSafety<MeiJuHomeInfoListEntity>(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/list/get",
         data: {
           'homegroupId': homegroupId,
@@ -144,4 +143,22 @@ class MeiJuUserApi {
 
     return res;
   }
+
+  /// 修改设备的房间
+  static Future<MeiJuResponseEntity> modifyDeviceRoom(String homeGroupId, String roomId, String applianceCode) async {
+    var res = await MeiJuApi.requestMideaIotSafety(
+        "/mas/v5/app/proxy?alias=/v1/appliance/home/modify",
+        data: {
+            'applianceCode': applianceCode,
+            'homegroupId': homeGroupId,
+            'roomId': roomId,
+        },
+        options: Options(
+          method: 'POST'
+        )
+    );
+    return res;
+  }
+
+
 }
