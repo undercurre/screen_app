@@ -112,6 +112,7 @@ flutter:
     - assets/imgs/zigbee/
     - assets/imgs/
     - assets/newUI/
+    - assets/newUI/acmodel/
     - assets/newUI/weather/
     - assets/newUI/device/
     - assets/newUI/scene/
