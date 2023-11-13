@@ -162,7 +162,7 @@ public class ControlManager implements Data485Subject {
                             if (read0Times == 50) {
                                 read0Times = 0;
                                 commandReset();
-                                if (resetTime==3){
+                                if (resetTime==10){
                                     queue.clear();
                                     upDataAllDeviceOffline();
                                 }
