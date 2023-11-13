@@ -75,18 +75,9 @@ class _AirCondition extends State<AirCondition485> {
           )),
       const Positioned(
         left: 0,
-        top: 223,
+        top: 135,
         child: Image(
-          image: AssetImage('assets/imgs/plugins/0xAC/air_condition.png'),
-        ),
-      ),
-      const Positioned(
-        left: -260,
-        top: 100,
-        width: 430,
-        height: 500,
-        child: Image(
-          image: AssetImage('assets/imgs/plugins/0xAC/wind.png'),
+          image: AssetImage('assets/newUI/acmodel/485.png'),
         ),
       ),
     ]);

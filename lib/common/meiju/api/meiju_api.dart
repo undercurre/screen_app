@@ -17,6 +17,20 @@ const uuid = Uuid();
 
 bool refreshTokenActive = false;
 
+class MeiJuApiHelper {
+
+  static Future<MeiJuResponseEntity<T>> wrap<T>(Future<MeiJuResponseEntity<T>> future) async {
+    try {
+      return await future;
+    } catch(e) {
+      return MeiJuResponseEntity()
+        ..code = -1
+        ..msg = '网络错误';
+    }
+  }
+
+}
+
 class MeiJuApi {
   // 单例实例
   static final MeiJuApi _instance = MeiJuApi._internal();
@@ -262,6 +276,42 @@ class MeiJuApi {
         refreshTokenActive = false;
       }
     }
+  }
+
+  static Future<MeiJuResponseEntity<T>> requestMideaIotSafety<T>(String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress
+  }) {
+    return MeiJuApiHelper.wrap(requestMideaIot(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        options: options,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onSendProgress));
+  }
+
+  static Future<MeiJuResponseEntity<T>> requestMzIotSafety<T>(String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress
+  }) {
+    return MeiJuApiHelper.wrap(requestMzIot(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        options: options,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onSendProgress));
   }
 
   /// IOT接口发起公共接口

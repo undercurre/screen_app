@@ -8,10 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
-import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../channel/index.dart';
@@ -55,7 +53,9 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
   GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
   GlobalKey<LinkNetworkState> networkKey = GlobalKey<LinkNetworkState>();
-  SelectFamilyItem? selectFamily;
+  GlobalKey<_BindingDialogState> bindingKey = GlobalKey<_BindingDialogState>();
+
+  String? selectFamilyId;
   Uuid uuid = Uuid();
 
   void showBindingDialog(bool show) async {
@@ -64,13 +64,17 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       barrierDismissible: false,
       // false = user must tap button, true = tap outside dialog
       builder: (BuildContext dialogContext) {
-        return const BindingDialog();
+        return BindingDialog(key: bindingKey);
       },
     );
   }
 
   /// 上一步
   void prevStep() {
+    /// 从选择家庭返回的时候，需重置为空
+    if (stepNum <= 3) {
+      selectFamilyId = null;
+    }
     if (stepNum == 1) {
       return;
     }
@@ -119,32 +123,47 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-        bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
-            (isBind, deviceID) {
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, device) {
           if (!isBind) {
             // 绑定网关
-            bindGatewayAd
-                ?.bindGateway(System.familyInfo!, System.roomInfo!)
-                .then((isSuccess) {
+            bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
               if (isSuccess) {
                 prepare2goHome();
-                Setting.instant().lastBindHomeName =
-                    System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId =
-                    System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
                 Setting.instant().isAllowChangePlatform = false;
                 gatewayChannel.resetRelayModel();
-                logger.i("绑定网关");
+                Log.i("绑定网关");
               } else {
-                TipsUtils.toast(content: '绑定家庭失败');
-                Navigator.pop(context);
+                assert(bindingKey.currentState != null);
+                bindingKey.currentState?.showErrorStyle();
                 selectRoomKey.currentState?.refreshList();
               }
             });
           } else {
-            prepare2goHome();
+            assert(System.roomInfo!= null);
+            bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
+              if(value) {
+                Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
+                prepare2goHome();
+                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+              } else {
+                assert(bindingKey.currentState != null);
+                bindingKey.currentState?.showErrorStyle();
+                selectRoomKey.currentState?.refreshList();
+              }
+            });
           }
-        }, () {});
+        }, () {
+          assert(bindingKey.currentState != null);
+          bindingKey.currentState?.showErrorStyle();
+          selectRoomKey.currentState?.refreshList();
+        });
       }
       return;
     }
@@ -156,19 +175,16 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   void prepare2goHome() {
     prepareLayout();
     Timer(const Duration(seconds: 3), () {
-      Navigator.pop(context);
       if (mounted) {
-        setState(() {
-          ++stepNum;
-        });
+        assert(bindingKey.currentState != null);
+        bindingKey.currentState?.showSucStyle();
       }
     });
     Timer(const Duration(seconds: 6), () {
       //导航到新路由
       if (mounted) {
-        Navigator.popAndPushNamed(context, 'Home');
+        Navigator.pushNamedAndRemoveUntil(context, 'Home', ModalRoute.withName('/'));
         System.login();
-        stepNum = 2;
       }
     });
   }
@@ -390,10 +406,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择家庭',
           SelectHome(
               key: selectHomeKey,
-              defaultFamily: selectFamily,
+              defaultFamilyId: selectFamilyId ?? Setting.instant().lastBindHomeId,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
-                selectFamily = home;
+                selectFamilyId = home?.familyId;
                 System.familyInfo = home;
                 checkIsNeedShowClearAlert();
                 nextStep();
@@ -402,6 +418,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择房间',
           SelectRoom(
               key: selectRoomKey,
+              defaultRoomId: Setting.instant().lastBindRoomId,
               onChange: (SelectRoomItem room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 System.roomInfo = room;
@@ -431,25 +448,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 ),
               ),
               child: Center(
-                  child: stepNum == 5
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.check,
-                              size: 96,
-                              color: Colors.white,
-                            ),
-                            Container(
-                              margin: const EdgeInsets.only(top: 50),
-                              child: const Text(
-                                '已成功绑定帐号',
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            )
-                          ],
-                        )
-                      : Column(
+                  child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             LoginHeader(
@@ -533,7 +532,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           ],
                         ),
                       ))))
-        else if (stepNum != 5 && !isNeedChoosePlatform)
+        else if (!isNeedChoosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -711,41 +710,134 @@ class LoginHeader extends StatelessWidget {
   }
 }
 
-class BindingDialog extends StatelessWidget {
+class BindingDialog extends StatefulWidget {
+
   const BindingDialog({super.key});
 
   @override
+  State<BindingDialog> createState() => _BindingDialogState();
+
+}
+
+class _BindingDialogState extends State<BindingDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  late int state;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    state = 1;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  showLoadingStyle() {
+    setState(() {
+      state = 1;
+    });
+  }
+
+  showSucStyle() {
+    setState(() {
+      state = 2;
+    });
+  }
+
+  showErrorStyle() {
+    setState(() {
+      state = 3;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var contentWidget = switch(state) {
+        2 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_suc.png'),
+              const Text(
+                '绑定成功',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
+        3 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_err.png'),
+              const Text(
+                '绑定失败',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
+        _ => const Column(
+            children: [
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Align(
+                  child: CupertinoActivityIndicator(radius: 25),
+                ),
+              ),
+              Text(
+                '正在绑定中，请稍后',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ])
+    };
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: 412,
-        height: 270,
-        padding: const EdgeInsets.symmetric(vertical: 45, horizontal: 30),
-        decoration: const BoxDecoration(
-          color: Color(0xFF494E59),
-          borderRadius: BorderRadius.all(Radius.circular(40.0)),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-                flex: 1,
-                child: Container(
-                    alignment: Alignment.center,
-                    child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          CupertinoActivityIndicator(radius: 25),
-                          Text(
-                            '正在绑定中，请稍后',
-                            style: TextStyle(
-                              color: Color.fromRGBO(255, 255, 255, 0.72),
-                              fontSize: 24,
-                            ),
-                          ),
-                        ]))),
-          ],
-        ),
+      child: Stack(
+        children: [
+          Container(
+            width: 412,
+            height: 270,
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: const BoxDecoration(
+              color: Color(0xFF494E59),
+              borderRadius: BorderRadius.all(Radius.circular(40.0)),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Container(
+                        alignment: Alignment.topCenter,
+                        child: contentWidget
+                    )),
+              ],
+            ),
+          ),
+          if(state == 3)
+            Positioned(
+              right: 20,
+              top: 20,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Image.asset(
+                  'assets/newUI/关闭@1x.png',
+                  width: 28,
+                  height: 28,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

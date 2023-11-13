@@ -22,6 +22,20 @@ const tokenExpireCode = 9984;
 /// refreshToken过期错误码
 const refreshExpireCode = 9861;
 
+class HomluxApiHelper {
+
+  static Future<HomluxResponseEntity<T>> wrap<T>(Future<HomluxResponseEntity<T>> future) async {
+    try {
+      return await future;
+    } catch(e) {
+      return HomluxResponseEntity()
+        ..code = -1
+        ..msg = '网络错误';
+    }
+  }
+
+}
+
 class HomluxApi {
   // 单例实例
   static final HomluxApi _instance = HomluxApi._internal();
@@ -63,6 +77,25 @@ class HomluxApi {
 
           return handler.next(e); //continue
         }));
+  }
+
+  static Future<HomluxResponseEntity<T>> requestSafety<T>(String path,
+      {Map<String, dynamic>? data,
+        Map<String, dynamic>? queryParameters,
+        CancelToken? cancelToken,
+        Options? options,
+        ProgressCallback? onSendProgress,
+        ProgressCallback? onReceiveProgress}) {
+
+    return HomluxApiHelper.wrap(request(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      options: options,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress));
+
   }
 
   static Future<HomluxResponseEntity<T>> request<T>(String path,

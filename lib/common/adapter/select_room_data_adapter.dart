@@ -11,7 +11,6 @@ import '../homlux/models/homlux_room_list_entity.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
 import '../meiju/models/meiju_login_home_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
-import '../system.dart';
 
 class SelectRoomItem {
   /// 房间名称
@@ -82,16 +81,16 @@ class SelectRoomItem {
 }
 
 class SelectRoomListEntity {
-  late List<SelectRoomItem> familyList;
+  late List<SelectRoomItem> roomList;
 
   SelectRoomListEntity.fromHomlux(List<HomluxRoomInfo> data) {
     _homluxData = data;
-    familyList = data.map((e) => SelectRoomItem.fromHomlux(e)).toList();
+    roomList = data.map((e) => SelectRoomItem.fromHomlux(e)).toList();
   }
 
   SelectRoomListEntity.fromMeiJu(List<MeiJuRoomEntity> data) {
     _meijuData = data;
-    familyList = data.map((e) => SelectRoomItem.fromMeiJu(e)).toList();
+    roomList = data.map((e) => SelectRoomItem.fromMeiJu(e)).toList();
   }
 
   List<MeiJuRoomEntity>? _meijuData;
@@ -127,13 +126,13 @@ class SelectRoomListEntity {
     return jsonEncode({
       "_homluxData": _homluxData?.map((e) => e.toJson()).toList(),
       "_meijuData": _meijuData?.map((e) => e.toJson()).toList(),
-      "familyListCount": familyList.length
+      "familyListCount": roomList.length
     });
   }
 }
 
 class SelectRoomDataAdapter extends MideaDataAdapter {
-  SelectRoomListEntity? familyListEntity;
+  SelectRoomListEntity? roomListEntity;
   DataState dataState = DataState.NONE;
   List<MeiJuRoomEntity>? meijuRoomList;
   List<HomluxRoomInfo>? homluxRoomList;
@@ -145,9 +144,9 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
       HomluxFamilyEntity familyEntity = item.homluxData as HomluxFamilyEntity;
       var res = await HomluxUserApi.queryRoomList(familyEntity.houseId);
       if (res.isSuccess && res.data != null) {
-        familyListEntity =
+        roomListEntity =
             SelectRoomListEntity.fromHomlux(res.data?.roomInfoWrap ?? []);
-        homluxRoomList = familyListEntity?._homluxData;
+        homluxRoomList = roomListEntity?._homluxData;
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;
@@ -157,9 +156,9 @@ class SelectRoomDataAdapter extends MideaDataAdapter {
       var res = await MeiJuUserApi.getHomeDetail(
           homegroupId: familyEntity.homegroupId);
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {
-        familyListEntity = SelectRoomListEntity.fromMeiJu(
+        roomListEntity = SelectRoomListEntity.fromMeiJu(
             res.data?.homeList?[0].roomList ?? []);
-        meijuRoomList = familyListEntity?._meijuData;
+        meijuRoomList = roomListEntity?._meijuData;
         dataState = DataState.SUCCESS;
       } else {
         dataState = DataState.ERROR;
