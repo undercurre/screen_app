@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/homlux/models/homlux_group_entity.dart';
+import 'package:screen_app/routes/plugins/0x13/mode_list.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
@@ -19,6 +20,7 @@ import '../../../../widgets/event_bus.dart';
 import '../../../../widgets/plugins/mode_card.dart';
 import '../../../common/api/device_api.dart';
 import '../../../common/meiju/meiju_global.dart';
+import '../../../common/system.dart';
 import 'api.dart';
 import '../../../../common/models/endpoint.dart';
 
@@ -28,7 +30,7 @@ class GroupDataEntity {
   bool power = false; //开关
   int maxColorTemp = 6500;
   int minColorTemp = 2700;
-
+  List<Mode> lightModes = [];
 
   GroupDataEntity({
     required brightness,
@@ -36,6 +38,7 @@ class GroupDataEntity {
     required power,
     required maxColorTemp,
     required minColorTemp,
+    lightModes,
   });
 
   GroupDataEntity.fromMeiJu(dynamic data) {
@@ -73,14 +76,11 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   dynamic _meijuData = null;
   HomluxGroupEntity? _homluxData = null;
 
-  GroupDataEntity? data =
-      GroupDataEntity(brightness: 0, colorTemp: 0, power: false, maxColorTemp: 6500, minColorTemp: 2700);
-
+  GroupDataEntity? data = GroupDataEntity(brightness: 0, colorTemp: 0, power: false, maxColorTemp: 6500, minColorTemp: 2700);
 
   Timer? delayTimer;
 
-  LightGroupDataAdapter(
-      super.platform, this.masterId, this.applianceCode) {
+  LightGroupDataAdapter(super.platform, this.masterId, this.applianceCode) {
     type = AdapterType.lightGroup;
   }
 
@@ -96,7 +96,8 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
       "brightness": data!.brightness == 0 ? 1 : data!.brightness,
       "colorTemp": data!.colorTemp,
       "maxColorTemp": data!.maxColorTemp,
-      "minColorTemp": data!.minColorTemp
+      "minColorTemp": data!.minColorTemp,
+      "lightModes": data!.lightModes
     };
   }
 
@@ -148,6 +149,11 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
       }
       if (_meijuData != null) {
         data = GroupDataEntity.fromMeiJu(_meijuData!);
+        var scenes = await queryScene();
+        Log.i('情景列表', scenes);
+        if (scenes != null) {
+          data!.lightModes = scenes;
+        }
       } else if (_homluxData != null) {
         data = GroupDataEntity.fromHomlux(_homluxData!);
       } else {
@@ -188,8 +194,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
   }
 
   Future<HomluxGroupEntity> fetchHomluxData() async {
-    HomluxResponseEntity<HomluxGroupEntity> nodeInfoRes =
-        await HomluxDeviceApi.queryGroupByGroupId(applianceCode);
+    HomluxResponseEntity<HomluxGroupEntity> nodeInfoRes = await HomluxDeviceApi.queryGroupByGroupId(applianceCode);
     HomluxGroupEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
       return nodeInfo;
@@ -221,8 +226,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
         data!.power = !data!.power;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlGroupLightOnOff(
-          applianceCode, data!.power ? 1 : 0);
+      var res = await HomluxDeviceApi.controlGroupLightOnOff(applianceCode, data!.power ? 1 : 0);
       if (res.isSuccess) {
       } else {
         data!.power = !data!.power;
@@ -294,6 +298,38 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
     }
   }
 
+  /// 查询情景
+  Future<List<Mode>> queryScene() async {
+    var res = await DeviceApi.groupRelated(
+        'findLampSceneList',
+        JsonEncoder().convert({
+          "houseId": MeiJuGlobal.homeInfo?.homegroupId,
+          "groupId": applianceCode,
+          "modelId": "midea.light.003.001",
+          "uid": MeiJuGlobal.token?.uid,
+        }));
+
+    if (res.isSuccess) {
+      Log.i('情景数据', (res.result["result"]["sceneList"] as List<dynamic>)[0].keys.toList());
+      return (res.result["result"]["sceneList"] as List<dynamic>)
+          .map((e) => Mode(e["sceneId"], e["sceneName"], 'assets/newUI/lightGroupScene/${e["icon"]}_on.png',
+              'assets/newUI/lightGroupScene/${e["icon"]}_on.png'))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  /// 执行情景
+  Future<void> execScene(String sceneId) async {
+    var res = await MeiJuDeviceApi.sendPDMControlOrder(categoryCode: '0x16', uri: 'lampSceneControl', applianceCode: masterId, command: {
+      'groupId': int.parse(applianceCode),
+      'msgId': uuid.v4(),
+      'sceneId': int.parse(sceneId),
+      'deviceId': masterId,
+    });
+  }
+
   void statusChangePushHomlux(HomluxDevicePropertyChangeEvent arg) {
     if (arg.deviceInfo.eventData?.deviceId == applianceCode) {
       _throttledFetchData();
@@ -338,12 +374,7 @@ class ZigbeeLightEvent extends Event {
   String ColorTemp = '0';
   int duration = 3;
 
-  ZigbeeLightEvent(
-      {required this.OnOff,
-      required this.DelayClose,
-      required this.Level,
-      required this.ColorTemp,
-      required this.duration});
+  ZigbeeLightEvent({required this.OnOff, required this.DelayClose, required this.Level, required this.ColorTemp, required this.duration});
 
   factory ZigbeeLightEvent.fromJson(Map<String, dynamic> json) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
@@ -367,21 +398,9 @@ class ZigbeeLightEvent extends Event {
 
   Map<String, dynamic> toJson() {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      return {
-        'OnOff': OnOff,
-        'DelayClose': DelayClose,
-        'Level': Level,
-        'ColorTemp': ColorTemp,
-        'duration': duration
-      };
+      return {'OnOff': OnOff, 'DelayClose': DelayClose, 'Level': Level, 'ColorTemp': ColorTemp, 'duration': duration};
     } else {
-      return {
-        'OnOff': OnOff,
-        'DelayClose': DelayClose,
-        'Level': Level,
-        'ColorTemp': ColorTemp,
-        'duration': duration
-      };
+      return {'OnOff': OnOff, 'DelayClose': DelayClose, 'Level': Level, 'ColorTemp': ColorTemp, 'duration': duration};
     }
   }
 }
