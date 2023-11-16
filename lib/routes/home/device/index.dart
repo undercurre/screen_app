@@ -251,13 +251,14 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   @override
   Widget build(BuildContext context) {
     final layoutModel = Provider.of<LayoutModel>(context);
+    final deviceModel = Provider.of<DeviceInfoListModel>(context);
     if (mounted) {
-      try {
-        getScreenList(layoutModel);
-      } catch (e) {
-        Log.i('Error', e);
-        _screens = [];
-      }
+      // try {
+        getScreenList(layoutModel, deviceModel);
+      // } catch (e) {
+      //   Log.i('Error', e);
+      //   _screens = [];
+      // }
     }
     return Stack(
       children: [
@@ -305,7 +306,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   /*
   target:对每一页布局数据进行渲染
    */
-  List<Widget> getScreenList(LayoutModel layoutModel) {
+  List<Widget> getScreenList(LayoutModel layoutModel, DeviceInfoListModel deviceModel) {
     // 清空
     _screens.clear();
     // 当前页面的widgets

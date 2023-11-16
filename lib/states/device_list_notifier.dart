@@ -485,10 +485,15 @@ class DeviceInfoListModel extends ChangeNotifier {
               devices[i].type, devices[i].modelNumber);
       // 检查当前设备是否是面板的标志
       bool isPanel = _isPanel(devices[i].modelNumber, devices[i].type);
+      // 检查当前设备是否是只有单种卡片的标记
+      bool isSingleCardDevice = _isSingleCardDevice(devices[i].type);
       // 当前容器集中的最大页数
       int maxPage = getMaxPageIndex(transformList);
       // 当前设备构造Layout模型的cardType
       CardType curCardType = CardType.Small;
+      if (isSingleCardDevice) {
+        curCardType = _getSingleCardType(devices[i].type);
+      }
       if (isPanel) {
         curCardType =
             _getPanelCardType(devices[i].modelNumber, devices[i].type);
@@ -687,12 +692,24 @@ class DeviceInfoListModel extends ChangeNotifier {
     return panelList[modelNum] ?? CardType.Small;
   }
 
+  CardType _getSingleCardType(String type) {
+    return CardType.Big;
+  }
+
   bool _isPanel(String modelNum, String? type) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
 
     return panelList.containsKey(modelNum);
+  }
+
+  bool _isSingleCardDevice(String type) {
+    if (type == '0x26' || type == '0x17') {
+      return true;
+    }
+
+    return false;
   }
 
   int getMaxPageIndex(List<Layout> layouts) {

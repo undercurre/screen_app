@@ -114,6 +114,8 @@ flutter:
     - assets/newUI/
     - assets/newUI/acmodel/
     - assets/newUI/lightGroupScene/
+    - assets/newUI/yubamodel/
+    - assets/newUI/liangyimodel/
     - assets/newUI/weather/
     - assets/newUI/device/
     - assets/newUI/scene/

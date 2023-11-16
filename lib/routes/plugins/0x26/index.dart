@@ -81,8 +81,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
         deviceId = args['deviceId'];
       }
       // 先判断有没有这个id，没有说明设备已被删除
-      final index = deviceList.deviceList
-          .indexWhere((element) => element.applianceCode == deviceId);
+      final index = deviceList.deviceList.indexWhere((element) => element.applianceCode == deviceId);
       if (index >= 0) {
         setState(() {
           device = deviceList.deviceList[index];
@@ -96,13 +95,10 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
       Push.listen(
           "gemini/appliance/event",
           _eventCallback = ((arg) async {
-            String event =
-                (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
+            String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
             Map<String, dynamic> eventMap = json.decode(event);
             String nodeId = eventMap['nodeId'] ?? "";
-            var detail = context
-                .read<DeviceListModel>()
-                .getDeviceDetailById(args['deviceId']);
+            var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
 
             if (nodeId.isEmpty) {
               if (detail['deviceId'] == arg['applianceCode']) {
@@ -110,8 +106,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                 luaDeviceDetailToState();
               }
             } else {
-              if ((detail['masterId'] as String).isNotEmpty &&
-                  detail['detail']?['nodeId'] == nodeId) {
+              if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
                 handleRefresh();
                 luaDeviceDetailToState();
               }
@@ -121,9 +116,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
       Push.listen(
           "appliance/status/report",
           _reportCallback = ((arg) async {
-            var detail = context
-                .read<DeviceListModel>()
-                .getDeviceDetailById(args['deviceId']);
+            var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
             if (arg.containsKey('applianceId')) {
               if (detail['deviceId'] == arg['applianceId']) {
                 throttle(() async {
@@ -175,6 +168,8 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
           MzNavigationBar(
             title: deviceName,
             onLeftBtnTap: () => Navigator.pop(context),
+            power: false,
+            hasPower: true,
           ),
           Expanded(
             flex: 1,
@@ -184,10 +179,9 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                   left: 0,
                   top: 50,
                   child: Image(
-                    image: AssetImage(
-                        runMode['light'] != null && runMode['light']!
-                            ? 'assets/imgs/plugins/0x26/yuba_light_on.png'
-                            : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
+                    image: AssetImage(runMode['light'] != null && runMode['light']!
+                        ? 'assets/imgs/plugins/0x26/yuba_light_on.png'
+                        : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
                   ),
                 ),
                 Row(
@@ -217,7 +211,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                                 height: 10,
                               ),
                               Container(
-                                margin: const EdgeInsets.only(bottom: 16),
+                                margin: const EdgeInsets.only(top: 16, bottom: 16),
                                 child: ModeCard(
                                   modeList: bathroomMasterMode,
                                   selectedKeys: runMode,
@@ -228,20 +222,10 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                               Container(
                                 margin: const EdgeInsets.only(bottom: 16),
                                 child: FunctionCard(
-                                  icon: Container(
-                                    width: 30,
-                                    height: 30,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0x38ffffff),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    ),
-                                    child: const Image(
-                                      height: 22,
-                                      width: 22,
-                                      image: AssetImage(
-                                          'assets/imgs/plugins/0x26/night_light.png'),
-                                    ),
+                                  icon: const Image(
+                                    height: 40,
+                                    width: 40,
+                                    image: AssetImage('assets/newUI/yubamodel/night_light.png'),
                                   ),
                                   title: '小夜灯',
                                   child: MzSwitch(
@@ -251,37 +235,16 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                                 ),
                               ),
                               FunctionCard(
-                                icon: Container(
-                                  width: 30,
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x38ffffff),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  child: const Image(
-                                    height: 22,
-                                    width: 22,
-                                    image: AssetImage(
-                                        'assets/imgs/plugins/0x26/delay_off.png'),
-                                  ),
+                                icon: const Image(
+                                  height: 40,
+                                  width: 40,
+                                  image: AssetImage('assets/newUI/yubamodel/delay.png'),
                                 ),
                                 title: '延时关机',
                                 child: MzSwitch(
-                                  disabled: runMode.values
-                                      .toList()
-                                      .sublist(1)
-                                      .where((element) => element)
-                                      .toList()
-                                      .isEmpty,
-                                  value: runMode.values
-                                          .toList()
-                                          .sublist(1)
-                                          .where((element) => element)
-                                          .toList()
-                                          .isEmpty
-                                      ? false
-                                      : delayClose,
+                                  disabled: runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty,
+                                  value:
+                                      runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty ? false : delayClose,
                                   onTap: (e) => toggleDelayClose(),
                                 ),
                               ),
@@ -304,8 +267,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
   }
 
   handleRefresh() async {
-    final index = deviceList.deviceList
-        .indexWhere((element) => element.applianceCode == deviceId);
+    final index = deviceList.deviceList.indexWhere((element) => element.applianceCode == deviceId);
     try {
       setState(() {
         istouching = true;
@@ -385,12 +347,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
 
       mzNotice.show(context);
     }
-    if (runMode.values
-        .toList()
-        .sublist(1)
-        .where((element) => element)
-        .toList()
-        .isEmpty) {
+    if (runMode.values.toList().sublist(1).where((element) => element).toList().isEmpty) {
       delayClose = false;
     } else {
       setState(() {
@@ -463,10 +420,7 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
           if (mode.key == 'heating') {
             await BaseApi.luaControl(
               deviceId,
-              {
-                'mode': runMode[mode.key]! ? mode.key : '',
-                'heating_temperature': '30'
-              },
+              {'mode': runMode[mode.key]! ? mode.key : '', 'heating_temperature': '30'},
             );
           } else {
             await BaseApi.luaControl(

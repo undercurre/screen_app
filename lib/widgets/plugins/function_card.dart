@@ -32,43 +32,46 @@ class _FunctionCardState extends State<FunctionCard> {
     return MzMetalCard(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 19, 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (widget.icon != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: widget.icon!,
-                  ),
-                Text(
-                  '${widget.title}${widget.subTitle != null ? ' | ' : ''}',
-                  style: const TextStyle(
-                      fontFamily: 'MideaType-Regular',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      height: 1.2,
-                      color: Color(0xFFFFFFFF),
-                      decoration: TextDecoration.none),
-                ),
-                if (widget.subTitle != null)
-                  Text(
-                    widget.subTitle!,
-                    style: const TextStyle(
-                      fontFamily: 'MideaType-Regular',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0x7AFFFFFF),
-                      decoration: TextDecoration.none,
+        child: Container(
+          height: 40,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (widget.icon != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: widget.icon!,
                     ),
-                  )
-              ],
-            ),
-            widget.child
-          ],
+                  Text(
+                    '${widget.title}${widget.subTitle != null ? ' | ' : ''}',
+                    style: const TextStyle(
+                        fontFamily: 'MideaType-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        height: 1.2,
+                        color: Color(0xFFFFFFFF),
+                        decoration: TextDecoration.none),
+                  ),
+                  if (widget.subTitle != null)
+                    Text(
+                      widget.subTitle!,
+                      style: const TextStyle(
+                        fontFamily: 'MideaType-Regular',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0x7AFFFFFF),
+                        decoration: TextDecoration.none,
+                      ),
+                    )
+                ],
+              ),
+              widget.child
+            ],
+          ),
         ),
       ),
     );

@@ -304,6 +304,10 @@ class _CardDialogState extends State<CardDialog> {
       CardType curCardType = _getPanelCardType(modelNum, type);
       return curCardType;
     }
+    if (_isSingleCardDevice(type!)) {
+      CardType curCardType = _getSingleCardType(type);
+      return curCardType;
+    }
     if (type == 'weather' || type == 'clock') {
       return CardType.Other;
     }
@@ -323,11 +327,23 @@ class _CardDialogState extends State<CardDialog> {
     return panelList[modelNum] ?? CardType.Small;
   }
 
+  CardType _getSingleCardType(String type) {
+    return CardType.Big;
+  }
+
   bool _isPanel(String modelNum, String? type) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
 
     return panelList.containsKey(modelNum);
+  }
+
+  bool _isSingleCardDevice(String type) {
+    if (type == '0x26' || type == '0x17') {
+      return true;
+    }
+
+    return false;
   }
 }

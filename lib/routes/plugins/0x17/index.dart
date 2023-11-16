@@ -174,9 +174,13 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('assets/imgs/plugins/common/BG.png'),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF272F41),
+            Color(0xFF080C14),
+          ],
         ),
       ),
       child: Stack(
@@ -244,30 +248,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                   height: 240,
                                   child: Stack(
                                     children: [
-                                      Positioned(
-                                        left: 16,
-                                        bottom: 0,
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              getUpdownStr(),
-                                              style: const TextStyle(
-                                                  color: Color(0xFF8F8F8F),
-                                                  fontSize: 18,
-                                                  fontFamily: 'MideaType',
-                                                  fontWeight: FontWeight.w400),
-                                            ),
-                                            Text(
-                                              '照明${localLight == 'on' ? '开' : '关'}',
-                                              style: const TextStyle(
-                                                  color: Color(0xFF8F8F8F),
-                                                  fontSize: 18,
-                                                  fontFamily: 'MideaType',
-                                                  fontWeight: FontWeight.w400),
-                                            )
-                                          ],
-                                        ),
-                                      ),
+
                                     ],
                                   ),
                                 ),
@@ -292,18 +273,33 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                           ),
                                         ),
                                         Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 16),
+                                          margin: const EdgeInsets.only(bottom: 16),
                                           child: FunctionCard(
+                                            icon: const Image(
+                                              height: 40,
+                                              width: 40,
+                                              image: AssetImage('assets/newUI/liangyimodel/light.png'),
+                                            ),
                                             title: '照明',
-                                            subTitle:
-                                                localLight == 'on' ? '开' : '关',
                                             child: MzSwitch(
-                                              value: localLight == 'on',
-                                              onTap: (e) => lightHandle(e),
+                                              value: true,
+                                              onTap: (e) {},
                                             ),
                                           ),
-                                        )
+                                        ),
+                                        FunctionCard(
+                                          icon: const Image(
+                                            height: 40,
+                                            width: 40,
+                                            image: AssetImage('assets/newUI/liangyimodel/laundry.png'),
+                                          ),
+                                          title: '一键晾衣',
+                                          child: MzSwitch(
+                                            disabled: false,
+                                            value: true,
+                                            onTap: (e) {},
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
