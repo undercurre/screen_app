@@ -1,7 +1,7 @@
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/routes/plugins/0x14/mode_list.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../common/gateway_platform.dart';
@@ -11,6 +11,7 @@ import 'data_adapter.dart';
 
 class LightGroupPageState extends State<LightGroupPage> {
   LightGroupDataAdapter? dataAdapter;
+  String openingSceneId = '';
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -41,19 +42,14 @@ class LightGroupPageState extends State<LightGroupPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
-      return deviceListModel.getDeviceName(
-          deviceId: dataAdapter?.getDeviceId(),
-          maxLength: 8, startLength: 5, endLength: 2
-      );
+      return deviceListModel.getDeviceName(deviceId: dataAdapter?.getDeviceId(), maxLength: 8, startLength: 5, endLength: 2);
     }
 
     return Container(
@@ -142,10 +138,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         minValue: 1,
                                         maxValue: 100,
                                         value: dataAdapter?.data?.brightness ?? 0,
-                                        activeColors: const [
-                                          Color(0xFFFFD185),
-                                          Color(0xFFFFD185)
-                                        ],
+                                        activeColors: const [Color(0xFFFFD185), Color(0xFFFFD185)],
                                         onChanged: dataAdapter?.controlBrightness,
                                         onChanging: dataAdapter?.controlBrightness,
                                       ),
@@ -159,14 +152,102 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         customMin: dataAdapter?.data?.minColorTemp ?? 2700,
                                         customMax: dataAdapter?.data?.maxColorTemp ?? 6500,
                                         value: dataAdapter?.data?.colorTemp ?? 0,
-                                        activeColors: const [
-                                          Color(0xFFFFD39F),
-                                          Color(0xFF55A2FA)
-                                        ],
+                                        activeColors: const [Color(0xFFFFD39F), Color(0xFF55A2FA)],
                                         onChanged: dataAdapter?.controlColorTemperature,
                                         onChanging: dataAdapter?.controlColorTemperature,
                                       ),
                                     ),
+                                    dataAdapter?.getCardStatus()?["lightModes"].length! > 0
+                                        ? MzMetalCard(
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(21, 18, 25, 12),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    for (var i = 0; i < dataAdapter!.getCardStatus()!["lightModes"].length; i++)
+                                                      Container(
+                                                        margin: i == dataAdapter?.getCardStatus()?["lightModes"].length! - 1
+                                                            ? const EdgeInsets.only(right: 0)
+                                                            : const EdgeInsets.only(right: 22),
+                                                        width: 50,
+                                                        height: 82,
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            dataAdapter?.execScene(dataAdapter?.getCardStatus()?["lightModes"][i].key);
+                                                            setState(() {
+                                                              openingSceneId = dataAdapter?.getCardStatus()?["lightModes"][i].key;
+                                                            });
+                                                            Future.delayed(const Duration(seconds: 3), () {
+                                                              setState(() {
+                                                                openingSceneId = '';
+                                                              });
+                                                            });
+                                                          },
+                                                          child: Column(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                                            children: [
+                                                              openingSceneId == dataAdapter?.getCardStatus()?["lightModes"][i].key
+                                                                  ? Container(
+                                                                      width: 50,
+                                                                      height: 50,
+                                                                      margin: const EdgeInsets.only(bottom: 8),
+                                                                      decoration: BoxDecoration(
+                                                                        borderRadius: BorderRadius.circular(25.0),
+                                                                        // 调整圆角半径
+                                                                        gradient: const LinearGradient(
+                                                                          begin: Alignment.topRight,
+                                                                          end: Alignment.bottomLeft,
+                                                                          stops: [0.0, 0.27, 1.0],
+                                                                          colors: [
+                                                                            Color(0xFF767B86),
+                                                                            Color(0xFF88909F),
+                                                                            Color(0xFF516375),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      child: Center(
+                                                                        child: Image(
+                                                                          width: 40,
+                                                                          image: AssetImage(
+                                                                              dataAdapter!.getCardStatus()!["lightModes"][i].onIcon),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  : Container(
+                                                                      width: 50,
+                                                                      height: 50,
+                                                                      margin: const EdgeInsets.only(bottom: 8),
+                                                                      decoration: BoxDecoration(
+                                                                          borderRadius: BorderRadius.circular(25.0),
+                                                                          // 调整圆角半径
+                                                                          color: const Color.fromRGBO(255, 255, 255, 0.12)),
+                                                                      child: Center(
+                                                                        child: Image(
+                                                                          color: Colors.white.withOpacity(0.5),
+                                                                          width: 40,
+                                                                          image: AssetImage(
+                                                                              dataAdapter!.getCardStatus()!["lightModes"][i].onIcon),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                              Text(
+                                                                dataAdapter!.getCardStatus()!["lightModes"][i].name,
+                                                                style: const TextStyle(
+                                                                    fontSize: 16, color: Color.fromRGBO(255, 255, 255, 0.48)),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(width: 312, height: 112)
                                   ],
                                 ),
                               ),
