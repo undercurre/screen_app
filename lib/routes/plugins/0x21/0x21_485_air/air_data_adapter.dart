@@ -370,7 +370,7 @@ class Air485Data {
   int operationMode = 1;
 
   // 开关状态
-  bool OnOff = true;
+  bool OnOff = false;
 
   bool online = true;
 
