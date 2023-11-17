@@ -22,6 +22,7 @@ class YubaDataEntity {
   String mode = 'close_all';
   String light_mode = 'close_all';
   String delay_enable = 'off';
+  String heating_temp = '30';
 
   YubaDataEntity({
     required mode,
@@ -33,12 +34,14 @@ class YubaDataEntity {
     mode = data["mode"];
     light_mode = data["light_mode"];
     delay_enable = data["delay_enable"];
+    heating_temp = data["heating_temperature"];
   }
 
   YubaDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    mode = 'close_all';
-    light_mode = 'close_all';
-    delay_enable = 'off';
+    mode = data.mzgdPropertyDTOList?.bathHeat?.mode ?? 'close_all';
+    light_mode = data.mzgdPropertyDTOList?.bathHeat?.lightMode ?? 'close_all';
+    delay_enable = data.mzgdPropertyDTOList?.bathHeat?.delayEnable ?? 'off';
+    heating_temp = data.mzgdPropertyDTOList?.bathHeat?.heatingTemperature ?? '30';
   }
 
   Map<String, dynamic> toJson() {
@@ -111,7 +114,20 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
 
   @override
   Future<void> power(bool? onOff) async {
-    // return controlPower();
+    var lastMode = data!.mode;
+    var lastLightMode = data!.light_mode;
+    data!.mode = 'close_all';
+    data!.light_mode = 'close_all';
+    var modeRes = await HomluxDeviceApi.controlWifiYubaModeOff(applianceCode, "3", 'close_all');
+    var lightRes = await HomluxDeviceApi.controlWifiYubaLightMode(applianceCode, "3", 'close_all');
+    if (modeRes.isSuccess) {
+    } else {
+      data!.mode = lastMode;
+    }
+    if (lightRes.isSuccess) {
+    } else {
+      data!.light_mode = lastLightMode;
+    }
   }
 
   @override
@@ -150,6 +166,18 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
   @override
   Future<void> tryOnce() async {
     // controlPower();
+  }
+
+  @override
+  Future<void> modeControl(int index) async {
+    /// 1-3都是enable_mode指令
+    if (index >= 1 && index <= 3) {
+      Map<int, String> modes = {1: 'heating', 2: 'blowing', 3: 'ventilation'};
+      if (modes[index] != null) controlMode(modes[index]!);
+    } else {
+      /// 4是main_light指令
+      controlLightMode('main_light');
+    }
   }
 
   @override
@@ -206,201 +234,96 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     }
   }
 
-  /// 控制开关
-  // Future<void> controlPower() async {
-  //   // data!.power = !data!.power;
-  //   updateUI();
-  //   if (platform.inMeiju()) {
-  //     /// todo: 可以优化类型限制
-  //     // var command = {"power": data!.power ? 'on' : 'off'};
-  //     var res = await MeiJuDeviceApi.sendLuaOrder(
-  //       categoryCode: '0x26',
-  //       applianceCode: applianceCode,
-  //       command: {},
-  //     );
-  //     if (res.isSuccess) {
-  //     } else {
-  //       // data!.power = !data!.power;
-  //     }
-  //   } else if (platform.inHomlux()) {
-  //     var res = await HomluxDeviceApi.controlWifiLightOnOff(applianceCode, "3", data!.power ? 1 : 0);
-  //     if (res.isSuccess) {
-  //     } else {
-  //       // data!.power = !data!.power;
-  //       updateUI();
-  //     }
-  //   }
-  //   updateUI();
-  // }
-
   /// 控制延时关
-  // Future<void> controlDelay() async {
-  //   int lastTimeOff = data!.timeOff;
-  //   if (!data!.power) return;
-  //   if (data!.timeOff == 0) {
-  //     data!.timeOff = 3;
-  //   } else {
-  //     data!.timeOff = 0;
-  //   }
-  //   updateUI();
-  //   if (platform.inMeiju()) {
-  //     var res;
-  //     if (sn8.isNotEmpty && sn8 == '79009833') {
-  //       var command = {"timeOff": data!.timeOff};
-  //       res = await MeiJuDeviceApi.sendPDMControlOrder(
-  //           categoryCode: '0x26', uri: 'setTimeOff', applianceCode: applianceCode, command: command);
-  //     } else {
-  //       var command = {"delay_light_off": data!.timeOff};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: command);
-  //     }
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.timeOff = lastTimeOff;
-  //     }
-  //   } else if (platform.inHomlux()) {
-  //     var res = await HomluxDeviceApi.controlWifiLightDelayOff(applianceCode, "3", data!.timeOff);
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.timeOff = lastTimeOff;
-  //     }
-  //   }
-  // }
+  Future<void> controlDelay() async {
+    String lastDelay = data!.delay_enable;
+    data!.delay_enable = lastDelay == 'on' ? 'off' : 'on';
+    updateUI();
+    if (platform.inMeiju()) {
+      var res;
+      if (res.isSuccess) {
+      } else {
+        data!.delay_enable = lastDelay;
+      }
+    } else if (platform.inHomlux()) {
+      HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiYubaDelay(applianceCode, "3", data!.delay_enable, "30");
+
+      if (res.isSuccess) {
+      } else {
+        data!.delay_enable = lastDelay;
+      }
+    }
+  }
 
   /// 控制模式
-  // Future<void> controlMode(Mode mode) async {
-  //   String lastModel = data!.screenModel;
-  //   data!.screenModel = mode.key;
-  //   updateUI();
-  //   if (platform.inMeiju()) {
-  //     var res;
-  //     if (sn8.isNotEmpty && sn8 == '79009833') {
-  //       var command = {"dimTime": 0, "screenModel": mode.key};
-  //       res = await MeiJuDeviceApi.sendPDMControlOrder(
-  //         categoryCode: '0x26',
-  //         uri: 'controlScreenModel',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     } else {
-  //       var command = {"scene_light": mode.key};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(
-  //         categoryCode: '0x26',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     }
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.screenModel = lastModel;
-  //     }
-  //   } else if (platform.inHomlux()) {
-  //     var res = await HomluxDeviceApi.controlWifiLightMode(applianceCode, "3", mode.key);
-  //
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.screenModel = lastModel;
-  //     }
-  //   }
-  // }
+  Future<void> controlMode(String mode) async {
+    String lastModel = data!.mode;
+    if (data!.mode.contains(mode)) {
+      data!.mode = data!.mode.replaceAll('$mode,', '');
+      data!.mode = data!.mode.replaceAll(mode, '');
+      if (data!.mode.isEmpty) {
+        data!.mode = 'close_all';
+      }
+    } else {
+      if (data!.mode == 'close_all') {
+        data!.mode = mode;
+      } else {
+        data!.mode += ',$mode';
+      }
+    }
+    updateUI();
+    if (platform.inMeiju()) {
+      var res;
+      if (res.isSuccess) {
+      } else {
+        data!.mode = lastModel;
+      }
+    } else if (platform.inHomlux()) {
+      HomluxResponseEntity<dynamic> res;
+      if (lastModel.contains(mode)) {
+        res = await HomluxDeviceApi.controlWifiYubaModeOff(applianceCode, "3", mode);
+      } else {
+        res = await HomluxDeviceApi.controlWifiYubaModeOn(applianceCode, "3", mode, data!.heating_temp);
+        if (res.isSuccess) {
+        } else {
+          data!.mode = lastModel;
+        }
+      }
+    }
+  }
 
-  /// 控制亮度
-  // Future<void> controlBrightness(num value, Color? activeColor) async {
-  //   int lastBrightness = data!.brightness;
-  //   data!.brightness = value.toInt();
-  //   updateUI();
-  //
-  //   if (platform.inMeiju()) {
-  //     var res;
-  //     if (sn8.isNotEmpty && sn8 == '79009833') {
-  //       var command = {"dimTime": 0, "brightValue": int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))};
-  //       res = await MeiJuDeviceApi.sendPDMControlOrder(
-  //         categoryCode: '0x26',
-  //         uri: 'controlBrightValue',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     } else if (sn8.isNotEmpty && sn8 == '79010914') {
-  //       var command = {"brightness": int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(
-  //         categoryCode: '0x26',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     } else {
-  //       var command = {"brightness": data!.brightness};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(
-  //         categoryCode: '0x26',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     }
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.brightness = lastBrightness;
-  //     }
-  //   } else if (platform.inHomlux()) {
-  //     var res = await HomluxDeviceApi.controlWifiLightBrightness(applianceCode, "3", value.toInt());
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.brightness = lastBrightness;
-  //     }
-  //   }
-  // }
+  /// 控制灯光
+  Future<void> controlLightMode(String mode) async {
+    String lastLightModel = data!.light_mode;
+    if (lastLightModel.contains(mode)) {
+      data!.light_mode = data!.light_mode.replaceAll('$mode,', '');
+      data!.light_mode = data!.light_mode.replaceAll(mode, '');
+      if (data!.light_mode.isEmpty) {
+        data!.light_mode = 'close_all';
+      }
+    } else {
+      if (data!.light_mode == 'close_all') {
+        data!.light_mode = mode;
+      } else {
+        data!.light_mode += ',$mode';
+      }
+    }
+    updateUI();
+    if (platform.inMeiju()) {
+      var res;
+      if (res.isSuccess) {
+      } else {
+        data!.light_mode = lastLightModel;
+      }
+    } else if (platform.inHomlux()) {
+      HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiYubaLightMode(applianceCode, "3", data!.light_mode);
+      if (res.isSuccess) {
+      } else {
+        data!.light_mode = lastLightModel;
+      }
+    }
+  }
 
-  /// 控制色温
-  // Future<void> controlColorTemperature(num value, Color? activeColor) async {
-  //   int lastColorTemp = data!.colorTemp;
-  //   data!.colorTemp = value.toInt();
-  //   updateUI();
-  //   if (platform.inMeiju()) {
-  //     var res;
-  //     if (sn8.isNotEmpty && sn8 == '79009833') {
-  //       var command = {
-  //         "dimTime": 0,
-  //         "colorTemperatureValue": int.parse(
-  //           (data!.colorTemp / 100 * 255).toStringAsFixed(0),
-  //         )
-  //       };
-  //       res = await MeiJuDeviceApi.sendPDMControlOrder(
-  //         categoryCode: '0x26',
-  //         uri: 'controlColorTemperatureValue',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     } else if (sn8.isNotEmpty && sn8 == '79010914') {
-  //       var command = {"color_temperature": int.parse((data!.colorTemp / 100 * 255).toStringAsFixed(0))};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(
-  //         categoryCode: '0x26',
-  //         applianceCode: applianceCode,
-  //         command: command,
-  //       );
-  //     } else {
-  //       var command = {"color_temperature": data!.colorTemp};
-  //       res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: command);
-  //     }
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.colorTemp = lastColorTemp;
-  //     }
-  //   } else if (platform.inHomlux()) {
-  //     var res = await HomluxDeviceApi.controlWifiLightColorTemp(applianceCode, "3", value.toInt());
-  //     if (res.isSuccess) {
-  //     } else {
-  //       data!.colorTemp = lastColorTemp;
-  //     }
-  //   }
-  // }
-
-  // Future<void> controlBrightnessFaker(num value, Color? activeColor) async {
-  //   data!.brightness = value.toInt();
-  //   updateUI();
-  // }
-  //
-  // Future<void> controlColorTemperatureFaker(num value, Color? activeColor) async {
-  //   data!.colorTemp = value.toInt();
-  //   updateUI();
-  // }
-  //
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {
     if (args.deviceId == applianceCode) {
       _throttledFetchData();

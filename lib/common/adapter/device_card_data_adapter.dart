@@ -75,4 +75,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   /// 找一找
   Future<dynamic> tryOnce() async {}
+
+  /// 模式卡
+  Future<dynamic> modeControl(int index) async {}
 }

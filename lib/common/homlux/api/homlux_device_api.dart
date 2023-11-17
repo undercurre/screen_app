@@ -14,18 +14,17 @@ import '../models/homlux_group_entity.dart';
 
 /// 恢复[HomluxDeviceApi.devices]的单个设备缓存数据
 Future<void> _recoverForDevices(String deviceId) async {
-
   var homeId = HomluxGlobal.homluxHomeInfo?.houseId ?? "xx";
   var devices = HomluxDeviceApi.devices;
   var homeDeviceList = HomluxDeviceApi.homeDeviceList;
   var lanManager = HomluxDeviceApi.lanManager;
 
   if (!devices.containsKey(deviceId)) {
-    if(homeDeviceList.containsKey(homeId)) {
+    if (homeDeviceList.containsKey(homeId)) {
       homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
         e.onLineStatus = 0;
-        if(lanManager.deviceMap.containsKey(e.deviceId)) {
-          if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+        if (lanManager.deviceMap.containsKey(e.deviceId)) {
+          if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
             e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
             Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
           }
@@ -38,8 +37,8 @@ Future<void> _recoverForDevices(String deviceId) async {
         var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
         entity.result = entity.result?.map((e) {
           e.onLineStatus = 0;
-          if(lanManager.deviceMap.containsKey(e.deviceId)) {
-            if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+          if (lanManager.deviceMap.containsKey(e.deviceId)) {
+            if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
               e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
               Log.file('[device-api] 设备 ${e.deviceId} 局域网检查状态 ${lanManager.deviceMap[e.deviceId]}');
             }
@@ -66,12 +65,10 @@ class HomluxDeviceApi {
   static Map<String, HomluxGroupEntity> groups = {};
 
   // 房间设备列表
-  static Map<String, HomluxResponseEntity<List<HomluxDeviceEntity>>>
-      roomDeviceList = {};
+  static Map<String, HomluxResponseEntity<List<HomluxDeviceEntity>>> roomDeviceList = {};
 
   // 家庭设备列表
-  static Map<String, HomluxResponseEntity<List<HomluxDeviceEntity>>>
-      homeDeviceList = {};
+  static Map<String, HomluxResponseEntity<List<HomluxDeviceEntity>>> homeDeviceList = {};
 
   // 清除内存缓存
   static void clearMemoryCache() {
@@ -85,21 +82,19 @@ class HomluxDeviceApi {
   /// ******************
   /// 房间设备列表接口
   /// *******************
-  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>>
-      queryDeviceListByRoomId(String roomId, {CancelToken? cancelToken}) async {
-
+  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> queryDeviceListByRoomId(String roomId, {CancelToken? cancelToken}) async {
     Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> getCacheData() async {
       if (roomDeviceList[roomId] != null) {
         roomDeviceList[roomId]!.result = roomDeviceList[roomId]!.result?.map((e) {
-              e.onLineStatus = 0;
-              if(lanManager.deviceMap.containsKey(e.deviceId)) {
-                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
-                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                  Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
-                }
-              }
-              return e;
-            }).toList();
+          e.onLineStatus = 0;
+          if (lanManager.deviceMap.containsKey(e.deviceId)) {
+            if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+              e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+              Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
+            }
+          }
+          return e;
+        }).toList();
         return roomDeviceList[roomId]!;
       } else {
         var jsonStr = await LocalStorage.getItem("homlux_device_list_by_room_id_$roomId");
@@ -107,8 +102,8 @@ class HomluxDeviceApi {
           var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
           entity.result = entity.result?.map((e) {
             e.onLineStatus = 0;
-            if(lanManager.deviceMap.containsKey(e.deviceId)) {
-              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+            if (lanManager.deviceMap.containsKey(e.deviceId)) {
+              if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
                 e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
                 Log.file('[device-api] 设备 ${e.deviceId} 局域网状态 ${lanManager.deviceMap[e.deviceId]}');
               }
@@ -128,27 +123,23 @@ class HomluxDeviceApi {
     }
 
     void saveCacheData(HomluxResponseEntity<List<HomluxDeviceEntity>>? res, [bool clear = false]) async {
-      if(clear) {
+      if (clear) {
         roomDeviceList.remove(roomId);
         LocalStorage.removeItem("homlux_device_list_by_room_id_$roomId");
-      } else if(res != null) {
+      } else if (res != null) {
         roomDeviceList[roomId] = res;
         LocalStorage.setItem("homlux_device_list_by_room_id_$roomId", jsonEncode(res.toJson()));
       }
     }
 
     try {
-      var res = await HomluxApi.request<List<HomluxDeviceEntity>>(
-          '/v1/device/queryDeviceInfoByRoomId',
-          cancelToken: cancelToken,
-          options: Options(method: 'POST'),
-          data: {'roomId': roomId});
+      var res = await HomluxApi.request<List<HomluxDeviceEntity>>('/v1/device/queryDeviceInfoByRoomId',
+          cancelToken: cancelToken, options: Options(method: 'POST'), data: {'roomId': roomId});
 
       if (res.success) {
         saveCacheData(res, res.result == null || res.result!.isEmpty);
         return res;
       }
-
     } catch (e) {
       Log.i('[device-api] 获取房间设备列表ID=$roomId 失败 ', e);
     }
@@ -159,19 +150,17 @@ class HomluxDeviceApi {
   /// 请求单个设备详情
   /// [deviceId] 设备id
   /// ****************
-  static Future<HomluxResponseEntity<HomluxDeviceEntity>>
-      queryDeviceStatusByDeviceId(String deviceId, {CancelToken? cancelToken, bool forceRequestNetwork = true}) async {
+  static Future<HomluxResponseEntity<HomluxDeviceEntity>> queryDeviceStatusByDeviceId(String deviceId,
+      {CancelToken? cancelToken, bool forceRequestNetwork = true}) async {
     Log.i('[device-api] 请求设备状态 deviceId=$deviceId forceRequestNetwork=$forceRequestNetwork');
+
     /// 从本地缓存中，还原设备状态
     await _recoverForDevices(deviceId);
 
     try {
-      HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<
-          HomluxDeviceEntity>(
-          '/v1/device/queryDeviceInfoByDeviceId',
-          cancelToken: cancelToken,
-          options: Options(method: 'POST'),
-          data: {'deviceId': deviceId});
+      HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<HomluxDeviceEntity>('/v1/device/queryDeviceInfoByDeviceId',
+          cancelToken: cancelToken, options: Options(method: 'POST'), data: {'deviceId': deviceId});
+
       /// 更新最新的数据到缓存中
       if (entity.isSuccess && entity.data != null) {
         devices[deviceId] = entity.data!;
@@ -180,8 +169,7 @@ class HomluxDeviceApi {
 
       Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
       return entity;
-
-    } catch(e) {
+    } catch (e) {
       // 去获取设备状态。优先局域网状态
       if (devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
         HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
@@ -206,8 +194,7 @@ class HomluxDeviceApi {
             curEntity.onLineStatus = statu['online'] ?? 0;
           }
           curEntity.mzgdPropertyDTOList = HomluxDeviceMzgdPropertyDTOList.fromJson(newStatus);
-          HomluxResponseEntity<HomluxDeviceEntity> response =
-          HomluxResponseEntity()
+          HomluxResponseEntity<HomluxDeviceEntity> response = HomluxResponseEntity()
             ..code = 0
             ..msg = '请求成功'
             ..result = curEntity;
@@ -217,7 +204,6 @@ class HomluxDeviceApi {
           Log.file('[device-api] 获取局域网状态失败：$deviceId');
         }
       }
-
     }
 
     throw MideaException("[device-api] 请求设备状态失败");
@@ -227,31 +213,28 @@ class HomluxDeviceApi {
   /// 获取家庭设备列表
   /// *******************
   static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> queryDeviceListByHomeId(String homeId, {CancelToken? cancelToken}) async {
-
     Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> getCacheData() async {
-
       if (homeDeviceList[homeId] != null) {
         homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
-              e.onLineStatus = 0;
-              if(lanManager.deviceMap.containsKey(e.deviceId)) {
-                if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
-                  e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
-                }
-              }
-              devices[e.deviceId!] = e;
-              return e;
-            }).toList();
+          e.onLineStatus = 0;
+          if (lanManager.deviceMap.containsKey(e.deviceId)) {
+            if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+              e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
+            }
+          }
+          devices[e.deviceId!] = e;
+          return e;
+        }).toList();
         Log.file('[device-api] 家庭设备列表 局域网状态 ${homeDeviceList[homeId]!.toJson()}');
         return homeDeviceList[homeId]!;
       } else {
         var jsonStr = await LocalStorage.getItem("homlux_device_list_by_home_id_$homeId");
         if (StrUtils.isNotNullAndEmpty(jsonStr)) {
-          var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(
-              jsonDecode(jsonStr!));
+          var entity = HomluxResponseEntity<List<HomluxDeviceEntity>>.fromJson(jsonDecode(jsonStr!));
           entity.result = entity.result?.map((e) {
             e.onLineStatus = 0;
-            if(lanManager.deviceMap.containsKey(e.deviceId)) {
-              if(lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
+            if (lanManager.deviceMap.containsKey(e.deviceId)) {
+              if (lanManager.deviceMap[e.deviceId]?['status'] != null && lanManager.deviceMap[e.deviceId]?['status'].length > 0) {
                 e.onLineStatus = lanManager.deviceMap[e.deviceId]?['status'][0]?['online'] == 1 ? 1 : 0;
               }
             }
@@ -270,7 +253,7 @@ class HomluxDeviceApi {
     }
 
     void saveCache(HomluxResponseEntity<List<HomluxDeviceEntity>> res, [bool clear = false]) {
-      if(clear) {
+      if (clear) {
         homeDeviceList.remove(homeId);
         LocalStorage.removeItem("homlux_device_list_by_home_id_$homeId");
       } else {
@@ -280,17 +263,13 @@ class HomluxDeviceApi {
     }
 
     try {
-      var res = await HomluxApi.request<List<HomluxDeviceEntity>>(
-          '/v1/device/queryDeviceInfoByHouseId',
-          cancelToken: cancelToken,
-          options: Options(method: 'POST'),
-          data: {'houseId': homeId});
+      var res = await HomluxApi.request<List<HomluxDeviceEntity>>('/v1/device/queryDeviceInfoByHouseId',
+          cancelToken: cancelToken, options: Options(method: 'POST'), data: {'houseId': homeId});
 
       if (res.success) {
         saveCache(res, res.result == null || res.result!.isEmpty);
         return res;
       }
-
     } catch (e) {
       Log.file('[device-api] 获取家庭设备列表失败 $homeId', e);
     }
@@ -303,35 +282,36 @@ class HomluxDeviceApi {
   /// [groupId] 分组id
   /// ****************
   static Future<HomluxResponseEntity<HomluxGroupEntity>> queryGroupByGroupId(String groupId, {CancelToken? cancelToken}) async {
-
     Future<HomluxResponseEntity<HomluxGroupEntity>> getCacheData() async {
       if (groups.containsKey(groupId)) {
         Log.file('[device-api] 获取灯组$groupId详情 ${groups[groupId]}');
         return HomluxResponseEntity()
-          ..code = 0 ..msg = "请求成功" ..result = groups[groupId];
+          ..code = 0
+          ..msg = "请求成功"
+          ..result = groups[groupId];
       } else {
         var jsonStr = await LocalStorage.getItem('homlux_lan_group_save_$groupId');
-        if(StrUtils.isNotNullAndEmpty(jsonStr)) {
+        if (StrUtils.isNotNullAndEmpty(jsonStr)) {
           HomluxGroupEntity entity = HomluxGroupEntity.fromJson(jsonDecode(jsonStr!));
           groups[groupId] = entity;
           Log.file('[device-api] 获取灯组$groupId详情 $entity');
           return HomluxResponseEntity()
-            ..code = 0 ..msg = "请求成功" ..result = entity;
+            ..code = 0
+            ..msg = "请求成功"
+            ..result = entity;
         }
       }
       return HomluxResponseEntity()
-        ..code = -1 ..msg = "请求失败";
+        ..code = -1
+        ..msg = "请求失败";
     }
 
     try {
-      var res = await HomluxApi.request<HomluxGroupEntity>(
-          '/v1/mzgd/scene/queryGroupByGroupId',
-          cancelToken: cancelToken,
-          options: Options(method: 'POST'),
-          data: {'groupId': groupId});
+      var res = await HomluxApi.request<HomluxGroupEntity>('/v1/mzgd/scene/queryGroupByGroupId',
+          cancelToken: cancelToken, options: Options(method: 'POST'), data: {'groupId': groupId});
 
-      if (res.success ) {
-        if(res.data != null) {
+      if (res.success) {
+        if (res.data != null) {
           groups['groupId'] = res.data!;
           LocalStorage.setItem('homlux_lan_group_save_$groupId', jsonEncode(res.data!.toJson()));
         } else {
@@ -346,7 +326,6 @@ class HomluxDeviceApi {
     }
 
     return getCacheData();
-
   }
 
   /// ******************
@@ -356,15 +335,10 @@ class HomluxDeviceApi {
   /// [masterId] 面板的网关id
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlPanelOnOff(
-      String panelId, String switchId, String masterId, int onOff) {
+  static Future<HomluxResponseEntity> controlPanelOnOff(String panelId, String switchId, String masterId, int onOff) {
     /// 云端 设备执行的action
     var cloudActions = [
-      <String, dynamic>{
-        'devId': panelId,
-        'modelName': 'wallSwitch$switchId',
-        'power': onOff
-      }
+      <String, dynamic>{'devId': panelId, 'modelName': 'wallSwitch$switchId', 'power': onOff}
     ];
 
     /// 局域网 设备执行的action
@@ -392,8 +366,7 @@ class HomluxDeviceApi {
   /// [masterId] 面板的网关id
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlZigbeeLightOnOff(
-      String deviceId, String deviceType, String masterId, int onOff) {
+  static Future<HomluxResponseEntity> controlZigbeeLightOnOff(String deviceId, String deviceType, String masterId, int onOff) {
     var cloudActions = [
       <String, dynamic>{'devId': deviceId, 'modelName': "light", 'power': onOff}
     ];
@@ -422,14 +395,9 @@ class HomluxDeviceApi {
   /// [masterId] 面板的网关id
   /// [delayTime] 延时分钟
   /// *******************
-  static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(
-      String deviceId, String deviceType, String masterId, int delayTime) {
+  static Future<HomluxResponseEntity> controlZigbeeLightDelayOff(String deviceId, String deviceType, String masterId, int delayTime) {
     var cloudActions = [
-      <String, dynamic>{
-        'devId': deviceId,
-        'modelName': "light",
-        'DelayClose': delayTime
-      }
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'DelayClose': delayTime}
     ];
 
     /// 局域网 设备执行的action
@@ -457,14 +425,9 @@ class HomluxDeviceApi {
   /// [masterId] 面板的网关id
   /// [brightness] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlZigbeeBrightness(
-      String deviceId, String deviceType, String masterId, int brightness) {
+  static Future<HomluxResponseEntity> controlZigbeeBrightness(String deviceId, String deviceType, String masterId, int brightness) {
     var cloudActions = [
-      <String, dynamic>{
-        'devId': deviceId,
-        'modelName': "light",
-        'brightness': brightness
-      }
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'brightness': brightness}
     ];
 
     /// 局域网 设备执行的action
@@ -492,14 +455,9 @@ class HomluxDeviceApi {
   /// [masterId] 面板的网关id
   /// [colorTemp] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlZigbeeColorTemp(
-      String deviceId, String deviceType, String masterId, int colorTemp) {
+  static Future<HomluxResponseEntity> controlZigbeeColorTemp(String deviceId, String deviceType, String masterId, int colorTemp) {
     var cloudActions = [
-      <String, dynamic>{
-        'devId': deviceId,
-        'modelName': "light",
-        'colorTemperature': colorTemp
-      }
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'colorTemperature': colorTemp}
     ];
 
     /// 局域网 设备执行的action
@@ -528,28 +486,16 @@ class HomluxDeviceApi {
   /// [brightness] 0 - 100
   /// *******************
   static Future<HomluxResponseEntity> controlZigbeeColorTempAndBrightness(
-      String deviceId,
-      String deviceType,
-      String masterId,
-      int colorTemp,
-      int brightness) {
+      String deviceId, String deviceType, String masterId, int colorTemp, int brightness) {
     var cloudActions = [
-      <String, dynamic>{
-        'devId': deviceId,
-        'modelName': "light",
-        'colorTemperature': colorTemp,
-        'brightness': brightness
-      }
+      <String, dynamic>{'devId': deviceId, 'modelName': "light", 'colorTemperature': colorTemp, 'brightness': brightness}
     ];
 
     /// 局域网 设备执行的action
     var lanActions = [
       <String, dynamic>{
         'modelName': 'light',
-        'deviceProperty': {
-          'colorTemperature': colorTemp,
-          'brightness': brightness
-        }
+        'deviceProperty': {'colorTemperature': colorTemp, 'brightness': brightness}
       }
     ];
 
@@ -569,8 +515,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiLightOnOff(
-      String deviceId, String deviceType, int onOff) {
+  static Future<HomluxResponseEntity> controlWifiLightOnOff(String deviceId, String deviceType, int onOff) {
     var cloudActions = [
       <String, dynamic>{'power': onOff}
     ];
@@ -599,8 +544,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [brightness] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiLightBrightness(
-      String deviceId, String deviceType, int brightness) {
+  static Future<HomluxResponseEntity> controlWifiLightBrightness(String deviceId, String deviceType, int brightness) {
     var cloudActions = [
       <String, dynamic>{'brightness': brightness}
     ];
@@ -629,8 +573,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [colorTemp] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiLightColorTemp(
-      String deviceId, String deviceType, int colorTemp) {
+  static Future<HomluxResponseEntity> controlWifiLightColorTemp(String deviceId, String deviceType, int colorTemp) {
     var cloudActions = [
       <String, dynamic>{'colorTemperature': colorTemp}
     ];
@@ -659,8 +602,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [delayTime] 延时分钟
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiLightDelayOff(
-      String deviceId, String deviceType, int delayTime) {
+  static Future<HomluxResponseEntity> controlWifiLightDelayOff(String deviceId, String deviceType, int delayTime) {
     var cloudActions = [
       <String, dynamic>{'delay_light_off': '$delayTime'}
     ];
@@ -689,8 +631,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [delayTime] 延时分钟
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiLightMode(
-      String deviceId, String deviceType, String mode) {
+  static Future<HomluxResponseEntity> controlWifiLightMode(String deviceId, String deviceType, String mode) {
     var cloudActions = [
       <String, dynamic>{'scene_light': mode}
     ];
@@ -719,8 +660,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiCurtainOnOff(
-      String deviceId, String deviceType, int onOff) {
+  static Future<HomluxResponseEntity> controlWifiCurtainOnOff(String deviceId, String deviceType, int onOff) {
     var cloudActions = [
       <String, dynamic>{'curtain_status': onOff == 1 ? "open" : "close"}
     ];
@@ -749,8 +689,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [position] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiCurtainPosition(
-      String deviceId, String deviceType, int position) {
+  static Future<HomluxResponseEntity> controlWifiCurtainPosition(String deviceId, String deviceType, int position) {
     var cloudActions = [
       <String, dynamic>{'curtain_position': "$position"}
     ];
@@ -777,8 +716,7 @@ class HomluxDeviceApi {
   /// [deviceId] 设备Id
   /// [deviceType] 设备类型
   /// *******************
-  static Future<HomluxResponseEntity> controlWifiCurtainStop(
-      String deviceId, String deviceType) {
+  static Future<HomluxResponseEntity> controlWifiCurtainStop(String deviceId, String deviceType) {
     var cloudActions = [
       <String, dynamic>{'curtain_status': "stop"}
     ];
@@ -806,8 +744,7 @@ class HomluxDeviceApi {
   /// [deviceType] 设备类型
   /// [onOff] 0关 1开
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightOnOff(
-      String groupId, int onOff) {
+  static Future<HomluxResponseEntity> controlGroupLightOnOff(String groupId, int onOff) {
     var actions = [
       <String, dynamic>{'power': onOff}
     ];
@@ -819,8 +756,7 @@ class HomluxDeviceApi {
   /// [groupId] 分组id
   /// [brightness] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightBrightness(
-      String groupId, int brightness) {
+  static Future<HomluxResponseEntity> controlGroupLightBrightness(String groupId, int brightness) {
     var actions = [
       <String, dynamic>{'brightness': brightness}
     ];
@@ -832,8 +768,7 @@ class HomluxDeviceApi {
   /// [groupId] 分组id
   /// [colorTemp] 0 - 100
   /// *******************
-  static Future<HomluxResponseEntity> controlGroupLightColorTemp(
-      String groupId, int colorTemp) {
+  static Future<HomluxResponseEntity> controlGroupLightColorTemp(String groupId, int colorTemp) {
     var actions = [
       <String, dynamic>{'colorTemperature': colorTemp}
     ];
@@ -852,28 +787,20 @@ class HomluxDeviceApi {
       required String lanDeviceId,
       Map<String, dynamic>? extraMap}) async {
     /// 局域网控制设备
-    HomluxResponseEntity lanEntity =
-        await lanManager.executeDevice(lanDeviceId, lanInputData);
+    HomluxResponseEntity lanEntity = await lanManager.executeDevice(lanDeviceId, lanInputData);
     if (lanEntity.isSuccess) {
       return lanEntity;
     }
 
     /// 云端控制设备
-    return HomluxApi.request('/v1/device/down', data: {
-      ...extraMap ?? {},
-      'topic': topic,
-      'deviceId': deviceId,
-      'method': method,
-      'inputData': cloudInputData
-    });
+    return HomluxApi.request('/v1/device/down',
+        data: {...extraMap ?? {}, 'topic': topic, 'deviceId': deviceId, 'method': method, 'inputData': cloudInputData});
   }
 
   /// *****************
   /// 控制灯组
   /// ******************
-  static Future<HomluxResponseEntity> _controlGroupLight(
-      {required String groupId,
-      required List<Map<String, dynamic>> action}) async {
+  static Future<HomluxResponseEntity> _controlGroupLight({required String groupId, required List<Map<String, dynamic>> action}) async {
     if (!groups.containsKey(groupId)) {
       var json = await LocalStorage.getItem('homlux_lan_group_save_$groupId');
       if (StrUtils.isNotNullAndEmpty(json)) {
@@ -884,15 +811,137 @@ class HomluxDeviceApi {
     int? updateStamp = groups[groupId]?.updateStamp;
 
     /// 局域网控制灯组
-    HomluxResponseEntity lanEntity =
-        await lanManager.executeGroup(groupId, updateStamp ?? 0, action);
+    HomluxResponseEntity lanEntity = await lanManager.executeGroup(groupId, updateStamp ?? 0, action);
 
     if (lanEntity.isSuccess) {
       return lanEntity;
     }
 
     /// 云端控制灯组
-    return HomluxApi.request('/v1/mzgd/scene/groupControl',
-        data: {'groupId': groupId, 'controlAction': action});
+    return HomluxApi.request('/v1/mzgd/scene/groupControl', data: {'groupId': groupId, 'controlAction': action});
+  }
+
+  /// ******************
+  /// 控制wifi浴霸的模式打开
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [mode] 打开的模式
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiYubaModeOn(String deviceId, String deviceType, String mode, String heating_temp) {
+    var cloudActions = [
+      <String, dynamic>{'mode_enable': mode}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'deviceProperty': {'mode_enable': mode}
+      }
+    ];
+
+    if (mode == 'heating') {
+      cloudActions = [
+        <String, dynamic>{'mode_enable': mode, 'heating_temperature': heating_temp}
+      ];
+      <String, dynamic>{
+        'deviceProperty': {'mode_enable': mode, 'heating_temperature': heating_temp}
+      };
+    }
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiBathHeatControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi浴霸的模式关闭
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [mode] 打开的模式
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiYubaModeOff(String deviceId, String deviceType, String mode) {
+    var cloudActions = [
+      <String, dynamic>{'mode_close': mode}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'deviceProperty': {'mode_close': mode}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiBathHeatControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi浴霸的灯光打开
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [mode] 打开的模式
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiYubaLightMode(String deviceId, String deviceType, String mode) {
+    var cloudActions = [
+      <String, dynamic>{'light_mode': mode}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'light_mode': mode}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiBathHeatControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  /// ******************
+  /// 控制wifi浴霸的延时打开
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [onOff] 延迟开关
+  /// [min] 延迟时间
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiYubaDelay(String deviceId, String deviceType, String onOff, String min) {
+    var cloudActions = [
+      <String, dynamic>{'delay_enable': onOff, 'delay_time': min}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'delay_enable': onOff, 'delay_time': min}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiBathHeatControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
   }
 }

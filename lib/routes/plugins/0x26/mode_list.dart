@@ -1,15 +1,15 @@
 import 'package:screen_app/widgets/index.dart';
 
-var light = Mode('light', '照明', 'assets/imgs/plugins/0x26/light_on.png', 'assets/imgs/plugins/0x26/light_off.png');
+var light = Mode('light', '照明', 'assets/newUI/yubamodel/light.png', 'assets/newUI/yubamodel/light_off.png');
 
-var blowing = Mode('blowing', '吹风', 'assets/imgs/plugins/0x26/blowing_on.png', 'assets/imgs/plugins/0x26/blowing_off.png');
+var blowing = Mode('blowing', '吹风', 'assets/newUI/yubamodel/blowing.png', 'assets/newUI/yubamodel/blowing_off.png');
 
-var heating = Mode('heating', '暖风', 'assets/imgs/plugins/0x26/heating_on.png', 'assets/imgs/plugins/0x26/heating_off.png');
+var heating = Mode('heating', '取暖', 'assets/newUI/yubamodel/heating.png', 'assets/newUI/yubamodel/heating_off.png');
 
-var bath = Mode('bath', '安心沐浴', 'assets/imgs/plugins/0x26/bath_on.png', 'assets/imgs/plugins/0x26/bath_off.png');
+var bath = Mode('bath', '安心沐浴', 'assets/newUI/yubamodel/bath.png', 'assets/newUI/yubamodel/bath_off.png');
 
-var ventilation = Mode('ventilation', '换气', 'assets/imgs/plugins/0x26/ventilation_on.png', 'assets/imgs/plugins/0x26/ventilation_off.png');
+var ventilation = Mode('ventilation', '换气', 'assets/newUI/yubamodel/ventilation.png', 'assets/newUI/yubamodel/ventilation_off.png');
 
-var drying = Mode('drying', '干燥', 'assets/imgs/plugins/0x26/drying_on.png', 'assets/imgs/plugins/0x26/drying_off.png');
+var drying = Mode('drying', '干燥', 'assets/newUI/yubamodel/drying.png', 'assets/newUI/yubamodel/drying_off.png');
 
 var bathroomMasterMode = <Mode>[light, blowing, heating, bath, ventilation, drying];

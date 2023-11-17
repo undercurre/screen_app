@@ -352,10 +352,10 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _panelItem('heating', '取暖', true),
-                        _panelItem('blowing', '吹风', false),
-                        _panelItem('ventilation', '换气', false),
-                        _panelItem('light', '照明', false),
+                        _panelItem('heating', '取暖', 'heating', 1),
+                        _panelItem('blowing', '吹风', 'blowing', 2),
+                        _panelItem('ventilation', '换气', 'ventilation', 3),
+                        _lightPanelItem('light', '照明', 4),
                       ],
                     ),
                   ),
@@ -368,12 +368,14 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
     );
   }
 
-  Widget _panelItem(String icon, String name, bool selected) {
+  Widget _panelItem(String icon, String name, String key, int index) {
     return SizedBox(
       width: 56,
       height: 120,
       child: GestureDetector(
-          onTap: () async {},
+          onTap: () async {
+            adapter.modeControl(index);
+          },
           child: Column(
             children: [
               Container(
@@ -383,12 +385,47 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(28.0),
                     // 调整圆角半径
-                    color: selected ? const Color.fromRGBO(255, 255, 255, 1) : const Color.fromRGBO(255, 255, 255, 0.12)),
+                    color: (adapter.getCardStatus()?['mode'].contains(key)) ? const Color.fromRGBO(255, 255, 255, 1) : const Color.fromRGBO(255, 255, 255, 0.12)),
                 child: Center(
                   child: Image(
-                    color: selected ? Colors.black : Colors.white.withOpacity(0.5),
+                    color: (adapter.getCardStatus()?['mode'].contains(key)) ? Colors.black : Colors.white.withOpacity(0.5),
                     width: 40,
-                    image: AssetImage(selected ? 'assets/newUI/yubamodel/${icon}_selected.png' : 'assets/newUI/yubamodel/${icon}.png'),
+                    image: AssetImage((adapter.getCardStatus()?['mode'].contains(key)) ? 'assets/newUI/yubamodel/${icon}_selected.png' : 'assets/newUI/yubamodel/${icon}.png'),
+                  ),
+                ),
+              ),
+              Text(
+                name,
+                style: const TextStyle(fontSize: 13, color: Color.fromRGBO(255, 255, 255, 0.48)),
+              )
+            ],
+          )),
+    );
+  }
+
+  Widget _lightPanelItem(String icon, String name, int index) {
+    return SizedBox(
+      width: 56,
+      height: 120,
+      child: GestureDetector(
+          onTap: () async {
+            adapter.modeControl(index);
+          },
+          child: Column(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28.0),
+                    // 调整圆角半径
+                    color: (adapter.getCardStatus()?['light_mode'] == 'main_light') ? const Color.fromRGBO(255, 255, 255, 1) : const Color.fromRGBO(255, 255, 255, 0.12)),
+                child: Center(
+                  child: Image(
+                    color: (adapter.getCardStatus()?['light_mode'] == 'main_light') ? Colors.black : Colors.white.withOpacity(0.5),
+                    width: 40,
+                    image: AssetImage((adapter.getCardStatus()?['light_mode'] == 'main_light') ? 'assets/newUI/yubamodel/${icon}_selected.png' : 'assets/newUI/yubamodel/${icon}.png'),
                   ),
                 ),
               ),
