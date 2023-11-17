@@ -126,6 +126,14 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                         : 'assets/imgs/plugins/0x26/yuba_light_off.png'),
                   ),
                 ),
+                if (dataAdapter?.getCardStatus()?['mode'] != 'close_all')
+                Positioned(
+                  left: 0,
+                  top: 125,
+                  child: Image(
+                    image: AssetImage('assets/newUI/yubamodel/${dataAdapter?.getCardStatus()?['mode'].split(',').first}_wind.png'),
+                  ),
+                ),
                 Row(
                   children: [
                     const SizedBox(
