@@ -195,6 +195,10 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 	if (curtain != null) {
 		homluxDeviceMzgdPropertyDTOList.curtain = curtain;
 	}
+	final HomluxDeviceMzgdPropertyDTOListBathHeat? bathHeat = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListBathHeat>(json['bathHeat']);
+	if (bathHeat != null) {
+		homluxDeviceMzgdPropertyDTOList.bathHeat = bathHeat;
+	}
 	return homluxDeviceMzgdPropertyDTOList;
 }
 
@@ -206,6 +210,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 	data['wallSwitch4'] = entity.x4?.toJson();
 	data['light'] = entity.light?.toJson();
 	data['curtain'] = entity.curtain?.toJson();
+	data['bathHeat'] = entity.bathHeat?.toJson();
 	return data;
 }
 
@@ -737,4 +742,68 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListCurtainToJson(HomluxDeviceM
 	data['delay_light_off'] = entity.wifiLightDelayOff;
 	data['scene_light'] = entity.wifiLightScene;
 	return data;
+}
+
+HomluxDeviceMzgdPropertyDTOListBathHeat $HomluxDeviceMzgdPropertyDTOListBathHeatFromJson(Map<String, dynamic> json) {
+	return HomluxDeviceMzgdPropertyDTOListBathHeat(
+		delayEnable: json['delay_enable'],
+		dehumidityTrigger: json['dehumidity_trigger'],
+		nightLightBrightness: json['night_light_brightness'],
+		digitLedEnable: json['digit_led_enable'],
+		mode: json['mode'],
+		currentTemperature: json['current_temperature'],
+		radarInductionEnable: json['radar_induction_enable'],
+		heatingDirection: json['heating_direction'],
+		delayTime: json['delay_time'],
+		anionEnable: json['anion_enable'],
+		lightMode: json['light_mode'],
+		bathTemperature: json['bath_temperature'],
+		subpacketType: json['subpacket_type'],
+		radarInductionClosingTime: json['radar_induction_closing_time'],
+		bathDirection: json['bath_direction'],
+		dryingTime: json['drying_time'],
+		mainLightBrightness: json['main_light_brightness'],
+		functionLedEnable: json['function_led_enable'],
+		dryingDirection: json['drying_direction'],
+		bathHeatingTime: json['bath_heating_time'],
+		version: json['version'],
+		heatingTemperature: json['heating_temperature'],
+		smellyTrigger: json['smelly_trigger'],
+		blowingDirection: json['blowing_direction'],
+		currentRadarStatus: json['current_radar_status'],
+		blowingSpeed: json['blowing_speed'],
+		wifiLedEnable: json['wifi_led_enable'],
+	);
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(HomluxDeviceMzgdPropertyDTOListBathHeat entity) {
+	return {
+		'delay_enable': entity.delayEnable,
+		'dehumidity_trigger': entity.dehumidityTrigger,
+		'night_light_brightness': entity.nightLightBrightness,
+		'digit_led_enable': entity.digitLedEnable,
+		'mode': entity.mode,
+		'current_temperature': entity.currentTemperature,
+		'radar_induction_enable': entity.radarInductionEnable,
+		'heating_direction': entity.heatingDirection,
+		'delay_time': entity.delayTime,
+		'anion_enable': entity.anionEnable,
+		'light_mode': entity.lightMode,
+		'bath_temperature': entity.bathTemperature,
+		'subpacket_type': entity.subpacketType,
+		'radar_induction_closing_time': entity.radarInductionClosingTime,
+		'bath_direction': entity.bathDirection,
+		'drying_time': entity.dryingTime,
+		'main_light_brightness': entity.mainLightBrightness,
+		'function_led_enable': entity.functionLedEnable,
+		'drying_direction': entity.dryingDirection,
+		'bath_heating_time': entity.bathHeatingTime,
+		'version': entity.version,
+		'heating_temperature': entity.heatingTemperature,
+		'smelly_trigger': entity.smellyTrigger,
+		'blowing_direction': entity.blowingDirection,
+		'current_radar_status': entity.currentRadarStatus,
+		'blowing_speed': entity.blowingSpeed,
+		'wifi_led_enable': entity.wifiLedEnable,
+	};
 }

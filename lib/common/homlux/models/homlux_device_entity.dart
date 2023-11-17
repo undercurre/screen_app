@@ -78,6 +78,8 @@ class HomluxDeviceMzgdPropertyDTOList {
 	HomluxDeviceMzgdPropertyDTOListLight? light;
 	@JSONField(name: "curtain")
 	HomluxDeviceMzgdPropertyDTOListCurtain? curtain;
+	@JSONField(name: "bathHeat")
+	HomluxDeviceMzgdPropertyDTOListBathHeat? bathHeat;
 
 	HomluxDeviceMzgdPropertyDTOList();
 
@@ -373,6 +375,129 @@ class HomluxDeviceMzgdPropertyDTOListCurtain {
 	factory HomluxDeviceMzgdPropertyDTOListCurtain.fromJson(Map<String, dynamic> json) => $HomluxDeviceMzgdPropertyDTOListCurtainFromJson(json);
 
 	Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListCurtainToJson(this);
+
+	@override
+	String toString() {
+		return jsonEncode(toJson());
+	}
+}
+
+@JsonSerializable()
+class HomluxDeviceMzgdPropertyDTOListBathHeat {
+	@JSONField(name: "delay_enable")
+	String? delayEnable;
+
+	@JSONField(name: "dehumidity_trigger")
+	String? dehumidityTrigger;
+
+	@JSONField(name: "night_light_brightness")
+	String? nightLightBrightness;
+
+	@JSONField(name: "digit_led_enable")
+	String? digitLedEnable;
+
+	@JSONField(name: "mode")
+	String? mode;
+
+	@JSONField(name: "current_temperature")
+	String? currentTemperature;
+
+	@JSONField(name: "radar_induction_enable")
+	String? radarInductionEnable;
+
+	@JSONField(name: "heating_direction")
+	String? heatingDirection;
+
+	@JSONField(name: "delay_time")
+	String? delayTime;
+
+	@JSONField(name: "anion_enable")
+	String? anionEnable;
+
+	@JSONField(name: "light_mode")
+	String? lightMode;
+
+	@JSONField(name: "bath_temperature")
+	String? bathTemperature;
+
+	@JSONField(name: "subpacket_type")
+	String? subpacketType;
+
+	@JSONField(name: "radar_induction_closing_time")
+	String? radarInductionClosingTime;
+
+	@JSONField(name: "bath_direction")
+	String? bathDirection;
+
+	@JSONField(name: "drying_time")
+	String? dryingTime;
+
+	@JSONField(name: "main_light_brightness")
+	String? mainLightBrightness;
+
+	@JSONField(name: "function_led_enable")
+	String? functionLedEnable;
+
+	@JSONField(name: "drying_direction")
+	String? dryingDirection;
+
+	@JSONField(name: "bath_heating_time")
+	String? bathHeatingTime;
+
+	@JSONField(name: "version")
+	String? version;
+
+	@JSONField(name: "heating_temperature")
+	String? heatingTemperature;
+
+	@JSONField(name: "smelly_trigger")
+	String? smellyTrigger;
+
+	@JSONField(name: "blowing_direction")
+	String? blowingDirection;
+
+	@JSONField(name: "current_radar_status")
+	String? currentRadarStatus;
+
+	@JSONField(name: "blowing_speed")
+	String? blowingSpeed;
+
+	@JSONField(name: "wifi_led_enable")
+	String? wifiLedEnable;
+
+	HomluxDeviceMzgdPropertyDTOListBathHeat({
+		this.delayEnable,
+		this.dehumidityTrigger,
+		this.nightLightBrightness,
+		this.digitLedEnable,
+		this.mode,
+		this.currentTemperature,
+		this.radarInductionEnable,
+		this.heatingDirection,
+		this.delayTime,
+		this.anionEnable,
+		this.lightMode,
+		this.bathTemperature,
+		this.subpacketType,
+		this.radarInductionClosingTime,
+		this.bathDirection,
+		this.dryingTime,
+		this.mainLightBrightness,
+		this.functionLedEnable,
+		this.dryingDirection,
+		this.bathHeatingTime,
+		this.version,
+		this.heatingTemperature,
+		this.smellyTrigger,
+		this.blowingDirection,
+		this.currentRadarStatus,
+		this.blowingSpeed,
+		this.wifiLedEnable,
+	});
+
+	factory HomluxDeviceMzgdPropertyDTOListBathHeat.fromJson(Map<String, dynamic> json) => $HomluxDeviceMzgdPropertyDTOListBathHeatFromJson(json);
+
+	Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(this);
 
 	@override
 	String toString() {

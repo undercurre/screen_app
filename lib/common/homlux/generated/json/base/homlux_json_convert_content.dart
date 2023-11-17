@@ -45,6 +45,7 @@ class HomluxJsonConvert {
     (HomluxDeviceMzgdPropertyDTOList4).toString(): HomluxDeviceMzgdPropertyDTOList4.fromJson,
     (HomluxDeviceMzgdPropertyDTOListLight).toString(): HomluxDeviceMzgdPropertyDTOListLight.fromJson,
     (HomluxDeviceMzgdPropertyDTOListCurtain).toString(): HomluxDeviceMzgdPropertyDTOListCurtain.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListBathHeat).toString(): HomluxDeviceMzgdPropertyDTOListBathHeat.fromJson,
     (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
     (HomluxAuthEntity).toString(): HomluxAuthEntity.fromJson,
@@ -61,6 +62,7 @@ class HomluxJsonConvert {
     (HomluxDeviceConditions).toString(): HomluxDeviceConditions.fromJson,
     (HomluxEffectiveTime).toString(): HomluxEffectiveTime.fromJson,
     (HomluxUserConfigInfo).toString(): HomluxUserConfigInfo.fromJson,
+    (HomluxColorTempRange).toString(): HomluxColorTempRange.fromJson,
     (HomluxColorTempRange).toString(): HomluxColorTempRange.fromJson,
 
   };
@@ -140,6 +142,9 @@ class HomluxJsonConvert {
     }
     if(<HomluxDeviceMzgdPropertyDTOListCurtain>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOListCurtain>((e) => HomluxDeviceMzgdPropertyDTOListCurtain.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListBathHeat>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListBathHeat>((e) => HomluxDeviceMzgdPropertyDTOListBathHeat.fromJson(e)).toList() as M;
     }
     if(<HomluxDuiTokenEntity>[] is M) {
       return data.map<HomluxDuiTokenEntity>((e) => HomluxDuiTokenEntity.fromJson(e)).toList() as M;
