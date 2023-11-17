@@ -363,7 +363,7 @@ class Floor485Data {
   int currentTemp=20;
 
   // 开关状态
-  bool OnOff = true;
+  bool OnOff = false;
 
   bool online = true;
 

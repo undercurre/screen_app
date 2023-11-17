@@ -107,13 +107,13 @@ public class ControlManager implements Data485Subject {
             firstIn = false;
             startConsumer();
         }
-        if (System.currentTimeMillis() - firstInTime > 10000) {//10秒内没有任何设备就停止刷新查找设备
-            if (AirConditionController.getInstance().AirConditionList.size() == 0 && FreshAirController.getInstance().FreshAirList.size() == 0 && FloorHotController.getInstance().FloorHotList.size() == 0) {
-                queue.clear();
-                stopFresh();
-                running = false;
-            }
-        }
+//        if (System.currentTimeMillis() - firstInTime > 10000) {//10秒内没有任何设备就停止刷新查找设备
+//            if (AirConditionController.getInstance().AirConditionList.size() == 0 && FreshAirController.getInstance().FreshAirList.size() == 0 && FloorHotController.getInstance().FloorHotList.size() == 0) {
+//                queue.clear();
+//                stopFresh();
+//                running = false;
+//            }
+//        }
     }
 
     public void clearFlashCommand() {
@@ -160,10 +160,11 @@ public class ControlManager implements Data485Subject {
                         } else {
                             read0Times++;
                             if (read0Times == 50) {
-                                read0Times = 0;
                                 commandReset();
                                 if (resetTime==10){
                                     queue.clear();
+                                    read0Times = 0;
+                                    resetTime=10;
                                     upDataAllDeviceOffline();
                                 }
                             }
