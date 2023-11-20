@@ -227,7 +227,9 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     data!.updown = target;
     updateUI();
     if (platform.inMeiju()) {
-      var res;
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
+        'updown': data!.updown
+      });
       if (res.isSuccess) {
       } else {
         data!.light = lastModel;
@@ -247,7 +249,9 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     data!.laundry = data!.laundry != 'on' ? 'on' : 'off';
     updateUI();
     if (platform.inMeiju()) {
-      var res;
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
+        'laundry': data!.laundry
+      });
       if (res.isSuccess) {
       } else {
         data!.laundry = lastLaundryModel;
@@ -267,7 +271,9 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     data!.light = data!.light != 'on' ? 'on' : 'off';
     updateUI();
     if (platform.inMeiju()) {
-      var res;
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
+        'light': data!.light
+      });
       if (res.isSuccess) {
       } else {
         data!.light = lastLightModel;
