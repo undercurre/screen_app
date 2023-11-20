@@ -34,7 +34,7 @@ class YubaDataEntity {
     mode = data["mode"];
     light_mode = data["light_mode"];
     delay_enable = data["delay_enable"];
-    heating_temp = data["heating_temperature"];
+    heating_temp = data["heating_temperature"] ?? '30';
   }
 
   YubaDataEntity.fromHomlux(HomluxDeviceEntity data) {
@@ -118,8 +118,16 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     var lastLightMode = data!.light_mode;
     data!.mode = 'close_all';
     data!.light_mode = 'close_all';
-    var modeRes = await HomluxDeviceApi.controlWifiYubaModeOff(applianceCode, "3", 'close_all');
-    var lightRes = await HomluxDeviceApi.controlWifiYubaLightMode(applianceCode, "3", 'close_all');
+    updateUI();
+    var modeRes;
+    var lightRes;
+    if (platform.inMeiju()) {
+      modeRes = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: { 'mode_close': 'close_all' });
+      lightRes = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: { 'light_mode': 'close_all' });
+    } else {
+      modeRes = await HomluxDeviceApi.controlWifiYubaModeOff(applianceCode, "3", 'close_all');
+      lightRes = await HomluxDeviceApi.controlWifiYubaLightMode(applianceCode, "3", 'close_all');
+    }
     if (modeRes.isSuccess) {
     } else {
       data!.mode = lastMode;
@@ -239,7 +247,10 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     data!.delay_enable = lastDelay == 'on' ? 'off' : 'on';
     updateUI();
     if (platform.inMeiju()) {
-      var res;
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: {
+        'delay_enable': 'on',
+        'delay_time': '30'
+      });
       if (res.isSuccess) {
       } else {
         data!.delay_enable = lastDelay;
@@ -273,6 +284,16 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     updateUI();
     if (platform.inMeiju()) {
       var res;
+      if (lastModel.contains(mode)) {
+        res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: {
+          'mode_close': mode,
+        });
+      } else {
+        res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: {
+          'mode_enable': mode,
+          'heating_temperature': data!.heating_temp
+        });
+      }
       if (res.isSuccess) {
       } else {
         data!.mode = lastModel;
@@ -309,7 +330,9 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     }
     updateUI();
     if (platform.inMeiju()) {
-      var res;
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x26', applianceCode: applianceCode, command: {
+        'light_mode': data!.light_mode
+      });
       if (res.isSuccess) {
       } else {
         data!.light_mode = lastLightModel;

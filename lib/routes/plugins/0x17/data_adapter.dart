@@ -200,7 +200,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
 
   Future<dynamic> fetchMeijuData() async {
     try {
-      var nodeInfo = await MeiJuDeviceApi.getDeviceDetail('0x26', applianceCode);
+      var nodeInfo = await MeiJuDeviceApi.getDeviceDetail('0x17', applianceCode);
       return nodeInfo.data;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
