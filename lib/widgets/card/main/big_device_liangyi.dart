@@ -350,11 +350,11 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _panelItem('laundry', '一键晾衣', false),
-                        _panelItem('light', '照明', false),
-                        _panelItem('up', '上升', true),
-                        _panelItem('pause', '暂停', false),
-                        _panelItem('down', '下降', false),
+                        _panelItem('laundry', '一键晾衣', adapter.getCardStatus()?['laundry'] == 'on', 1),
+                        _panelItem('light', '照明', adapter.getCardStatus()?['light'] == 'on', 2),
+                        _panelItem('up', '上升', adapter.getCardStatus()?['updown'] == 'up', 3),
+                        _panelItem('pause', '暂停', adapter.getCardStatus()?['updown'] == 'pause', 4),
+                        _panelItem('down', '下降', adapter.getCardStatus()?['updown'] == 'down', 5),
                       ],
                     ),
                   ),
@@ -367,12 +367,14 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
     );
   }
 
-  Widget _panelItem(String icon, String name, bool selected) {
+  Widget _panelItem(String icon, String name, bool selected, int index) {
     return SizedBox(
       width: 56,
       height: 120,
       child: GestureDetector(
-          onTap: () async {},
+          onTap: () async {
+            adapter.modeControl(index);
+          },
           child: Column(
             children: [
               Container(

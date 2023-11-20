@@ -944,4 +944,91 @@ class HomluxDeviceApi {
         lanDeviceId: deviceId,
         extraMap: {'deviceType': deviceType});
   }
+
+  /// ******************
+  /// 控制wifi晾衣架的灯光
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [onOff] 灯光开关
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiLiangyiLight(String deviceId, String onOff) {
+    var cloudActions = [
+      <String, dynamic>{'light': onOff }
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'light': onOff }
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiClothesDryingRackControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
+
+  /// ******************
+  /// 控制wifi晾衣架的一键晾衣
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [onOff] 灯光开关
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiLiangyiLaundry(String deviceId, String onOff) {
+    var cloudActions = [
+      <String, dynamic>{'laundry': onOff }
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'laundry': onOff }
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiClothesDryingRackControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
+
+  /// ******************
+  /// 控制wifi晾衣架的升降
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [updown] 升降状态
+  /// *******************
+  static Future<HomluxResponseEntity> controlWifiLiangyiUpdown(String deviceId, String updown) {
+    var cloudActions = [
+      <String, dynamic>{'updown': updown }
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'updown': updown }
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiClothesDryingRackControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
 }

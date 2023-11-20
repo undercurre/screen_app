@@ -41,6 +41,7 @@ import '../../../widgets/card/other/clock.dart';
 import '../../../widgets/card/other/weather.dart';
 import '../../plugins/0x13/data_adapter.dart';
 import '../../plugins/0x14/data_adapter.dart';
+import '../../plugins/0x17/data_adapter.dart';
 import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
@@ -818,7 +819,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         hasMore: params.hasMore ?? true,
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => WIFILightDataAdapter(MideaRuntimePlatform.platform, params.sn8 ?? '', params.applianceCode ?? ''));
+              id, (id) => WIFILiangyiDataAdapter(MideaRuntimePlatform.platform, params.sn8 ?? '', params.applianceCode ?? ''));
         }),
   },
   // Zigbee灯

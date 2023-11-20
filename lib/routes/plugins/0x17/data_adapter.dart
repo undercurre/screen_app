@@ -18,93 +18,51 @@ import '../../../common/meiju/meiju_global.dart';
 import '../../../common/meiju/models/meiju_device_info_entity.dart';
 import '../../../common/system.dart';
 
-class LightDataEntity {
-  int brightness = 1; // 亮度
-  int colorTemp = 0; // 色温
-  bool power = false; //开关
-  String screenModel = 'manual'; //模式
-  int timeOff = 0; //延时关
-  int maxColorTemp = 5700;
-  int minColorTemp = 3000;
+class LiangyiDataEntity {
+  String updown = 'pause';
+  String light = 'off';
+  String laundry = 'off';
 
-  LightDataEntity({
-    required brightness,
-    required colorTemp,
-    required power,
-    required screenModel,
-    required timeOff,
+  LiangyiDataEntity({
+    required updown,
+    required light,
+    required laundry,
   });
 
-  LightDataEntity.fromMeiJu(dynamic data, String sn8) {
-    if (sn8.isNotEmpty&&sn8 == "79009833") {
-      brightness = int.parse(data["brightValue"]) < 1 ? 1 : data["brightValue"];
-      colorTemp = int.parse(data["color_temperature"]);
-      power = data["power"];
-      screenModel = data["screenModel"];
-      timeOff = int.parse(data["timeOff"]);
-    } else if (sn8.isNotEmpty&&sn8 == "7909AC81") {
-      brightness = int.parse(data["brightness"]);
-      if (brightness < 100) {
-        brightness--;
-      }
-      if (brightness < 0) {
-        brightness = 1;
-      }
-      colorTemp = int.parse(data["color_temperature"]);
-      power = data["power"] == 'on';
-      screenModel = data["scene_light"] ?? 'manual';
-      timeOff = int.parse(data["delay_light_off"]);
-      maxColorTemp = int.parse(data["temperature_max"] ?? '5700');
-      minColorTemp = int.parse(data["temperature_min"] ?? '3000');
-    } else {
-      brightness = ((int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"])) / 255 * 100).toInt();
-      colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt() ;
-      power = data["power"] == 'on';
-      screenModel = data["scene_light"] ?? 'manual';
-      timeOff = int.parse(data["delay_light_off"]);
-      maxColorTemp = int.parse(data["temperature_max"] ?? '5700');
-      minColorTemp = int.parse(data["temperature_min"] ?? '3000');
-    }
+  LiangyiDataEntity.fromMeiJu(dynamic data, String sn8) {
+    updown = data["updown"];
+    light = data["light"];
+    laundry = data["laundry"];
   }
 
-  LightDataEntity.fromHomlux(HomluxDeviceEntity data) {
-    brightness = data.mzgdPropertyDTOList?.light?.brightness ?? 0;
-    colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
-    power = data.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
-        || data.mzgdPropertyDTOList?.light?.power == 1;
-    screenModel = data.mzgdPropertyDTOList?.light?.wifiLightScene ?? "manual";
-    timeOff = int.parse(data.mzgdPropertyDTOList?.light?.wifiLightDelayOff ?? "0");
+  LiangyiDataEntity.fromHomlux(HomluxDeviceEntity data) {
+    updown = data.mzgdPropertyDTOList?.clothesDryingRack?.updown ?? 'pause';
+    light = data.mzgdPropertyDTOList?.clothesDryingRack?.light ?? 'off';
+    laundry = data.mzgdPropertyDTOList?.clothesDryingRack?.laundry ?? 'off';
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'brightness': brightness,
-      'colorTemp': colorTemp,
-      'power': power,
-      'timeOff': timeOff,
+      'updown': updown,
+      'light': light,
+      'laundry': laundry,
     };
   }
 }
 
-class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
-  String deviceName = "Wifi智能灯";
+class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
+  String deviceName = "智能晾衣架";
   String sn8 = "";
   String applianceCode = "";
 
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
-  LightDataEntity? data = LightDataEntity(
-      brightness: 0,
-      colorTemp: 0,
-      power: false,
-      timeOff: 0,
-      screenModel: 'manual');
+  LiangyiDataEntity? data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off');
 
-
-  WIFILightDataAdapter(super.platform, this.sn8, this.applianceCode) {
-    Log.i('获取到当前吸顶灯的sn8', this.sn8);
-    type = AdapterType.wifiLight;
+  WIFILiangyiDataAdapter(super.platform, this.sn8, this.applianceCode) {
+    Log.i('获取到当前晾衣架的sn8', this.sn8);
+    type = AdapterType.wifiLiangyi;
   }
 
   @override
@@ -119,9 +77,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
       if (id.isEmpty) {
         return;
       }
-      MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> res =
-      await MeiJuDeviceApi.queryDeviceListByHomeId(
-          MeiJuGlobal.token!.uid, id);
+      MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> res = await MeiJuDeviceApi.queryDeviceListByHomeId(MeiJuGlobal.token!.uid, id);
       if (res.isSuccess) {
         res.data?.forEach((element) {
           if (element.applianceCode == applianceCode) {
@@ -135,13 +91,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   @override
   Map<String, dynamic>? getCardStatus() {
-    return {
-      "power": data!.power,
-      "brightness": data!.brightness == 0 ? 1 : data!.brightness,
-      "colorTemp": data!.colorTemp,
-      "maxColorTemp": data!.maxColorTemp,
-      "minColorTemp": data!.minColorTemp
-    };
+    return {"updown": data!.updown, "light": data!.light, "laundry": data!.laundry};
   }
 
   @override
@@ -151,17 +101,17 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   @override
   bool getPowerStatus() {
-    return data!.power;
+    return false;
   }
 
   @override
   String? getCharacteristic() {
-    return "${data!.brightness == 0 ? 1 : data!.brightness}%";
+    return "${data!.updown}";
   }
 
   @override
   Future<void> power(bool? onOff) async {
-    return controlPower();
+
   }
 
   @override
@@ -169,23 +119,27 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
     if (value == null) {
       return;
     }
-    int limitVal = value < 1 ? 1 : value > 100 ? 100 : value;
-    return controlBrightness(limitVal, null);
+    int limitVal = value < 1
+        ? 1
+        : value > 100
+        ? 100
+        : value;
+    // return controlBrightness(limitVal, null);
   }
 
   @override
   Future<dynamic> slider1ToFaker(int? value) async {
-    return controlBrightnessFaker(value as num, null);
+    // return controlBrightnessFaker(value as num, null);
   }
 
   @override
   Future<dynamic> slider2To(int? value) async {
-    return controlColorTemperature(value as num, null);
+    // return controlColorTemperature(value as num, null);
   }
 
   @override
   Future<dynamic> slider2ToFaker(int? value) async {
-    return controlColorTemperatureFaker(value as num, null);
+    // return controlColorTemperatureFaker(value as num, null);
   }
 
   /// 防抖刷新
@@ -195,36 +149,47 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   @override
   Future<void> tryOnce() async {
-    controlPower();
+    // controlPower();
   }
 
+  @override
+  Future<void> modeControl(int index) async {
+    /// 1是一键晾衣
+    if (index == 1) {
+      controlLaundry();
+    } else if (index == 2) {
+      /// 2是照明
+      controlLightMode();
+    } else {
+      /// 3-5是升停降
+      Map<int, String> modes = {3: 'up', 4: 'pause', 5: 'down'};
+      if (modes[index] != null) controlUpdown(modes[index]!);
+    }
+  }
+
+  @override
   /// 查询状态
   Future<void> fetchData() async {
     // try {
-      dataState = DataState.LOADING;
+    dataState = DataState.LOADING;
+    updateUI();
+    if (platform.inMeiju()) {
+      _meijuData = await fetchMeijuData();
+    } else if (platform.inHomlux()) {
+      _homluxData = await fetchHomluxData();
+    }
+    if (_meijuData != null) {
+      data = LiangyiDataEntity.fromMeiJu(_meijuData!, sn8);
+    } else if (_homluxData != null) {
+      data = LiangyiDataEntity.fromHomlux(_homluxData!);
+    } else {
+      dataState = DataState.ERROR;
+      data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off');
       updateUI();
-      if (platform.inMeiju()) {
-        _meijuData = await fetchMeijuData();
-      } else if (platform.inHomlux()) {
-        _homluxData = await fetchHomluxData();
-      }
-      if (_meijuData != null) {
-        data = LightDataEntity.fromMeiJu(_meijuData!, sn8);
-      } else if (_homluxData != null) {
-        data = LightDataEntity.fromHomlux(_homluxData!);
-      } else {
-        dataState = DataState.ERROR;
-        data = LightDataEntity(
-            brightness: 0,
-            colorTemp: 0,
-            power: false,
-            timeOff: 0,
-            screenModel: 'manual');
-        updateUI();
-        return;
-      }
-      dataState = DataState.SUCCESS;
-      updateUI();
+      return;
+    }
+    dataState = DataState.SUCCESS;
+    updateUI();
     // } catch (e) {
     //   // Error occurred while fetching data
     //   dataState = DataState.ERROR;
@@ -235,8 +200,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
 
   Future<dynamic> fetchMeijuData() async {
     try {
-      var nodeInfo =
-          await MeiJuDeviceApi.getDeviceDetail('0x13', applianceCode);
+      var nodeInfo = await MeiJuDeviceApi.getDeviceDetail('0x26', applianceCode);
       return nodeInfo.data;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
@@ -247,237 +211,74 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
   }
 
   Future<HomluxDeviceEntity> fetchHomluxData() async {
-    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
-        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
+      Log.i('晾衣架数据', nodeInfo);
       return nodeInfo;
     } else {
       return HomluxDeviceEntity();
     }
   }
 
-  /// 控制开关
-  Future<void> controlPower() async {
-    data!.power = !data!.power;
-    updateUI();
-    if (platform.inMeiju()) {
-      /// todo: 可以优化类型限制
-      var command = {"power": data!.power ? 'on' : 'off'};
-      var res = await MeiJuDeviceApi.sendLuaOrder(
-        categoryCode: '0x13',
-        applianceCode: applianceCode,
-        command: command,
-      );
-      if (res.isSuccess) {
-      } else {
-        data!.power = !data!.power;
-      }
-    } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightOnOff(
-          applianceCode, "3", data!.power ? 1 : 0);
-      if (res.isSuccess) {
-      } else {
-        data!.power = !data!.power;
-        updateUI();
-      }
-    }
-    updateUI();
-  }
-
-  /// 控制延时关
-  Future<void> controlDelay() async {
-    int lastTimeOff = data!.timeOff;
-    if (!data!.power) return;
-    if (data!.timeOff == 0) {
-      data!.timeOff = 3;
-    } else {
-      data!.timeOff = 0;
-    }
+  /// 控制升降
+  Future<void> controlUpdown(String target) async {
+    String lastModel = data!.updown;
+    data!.updown = target;
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8.isNotEmpty&&sn8 == '79009833') {
-        var command = {"timeOff": data!.timeOff};
-        res = await MeiJuDeviceApi.sendPDMControlOrder(
-            categoryCode: '0x13',
-            uri: 'setTimeOff',
-            applianceCode: applianceCode,
-            command: command);
-      } else {
-        var command = {"delay_light_off": data!.timeOff};
-        res = await MeiJuDeviceApi.sendLuaOrder(
-            categoryCode: '0x13',
-            applianceCode: applianceCode,
-            command: command);
-      }
       if (res.isSuccess) {
       } else {
-        data!.timeOff = lastTimeOff;
+        data!.light = lastModel;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightDelayOff(
-          applianceCode, "3", data!.timeOff);
+      HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiLiangyiUpdown(applianceCode, target);
       if (res.isSuccess) {
       } else {
-        data!.timeOff = lastTimeOff;
+        data!.light = lastModel;
       }
     }
   }
 
-  /// 控制模式
-  Future<void> controlMode(Mode mode) async {
-    String lastModel = data!.screenModel;
-    data!.screenModel = mode.key;
+  /// 控制一键晾衣
+  Future<void> controlLaundry() async {
+    String lastLaundryModel = data!.laundry;
+    data!.laundry = data!.laundry != 'on' ? 'on' : 'off';
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8.isNotEmpty&&sn8 == '79009833') {
-        var command = {"dimTime": 0, "screenModel": mode.key};
-        res = await MeiJuDeviceApi.sendPDMControlOrder(
-          categoryCode: '0x13',
-          uri: 'controlScreenModel',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      } else {
-        var command = {"scene_light": mode.key};
-        res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0x13',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      }
       if (res.isSuccess) {
       } else {
-        data!.screenModel = lastModel;
+        data!.laundry = lastLaundryModel;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightMode(
-          applianceCode, "3", mode.key);
-
+      HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiLiangyiLaundry(applianceCode, data!.laundry);
       if (res.isSuccess) {
       } else {
-        data!.screenModel = lastModel;
+        data!.laundry = lastLaundryModel;
       }
     }
   }
 
-  /// 控制亮度
-  Future<void> controlBrightness(num value, Color? activeColor) async {
-    int lastBrightness = data!.brightness;
-    data!.brightness = value.toInt();
-    updateUI();
-
-    if (platform.inMeiju()) {
-      var res;
-      if (sn8.isNotEmpty&&sn8 == '79009833') {
-        var command = {
-          "dimTime": 0,
-          "brightValue":
-              int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))
-        };
-        res = await MeiJuDeviceApi.sendPDMControlOrder(
-          categoryCode: '0x13',
-          uri: 'controlBrightValue',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      } else if (sn8.isNotEmpty&&sn8 == '79010914') {
-        var command = {
-          "brightness":
-          int.parse((data!.brightness / 100 * 255).toStringAsFixed(0))
-        };
-        res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0x13',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      } else {
-        var command = {
-          "brightness": data!.brightness
-        };
-        res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0x13',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      }
-      if (res.isSuccess) {
-      } else {
-        data!.brightness = lastBrightness;
-      }
-    } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightBrightness(
-          applianceCode, "3", value.toInt());
-      if (res.isSuccess) {
-      } else {
-        data!.brightness = lastBrightness;
-      }
-    }
-  }
-
-  /// 控制色温
-  Future<void> controlColorTemperature(num value, Color? activeColor) async {
-    int lastColorTemp = data!.colorTemp;
-    data!.colorTemp = value.toInt();
+  /// 控制灯光
+  Future<void> controlLightMode() async {
+    String lastLightModel = data!.light;
+    data!.light = data!.light != 'on' ? 'on' : 'off';
     updateUI();
     if (platform.inMeiju()) {
       var res;
-      if (sn8.isNotEmpty&&sn8 == '79009833') {
-        var command = {
-          "dimTime": 0,
-          "colorTemperatureValue": int.parse(
-            (data!.colorTemp / 100 * 255).toStringAsFixed(0),
-          )
-        };
-        res = await MeiJuDeviceApi.sendPDMControlOrder(
-          categoryCode: '0x13',
-          uri: 'controlColorTemperatureValue',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      } else if (sn8.isNotEmpty&&sn8 == '79010914') {
-        var command = {
-          "color_temperature":
-          int.parse((data!.colorTemp / 100 * 255).toStringAsFixed(0))
-        };
-        res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0x13',
-          applianceCode: applianceCode,
-          command: command,
-        );
-      } else {
-        var command = {
-          "color_temperature": data!.colorTemp
-        };
-        res = await MeiJuDeviceApi.sendLuaOrder(
-            categoryCode: '0x13',
-            applianceCode: applianceCode,
-            command: command);
-      }
       if (res.isSuccess) {
       } else {
-        data!.colorTemp = lastColorTemp;
+        data!.light = lastLightModel;
       }
     } else if (platform.inHomlux()) {
-      var res = await HomluxDeviceApi.controlWifiLightColorTemp(
-          applianceCode, "3", value.toInt());
+      HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiLiangyiLight(applianceCode, data!.light);
       if (res.isSuccess) {
       } else {
-        data!.colorTemp = lastColorTemp;
+        data!.light = lastLightModel;
       }
     }
-  }
-
-  Future<void> controlBrightnessFaker(num value, Color? activeColor) async {
-    data!.brightness = value.toInt();
-    updateUI();
-  }
-
-  Future<void> controlColorTemperatureFaker(num value, Color? activeColor) async {
-    data!.colorTemp = value.toInt();
-    updateUI();
   }
 
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {

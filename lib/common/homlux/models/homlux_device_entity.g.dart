@@ -199,6 +199,10 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 	if (bathHeat != null) {
 		homluxDeviceMzgdPropertyDTOList.bathHeat = bathHeat;
 	}
+	final HomluxDeviceMzgdPropertyDTOListClothesDryingRack? clothesDryingRack = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListClothesDryingRack>(json['clothesDryingRack']);
+	if (clothesDryingRack != null) {
+		homluxDeviceMzgdPropertyDTOList.clothesDryingRack = clothesDryingRack;
+	}
 	return homluxDeviceMzgdPropertyDTOList;
 }
 
@@ -211,6 +215,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 	data['light'] = entity.light?.toJson();
 	data['curtain'] = entity.curtain?.toJson();
 	data['bathHeat'] = entity.bathHeat?.toJson();
+	data['clothesDryingRack'] = entity.clothesDryingRack?.toJson();
 	return data;
 }
 
@@ -805,5 +810,74 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(HomluxDevice
 		'current_radar_status': entity.currentRadarStatus,
 		'blowing_speed': entity.blowingSpeed,
 		'wifi_led_enable': entity.wifiLedEnable,
+	};
+}
+
+HomluxDeviceMzgdPropertyDTOListClothesDryingRack $HomluxDeviceMzgdPropertyDTOListClothesDryingRackFromJson(Map<String, dynamic> json) {
+	return HomluxDeviceMzgdPropertyDTOListClothesDryingRack(
+			timingToTop: json['timing_to_top'],
+			customHeight: json['custom_height'],
+			bodyInduction: json['body_induction'],
+			lightBrightness: json['light_brightness'],
+			version: json['version'],
+			swVersion: json['sw_version'],
+			timingLightOff: json['timing_light_off'],
+			customTiming: json['custom_timing'],
+			deviceSubType: json['deviceSubType'],
+			dryMode: json['dry_mode'],
+			light: json['light'],
+			laundry: json['laundry'],
+			errorCode: json['error_code'],
+			heightResetting: json['height_resetting'],
+			offlineVoiceFunction: json['offline_voice_function'],
+			timeAfterNobody: json['time_after_nobody'],
+			sterilize: json['sterilize'],
+			updown: json['updown'],
+			setLightOff: json['set_light_off'],
+			locationStatus: json['location_status'],
+			setToTop: json['set_to_top']
+	);
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListClothesDryingRackToJson(HomluxDeviceMzgdPropertyDTOListClothesDryingRack entity) {
+	return {
+		"timing_to_top": entity.timingToTop,
+		"custom_height": entity.customHeight,
+		"body_induction": entity.bodyInduction,
+		"light_brightness": entity.lightBrightness,
+		"version": entity.version,
+		"sw_version": entity.swVersion,
+		"timing_light_off": entity.timingLightOff,
+		"custom_timing": entity.customTiming,
+		"deviceSubType": entity.deviceSubType,
+		"dry_mode": entity.dryMode,
+		"light": entity.light,
+		"laundry": entity.laundry,
+		"error_code": entity.errorCode,
+		"height_resetting": entity.heightResetting,
+		"offline_voice_function": entity.offlineVoiceFunction,
+		"time_after_nobody": entity.timeAfterNobody,
+		"sterilize": entity.sterilize,
+		"updown": entity.updown,
+		"set_light_off": entity.setLightOff,
+		"location_status": entity.locationStatus,
+		"set_to_top": entity.setToTop
+	};
+}
+
+RemainingTime $RemainingTimeFromJson(Map<String, dynamic> json) {
+	return RemainingTime(
+			ptcDryingRemainingTime: json['"ptc_drying_remaining_time'],
+			sterilizeRemainingTime: json['"sterilize_remaining_time'],
+			airDryingRemainingTime: json['"air_drying_remaining_time']
+
+	);
+}
+
+Map<String, dynamic> $RemainingTimeToJson(RemainingTime entity) {
+	return {
+			"ptc_drying_remaining_time": entity.ptcDryingRemainingTime,
+			"sterilize_remaining_time": entity.sterilizeRemainingTime,
+			"air_drying_remaining_time": entity.airDryingRemainingTime
 	};
 }

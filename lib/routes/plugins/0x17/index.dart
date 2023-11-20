@@ -5,17 +5,25 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/push.dart';
+import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/routes/home/device/service.dart';
 import 'package:screen_app/routes/plugins/0x17/api.dart';
+import 'package:screen_app/routes/plugins/0x17/data_adapter.dart';
 import 'package:screen_app/routes/plugins/0x17/entity.dart';
 import 'package:screen_app/widgets/index.dart';
 import '../../../states/device_change_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import 'mode_list.dart';
 
-class WifiLiangyiPageState extends State<WifiLiangyiPage> {
-  Function(Map<String,dynamic> arg)? _eventCallback;
-  Function(Map<String,dynamic> arg)? _reportCallback;
+class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
+  Function(Map<String, dynamic> arg)? _eventCallback;
+  Function(Map<String, dynamic> arg)? _reportCallback;
+  WIFILiangyiDataAdapter? dataAdapter;
+
+  void goBack() {
+    bus.emit('updateDeviceCardState');
+    Navigator.pop(context);
+  }
 
   Map<String, dynamic> deviceWatch = {
     "deviceId": "",
@@ -45,30 +53,9 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     return '暂停';
   }
 
-  void goBack() {
-    bus.emit('updateDeviceCardState');
-    Navigator.pop(context);
-  }
-
   Future<void> modeHandle(Mode mode) async {
-    setState(() {
-      fakerModel = mode.key;
-    });
-    if ((localStatus == "upper_limit" && mode.key == "up") ||
-        (localStatus == "lower_limit" && mode.key == "down")) {
-      MzNotice mzNotice = MzNotice(
-          icon: const SizedBox(width: 0, height: 0),
-          btnText: '我知道了',
-          title: '已经到达最${mode.key == 'up' ? '高' : '低'}点',
-          backgroundColor: const Color(0XFF575757),
-          onPressed: () {});
-
-      mzNotice.show(context);
-    }
-    var res = await WIFILiangyiApi.updwonLua(deviceWatch["deviceId"], mode.key);
-    if (res.isSuccess) {
-      // updateDetail();
-    }
+    Map<String, int> modes = {'up': 3, 'pause': 4, 'down': 5};
+    if (modes[mode.key] != null)  dataAdapter?.modeControl(modes[mode.key]!);
   }
 
   Future<void> lightHandle(bool e) async {
@@ -87,14 +74,12 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
 
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
-    selectKeys[fakerModel] = true;
+    if (dataAdapter?.data?.updown != null) selectKeys[dataAdapter!.data!.updown] = true;
     return selectKeys;
   }
 
   Future<void> updateDetail() async {
-    var deviceInfo = context
-        .read<DeviceListModel>()
-        .getDeviceInfoById(deviceWatch["deviceId"]);
+    var deviceInfo = context.read<DeviceListModel>().getDeviceInfoById(deviceWatch["deviceId"]);
     var detail = await DeviceService.getDeviceDetail(deviceInfo);
     if (detail.isNotEmpty) {
       setState(() {
@@ -116,47 +101,11 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final args = ModalRoute.of(context)?.settings.arguments as Map;
-      deviceWatch["deviceId"] = args['deviceId'];
-      var deviceDetail = context
-          .read<DeviceListModel>()
-          .getDeviceDetailById(deviceWatch["deviceId"]);
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
       setState(() {
-        deviceWatch = deviceDetail;
-        localLight = deviceDetail["detail"]["light"];
-        localStatus = deviceDetail["detail"]["location_status"];
-        localUpdown = deviceDetail["detail"]["updown"];
-        fakerModel = deviceDetail["detail"]["updown"];
+        dataAdapter = args?['adapter'];
       });
-      debugPrint('插件中获取到的详情：$deviceWatch');
-
-      Push.listen("gemini/appliance/event", _eventCallback = ((arg) async {
-        String event = (arg['event'] as String).replaceAll("\\\"", "\"") ?? "";
-        Map<String,dynamic> eventMap = json.decode(event);
-        String nodeId = eventMap['nodeId'] ?? "";
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-
-        if (nodeId.isEmpty) {
-          if (detail['deviceId'] == arg['applianceCode']) {
-            updateDetail();
-          }
-        } else {
-          if ((detail['masterId'] as String).isNotEmpty && detail['detail']?['nodeId'] == nodeId) {
-            updateDetail();
-          }
-        }
-      }));
-
-      Push.listen("appliance/status/report", _reportCallback = ((arg) {
-        var detail = context.read<DeviceListModel>().getDeviceDetailById(args['deviceId']);
-        if (arg.containsKey('applianceId')) {
-          if (detail['deviceId'] == arg['applianceId']) {
-            Timer(const Duration(milliseconds: 1000), () {
-              updateDetail();
-            });
-          }
-        }
-      }));
+      dataAdapter?.bindDataUpdateFunction(updateCallback);
     });
   }
 
@@ -164,8 +113,11 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    Push.dislisten("gemini/appliance/event", _eventCallback);
-    Push.dislisten("appliance/status/report",_reportCallback);
+    dataAdapter?.unBindDataUpdateFunction(updateCallback);
+  }
+
+  void updateCallback() {
+    setState(() {});
   }
 
   @override
@@ -191,7 +143,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: LiangyiEntity(light: localLight == 'on'),
+              child: LiangyiEntity(light: dataAdapter?.data?.light == 'on'),
             ),
           ),
           Flex(
@@ -234,37 +186,30 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                       },
                       child: SingleChildScrollView(
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                              minHeight:
-                                  MediaQuery.of(context).size.height - 60),
+                          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 60),
                           child: Row(
                             children: [
-                              Align(
+                              const Align(
                                 widthFactor: 1,
                                 heightFactor: 1,
-                                alignment: const Alignment(-1.0, -0.63),
+                                alignment: Alignment(-1.0, -0.63),
                                 child: SizedBox(
                                   width: 152,
                                   height: 240,
                                   child: Stack(
-                                    children: [
-
-                                    ],
+                                    children: [],
                                   ),
                                 ),
                               ),
                               Expanded(
                                 child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                                   child: ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(scrollbars: false),
+                                    behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                                     child: Column(
                                       children: [
                                         Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 16),
+                                          margin: const EdgeInsets.only(bottom: 16),
                                           child: ModeCard(
                                             spacing: 40,
                                             modeList: liangyiModes,
@@ -282,8 +227,10 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                             ),
                                             title: '照明',
                                             child: MzSwitch(
-                                              value: true,
-                                              onTap: (e) {},
+                                              value: dataAdapter?.data?.light == 'on',
+                                              onTap: (e) {
+                                                dataAdapter?.modeControl(2);
+                                              },
                                             ),
                                           ),
                                         ),
@@ -296,8 +243,10 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> {
                                           title: '一键晾衣',
                                           child: MzSwitch(
                                             disabled: false,
-                                            value: true,
-                                            onTap: (e) {},
+                                            value: dataAdapter?.data?.laundry == 'on',
+                                            onTap: (e) {
+                                              dataAdapter?.modeControl(1);
+                                            },
                                           ),
                                         ),
                                       ],

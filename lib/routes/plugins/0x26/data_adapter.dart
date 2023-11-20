@@ -227,7 +227,6 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
-      Log.i('浴霸数据', nodeInfo);
       return nodeInfo;
     } else {
       return HomluxDeviceEntity();

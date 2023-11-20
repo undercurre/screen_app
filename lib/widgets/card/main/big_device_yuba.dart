@@ -228,7 +228,6 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
 
     return GestureDetector(
       onTap: () {
-        Log.i('拉取数据');
         adapter.fetchData();
         if (adapter.dataState != DataState.SUCCESS) {
           adapter.fetchData();
