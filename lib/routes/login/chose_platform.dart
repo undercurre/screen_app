@@ -46,18 +46,19 @@ class _ChosePlatform extends State<ChosePlatform> {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 32),
-            child: GestureDetector(
-              onLongPress: () {
-                aboutSystemChannel.translateToProductionTestPage();
-              },
-              child: const Text("请选择登录平台",
-              style: TextStyle(
-              color: Color(0XFFFFFFFF),
-              fontSize: 24,
-              fontFamily: "MideaType",
-              fontWeight: FontWeight.w500),
-            )
-          )),
+              child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onLongPress: () {
+                    aboutSystemChannel.translateToProductionTestPage();
+                  },
+                  child: const Text(
+                    "请选择登录平台",
+                    style: TextStyle(
+                        color: Color(0XFFFFFFFF),
+                        fontSize: 24,
+                        fontFamily: "MideaType",
+                        fontWeight: FontWeight.w500),
+                  ))),
           _card("美的美居",
               "assets/newUI/login/meiju_logo.png",
               MideaRuntimePlatform.platform == GatewayPlatform.MEIJU, () {
