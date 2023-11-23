@@ -12,4 +12,4 @@ var ventilation = Mode('ventilation', '换气', 'assets/newUI/yubamodel/ventilat
 
 var drying = Mode('drying', '干燥', 'assets/newUI/yubamodel/drying.png', 'assets/newUI/yubamodel/drying_off.png');
 
-var bathroomMasterMode = <Mode>[light, blowing, heating, bath, ventilation, drying];
+var bathroomMasterMode = <Mode>[light, blowing, heating, ventilation];

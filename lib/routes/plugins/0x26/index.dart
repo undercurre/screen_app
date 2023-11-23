@@ -28,6 +28,7 @@ class BathroomMaster extends StatefulWidget {
 
 class BathroomMasterState extends State<BathroomMaster> with Throttle {
   WIFIYubaDataAdapter? dataAdapter;
+  bool touchingDaji = false;
 
   void goBack() {
     bus.emit('updateDeviceCardState');
@@ -89,6 +90,19 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
       return deviceListModel.getDeviceName(deviceId: dataAdapter?.getDeviceId(), maxLength: 8, startLength: 5, endLength: 2);
     }
 
+    String getWindImage() {
+      var list = dataAdapter?.getCardStatus()?['mode'].split(',');
+      var first = list.first;
+      if (first == 'ventilation' && list.length > 1) {
+        first = list[1];
+      }
+      if (first != null) {
+        return 'assets/newUI/yubamodel/${first}_wind.png';
+      } else {
+        return 'assets/newUI/yubamodel/ventilation_wind.png';
+      }
+    }
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -107,10 +121,14 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
           MzNavigationBar(
             onLeftBtnTap: goBack,
             onRightBtnTap: () {
+              touchingDaji = true;
               dataAdapter?.power(false);
+              Future.delayed(const Duration(seconds: 2), () {
+                touchingDaji = false;
+              });
             },
             title: getDeviceName(),
-            power: dataAdapter?.getPowerStatus() ?? false,
+            power: touchingDaji,
             hasPower: true,
           ),
           Expanded(
@@ -127,13 +145,14 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
                   ),
                 ),
                 if (dataAdapter?.getCardStatus()?['mode'] != 'close_all')
-                Positioned(
-                  left: 0,
-                  top: 125,
-                  child: Image(
-                    image: AssetImage('assets/newUI/yubamodel/${dataAdapter?.getCardStatus()?['mode'].split(',').first}_wind.png'),
+                  Positioned(
+                    left: 0,
+                    top: 125,
+                    child: Image(
+                      width: 171,
+                      image: AssetImage(getWindImage()),
+                    ),
                   ),
-                ),
                 Row(
                   children: [
                     const SizedBox(

@@ -241,7 +241,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
                                             image: AssetImage('assets/newUI/liangyimodel/laundry.png'),
                                           ),
                                           title: '一键晾衣',
-                                          child: MzSwitch(
+                                          child:  MzSwitch(
                                             disabled: false,
                                             value: dataAdapter?.data?.laundry == 'on',
                                             onTap: (e) {
