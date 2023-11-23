@@ -128,7 +128,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             // 绑定网关
             bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
               if (isSuccess) {
-                prepare2goHome();
+                prepare2goHome(true);
                 Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
                 Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
                 Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
@@ -147,7 +147,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
               if(value) {
                 Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
-                prepare2goHome();
+                prepare2goHome(false);
                 Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
                 Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
                 Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
@@ -172,12 +172,16 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     });
   }
 
-  void prepare2goHome() {
+  void prepare2goHome(bool needBind) {
     prepareLayout();
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
         assert(bindingKey.currentState != null);
-        bindingKey.currentState?.showSucStyle();
+        if(needBind) {
+          bindingKey.currentState?.showBindSucStyle();
+        } else {
+          bindingKey.currentState?.showLoginSucStyle();
+        }
       }
     });
     Timer(const Duration(seconds: 6), () {
@@ -743,7 +747,13 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
     });
   }
 
-  showSucStyle() {
+  showLoginSucStyle() {
+    setState(() {
+      state = 4;
+    });
+  }
+
+  showBindSucStyle() {
     setState(() {
       state = 2;
     });
@@ -758,6 +768,17 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     var contentWidget = switch(state) {
+        4 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_suc.png'),
+              const Text(
+                '登录成功',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
         2 => Column(
             children: [
               Image.asset('assets/newUI/login/binding_suc.png'),
