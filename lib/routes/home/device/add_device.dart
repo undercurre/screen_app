@@ -307,7 +307,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     if (System.inMeiJuPlatform()) {
       deleteID.add(MeiJuGlobal.gatewayApplianceCode!);
     } else {
-      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode!}");
+      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode}");
     }
 
     for (DeviceEntity device in devicesTemp) {

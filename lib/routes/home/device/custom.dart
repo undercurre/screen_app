@@ -35,8 +35,10 @@ class CustomPage extends StatefulWidget {
 class _CustomPageState extends State<CustomPage> {
   // pageview的Controller
   PageController _pageController = PageController();
+
   // 存储pageview的页面
   List<Widget> _screens = [];
+
   // 当前拖拽的卡片id
   String dragingWidgetId = '';
 
@@ -72,8 +74,7 @@ class _CustomPageState extends State<CustomPage> {
               colors: [Color(0xFF272F41), Color(0xFF080C14)],
             ),
           ),
-          constraints:
-              BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           height: MediaQuery.of(context).size.height,
           child: PageView.builder(
             controller: _pageController,
@@ -105,19 +106,12 @@ class _CustomPageState extends State<CustomPage> {
                         width: 168,
                         height: 56,
                         borderRadius: 29,
-                        backgroundColor: layoutModel.layouts.length >= 16
-                            ? const Color(0xFF818C98).withOpacity(0.6)
-                            : const Color(0xFF818C98),
+                        backgroundColor:
+                            layoutModel.layouts.length >= 16 ? const Color(0xFF818C98).withOpacity(0.6) : const Color(0xFF818C98),
                         borderColor: Colors.transparent,
                         borderWidth: 1,
-                        text:
-                            '添加(${layoutModel.layouts.where((element) => element.cardType != CardType.Null).toList().length})',
-                        textColor: layoutModel.layouts
-                                    .where((element) =>
-                                        element.cardType != CardType.Null)
-                                    .toList()
-                                    .length >=
-                                10000
+                        text: '添加(${layoutModel.layouts.where((element) => element.cardType != CardType.Null).toList().length})',
+                        textColor: layoutModel.layouts.where((element) => element.cardType != CardType.Null).toList().length >= 10000
                             ? Colors.white.withOpacity(0.6)
                             : Colors.white,
                         onPressed: () async {
@@ -154,7 +148,7 @@ class _CustomPageState extends State<CustomPage> {
     // 取得最大页数
     int maxPage = layoutModel.getMaxPageIndex();
     // 逐页渲染
-    for (int page = 0; page <= maxPage; page ++) {
+    for (int page = 0; page <= maxPage; page++) {
       // 收集当前page的widget
       List<Widget> curScreenWidgets = [];
       // 拿到当前页的layout
@@ -170,14 +164,15 @@ class _CustomPageState extends State<CustomPage> {
         layout.data.context = context;
         layout.data.applianceCode = layout.deviceId;
         // 映射出对应的Card
-        Widget cardWidget =
-            buildMap[layout.type]![layout.cardType]!(layout.data);
+        Widget cardWidget = buildMap[layout.type]![layout.cardType]!(layout.data);
 
         // 映射点击（用于置换）
         Widget cardWithSwap = layout.cardType != CardType.Null
             ? GestureDetector(
                 onTap: () {
-                  layout.type != DeviceEntityTypeInP4.Scene ? _getDeviceDialog(context, layout, pageCounterModel) : _getSceneDialog(context, layout, pageCounterModel);
+                  layout.type != DeviceEntityTypeInP4.Scene
+                      ? _getDeviceDialog(context, layout, pageCounterModel)
+                      : _getSceneDialog(context, layout, pageCounterModel);
                 },
                 child: AbsorbPointer(absorbing: true, child: cardWidget),
               )
@@ -254,17 +249,14 @@ class _CustomPageState extends State<CustomPage> {
                         child: DragTarget<String>(
                           builder: (context, candidateData, rejectedData) {
                             return Container(
-                                width: sizeMap[layout.cardType]!['cross']! /
-                                    2 *
-                                    105,
+                                width: sizeMap[layout.cardType]!['cross']! / 2 * 105,
                                 height: sizeMap[layout.cardType]!['main']! * 96,
                                 color: Colors.transparent);
                           },
                           onAccept: (data) {
                             Log.i('$data拖拽结束左', layout.deviceId);
                             // 被拖拽的
-                            layoutModel.swapPosition(
-                                data, layout.deviceId, layout.pageIndex, true);
+                            layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, true);
                           },
                         ),
                       ),
@@ -275,17 +267,14 @@ class _CustomPageState extends State<CustomPage> {
                         child: DragTarget<String>(
                           builder: (context, candidateData, rejectedData) {
                             return Container(
-                                width: sizeMap[layout.cardType]!['cross']! /
-                                    2 *
-                                    105,
+                                width: sizeMap[layout.cardType]!['cross']! / 2 * 105,
                                 height: sizeMap[layout.cardType]!['main']! * 96,
                                 color: Colors.transparent);
                           },
                           onAccept: (data) {
                             Log.i('$data拖拽结束右', layout.deviceId);
                             // 被拖拽的
-                            layoutModel.swapPosition(
-                                data, layout.deviceId, layout.pageIndex, false);
+                            layoutModel.swapPosition(data, layout.deviceId, layout.pageIndex, false);
                           },
                         ),
                       ),
@@ -294,9 +283,7 @@ class _CustomPageState extends State<CustomPage> {
               )
             : cardWithIcon;
         // 映射占位
-        Widget cardWithPosition = StaggeredGridTile.fit(
-            crossAxisCellCount: sizeMap[layout.cardType]!['cross']!,
-            child: cardWithDrag);
+        Widget cardWithPosition = StaggeredGridTile.fit(crossAxisCellCount: sizeMap[layout.cardType]!['cross']!, child: cardWithDrag);
         curScreenWidgets.add(cardWithPosition);
       }
       // 每一页插入屏幕表
@@ -337,11 +324,11 @@ class _CustomPageState extends State<CustomPage> {
         List<Layout> layoutsInCurPage = layoutModel.getLayoutsByPageIndex(pageCounterModel.currentPage);
         if (layoutsInCurPage.isNotEmpty) {
           // 非空页
-          for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex ++) {
+          for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex++) {
             // 不填充待定区占位
             if (layoutsInCurPage[layoutInCurPageIndex].cardType == CardType.Null) continue;
             // 取出当前布局的grids
-            for (int gridsIndex = 0; gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length; gridsIndex ++) {
+            for (int gridsIndex = 0; gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length; gridsIndex++) {
               // 把已经布局的有效数据在布局器中占位
               int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
               int row = (grid - 1) ~/ 4;
@@ -360,13 +347,17 @@ class _CustomPageState extends State<CustomPage> {
               result.pageIndex = proFlexiblePage.pageIndex;
               result.grids = proFlexiblePage.grids;
               // 找到并删掉空缺
-              List<Layout> daiding = layoutModel.layouts.where((element) => element.pageIndex == result.pageIndex && element.cardType == CardType.Null && result.grids.any((res) => element.grids.contains(res))).toList();
+              List<Layout> daiding = layoutModel.layouts
+                  .where((element) =>
+                      element.pageIndex == result.pageIndex &&
+                      element.cardType == CardType.Null &&
+                      result.grids.any((res) => element.grids.contains(res)))
+                  .toList();
               layoutModel.deleteLayoutList(daiding.map((e) => e.deviceId).toList());
               layoutModel.addLayout(result);
-              Log.i('此时合适一页页码为${ proFlexiblePage.pageIndex }');
+              Log.i('此时合适一页页码为${proFlexiblePage.pageIndex}');
               // 跳到这个找到合适位置的页数
-              WidgetsBinding.instance
-                  ?.addPostFrameCallback((_) {
+              WidgetsBinding.instance?.addPostFrameCallback((_) {
                 _pageController.animateToPage(proFlexiblePage.pageIndex, duration: const Duration(milliseconds: 300), curve: Curves.ease);
               });
               pageCounterModel.currentPage = proFlexiblePage.pageIndex;
@@ -380,13 +371,12 @@ class _CustomPageState extends State<CustomPage> {
               result.grids = fillCells;
               // 填充待定区
               List<Layout> curPageLayoutsInLast = Layout.filledLayout([result]);
-              for (int o = 0; o < curPageLayoutsInLast.length; o ++) {
+              for (int o = 0; o < curPageLayoutsInLast.length; o++) {
                 layoutModel.addLayout(curPageLayoutsInLast[o]);
               }
-              Log.i('此时最后一页页码为${ maxPage + 1 }');
+              Log.i('此时最后一页页码为${maxPage + 1}');
               // 跳到新增的最后一页
-              WidgetsBinding.instance
-                  ?.addPostFrameCallback((_) {
+              WidgetsBinding.instance?.addPostFrameCallback((_) {
                 _pageController.animateToPage(maxPage + 1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
               });
               pageCounterModel.currentPage = maxPage + 1;
@@ -396,7 +386,9 @@ class _CustomPageState extends State<CustomPage> {
             result.grids = fillCells;
             result.pageIndex = pageCounterModel.currentPage;
             // 找到响应的待定区
-            List<Layout> hasThisNullCardList = layoutsInCurPage.where((element) => element.grids.every((element) => fillCells.contains(element)) && element.cardType == CardType.Null).toList();
+            List<Layout> hasThisNullCardList = layoutsInCurPage
+                .where((element) => element.grids.every((element) => fillCells.contains(element)) && element.cardType == CardType.Null)
+                .toList();
             if (hasThisNullCardList.isNotEmpty) {
               layoutModel.deleteLayoutList(hasThisNullCardList.map((e) => e.deviceId).toList());
               layoutModel.addLayout(result);
@@ -410,7 +402,7 @@ class _CustomPageState extends State<CustomPage> {
           result.grids = fillCells;
           // 填充待定区
           List<Layout> curPageLayoutsInNullPage = Layout.filledLayout([result]);
-          for (int o = 0; o < curPageLayoutsInNullPage.length; o ++) {
+          for (int o = 0; o < curPageLayoutsInNullPage.length; o++) {
             layoutModel.addLayout(curPageLayoutsInNullPage[o]);
           }
         }
@@ -419,6 +411,12 @@ class _CustomPageState extends State<CustomPage> {
   }
 
   _getDeviceDialog(BuildContext context, Layout layout, PageCounter pageCounterModel) {
+    Map<CardType, int> initPageNumMap = {
+      CardType.Small: 0,
+      CardType.Middle: 1,
+      CardType.Big: 2,
+    };
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -431,14 +429,14 @@ class _CustomPageState extends State<CustomPage> {
           roomName: layout.data.roomName,
           masterId: layout.data.masterId,
           onlineStatus: layout.data.onlineStatus,
+          initPageNum: initPageNumMap[layout.cardType],
         );
       },
     ).then(
-          (value) async {
+      (value) async {
         if (value != null) {
           int zhuandaoPage = await context.read<LayoutModel>().swapCardType(layout, value);
-          WidgetsBinding.instance
-              ?.addPostFrameCallback((_) {
+          WidgetsBinding.instance?.addPostFrameCallback((_) {
             _pageController.animateToPage(zhuandaoPage, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           });
           pageCounterModel.currentPage = zhuandaoPage;
@@ -448,21 +446,27 @@ class _CustomPageState extends State<CustomPage> {
   }
 
   _getSceneDialog(BuildContext context, Layout layout, PageCounter pageCounterModel) {
+    Map<CardType, int> initPageNumMap = {
+      CardType.Small: 0,
+      CardType.Middle: 1,
+      CardType.Big: 2,
+    };
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CardDialogScene(
-            name: layout.data.name,
-            sceneId: layout.data.sceneId ?? '0000',
-            icon: layout.data.icon
+          name: layout.data.name,
+          sceneId: layout.data.sceneId ?? '0000',
+          icon: layout.data.icon,
+          initPageNum: initPageNumMap[layout.cardType],
         );
       },
     ).then(
-          (value) async {
+      (value) async {
         if (value != null) {
           int zhuandaoPage = await context.read<LayoutModel>().swapCardType(layout, value);
-          WidgetsBinding.instance
-              ?.addPostFrameCallback((_) {
+          WidgetsBinding.instance?.addPostFrameCallback((_) {
             _pageController.animateToPage(zhuandaoPage, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           });
           pageCounterModel.currentPage = zhuandaoPage;
