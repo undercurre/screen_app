@@ -42,8 +42,7 @@ class ModeCard extends StatelessWidget {
         .map(
           (mode) => ModeItem(
             mode: mode,
-            selected: selectedKeys[mode.key] != null &&
-                selectedKeys[mode.key] == true,
+            selected: selectedKeys[mode.key] != null && selectedKeys[mode.key] == true,
             hasHeightlight: hasHeightlight,
             onTap: (e) {
               if (disabled) return;
@@ -75,11 +74,10 @@ class ModeCard extends StatelessWidget {
               ),
             Opacity(
               opacity: disabled ? 0.4 : 1,
-              child: SizedBox(
-                width: double.infinity,
+              child: Center(
                 child: Wrap(
                   direction: Axis.horizontal,
-                  alignment: WrapAlignment.center,
+                  alignment: WrapAlignment.start,
                   spacing: spacing,
                   runSpacing: runSpacing,
                   runAlignment: WrapAlignment.center,
@@ -100,9 +98,7 @@ class ModeItem extends StatelessWidget {
   final void Function(Mode mode)? onTap;
   final bool hasHeightlight;
 
-  const ModeItem(
-      {Key? key, required this.mode, this.selected = false, this.onTap, required this.hasHeightlight})
-      : super(key: key);
+  const ModeItem({Key? key, required this.mode, this.selected = false, this.onTap, required this.hasHeightlight}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,10 +117,10 @@ class ModeItem extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
-                colors: selected ?
-                  (hasHeightlight ?
-                    [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)]
-                      : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)])
+                colors: selected
+                    ? (hasHeightlight
+                        ? [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)]
+                        : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)])
                     : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)],
               ),
             ),

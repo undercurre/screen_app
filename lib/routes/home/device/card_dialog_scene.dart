@@ -18,20 +18,27 @@ class CardDialogScene extends StatefulWidget {
   final String sceneId;
   final String name;
   final String? icon;
+  int? initPageNum;
 
-  const CardDialogScene(
-      {super.key, required this.sceneId, required this.name, this.icon});
+  CardDialogScene({super.key, required this.sceneId, required this.name, this.icon, this.initPageNum});
 
   @override
   _CardDialogSceneState createState() => _CardDialogSceneState();
 }
 
 class _CardDialogSceneState extends State<CardDialogScene> {
-  final PageController _pageController = PageController();
+  late PageController _pageController;
   int _currentIndex = 0;
 
   // 用于pageView的indicator（指示器）更新
   GlobalKey<ParagraphIndicatorState> indicatorState = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.initPageNum ?? 0);
+    _currentIndex = widget.initPageNum ?? 0;
+  }
 
   @override
   void dispose() {
@@ -107,13 +114,10 @@ class _CardDialogSceneState extends State<CardDialogScene> {
                       scrollDirection: Axis.horizontal,
                       allowImplicitScrolling: true,
                       children: [
-                        if (buildMap[DeviceEntityTypeInP4.Scene]![
-                                CardType.Small] !=
-                            null)
+                        if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Small] != null)
                           KeepAliveWrapper(
                             child: UnconstrainedBox(
-                              child: buildMap[DeviceEntityTypeInP4.Scene]![
-                                  CardType.Small]!(
+                              child: buildMap[DeviceEntityTypeInP4.Scene]![CardType.Small]!(
                                 DataInputCard(
                                   disabled: false,
                                   discriminative: true,
@@ -132,15 +136,12 @@ class _CardDialogSceneState extends State<CardDialogScene> {
                               ),
                             ),
                           ),
-                        if (buildMap[DeviceEntityTypeInP4.Scene]![
-                                CardType.Middle] !=
-                            null)
+                        if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Middle] != null)
                           KeepAliveWrapper(
                             child: Transform.scale(
                               scale: 0.75,
                               child: UnconstrainedBox(
-                                child: buildMap[DeviceEntityTypeInP4.Scene]![
-                                    CardType.Middle]!(
+                                child: buildMap[DeviceEntityTypeInP4.Scene]![CardType.Middle]!(
                                   DataInputCard(
                                     disabled: false,
                                     discriminative: true,
@@ -168,10 +169,7 @@ class _CardDialogSceneState extends State<CardDialogScene> {
                   ),
                 ]),
               ),
-              ParagraphIndicator(
-                  key: indicatorState,
-                  defaultPosition: _currentIndex,
-                  itemCount: _getItemCount()),
+              ParagraphIndicator(key: indicatorState, defaultPosition: _currentIndex, itemCount: _getItemCount()),
             ],
           ),
         ),
@@ -181,29 +179,19 @@ class _CardDialogSceneState extends State<CardDialogScene> {
 
   int _getItemCount() {
     int lang = 0;
-    if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Small] !=
-        null) lang++;
-    if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Middle] !=
-        null) lang++;
+    if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Small] != null) lang++;
+    if (buildMap[DeviceEntityTypeInP4.Scene]![CardType.Middle] != null) lang++;
 
     return lang;
   }
 
   String _getTitle(CardType cardType) {
-    Map<CardType, String> titleMap = {
-      CardType.Small: '小卡片',
-      CardType.Middle: '中卡片',
-      CardType.Big: '大卡片'
-    };
+    Map<CardType, String> titleMap = {CardType.Small: '小卡片', CardType.Middle: '中卡片', CardType.Big: '大卡片'};
     return titleMap[cardType] ?? '卡片';
   }
 
   CardType _getCardType() {
-    Map<int, CardType> cardTypeMap = {
-      0: CardType.Small,
-      1: CardType.Middle,
-      2: CardType.Big
-    };
+    Map<int, CardType> cardTypeMap = {0: CardType.Small, 1: CardType.Middle, 2: CardType.Big};
     return cardTypeMap[_currentIndex] ?? CardType.Small;
   }
 

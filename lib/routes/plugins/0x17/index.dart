@@ -55,7 +55,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
 
   Future<void> modeHandle(Mode mode) async {
     Map<String, int> modes = {'up': 3, 'pause': 4, 'down': 5};
-    if (modes[mode.key] != null)  dataAdapter?.modeControl(modes[mode.key]!);
+    if (modes[mode.key] != null) dataAdapter?.modeControl(modes[mode.key]!);
   }
 
   Future<void> lightHandle(bool e) async {
@@ -235,20 +235,41 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
                                           ),
                                         ),
                                         FunctionCard(
-                                          icon: const Image(
-                                            height: 40,
-                                            width: 40,
-                                            image: AssetImage('assets/newUI/liangyimodel/laundry.png'),
-                                          ),
-                                          title: '一键晾衣',
-                                          child: MzSwitch(
-                                            disabled: false,
-                                            value: dataAdapter?.data?.laundry == 'on',
-                                            onTap: (e) {
-                                              dataAdapter?.modeControl(1);
-                                            },
-                                          ),
-                                        ),
+                                            icon: const Image(
+                                              height: 40,
+                                              width: 40,
+                                              image: AssetImage('assets/newUI/liangyimodel/laundry.png'),
+                                            ),
+                                            title: '一键晾衣',
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                dataAdapter?.modeControl(1);
+                                              },
+                                              child: Container(
+                                                width: 56,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color: dataAdapter?.data?.laundry == 'on'
+                                                      ? const Color.fromRGBO(38, 122, 255, 1)
+                                                      : const Color.fromRGBO(255, 255, 255, 0.2),
+                                                  borderRadius: BorderRadius.circular(12.0), // 设置圆角半径
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    dataAdapter?.data?.laundry == 'on' ? '启动中' : '启动',
+                                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            // MzSwitch(
+                                            //   disabled: false,
+                                            //   value: dataAdapter?.data?.laundry == 'on',
+                                            //   onTap: (e) {
+                                            //     dataAdapter?.modeControl(1);
+                                            //   },
+                                            // ),
+                                            ),
                                       ],
                                     ),
                                   ),
