@@ -142,7 +142,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
               });
             }
-            if(Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
+            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindHomeId) && Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
               showClearAlert(context,'绑定至新家庭', "智慧屏已绑定在家庭“${Setting.instant().lastBindHomeName}”，"
                   "绑定至新家庭将清除所有本地数据，是否继续？",  () {
                 callback();
