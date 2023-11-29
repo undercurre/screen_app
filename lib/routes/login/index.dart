@@ -179,8 +179,6 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           }
         }, () {
           TipsUtils.hideLoading();
-          assert(bindingKey.currentState != null);
-          bindingKey.currentState?.showErrorStyle();
           selectRoomKey.currentState?.refreshList();
         });
       }
