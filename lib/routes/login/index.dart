@@ -813,7 +813,7 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
             children: [
               Image.asset('assets/newUI/login/binding_err.png'),
               const Text(
-                '绑定失败',
+                '失败',
                 style: TextStyle(
                   color: Color.fromRGBO(255, 255, 255, 0.72),
                   fontSize: 24,
