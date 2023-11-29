@@ -58,13 +58,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   String? selectFamilyId;
   Uuid uuid = Uuid();
 
-  void showBindingDialog(bool show) async {
+  void showBindingDialog(String tip) async {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       // false = user must tap button, true = tap outside dialog
       builder: (BuildContext dialogContext) {
-        return BindingDialog(key: bindingKey);
+        return BindingDialog(key: bindingKey,tip: tip,);
       },
     );
   }
@@ -110,40 +110,41 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
-      if (isNeedShowClearAlert) {
-        showClearAlert(context);
-        return;
-      }
       // todo: linux运行屏蔽，push前解放
       if (Platform.isLinux) {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        showBindingDialog(true);
+        TipsUtils.showLoading();
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
         bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, device) {
+          TipsUtils.hideLoading();
           if (!isBind) {
-            // 绑定网关
-            bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
-              if (isSuccess) {
-                prepare2goHome(true);
-                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
-                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
-                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
-                Setting.instant().isAllowChangePlatform = false;
-                gatewayChannel.resetRelayModel();
-                Log.i("绑定网关");
-              } else {
-                assert(bindingKey.currentState != null);
-                bindingKey.currentState?.showErrorStyle();
-                selectRoomKey.currentState?.refreshList();
-              }
+            showClearAlert(context, () {
+              // 绑定网关
+              showBindingDialog('正在绑定中，请稍后');
+              bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
+                if (isSuccess) {
+                  prepare2goHome(true);
+                  Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                  Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                  Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                  Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+                  Setting.instant().isAllowChangePlatform = false;
+                  gatewayChannel.resetRelayModel();
+                  Log.i("绑定网关");
+                } else {
+                  assert(bindingKey.currentState != null);
+                  bindingKey.currentState?.showErrorStyle();
+                  selectRoomKey.currentState?.refreshList();
+                }
+              });
             });
           } else {
             assert(System.roomInfo!= null);
+            showBindingDialog('正在登录中，请稍后');
             bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
               if(value) {
                 Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
@@ -160,6 +161,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             });
           }
         }, () {
+          TipsUtils.hideLoading();
           assert(bindingKey.currentState != null);
           bindingKey.currentState?.showErrorStyle();
           selectRoomKey.currentState?.refreshList();
@@ -592,7 +594,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
   }
 
-  void showClearAlert(BuildContext context) async {
+  void showClearAlert(BuildContext context, VoidCallback callback) async {
     var name = Setting.instant().lastBindHomeName;
     MzDialog(
         title: '绑定至新家庭',
@@ -614,8 +616,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         onPressed: (_, position, context) {
           Navigator.pop(context);
           if (position == 1) {
-            isNeedShowClearAlert = false;
-            nextStep();
+            callback.call();
           }
         }).show(context);
   }
@@ -715,8 +716,9 @@ class LoginHeader extends StatelessWidget {
 }
 
 class BindingDialog extends StatefulWidget {
+  String tip;
 
-  const BindingDialog({super.key});
+  BindingDialog({super.key, required this.tip});
 
   @override
   State<BindingDialog> createState() => _BindingDialogState();
@@ -801,9 +803,9 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
                 ),
               ),
             ]),
-        _ => const Column(
+        _ => Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 150,
                 height: 150,
                 child: Align(
@@ -811,8 +813,8 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
                 ),
               ),
               Text(
-                '正在绑定中，请稍后',
-                style: TextStyle(
+                widget.tip,
+                style: const TextStyle(
                   color: Color.fromRGBO(255, 255, 255, 0.72),
                   fontSize: 24,
                 ),
