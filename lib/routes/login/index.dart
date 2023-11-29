@@ -122,7 +122,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, device) {
           TipsUtils.hideLoading();
           if (!isBind) {
-            showClearAlert(context, () {
+            callback() {
               // 绑定网关
               showBindingDialog('正在绑定中，请稍后');
               bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
@@ -141,24 +141,41 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                   selectRoomKey.currentState?.refreshList();
                 }
               });
-            });
+            }
+            if(Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
+              showClearAlert(context,'绑定至新家庭', "智慧屏已绑定在家庭“${Setting.instant().lastBindHomeName}”，"
+                  "绑定至新家庭将清除所有本地数据，是否继续？",  () {
+                callback();
+              });
+            } else {
+              callback();
+            }
           } else {
             assert(System.roomInfo!= null);
-            showBindingDialog('正在登录中，请稍后');
-            bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
-              if(value) {
-                Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
-                prepare2goHome(false);
-                Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
-                Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
-                Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
-              } else {
-                assert(bindingKey.currentState != null);
-                bindingKey.currentState?.showErrorStyle();
-                selectRoomKey.currentState?.refreshList();
-              }
-            });
+            callback() {
+              showBindingDialog('正在登录中，请稍后');
+              bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
+                if(value) {
+                  Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
+                  prepare2goHome(false);
+                  Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                  Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                  Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                  Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+                } else {
+                  assert(bindingKey.currentState != null);
+                  bindingKey.currentState?.showErrorStyle();
+                  selectRoomKey.currentState?.refreshList();
+                }
+              });
+            }
+            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindRoomId) && Setting.instant().lastBindRoomId != System.roomInfo!.id) {
+              showClearAlert(context,'迁移至新房间', "智慧屏将迁移至${System.roomInfo!.name}房间，是否继续？",  () {
+                callback.call();
+              });
+            } else {
+              callback.call();
+            }
           }
         }, () {
           TipsUtils.hideLoading();
@@ -594,15 +611,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
   }
 
-  void showClearAlert(BuildContext context, VoidCallback callback) async {
+  void showClearAlert(BuildContext context,String title, String tip, VoidCallback callback) async {
     var name = Setting.instant().lastBindHomeName;
     MzDialog(
-        title: '绑定至新家庭',
+        title: title,
         titleSize: 28,
         maxWidth: 432,
         backgroundColor: const Color(0xFF494E59),
         contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
-        contentSlot: Text("智慧屏已绑定在家庭“$name”，绑定至新家庭将清除所有本地数据，是否继续？",
+        contentSlot: Text(tip,
             textAlign: TextAlign.center,
             maxLines: 3,
             style: const TextStyle(
