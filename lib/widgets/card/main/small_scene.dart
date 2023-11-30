@@ -111,9 +111,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
               margin: const EdgeInsets.only(right: 16),
               width: 40,
               child: Image(
-                image: isNumeric(widget.icon)
-                    ? AssetImage('assets/newUI/scene/${widget.icon}.png')
-                    : AssetImage('assets/newUI/scene/default.png'),
+                image: AssetImage('assets/newUI/scene/${widget.icon}.png')
               ),
             ),
             SizedBox(

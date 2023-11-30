@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
@@ -22,23 +23,31 @@ class LiangyiDataEntity {
   String updown = 'pause';
   String light = 'off';
   String laundry = 'off';
+  String location_status = 'normal';
+  int custom_height = 0;
 
   LiangyiDataEntity({
     required updown,
     required light,
     required laundry,
+    required location_status,
+    required custom_height
   });
 
   LiangyiDataEntity.fromMeiJu(dynamic data, String sn8) {
     updown = data["updown"];
     light = data["light"];
     laundry = data["laundry"];
+    location_status = data["location_status"];
+    custom_height = data["custom_height"];
   }
 
   LiangyiDataEntity.fromHomlux(HomluxDeviceEntity data) {
     updown = data.mzgdPropertyDTOList?.clothesDryingRack?.updown ?? 'pause';
     light = data.mzgdPropertyDTOList?.clothesDryingRack?.light ?? 'off';
     laundry = data.mzgdPropertyDTOList?.clothesDryingRack?.laundry ?? 'off';
+    location_status = data.mzgdPropertyDTOList?.clothesDryingRack?.locationStatus ?? 'normal';
+    custom_height = data.mzgdPropertyDTOList?.clothesDryingRack?.customHeight ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -46,6 +55,7 @@ class LiangyiDataEntity {
       'updown': updown,
       'light': light,
       'laundry': laundry,
+      'location_status': location_status
     };
   }
 }
@@ -58,7 +68,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
-  LiangyiDataEntity? data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off');
+  LiangyiDataEntity? data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off', location_status: 'normal', custom_height: 0);
 
   WIFILiangyiDataAdapter(super.platform, this.sn8, this.applianceCode) {
     Log.i('获取到当前晾衣架的sn8', this.sn8);
@@ -184,7 +194,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
       data = LiangyiDataEntity.fromHomlux(_homluxData!);
     } else {
       dataState = DataState.ERROR;
-      data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off');
+      data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off', location_status: 'normal', custom_height: 0);
       updateUI();
       return;
     }
@@ -224,6 +234,14 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
   /// 控制升降
   Future<void> controlUpdown(String target) async {
     bus.emit('operateDevice', applianceCode);
+    if (data!.location_status == 'upper_limit' && target == 'up') {
+      TipsUtils.toast(content: '已达到最高点');
+      return;
+    }
+    if (data!.location_status == 'lower_limit' && target == 'down') {
+      TipsUtils.toast(content: '已达到最低点');
+      return;
+    }
     String lastModel = data!.updown;
     data!.updown = target;
     updateUI();
@@ -247,6 +265,10 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
   /// 控制一键晾衣
   Future<void> controlLaundry() async {
     bus.emit('operateDevice', applianceCode);
+    if (data!.custom_height == 0) {
+      TipsUtils.toast(content: '请先设置好一键晾衣高度');
+      return;
+    }
     String lastLaundryModel = data!.laundry;
     data!.laundry = data!.laundry != 'on' ? 'on' : 'off';
     updateUI();

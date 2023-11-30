@@ -12,6 +12,7 @@ import 'package:screen_app/routes/plugins/0x17/data_adapter.dart';
 import 'package:screen_app/routes/plugins/0x17/entity.dart';
 import 'package:screen_app/widgets/index.dart';
 import '../../../states/device_change_notifier.dart';
+import '../../../states/device_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import 'mode_list.dart';
 
@@ -122,6 +123,16 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
 
   @override
   Widget build(BuildContext context) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+
+    String getDeviceName() {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
+        return '加载中';
+      }
+
+      return deviceListModel.getDeviceName(deviceId: dataAdapter?.getDeviceId(), maxLength: 8, startLength: 5, endLength: 2);
+    }
+
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -158,7 +169,7 @@ class WifiLiangyiPageState extends State<WifiLiangyiPage> with Throttle {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    title: deviceWatch["deviceName"],
+                    title: getDeviceName(),
                     power: false,
                     hasPower: false,
                   ),
