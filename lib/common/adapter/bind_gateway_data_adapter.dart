@@ -14,7 +14,6 @@ import '../homlux/models/homlux_family_entity.dart';
 import '../homlux/models/homlux_room_list_entity.dart';
 import '../logcat_helper.dart';
 import '../meiju/meiju_global.dart';
-import '../meiju/models/meiju_home_info_entity.dart';
 import '../meiju/models/meiju_login_home_entity.dart';
 import '../meiju/models/meiju_room_entity.dart';
 
@@ -56,9 +55,15 @@ class BindGatewayAdapter extends MideaDataAdapter {
   Future<bool> modifyDevice(SelectFamilyItem selectFamily, SelectRoomItem selectRoom, DeviceEntity device) async {
     /// 此等情况无需修改房间
     if (selectRoom.id == device.roomId) {
-      MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
-      Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
-      Log.i('迁移的房间id，与设备的所在的房间id一致.${selectRoom.id} 无需迁移，直接返回');
+      if(MideaRuntimePlatform.platform.inMeiju()) {
+        MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
+        Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+        Log.i('迁移的房间id，与设备的所在的房间id一致.${selectRoom.id} 无需迁移，直接返回');
+      } else {
+        HomluxGlobal.gatewayApplianceCode = device.applianceCode;
+        Log.i('保存网关，设备ID为${HomluxGlobal.gatewayApplianceCode}');
+        Log.i('迁移的房间id，与设备的所在的房间id一致.${selectRoom.id} 无需迁移，直接返回');
+      }
       return true;
     }
     if(platform == GatewayPlatform.HOMLUX) {
@@ -69,8 +74,8 @@ class BindGatewayAdapter extends MideaDataAdapter {
       var deviceId = device.applianceCode;
       var httpResult = await HomluxUserApi.modifyDevice(deviceType, type, houseId, roomId!, deviceId);
       if(httpResult.isSuccess) {
-        MeiJuGlobal.gatewayApplianceCode = device.applianceCode;
-        Log.i('保存网关，设备ID为${MeiJuGlobal.gatewayApplianceCode}');
+        HomluxGlobal.gatewayApplianceCode = device.applianceCode;
+        Log.i('保存网关，设备ID为${HomluxGlobal.gatewayApplianceCode}');
       }
       return httpResult.isSuccess;
     } else if(platform == GatewayPlatform.MEIJU) {

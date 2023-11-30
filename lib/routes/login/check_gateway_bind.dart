@@ -31,6 +31,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
   }
 
   void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
+    Log.i("[bus] 接收到删除设备指令 待删除设备device=${event.deviceId} 网关deviceId=${HomluxGlobal.gatewayApplianceCode}");
     if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
       resetByGatewayDelete();
       System.logout('接收到删除网关的推送, 网关设备code = ${event.deviceId}');
