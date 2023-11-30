@@ -223,6 +223,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
 
   /// 控制升降
   Future<void> controlUpdown(String target) async {
+    bus.emit('operateDevice', applianceCode);
     String lastModel = data!.updown;
     data!.updown = target;
     updateUI();
@@ -245,6 +246,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
 
   /// 控制一键晾衣
   Future<void> controlLaundry() async {
+    bus.emit('operateDevice', applianceCode);
     String lastLaundryModel = data!.laundry;
     data!.laundry = data!.laundry != 'on' ? 'on' : 'off';
     updateUI();
@@ -267,6 +269,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
 
   /// 控制灯光
   Future<void> controlLightMode() async {
+    bus.emit('operateDevice', applianceCode);
     String lastLightModel = data!.light;
     data!.light = data!.light != 'on' ? 'on' : 'off';
     updateUI();

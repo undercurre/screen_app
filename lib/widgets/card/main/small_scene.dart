@@ -169,6 +169,7 @@ bool isNumeric(String str) {
   if (str == null) {
     return false;
   }
+  Log.i('homlux图标', str);
   final numericRegex = RegExp(r'^-?(\d+\.\d+|\d+)$');
   return numericRegex.hasMatch(str);
 }
