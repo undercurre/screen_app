@@ -107,31 +107,41 @@ class ModeItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            margin: const EdgeInsets.only(bottom: 15),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25.0),
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: selected
-                    ? (hasHeightlight
-                        ? [const Color(0xFF767B86), const Color(0xFF88909F), const Color(0xFF516375)]
-                        : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)])
-                    : [const Color(0x21FFFFFF), const Color(0x21FFFFFF)],
-              ),
-            ),
-            child: Image(
-              opacity: selected ? null : const AlwaysStoppedAnimation(0.5),
-              height: 42,
-              width: 42,
-              image: AssetImage(
-                mode.offIcon,
-              ),
-            ),
+          Stack(
+            children: [
+              selected && hasHeightlight
+                  ? Container(
+                      width: 50,
+                      height: 50,
+                      margin: const EdgeInsets.only(bottom: 15),
+                      child: Image(image: AssetImage('assets/newUI/yubamodel/bg.png')))
+                  : Container(
+                      width: 50,
+                      height: 50,
+                      margin: const EdgeInsets.only(bottom: 15),
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [Color(0x21FFFFFF), Color(0x21FFFFFF)],
+                        ),
+                      ),
+                    ),
+              Positioned(
+                top: 4,
+                left: 4,
+                child: Image(
+                  opacity: selected ? null : const AlwaysStoppedAnimation(0.5),
+                  height: 42,
+                  width: 42,
+                  image: AssetImage(
+                    mode.offIcon,
+                  ),
+                ),
+              )
+            ],
           ),
           Text(
             mode.name,

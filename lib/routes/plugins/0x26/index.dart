@@ -124,7 +124,9 @@ class BathroomMasterState extends State<BathroomMaster> with Throttle {
               touchingDaji = true;
               dataAdapter?.power(false);
               Future.delayed(const Duration(seconds: 2), () {
-                touchingDaji = false;
+                setState(() {
+                  touchingDaji = false;
+                });
               });
             },
             title: getDeviceName(),

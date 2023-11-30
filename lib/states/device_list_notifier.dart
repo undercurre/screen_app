@@ -309,6 +309,8 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         deviceCacheList = tempList;
 
+        Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
+
         return tempList;
       }
     }
