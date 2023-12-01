@@ -21,6 +21,7 @@ import com.midea.light.log.config.LogConfiguration;
 import com.midea.light.log.config.MSmartLogger;
 import com.midea.light.repositories.config.KVRepositoryConfig;
 import com.midea.light.repositories.config.MSmartKVRepository;
+import com.midea.light.setting.SystemUtil;
 import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
@@ -118,12 +119,14 @@ public class MainApplication extends BaseApplication {
 
 
         if(RelayRepository.getInstance().getGP0Model()!=0){
+            SystemUtil.CommandGP(0, true);
             GatewayConfig.relayControl.controlRelay1Open(true);
         }else{
             GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
         }
 
         if(RelayRepository.getInstance().getGP1Model()!=0){
+            SystemUtil.CommandGP(1, true);
             GatewayConfig.relayControl.controlRelay2Open(true);
         }else{
             GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
