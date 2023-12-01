@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  *     正常模式与缓慢模式
  *     <ul>
- *         <li>正常模式：每秒处理10条消息 设备正常使用时，可启动此模式</li>
+ *         <li>正常模式：每秒处理4条消息 设备正常使用时，可启动此模式</li>
  *         <li>缓慢模式：每秒处理1条消息 设备在睡眠时，可启动此模式</li>
  *     </ul>
  * </p>
@@ -66,7 +66,7 @@ public class MessageQueue {
     }
     public static final int MAX_CAPACITY = 2000;
     public static final int PER_EXECUTE_CAP = 2;
-    public static final int NORMAL_PROCESS_INTERVAL = 200;
+    public static final int NORMAL_PROCESS_INTERVAL = 500;
 
     public static final int LOW_PROCESS_INTERVAL = 2000;
 

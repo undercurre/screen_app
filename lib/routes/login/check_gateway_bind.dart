@@ -26,8 +26,10 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     apiCheckLogout();
   }
 
-  void notifyHomluxLogout(dynamic event) {
-    System.logout('Homlux推送事件，用户退出登录');
+  void notifyHomluxLogout(HomluxDeleteHouseUser event) {
+    if(event.uid == System.getUid()) {
+      System.logout('Homlux推送事件，用户${event.uid}退出登录');
+    }
   }
 
   void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
@@ -104,8 +106,6 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     super.dispose();
-    bus.typeOff<HomluxChangHouseEvent>(notifyHomluxLogout);
-    bus.typeOff<HomluxProjectChangeHouse>(notifyHomluxLogout);
     bus.typeOff<HomluxDeleteHouseUser>(notifyHomluxLogout);
     bus.typeOff<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);

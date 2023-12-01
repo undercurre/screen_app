@@ -11,7 +11,10 @@ class HomluxChangHouseEvent{}
 // 工程移交 转让家庭
 class HomluxProjectChangeHouse{}
 // 删除家庭用户
-class HomluxDeleteHouseUser{}
+class HomluxDeleteHouseUser{
+  late final String? uid;
+  HomluxDeleteHouseUser.of(String? uid);
+}
 // 更新房间名
 class HomluxChangeRoomNameEven{
   late final String roomId;
