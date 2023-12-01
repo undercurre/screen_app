@@ -19,10 +19,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.midea.light.ai.R;
 import com.midea.light.ai.services.MideaAiService;
-
-import androidx.annotation.NonNull;
 
 public class WeatherDialog extends Dialog {
 
@@ -89,7 +89,7 @@ public class WeatherDialog extends Dialog {
     public void timeOut() {
         new Thread(() -> {
             try {
-                Thread.sleep(3100);
+                Thread.sleep(3000);
                 Message msg = new Message();
                 msg.arg1 = 1;
                 mHandler.sendMessage(msg);

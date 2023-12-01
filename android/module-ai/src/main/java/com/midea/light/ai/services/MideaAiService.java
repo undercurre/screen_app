@@ -74,7 +74,8 @@ public class MideaAiService extends Service {
     private Player player;
     boolean isWk = false, isTimeOut = false;
     public boolean isClickOut = false;
-
+    private String lastSessionid;
+    private boolean lastEndSession = false;
     private AudioRecord mAudioRecord = null;
     public boolean mIsRecording = false;
     private AiDialog mAiDialog;
@@ -353,6 +354,11 @@ public class MideaAiService extends Service {
                 message.arg1 = 7;
                 mHandler.sendMessage(message);
             }
+            if (state == 0) {
+                Message message = new Message();
+                message.arg1 = 1;
+                mHandler.sendMessage(message);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -552,24 +558,6 @@ public class MideaAiService extends Service {
             mHandler.sendMessage(message);
             return;
         }
-//        if(isDeviceControlError(data)){
-//            ControlDeviceErrorCallBack.ControlDeviceError();
-//            Uri playUri = Uri.parse("/sdcard/tts/deldevice.mp3");
-//            MediaPlayer mm = new MediaPlayer();
-//            try {
-//                mm.setDataSource(this, playUri);
-//                mm.prepareAsync();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            mm.setOnPreparedListener(mediaPlayer -> mm.start());
-//            mm.setOnCompletionListener(mp -> {
-//                mm.reset();
-//                mm.release();
-//            });
-//            out();
-//            return;
-//        }
         wakeUpState = false;
         ttsList = loadTTSItem(data);
         JSONObject object = null;
@@ -577,8 +565,10 @@ public class MideaAiService extends Service {
         String asr = null;
         try {
             object = new JSONObject(data);
-            timeout = object.getString("timeout");
-            asr = object.getString("asr");
+            lastSessionid = object.getJSONObject("nlu").getString("sessionId");
+            lastEndSession = object.getJSONObject("nlu").getBoolean("endSession");
+            timeout = object.getJSONObject("nlu").getString("timeout");
+            asr = object.getJSONObject("nlu").getString("asr");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -621,9 +611,7 @@ public class MideaAiService extends Service {
             player.setOnFinishListener(new Player.OnFinishListener() {
                 @Override
                 public void onAllFinish() {
-                    Message message = new Message();
-                    message.arg1 = 1;
-                    mHandler.sendMessage(message);
+                    reportPlayerEnd(lastSessionid, lastEndSession);
                 }
 
                 @Override
@@ -647,6 +635,14 @@ public class MideaAiService extends Service {
             Message message = new Message();
             message.arg1 = 2;
             mHandler.sendMessage(message);
+        } else {
+            if (!mAiDialog.isShowing()) {
+                DialogUtil.showToast("网络故障,请检查网络!");
+            }
+            isTimeOut = true;
+            Message message = new Message();
+            message.arg1 = 3;
+            mHandler.sendMessage(message);
         }
     }
 
@@ -662,6 +658,29 @@ public class MideaAiService extends Service {
         if (volume != null) {
             setSystemAudio(volume);
         }
+    }
+
+    public void reportPlayerEnd(String sessionid, boolean isEnd) {
+        Log.d(TAG, "---reportPlayerEnd---");
+
+        try {
+
+            JSONObject Obj1 = new JSONObject();
+            JSONArray ttsArray = new JSONArray();
+            Obj1.put("endSession", isEnd);
+            if (!sessionid.isEmpty()) {
+                Obj1.put("sessionId", sessionid);
+            }
+            ttsArray.put(0, Obj1);
+
+            JSONObject resultObj = new JSONObject();
+            resultObj.put("player_status", 2002);
+            resultObj.put("tts_array", ttsArray);
+            mMediaMwEngine.playStatusToSpeech(resultObj.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return;
     }
 
     private Mw.Callback func = new Mw.Callback() {
