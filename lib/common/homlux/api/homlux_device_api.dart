@@ -151,26 +151,36 @@ class HomluxDeviceApi {
   /// [deviceId] 设备id
   /// ****************
   static Future<HomluxResponseEntity<HomluxDeviceEntity>> queryDeviceStatusByDeviceId(String deviceId,
-      {CancelToken? cancelToken, bool forceRequestNetwork = true}) async {
-    Log.i('[device-api] 请求设备状态 deviceId=$deviceId forceRequestNetwork=$forceRequestNetwork');
+      {CancelToken? cancelToken}) async {
 
-    /// 从本地缓存中，还原设备状态
-    await _recoverForDevices(deviceId);
+    Log.i('[device-api] 请求设备状态 deviceId=$deviceId');
 
-    try {
-      HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<HomluxDeviceEntity>('/v1/device/queryDeviceInfoByDeviceId',
-          cancelToken: cancelToken, options: Options(method: 'POST'), data: {'deviceId': deviceId});
+    if(devices[deviceId] == null) {
+      try {
+        HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<HomluxDeviceEntity>('/v1/device/queryDeviceInfoByDeviceId',
+            cancelToken: cancelToken, options: Options(method: 'POST'), data: {'deviceId': deviceId});
 
-      /// 更新最新的数据到缓存中
-      if (entity.isSuccess && entity.data != null) {
-        devices[deviceId] = entity.data!;
-        LocalStorage.setItem('homlux_lan_device_save_$deviceId', jsonEncode(entity.data!.toJson()));
+        /// 更新最新的数据到缓存中
+        if (entity.isSuccess && entity.data != null) {
+          devices[deviceId] = entity.data!;
+          LocalStorage.setItem('homlux_lan_device_save_$deviceId', jsonEncode(entity.data!.toJson()));
+        }
+
+        Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
+        return entity;
+      } catch(e) {
+        /// 从本地缓存中，还原设备状态
+        await _recoverForDevices(deviceId);
+        if(devices[deviceId] != null) {
+          HomluxResponseEntity<HomluxDeviceEntity> response = HomluxResponseEntity()
+            ..code = 0
+            ..msg = '请求成功'
+            ..result = devices[deviceId];
+          return response;
+        }
       }
-
-      Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
-      return entity;
-    } catch (e) {
-      // 去获取设备状态。优先局域网状态
+    } else {
+      // 在局域网获取设备状态
       if (devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
         HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
 
