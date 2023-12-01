@@ -24,11 +24,8 @@ import com.midea.light.repositories.config.MSmartKVRepository;
 import com.midea.light.setting.relay.RelayControl;
 import com.midea.light.setting.relay.RelayRepository;
 import com.midea.light.setting.relay.VoiceIssuedMatch;
-import com.midea.light.utils.AndroidManifestUtil;
-import com.midea.light.utils.MacUtil;
 import com.midea.light.utils.ProcessUtil;
 import com.midea.light.utils.RootCmd;
-import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -119,8 +116,18 @@ public class MainApplication extends BaseApplication {
         // #注册按键模式捕捉器
         IssuedManager.getInstance().register(new SwitchModelIssuedMatch());
 
-        GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
-        GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
+
+        if(RelayRepository.getInstance().getGP0Model()!=0){
+            GatewayConfig.relayControl.controlRelay1Open(true);
+        }else{
+            GatewayConfig.relayControl.controlRelay1Open(RelayRepository.getInstance().getGP0State());
+        }
+
+        if(RelayRepository.getInstance().getGP1Model()!=0){
+            GatewayConfig.relayControl.controlRelay2Open(true);
+        }else{
+            GatewayConfig.relayControl.controlRelay2Open(RelayRepository.getInstance().getGP1State());
+        }
 
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
