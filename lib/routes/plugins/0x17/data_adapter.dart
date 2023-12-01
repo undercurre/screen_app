@@ -242,6 +242,10 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
       TipsUtils.toast(content: '已达到最低点');
       return;
     }
+    String lastLaundry = data!.laundry;
+    if (target == 'pause' && data!.laundry == 'on') {
+      data!.laundry = 'off';
+    }
     String lastModel = data!.updown;
     data!.updown = target;
     updateUI();
@@ -258,6 +262,9 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
       if (res.isSuccess) {
       } else {
         data!.light = lastModel;
+        if (target == 'pause' && data!.laundry != lastLaundry) {
+          data!.laundry = lastLaundry;
+        }
       }
     }
   }
