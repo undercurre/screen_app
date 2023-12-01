@@ -25,6 +25,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   T? data;
 
+  @override
   Future<void> fetchData();
 
   /// 返回特定的状态属性，用于大卡片

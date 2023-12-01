@@ -18,6 +18,7 @@ abstract class MideaDataAdapter {
   static Map<String, MideaDataAdapter> adapterMap = {};
 
   static T getOrCreateAdapter<T extends MideaDataAdapter>(String id, AdapterGenerateFunction<T> function) {
+    Log.i('构造adapter', id);
     if (MideaDataAdapter.contained(id)) {
       return MideaDataAdapter.getAdapter(id);
     } else {
@@ -29,6 +30,7 @@ abstract class MideaDataAdapter {
         return true;
       }.call());
       MideaDataAdapter.addAdapter(id, adapter);
+      adapter.fetchData();
       return adapter;
     }
   }
@@ -78,7 +80,8 @@ abstract class MideaDataAdapter {
     Log.i('当前DataAdapter $this 处在的平台为：$platform');
   }
 
-
+  // 抽象方法，需要在子类中实现
+  Future<void> fetchData() async {}
 
   /// 关联数据更新的回调函数
   void bindDataUpdateFunction(DataUpdateFunction function) {

@@ -167,6 +167,8 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     fetchData();
   }
 
+
+  @override
   /// 查询状态
   Future<void> fetchData() async {
     try {

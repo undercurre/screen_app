@@ -44,6 +44,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
     fetchOrderPower(1);
   }
 
+  @override
   // Method to retrieve data from both platforms and construct ScenePanelData object
   Future<void> fetchData() async {
     try {
