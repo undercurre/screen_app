@@ -147,9 +147,8 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower = adapter.getPowerStatus() ?? false;
       bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
-      if (widget.disabled) {
+      if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: const LinearGradient(
@@ -158,51 +157,6 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
             colors: [
               Color(0x33616A76),
               Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
-        );
-      }
-      if (widget.isFault) {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0x77AE4C5E),
-              Color.fromRGBO(167, 78, 97, 0.32),
-            ],
-            stops: [0, 1],
-            transform: GradientRotation(222 * (3.1415926 / 360.0)),
-          ),
-        );
-      }
-      if (!online) {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
-        );
-      }
-      if (!curPower) {
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
             ],
             stops: [0.06, 1.0],
             transform: GradientRotation(213 * (3.1415926 / 360.0)),
@@ -368,6 +322,7 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
   }
 
   Widget _panelItem(String icon, String name, bool selected, int index) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return SizedBox(
       width: 56,
       height: 120,
@@ -384,7 +339,8 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(28.0),
                     // 调整圆角半径
-                    color: selected ? const Color.fromRGBO(255, 255, 255, 1) : const Color.fromRGBO(255, 255, 255, 0.12)),
+                    color: selected ? const Color.fromRGBO(255, 255, 255, 1) : deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)
+                        ? const Color.fromRGBO(32, 32, 32, 0.20) : const Color.fromRGBO(255, 255, 255, 0.12)),
                 child: Center(
                   child: Image(
                     color: selected ? Colors.black : Colors.white.withOpacity(0.5),

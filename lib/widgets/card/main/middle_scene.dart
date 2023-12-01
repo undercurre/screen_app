@@ -118,9 +118,7 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
                 child: Image(
                   width: 40,
                   height: 40,
-                  image: isNumeric(widget.icon)
-                      ? AssetImage('assets/newUI/scene/${widget.icon}.png')
-                      : const AssetImage('assets/newUI/scene/default.png'),
+                  image: AssetImage('assets/newUI/scene/${widget.icon}.png'),
                 ),
               ),
             ),

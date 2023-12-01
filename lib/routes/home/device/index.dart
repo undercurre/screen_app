@@ -483,6 +483,11 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     deviceModel.getDeviceList();
   }
 
+  void homluxWifiUpdate(HomluxEditWifiEvent arg) {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList();
+  }
+
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList();
@@ -500,6 +505,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
       bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOn<HomluxEditWifiEvent>(homluxWifiUpdate);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
@@ -515,6 +521,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
       bus.typeOff<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOff<HomluxEditWifiEvent>(homluxWifiUpdate);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
     }

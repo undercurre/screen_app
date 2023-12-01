@@ -111,9 +111,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
               margin: const EdgeInsets.only(right: 16),
               width: 40,
               child: Image(
-                image: isNumeric(widget.icon)
-                    ? AssetImage('assets/newUI/scene/${widget.icon}.png')
-                    : AssetImage('assets/newUI/scene/default.png'),
+                image: AssetImage('assets/newUI/scene/${widget.icon}.png')
               ),
             ),
             SizedBox(
@@ -169,6 +167,7 @@ bool isNumeric(String str) {
   if (str == null) {
     return false;
   }
+  Log.i('homlux图标', str);
   final numericRegex = RegExp(r'^-?(\d+\.\d+|\d+)$');
   return numericRegex.hasMatch(str);
 }
