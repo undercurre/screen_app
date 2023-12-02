@@ -37,7 +37,13 @@ class DeviceEntityTypeInP4Handle {
         return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
       } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
         return DeviceEntityTypeInP4.homlux_lightGroup;
-      } else if (type == 'clock') {
+      } else if (type == '3017') {
+        return DeviceEntityTypeInP4.Zigbee_3017;
+      }else if (type == '3018') {
+        return DeviceEntityTypeInP4.Zigbee_3018;
+      }else if (type == '3018') {
+        return DeviceEntityTypeInP4.Zigbee_3019;
+      }else if (type == 'clock') {
         return DeviceEntityTypeInP4.Clock;
       } else if (type == 'weather') {
         return DeviceEntityTypeInP4.Weather;

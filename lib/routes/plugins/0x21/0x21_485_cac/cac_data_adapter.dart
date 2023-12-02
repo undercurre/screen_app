@@ -48,18 +48,19 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   String localDeviceCode = "0000";
 
-  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId,
-      this.modelNumber) {
-    type = AdapterType.floor485;
+  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+    type = AdapterType.CRC485;
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
   @override
   Future<void> fetchData() async {
+    logger.i("485空调初始化调用");
     if (isLocalDevice == false) {
       try {
         dataState = DataState.LOADING;
         if (platform.inMeiju()) {
+          logger.i("485空调获取美居数据");
           _meijuData = await fetchMeijuData();
         } else {
           _homluxData = await fetchHomluxData();
@@ -86,6 +87,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         dataState = DataState.SUCCESS;
         updateUI();
       } catch (e) {
+        logger.i("485空调获取美居数据出错:${e.toString()}");
         // Error occurred while fetching data
         dataState = DataState.ERROR;
         data = CAC485Data(
@@ -99,6 +101,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         updateUI();
       }
     } else {
+      logger.i("485空调获取本地数据:$localDeviceCode");
       deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.cac.002");
     }
   }
@@ -309,7 +312,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
-
+    fetchData();
 
   }
 

@@ -49,7 +49,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
 
   AirDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
-    type = AdapterType.floor485;
+    type = AdapterType.air485;
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
@@ -243,6 +243,8 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
+    fetchData();
+
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
