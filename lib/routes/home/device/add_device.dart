@@ -20,6 +20,10 @@ import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../channel/index.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
@@ -1112,6 +1116,17 @@ class _AddDevicePageState extends State<AddDevicePage> {
     DeviceEntityTypeInP4 curDeviceEntity =
         DeviceEntityTypeInP4Handle.getDeviceEntityType(
             devices[index].type, devices[index].modelNumber);
+
+    if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is DeviceCardDataAdapter) {
+      // 普通设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as DeviceCardDataAdapter).fetchData();
+    } else if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is PanelDataAdapter) {
+      // 面板设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as PanelDataAdapter).fetchData();
+    } else if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is ScenePanelDataAdapter) {
+      // 面板设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as ScenePanelDataAdapter).fetchData();
+    }
 
     showDialog(
       context: context,

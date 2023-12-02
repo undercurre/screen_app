@@ -171,6 +171,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     });
   }
 
+  @override
   /// 查询状态
   Future<void> fetchData() async {
     try {
