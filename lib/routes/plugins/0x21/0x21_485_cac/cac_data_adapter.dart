@@ -312,6 +312,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
+    fetchData();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
