@@ -155,7 +155,7 @@ class HomluxDeviceApi {
 
     Log.i('[device-api] 请求设备状态 deviceId=$deviceId');
 
-    if(devices[deviceId] == null) {
+    if(devices[deviceId] == null || !lanManager.deviceMap.containsKey(deviceId)) {
       try {
         HomluxResponseEntity<HomluxDeviceEntity> entity = await HomluxApi.request<HomluxDeviceEntity>('/v1/device/queryDeviceInfoByDeviceId',
             cancelToken: cancelToken, options: Options(method: 'POST'), data: {'deviceId': deviceId});
@@ -181,7 +181,6 @@ class HomluxDeviceApi {
       }
     } else {
       // 在局域网获取设备状态
-      if (devices[deviceId] != null && lanManager.deviceMap.containsKey(deviceId)) {
         HomluxResponseEntity responseEntity = await lanManager.getDeviceStatus(deviceId);
 
         if (responseEntity.isSuccess) {
@@ -213,7 +212,6 @@ class HomluxDeviceApi {
         } else {
           Log.file('[device-api] 获取局域网状态失败：$deviceId');
         }
-      }
     }
 
     throw MideaException("[device-api] 请求设备状态失败");
