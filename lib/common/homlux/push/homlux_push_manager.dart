@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
@@ -14,6 +13,7 @@ import '../../../channel/models/net_state.dart';
 import '../../../widgets/event_bus.dart';
 import '../../helper.dart';
 import '../../meiju/push/meiju_push_manager.dart';
+import '../lan/homlux_lan_control_device_manager.dart';
 import 'event/homlux_push_event.dart';
 
 // //设备属性变化
@@ -288,67 +288,85 @@ class HomluxPushManager {
         return;
       }
       retryCount = 0;
-      HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(jsonMap);
-      if(entity.result?.eventType == TypeDeviceProperty) {
-        var deviceId = entity.result?.eventData?.deviceId;
-        if(StrUtils.isNotNullAndEmpty(deviceId) && entity.result != null) {
-          // var lanManager = HomluxLanControlDeviceManager.getInstant();
-          // var lanContainer = lanManager.isEnable() && lanManager.deviceMap.containsKey(deviceId);
-          // if(!lanContainer) { // 因局域网也会推送，则不再处理云端的推送
-          //   deviceStatusChange(deviceId!, entity.result!);
-          // }
-          deviceStatusChange(deviceId!, entity.result!);
+      // 重复消息过滤
+      String? reqId = jsonMap['result']?['eventData']?['reqId'];
+      if(HomluxLanControlDeviceManager.getInstant().handledMessageQueue.contains(reqId)) {
+        Log.develop("[websocket] 重复消息去重 $reqId");
+        return;
+      } else if(reqId != null) {
+        Log.develop("[websocket] 处理消息 $reqId");
+        HomluxLanControlDeviceManager.getInstant().handledMessageQueue.add(reqId);
+        if(HomluxLanControlDeviceManager.getInstant().handledMessageQueue.length >= 100) {
+          HomluxLanControlDeviceManager.getInstant().handledMessageQueue.removeAt(0);
         }
-      } else if(TypeDeviceDel == eventType) {
-        bus.typeEmit(HomluxDeviceDelEvent.of(entity.result?.eventData?.deviceId ?? ""));
-      } else if(TypeScreenOnlineStatusSubDevice == eventType|| TypeScreenOnlineStatusWifiDevice == eventType) {
-        bus.typeEmit(HomluxDeviceOnlineStatusChangeEvent.of(entity.result!));
-      } else if(TypeScreenAddSubDevice == eventType) {
-        bus.typeEmit(HomluxAddSubEvent());
-      } else if(TypeScreenAddWiFiDevice == eventType) {
-        bus.typeEmit(HomluxAddWifiEvent());
-      } else if(TypeScreenEditSubDevice == eventType) {
-        bus.typeEmit(HomluxEditSubEvent());
-      } else if(TypeScreenEditWiFiDevice == eventType) {
-        bus.typeEmit(HomluxEditWifiEvent());
-      } else if(TypeScreenDelSubDevice == eventType) {
-        bus.typeEmit(HomluxDelSubDeviceEvent.of(entity.result!));
-      } else if(TypeScreenDelWiFiDevice == eventType) {
-        bus.typeEmit(HomluxDelWiFiDeviceEvent.of(entity.result!));
-      } else if(TypeScreenMoveSubDevice == eventType) {
-        bus.typeEmit(HomluxMovSubDeviceEvent.of(entity.result!));
-      } else if(TypeScreenMoveWiFiDevice == eventType) {
-        bus.typeEmit(HomluxMovWifiDeviceEvent.of(entity.result!));
-      } else if(TypeSceneUpt == eventType) {
-        bus.typeEmit(HomluxSceneUpdateEvent());
-      } else if(TypeSceneAdd == eventType) {
-        bus.typeEmit(HomluxSceneAddEvent());
-      } else if(TypeSceneDel == eventType) {
-        bus.typeEmit(HomluxSceneDelEvent());
-      } else if(TypeDelGateway == eventType) {
-        bus.typeEmit(HomluxScreenDelGatewayEvent.of(entity.result?.eventData?.sn ?? "", entity.result?.eventData?.deviceId ?? ""));
-      } else if(TypeGroupUpt == eventType) {
-        bus.typeEmit(HomluxGroupUptEvent());
-      } else if(TypeGroupAdd == eventType) {
-        bus.typeEmit(HomluxGroupAddEvent());
-      } else if(TypeGroupDel == eventType) {
-        bus.typeEmit(HomluxGroupDelEvent.of(entity.result?.eventData?.groupId ?? ""));
-      } else if(TypeUpdateRoomName == eventType) {
-        bus.typeEmit(HomluxChangeRoomNameEven.of(entity.result?.eventData?.roomId ?? ""
-            , entity.result?.eventData?.roomName ?? ""));
-      } else if(TypeChangeHouse == eventType) {
-        bus.typeEmit(HomluxChangHouseEvent());
-      } else if(TypeProjectChangeHouse == eventType) {
-        bus.typeEmit(HomluxProjectChangeHouse());
-      } else if(TypeDeleteHouseUser == eventType) {
-        bus.typeEmit(HomluxDeleteHouseUser());
-      } else if(TypeChangeUserAuth == eventType) {
-        bus.typeEmit(HomluxDeleteHouseUser());
-      } else {
-        Log.file('[WebSocket]homlux 此消息类型无法处理：$event');
       }
+      _handleMessage(jsonMap);
     } catch(e) {
       Log.file('[WebSocket]homlux ws message error ->  $event $e');
+    }
+  }
+
+  static _handleMessage(Map<String, dynamic> json) {
+    var eventType = json['result']?['eventType'] as String?;
+    HomluxPushMessageEntity entity = HomluxPushMessageEntity.fromJson(json);
+
+    if(entity.result?.eventType == TypeDeviceProperty) {
+      var deviceId = entity.result?.eventData?.deviceId;
+      if(StrUtils.isNotNullAndEmpty(deviceId) && entity.result != null) {
+        // var lanManager = HomluxLanControlDeviceManager.getInstant();
+        // var lanContainer = lanManager.isEnable() && lanManager.deviceMap.containsKey(deviceId);
+        // if(!lanContainer) { // 因局域网也会推送，则不再处理云端的推送
+        //   deviceStatusChange(deviceId!, entity.result!);
+        // }
+        deviceStatusChange(deviceId!, entity.result!);
+      }
+    } else if(TypeDeviceDel == eventType) {
+      bus.typeEmit(HomluxDeviceDelEvent.of(entity.result?.eventData?.deviceId ?? ""));
+    } else if(TypeScreenOnlineStatusSubDevice == eventType|| TypeScreenOnlineStatusWifiDevice == eventType) {
+      bus.typeEmit(HomluxDeviceOnlineStatusChangeEvent.of(entity.result!));
+    } else if(TypeScreenAddSubDevice == eventType) {
+      bus.typeEmit(HomluxAddSubEvent());
+    } else if(TypeScreenAddWiFiDevice == eventType) {
+      bus.typeEmit(HomluxAddWifiEvent());
+    } else if(TypeScreenEditSubDevice == eventType) {
+      bus.typeEmit(HomluxEditSubEvent());
+    } else if(TypeScreenEditWiFiDevice == eventType) {
+      bus.typeEmit(HomluxEditWifiEvent());
+    } else if(TypeScreenDelSubDevice == eventType) {
+      bus.typeEmit(HomluxDelSubDeviceEvent.of(entity.result!));
+    } else if(TypeScreenDelWiFiDevice == eventType) {
+      bus.typeEmit(HomluxDelWiFiDeviceEvent.of(entity.result!));
+    } else if(TypeScreenMoveSubDevice == eventType) {
+      bus.typeEmit(HomluxMovSubDeviceEvent.of(entity.result!));
+    } else if(TypeScreenMoveWiFiDevice == eventType) {
+      bus.typeEmit(HomluxMovWifiDeviceEvent.of(entity.result!));
+    } else if(TypeSceneUpt == eventType) {
+      bus.typeEmit(HomluxSceneUpdateEvent());
+    } else if(TypeSceneAdd == eventType) {
+      bus.typeEmit(HomluxSceneAddEvent());
+    } else if(TypeSceneDel == eventType) {
+      bus.typeEmit(HomluxSceneDelEvent());
+    } else if(TypeDelGateway == eventType) {
+      bus.typeEmit(HomluxScreenDelGatewayEvent.of(entity.result?.eventData?.sn ?? "", entity.result?.eventData?.deviceId ?? ""));
+    } else if(TypeGroupUpt == eventType) {
+      bus.typeEmit(HomluxGroupUptEvent());
+    } else if(TypeGroupAdd == eventType) {
+      bus.typeEmit(HomluxGroupAddEvent());
+    } else if(TypeGroupDel == eventType) {
+      bus.typeEmit(HomluxGroupDelEvent.of(entity.result?.eventData?.groupId ?? ""));
+    } else if(TypeUpdateRoomName == eventType) {
+      bus.typeEmit(HomluxChangeRoomNameEven.of(entity.result?.eventData?.roomId ?? ""
+          , entity.result?.eventData?.roomName ?? ""));
+    } else if(TypeChangeHouse == eventType) {
+      bus.typeEmit(HomluxChangHouseEvent());
+    } else if(TypeProjectChangeHouse == eventType) {
+      bus.typeEmit(HomluxProjectChangeHouse());
+    } else if(TypeDeleteHouseUser == eventType) {
+      bus.typeEmit(HomluxDeleteHouseUser.of(entity.result?.eventData?.userId));
+    } else if(TypeChangeUserAuth == eventType) {
+      bus.typeEmit(HomluxChangeUserAuthEvent());
+    } else {
+      Log.file('[WebSocket]homlux 此消息类型无法处理：$json');
     }
   }
 

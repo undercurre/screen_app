@@ -439,18 +439,6 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     }
   }
 
-  void homluxMovePush(HomluxMovSubDeviceEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
-      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
-    }
-  }
-
-  void homluxOfflinePush(HomluxDeviceOnlineStatusChangeEvent event) {
-    if (event.deviceInfo.eventData?.deviceId == masterId || event.deviceInfo.eventData?.deviceId == applianceCode) {
-      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
-    }
-  }
-
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
     Log.file('$applianceCode接收到推送，即将请求设备状态 MeiJuSubDevicePropertyChangeEvent ${args.nodeId}');
     if (args.nodeId == nodeId) {
@@ -458,34 +446,21 @@ class ZigbeeLightDataAdapter extends DeviceCardDataAdapter<DeviceDataEntity> {
     }
   }
 
-  void meijuPushOnline(MeiJuDeviceOnlineStatusChangeEvent args) {
-    Log.file('$applianceCode接收到推送，即将请求设备状态 MeiJuDeviceOnlineStatusChangeEvent ${args.deviceId}');
-    if (args.deviceId == masterId) {
-      navigatorKey.currentContext?.read<DeviceInfoListModel>().getDeviceList();
-    }
-  }
-
   void _startPushListen() {
     if (platform.inHomlux()) {
       bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush, this);
-      bus.typeOn<HomluxMovSubDeviceEvent>(homluxMovePush, this);
-      bus.typeOn<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
       Log.develop('$hashCode bind');
     } else {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush, this);
-      bus.typeOn<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline, this);
     }
   }
 
   void _stopPushListen() {
     if (platform.inHomlux()) {
       bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush, this);
-      bus.typeOff<HomluxMovSubDeviceEvent>(homluxMovePush, this);
-      bus.typeOff<HomluxDeviceOnlineStatusChangeEvent>(homluxOfflinePush, this);
       Log.develop('$hashCode unbind');
     } else {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush, this);
-      bus.typeOff<MeiJuDeviceOnlineStatusChangeEvent>(meijuPushOnline, this);
     }
   }
 

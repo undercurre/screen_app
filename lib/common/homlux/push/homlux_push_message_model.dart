@@ -74,7 +74,9 @@ class HomluxEventDataEntity {
   String? roomName;
   String? sceneId;
   String? groupId;
+  String? reqId;
   int? status;
+  String? userId;
 
   factory HomluxEventDataEntity.fromJson(Map<String, dynamic> json) {
     HomluxEventDataEntity entity = HomluxEventDataEntity();
@@ -85,6 +87,8 @@ class HomluxEventDataEntity {
     entity.roomName = json['roomName'] as String?;
     entity.sceneId = json['sceneId'] as String?;
     entity.groupId = json['groupId'] as String?;
+    entity.reqId = json['reqId'] as String?;
+    entity.userId = json['userId'] as String?;
     entity.status = json['status'] as int?;
     entity.event = json['event'];
 
@@ -102,6 +106,8 @@ class HomluxEventDataEntity {
       'sceneId': sceneId,
       'groupId': groupId,
       'status': status,
+      'reqId': reqId,
+      'userId': userId,
     };
   }
 

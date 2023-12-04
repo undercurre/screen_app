@@ -158,7 +158,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     return [vLocalPanel1, vLocalPanel2];
   }
 
-  Future<List<DeviceEntity>> getDeviceList() async {
+  Future<List<DeviceEntity>> getDeviceList(String reason) async {
+    Log.d(reason);
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       final familyInfo = System.familyInfo;
       if(MeiJuGlobal.token==null||familyInfo==null){
@@ -324,13 +325,19 @@ class DeviceInfoListModel extends ChangeNotifier {
     existingApplianceCodes.forEach((element) {
       if (MideaDataAdapter.getAdapter(element) is DeviceCardDataAdapter) {
         // 普通设备Adapter
-        (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).fetchData();
+        if((MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).fetchData();
+        }
       } else if (MideaDataAdapter.getAdapter(element) is PanelDataAdapter) {
+        if((MideaDataAdapter.getAdapter(element) as PanelDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
+        }
         // 面板设备Adapter
-        (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
       } else if (MideaDataAdapter.getAdapter(element) is ScenePanelDataAdapter) {
         // 面板设备Adapter
-        (MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).fetchData();
+        if((MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).fetchData();
+        }
       }
     });
     List<List<String>> compareDevice = Compare.compareData<String>(lastedApplianceCodes, existingApplianceCodes);
