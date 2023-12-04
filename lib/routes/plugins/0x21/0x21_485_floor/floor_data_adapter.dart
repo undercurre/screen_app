@@ -239,6 +239,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
+    fetchData();
+
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
