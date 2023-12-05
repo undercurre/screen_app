@@ -43,7 +43,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
           Log.file('检查设备已经绑定, 设备ID为${HomluxGlobal.gatewayApplianceCode}');
         }
         result.call(value.value1, value.value2);
-      }, onError: (error) {
+      }, onError: (e) {
         Log.i('查询绑定失败');
         error.call();
       });
