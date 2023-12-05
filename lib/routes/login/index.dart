@@ -179,6 +179,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           }
         }, () {
           TipsUtils.hideLoading();
+          TipsUtils.toast(content: "请求异常，请重试");
           selectRoomKey.currentState?.refreshList();
         });
       }
