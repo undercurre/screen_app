@@ -6,6 +6,7 @@ import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/system.dart';
+import 'package:screen_app/common/utils.dart';
 import 'package:screen_app/states/layout_notifier.dart';
 
 import 'adapter/ai_data_adapter.dart';
@@ -84,6 +85,8 @@ class ChangePlatformHelper {
           await System.initForMeiju();
           AiDataAdapter(MideaRuntimePlatform.platform).stopAiVoice();
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
+          // 删除本地所有缓存
+          LocalStorage.clearAllData();
           LayoutModel.removeLayoutStorage();
         } on Exception catch(e) {
           Log.file(e.toString());
@@ -139,6 +142,8 @@ class ChangePlatformHelper {
           PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
           HomluxLanControlDeviceManager.getInstant().init();
           LayoutModel.removeLayoutStorage();
+          // 删除本地所有缓存
+          LocalStorage.clearAllData();
         } on Exception catch(e) {
           Log.file(e.toString());
         } finally {
