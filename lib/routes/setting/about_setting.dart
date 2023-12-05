@@ -357,7 +357,7 @@ class _AboutSettingPageState extends State<AboutSettingPage> {
                     scrollDirection: Axis.vertical,
                     child: Column(
                       children: [
-                        Container(
+                        if(System.inHomluxPlatform()) Container(
                           margin: const EdgeInsets.only(bottom: 23),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16.0),
