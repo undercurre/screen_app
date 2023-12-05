@@ -158,7 +158,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     return [vLocalPanel1, vLocalPanel2];
   }
 
-  Future<List<DeviceEntity>> getDeviceList() async {
+  Future<List<DeviceEntity>> getDeviceList(String reason) async {
+    Log.d(reason);
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       final familyInfo = System.familyInfo;
       if(MeiJuGlobal.token==null||familyInfo==null){
@@ -309,6 +310,8 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         deviceCacheList = tempList;
 
+        Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
+
         return tempList;
       }
     }
@@ -322,13 +325,19 @@ class DeviceInfoListModel extends ChangeNotifier {
     existingApplianceCodes.forEach((element) {
       if (MideaDataAdapter.getAdapter(element) is DeviceCardDataAdapter) {
         // 普通设备Adapter
-        (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).fetchData();
+        if((MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as DeviceCardDataAdapter).fetchData();
+        }
       } else if (MideaDataAdapter.getAdapter(element) is PanelDataAdapter) {
+        if((MideaDataAdapter.getAdapter(element) as PanelDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
+        }
         // 面板设备Adapter
-        (MideaDataAdapter.getAdapter(element) as PanelDataAdapter).fetchData();
       } else if (MideaDataAdapter.getAdapter(element) is ScenePanelDataAdapter) {
         // 面板设备Adapter
-        (MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).fetchData();
+        if((MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).isContainUpdateUIFunction()) {
+          (MideaDataAdapter.getAdapter(element) as ScenePanelDataAdapter).fetchData();
+        }
       }
     });
     List<List<String>> compareDevice = Compare.compareData<String>(lastedApplianceCodes, existingApplianceCodes);
@@ -410,7 +419,68 @@ class DeviceInfoListModel extends ChangeNotifier {
   }
 
   List<Layout> transformLayoutFromDeviceList(List<DeviceEntity> devices) {
-    List<Layout> transformList = [];
+    List<Layout> transformList = [
+      Layout(
+          'clock',
+          DeviceEntityTypeInP4.Clock,
+          CardType.Other,
+          0,
+          [1, 2, 5, 6],
+          DataInputCard(
+              name: '时钟',
+              applianceCode: 'clock',
+              roomName: '屏内',
+              isOnline: '',
+              type: 'clock',
+              masterId: '',
+              modelNumber: '',
+              onlineStatus: '1')),
+      Layout(
+          'weather',
+          DeviceEntityTypeInP4.Weather,
+          CardType.Other,
+          0,
+          [3, 4, 7, 8],
+          DataInputCard(
+              name: '天气',
+              applianceCode: 'weather',
+              roomName: '屏内',
+              isOnline: '',
+              type: 'weather',
+              masterId: '',
+              modelNumber: '',
+              onlineStatus: '1')),
+      Layout(
+          'localPanel1',
+          DeviceEntityTypeInP4.LocalPanel1,
+          CardType.Small,
+          0,
+          [9, 10],
+          DataInputCard(
+              name: '灯1',
+              applianceCode: 'localPanel1',
+              roomName: '屏内',
+              isOnline: '',
+              type: 'localPanel1',
+              masterId: '',
+              modelNumber: '',
+              onlineStatus: '1')),
+      Layout(
+          'localPanel2',
+          DeviceEntityTypeInP4.LocalPanel2,
+          CardType.Small,
+          0,
+          [11, 12],
+          DataInputCard(
+              name: '灯2',
+              applianceCode: 'localPanel2',
+              roomName: '屏内',
+              isOnline: '',
+              type: 'localPanel2',
+              masterId: '',
+              modelNumber: '',
+              onlineStatus: '1')),
+    ];
     // 初始化布局占位器
     Screen screenLayer = Screen();
     // 页数
@@ -424,10 +494,15 @@ class DeviceInfoListModel extends ChangeNotifier {
               devices[i].type, devices[i].modelNumber);
       // 检查当前设备是否是面板的标志
       bool isPanel = _isPanel(devices[i].modelNumber, devices[i].type);
+      // 检查当前设备是否是只有单种卡片的标记
+      bool isSingleCardDevice = _isSingleCardDevice(devices[i].type);
       // 当前容器集中的最大页数
       int maxPage = getMaxPageIndex(transformList);
       // 当前设备构造Layout模型的cardType
       CardType curCardType = CardType.Small;
+      if (isSingleCardDevice) {
+        curCardType = _getSingleCardType(devices[i].type);
+      }
       if (isPanel) {
         curCardType =
             _getPanelCardType(devices[i].modelNumber, devices[i].type);
@@ -626,12 +701,24 @@ class DeviceInfoListModel extends ChangeNotifier {
     return panelList[modelNum] ?? CardType.Small;
   }
 
+  CardType _getSingleCardType(String type) {
+    return CardType.Big;
+  }
+
   bool _isPanel(String modelNum, String? type) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
 
     return panelList.containsKey(modelNum);
+  }
+
+  bool _isSingleCardDevice(String type) {
+    if (type == '0x26' || type == '0x17') {
+      return true;
+    }
+
+    return false;
   }
 
   int getMaxPageIndex(List<Layout> layouts) {

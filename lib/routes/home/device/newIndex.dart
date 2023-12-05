@@ -42,7 +42,7 @@ class newPage extends StatefulWidget {
       final deviceModel = context.read<DeviceInfoListModel>();
       final layoutModel = context.read<LayoutModel>();
       List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
-      List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+      List<DeviceEntity> deviceRes = await deviceModel.getDeviceList("查询设备列表：新 定时器以到");
       deviceCache = deviceCache
           .where((element) =>
       DeviceEntityTypeInP4Handle.getDeviceEntityType(
@@ -84,7 +84,7 @@ class _DevicePageState extends State<newPage> {
     _startPushListen();
     final deviceListModel =
     Provider.of<DeviceInfoListModel>(context, listen: false);
-    deviceListModel.getDeviceList();
+    deviceListModel.getDeviceList("查询设备列表: initState");
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       widget.startPolling(context);
     }
@@ -360,12 +360,12 @@ class _DevicePageState extends State<newPage> {
 
   void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 设备被移动");
   }
 
   void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 子设备被移动");
   }
 
   void homluxPushDel(HomluxDelWiFiDeviceEvent arg) {
@@ -385,7 +385,7 @@ class _DevicePageState extends State<newPage> {
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList;
-    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList("查询设备列表：设备被删除");
     List<List<DeviceEntity>> compareDevice =
     Compare.compareData<DeviceEntity>(deviceCache, deviceRes);
     compareDevice[1].forEach((element) {

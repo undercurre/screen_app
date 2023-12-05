@@ -49,7 +49,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
 
 
   AirDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
-    type = AdapterType.floor485;
+    type = AdapterType.air485;
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
@@ -370,7 +370,7 @@ class Air485Data {
   int operationMode = 1;
 
   // 开关状态
-  bool OnOff = true;
+  bool OnOff = false;
 
   bool online = true;
 
@@ -386,7 +386,7 @@ class Air485Data {
 
   Air485Data.fromMeiJu(
       NodeInfo<Endpoint<Air485Event>> data, String modelNumber) {
-    name = data.endList[0].name;
+    name = data.endList[0].name ?? "新风";
     operationMode = int.parse(data.endList[0].event.operationMode);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;
     windSpeed = int.parse(data.endList[0].event.windSpeed);

@@ -23,27 +23,36 @@ class CardDialog extends StatefulWidget {
   final String applianceCode;
   final String masterId;
   final String onlineStatus;
+  int? initPageNum;
 
-  const CardDialog(
-      {super.key,
-      required this.type,
-      required this.name,
-      required this.roomName,
-      required this.modelNumber,
-      required this.applianceCode,
-      required this.masterId,
-      required this.onlineStatus,
-      this.icon});
+  CardDialog({super.key,
+    required this.type,
+    required this.name,
+    required this.roomName,
+    required this.modelNumber,
+    required this.applianceCode,
+    required this.masterId,
+    required this.onlineStatus,
+    this.icon, this.initPageNum});
 
   @override
   _CardDialogState createState() => _CardDialogState();
 }
 
 class _CardDialogState extends State<CardDialog> {
-  final PageController _pageController = PageController();
+  late PageController _pageController;
   int _currentIndex = 0;
+
   // 用于pageView的indicator（指示器）更新
   GlobalKey<ParagraphIndicatorState> indicatorState = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.initPageNum ?? 0);
+    _currentIndex = widget.initPageNum ?? 0;
+  }
+
 
   @override
   void dispose() {
@@ -123,15 +132,15 @@ class _CardDialogState extends State<CardDialog> {
                       allowImplicitScrolling: true,
                       children: [
                         if (buildMap[
-                                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Small] !=
+                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                            widget.type,
+                            widget.modelNumber)]![CardType.Small] !=
                             null)
                           KeepAliveWrapper(
                             child: UnconstrainedBox(
                               child: buildMap[DeviceEntityTypeInP4Handle
                                   .getDeviceEntityType(widget.type,
-                                      widget.modelNumber)]![CardType.Small]!(
+                                  widget.modelNumber)]![CardType.Small]!(
                                 DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -151,9 +160,9 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[
-                                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Middle] !=
+                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                            widget.type,
+                            widget.modelNumber)]![CardType.Middle] !=
                             null)
                           KeepAliveWrapper(
                             child: Transform.scale(
@@ -161,7 +170,7 @@ class _CardDialogState extends State<CardDialog> {
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                        widget.modelNumber)]![CardType.Middle]!(
+                                    widget.modelNumber)]![CardType.Middle]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -182,9 +191,9 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[
-                                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Other] !=
+                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                            widget.type,
+                            widget.modelNumber)]![CardType.Other] !=
                             null)
                           KeepAliveWrapper(
                             child: Transform.scale(
@@ -192,7 +201,7 @@ class _CardDialogState extends State<CardDialog> {
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                        widget.modelNumber)]![CardType.Other]!(
+                                    widget.modelNumber)]![CardType.Other]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -213,9 +222,9 @@ class _CardDialogState extends State<CardDialog> {
                             ),
                           ),
                         if (buildMap[
-                                DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                                    widget.type,
-                                    widget.modelNumber)]![CardType.Big] !=
+                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
+                            widget.type,
+                            widget.modelNumber)]![CardType.Big] !=
                             null)
                           KeepAliveWrapper(
                             child: Stack(
@@ -228,9 +237,9 @@ class _CardDialogState extends State<CardDialog> {
                                     child: Transform.scale(
                                       scale: 0.75,
                                       child: buildMap[DeviceEntityTypeInP4Handle
-                                              .getDeviceEntityType(widget.type,
-                                                  widget.modelNumber)]![
-                                          CardType.Big]!(
+                                          .getDeviceEntityType(widget.type,
+                                          widget.modelNumber)]![
+                                      CardType.Big]!(
                                         DataInputCard(
                                           name: widget.name,
                                           applianceCode: widget.applianceCode,
@@ -275,7 +284,7 @@ class _CardDialogState extends State<CardDialog> {
   int _getItemCount() {
     int lang = 0;
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            widget.type, widget.modelNumber)]![CardType.Small] !=
+        widget.type, widget.modelNumber)]![CardType.Small] !=
         null) lang ++;
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
         widget.type, widget.modelNumber)]![CardType.Middle] !=
@@ -304,6 +313,10 @@ class _CardDialogState extends State<CardDialog> {
       CardType curCardType = _getPanelCardType(modelNum, type);
       return curCardType;
     }
+    if (_isSingleCardDevice(type!)) {
+      CardType curCardType = _getSingleCardType(type);
+      return curCardType;
+    }
     if (type == 'weather' || type == 'clock') {
       return CardType.Other;
     }
@@ -323,11 +336,23 @@ class _CardDialogState extends State<CardDialog> {
     return panelList[modelNum] ?? CardType.Small;
   }
 
+  CardType _getSingleCardType(String type) {
+    return CardType.Big;
+  }
+
   bool _isPanel(String modelNum, String? type) {
     if (type != null && (type == 'localPanel1' || type == 'localPanel2')) {
       return true;
     }
 
     return panelList.containsKey(modelNum);
+  }
+
+  bool _isSingleCardDevice(String type) {
+    if (type == '0x26' || type == '0x17') {
+      return true;
+    }
+
+    return false;
   }
 }

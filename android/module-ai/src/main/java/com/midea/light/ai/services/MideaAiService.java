@@ -40,7 +40,6 @@ import com.midea.light.ai.brocast.NetWorkStateReceiver;
 import com.midea.light.ai.music.MusicBean;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
-import com.midea.light.log.LogUtil;
 import com.midea.light.thread.MainThread;
 import com.midea.light.utils.CollectionUtil;
 
@@ -63,7 +62,7 @@ public class MideaAiService extends Service {
     private Context Acontext;
     boolean wakeUpState = false, isManLoadMusic = false;
     private static final String TAG = "sky";
-    public Mw mMediaMwEngine;
+    public Mw mMediaMwEngine=Mw.getInstance();
     public static final int SAMPLE_RATE_IN_HZ = 32000;//采样率，线mic：32000，环mic：48000
     public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;//音频数据格式
@@ -75,7 +74,8 @@ public class MideaAiService extends Service {
     private Player player;
     boolean isWk = false, isTimeOut = false;
     public boolean isClickOut = false;
-
+    private String lastSessionid;
+    private boolean lastEndSession = false;
     private AudioRecord mAudioRecord = null;
     public boolean mIsRecording = false;
     private AiDialog mAiDialog;
@@ -171,13 +171,13 @@ public class MideaAiService extends Service {
         }
 
         @Override
-        public void start(String sn, String deviceType, String deviceCode, String mac) throws RemoteException {
-            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac);
+        public void start(String sn, String deviceType, String deviceCode, String mac,String env) throws RemoteException {
+            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac,env);
         }
 
     };
 
-    public void start(Context context, String sn, String deviceType, String deviceCode, String mac) {
+    public synchronized void start(Context context, String sn, String deviceType, String deviceCode, String mac, String env) {
         this.Acontext = context;
         Player.getInstance().setmContext(Acontext);
         AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
@@ -186,6 +186,8 @@ public class MideaAiService extends Service {
         mAIDeviceInfo.setCategory(deviceType.replace("0x", ""));
         mAIDeviceInfo.setIot_id(deviceCode);
         mAIDeviceInfo.setMac(mac);
+        mAIDeviceInfo.setEnv(env);
+        mAIDeviceInfo.setLink_status(1);
         mAIDeviceInfo.setCfg_path("/sdcard/res/config.json");
 
         String json = mGson.toJson(mAIDeviceInfo);
@@ -201,23 +203,25 @@ public class MideaAiService extends Service {
 
         Thread thread = new Thread() {
             public void run() {
-                mMediaMwEngine = new Mw();
-                mMediaMwEngine.init(deviceInfo);
-                Log.e(TAG, "CRC mMediaMwEngine created");
-                if (mMediaMwEngine.getLicense() != 0) {
-                    Log.e(TAG, "license not exist!!!");
-                    mMediaMwEngine.registerLicense(mAIDeviceInfo.getMac());
-                    return;
+                synchronized (MideaAiService.this) {
+                    mMediaMwEngine.init(deviceInfo);
+                    Log.e(TAG, "CRC mMediaMwEngine created");
+                    if (mMediaMwEngine.getLicense() != 0) {
+                        Log.e(TAG, "license not exist!!!");
+                        mMediaMwEngine.registerLicense(mAIDeviceInfo.getMac());
+                        return;
+                    }
+                    String[] type = {"Mw"};
+                    int state = mMediaMwEngine.registerEvent(0, type, func);
+                    Log.e(TAG, "获取语音证书状态:" + state);
+                    player = Player.getInstance();
+                    try {
+                        serverInitialCallBack.isInitial(true);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
-                String[] type = {"Mw"};
-                int state = mMediaMwEngine.registerEvent(0, type, func);
-                Log.e(TAG, "获取语音证书状态:" + state);
-                player = Player.getInstance();
-                try {
-                    serverInitialCallBack.isInitial(true);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+
             }
         };
         thread.start();
@@ -348,6 +352,11 @@ public class MideaAiService extends Service {
                 isWk = true;
                 Message message = new Message();
                 message.arg1 = 7;
+                mHandler.sendMessage(message);
+            }
+            if (state == 0) {
+                Message message = new Message();
+                message.arg1 = 1;
                 mHandler.sendMessage(message);
             }
         } catch (JSONException e) {
@@ -549,24 +558,6 @@ public class MideaAiService extends Service {
             mHandler.sendMessage(message);
             return;
         }
-//        if(isDeviceControlError(data)){
-//            ControlDeviceErrorCallBack.ControlDeviceError();
-//            Uri playUri = Uri.parse("/sdcard/tts/deldevice.mp3");
-//            MediaPlayer mm = new MediaPlayer();
-//            try {
-//                mm.setDataSource(this, playUri);
-//                mm.prepareAsync();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            mm.setOnPreparedListener(mediaPlayer -> mm.start());
-//            mm.setOnCompletionListener(mp -> {
-//                mm.reset();
-//                mm.release();
-//            });
-//            out();
-//            return;
-//        }
         wakeUpState = false;
         ttsList = loadTTSItem(data);
         JSONObject object = null;
@@ -574,8 +565,10 @@ public class MideaAiService extends Service {
         String asr = null;
         try {
             object = new JSONObject(data);
-            timeout = object.getString("timeout");
-            asr = object.getString("asr");
+            lastSessionid = object.getJSONObject("nlu").getString("sessionId");
+            lastEndSession = object.getJSONObject("nlu").getBoolean("endSession");
+            timeout = object.getJSONObject("nlu").getString("timeout");
+            asr = object.getJSONObject("nlu").getString("asr");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -618,9 +611,7 @@ public class MideaAiService extends Service {
             player.setOnFinishListener(new Player.OnFinishListener() {
                 @Override
                 public void onAllFinish() {
-                    Message message = new Message();
-                    message.arg1 = 1;
-                    mHandler.sendMessage(message);
+                    reportPlayerEnd(lastSessionid, lastEndSession);
                 }
 
                 @Override
@@ -644,6 +635,14 @@ public class MideaAiService extends Service {
             Message message = new Message();
             message.arg1 = 2;
             mHandler.sendMessage(message);
+        } else {
+            if (!mAiDialog.isShowing()) {
+                DialogUtil.showToast("网络故障,请检查网络!");
+            }
+            isTimeOut = true;
+            Message message = new Message();
+            message.arg1 = 3;
+            mHandler.sendMessage(message);
         }
     }
 
@@ -659,6 +658,29 @@ public class MideaAiService extends Service {
         if (volume != null) {
             setSystemAudio(volume);
         }
+    }
+
+    public void reportPlayerEnd(String sessionid, boolean isEnd) {
+        Log.d(TAG, "---reportPlayerEnd---");
+
+        try {
+
+            JSONObject Obj1 = new JSONObject();
+            JSONArray ttsArray = new JSONArray();
+            Obj1.put("endSession", isEnd);
+            if (!sessionid.isEmpty()) {
+                Obj1.put("sessionId", sessionid);
+            }
+            ttsArray.put(0, Obj1);
+
+            JSONObject resultObj = new JSONObject();
+            resultObj.put("player_status", 2002);
+            resultObj.put("tts_array", ttsArray);
+            mMediaMwEngine.playStatusToSpeech(resultObj.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return;
     }
 
     private Mw.Callback func = new Mw.Callback() {
@@ -896,6 +918,10 @@ public class MideaAiService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIsRecording = false;
+        mMediaMwEngine = null;
+        unreregisterNetworkReceiver();
+        stopRecord();
     }
 
     private static String getWakeupInfo() {

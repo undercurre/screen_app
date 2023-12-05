@@ -48,13 +48,12 @@ class SmallDeviceCardWidget extends StatefulWidget {
 }
 
 class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
-
   DeviceCardDataAdapter? adapter;
 
   @override
   void initState() {
     super.initState();
-    if(widget.adapterGenerateFunction != null) {
+    if (widget.adapterGenerateFunction != null) {
       adapter = widget.adapterGenerateFunction!.call(widget.applianceCode);
       adapter!.init();
       if (!widget.disabled) {
@@ -66,21 +65,22 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   @override
   void dispose() {
     super.dispose();
-   adapter?.unBindDataUpdateFunction(updateCallback);
+    adapter?.unBindDataUpdateFunction(updateCallback);
   }
 
   void updateCallback() {
     Log.i('小卡片状态更新');
     if (mounted) {
       setState(() {
-       adapter?.data =adapter?.data;
+        adapter?.data = adapter?.data;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -160,7 +160,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
     }
 
     BoxDecoration _getBoxDecoration() {
-      bool curPower =adapter?.getPowerStatus() ?? false;
+      bool curPower = adapter?.getPowerStatus() ?? false;
       bool online =
           deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
@@ -236,7 +236,8 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
-        Log.i('点击卡片', deviceListModel.getOnlineStatus(deviceId: widget.applianceCode));
+        Log.i('点击卡片',
+            deviceListModel.getOnlineStatus(deviceId: widget.applianceCode));
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
             !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -245,18 +246,17 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       },
       child: AbsorbPointer(
         absorbing:
-        (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter?.dataState != DataState.SUCCESS),
+            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
+                adapter?.dataState != DataState.SUCCESS),
         child: GestureDetector(
           onTap: () {
             if (!widget.disabled &&
                 deviceListModel.getOnlineStatus(
                     deviceId: widget.applianceCode)) {
               // widget.onTap?.call();
-             adapter?.power(adapter?.getPowerStatus());
-              bus.emit(
-                  'operateDevice',
-                  adapter?.getCardStatus()?["nodeId"] ??
-                      widget.applianceCode);
+              adapter?.power(adapter?.getPowerStatus());
+              bus.emit('operateDevice',
+                  adapter?.getCardStatus()?["nodeId"] ?? widget.applianceCode);
             }
           },
           child: Container(
@@ -350,17 +350,21 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                         ),
                                       ),
                                     ),
-                                    Text(
-                                      '${_getRightText()}',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontFamily: 'MideaType',
-                                        color: Colors.white.withOpacity(0.64),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
+                                    ConstrainedBox(
+                                      constraints:
+                                          const BoxConstraints(maxWidth: 45),
+                                      child: Text(
+                                        '${_getRightText()}',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontFamily: 'MideaType',
+                                          color: Colors.white.withOpacity(0.64),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
-                                    ),
+                                    )
                                   ]),
                             )
                         ],
@@ -373,7 +377,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                             adapter?.fetchData();
                             // TipsUtils.toast(content: '数据缺失，控制设备');
                           }
-                          Log.i('点击进入插件',adapter?.type);
+                          Log.i('点击进入插件', adapter?.type);
                           if (!deviceListModel.getOnlineStatus(
                               deviceId: widget.applianceCode)) {
                             TipsUtils.toast(content: '设备已离线，请检查连接状态');
@@ -405,8 +409,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                     "name": widget.name,
                                     "adapter": adapter
                                   });
-                            } else if (adapter?.type ==
-                                AdapterType.wifiAir) {
+                            } else if (adapter?.type == AdapterType.wifiAir) {
                               Navigator.pushNamed(context, '0xAC', arguments: {
                                 "name": widget.name,
                                 "adapter": adapter

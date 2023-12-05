@@ -49,27 +49,27 @@ class AirConditionPageState extends State<AirConditionPage> {
 
   List<Map<String, String>> btnList = [
     {
-      'icon': 'assets/imgs/plugins/0xAC/zidong_icon.png',
+      'icon': 'assets/newUI/acmodel/zidong.png',
       'text': '自动',
       'key': 'auto'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
+      'icon': 'assets/newUI/acmodel/zhileng.png',
       'text': '制冷',
       'key': 'cool'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
+      'icon': 'assets/newUI/acmodel/zhire.png',
       'text': '制热',
       'key': 'heat'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
+      'icon': 'assets/newUI/acmodel/songfeng.png',
       'text': '送风',
       'key': 'fan'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
+      'icon': 'assets/newUI/acmodel/chushi.png',
       'text': '除湿',
       'key': 'dry'
     },
@@ -119,7 +119,7 @@ class AirConditionPageState extends State<AirConditionPage> {
               left: 0,
               top: 0,
               child: AirCondition(
-                temperature: dataAdapter?.data!.temperature,
+                temperature: dataAdapter?.data!.temperature.toString(),
                 windSpeed: dataAdapter?.data!.wind,
                 mode: dataAdapter?.data!.mode,
               )
@@ -232,7 +232,7 @@ class AirConditionPageState extends State<AirConditionPage> {
                                           children: [
                                             Image.asset(getCurModeConfig()[
                                             "icon"] ??
-                                                "assets/imgs/plugins/0xAC/zidong_icon.png"),
+                                                "assets/newUI/acmodel/zidong.png"),
                                             Padding(
                                               padding:
                                               const EdgeInsets.fromLTRB(7, 0, 7, 0),

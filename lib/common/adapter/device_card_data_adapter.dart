@@ -12,7 +12,9 @@ enum AdapterType {
   CRC485,
   floor485,
   panel,
-  wifiAir
+  wifiAir,
+  wifiYuba,
+  wifiLiangyi
 }
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
@@ -23,6 +25,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   T? data;
 
+  @override
   Future<void> fetchData();
 
   /// 返回特定的状态属性，用于大卡片
@@ -73,4 +76,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   /// 找一找
   Future<dynamic> tryOnce() async {}
+
+  /// 模式卡
+  Future<dynamic> modeControl(int index) async {}
 }

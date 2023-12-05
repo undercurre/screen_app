@@ -11,7 +11,7 @@ import '../homlux/generated/json/base/homlux_json_convert_content.dart';
 import '../homlux/models/homlux_family_entity.dart';
 import '../logcat_helper.dart';
 import '../meiju/generated/json/base/meiju_json_convert_content.dart';
-import '../meiju/models/meiju_home_info_entity.dart';
+import '../setting.dart';
 
 class SelectFamilyItem {
   // 家庭名称
@@ -32,16 +32,20 @@ class SelectFamilyItem {
   // 是否为创建者
   bool houseCreatorFlag;
 
+  // 是否为上一次登录的家庭
+  bool lastLoginFlag;
+
   MeiJuLoginHomeEntity? _meijuData;
   HomluxFamilyEntity? _homluxData;
 
   SelectFamilyItem.fromMeiJu(MeiJuLoginHomeEntity data)
       : familyName = data.name ?? '',
-        familyId = data.homegroupId ?? '',
+        familyId = data.homegroupId,
         roomNum = data.roomCount ?? "0",
         deviceNum = data.applianceCount ?? "0",
         userNum = data.memberCount ?? '0',
-        houseCreatorFlag = false {
+        lastLoginFlag = Setting.instant().lastBindHomeId == data.homegroupId,
+        houseCreatorFlag = data.roleId == '1001' {
     _meijuData = data;
   }
 
@@ -51,6 +55,7 @@ class SelectFamilyItem {
         roomNum = '${data.roomNum}',
         deviceNum = '${data.deviceNum}',
         userNum = '${data.userNum}',
+        lastLoginFlag = Setting.instant().lastBindHomeId == data.houseId,
         houseCreatorFlag = data.houseCreatorFlag {
     _homluxData = data;
   }

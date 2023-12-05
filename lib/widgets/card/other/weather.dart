@@ -21,7 +21,8 @@ class DigitalWeatherWidget extends StatefulWidget {
   _DigitalWeatherWidgetState createState() => _DigitalWeatherWidgetState();
 }
 
-class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with WidgetNetState {
+class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget>
+    with WidgetNetState {
   late ValueNotifier<DateTime> _currentTimeNotifier;
   Timer? timer;
 
@@ -47,74 +48,78 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with Widget
   @override
   Widget build(BuildContext context) {
     final weatherModel = Provider.of<WeatherModel>(context);
-    return Container(
-      width: 210,
-      height: 196,
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-          ],
-          stops: const [0.06, 1.0],
-          transform: const GradientRotation(213 * (3.1415926 / 360.0)),
+    return GestureDetector(
+      onTap: () {
+        if (!isConnected()) {
+          TipsUtils.toast(content: '请连接网络');
+          return;
+        }
+        if (!widget.disabled && !widget.discriminative) {
+          Navigator.pushNamed(context, 'SelectAreaPage');
+        }
+      },
+      child: Container(
+        width: 210,
+        height: 196,
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33616A76),
+              widget.discriminative
+                  ? Colors.white.withOpacity(0.12)
+                  : const Color(0x33434852),
+            ],
+            stops: const [0.06, 1.0],
+            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(child: _getWeatherIcon(weatherModel.getWeatherType())),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Text(
-                        '${weatherModel.getTemperature()}',
-                        style: TextStyle(
-                          height: 1.25,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 48,
-                          color: const Color.fromRGBO(255, 255, 255, 1)
-                              .withOpacity(0.79),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(child: _getWeatherIcon(weatherModel.getWeatherType())),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Text(
+                          '${weatherModel.getTemperature()}',
+                          style: TextStyle(
+                            height: 1.25,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 48,
+                            color: const Color.fromRGBO(255, 255, 255, 1)
+                                .withOpacity(0.79),
+                          ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: 0,
-                      child: Text(
-                        '°',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                          color: const Color.fromRGBO(255, 255, 255, 1)
-                              .withOpacity(0.79),
+                      Positioned(
+                        right: 6,
+                        top: 2,
+                        child: Text(
+                          '℃',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: const Color.fromRGBO(255, 255, 255, 1)
+                                .withOpacity(0.6),
+                          ),
                         ),
-                      ),
-                    )
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    if (!isConnected()) {
-                      TipsUtils.toast(content: '请连接网络');
-                      return;
-                    }
-                    if (!widget.disabled && !widget.discriminative) {
-                      Navigator.pushNamed(context, 'SelectAreaPage');
-                    }
-                  },
-                  child: Column(
+                      )
+                    ],
+                  ),
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -128,21 +133,26 @@ class _DigitalWeatherWidgetState extends State<DigitalWeatherWidget> with Widget
                                 .withOpacity(0.79)),
                       ),
                       Text(
-                      weatherModel.getWeatherType() == 'default' ? '——' : NameFormatter.formatName(weatherModel.selectedDistrict.cityName, 5),
+                        weatherModel.getWeatherType() == 'default'
+                            ? '——'
+                            : NameFormatter.formatName(
+                                weatherModel.selectedDistrict.cityName, 5),
                         style: TextStyle(
                             letterSpacing: 1.33,
                             fontWeight: FontWeight.w400,
-                            fontSize: weatherModel.getWeatherType() == 'default' ? 16 : 13,
+                            fontSize: weatherModel.getWeatherType() == 'default'
+                                ? 16
+                                : 13,
                             color: const Color.fromRGBO(255, 255, 255, 1)
                                 .withOpacity(0.64)),
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

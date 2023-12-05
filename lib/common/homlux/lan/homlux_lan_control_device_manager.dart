@@ -55,6 +55,8 @@ class HomluxLanControlDeviceManager {
   /// 初始化加锁
   Completer<void>? _lock;
 
+  final handledMessageQueue = <String>[];
+
   /// 用于存储本地设备
   /// key为设备ID
   /// value为设备局域网列表
@@ -120,6 +122,17 @@ class HomluxLanControlDeviceManager {
       var ts = json['ts'] as String?;
       var topic = json['topic'] as String?;
       var data = json['data'];
+      // 已经处理该消息
+      if(handledMessageQueue.contains(reqId)) {
+        Log.develop("[homeos] 重复消息去重 $reqId");
+        return;
+      } else if(reqId != null) {
+        Log.develop("[homeos] 处理消息 $reqId");
+        handledMessageQueue.add(reqId);
+        if(handledMessageQueue.length >= 100) {
+          handledMessageQueue.removeAt(0);
+        }
+      }
 
       /// 设备状态控制
       /// {

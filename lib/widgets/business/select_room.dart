@@ -14,9 +14,9 @@ class SelectRoomState extends State<SelectRoom> {
   Widget build(BuildContext context) {
     var listView = <Widget>[];
 
-    var len = roomDataAd?.familyListEntity?.familyList.length ?? 0;
+    var len = roomDataAd?.roomListEntity?.roomList.length ?? 0;
     for (var i = 0; i < len; i++) {
-      var item = roomDataAd?.familyListEntity?.familyList[i];
+      var item = roomDataAd?.roomListEntity?.roomList[i];
       listView.add(MzCell(
         height: 99,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -26,6 +26,7 @@ class SelectRoomState extends State<SelectRoom> {
         titleColor: const Color.fromRGBO(255, 255, 255, 0.85),
         titleSize: 24,
         descSize: 18,
+        tag: widget.defaultRoomId != null && widget.defaultRoomId == item!.id ? '当前房间' : null,
         bgColor: const Color(0xFF303441),
         desc: '设备${item?.deviceNum}',
         hasTopBorder: false,
@@ -108,6 +109,12 @@ class SelectRoomState extends State<SelectRoom> {
 
     roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
     roomDataAd?.bindDataUpdateFunction(() {
+      var roomList = roomDataAd?.roomListEntity?.roomList;
+      var findIndex = roomList?.indexWhere((element) => element.id == widget.defaultRoomId) ?? -1;
+      if(findIndex != -1) {
+        selectVal = findIndex;
+        widget.onChange?.call(roomList![findIndex]);
+      }
       setState(() {});
     });
     roomDataAd?.queryRoomList(System.familyInfo!);
@@ -121,8 +128,9 @@ class SelectRoomState extends State<SelectRoom> {
 class SelectRoom extends StatefulWidget {
   /// 房间变更事件
   final ValueChanged<SelectRoomItem>? onChange;
+  final String? defaultRoomId;
 
-  const SelectRoom({super.key, this.onChange});
+  const SelectRoom({super.key, this.onChange, this.defaultRoomId});
 
   @override
   State<SelectRoom> createState() => SelectRoomState();

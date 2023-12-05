@@ -19,6 +19,9 @@ import java.util.Objects;
 
 public class AppCommonConfig {
     private static final boolean PRODUCT_NOT_DIRECTOR = false;
+
+    public static String CONFIG_ENV;
+
     // 配置--开发环境
     public static final String CONFIG_TYPE_DEVELOP = "development";
     // 配置--正式环境
@@ -258,8 +261,10 @@ public class AppCommonConfig {
 
     public static void init(String type) {
         if (Objects.equals(type, CONFIG_TYPE_DEVELOP)) {
+            AppCommonConfig.CONFIG_ENV=CONFIG_TYPE_DEVELOP;
             DeveloperConfig.init();
         } else if (Objects.equals(type, CONFIG_TYPE_PRODUCT)) {
+            AppCommonConfig.CONFIG_ENV=CONFIG_TYPE_PRODUCT;
             ProductConfig.init();
         }
     }

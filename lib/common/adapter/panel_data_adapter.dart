@@ -38,6 +38,7 @@ class PanelDataAdapter extends MideaDataAdapter {
     return applianceCode;
   }
 
+  @override
   // Method to retrieve data from both platforms and construct PanelData object
   Future<void> fetchData() async {
     try {

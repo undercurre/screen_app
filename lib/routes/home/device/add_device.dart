@@ -20,11 +20,17 @@ import 'package:screen_app/widgets/util/deviceEntityTypeInP4Handle.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../channel/index.dart';
+import '../../../common/adapter/device_card_data_adapter.dart';
+import '../../../common/adapter/midea_data_adapter.dart';
+import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/adapter/select_room_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/models/homlux_room_list_entity.dart';
+import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
+import '../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../models/scene_info_entity.dart';
@@ -33,6 +39,7 @@ import '../../../states/layout_notifier.dart';
 import '../../../widgets/card/main/panelNum.dart';
 import '../../../widgets/card/main/small_scene.dart';
 import '../../../../widgets/business/dropdown_menu.dart' as ui;
+import '../../../widgets/event_bus.dart';
 import '../../../widgets/util/nameFormatter.dart';
 
 class AddDevicePage extends StatefulWidget {
@@ -76,6 +83,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
       });
       getRoomList();
     });
+    // 启动推送接收
+    _startPushListen();
     super.initState();
   }
 
@@ -205,7 +214,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
         Provider.of<DeviceInfoListModel>(context, listen: false);
     List<DeviceEntity> deviceCache = [...devicesAll];
     List<SceneInfoEntity> sceneCache = [];
-    Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList();
+    Future<List<DeviceEntity>> deviceFuture = deviceListModel.getDeviceList("添加设备查询设备列表");
     Future<List<SceneInfoEntity>> sceneFuture = sceneListModel.getSceneList();
     sceneListModel.roomDataAd.queryRoomList(System.familyInfo!);
 
@@ -307,7 +316,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     if (System.inMeiJuPlatform()) {
       deleteID.add(MeiJuGlobal.gatewayApplianceCode!);
     } else {
-      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode!}");
+      deleteID.add("G-${HomluxGlobal.gatewayApplianceCode}");
     }
 
     for (DeviceEntity device in devicesTemp) {
@@ -416,7 +425,81 @@ class _AddDevicePageState extends State<AddDevicePage> {
   @override
   void dispose() {
     _pageController.dispose();
+    // 关闭推送
+    _stopPushListen();
     super.dispose();
+  }
+
+  void meijuPushDelete(MeiJuDeviceDelEvent args) {
+    getRoomList();
+  }
+
+  void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
+    getRoomList();
+  }
+
+  void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
+    getRoomList();
+  }
+
+  void homluxPushDel(HomluxDelWiFiDeviceEvent arg) {
+    getRoomList();
+  }
+
+  void homluxPushSubDel(HomluxDelSubDeviceEvent arg) {
+    getRoomList();
+  }
+
+  void homluxDeviceListChange(HomluxLanDeviceChange arg) {
+    getRoomList();
+  }
+
+  void homluxPushGroupDelete(HomluxGroupDelEvent arg) {
+    getRoomList();
+  }
+
+  void homluxRoomUpdate(HomluxChangeRoomNameEven arg) {
+    getRoomList();
+  }
+
+  void homluxWifiUpdate(HomluxEditWifiEvent arg) {
+    getRoomList();
+  }
+
+  handleHomluxDeviceListChange() {
+    getRoomList();
+  }
+
+// 推送启动中枢
+  void _startPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushMov);
+      bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubMov);
+      bus.typeOn<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
+      bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
+      bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOn<HomluxEditWifiEvent>(homluxWifiUpdate);
+    } else {
+      bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
+  }
+
+// 推送关闭中枢
+  void _stopPushListen() {
+    if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushMov);
+      bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubMov);
+      bus.typeOff<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
+      bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
+      bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
+      bus.typeOff<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOff<HomluxEditWifiEvent>(homluxWifiUpdate);
+    } else {
+      bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
+    }
   }
 
   void _handlePageChange(int index) {
@@ -1033,6 +1116,17 @@ class _AddDevicePageState extends State<AddDevicePage> {
     DeviceEntityTypeInP4 curDeviceEntity =
         DeviceEntityTypeInP4Handle.getDeviceEntityType(
             devices[index].type, devices[index].modelNumber);
+
+    if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is DeviceCardDataAdapter) {
+      // 普通设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as DeviceCardDataAdapter).fetchData();
+    } else if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is PanelDataAdapter) {
+      // 面板设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as PanelDataAdapter).fetchData();
+    } else if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is ScenePanelDataAdapter) {
+      // 面板设备Adapter
+      (MideaDataAdapter.getAdapter(devices[index].applianceCode) as ScenePanelDataAdapter).fetchData();
+    }
 
     showDialog(
       context: context,

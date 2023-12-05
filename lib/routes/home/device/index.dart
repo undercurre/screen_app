@@ -100,7 +100,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
     // 获取设备列表的网络数据
-    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList("查询设备列表：firstInitForOffPower");
     sceneModel.getSceneList();
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
@@ -146,7 +146,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     Set<DeviceEntity> deviceCacheSetDeepCopy = Set.from(deviceCache);
     List<DeviceEntity> deviceCaCheListDeepCopy = deviceCacheSetDeepCopy.toList();
     // 拉取网络数据
-    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList();
+    List<DeviceEntity> deviceRes = await deviceModel.getDeviceList("查询设备列表：定时器时间到达");
     sceneModel.getSceneList();
     sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
@@ -208,7 +208,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final deviceListModel =
         Provider.of<DeviceInfoListModel>(context, listen: false);
     // 拉取设备列表数据
-    deviceListModel.getDeviceList();
+    deviceListModel.getDeviceList("查询设备列表: 首页instate");
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 初始化清除断电干扰
       Future.delayed(const Duration(seconds: 3), () {
@@ -251,13 +251,14 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   @override
   Widget build(BuildContext context) {
     final layoutModel = Provider.of<LayoutModel>(context);
+    final deviceModel = Provider.of<DeviceInfoListModel>(context);
     if (mounted) {
-      try {
-        getScreenList(layoutModel);
-      } catch (e) {
-        Log.i('Error', e);
-        _screens = [];
-      }
+      // try {
+        getScreenList(layoutModel, deviceModel);
+      // } catch (e) {
+      //   Log.i('Error', e);
+      //   _screens = [];
+      // }
     }
     return Stack(
       children: [
@@ -305,7 +306,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   /*
   target:对每一页布局数据进行渲染
    */
-  List<Widget> getScreenList(LayoutModel layoutModel) {
+  List<Widget> getScreenList(LayoutModel layoutModel, DeviceInfoListModel deviceModel) {
     // 清空
     _screens.clear();
     // 当前页面的widgets
@@ -451,15 +452,15 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
 
   void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 设备移动");
   }
 
   void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 子设备移动");
   }
 
-  void homluxPushDel(HomluxDelWiFiDeviceEvent arg) {
+  void homluxPushDel(HomluxDeviceDelEvent arg) {
     autoDeleleLayout(context);
   }
 
@@ -479,12 +480,17 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final sceneModel = context.read<SceneListModel>();
     sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 房间更新");
+  }
+
+  void homluxWifiUpdate(HomluxEditWifiEvent arg) {
+    final deviceModel = context.read<DeviceInfoListModel>();
+    deviceModel.getDeviceList("查询设备列表: wifi设备被编辑");
   }
 
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
-    deviceModel.getDeviceList();
+    deviceModel.getDeviceList("查询设备列表: 设备列表发生变化");
   }
 
 
@@ -494,11 +500,11 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushMov);
       bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubMov);
-      bus.typeOn<HomluxDelWiFiDeviceEvent>(homluxPushDel);
-      bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
+      bus.typeOn<HomluxDeviceDelEvent>(homluxPushDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
       bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOn<HomluxEditWifiEvent>(homluxWifiUpdate);
     } else {
       bus.typeOn<MeiJuDeviceDelEvent>(meijuPushDelete);
     }
@@ -509,11 +515,12 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushMov);
       bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubMov);
-      bus.typeOff<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOff<HomluxDeviceDelEvent>(homluxPushDel);
       bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
       bus.typeOff<HomluxChangeRoomNameEven>(homluxRoomUpdate);
+      bus.typeOff<HomluxEditWifiEvent>(homluxWifiUpdate);
     } else {
       bus.typeOff<MeiJuDeviceDelEvent>(meijuPushDelete);
     }

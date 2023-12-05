@@ -48,27 +48,30 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   String localDeviceCode = "0000";
 
-  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId,
-      this.modelNumber) {
-    type = AdapterType.floor485;
+  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+    type = AdapterType.CRC485;
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
   @override
   Future<void> fetchData() async {
+    logger.i("485空调初始化调用");
     if (isLocalDevice == false) {
       try {
         dataState = DataState.LOADING;
         if (platform.inMeiju()) {
+          logger.i("485空调获取美居数据");
           _meijuData = await fetchMeijuData();
         } else {
           _homluxData = await fetchHomluxData();
         }
         if (_meijuData != null) {
+          logger.i("485空调去拿美居数据");
           data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
         } else if (_homluxData != null) {
           data = CAC485Data.fromHomlux(_homluxData, modelNumber);
         } else {
+          logger.i("485空调去拿美居数据出错,只能是初始值");
           // If both platforms return null data, consider it an error state
           dataState = DataState.ERROR;
           data = CAC485Data(
@@ -86,6 +89,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         dataState = DataState.SUCCESS;
         updateUI();
       } catch (e) {
+        logger.i("485空调获取美居数据出错:${e.toString()}");
         // Error occurred while fetching data
         dataState = DataState.ERROR;
         data = CAC485Data(
@@ -99,6 +103,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         updateUI();
       }
     } else {
+      logger.i("485空调获取本地数据:$localDeviceCode");
       deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.cac.002");
     }
   }
@@ -309,8 +314,6 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
-
-
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
@@ -440,7 +443,7 @@ class CAC485Data {
   int operationMode = 1;
 
   // 开关状态
-  bool OnOff = true;
+  bool OnOff = false;
 
   bool online = true;
 
@@ -458,9 +461,10 @@ class CAC485Data {
 
   CAC485Data.fromMeiJu(
       NodeInfo<Endpoint<CAC485Event>> data, String modelNumber) {
-    name = data.endList[0].name;
+    logger.i("485空调获取美居数据开关状态:${data.endList[0].event.OnOff}---名称:${data.endList[0].name}---当前温度:${data.endList[0].event.currTemp}---模式:${data.endList[0].event.operationMode}---目标温度:${data.endList[0].event.targetTemp}---风速:${data.endList[0].event.windSpeed}");
+    name = data.endList[0].name ?? "空调";
     currTemp = int.parse(data.endList[0].event.currTemp);
-    targetTemp =int.parse(data.endList[0].event.targetTemp) ;
+    targetTemp =int.parse(data.endList[0].event.targetTemp=="2600"?"26":data.endList[0].event.targetTemp);
     operationMode = int.parse(data.endList[0].event.operationMode);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;
     windSpeed = int.parse(data.endList[0].event.windSpeed);

@@ -8,10 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_device_entity.dart';
-import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/widgets/mz_buttion.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../channel/index.dart';
@@ -55,22 +53,28 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   GlobalKey<SelectHomeState> selectHomeKey = GlobalKey<SelectHomeState>();
   GlobalKey<SelectRoomState> selectRoomKey = GlobalKey<SelectRoomState>();
   GlobalKey<LinkNetworkState> networkKey = GlobalKey<LinkNetworkState>();
-  SelectFamilyItem? selectFamily;
+  GlobalKey<_BindingDialogState> bindingKey = GlobalKey<_BindingDialogState>();
+
+  String? selectFamilyId;
   Uuid uuid = Uuid();
 
-  void showBindingDialog(bool show) async {
+  void showBindingDialog(String tip) async {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       // false = user must tap button, true = tap outside dialog
       builder: (BuildContext dialogContext) {
-        return const BindingDialog();
+        return BindingDialog(key: bindingKey,tip: tip,);
       },
     );
   }
 
   /// 上一步
   void prevStep() {
+    /// 从选择家庭返回的时候，需重置为空
+    if (stepNum <= 3) {
+      selectFamilyId = null;
+    }
     if (stepNum == 1) {
       return;
     }
@@ -106,45 +110,78 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         TipsUtils.toast(content: '请选择房间');
         return;
       }
-      if (isNeedShowClearAlert) {
-        showClearAlert(context);
-        return;
-      }
       // todo: linux运行屏蔽，push前解放
       if (Platform.isLinux) {
         // 运行在 Linux 平台上
       } else {
         // 运行在其他平台上
-        showBindingDialog(true);
+        TipsUtils.showLoading();
         // 判断是否绑定网关
         bindGatewayAd?.destroy();
         bindGatewayAd = BindGatewayAdapter(MideaRuntimePlatform.platform);
-        bindGatewayAd?.checkGatewayBindState(System.familyInfo!,
-            (isBind, deviceID) {
+        bindGatewayAd?.checkGatewayBindState(System.familyInfo!, (isBind, device) {
+          TipsUtils.hideLoading();
           if (!isBind) {
-            // 绑定网关
-            bindGatewayAd
-                ?.bindGateway(System.familyInfo!, System.roomInfo!)
-                .then((isSuccess) {
-              if (isSuccess) {
-                prepare2goHome();
-                Setting.instant().lastBindHomeName =
-                    System.familyInfo?.familyName ?? "";
-                Setting.instant().lastBindHomeId =
-                    System.familyInfo?.familyId ?? "";
-                Setting.instant().isAllowChangePlatform = false;
-                gatewayChannel.resetRelayModel();
-                logger.i("绑定网关");
-              } else {
-                TipsUtils.toast(content: '绑定家庭失败');
-                Navigator.pop(context);
-                selectRoomKey.currentState?.refreshList();
-              }
-            });
+            callback() {
+              // 绑定网关
+              showBindingDialog('正在绑定中，请稍后');
+              bindGatewayAd?.bindGateway(System.familyInfo!, System.roomInfo!).then((isSuccess) {
+                if (isSuccess) {
+                  prepare2goHome(true);
+                  Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                  Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                  Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                  Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+                  Setting.instant().isAllowChangePlatform = false;
+                  gatewayChannel.resetRelayModel();
+                  Log.i("绑定网关");
+                } else {
+                  assert(bindingKey.currentState != null);
+                  bindingKey.currentState?.showErrorStyle();
+                  selectRoomKey.currentState?.refreshList();
+                }
+              });
+            }
+            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindHomeId) && Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
+              showClearAlert(context,'绑定至新家庭', "智慧屏已绑定在家庭“${Setting.instant().lastBindHomeName}”，"
+                  "绑定至新家庭将清除所有本地数据，是否继续？",  () {
+                callback();
+              });
+            } else {
+              callback();
+            }
           } else {
-            prepare2goHome();
+            assert(System.roomInfo!= null);
+            callback() {
+              showBindingDialog('正在登录中，请稍后');
+              bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
+                if(value) {
+                  Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
+                  prepare2goHome(false);
+                  Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
+                  Setting.instant().lastBindHomeId = System.familyInfo?.familyId ?? "";
+                  Setting.instant().lastBindRoomId = System.roomInfo?.id ?? "";
+                  Setting.instant().lastBindRoomName = System.roomInfo?.name ?? '';
+                } else {
+                  assert(bindingKey.currentState != null);
+                  bindingKey.currentState?.showErrorStyle();
+                  selectRoomKey.currentState?.refreshList();
+                }
+              });
+            }
+            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindRoomId) && Setting.instant().lastBindRoomId != System.roomInfo!.id) {
+              showClearAlert(context,'迁移至新房间', "智慧屏将迁移至${System.roomInfo!.name}房间，是否继续？",  () {
+                callback.call();
+              });
+            } else {
+              callback.call();
+            }
           }
-        }, () {});
+        }, () {
+          TipsUtils.hideLoading();
+          TipsUtils.toast(content: "请求异常，请重试");
+          selectRoomKey.currentState?.refreshList();
+        });
       }
       return;
     }
@@ -153,22 +190,23 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     });
   }
 
-  void prepare2goHome() {
+  void prepare2goHome(bool needBind) {
     prepareLayout();
     Timer(const Duration(seconds: 3), () {
-      Navigator.pop(context);
       if (mounted) {
-        setState(() {
-          ++stepNum;
-        });
+        assert(bindingKey.currentState != null);
+        if(needBind) {
+          bindingKey.currentState?.showBindSucStyle();
+        } else {
+          bindingKey.currentState?.showLoginSucStyle();
+        }
       }
     });
     Timer(const Duration(seconds: 6), () {
       //导航到新路由
       if (mounted) {
-        Navigator.popAndPushNamed(context, 'Home');
+        Navigator.pushNamedAndRemoveUntil(context, 'Home', ModalRoute.withName('/'));
         System.login();
-        stepNum = 2;
       }
     });
   }
@@ -390,10 +428,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择家庭',
           SelectHome(
               key: selectHomeKey,
-              defaultFamily: selectFamily,
+              defaultFamilyId: selectFamilyId ?? Setting.instant().lastBindHomeId,
               onChange: (SelectFamilyItem? home) {
                 debugPrint('Select: ${home?.toJson()}');
-                selectFamily = home;
+                selectFamilyId = home?.familyId;
                 System.familyInfo = home;
                 checkIsNeedShowClearAlert();
                 nextStep();
@@ -402,6 +440,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           '选择房间',
           SelectRoom(
               key: selectRoomKey,
+              defaultRoomId: Setting.instant().lastBindRoomId,
               onChange: (SelectRoomItem room) {
                 debugPrint('SelectRoom: ${room.toJson()}');
                 System.roomInfo = room;
@@ -431,25 +470,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 ),
               ),
               child: Center(
-                  child: stepNum == 5
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.check,
-                              size: 96,
-                              color: Colors.white,
-                            ),
-                            Container(
-                              margin: const EdgeInsets.only(top: 50),
-                              child: const Text(
-                                '已成功绑定帐号',
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            )
-                          ],
-                        )
-                      : Column(
+                  child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             LoginHeader(
@@ -533,7 +554,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                           ],
                         ),
                       ))))
-        else if (stepNum != 5 && !isNeedChoosePlatform)
+        else if (!isNeedChoosePlatform)
           Positioned(
               bottom: 0,
               child: ClipRect(
@@ -589,15 +610,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     }
   }
 
-  void showClearAlert(BuildContext context) async {
+  void showClearAlert(BuildContext context,String title, String tip, VoidCallback callback) async {
     var name = Setting.instant().lastBindHomeName;
     MzDialog(
-        title: '绑定至新家庭',
+        title: title,
         titleSize: 28,
         maxWidth: 432,
         backgroundColor: const Color(0xFF494E59),
         contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
-        contentSlot: Text("智慧屏已绑定在家庭“$name”，绑定至新家庭将清除所有本地数据，是否继续？",
+        contentSlot: Text(tip,
             textAlign: TextAlign.center,
             maxLines: 3,
             style: const TextStyle(
@@ -611,8 +632,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
         onPressed: (_, position, context) {
           Navigator.pop(context);
           if (position == 1) {
-            isNeedShowClearAlert = false;
-            nextStep();
+            callback.call();
           }
         }).show(context);
   }
@@ -711,41 +731,152 @@ class LoginHeader extends StatelessWidget {
   }
 }
 
-class BindingDialog extends StatelessWidget {
-  const BindingDialog({super.key});
+class BindingDialog extends StatefulWidget {
+  String tip;
+
+  BindingDialog({super.key, required this.tip});
+
+  @override
+  State<BindingDialog> createState() => _BindingDialogState();
+
+}
+
+class _BindingDialogState extends State<BindingDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  late int state;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    state = 1;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  showLoadingStyle() {
+    setState(() {
+      state = 1;
+    });
+  }
+
+  showLoginSucStyle() {
+    setState(() {
+      state = 4;
+    });
+  }
+
+  showBindSucStyle() {
+    setState(() {
+      state = 2;
+    });
+  }
+
+  showErrorStyle() {
+    setState(() {
+      state = 3;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var contentWidget = switch(state) {
+        4 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_suc.png'),
+              const Text(
+                '登录成功',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
+        2 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_suc.png'),
+              const Text(
+                '绑定成功',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
+        3 => Column(
+            children: [
+              Image.asset('assets/newUI/login/binding_err.png'),
+              const Text(
+                '失败',
+                style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ]),
+        _ => Column(
+            children: [
+              const SizedBox(
+                width: 150,
+                height: 150,
+                child: Align(
+                  child: CupertinoActivityIndicator(radius: 25),
+                ),
+              ),
+              Text(
+                widget.tip,
+                style: const TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 0.72),
+                  fontSize: 24,
+                ),
+              ),
+            ])
+    };
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: 412,
-        height: 270,
-        padding: const EdgeInsets.symmetric(vertical: 45, horizontal: 30),
-        decoration: const BoxDecoration(
-          color: Color(0xFF494E59),
-          borderRadius: BorderRadius.all(Radius.circular(40.0)),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-                flex: 1,
-                child: Container(
-                    alignment: Alignment.center,
-                    child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          CupertinoActivityIndicator(radius: 25),
-                          Text(
-                            '正在绑定中，请稍后',
-                            style: TextStyle(
-                              color: Color.fromRGBO(255, 255, 255, 0.72),
-                              fontSize: 24,
-                            ),
-                          ),
-                        ]))),
-          ],
-        ),
+      child: Stack(
+        children: [
+          Container(
+            width: 412,
+            height: 270,
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: const BoxDecoration(
+              color: Color(0xFF494E59),
+              borderRadius: BorderRadius.all(Radius.circular(40.0)),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Container(
+                        alignment: Alignment.topCenter,
+                        child: contentWidget
+                    )),
+              ],
+            ),
+          ),
+          if(state == 3)
+            Positioned(
+              right: 20,
+              top: 20,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Image.asset(
+                  'assets/newUI/关闭@1x.png',
+                  width: 28,
+                  height: 28,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

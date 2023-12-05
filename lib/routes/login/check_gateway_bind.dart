@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/bind_gateway_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
@@ -12,7 +13,10 @@ import '../../common/homlux/api/homlux_user_api.dart';
 import '../../common/homlux/push/event/homlux_push_event.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/meiju/push/event/meiju_push_event.dart';
+import '../../common/setting.dart';
 import '../../common/system.dart';
+import '../../common/utils.dart';
+import '../../states/layout_notifier.dart';
 
 mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
 
@@ -22,13 +26,16 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     apiCheckLogout();
   }
 
-  void notifyHomluxLogout(dynamic event) {
-    System.logout('Homlux推送事件，用户退出登录');
+  void notifyHomluxLogout(HomluxDeleteHouseUser event) {
+    if(event.uid == System.getUid()) {
+      System.logout('Homlux推送事件，用户${event.uid}退出登录');
+    }
   }
 
   void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
+    Log.i("[bus] 接收到删除设备指令 待删除设备device=${event.deviceId} 网关deviceId=${HomluxGlobal.gatewayApplianceCode}");
     if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
-      gatewayChannel.resetRelayModel();
+      resetByGatewayDelete();
       System.logout('接收到删除网关的推送, 网关设备code = ${event.deviceId}');
     }
   }
@@ -53,6 +60,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
         var adapter = BindGatewayAdapter(MideaRuntimePlatform.platform);
         adapter.checkGatewayBindState(System.familyInfo!, (bind, code) {
           if (!bind && System.isLogin()) {
+            resetByGatewayDelete();
             System.logout('检查到网关未绑定，即将退出登录');
           }
         }, () {
@@ -62,6 +70,16 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     } catch (e) {
       Log.file('检查网关绑定异常', e);
     }
+  }
+
+  void resetByGatewayDelete() {
+    gatewayChannel.resetRelayModel();
+    final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+    layoutModel.removeLayouts();
+    Setting.instant().lastBindHomeId = '';
+    Setting.instant().lastBindRoomId = '';
+    // 删除本地所有缓存
+    LocalStorage.clearAllData();
   }
 
 
@@ -88,8 +106,6 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     super.dispose();
-    bus.typeOff<HomluxChangHouseEvent>(notifyHomluxLogout);
-    bus.typeOff<HomluxProjectChangeHouse>(notifyHomluxLogout);
     bus.typeOff<HomluxDeleteHouseUser>(notifyHomluxLogout);
     bus.typeOff<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);

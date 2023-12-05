@@ -49,8 +49,12 @@ class AboutSystemChannel extends AbstractChannel {
   Future<String?> getGatewaySn([bool isEncrypt = false, String? secretKey]) async {
     if(isEncrypt && (encryptSnMap[secretKey]?.isNotEmpty ?? false)) {
       Log.i('获取到加密的SN = ${encryptSnMap[secretKey]}');
+      // 网关层要求
+      methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
       return encryptSnMap[secretKey];
     } else if(!isEncrypt && decryptSn != null) {
+      // 网关层要求
+      methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
       Log.i('获取到非加密的SN = $decryptSn');
       return decryptSn;
     } else {

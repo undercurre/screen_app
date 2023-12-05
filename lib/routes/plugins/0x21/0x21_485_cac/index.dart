@@ -130,22 +130,22 @@ class AirCondition485PageState extends State<AirCondition485Page> {
 
   List<Map<String, String>> btnList = [
     {
-      'icon': 'assets/imgs/plugins/0xAC/zhileng_icon.png',
+      'icon': 'assets/newUI/acmodel/zhileng.png',
       'text': '制冷',
       'key': '1'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/zhire_icon.png',
+      'icon': 'assets/newUI/acmodel/zhire.png',
       'text': '制热',
       'key': '8'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/songfeng_icon.png',
+      'icon': 'assets/newUI/acmodel/songfeng.png',
       'text': '送风',
       'key': '4'
     },
     {
-      'icon': 'assets/imgs/plugins/0xAC/chushi_icon.png',
+      'icon': 'assets/newUI/acmodel/chushi.png',
       'text': '除湿',
       'key': '2'
     },
@@ -317,7 +317,7 @@ class AirCondition485PageState extends State<AirCondition485Page> {
                                           children: [
                                             Image.asset(getCurModeConfig()[
                                                     "icon"] ??
-                                                "assets/imgs/plugins/0xAC/zidong_icon.png"),
+                                                "assets/newUI/acmodel/zidong.png"),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.fromLTRB(
