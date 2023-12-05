@@ -166,7 +166,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
   /// String? 网关云ID
   Future<Pair<bool, DeviceEntity?>> _homluxCheck(String homeId) async {
     var sn = await aboutSystemChannel.getGatewaySn(); //获取不加密sn
-    var res = await HomluxDeviceApi.queryDeviceListByHomeId(homeId);
+    var res = await HomluxDeviceApi.queryDeviceListByHomeId(homeId, enableCache: false);
 
     DeviceEntity? deviceObj;
     bool bind = res.result?.any((e) {

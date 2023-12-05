@@ -220,7 +220,7 @@ class HomluxDeviceApi {
   /// ******************
   /// 获取家庭设备列表
   /// *******************
-  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> queryDeviceListByHomeId(String homeId, {CancelToken? cancelToken}) async {
+  static Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> queryDeviceListByHomeId(String homeId, {bool enableCache = true, CancelToken? cancelToken}) async {
     Future<HomluxResponseEntity<List<HomluxDeviceEntity>>> getCacheData() async {
       if (homeDeviceList[homeId] != null) {
         homeDeviceList[homeId]!.result = homeDeviceList[homeId]!.result?.map((e) {
@@ -282,7 +282,11 @@ class HomluxDeviceApi {
       Log.file('[device-api] 获取家庭设备列表失败 $homeId', e);
     }
 
-    return getCacheData();
+    if(enableCache) {
+      return getCacheData();
+    }
+
+    throw MideaException("请求homlux设备列表失败");
   }
 
   /// *****************
