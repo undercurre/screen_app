@@ -1,75 +1,133 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
 import 'dart:io';
 
+Future<void> _openAndWriteFile(SendPort p) async {
+  var receivePort2 = ReceivePort("[子线程 log-file-output]");
+  p.send(receivePort2.sendPort);
+  File? file;
+  int fileLimit = 0;
+  int count = 1;
+  bool overrideExisting;
+  RandomAccessFile? randomAccessFile;
+  await for(final message in receivePort2) {
+    debugPrint("receive message=$message");
+    switch(message['topic']) {
+      case 'destroy':
+        Isolate.exit();
+        break;
+      case 'create':
+        overrideExisting = message['overrideExisting'];
+        fileLimit = message['fileLimit'];
+        String filePath = message['filePath'];
+        file = File.fromUri(Uri.file(filePath));
+        if(!file.existsSync()) {
+          //recursive: 是否创建目录
+          //exclusive: false创建文件并覆盖已存在的文件，true创建文件如果试先存在则报错
+          file.createSync(recursive: true, exclusive: false);
+        }
+        break;
+      case 'init':
+        try {
+          assert(file != null);
+          randomAccessFile = file!.openSync(mode: FileMode.writeOnlyAppend);
+          assert(fileLimit > 0);
+          if (randomAccessFile.lengthSync() > fileLimit) {
+            randomAccessFile.setPositionSync(0);
+          }
+        } catch(e) {
+          debugPrint(e.toString());
+          randomAccessFile = null;
+        }
+        break;
+      case 'data':
+        debugPrint("out put");
+        if(randomAccessFile == null) return;
+        List<String> lines = message['messages'];
+
+        /// 因开发者有可能会在外部调用 `> MideaLog.txt` 指令清空文件内容
+        /// 方便使用 tail -f MideaLog.txt 查看日志
+        if(randomAccessFile.lengthSync() == 0) {
+          randomAccessFile.setPositionSync(0);
+        }
+
+        for (var element in lines) {
+          randomAccessFile.writeStringSync('$element\n');
+          count++;
+        }
+
+        if(randomAccessFile.positionSync() > fileLimit) {
+          randomAccessFile.setPositionSync(0);
+        }
+
+        try{
+          if(count > 50) {
+            randomAccessFile.flushSync();
+            count = 1;
+          }
+        } on Exception catch(error) {
+          Log.e(error);
+        }
+        break;
+    }
+  }
+  Isolate.exit();
+}
+
 class FileOutput extends LogOutput {
-  final File file;
+  final String filePath;
   final bool overrideExisting;
   final Encoding encoding;
-  RandomAccessFile? randomAccessFile;
-  int count = 1;
   int fileLimit;
 
+  SendPort? sendPort;
+  late Isolate isolate;
+
   FileOutput({
-    required this.file,
+    required this.filePath,
     required this.fileLimit,
     this.overrideExisting = false,
     this.encoding = utf8,
   }) {
-    if(!file.existsSync()) {
-      file.createSync(recursive: true, exclusive: false);
-    }
+
+    () async {
+      var receivePort1 = ReceivePort("log_file_output");
+      isolate = await Isolate.spawn(_openAndWriteFile, receivePort1.sendPort);
+      receivePort1.listen((message) {
+        sendPort = message;
+        sendPort?.send({
+          'topic': 'create',
+          'overrideExisting': overrideExisting,
+          'fileLimit': fileLimit,
+          'filePath': filePath
+        });
+        sendPort?.send({
+          'topic': 'init'
+        });
+      });
+    }();
   }
 
   @override
   void init() {
-    try {
-      randomAccessFile = file.openSync(mode: FileMode.writeOnlyAppend);
-      if (randomAccessFile!.lengthSync() > fileLimit) {
-        randomAccessFile!.setPositionSync(0);
-      }
-    } catch(e) {
-      debugPrint(e.toString());
-      randomAccessFile = null;
-    }
+
   }
 
   @override
   void output(OutputEvent event) {
-    if(randomAccessFile == null) return;
-
-    /// 因开发者有可能会在外部调用 `> MideaLog.txt` 指令清空文件内容
-    /// 方便使用 tail -f MideaLog.txt 查看日志
-    if(randomAccessFile!.lengthSync() == 0) {
-      randomAccessFile!.setPositionSync(0);
-    }
-
-    for (var element in event.lines) {
-      randomAccessFile!.writeStringSync('$element\n');
-      count++;
-    }
-
-    if(randomAccessFile!.positionSync() > fileLimit) {
-      randomAccessFile!.setPositionSync(0);
-    }
-
-    try{
-      if(count > 50) {
-        randomAccessFile!.flushSync();
-        count = 1;
-      }
-    } on Exception catch(error) {
-      Log.e(error);
-    }
-
+    debugPrint('out put ${sendPort}');
+    sendPort!.send({
+      'topic': 'data',
+      'messages': event.lines
+    });
   }
 
   @override
   void destroy() async {
-    randomAccessFile?.closeSync();
-    randomAccessFile = null;
+    sendPort?.send('destroy');
   }
 
 }
@@ -133,9 +191,10 @@ class Log {
       FileOutput(
           overrideExisting: true,
           fileLimit: 30 * 1024 * 1024,
-          file: File.fromUri(Uri.file(
-              '/data/data/com.midea.light/cache/MideaLog.txt')))
-    ]),
+          filePath: '/data/data/com.midea.light/cache/MideaLog.txt'
+          // file: File.fromUri(Uri.file(
+          //     '/data/data/com.midea.light/cache/MideaLog.txt')))
+      )]),
     level: Level.verbose
   );
 
@@ -148,9 +207,10 @@ class Log {
         FileOutput(
             overrideExisting: true,
             fileLimit: 10 * 1024* 1024,
-            file: File.fromUri(Uri.file(
-                '/data/data/com.midea.light/cache/DevelopLog.txt')))
-      ]),
+            filePath: '/data/data/com.midea.light/cache/DevelopLog.txt'
+            // file: File.fromUri(Uri.file(
+            //     '/data/data/com.midea.light/cache/DevelopLog.txt'))
+        )]),
       level: Level.verbose
   );
 
