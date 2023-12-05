@@ -66,10 +66,12 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
           _homluxData = await fetchHomluxData();
         }
         if (_meijuData != null) {
+          logger.i("485空调去拿美居数据");
           data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
         } else if (_homluxData != null) {
           data = CAC485Data.fromHomlux(_homluxData, modelNumber);
         } else {
+          logger.i("485空调去拿美居数据出错,只能是初始值");
           // If both platforms return null data, consider it an error state
           dataState = DataState.ERROR;
           data = CAC485Data(
@@ -459,9 +461,10 @@ class CAC485Data {
 
   CAC485Data.fromMeiJu(
       NodeInfo<Endpoint<CAC485Event>> data, String modelNumber) {
-    name = data.endList[0].name;
+    logger.i("485空调获取美居数据开关状态:${data.endList[0].event.OnOff}---名称:${data.endList[0].name}---当前温度:${data.endList[0].event.currTemp}---模式:${data.endList[0].event.operationMode}---目标温度:${data.endList[0].event.targetTemp}---风速:${data.endList[0].event.windSpeed}");
+    name = data.endList[0].name ?? "空调";
     currTemp = int.parse(data.endList[0].event.currTemp);
-    targetTemp =int.parse(data.endList[0].event.targetTemp) ;
+    targetTemp =int.parse(data.endList[0].event.targetTemp=="2600"?"26":data.endList[0].event.targetTemp);
     operationMode = int.parse(data.endList[0].event.operationMode);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;
     windSpeed = int.parse(data.endList[0].event.windSpeed);

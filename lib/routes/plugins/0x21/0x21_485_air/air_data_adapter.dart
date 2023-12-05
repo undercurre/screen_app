@@ -386,7 +386,7 @@ class Air485Data {
 
   Air485Data.fromMeiJu(
       NodeInfo<Endpoint<Air485Event>> data, String modelNumber) {
-    name = data.endList[0].name;
+    name = data.endList[0].name ?? "新风";
     operationMode = int.parse(data.endList[0].event.operationMode);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;
     windSpeed = int.parse(data.endList[0].event.windSpeed);

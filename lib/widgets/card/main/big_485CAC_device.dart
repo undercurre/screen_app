@@ -65,7 +65,9 @@ class _Big485CACDeviceAirCardWidgetState
 
   void updateData() {
     if (mounted) {
-      setState(() {});
+      if(adapter.data!.targetTemp < 35){
+        setState(() {});
+      }
     }
   }
 

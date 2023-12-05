@@ -378,7 +378,7 @@ class Floor485Data {
 
   Floor485Data.fromMeiJu(
       NodeInfo<Endpoint<Floor485Event>> data, String modelNumber) {
-    name = data.endList[0].name;
+    name = data.endList[0].name ?? "地暖";
     targetTemp = int.parse(data.endList[0].event.targetTemp);
     currentTemp = int.parse(data.endList[0].event.currTemp);
     OnOff = data.endList[0].event.OnOff=="1"?true:false;

@@ -26,13 +26,7 @@ class LiangyiDataEntity {
   String location_status = 'normal';
   int custom_height = 0;
 
-  LiangyiDataEntity({
-    required updown,
-    required light,
-    required laundry,
-    required location_status,
-    required custom_height
-  });
+  LiangyiDataEntity({required updown, required light, required laundry, required location_status, required custom_height});
 
   LiangyiDataEntity.fromMeiJu(dynamic data, String sn8) {
     updown = data["updown"];
@@ -51,12 +45,7 @@ class LiangyiDataEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'updown': updown,
-      'light': light,
-      'laundry': laundry,
-      'location_status': location_status
-    };
+    return {'updown': updown, 'light': light, 'laundry': laundry, 'location_status': location_status};
   }
 }
 
@@ -120,9 +109,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
   }
 
   @override
-  Future<void> power(bool? onOff) async {
-
-  }
+  Future<void> power(bool? onOff) async {}
 
   @override
   Future<dynamic> slider1To(int? value) async {
@@ -132,8 +119,8 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     int limitVal = value < 1
         ? 1
         : value > 100
-        ? 100
-        : value;
+            ? 100
+            : value;
     // return controlBrightness(limitVal, null);
   }
 
@@ -178,34 +165,36 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
   }
 
   @override
+
   /// 查询状态
   Future<void> fetchData() async {
-    // try {
-    dataState = DataState.LOADING;
-    updateUI();
-    if (platform.inMeiju()) {
-      _meijuData = await fetchMeijuData();
-    } else if (platform.inHomlux()) {
-      _homluxData = await fetchHomluxData();
-    }
-    if (_meijuData != null) {
-      data = LiangyiDataEntity.fromMeiJu(_meijuData!, sn8);
-    } else if (_homluxData != null) {
-      data = LiangyiDataEntity.fromHomlux(_homluxData!);
-    } else {
-      dataState = DataState.ERROR;
-      data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off', location_status: 'normal', custom_height: 0);
+    try {
+      dataState = DataState.LOADING;
       updateUI();
-      return;
+      if (platform.inMeiju()) {
+        _meijuData = await fetchMeijuData();
+      } else if (platform.inHomlux()) {
+        _homluxData = await fetchHomluxData();
+        Log.i('homlux数据', _homluxData);
+      }
+      if (_meijuData != null) {
+        data = LiangyiDataEntity.fromMeiJu(_meijuData!, sn8);
+      } else if (_homluxData != null) {
+        data = LiangyiDataEntity.fromHomlux(_homluxData!);
+      } else {
+        dataState = DataState.ERROR;
+        data = LiangyiDataEntity(updown: 'pause', light: 'off', laundry: 'off', location_status: 'normal', custom_height: 0);
+        updateUI();
+        return;
+      }
+      dataState = DataState.SUCCESS;
+      updateUI();
+    } catch (e) {
+      // Error occurred while fetching data
+      dataState = DataState.ERROR;
+      updateUI();
+      Log.i(e.toString());
     }
-    dataState = DataState.SUCCESS;
-    updateUI();
-    // } catch (e) {
-    //   // Error occurred while fetching data
-    //   dataState = DataState.ERROR;
-    //   updateUI();
-    //   Log.i(e.toString());
-    // }
   }
 
   Future<dynamic> fetchMeijuData() async {
@@ -250,9 +239,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     data!.updown = target;
     updateUI();
     if (platform.inMeiju()) {
-      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
-        'updown': data!.updown
-      });
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {'updown': data!.updown});
       if (res.isSuccess) {
       } else {
         data!.light = lastModel;
@@ -277,21 +264,23 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
       return;
     }
     String lastLaundryModel = data!.laundry;
+    String lastUpdown = data!.updown;
     data!.laundry = data!.laundry != 'on' ? 'on' : 'off';
+    data!.updown = '';
     updateUI();
     if (platform.inMeiju()) {
-      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
-        'laundry': data!.laundry
-      });
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {'laundry': data!.laundry});
       if (res.isSuccess) {
       } else {
         data!.laundry = lastLaundryModel;
+        data!.updown = lastUpdown;
       }
     } else if (platform.inHomlux()) {
       HomluxResponseEntity<dynamic> res = await HomluxDeviceApi.controlWifiLiangyiLaundry(applianceCode, data!.laundry);
       if (res.isSuccess) {
       } else {
         data!.laundry = lastLaundryModel;
+        data!.updown = lastUpdown;
       }
     }
   }
@@ -303,9 +292,7 @@ class WIFILiangyiDataAdapter extends DeviceCardDataAdapter<LiangyiDataEntity> {
     data!.light = data!.light != 'on' ? 'on' : 'off';
     updateUI();
     if (platform.inMeiju()) {
-      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {
-        'light': data!.light
-      });
+      var res = await MeiJuDeviceApi.sendLuaOrder(categoryCode: '0x17', applianceCode: applianceCode, command: {'light': data!.light});
       if (res.isSuccess) {
       } else {
         data!.light = lastLightModel;

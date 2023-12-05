@@ -185,6 +185,7 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
         if (adapter.dataState != DataState.SUCCESS) {
           adapter.fetchData();
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
+          Log.i('数据缺失');
           return;
         }
         if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && !widget.disabled) {
