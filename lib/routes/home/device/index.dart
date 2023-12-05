@@ -460,7 +460,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     deviceModel.getDeviceList("查询设备列表: 子设备移动");
   }
 
-  void homluxPushDel(HomluxDelWiFiDeviceEvent arg) {
+  void homluxPushDel(HomluxDeviceDelEvent arg) {
     autoDeleleLayout(context);
   }
 
@@ -500,8 +500,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       bus.typeOn<HomluxMovWifiDeviceEvent>(homluxPushMov);
       bus.typeOn<HomluxMovSubDeviceEvent>(homluxPushSubMov);
-      bus.typeOn<HomluxDelWiFiDeviceEvent>(homluxPushDel);
-      bus.typeOn<HomluxDelSubDeviceEvent>(homluxPushSubDel);
+      bus.typeOn<HomluxDeviceDelEvent>(homluxPushDel);
       bus.typeOn<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOn<HomluxLanDeviceChange>(homluxDeviceListChange);
       bus.typeOn<HomluxChangeRoomNameEven>(homluxRoomUpdate);
@@ -516,7 +515,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       bus.typeOff<HomluxMovWifiDeviceEvent>(homluxPushMov);
       bus.typeOff<HomluxMovSubDeviceEvent>(homluxPushSubMov);
-      bus.typeOff<HomluxDelWiFiDeviceEvent>(homluxPushDel);
+      bus.typeOff<HomluxDeviceDelEvent>(homluxPushDel);
       bus.typeOff<HomluxDelSubDeviceEvent>(homluxPushSubDel);
       bus.typeOff<HomluxGroupDelEvent>(homluxPushGroupDelete);
       bus.typeOff<HomluxLanDeviceChange>(homluxDeviceListChange);
