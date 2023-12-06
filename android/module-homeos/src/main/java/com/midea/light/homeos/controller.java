@@ -39,6 +39,10 @@ public class controller {
      *                  <li>disconnectFail 断开连接失败</li>
      *                  <li>aesKeyMayBeExpire aesKey可能过期，调用接口获取新的key。如果新的key与旧的key不一样，
      *                  则表示key过期。需再次调用{@link #login(String, String)}}方法</li>
+     *                  <li>discover send controller 发送UDP探针</li>
+     *                  <li>recv host udp discover UDP探针响应</li>
+     *                  <li>replay host info controller UDP探针响应</li>
+     *                  <li>recv host broastcast discover 发送UDP探针</li>
      *               <ul/>
      *<p/>
      *
