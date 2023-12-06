@@ -164,7 +164,7 @@ public class ControlManager implements Data485Subject {
                                 commandReset();
                                 if (resetTime==3){
                                     read0Times = 0;
-                                    resetTime=10;
+                                    resetTime=0;
                                     upDataAllDeviceOffline();
                                 }
                             }
