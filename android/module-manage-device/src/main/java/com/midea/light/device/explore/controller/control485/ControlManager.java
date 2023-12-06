@@ -307,7 +307,7 @@ public class ControlManager implements Data485Subject {
         total = new StringBuffer();
         resetTime++;
         read0Times=0;
-        Log.e("sky", "commandReset:50次了:"+resetTime);
+        Log.e("sky", "离线判断次数:"+resetTime);
     }
 
 
