@@ -119,7 +119,7 @@ class FileOutput extends LogOutput {
   @override
   void output(OutputEvent event) {
     debugPrint('out put ${sendPort}');
-    sendPort!.send({
+    sendPort?.send({
       'topic': 'data',
       'messages': event.lines
     });
