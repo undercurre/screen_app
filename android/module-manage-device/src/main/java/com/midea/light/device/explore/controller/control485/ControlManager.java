@@ -58,7 +58,7 @@ public class ControlManager implements Data485Subject {
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
     private Timer timer,heatBet;
-    private Integer cacheTime = 900;
+    private Integer cacheTime = 700;
     private ExecutorService service, readService;
 
 
@@ -94,7 +94,7 @@ public class ControlManager implements Data485Subject {
         startReadRunnable();
     }
 
-    BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    BlockingQueue<String> queue = new LinkedBlockingQueue<>(100);
     boolean firstIn = true;
     long firstInTime = 0;
 
@@ -159,10 +159,10 @@ public class ControlManager implements Data485Subject {
                             resetTime=0;
                         } else {
                             read0Times++;
+//                            Log.e("sky", "InputStream不可用read0Times:" + read0Times+"----queue数量:"+queue.size());
                             if (read0Times == 50) {
                                 commandReset();
-                                if (resetTime==10){
-                                    queue.clear();
+                                if (resetTime==3){
                                     read0Times = 0;
                                     resetTime=10;
                                     upDataAllDeviceOffline();
@@ -301,12 +301,13 @@ public class ControlManager implements Data485Subject {
     }
 
     private void commandReset() {
-//        mInputStream = mSerialPort.getInputStream();
+        mInputStream = mSerialPort.getInputStream();
         commandFinish = true;
         totalSize = 0;
         total = new StringBuffer();
         resetTime++;
-//        Log.e("sky", "commandReset:50次了");
+        read0Times=0;
+        Log.e("sky", "commandReset:50次了:"+resetTime);
     }
 
 
