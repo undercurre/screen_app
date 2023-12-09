@@ -53,11 +53,11 @@ public class ControlManager implements Data485Subject {
     private boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
-    private int totalSize = 0,resetTime=0;
+    private int totalSize = 0, resetTime = 0;
     private long read0Times = 0;
     private static List<Data485Observer> observers = new ArrayList<>();
     private byte[] buffer = new byte[1024];
-    private Timer timer,heatBet;
+    private Timer timer, heatBet;
     private Integer cacheTime = 700;
     private ExecutorService service, readService;
 
@@ -100,6 +100,9 @@ public class ControlManager implements Data485Subject {
 
     public void write(String str) {
         //生产者生产数据
+        if (queue.contains(str)) {
+            return;
+        }
         queue.offer(str);
 //        Log.e("sky", "放进去的数据:" + str);
         if (firstIn) {
@@ -117,7 +120,7 @@ public class ControlManager implements Data485Subject {
     }
 
     public void clearFlashCommand() {
-        List<String> removeList=new ArrayList<>();
+        List<String> removeList = new ArrayList<>();
         removeList.add(GET_ALL_AIR_CONDITION_ONLINE_STATE.data);
         removeList.add(GET_ALL_AIR_CONDITION_PARAMETE.data);
         removeList.add(GET_ALL_FRESH_AIR_ONLINE_STATE.data);
@@ -156,15 +159,15 @@ public class ControlManager implements Data485Subject {
                         if (mInputStream.available() > 0) {
                             size = mInputStream.read(buffer);
                             read0Times = 0;
-                            resetTime=0;
+                            resetTime = 0;
                         } else {
                             read0Times++;
-//                            Log.e("sky", "InputStream不可用read0Times:" + read0Times+"----queue数量:"+queue.size());
-                            if (read0Times == 50) {
+//                            Log.e("sky", "InputStream不可用read0Times:" + read0Times + "----queue数量:" + queue.size());
+                            if (read0Times == 10) {
                                 commandReset();
-                                if (resetTime==3){
+                                if (resetTime == 100) {
                                     read0Times = 0;
-                                    resetTime=0;
+                                    resetTime = 0;
                                     upDataAllDeviceOffline();
                                 }
                             }
@@ -172,7 +175,7 @@ public class ControlManager implements Data485Subject {
 
                         if (size > 0) {
                             read0Times = 0;
-                            resetTime=0;
+                            resetTime = 0;
 //                            Log.e("sky", "读到数据量:" + size);
 //                                //判断请求指令,根据请求指令来判断是否数据完整
                             if (isFirstFrame) {
@@ -228,7 +231,7 @@ public class ControlManager implements Data485Subject {
 //                                Log.e("sky", "当前数据量:" + totalArry.length);
                             //拿到所有数据后再发出
                             if (totalArry.length == totalSize) {
-//                                    Log.e("sky", "完整数据:" + total);
+//                                Log.e("sky", "完整数据:" + total);
                                 notifyObservers(total.toString());
                                 Thread.sleep(20);
                                 commandFinish = true;
@@ -259,6 +262,7 @@ public class ControlManager implements Data485Subject {
 
         private BlockingQueue<String> queue;
         List<Byte> data = new ArrayList<>();
+
         //构造函数
         public Consumer(BlockingQueue<String> queue) {
             this.queue = queue;
@@ -301,24 +305,24 @@ public class ControlManager implements Data485Subject {
     }
 
     private void commandReset() {
-        mInputStream = mSerialPort.getInputStream();
+//        mInputStream = mSerialPort.getInputStream();
         commandFinish = true;
         totalSize = 0;
         total = new StringBuffer();
         resetTime++;
-        read0Times=0;
-        Log.e("sky", "离线判断次数:"+resetTime);
+        read0Times = 0;
+//        Log.e("sky", "离线判断次数:" + resetTime);
     }
 
 
     private void upDataAllDeviceOffline() {
-        if(AirConditionController.getInstance().AirConditionList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <AirConditionController.getInstance().AirConditionList.size() ; i++) {
+        if (AirConditionController.getInstance().AirConditionList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
                 AirConditionController.getInstance().AirConditionList.get(i).setOnlineState("0");
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(0);
-                String address=AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                String address = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
@@ -328,13 +332,13 @@ public class ControlManager implements Data485Subject {
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
-        if(FloorHotController.getInstance().FloorHotList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <FloorHotController.getInstance().FloorHotList.size() ; i++) {
+        if (FloorHotController.getInstance().FloorHotList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
                 FloorHotController.getInstance().FloorHotList.get(i).setOnlineState("0");
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(0);
-                String address=FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress()+FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                String address = FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
@@ -345,13 +349,13 @@ public class ControlManager implements Data485Subject {
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
-        if(FreshAirController.getInstance().FreshAirList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <FreshAirController.getInstance().FreshAirList.size() ; i++) {
+        if (FreshAirController.getInstance().FreshAirList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
                 FreshAirController.getInstance().FreshAirList.get(i).setOnlineState("0");
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(0);
-                String address=FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress()+FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                String address = FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
@@ -401,12 +405,12 @@ public class ControlManager implements Data485Subject {
     }
 
     private void upDataAllDeviceOnlineState() {
-        if(AirConditionController.getInstance().AirConditionList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <AirConditionController.getInstance().AirConditionList.size() ; i++) {
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+        if (AirConditionController.getInstance().AirConditionList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(Integer.parseInt(AirConditionController.getInstance().AirConditionList.get(i).getOnlineState()));
-                String address=AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress()+AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
+                String address = AirConditionController.getInstance().AirConditionList.get(i).getOutSideAddress() + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
@@ -414,12 +418,12 @@ public class ControlManager implements Data485Subject {
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
-        if(FloorHotController.getInstance().FloorHotList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <FloorHotController.getInstance().FloorHotList.size() ; i++) {
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+        if (FloorHotController.getInstance().FloorHotList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(Integer.parseInt(FloorHotController.getInstance().FloorHotList.get(i).getOnlineState()));
-                String address=FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress()+FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
+                String address = FloorHotController.getInstance().FloorHotList.get(i).getOutSideAddress() + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
@@ -428,12 +432,12 @@ public class ControlManager implements Data485Subject {
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
 
-        if(FreshAirController.getInstance().FreshAirList.size()>0){
-            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit=new ArrayList<>();
-            for (int i = 0; i <FreshAirController.getInstance().FreshAirList.size() ; i++) {
-                OnlineState485Bean.PLC.OnlineState state=new OnlineState485Bean.PLC.OnlineState();
+        if (FreshAirController.getInstance().FreshAirList.size() > 0) {
+            ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
+            for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+                OnlineState485Bean.PLC.OnlineState state = new OnlineState485Bean.PLC.OnlineState();
                 state.setStatus(Integer.parseInt(FreshAirController.getInstance().FreshAirList.get(i).getOnlineState()));
-                String address=FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress()+FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
+                String address = FreshAirController.getInstance().FreshAirList.get(i).getOutSideAddress() + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress();
                 state.setAddr(address);
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
@@ -454,12 +458,12 @@ public class ControlManager implements Data485Subject {
         task = new TimerTask() {
             @Override
             public void run() {
-                GetWayController.getInstance().findAllAirConditionOnlineState();
                 GetWayController.getInstance().getAllAirConditionParamete();
-                GetWayController.getInstance().findAllFreshAirOnlineState();
+                GetWayController.getInstance().findAllAirConditionOnlineState();
                 GetWayController.getInstance().getAllFreshAirParamete();
-                GetWayController.getInstance().findAllFloorHotOnlineState();
+                GetWayController.getInstance().findAllFreshAirOnlineState();
                 GetWayController.getInstance().getAllFloorHotParamete();
+                GetWayController.getInstance().findAllFloorHotOnlineState();
             }
         };
         timer.schedule(task, 0, cacheTime);
