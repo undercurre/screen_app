@@ -232,64 +232,69 @@ class DeviceInfoListModel extends ChangeNotifier {
             HomluxGlobal.getHomlux485DeviceList;
 
         ///homlux添加本地485空调设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.airConditionList!.length;
-            i++) {
-          HomluxDeviceEntity device = HomluxDeviceEntity();
-          device.deviceName =
-              "空调${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
-          device.deviceId =
-              "${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
-          device.proType = "0x21";
-          device.deviceType = 3017;
-          device.roomName = System.roomInfo?.name;
-          device.roomId = System.roomInfo?.id;
-          device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-          String? online =
-              deviceList!.nameValuePairs!.airConditionList![i].onlineState;
-          device.onLineStatus = int.parse(online!);
-          deviceListHomlux.add(device);
+        if(deviceList!.nameValuePairs!=null&&deviceList.nameValuePairs!.airConditionList!=null){
+          for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
+            HomluxDeviceEntity device = HomluxDeviceEntity();
+            device.deviceName =
+            "空调${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
+            device.deviceId =
+            "${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
+            device.proType = "0x21";
+            device.deviceType = 3017;
+            device.roomName = System.roomInfo?.name;
+            device.roomId = System.roomInfo?.id;
+            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
+            String? online =
+                deviceList!.nameValuePairs!.airConditionList![i].onlineState;
+            device.onLineStatus = int.parse(online!);
+            deviceListHomlux.add(device);
+          }
         }
 
         ///homlux添加本地485新风设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.freshAirList!.length;
-            i++) {
-          HomluxDeviceEntity device = HomluxDeviceEntity();
-          device.deviceName =
-              "新风${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
-          device.deviceId =
-              "${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
-          device.proType = "0x21";
-          device.deviceType = 3018;
-          device.roomName = System.roomInfo?.name;
-          device.roomId = System.roomInfo?.id;
-          device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-          String? online =
-              deviceList!.nameValuePairs!.freshAirList![i].onlineState;
-          device.onLineStatus = int.parse(online!);
-          deviceListHomlux.add(device);
+        if(deviceList.nameValuePairs!=null&&deviceList.nameValuePairs!.freshAirList!=null){
+          for (int i = 0;
+          i < deviceList!.nameValuePairs!.freshAirList!.length;
+          i++) {
+            HomluxDeviceEntity device = HomluxDeviceEntity();
+            device.deviceName =
+            "新风${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
+            device.deviceId =
+            "${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
+            device.proType = "0x21";
+            device.deviceType = 3018;
+            device.roomName = System.roomInfo?.name;
+            device.roomId = System.roomInfo?.id;
+            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
+            String? online =
+                deviceList!.nameValuePairs!.freshAirList![i].onlineState;
+            device.onLineStatus = int.parse(online!);
+            deviceListHomlux.add(device);
+          }
         }
 
         ///homlux添加本地485地暖设备
-        for (int i = 0;
-            i < deviceList!.nameValuePairs!.floorHotList!.length;
-            i++) {
-          HomluxDeviceEntity device = HomluxDeviceEntity();
-          device.deviceName =
-              "地暖${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
-          device.deviceId =
-              "${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
-          device.proType = "0x21";
-          device.deviceType = 3019;
-          device.roomName = System.roomInfo?.name;
-          device.roomId = System.roomInfo?.id;
-          device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-          String? online =
-              deviceList!.nameValuePairs!.floorHotList![i].onlineState;
-          device.onLineStatus = int.parse(online!);
-          deviceListHomlux.add(device);
+        if(deviceList.nameValuePairs!=null&&deviceList.nameValuePairs!.floorHotList!=null){
+          for (int i = 0;
+          i < deviceList!.nameValuePairs!.floorHotList!.length;
+          i++) {
+            HomluxDeviceEntity device = HomluxDeviceEntity();
+            device.deviceName =
+            "地暖${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
+            device.deviceId =
+            "${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
+            device.proType = "0x21";
+            device.deviceType = 3019;
+            device.roomName = System.roomInfo?.name;
+            device.roomId = System.roomInfo?.id;
+            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
+            String? online =
+                deviceList!.nameValuePairs!.floorHotList![i].onlineState;
+            device.onLineStatus = int.parse(online!);
+            deviceListHomlux.add(device);
+          }
         }
+
 
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
