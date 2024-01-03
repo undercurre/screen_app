@@ -24,7 +24,7 @@ class PanelDataAdapter extends MideaDataAdapter {
   String modelNumber = '';
 
   PanelData data = PanelData(
-    nameList: ['按键一', '按键二', '按键三', '按键三'],
+    nameList: ['按键1', '按键2', '按键3', '按键4'],
     statusList: [false, false, false, false],
   );
 
@@ -60,7 +60,7 @@ class PanelDataAdapter extends MideaDataAdapter {
         // If both platforms return null data, consider it an error state
         dataState = DataState.ERROR;
         data = PanelData(
-          nameList: ['按键一', '按键二', '按键三', '按键四'],
+          nameList: ['按键1', '按键2', '按键3', '按键4'],
           statusList: [false, false, false, false],
         );
         return;
@@ -201,7 +201,7 @@ class PanelDataAdapter extends MideaDataAdapter {
 // The rest of the code for PanelData class remains the same as before
 class PanelData {
   // 开关名称列表
-  List<String> nameList = ['按键一', '按键二', '按键三', '按键四'];
+  List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
 
   // 开关状态列表
   List<bool> statusList = [false, false, false, false];

@@ -30,7 +30,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
   ScenePanelData data = ScenePanelData(
     modeList: ['0', '0', '0', '0'],
     sceneList: ['场景一', '场景二', '场景三', '场景四'],
-    nameList: ['按键一', '按键二', '按键三', '按键四'],
+    nameList: ['按键1', '按键2', '按键3', '按键4'],
     statusList: [false, false, false, false],
   );
 
@@ -68,7 +68,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
         data = ScenePanelData(
           modeList: ['0', '0', '0', '0'],
           sceneList: ['场景一', '场景二', '场景三', '场景四'],
-          nameList: ['按键一', '按键二', '按键三', '按键四'],
+          nameList: ['按键1', '按键2', '按键3', '按键4'],
           statusList: [false, false, false, false],
         );
         updateUI();
@@ -264,7 +264,7 @@ class ScenePanelData {
   List<dynamic> sceneList = ['场景一', '场景二', '场景三', '场景四'];
 
   // 开关名称列表
-  List<String> nameList = ['按键一', '按键二', '按键三', '按键四'];
+  List<String> nameList = ['按键1', '按键2', '按键3', '按键4'];
 
   // 开关状态列表
   List<bool> statusList = [false, false, false, false];
