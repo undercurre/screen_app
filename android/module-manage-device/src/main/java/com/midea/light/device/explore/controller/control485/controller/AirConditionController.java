@@ -286,7 +286,7 @@ public class AirConditionController implements Data485Observer {
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
         ControlManager.getInstance().clearFlashCommand();
         ControlManager.getInstance().write(sb.toString());
-//        Log.e("sky","单属性控制发出去的指令:"+sb);
+//        Log.e("sky","空调放进去的数据:"+sb);
 
     }
 

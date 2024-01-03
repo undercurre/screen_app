@@ -271,5 +271,7 @@ public class FloorHotController implements Data485Observer {
       sb.append(SumUtil.sum(sb.toString().toUpperCase()));
       ControlManager.getInstance().clearFlashCommand();
       ControlManager.getInstance().write(sb.toString());
+//      Log.e("sky","地暖放进去的数据:"+sb);
+
    }
 }
