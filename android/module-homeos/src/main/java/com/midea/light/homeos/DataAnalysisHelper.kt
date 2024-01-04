@@ -75,14 +75,17 @@ object DataAnalysisHelper {
     fun eventLogAnalysisEntrance(event: String) {
         if(randomAccessFile == null || executorService == null) return
         executorService!!.execute {
-
-            if("discover send controller" == event
-                || "replay host info controller" == event) {
-                FindEvent["start"] = System.currentTimeMillis()
-            } else if("recv host udp discover" == event
-                || "recv host broastcast discover" == event) {
-                FindEvent["end"] = System.currentTimeMillis()
-                record("[探针UDP包] ${sdf.format(FindEvent["start"])} 到 ${sdf.format(FindEvent["end"])}")
+            if("discover send controller" == event) {
+                record("[探针UDP包-controller] 请求 ${sdf.format(System.currentTimeMillis())}")
+            }
+            if("recv host udp discover" == event) {
+                record("[探针UDP包-controller] 回复 ${sdf.format(System.currentTimeMillis())}")
+            }
+            if("replay host info controller" == event) {
+                record("[探针UDP包-host] 响应 ${sdf.format(System.currentTimeMillis())}")
+            }
+            if("recv host broastcast discover" == event) {
+                record("[探针UDP包-host] 请求 ${sdf.format(System.currentTimeMillis())}")
             }
 
             if("connectLost" == event) {
@@ -93,8 +96,6 @@ object DataAnalysisHelper {
                 ConnectEvent["connected"] = System.currentTimeMillis()
                 record("[连接] 成功 ${sdf.format(ConnectEvent["connected"])}}")
             }
-
-
         }
     }
 
@@ -152,7 +153,7 @@ object DataAnalysisHelper {
             if(requestTask.containsKey(requestId)) {
                 var startTime = requestTask.get(requestId) ?: System.currentTimeMillis()
                 var endTime = System.currentTimeMillis()
-                record("[$tag] #${requestId} 正常 ${sdf.format(startTime)} 到${sdf.format(endTime)}")
+                record("[$tag] #${requestId} 正常 ${endTime - startTime}ms}")
                 requestTask.remove(requestId)
             }
         }
