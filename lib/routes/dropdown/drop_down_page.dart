@@ -1,11 +1,14 @@
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../channel/index.dart';
 import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/setting.dart';
 import '../../common/utils.dart';
+import '../../widgets/mz_dialog.dart';
 import '../../widgets/mz_vslider.dart';
+import '../login/index.dart';
 
 class DropDownPage extends StatefulWidget {
   const DropDownPage({Key? key});
@@ -14,8 +17,9 @@ class DropDownPage extends StatefulWidget {
   _DropDownPageState createState() => _DropDownPageState();
 }
 
-class _DropDownPageState extends State<DropDownPage>
-    with SingleTickerProviderStateMixin {
+class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderStateMixin {
+  GlobalKey<_LoadingLayoutDialogState> loadingKey = GlobalKey<_LoadingLayoutDialogState>();
+
   late double yOffset;
 
   late final AnimationController controller;
@@ -44,7 +48,7 @@ class _DropDownPageState extends State<DropDownPage>
     Setting.instant().volume = voice;
     Setting.instant().showVolume = (voice / 15 * 100).toInt();
     setState(() {
-      soundValue=voice;
+      soundValue = voice;
       if (soundValue > 7) {
         soundLogo = "assets/imgs/dropDown/sound-black.png";
       } else {
@@ -105,6 +109,50 @@ class _DropDownPageState extends State<DropDownPage>
     }
   }
 
+  void showToLayout(BuildContext context) {
+    callback(int position, BuildContext context) async {
+      Log.i('调用成功', position);
+      Navigator.pop(context);
+      if (mounted) {
+        if (position == 0) {
+          Navigator.of(context).pushNamed('Custom');
+        }
+        if (position == 1) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            // false = user must tap button, true = tap outside dialog
+            builder: (BuildContext dialogContext) {
+              return LoadingLayoutDialog(key: loadingKey);
+            },
+          );
+          await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
+          await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showErrorStyle()});
+        }
+      }
+    }
+
+    MzDialog(
+        title: '一键布局',
+        titleSize: 28,
+        maxWidth: 432,
+        backgroundColor: const Color(0xFF494E59),
+        contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+        contentSlot: const Text('小美将会为您创建“当前房间”里设备和场景的最优体验布局，您也可以选择手动添加进行自定义布局',
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            style: TextStyle(
+              color: Color(0xFFB6B8BC),
+              fontSize: 24,
+              height: 1.6,
+              fontFamily: "MideaType",
+              decoration: TextDecoration.none,
+            )),
+        btns: ['手动添加', '确定'],
+        closeAble: true,
+        onPressed: (_, position, context) => callback(position, context)).show(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,12 +186,8 @@ class _DropDownPageState extends State<DropDownPage>
                 left: 24,
                 top: 32,
                 child: GestureDetector(
-                  onTap: () => {
-                    Navigator.pop(context),
-                    Navigator.pushNamed(
-                      context,
-                      'Custom'
-                    )
+                  onTap: () {
+                    showToLayout(context);
                   },
                   child: Container(
                     width: 130,
@@ -161,7 +205,7 @@ class _DropDownPageState extends State<DropDownPage>
                           height: 48,
                         ),
                         const Text(
-                          "自定义",
+                          "一键布局",
                           style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.5),
                             fontSize: 18.0,
@@ -277,10 +321,7 @@ class _DropDownPageState extends State<DropDownPage>
                         max: 15,
                         value: soundValue.toDouble(),
                         padding: const EdgeInsets.all(0),
-                        activeColors: const [
-                          Color(0xFFFFFFFF),
-                          Color(0xFFFFFFFF)
-                        ],
+                        activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
                         radius: 24,
                         onChanging: (newValue, actieColor) {
                           soundValue = newValue;
@@ -332,10 +373,7 @@ class _DropDownPageState extends State<DropDownPage>
                         value: lightValue.toDouble(),
                         padding: const EdgeInsets.all(0),
                         radius: 24,
-                        activeColors: const [
-                          Color(0xFFFFFFFF),
-                          Color(0xFFFFFFFF)
-                        ],
+                        activeColors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
                         onChanged: (newValue, actieColor) {
                           lightValue = newValue;
                           if (newValue > 128) {
@@ -376,9 +414,7 @@ class _DropDownPageState extends State<DropDownPage>
                 child: Container(
                   height: 4,
                   width: 137,
-                  decoration: const BoxDecoration(
-                      color: Color(0xFFD8D8D8),
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  decoration: const BoxDecoration(color: Color(0xFFD8D8D8), borderRadius: BorderRadius.all(Radius.circular(5))),
                 ),
               )
             ],
@@ -390,7 +426,7 @@ class _DropDownPageState extends State<DropDownPage>
 
   void sliderToSetVol() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - lastTimeSetVolume > 500) {
+    if (now - lastTimeSetVolume > 500) {
       lastTimeSetVolume = now;
       settingMethodChannel.setSystemVoice(soundValue.toInt());
       Setting.instant().volume = soundValue.toInt();
@@ -402,12 +438,11 @@ class _DropDownPageState extends State<DropDownPage>
     settingMethodChannel.setSystemVoice(soundValue.toInt());
     Setting.instant().volume = soundValue.toInt();
     Setting.instant().showVolume = (soundValue / 15 * 100).toInt();
-
   }
 
   void sliderToSetLight() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - lastTimeSetBrightness > 500) {
+    if (now - lastTimeSetBrightness > 500) {
       lastTimeSetBrightness = now;
       settingMethodChannel.setSystemLight(lightValue.toInt());
       Setting.instant().screenBrightness = lightValue.toInt();
@@ -446,5 +481,120 @@ class _DropDownPageState extends State<DropDownPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+  }
+}
+
+class LoadingLayoutDialog extends StatefulWidget {
+  LoadingLayoutDialog({super.key});
+
+  @override
+  State<LoadingLayoutDialog> createState() => _LoadingLayoutDialogState();
+}
+
+class _LoadingLayoutDialogState extends State<LoadingLayoutDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  late int state;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    state = 0;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  showLoadingStyle() {
+    setState(() {
+      state = 0;
+    });
+  }
+
+  showSucStyle() {
+    setState(() {
+      state = 1;
+    });
+  }
+
+  showErrorStyle() {
+    setState(() {
+      state = 2;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var contentWidget = switch (state) {
+      1 => Column(children: [
+          Image.asset('assets/newUI/login/binding_suc.png'),
+          const Text(
+            '创建成功',
+            style: TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ]),
+      2 => Column(children: [
+          Image.asset('assets/newUI/login/binding_err.png'),
+          const Text(
+            '失败',
+            style: TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ]),
+      _ => Column(children: [
+          const SizedBox(
+            width: 150,
+            height: 150,
+            child: Align(
+              child: CupertinoActivityIndicator(radius: 25),
+            ),
+          ),
+          Text(
+            '正在创建中，请稍后',
+            style: const TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ])
+    };
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (state != 0) {
+                Navigator.pop(context);
+              }
+            },
+            child: Container(
+              width: 412,
+              height: 270,
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              decoration: const BoxDecoration(
+                color: Color(0xFF494E59),
+                borderRadius: BorderRadius.all(Radius.circular(40.0)),
+              ),
+              child: Column(
+                children: [
+                  Expanded(flex: 1, child: Container(alignment: Alignment.topCenter, child: contentWidget)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
