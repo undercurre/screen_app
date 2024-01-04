@@ -5,7 +5,7 @@ package com.midea.light.homeos;
  *
  */
 public class HomeOsController extends controller {
-    static boolean enableAnalysis = true;
+    static boolean enableAnalysis = false;
 
     HomeOsControllerCallback callback;
 
