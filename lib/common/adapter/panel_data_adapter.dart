@@ -1,9 +1,13 @@
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
+import 'package:screen_app/states/device_list_notifier.dart';
 
 import '../../widgets/event_bus.dart';
 import '../gateway_platform.dart';
+import '../global.dart';
 import '../homlux/models/homlux_device_entity.dart';
 import '../homlux/models/homlux_response_entity.dart';
 import '../homlux/push/event/homlux_push_event.dart';
@@ -53,7 +57,9 @@ class PanelDataAdapter extends MideaDataAdapter {
 
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        data = PanelData.fromMeiJu(_meijuData!, modelNumber);
+        DeviceInfoListModel model = Provider.of<DeviceInfoListModel>(globalRouteObserver.navigator!.context, listen: false);
+        String name = model.getDeviceName(deviceId: getDeviceId(), acronym: false);
+        data = PanelData.fromMeiJu(name, _meijuData!, modelNumber);
       } else if (_homluxData != null) {
         data = PanelData.fromHomlux(_homluxData!);
       } else {
@@ -211,11 +217,18 @@ class PanelData {
     required this.statusList,
   });
 
-  PanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
+  PanelData.fromMeiJu(String deviceName, NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.asMap().entries.map((e) => e.value.name != null ? e.value.name.toString() : nameList[e.key]).toList();
+      nameList = data.endList.asMap().entries.map((e) {
+        if(e.value.cname != null) {
+          return e.value.cname.toString();
+        } else if(deviceName != e.value.name) {
+          return e.value.name.toString();
+        }
+        return nameList[e.key];
+      }).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }
