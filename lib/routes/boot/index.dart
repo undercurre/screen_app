@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
@@ -101,6 +99,16 @@ class _Boot extends State<Boot> {
   /// 启动完成
   void bootFinish() {
     debugPrint('bootFinish trigger');
+
+    // const flavor = String.fromEnvironment('flavor', defaultValue: "JH");
+    // if(flavor == 'LD') {
+    //   Future.microtask(() async {
+    //     await ChangePlatformHelper.changeToMeiju(false);
+    //     MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+    //     judgePage();
+    //   });
+    //   return;
+    // }
 
     /// 数据迁移逻辑
     () async {

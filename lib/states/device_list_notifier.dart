@@ -351,14 +351,19 @@ class DeviceInfoListModel extends ChangeNotifier {
       {String? deviceId,
       int maxLength = 4,
       int startLength = 1,
-      int endLength = 2}) {
+      int endLength = 2,
+      bool acronym = true}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList
           .where((element) => element.applianceCode == deviceId)
           .toList();
       if (curOne.isNotEmpty) {
-        return NameFormatter.formLimitString(
-            curOne[0].name, maxLength, startLength, endLength);
+        if (acronym) {
+          return NameFormatter.formLimitString(
+              curOne[0].name, maxLength, startLength, endLength);
+        } else {
+          return curOne[0].name;
+        }
       } else {
         return '未知设备';
       }

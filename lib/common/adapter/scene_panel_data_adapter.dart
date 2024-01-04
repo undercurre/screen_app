@@ -1,11 +1,15 @@
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 
 import '../../models/scene_info_entity.dart';
+import '../../states/device_list_notifier.dart';
 import '../../widgets/event_bus.dart';
 import '../gateway_platform.dart';
+import '../global.dart';
 import '../homlux/models/homlux_device_entity.dart';
 import '../homlux/models/homlux_panel_associate_scene_entity.dart';
 import '../homlux/models/homlux_response_entity.dart';
@@ -58,8 +62,9 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       }
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        data =
-            ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
+        DeviceInfoListModel model = Provider.of<DeviceInfoListModel>(globalRouteObserver.navigator!.context, listen: false);
+        String name = model.getDeviceName(deviceId: applianceCode, acronym: false);
+        data = ScenePanelData.fromMeiJu(name, _meijuData!, modelNumber, data.sceneList);
       } else if (_homluxData != null) {
         data = ScenePanelData.fromHomlux(_homluxData!, data.sceneList);
       } else {
@@ -183,25 +188,21 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
 
   Future<void> getSceneNameList() async {
     if (platform.inMeiju()) {
-      MeiJuResponseEntity sceneListRes =
-          await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
+      MeiJuResponseEntity sceneListRes = await MeiJuGatewayCloudApi.queryPanelBindList(applianceCode);
       if (sceneListRes.isSuccess) {
         sceneListRes.data!["list"].forEach((e) {
           data.sceneList[e["endpoint"] - 1] = e["sceneId"].toString();
         });
       }
     } else {
-      HomluxResponseEntity<List<HomluxPanelAssociateSceneEntity>> sceneListRes =
-          await HomluxSceneApi.querySceneListByPanel(applianceCode);
+      HomluxResponseEntity<List<HomluxPanelAssociateSceneEntity>> sceneListRes = await HomluxSceneApi.querySceneListByPanel(applianceCode);
       if (sceneListRes.isSuccess) {
         List<Map<String, dynamic>> outputList = [];
 
         for (HomluxPanelAssociateSceneEntity item in sceneListRes.result!) {
           String deviceCode = item.deviceId!;
-          String endpoint =
-              item.modelName!.substring(item.modelName!.length - 1);
-          List<HomluxPanelAssociateSceneEntitySceneList> sceneList =
-              item.sceneList!;
+          String endpoint = item.modelName!.substring(item.modelName!.length - 1);
+          List<HomluxPanelAssociateSceneEntitySceneList> sceneList = item.sceneList!;
 
           for (var scene in sceneList) {
             String sceneId = scene.sceneId!;
@@ -276,12 +277,18 @@ class ScenePanelData {
     required this.sceneList,
   });
 
-  ScenePanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data,
-      String modelNumber, List<dynamic> sceneNet) {
+  ScenePanelData.fromMeiJu(String deviceName, NodeInfo<Endpoint<PanelEvent>> data, String modelNumber, List<dynamic> sceneNet) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.asMap().entries.map((e) => e.value.name != null ? e.value.name.toString() : nameList[e.key]).toList();
+      nameList = data.endList.asMap().entries.map((e) {
+        if(e.value.cname != null) {
+          return e.value.cname.toString();
+        } else if(deviceName != e.value.name) {
+          return e.value.name.toString();
+        }
+        return nameList[e.key];
+      }).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
 
