@@ -73,14 +73,10 @@ enum DeviceEntityTypeInP4 {
   Device0x13,
   // wifi窗帘
   Device0x14,
-  // 新风组件
-  Device0xCE,
   // 浴霸
   Device0x26,
   // 晾衣机
   Device0x17,
-  // 地暖组件
-  Device0xCF,
   // 灯组
   Zigbee_lightGroup,
   // zigbee灯

@@ -208,7 +208,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 
         tempList.addAll(getMeiJuLocalPanelDevices(deviceListMeiju));
 
-        Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
+        Log.i('网表', tempList.map((e) => '${e.name}${e.type}${e.onlineStatus}').toList());
 
         deviceCacheList = tempList;
 
