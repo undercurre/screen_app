@@ -6,6 +6,7 @@ import '../../common/global.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/setting.dart';
 import '../../common/utils.dart';
+import '../../services/layout/method.dart';
 import '../../widgets/mz_dialog.dart';
 import '../../widgets/mz_vslider.dart';
 import '../login/index.dart';
@@ -126,6 +127,8 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
               return LoadingLayoutDialog(key: loadingKey);
             },
           );
+          // 执行智能排序
+          // auto2Layout(context);
           await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
           await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showErrorStyle()});
         }
