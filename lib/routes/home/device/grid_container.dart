@@ -1,14 +1,4 @@
-import 'package:flutter/cupertino.dart';
-
-import '../../../common/global.dart';
 import '../../../common/logcat_helper.dart';
-import '../../../widgets/card/edit.dart';
-import '../../../widgets/card/main/big_device_light.dart';
-import '../../../widgets/card/main/middle_device.dart';
-import '../../../widgets/card/main/small_device.dart';
-import '../../../widgets/card/main/small_scene.dart';
-import '../../../widgets/card/other/clock.dart';
-import '../../../widgets/card/other/weather.dart';
 
 // 屏幕布局类
 class Screen {
