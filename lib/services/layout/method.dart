@@ -245,7 +245,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     tempLayoutList.addAll(yubaNeed.map((yubaItem) => Layout(
         yubaItem.applianceCode,
         getDeviceEntityTypeByTypeOrModelNumber(yubaItem.type, yubaItem.modelNumber),
-        CardType.Small,
+        CardType.Big,
         -1,
         [],
         DataInputCard(
@@ -265,7 +265,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     tempLayoutList.addAll(liangyijiaNeed.map((liangyijiaItem) => Layout(
         liangyijiaItem.applianceCode,
         getDeviceEntityTypeByTypeOrModelNumber(liangyijiaItem.type, liangyijiaItem.modelNumber),
-        CardType.Small,
+        CardType.Big,
         -1,
         [],
         DataInputCard(
@@ -290,7 +290,7 @@ Future<bool> auto2Layout(BuildContext context) async {
       if (tempLayoutList[i].deviceId == 'G-${System.gatewayApplianceCode}') continue;
 
       // 已经有布局的数据直接跳过
-      if (tempLayoutList[i].grids == [] && tempLayoutList[i].pageIndex == -1) continue;
+      if (tempLayoutList[i].grids != [] && tempLayoutList[i].pageIndex != -1) continue;
 
       // 当前容器集中的最大页数
       int maxPage = getMaxPageIndexOfLayoutList(tempLayoutList);

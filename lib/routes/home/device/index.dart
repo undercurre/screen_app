@@ -6,6 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:screen_app/models/index.dart';
 import 'package:screen_app/states/page_change_notifier.dart';
 import 'package:screen_app/widgets/card/edit.dart';
 import 'package:screen_app/widgets/keep_alive_wrapper.dart';
@@ -143,16 +144,16 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     List<String> layoutIds = layoutModel.layouts.map((e) => e.deviceId).toList();
     // 拉取缓存数据
     List<DeviceEntity> deviceCache = deviceModel.deviceCacheList.where((element) => layoutIds.contains(element.applianceCode)).toList();
+
     Set<DeviceEntity> deviceCacheSetDeepCopy = Set.from(deviceCache);
     List<DeviceEntity> deviceCaCheListDeepCopy = deviceCacheSetDeepCopy.toList();
     // 拉取网络数据
     List<DeviceEntity> deviceRes = await deviceModel.getDeviceList("查询设备列表：定时器时间到达");
-    sceneModel.getSceneList();
+    List<SceneInfoEntity> sceneRes = await sceneModel.getSceneList();
     sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
-    element.type != DeviceEntityTypeInP4.Scene &&
         element.type != DeviceEntityTypeInP4.Weather &&
         element.type != DeviceEntityTypeInP4.Clock &&
         element.type != DeviceEntityTypeInP4.DeviceEdit)
@@ -161,6 +162,8 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds =
     deviceRes.map((e) => e.applianceCode).toList();
+    // 再加入网络场景表映射成ids
+    netListDeviceIds.addAll(sceneRes.map((e) => e.sceneId as String).toList());
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice =
     Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
