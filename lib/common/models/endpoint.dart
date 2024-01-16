@@ -2,14 +2,12 @@ class Endpoint<T extends Event> {
   int endpoint;
   dynamic icon;
   dynamic name;
-  dynamic cname;
   T event;
 
   Endpoint({
     required this.endpoint,
     this.icon,
     this.name,
-    this.cname,
     required this.event,
   });
 
@@ -18,7 +16,6 @@ class Endpoint<T extends Event> {
       endpoint: json['endpoint'],
       icon: json['icon'],
       name: json['name'],
-      cname: json['cname'],
       event: eventFromJson(json['event']),
     );
   }
@@ -28,7 +25,6 @@ class Endpoint<T extends Event> {
       'endpoint': endpoint,
       'icon': icon,
       'name': name,
-      'cname': cname,
       'event': event.toJson(),
     };
   }

@@ -62,9 +62,7 @@ class ScenePanelDataAdapter extends MideaDataAdapter {
       }
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        DeviceInfoListModel model = Provider.of<DeviceInfoListModel>(globalRouteObserver.navigator!.context, listen: false);
-        String name = model.getDeviceName(deviceId: applianceCode, acronym: false);
-        data = ScenePanelData.fromMeiJu(name, _meijuData!, modelNumber, data.sceneList);
+        data = ScenePanelData.fromMeiJu(_meijuData!, modelNumber, data.sceneList);
       } else if (_homluxData != null) {
         data = ScenePanelData.fromHomlux(_homluxData!, data.sceneList);
       } else {
@@ -277,18 +275,11 @@ class ScenePanelData {
     required this.sceneList,
   });
 
-  ScenePanelData.fromMeiJu(String deviceName, NodeInfo<Endpoint<PanelEvent>> data, String modelNumber, List<dynamic> sceneNet) {
+  ScenePanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data, String modelNumber, List<dynamic> sceneNet) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.asMap().entries.map((e) {
-        if(e.value.cname != null) {
-          return e.value.cname.toString();
-        } else if(deviceName != e.value.name) {
-          return e.value.name.toString();
-        }
-        return nameList[e.key];
-      }).toList();
+      nameList = data.endList.asMap().entries.map((e) => e.value.name != null ? e.value.name.toString() : nameList[e.key]).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
 
