@@ -100,15 +100,15 @@ class _Boot extends State<Boot> {
   void bootFinish() {
     debugPrint('bootFinish trigger');
 
-    // const flavor = String.fromEnvironment('flavor', defaultValue: "JH");
-    // if(flavor == 'LD') {
-    //   Future.microtask(() async {
-    //     await ChangePlatformHelper.changeToMeiju(false);
-    //     MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
-    //     judgePage();
-    //   });
-    //   return;
-    // }
+    const flavor = String.fromEnvironment('flavor', defaultValue: "JH");
+    if(flavor == 'LD') {
+      Future.microtask(() async {
+        await ChangePlatformHelper.changeToMeiju(false);
+        MideaRuntimePlatform.platform = GatewayPlatform.MEIJU;
+        judgePage();
+      });
+      return;
+    }
 
     /// 数据迁移逻辑
     () async {

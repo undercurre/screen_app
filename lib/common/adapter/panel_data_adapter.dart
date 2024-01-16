@@ -57,9 +57,7 @@ class PanelDataAdapter extends MideaDataAdapter {
 
       if (_meijuData != null) {
         // Log.i(_meijuData.toString(), modelNumber);
-        DeviceInfoListModel model = Provider.of<DeviceInfoListModel>(globalRouteObserver.navigator!.context, listen: false);
-        String name = model.getDeviceName(deviceId: getDeviceId(), acronym: false);
-        data = PanelData.fromMeiJu(name, _meijuData!, modelNumber);
+        data = PanelData.fromMeiJu(_meijuData!, modelNumber);
       } else if (_homluxData != null) {
         data = PanelData.fromHomlux(_homluxData!);
       } else {
@@ -217,18 +215,11 @@ class PanelData {
     required this.statusList,
   });
 
-  PanelData.fromMeiJu(String deviceName, NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
+  PanelData.fromMeiJu(NodeInfo<Endpoint<PanelEvent>> data, String modelNumber) {
     if (_isWaterElectron(modelNumber)) {
       nameList = ['水阀', '电阀'];
     } else {
-      nameList = data.endList.asMap().entries.map((e) {
-        if(e.value.cname != null) {
-          return e.value.cname.toString();
-        } else if(deviceName != e.value.name) {
-          return e.value.name.toString();
-        }
-        return nameList[e.key];
-      }).toList();
+      nameList = data.endList.asMap().entries.map((e) => e.value.name != null ? e.value.name.toString() : nameList[e.key]).toList();
     }
     statusList = data.endList.map((e) => e.event.onOff == '1').toList();
   }
