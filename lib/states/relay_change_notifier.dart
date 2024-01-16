@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/index.dart';
+import 'package:uuid/uuid.dart';
 
 import '../channel/index.dart';
 import '../common/adapter/panel_data_adapter.dart';
@@ -10,7 +12,9 @@ import '../common/homlux/api/homlux_device_api.dart';
 import '../common/homlux/models/homlux_device_entity.dart';
 import '../common/homlux/models/homlux_response_entity.dart';
 import '../common/logcat_helper.dart';
+import '../common/meiju/api/meiju_api.dart';
 import '../common/meiju/api/meiju_device_api.dart';
+import '../common/meiju/meiju_global.dart';
 import '../common/models/endpoint.dart';
 import '../common/models/node_info.dart';
 import '../widgets/event_bus.dart';
@@ -69,12 +73,17 @@ class RelayModel extends ChangeNotifier {
       }
     }
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU && System.gatewayApplianceCode != null) {
-      NodeInfo<Endpoint<PanelEvent>> nodeInfo = await MeiJuDeviceApi.getGatewayInfo<PanelEvent>(
-          System.gatewayApplianceCode!, System.gatewayApplianceCode!, (json) => PanelEvent.fromJson(json));
-      Log.i('美居：继电器名字', nodeInfo);
+      var nodeInfo =
+          await MeiJuApi.requestMideaIot('/mas/v5/app/proxy?alias=/v1/gateway/device/getInfo', options: Options(method: 'POST'), data: {
+        'uid': MeiJuGlobal.token?.uid,
+        'homegroupId': MeiJuGlobal.homeInfo?.homegroupId,
+        'appId': "1000",
+        'reqId': Uuid().v4(),
+        'applianceCode': System.gatewayApplianceCode!
+      });
       if (nodeInfo != null) {
-        localRelay1Name = nodeInfo.endList[0].name;
-        localRelay2Name = nodeInfo.endList[1].name;
+        localRelay1Name = (nodeInfo.data["data"]["endlist"][0]["name"] as String).isEmpty ? '按键1' : nodeInfo.data["data"]["endlist"][0]["name"];
+        localRelay2Name = (nodeInfo.data["data"]["endlist"][1]["name"] as String).isEmpty ? '按键2' : nodeInfo.data["data"]["endlist"][1]["name"];
         notifyListeners();
       }
     }
