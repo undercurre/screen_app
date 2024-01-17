@@ -200,6 +200,7 @@ class LayoutModel extends ChangeNotifier {
   }
 
   void handleNullPage(int nullPageIndex) {
+    Log.i('删除空页', nullPageIndex);
     if (layouts.isEmpty) {
       setLayouts([]);
     }
@@ -209,7 +210,7 @@ class LayoutModel extends ChangeNotifier {
         layouts[i].pageIndex--;
       }
     }
-
+    Log.i('剩余layouts', layouts.map((e) => e.pageIndex));
     _saveLayouts();
     notifyListeners();
   }
@@ -232,6 +233,9 @@ class LayoutModel extends ChangeNotifier {
     Layout curLayout = getLayoutsByDevice(deviceId);
     // 获取当前布局的pageId
     int curPageIndex = curLayout.pageIndex;
+    if (curPageIndex == -1) {
+      return;
+    }
     layouts.removeWhere((item) => item.deviceId == deviceId);
     // 检查该页还有没有非空卡/非待定区/其他卡片
     bool hasNotNullCard = layouts.any((element) =>
@@ -252,6 +256,7 @@ class LayoutModel extends ChangeNotifier {
       for (int o = 0; o < curPageLayoutsAfterFill.length; o++) {
         addLayout(curPageLayoutsAfterFill[o]);
       }
+      Log.i('不清空删除', layouts.where((element) => element.cardType != CardType.Null).map((e) => e.pageIndex));
       await _saveLayouts();
       notifyListeners();
     }

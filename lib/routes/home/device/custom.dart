@@ -18,6 +18,7 @@ import '../../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/models/meiju_room_entity.dart';
 import '../../../common/system.dart';
+import '../../../common/utils.dart';
 import '../../../states/layout_notifier.dart';
 import '../../../widgets/mz_buttion.dart';
 import 'card_dialog.dart';
@@ -41,6 +42,9 @@ class _CustomPageState extends State<CustomPage> {
 
   // 当前拖拽的卡片id
   String dragingWidgetId = '';
+
+  // 正在运行的标记
+  bool loadingMark = false;
 
   @override
   void initState() {
@@ -127,6 +131,8 @@ class _CustomPageState extends State<CustomPage> {
                         borderWidth: 1,
                         text: '完成',
                         onPressed: () {
+                          // Log.i('现有布局', layoutModel.layouts.map((e) => '${e.deviceId}${e.cardType}${e.type}'));
+                          // layoutModel.removeLayouts();
                           layoutModel.setLayouts(layoutModel.layouts);
                           Navigator.pop(context, '自定义返回');
                         },
@@ -191,7 +197,13 @@ class _CustomPageState extends State<CustomPage> {
                 top: 8,
                 child: GestureDetector(
                   onTap: () async {
+                    if (loadingMark) {
+                      TipsUtils.toast(content: "正在执行上一个删除操作", duration: 1000);
+                      return;
+                    }
+                    loadingMark = true;
                     await layoutModel.deleteAndFlexLayout(layout.deviceId);
+                    loadingMark = false;
                   },
                   child: Container(
                     width: 32,

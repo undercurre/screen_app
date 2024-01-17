@@ -38,7 +38,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
     // 过滤出需要的设备
     List<DeviceEntity> deviceNeed =
-        deviceHave.where((e) => !currDeviceIds.contains(e.applianceCode) && e.roomId == System.roomInfo?.id).toList();
+        deviceHave.where((e) => !currDeviceIds.contains(e.applianceCode) && e.roomId == System.roomInfo?.id && e.applianceCode != 'G-${System.gatewayApplianceCode}').toList();
     // 过滤出需要的场景
     List<SceneInfoEntity> sceneNeed = [];
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {

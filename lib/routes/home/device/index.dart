@@ -60,7 +60,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
 
   /// [standby] true 进入待机模式 false 退出待机模式
   void standbyChange(bool standby) {
-    if(!standby) {
+    if (!standby) {
       Log.i('[首页] 退出待机强制刷新页面');
       autoDeleleLayout(context);
       startPolling(context);
@@ -73,7 +73,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   // [检测网络切换]
   @override
   void netChange(MZNetState? state) {
-    if(state != null) {
+    if (state != null) {
       Log.i('[首页] 检测网络切换，强制刷新首页');
       _netTimer?.cancel();
       _netTimer = Timer(const Duration(seconds: 10), () {
@@ -113,11 +113,9 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .map((e) => e.deviceId)
         .toList();
     // 再拿到网络设备列表映射成ids
-    List<String> netListDeviceIds =
-        deviceRes.map((e) => e.applianceCode).toList();
+    List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
     // 做diff对比上面拿到的两个ids
-    List<List<String>> compareDevice =
-        Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
+    List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 获取到diff的删除差值，并遍历每一个被删除的设备
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
@@ -137,7 +135,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final sceneModel = context.read<SceneListModel>();
     final deviceModel = context.read<DeviceInfoListModel>();
     final layoutModel = context.read<LayoutModel>();
-    final relayModel =  context.read<RelayModel>();
+    final relayModel = context.read<RelayModel>();
     // 刷新两路继电器名称
     relayModel.getLocalRelayName();
     // 拿到layout数据中的ids
@@ -154,19 +152,17 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 先收集布局（需要去除场景/时钟/天气/自定义跳转）中的ids
     List<String> layoutDeviceIds = layoutModel.layouts
         .where((element) =>
-        element.type != DeviceEntityTypeInP4.Weather &&
-        element.type != DeviceEntityTypeInP4.Clock &&
-        element.type != DeviceEntityTypeInP4.DeviceEdit)
+            element.type != DeviceEntityTypeInP4.Weather &&
+            element.type != DeviceEntityTypeInP4.Clock &&
+            element.type != DeviceEntityTypeInP4.DeviceEdit)
         .map((e) => e.deviceId)
         .toList();
     // 再拿到网络设备列表映射成ids
-    List<String> netListDeviceIds =
-    deviceRes.map((e) => e.applianceCode).toList();
+    List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
     // 再加入网络场景表映射成ids
     netListDeviceIds.addAll(sceneRes.map((e) => e.sceneId as String).toList());
     // 做diff对比上面拿到的两个ids
-    List<List<String>> compareDevice =
-    Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
+    List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 找到需要删除的设备
     Log.i('找到要删除的设备', compareDevice[1]);
     compareDevice[1].forEach((compare) {
@@ -208,14 +204,13 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     bus.on("mainToRecoverState", changeToTargetPage);
     bus.on("eventStandbyActive", standbyChange);
     Log.develop("DevicePageState initState");
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     // 拉取设备列表数据
     deviceListModel.getDeviceList("查询设备列表: 首页instate");
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 初始化清除断电干扰
       Future.delayed(const Duration(seconds: 3), () {
-        if(!mounted || !System.isLogin()) return;
+        if (!mounted || !System.isLogin()) return;
         firstInitForOffPower(context);
       });
       // 启动拉取定时器
@@ -244,7 +239,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   /// 显示更改页面的位置
   void changeToTargetPage(dynamic position) {
     if (mounted) {
-      if(position >= _screens.length) return;
+      if (position >= _screens.length) return;
       final pageCounterModel = Provider.of<PageCounter>(context, listen: false);
       Log.i('切换到页面：${pageCounterModel.currentPage}');
       _pageController.jumpToPage(pageCounterModel.currentPage);
@@ -257,7 +252,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final deviceModel = Provider.of<DeviceInfoListModel>(context);
     if (mounted) {
       // try {
-        getScreenList(layoutModel, deviceModel);
+      getScreenList(layoutModel, deviceModel);
       // } catch (e) {
       //   Log.i('Error', e);
       //   _screens = [];
@@ -298,10 +293,8 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
               ),
             ),
           ),
-        Indicator(
-            key: indicatorState,
-            defaultPosition: context.read<PageCounter>().currentPage,
-            itemCount: _screens.length)
+        if (layoutModel.layouts.isNotEmpty && layoutModel.getMaxPageIndex() > 1)
+          Indicator(key: indicatorState, defaultPosition: context.read<PageCounter>().currentPage, itemCount: _screens.length)
       ],
     );
   }
@@ -322,19 +315,13 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     for (int pageCount = 0; pageCount <= hadPageCount; pageCount++) {
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
-      List<Layout> layoutsInCurPage = layoutModel
-          .getLayoutsByPageIndex(pageCount)
-          .where((element) => element.cardType != CardType.Null)
-          .toList();
+      List<Layout> layoutsInCurPage =
+          layoutModel.getLayoutsByPageIndex(pageCount).where((element) => element.cardType != CardType.Null).toList();
       // 防止空页被渲染
       if (layoutsInCurPage.isEmpty) continue;
-      for (int layoutInCurPageIndex = 0;
-          layoutInCurPageIndex < layoutsInCurPage.length;
-          layoutInCurPageIndex++) {
+      for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex++) {
         // 取出当前布局的grids
-        for (int gridsIndex = 0;
-            gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length;
-            gridsIndex++) {
+        for (int gridsIndex = 0; gridsIndex < layoutsInCurPage[layoutInCurPageIndex].grids.length; gridsIndex++) {
           // 把已经布局的数据在布局器中占位
           int grid = layoutsInCurPage[layoutInCurPageIndex].grids[gridsIndex];
           int row = (grid - 1) ~/ 4;
@@ -349,8 +336,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       bool isCanAdd = true;
       // 最后一页，尝试把editCard塞进去
       if (pageCount == hadPageCount) {
-        List<int> editCardFillCells =
-            screenLayer.checkAvailability(CardType.Edit);
+        List<int> editCardFillCells = screenLayer.checkAvailability(CardType.Edit);
         // 当占位成功
         List<int> sumGrid = [];
         layoutsInCurPage.forEach((element) {
@@ -389,9 +375,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         layoutAfterSort.data.context = context;
         Log.i('layoutAfterSort', layoutAfterSort.type);
         if (buildMap[layoutAfterSort.type] == null) continue;
-        Widget cardWidget =
-            buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(
-                layoutAfterSort.data);
+        Widget cardWidget = buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(layoutAfterSort.data);
         // 映射布局占格
         Widget cardWithPosition = StaggeredGridTile.fit(
           key: UniqueKey(),
@@ -449,7 +433,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   }
 
   void meijuPushDelete(MeiJuDeviceDelEvent args) {
-    if(!mounted) {
+    if (!mounted) {
       return;
     }
     autoDeleleLayout(context);
@@ -497,8 +481,6 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 设备列表发生变化");
   }
-
-
 
   // 推送启动中枢
   void _startPushListen() {

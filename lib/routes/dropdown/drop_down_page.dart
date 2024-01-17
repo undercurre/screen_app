@@ -140,6 +140,8 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
           } else {
             await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showErrorStyle()});
           }
+          await Future.delayed(const Duration(seconds: 2), () => Navigator.pop(context));
+          await Future.delayed(const Duration(seconds: 1), () => Navigator.pop(context));
           // await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
         }
       }
