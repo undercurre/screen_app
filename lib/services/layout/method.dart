@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/services/layout/var.dart';
 
+import '../../common/gateway_platform.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/system.dart';
 import '../../models/device_entity.dart';
@@ -39,7 +40,12 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> deviceNeed =
         deviceHave.where((e) => !currDeviceIds.contains(e.applianceCode) && e.roomId == System.roomInfo?.id).toList();
     // 过滤出需要的场景
-    List<SceneInfoEntity> sceneNeed = sceneHave.where((e) => !currSceneIds.contains(e.sceneId) && e.roomId == System.roomInfo?.id).toList();
+    List<SceneInfoEntity> sceneNeed = [];
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      sceneNeed = sceneHave.where((e) => !currSceneIds.contains(e.sceneId)).toList();
+    } else {
+      sceneNeed = sceneHave.where((e) => !currSceneIds.contains(e.sceneId) && e.roomId == System.roomInfo?.id).toList();
+    }
     // 排序
     List<Layout> tempLayoutList = [];
     // 原有布局-剔除空位
@@ -219,7 +225,7 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: curtainItem.onlineStatus,
         ))));
     // 空调
-    List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC').toList();
+    List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017')).toList();
     tempLayoutList.addAll(airConditionNeed.map((airConditionItem) => Layout(
         airConditionItem.applianceCode,
         getDeviceEntityTypeByTypeOrModelNumber(airConditionItem.type, airConditionItem.modelNumber),
@@ -239,7 +245,45 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: airConditionItem.onlineStatus,
         ))));
     // 新风
+    List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3018').toList();
+    tempLayoutList.addAll(freshAirNeed.map((freshAirItem) => Layout(
+        freshAirItem.applianceCode,
+        getDeviceEntityTypeByTypeOrModelNumber(freshAirItem.type, freshAirItem.modelNumber),
+        CardType.Small,
+        -1,
+        [],
+        DataInputCard(
+          name: freshAirItem.name,
+          applianceCode: freshAirItem.applianceCode,
+          roomName: freshAirItem.roomName!,
+          modelNumber: freshAirItem.modelNumber,
+          masterId: freshAirItem.masterId,
+          isOnline: freshAirItem.onlineStatus,
+          sn8: freshAirItem.sn8,
+          disabled: true,
+          type: freshAirItem.type,
+          onlineStatus: freshAirItem.onlineStatus,
+        ))));
     // 地暖
+    List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3019').toList();
+    tempLayoutList.addAll(floorHeatNeed.map((floorHeatItem) => Layout(
+        floorHeatItem.applianceCode,
+        getDeviceEntityTypeByTypeOrModelNumber(floorHeatItem.type, floorHeatItem.modelNumber),
+        CardType.Small,
+        -1,
+        [],
+        DataInputCard(
+          name: floorHeatItem.name,
+          applianceCode: floorHeatItem.applianceCode,
+          roomName: floorHeatItem.roomName!,
+          modelNumber: floorHeatItem.modelNumber,
+          masterId: floorHeatItem.masterId,
+          isOnline: floorHeatItem.onlineStatus,
+          sn8: floorHeatItem.sn8,
+          disabled: true,
+          type: floorHeatItem.type,
+          onlineStatus: floorHeatItem.onlineStatus,
+        ))));
     // 浴霸
     List<DeviceEntity> yubaNeed = deviceNeed.where((e) => e.type == '0x26').toList();
     tempLayoutList.addAll(yubaNeed.map((yubaItem) => Layout(
