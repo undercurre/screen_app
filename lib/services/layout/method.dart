@@ -183,9 +183,16 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: panelItem.onlineStatus,
         ))));
     // 单灯
-    List<DeviceEntity> singleLightNeed = deviceNeed
-        .where((e) => singleLightModelNumbers.contains(e.modelNumber) || (e.type == '0x13' && e.modelNumber == 'homluxZigbeeLight'))
-        .toList();
+    List<DeviceEntity> singleLightNeed = [];
+    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
+      singleLightNeed = deviceNeed
+          .where((e) => singleLightModelNumbers.contains(e.modelNumber) || e.type == '0x13')
+          .toList();
+    } else {
+      singleLightNeed = deviceNeed
+          .where((e) => (e.type == '0x13' && e.modelNumber == '3') || (e.type == '0x13' && e.modelNumber == 'homluxZigbeeLight'))
+          .toList();
+    }
     tempLayoutList.addAll(singleLightNeed.map((singleLightItem) => Layout(
         singleLightItem.applianceCode,
         getDeviceEntityTypeByTypeOrModelNumber(singleLightItem.type, singleLightItem.modelNumber),
