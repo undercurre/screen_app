@@ -285,10 +285,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image(image: AssetImage('assets/newUI/empty.png')),
-                  Padding(
-                    padding: EdgeInsets.only(top: 21),
-                    child: EditCardWidget(),
-                  )
+                  // Padding(
+                  //   padding: EdgeInsets.only(top: 21),
+                  //   child: EditCardWidget(),
+                  // )
                 ],
               ),
             ),
@@ -421,7 +421,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       // ************插入pageview
 
       if (!isCanAdd) {
-        _screens.add(Center(key: UniqueKey(), child: const EditCardWidget()));
+        // _screens.add(Center(key: UniqueKey(), child: const EditCardWidget()));
       }
 
       // 每一页处理前重置布局器
