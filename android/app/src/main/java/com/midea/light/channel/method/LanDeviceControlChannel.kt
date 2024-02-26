@@ -55,6 +55,8 @@ class LanDeviceControlChannel(override val context: Context): AbsMZMethodChannel
         when(methodName) {
             "init" -> {
                 if(!hasInit) {
+                    HomeOsClient.getOsController().netCardRegister("lo")
+                    HomeOsClient.getOsController().netCardRegister("wlan0")
                     HomeOsClient.getOsController().init()
                     hasInit = false
                     LogUtil.tag("homeOs").msg("请求init")

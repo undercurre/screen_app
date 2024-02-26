@@ -138,6 +138,13 @@ public class controller {
      */
     public native int heartBeat(String requestId);
 
+    /**
+     * 注册网卡
+     * @param cardName 注册的网卡名称
+     * @return
+     */
+    public native int netCardRegister(String cardName);
+
     static {
         System.loadLibrary("controller");
     }
