@@ -119,7 +119,7 @@ class AirConditionPageState extends State<AirConditionPage> {
               left: 0,
               top: 0,
               child: AirCondition(
-                temperature: dataAdapter?.data!.temperature.toString(),
+                temperature: dataAdapter?.data!.indoorTemperature.toInt().toString(),
                 windSpeed: dataAdapter?.data!.wind,
                 mode: dataAdapter?.data!.mode,
               )

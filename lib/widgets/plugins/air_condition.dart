@@ -33,7 +33,7 @@ class _AirCondition extends State<AirCondition> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              widget.temperature!,
+              widget.temperature??"26",
               style: const TextStyle(
                 color: Color(0XFFFFFFFF),
                 fontSize: 66.0,

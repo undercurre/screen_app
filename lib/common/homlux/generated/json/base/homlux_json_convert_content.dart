@@ -46,6 +46,7 @@ class HomluxJsonConvert {
     (HomluxDeviceMzgdPropertyDTOListLight).toString(): HomluxDeviceMzgdPropertyDTOListLight.fromJson,
     (HomluxDeviceMzgdPropertyDTOListCurtain).toString(): HomluxDeviceMzgdPropertyDTOListCurtain.fromJson,
     (HomluxDeviceMzgdPropertyDTOListBathHeat).toString(): HomluxDeviceMzgdPropertyDTOListBathHeat.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListAirCondition).toString(): HomluxDeviceMzgdPropertyDTOListAirCondition.fromJson,
     (HomluxDeviceMzgdPropertyDTOListClothesDryingRack).toString(): HomluxDeviceMzgdPropertyDTOListClothesDryingRack.fromJson,
     (HomluxDuiTokenEntity).toString(): HomluxDuiTokenEntity.fromJson,
     (HomluxBindDeviceEntity).toString(): HomluxBindDeviceEntity.fromJson,
@@ -145,6 +146,9 @@ class HomluxJsonConvert {
     }
     if(<HomluxDeviceMzgdPropertyDTOListBathHeat>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOListBathHeat>((e) => HomluxDeviceMzgdPropertyDTOListBathHeat.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListAirCondition>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListAirCondition>((e) => HomluxDeviceMzgdPropertyDTOListAirCondition.fromJson(e)).toList() as M;
     }
     if(<HomluxDeviceMzgdPropertyDTOListClothesDryingRack>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOListClothesDryingRack>((e) => HomluxDeviceMzgdPropertyDTOListClothesDryingRack.fromJson(e)).toList() as M;

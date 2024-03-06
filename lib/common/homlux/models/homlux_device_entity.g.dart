@@ -199,6 +199,10 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 	if (bathHeat != null) {
 		homluxDeviceMzgdPropertyDTOList.bathHeat = bathHeat;
 	}
+	final HomluxDeviceMzgdPropertyDTOListAirCondition? airCondition = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListAirCondition>(json['airConditioner']);
+	if (airCondition != null) {
+		homluxDeviceMzgdPropertyDTOList.airCondition = airCondition;
+	}
 	final HomluxDeviceMzgdPropertyDTOListClothesDryingRack? clothesDryingRack = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListClothesDryingRack>(json['clothesDryingRack']);
 	if (clothesDryingRack != null) {
 		homluxDeviceMzgdPropertyDTOList.clothesDryingRack = clothesDryingRack;
@@ -215,6 +219,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 	data['light'] = entity.light?.toJson();
 	data['curtain'] = entity.curtain?.toJson();
 	data['bathHeat'] = entity.bathHeat?.toJson();
+	data['airConditioner'] = entity.airCondition?.toJson();
 	data['clothesDryingRack'] = entity.clothesDryingRack?.toJson();
 	return data;
 }
@@ -810,6 +815,82 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(HomluxDevice
 		'current_radar_status': entity.currentRadarStatus,
 		'blowing_speed': entity.blowingSpeed,
 		'wifi_led_enable': entity.wifiLedEnable,
+	};
+}
+
+
+HomluxDeviceMzgdPropertyDTOListAirCondition $HomluxDeviceMzgdPropertyDTOListAirConditionFromJson(Map<String, dynamic> json) {
+	return HomluxDeviceMzgdPropertyDTOListAirCondition(
+		smallTemperature: double.parse(json["small_temperature"].toString()),
+		indoorTemperature: json['indoor_temperature'],
+		windSwingLrUnder: json['wind_swing_lr_under'],
+		windSwingLr: json['wind_swing_lr'],
+		powerOnTimeValue: json['power_on_time_value'],
+		powerOffTimeValue: json['power_off_time_value'],
+		kickQuilt: json['kick_quilt'],
+		dustFullTime: json['dust_full_time'],
+		mode: json['mode'],
+		eco: json['eco'],
+		purifier: json['purifier'],
+		naturalWind: json['natural_wind'],
+		faultTag: json['fault_tag'],
+		pmv: json['pmv'],
+		temperature: json['temperature'],
+		aromOld: json['arom_old'],
+		comfortSleep: json['comfort_sleep'],
+		windSpeed: json['wind_speed'],
+		power: json['power'],
+		ptc: json['ptc'],
+		preventCold: json['prevent_cold'],
+		powerOnTimer: json['power_on_timer'],
+		analysisValue: json['analysis_value'],
+		screenDisplayNow: json['screen_display_now'],
+		dry: json['dry'],
+		version: json['version'],
+		windSwingUd: json['wind_swing_ud'],
+		powerSaving: json['power_saving'],
+		strongWind: json['strong_wind'],
+		freshFilterTimeUse: json['fresh_filter_time_use'],
+		powerOffTimer: json['power_off_timer'],
+		errorCode: json['error_code'],
+
+	);
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListAirConditionToJson(HomluxDeviceMzgdPropertyDTOListAirCondition entity) {
+	return {
+		'small_temperature': entity.smallTemperature,
+		'indoor_temperature': entity.indoorTemperature,
+		'wind_swing_lr_under': entity.windSwingLrUnder,
+		'wind_swing_lr': entity.windSwingLr,
+		'power_on_time_value': entity.powerOnTimeValue,
+		'power_off_time_value': entity.powerOffTimeValue,
+		'kick_quilt': entity.kickQuilt,
+		'dust_full_time': entity.dustFullTime,
+		'mode': entity.mode,
+		'eco': entity.eco,
+		'purifier': entity.purifier,
+		'natural_wind': entity.naturalWind,
+		'fault_tag': entity.faultTag,
+		'pmv': entity.pmv,
+		'temperature': entity.temperature,
+		'arom_old': entity.aromOld,
+		'comfort_sleep': entity.comfortSleep,
+		'wind_speed': entity.windSpeed,
+		'power': entity.power,
+		'ptc': entity.ptc,
+		'prevent_cold': entity.preventCold,
+		'power_on_timer': entity.powerOnTimer,
+		'analysis_value': entity.analysisValue,
+		'screen_display_now': entity.screenDisplayNow,
+		'dry': entity.dry,
+		'version': entity.version,
+		'wind_swing_ud': entity.windSwingUd,
+		'power_saving': entity.powerSaving,
+		'strong_wind': entity.strongWind,
+		'fresh_filter_time_use': entity.freshFilterTimeUse,
+		'power_off_timer': entity.powerOffTimer,
+		'error_code': entity.errorCode,
 	};
 }
 
