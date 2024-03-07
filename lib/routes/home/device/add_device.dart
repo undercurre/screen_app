@@ -100,6 +100,31 @@ class _AddDevicePageState extends State<AddDevicePage> {
       await roomDataAd?.queryRoomList(System.familyInfo!);
       homluxRoomList = roomDataAd.homluxRoomList;
       meijuRoomList = roomDataAd.meijuRoomList;
+
+      if(System.inMeiJuPlatform()){
+        MeiJuRoomEntity? mMeiJuRoomEntity;
+        meijuRoomList?.forEach((element) {
+          if(element.roomId==System.roomInfo!.id){
+            mMeiJuRoomEntity=element;
+          }
+        });
+        if(mMeiJuRoomEntity!=null){
+          meijuRoomList?.remove(mMeiJuRoomEntity);
+          meijuRoomList?.insert(0,mMeiJuRoomEntity!);
+        }
+      }else{
+        HomluxRoomInfo? mHomluxRoomInfo;
+        homluxRoomList?.forEach((element) {
+          if(element.roomId==System.roomInfo!.id){
+            mHomluxRoomInfo=element;
+          }
+        });
+        if(mHomluxRoomInfo!=null){
+          homluxRoomList?.remove(mHomluxRoomInfo);
+          homluxRoomList?.insert(0,mHomluxRoomInfo!);
+        }
+      }
+
     } catch (e) {
       Log.i('加载房间失败');
     }
