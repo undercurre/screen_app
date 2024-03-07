@@ -52,7 +52,7 @@ class AboutSystemChannel extends AbstractChannel {
       // 网关层要求
       methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
       return encryptSnMap[secretKey];
-    } else if(!isEncrypt && decryptSn != null) {
+    } else if(!isEncrypt && StrUtils.isNotNullAndEmpty(decryptSn)) {
       // 网关层要求
       methodChannel.invokeMethod("getGatewaySn", {'isEncrypt': isEncrypt, 'secretKey': secretKey ?? ''});
       Log.i('获取到非加密的SN = $decryptSn');

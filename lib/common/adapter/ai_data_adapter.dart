@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/homlux/api/homlux_dui_token_api.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
+import 'package:screen_app/common/utils.dart';
 
 import '../../channel/index.dart';
 import '../global.dart';
@@ -36,7 +37,15 @@ class AiDataAdapter extends MideaDataAdapter {
       Future.delayed(const Duration(milliseconds: 4000), () {
         MeiJuAiAuthorApi.AiAuthor(deviceId: MeiJuGlobal.gatewayApplianceCode);
       });
-      String? deviceSn = await aboutSystemChannel.getGatewaySn(false);
+      int count = 5;
+      String? deviceSn;
+      while (count > 0) {
+        deviceSn = await aboutSystemChannel.getGatewaySn();
+        if (StrUtils.isNotNullAndEmpty(deviceSn)) {
+          break;
+        }
+        count--;
+      }
       String? deviceId = MeiJuGlobal.gatewayApplianceCode;
       String macAddress = await aboutSystemChannel.getMacAddress();
       await aiMethodChannel.initialAi({
