@@ -1043,4 +1043,121 @@ class HomluxDeviceApi {
         lanDeviceId: deviceId,
         extraMap: {'deviceType': '3'});
   }
+
+
+  /// ******************
+  /// 控制wifi空调
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [onOff] 开关
+  /// *******************
+  static Future<HomluxResponseEntity> controlAirConditionerOnOff(String deviceId, int onOff) {
+    var cloudActions = [
+      <String, dynamic>{'power': onOff }
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'airConditioner',
+        'deviceProperty': {'power': onOff }
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiAirControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
+
+  /// ******************
+  /// 控制wifi空调
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [speed] 风速
+  /// *******************
+  static Future<HomluxResponseEntity> controlAirConditionerWindSpeed(String deviceId, int speed) {
+    var cloudActions = [
+      <String, dynamic>{'wind_speed': speed }
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'airConditioner',
+        'deviceProperty': {'wind_speed': speed }
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiAirControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
+
+  /// ******************
+  /// 控制wifi空调
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [temperature] 温度
+  /// *******************
+  static Future<HomluxResponseEntity> controlAirConditionerTemperature(String deviceId, int temperature,double smallTemperature) {
+    var cloudActions = [
+      <String, dynamic>{'temperature': temperature,'small_temperature': smallTemperature },
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'airConditioner',
+        'deviceProperty': {'temperature': temperature,"small_temperature":smallTemperature },
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiAirControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
+
+  /// ******************
+  /// 控制wifi空调
+  /// [deviceId] 设备Id
+  /// [deviceType] 设备类型
+  /// [mode] 模式
+  /// *******************
+  static Future<HomluxResponseEntity> controlAirConditionerModel(String deviceId, String mode) {
+    var cloudActions = [
+      <String, dynamic>{'mode': mode },
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'airConditioner',
+        'deviceProperty': {'mode': mode },
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiAirControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': '3'});
+  }
 }

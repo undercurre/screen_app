@@ -79,6 +79,8 @@ class HomluxDeviceMzgdPropertyDTOList {
   HomluxDeviceMzgdPropertyDTOListCurtain? curtain;
   @JSONField(name: "bathHeat")
   HomluxDeviceMzgdPropertyDTOListBathHeat? bathHeat;
+  @JSONField(name: "airConditioner")
+  HomluxDeviceMzgdPropertyDTOListAirCondition? airCondition;
   @JSONField(name: "clothesDryingRack")
   HomluxDeviceMzgdPropertyDTOListClothesDryingRack? clothesDryingRack;
 
@@ -500,6 +502,151 @@ class HomluxDeviceMzgdPropertyDTOListBathHeat {
       $HomluxDeviceMzgdPropertyDTOListBathHeatFromJson(json);
 
   Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+@JsonSerializable()
+class HomluxDeviceMzgdPropertyDTOListAirCondition {
+  @JSONField(name: "small_temperature")
+  double? smallTemperature;
+
+  @JSONField(name: "indoor_temperature")
+  double? indoorTemperature;
+
+  @JSONField(name: "wind_swing_lr_under")
+  String? windSwingLrUnder;
+
+  @JSONField(name: "wind_swing_lr")
+  String? windSwingLr;
+
+  @JSONField(name: "power_on_time_value")
+  int? powerOnTimeValue;
+
+  @JSONField(name: "power_off_time_value")
+  int? powerOffTimeValue;
+
+  @JSONField(name: "kick_quilt")
+  String? kickQuilt;
+
+  @JSONField(name: "dust_full_time")
+  int? dustFullTime;
+
+  @JSONField(name: "mode")
+  String? mode;
+
+  @JSONField(name: "eco")
+  String? eco;
+
+  @JSONField(name: "purifier")
+  String? purifier;
+
+  @JSONField(name: "natural_wind")
+  String? naturalWind;
+
+  @JSONField(name: "fault_tag")
+  int? faultTag;
+
+  @JSONField(name: "pmv")
+  double? pmv;
+
+  @JSONField(name: "temperature")
+  int? temperature;
+
+  @JSONField(name: "arom_old")
+  int? aromOld;
+
+  @JSONField(name: "comfort_sleep")
+  String? comfortSleep;
+
+  @JSONField(name: "wind_speed")
+  int? windSpeed;
+
+  @JSONField(name: "power")
+  int? power;
+
+  @JSONField(name: "ptc")
+  String? ptc;
+
+  @JSONField(name: "prevent_cold")
+  String? preventCold;
+
+  @JSONField(name: "power_on_timer")
+  String? powerOnTimer;
+
+  @JSONField(name: "analysis_value")
+  String? analysisValue;
+
+  @JSONField(name: "screen_display_now")
+  String? screenDisplayNow;
+
+  @JSONField(name: "dry")
+  String? dry;
+
+  @JSONField(name: "version")
+  int? version;
+
+  @JSONField(name: "wind_swing_ud")
+  String? windSwingUd;
+
+  @JSONField(name: "power_saving")
+  String? powerSaving;
+
+  @JSONField(name: "strong_wind")
+  String? strongWind;
+
+  @JSONField(name: "fresh_filter_time_use")
+  int? freshFilterTimeUse;
+
+  @JSONField(name: "power_off_timer")
+  String? powerOffTimer;
+
+  @JSONField(name: "error_code")
+  int? errorCode;
+
+
+  HomluxDeviceMzgdPropertyDTOListAirCondition({
+    this.smallTemperature,
+    this.indoorTemperature,
+    this.windSwingLrUnder,
+    this.windSwingLr,
+    this.powerOnTimeValue,
+    this.powerOffTimeValue,
+    this.kickQuilt,
+    this.dustFullTime,
+    this.mode,
+    this.eco,
+    this.purifier,
+    this.naturalWind,
+    this.faultTag,
+    this.pmv,
+    this.temperature,
+    this.aromOld,
+    this.comfortSleep,
+    this.windSpeed,
+    this.power,
+    this.ptc,
+    this.preventCold,
+    this.powerOnTimer,
+    this.analysisValue,
+    this.screenDisplayNow,
+    this.dry,
+    this.version,
+    this.windSwingUd,
+    this.powerSaving,
+    this.strongWind,
+    this.freshFilterTimeUse,
+    this.powerOffTimer,
+    this.errorCode,
+  });
+
+  factory HomluxDeviceMzgdPropertyDTOListAirCondition.fromJson(Map<String, dynamic> json) =>
+      $HomluxDeviceMzgdPropertyDTOListAirConditionFromJson(json);
+
+  Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListAirConditionToJson(this);
 
   @override
   String toString() {

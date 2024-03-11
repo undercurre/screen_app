@@ -106,11 +106,11 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
       //   return '离线';
       // }
 
-      if (adapter.dataState == DataState.ERROR) {
-        return '离线';
-      }
+      // if (adapter.dataState == DataState.ERROR) {
+      //   return '离线';
+      // }
 
-      return adapter.getCharacteristic() ?? '';
+      return '在线';
     }
 
     String getDeviceName() {

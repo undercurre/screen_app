@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:ffi';
 
-import 'package:flutter/material.dart';
-import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
-import '../../../../common/gateway_platform.dart';
 import '../../../../common/homlux/api/homlux_device_api.dart';
 import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/models/homlux_response_entity.dart';
@@ -15,12 +11,12 @@ import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../widgets/event_bus.dart';
-import '../../../../widgets/plugins/mode_card.dart';
 
 class AirDataEntity {
   bool power = false; //开关
   String mode = "auto"; //模式
   int temperature = 0; //温度
+  double indoorTemperature = 0; //室内温度
   double smallTemperature = 0; //温度小数
   int wind = 102; // 风速
 
@@ -32,6 +28,7 @@ class AirDataEntity {
     required mode,
     required temperature,
     required smallTemperature,
+    required indoorTemperature,
     required wind,
   });
 
@@ -39,8 +36,18 @@ class AirDataEntity {
     power = data["power"] == "on";
     mode = data["mode"];
     temperature = data["temperature"];
+    indoorTemperature= data["indoor_temperature"];
     smallTemperature = double.parse(data["small_temperature"].toString());
     wind = data["wind_speed"];
+  }
+
+  AirDataEntity.fromHomlux(HomluxDeviceEntity data) {
+    power = data.mzgdPropertyDTOList?.airCondition?.power==1;
+    mode = data.mzgdPropertyDTOList!.airCondition!.mode!;
+    temperature = data.mzgdPropertyDTOList!.airCondition!.temperature!;
+    indoorTemperature=(data.mzgdPropertyDTOList!.airCondition!.indoorTemperature ?? 26);
+    smallTemperature = double.parse(data.mzgdPropertyDTOList!.airCondition!.smallTemperature.toString());
+    wind = data.mzgdPropertyDTOList!.airCondition!.windSpeed!;
   }
 
   Map<String, dynamic> toJson() {
@@ -48,6 +55,7 @@ class AirDataEntity {
       "power": power,
       "mode": mode,
       "temperature": temperature,
+      "indoorTemperature": indoorTemperature,
       "smallTemperature": smallTemperature,
       "wind": wind
     };
@@ -59,6 +67,7 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   String applianceCode = "";
 
   dynamic _meijuData = null;
+
   HomluxDeviceEntity? _homluxData = null;
 
   AirDataEntity? data = AirDataEntity(
@@ -68,6 +77,8 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
     //模式
     temperature: 0,
     //温度
+    indoorTemperature : 0,
+    //室内温度
     smallTemperature: 0,
     //温度小数
     wind: 102,
@@ -89,6 +100,7 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
       "power": data!.power,
       "mode": data!.mode,
       "temperature": data!.temperature,
+      "indoorTemperature": data!.indoorTemperature,
       "smallTemperature": data!.smallTemperature,
       "wind": data!.wind
     };
@@ -153,10 +165,12 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
       if (platform.inMeiju()) {
         _meijuData = await fetchMeijuData();
       } else if (platform.inHomlux()) {
+        _homluxData= await fetchHomluxData();
       }
       if (_meijuData != null) {
         data = AirDataEntity.fromMeiJu(_meijuData!);
       } else if (_homluxData != null) {
+        data = AirDataEntity.fromHomlux(_homluxData!);
       } else {
         dataState = DataState.ERROR;
         data = AirDataEntity(
@@ -167,6 +181,8 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
           temperature: 26,
           //温度
           smallTemperature: 0,
+          //室内温度
+          indoorTemperature:0,
           //温度小数
           wind: 102,
         );
@@ -196,6 +212,18 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
     }
   }
 
+  Future<HomluxDeviceEntity> fetchHomluxData() async {
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
+    await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+    if (nodeInfo != null) {
+      return nodeInfo;
+    } else {
+      return HomluxDeviceEntity();
+    }
+  }
+
+
   /// 控制开关
   Future<void> controlPower() async {
     data!.power = !data!.power;
@@ -209,7 +237,15 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
       } else {
         data!.power = !data!.power;
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlAirConditionerOnOff(
+          applianceCode,
+          data!.power ? 1 : 0);
+      if (res.isSuccess) {
+      } else {
+        data!.power = !data!.power;
+      }
+    }
   }
 
   /// 控制风速
@@ -227,7 +263,15 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
       } else {
         data!.wind = lastGear;
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlAirConditionerWindSpeed(
+          applianceCode,
+          data!.wind);
+      if (res.isSuccess) {
+      } else {
+        data!.wind = lastGear;
+      }
+    }
   }
 
   /// 控制温度
@@ -250,7 +294,19 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
         data!.temperature = lastTemp;
         data!.smallTemperature = lastStemp;
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlAirConditionerTemperature(
+          applianceCode,
+          data!.temperature,
+          data!.smallTemperature
+          );
+      if (res.isSuccess) {
+      } else {
+        data!.temperature = lastTemp;
+        data!.smallTemperature = lastStemp;
+      }
+
+    }
   }
 
   /// 控制模式
@@ -267,7 +323,14 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
       } else {
         data!.mode = lastMode;
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlAirConditionerModel(
+           applianceCode, mode);
+      if (res.isSuccess) {
+      } else {
+        data!.mode = lastMode;
+      }
+    }
   }
 
   void meijuPush(MeiJuWifiDevicePropertyChangeEvent args) {
@@ -305,4 +368,5 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
     super.destroy();
     _stopPushListen();
   }
+
 }
