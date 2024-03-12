@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:screen_app/common/exceptions/MideaException.dart';
 import 'package:screen_app/common/meiju/api/meiju_api.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_delete_device_result_entity.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../logcat_helper.dart';
 import '../../models/endpoint.dart';
 import '../../models/node_info.dart';
+import '../models/auth_device_bath_entity.dart';
 import '../models/meiju_device_info_entity.dart';
 import '../models/meiju_response_entity.dart';
 
@@ -195,4 +198,16 @@ class MeiJuDeviceApi {
         });
     return res;
   }
+
+  /// 批量获取未确权设备
+  static Future<MeiJuResponseEntity<MeiJuAuthDeviceBatchEntity>> getAuthBatchStatus(List<String> applianceCodes) async {
+    return await MeiJuApi.requestMideaIot(
+        '/mas/v5/app/proxy?alias=/v1/appliance/auth/batch/get',
+        data: {
+          "reqId": const Uuid().v4(),
+          "stamp": DateFormat('yyyyMMddHHmmss').format(DateTime.now()),
+          "applianceCodeList": applianceCodes,
+        });
+  }
+
 }

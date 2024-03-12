@@ -13,6 +13,7 @@ import 'package:screen_app/models/device_p_d_m_entity.dart';
 import 'package:screen_app/models/location_entity.dart';
 import 'package:screen_app/models/profile_entity.dart';
 
+import '../../../models/auth_device_bath_entity.dart';
 import '../../../models/meiju_delete_device_result_entity.dart';
 import '../../../models/meiju_device_entity.dart';
 import '../../../models/meiju_device_info_entity.dart';
@@ -33,35 +34,7 @@ typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
 typedef EnumConvertFunction<T> = T Function(String value);
 
 class MeiJuJsonConvert {
-	static final Map<String, JsonConvertFunction> convertFuncMap = {
-		(AiMusicState).toString(): AiMusicState.fromJson,
-		(NetState).toString(): NetState.fromJson,
-		(WiFiScanResult).toString(): WiFiScanResult.fromJson,
-		(DeviceLuaEntity).toString(): DeviceLuaEntity.fromJson,
-		(DevicePDMEntity).toString(): DevicePDMEntity.fromJson,
-		(LocationEntity).toString(): LocationEntity.fromJson,
-		(ProfileEntity).toString(): ProfileEntity.fromJson,
 
-		(MeiJuQrCodeEntity).toString(): MeiJuQrCodeEntity.fromJson,
-		(MeiJuTokenEntity).toString(): MeiJuTokenEntity.fromJson,
-		(MeiJuHomeInfoEntity).toString(): MeiJuHomeInfoEntity.fromJson,
-		(MeiJuHomeInfoListEntity).toString(): MeiJuHomeInfoListEntity.fromJson,
-		(MeiJuRoomEntity).toString(): MeiJuRoomEntity.fromJson,
-		(MeiJuDeviceEntity).toString(): MeiJuDeviceEntity.fromJson,
-		(MeiJuWeatherEntity).toString(): MeiJuWeatherEntity.fromJson,
-		(MeiJuWeather7dEntity).toString(): MeiJuWeather7dEntity.fromJson,
-		(MeiJuSceneListEntity).toString(): MeiJuSceneListEntity.fromJson,
-		(MeiJuDeviceInfoEntity).toString(): MeiJuDeviceInfoEntity.fromJson,
-		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
-		(MeiJuDeleteDeviceResultEntity).toString(): MeiJuDeleteDeviceResultEntity.fromJson,
-		(MeiJuSceneEntity).toString(): MeiJuSceneEntity.fromJson,
-		(MeiJuLocation).toString(): MeiJuLocation.fromJson,
-		(MeiJuWeather).toString(): MeiJuWeather.fromJson,
-		(MeiJuPanelSceneBindItemEntity).toString(): MeiJuPanelSceneBindItemEntity.fromJson,
-		(MeiJuPanelSceneBindListEntity).toString(): MeiJuPanelSceneBindListEntity.fromJson,
-		(MeiJuLoginHomeEntity).toString(): MeiJuLoginHomeEntity.fromJson,
-		(MeiJuLoginHomeListEntity).toString(): MeiJuLoginHomeListEntity.fromJson,
-	};
 
   T? convert<T>(dynamic value, {EnumConvertFunction? enumConvert}) {
     if (value == null) {
@@ -102,6 +75,14 @@ class MeiJuJsonConvert {
     }
   }
 
+	M? fromJsonAsT<M>(dynamic json) {
+		if (json is List) {
+			return _getListChildType<M>(json.map((e) => e as Map<String, dynamic>).toList());
+		} else {
+			return convert<M>(json);
+		}
+	}
+
   T? _asT<T extends Object?>(dynamic value,
       {EnumConvertFunction? enumConvert}) {
     final String type = T.toString();
@@ -139,6 +120,12 @@ class MeiJuJsonConvert {
 
 	//list is returned by type
 	M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+		if(<MeiJuAuthStatus>[] is M) {
+			return data.map<MeiJuAuthStatus>((Map<String, dynamic> e) => MeiJuAuthStatus.fromJson(e)).toList() as M;
+		}
+		if(<MeiJuAuthDeviceBatchEntity>[] is M) {
+			return data.map<MeiJuAuthDeviceBatchEntity>((Map<String, dynamic> e) => MeiJuAuthDeviceBatchEntity.fromJson(e)).toList() as M;
+		}
 		if(<MeiJuLoginHomeEntity>[] is M) {
 			return data.map<MeiJuLoginHomeEntity>((Map<String, dynamic> e) => MeiJuLoginHomeEntity.fromJson(e)).toList() as M;
 		}
@@ -237,11 +224,35 @@ class MeiJuJsonConvert {
 		return null;
 }
 
-	M? fromJsonAsT<M>(dynamic json) {
-		if (json is List) {
-			return _getListChildType<M>(json.map((e) => e as Map<String, dynamic>).toList());
-		} else {
-			return convert<M>(json);
-		}
-	}
+	static final Map<String, JsonConvertFunction> convertFuncMap = {
+		(MeiJuAuthDeviceBatchEntity).toString(): MeiJuAuthDeviceBatchEntity.fromJson,
+		(MeiJuAuthStatus).toString(): MeiJuAuthStatus.fromJson,
+		(AiMusicState).toString(): AiMusicState.fromJson,
+		(NetState).toString(): NetState.fromJson,
+		(WiFiScanResult).toString(): WiFiScanResult.fromJson,
+		(DeviceLuaEntity).toString(): DeviceLuaEntity.fromJson,
+		(DevicePDMEntity).toString(): DevicePDMEntity.fromJson,
+		(LocationEntity).toString(): LocationEntity.fromJson,
+		(ProfileEntity).toString(): ProfileEntity.fromJson,
+
+		(MeiJuQrCodeEntity).toString(): MeiJuQrCodeEntity.fromJson,
+		(MeiJuTokenEntity).toString(): MeiJuTokenEntity.fromJson,
+		(MeiJuHomeInfoEntity).toString(): MeiJuHomeInfoEntity.fromJson,
+		(MeiJuHomeInfoListEntity).toString(): MeiJuHomeInfoListEntity.fromJson,
+		(MeiJuRoomEntity).toString(): MeiJuRoomEntity.fromJson,
+		(MeiJuDeviceEntity).toString(): MeiJuDeviceEntity.fromJson,
+		(MeiJuWeatherEntity).toString(): MeiJuWeatherEntity.fromJson,
+		(MeiJuWeather7dEntity).toString(): MeiJuWeather7dEntity.fromJson,
+		(MeiJuSceneListEntity).toString(): MeiJuSceneListEntity.fromJson,
+		(MeiJuDeviceInfoEntity).toString(): MeiJuDeviceInfoEntity.fromJson,
+		(MeiJuDeviceInfoAbilityEntity).toString(): MeiJuDeviceInfoAbilityEntity.fromJson,
+		(MeiJuDeleteDeviceResultEntity).toString(): MeiJuDeleteDeviceResultEntity.fromJson,
+		(MeiJuSceneEntity).toString(): MeiJuSceneEntity.fromJson,
+		(MeiJuLocation).toString(): MeiJuLocation.fromJson,
+		(MeiJuWeather).toString(): MeiJuWeather.fromJson,
+		(MeiJuPanelSceneBindItemEntity).toString(): MeiJuPanelSceneBindItemEntity.fromJson,
+		(MeiJuPanelSceneBindListEntity).toString(): MeiJuPanelSceneBindListEntity.fromJson,
+		(MeiJuLoginHomeEntity).toString(): MeiJuLoginHomeEntity.fromJson,
+		(MeiJuLoginHomeListEntity).toString(): MeiJuLoginHomeListEntity.fromJson,
+	};
 }

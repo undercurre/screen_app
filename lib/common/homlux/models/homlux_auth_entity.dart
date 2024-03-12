@@ -17,4 +17,8 @@ class HomluxAuthEntity {
     return houseUserAuth != null && houseUserAuth == 3;
   }
 
+  bool isNoRelationship() {
+    return houseUserAuth == null;
+  }
+
 }
