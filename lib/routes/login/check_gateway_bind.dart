@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/bind_gateway_data_adapter.dart';
+import 'package:screen_app/common/adapter/check_auth_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/homlux_global.dart';
 import 'package:screen_app/widgets/event_bus.dart';
@@ -41,16 +42,15 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
   }
 
   void apiCheckUserAuth(dynamic event) async {
-    if(System.inHomluxPlatform()) {
-      String? familyId = System.familyInfo?.familyId;
-      if(familyId == null) {
-        Log.e('程序异常，访问到的家庭Id为空');
-        return;
-      }
-      var res = await HomluxUserApi.queryHouseAuth(familyId);
-      if (res.isSuccess && (res.data?.isTourist() == true)) {
-        System.logout('当前用户身份为游客身份，无权限登录');
-      }
+    String? familyId = System.familyInfo?.familyId;
+    if(familyId == null) {
+      Log.e('程序异常，访问到的家庭Id为空');
+      return;
+    }
+    var adapter = CheckAuthAdapter(MideaRuntimePlatform.platform);
+    var result = await adapter.check();
+    if(result == false) {
+      System.logout('当前用户身份无权限登录，强制登出');
     }
   }
 
