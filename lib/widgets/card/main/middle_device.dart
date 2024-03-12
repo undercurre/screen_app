@@ -215,7 +215,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     return GestureDetector(
         onTap: () {
           if (adapter.dataState != DataState.SUCCESS) {
-            adapter.fetchData();
+            adapter.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
             // TipsUtils.toast(content: '数据缺失，控制设备失败');
           }
           if (!deviceListModel.getOnlineStatus(

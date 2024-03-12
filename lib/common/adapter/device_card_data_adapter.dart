@@ -1,4 +1,8 @@
 
+import 'package:screen_app/common/index.dart';
+import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
+import 'package:screen_app/common/meiju/models/auth_device_bath_entity.dart';
+import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'midea_data_adapter.dart';
 
 enum AdapterType {
@@ -17,6 +21,17 @@ enum AdapterType {
   wifiLiangyi
 }
 
+/// 美居配置
+///       添加需要确权的设备类型 （一般普通的wifi设备都需判断确权）
+const MeiJuNeedCheckWaitLockAuthTypes = [
+  AdapterType.wifiLight,
+  AdapterType.wifiCurtain,
+  AdapterType.air485,
+  AdapterType.wifiAir,
+  AdapterType.wifiYuba,
+  AdapterType.wifiLiangyi
+];
+
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
 abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   AdapterType type = AdapterType.unKnow;
@@ -24,6 +39,33 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   DeviceCardDataAdapter(super.platform);
 
   T? data;
+
+  Future<void> fetchDataAndCheckWaitLockAuth(String deviceId) async {
+    bool? result = await checkWaitLockAuth(deviceId);
+    if(result == false) {
+      TipsUtils.toast(content: "设备未确权，请在APP端进行设备确权");
+    }
+    fetchData();
+  }
+
+  /// 判断设备是否解锁 - 待确权状态
+  /// 返回值
+  ///      null  未查出异常 - 特指网络请求失败
+  ///      false 未解锁
+  ///      true  已解锁
+  Future<bool?> checkWaitLockAuth(String deviceId) async {
+    if(platform.inMeiju()) {
+      final need = MeiJuNeedCheckWaitLockAuthTypes.any((element) => element == type);
+      if(need) {
+        MeiJuResponseEntity<MeiJuAuthDeviceBatchEntity> response = await MeiJuDeviceApi.getAuthBatchStatus([deviceId]);
+        if(response.isSuccess) {
+          bool? auth = response.data?.applianceAuthList?.any((e) => e.status != 2);
+          return auth;
+        }
+      }
+    }
+    return null;
+  }
 
   @override
   Future<void> fetchData();

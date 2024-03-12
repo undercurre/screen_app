@@ -183,7 +183,7 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
     return GestureDetector(
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
-          adapter.fetchData();
+          adapter.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           Log.i('数据缺失');
           return;
