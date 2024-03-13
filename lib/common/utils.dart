@@ -43,7 +43,7 @@ class TipsUtils {
   /// 轻提示弹窗
   static void toast({String content = '', int duration = 2000, EasyLoadingToastPosition? position}) {
     EasyLoading.showToast(
-        NameFormatter.formLimitString(content, 20, 15, 0),
+        NameFormatter.formLimitString(content, 25, 20, 0),
         duration: Duration(milliseconds: duration), toastPosition: position);
   }
 
