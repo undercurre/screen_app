@@ -31,7 +31,7 @@ Future<String> getWebSocketAddress() async {
   query += 'token=${MeiJuGlobal.token?.accessToken}&';
   query += 'appid=${dotenv.get('IOT_APP_COUNT')}&';
   query += 'client_type=4&';
-  query += 'reset=1&';
+  query += 'reset=0&';
   query += 'offset=0&';
   query += 'version=${await aboutSystemChannel.getSystemVersion()}&';
   query += 'timestamp=${DateTime.now().millisecondsSinceEpoch}&';
