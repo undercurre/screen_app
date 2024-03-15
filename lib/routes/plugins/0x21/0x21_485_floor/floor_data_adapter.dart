@@ -1,8 +1,11 @@
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -117,6 +120,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
             fetchOrderPowerMeiju(onOff);
+          } else {
+            fetchOrderPowerHomlux(onOff);
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
@@ -146,6 +151,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         if (isLocalDevice == false) {
           if (platform.inMeiju()) {
             fetchOrderTempMeiju(temp);
+          } else {
+            fetchOrderTempHomlux(temp);
           }
         } else {
           deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
@@ -234,6 +241,15 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     return MeijuRes;
   }
 
+  Future<HomluxResponseEntity> fetchOrderPowerHomlux(int onOff) async {
+    return HomluxDeviceApi.control485HeatFloorPower(masterId, applianceCode, onOff);
+  }
+
+  Future<HomluxResponseEntity> fetchOrderTempHomlux(int temp) async {
+    return HomluxDeviceApi.control485HeatFloorTemp(masterId, applianceCode, temp);
+  }
+
+
   @override
   void init() {
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
@@ -320,11 +336,6 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   Future<dynamic> fetchHomluxData() async {
-    dynamic HomluxRes = {};
-    return HomluxRes;
-  }
-
-  Future<void> fetchOrderPowerHomlux() async {
     dynamic HomluxRes = {};
     return HomluxRes;
   }
