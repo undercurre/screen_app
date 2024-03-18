@@ -83,6 +83,13 @@ class HomluxDeviceMzgdPropertyDTOList {
   HomluxDeviceMzgdPropertyDTOListAirCondition? airCondition;
   @JSONField(name: "clothesDryingRack")
   HomluxDeviceMzgdPropertyDTOListClothesDryingRack? clothesDryingRack;
+  @JSONField(name: "freshAir")
+  HomluxDeviceMzgdPropertyDTOListFreshAir? freshAir;
+  @JSONField(name: "airConditioner")
+  HomluxDeviceMzgdPropertyDTOListAir? air485Conditioner;
+  @JSONField(name: "floorHeating")
+  HomluxDeviceMzgdPropertyDTOListFloorHeating? floorHeating;
+
 
   HomluxDeviceMzgdPropertyDTOList();
 
@@ -94,6 +101,73 @@ class HomluxDeviceMzgdPropertyDTOList {
   String toString() {
     return jsonEncode(toJson());
   }
+}
+
+class HomluxDeviceMzgdPropertyDTOListFloorHeating {
+
+  int? mode;
+  int? power;
+  int? OnOff;
+  int? windSpeed;
+  int? currentTemperature;
+  int? targetTemperature;
+
+  HomluxDeviceMzgdPropertyDTOListFloorHeating();
+
+  factory HomluxDeviceMzgdPropertyDTOListFloorHeating.fromJson(Map<String, dynamic> json) =>
+      $HomluxDeviceMzgdPropertyDTOListFloorHeatingFromJson(json);
+
+  Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListFloorHeatingToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+}
+
+class HomluxDeviceMzgdPropertyDTOListAir {
+
+  int? mode;
+  int? power;
+  int? OnOff;
+  int? windSpeed;
+  int? currentTemperature;
+  int? targetTemperature;
+
+  HomluxDeviceMzgdPropertyDTOListAir();
+
+  factory HomluxDeviceMzgdPropertyDTOListAir.fromJson(Map<String, dynamic> json) =>
+      $HomluxDeviceMzgdPropertyDTOListAirFromJson(json);
+
+  Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListAirToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+}
+
+class HomluxDeviceMzgdPropertyDTOListFreshAir {
+
+  int? mode;
+  int? power;
+  int? OnOff;
+  int? windSpeed;
+
+  HomluxDeviceMzgdPropertyDTOListFreshAir();
+
+  factory HomluxDeviceMzgdPropertyDTOListFreshAir.fromJson(Map<String, dynamic> json) =>
+      $HomluxDeviceMzgdPropertyDTOListFreshAirFromJson(json);
+
+  Map<String, dynamic> toJson() => $HomluxDeviceMzgdPropertyDTOListFreshAirToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
 }
 
 @JsonSerializable()

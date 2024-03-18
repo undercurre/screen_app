@@ -173,7 +173,7 @@ class HomluxDeviceApi {
           options: Options(method: 'POST'),
           data: {'roomId': roomId});
 
-      if (res.success) {
+      if (res.isSuccess) {
         saveCacheData(res, res.result == null || res.result!.isEmpty);
         return res;
       }
@@ -342,7 +342,7 @@ class HomluxDeviceApi {
           options: Options(method: 'POST'),
           data: {'houseId': homeId});
 
-      if (res.success) {
+      if (res.isSuccess) {
         saveCache(res, res.result == null || res.result!.isEmpty);
         return res;
       }
@@ -397,7 +397,7 @@ class HomluxDeviceApi {
           options: Options(method: 'POST'),
           data: {'groupId': groupId});
 
-      if (res.success) {
+      if (res.isSuccess) {
         if (res.data != null) {
           groups['groupId'] = res.data!;
           LocalStorage.setItem(
@@ -1565,7 +1565,7 @@ class HomluxDeviceApi {
   /// [deviceId] 设备Id
   /// [windSpeed] 风速挡位 1 - 3
   /// *******************
-  static Future<HomluxResponseEntity> control485irWindSpeed(
+  static Future<HomluxResponseEntity> control485AirWindSpeed(
       String gatewayId, String deviceId, int windSpeed) {
     var cloudActions = [
       <String, dynamic>{

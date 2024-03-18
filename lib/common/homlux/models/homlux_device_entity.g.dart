@@ -199,13 +199,35 @@ HomluxDeviceMzgdPropertyDTOList $HomluxDeviceMzgdPropertyDTOListFromJson(Map<Str
 	if (bathHeat != null) {
 		homluxDeviceMzgdPropertyDTOList.bathHeat = bathHeat;
 	}
-	final HomluxDeviceMzgdPropertyDTOListAirCondition? airCondition = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListAirCondition>(json['airConditioner']);
-	if (airCondition != null) {
-		homluxDeviceMzgdPropertyDTOList.airCondition = airCondition;
-	}
+	/// 云端同名的json对象中包含字段相同，值的类型不同
+
+	/// 普通空调
+	try {
+		final HomluxDeviceMzgdPropertyDTOListAirCondition? airCondition = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListAirCondition>(json['airConditioner']);
+		if (airCondition != null) {
+			homluxDeviceMzgdPropertyDTOList.airCondition = airCondition;
+		}
+	} catch(e, s){}
+
+	/// 485空调
+	try {
+		final HomluxDeviceMzgdPropertyDTOListAir? airConditioner = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListAir>(json['airConditioner']);
+		if (airConditioner != null) {
+			homluxDeviceMzgdPropertyDTOList.air485Conditioner = airConditioner;
+		}
+	} catch(e ,s) {}
+
 	final HomluxDeviceMzgdPropertyDTOListClothesDryingRack? clothesDryingRack = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListClothesDryingRack>(json['clothesDryingRack']);
 	if (clothesDryingRack != null) {
 		homluxDeviceMzgdPropertyDTOList.clothesDryingRack = clothesDryingRack;
+	}
+	final HomluxDeviceMzgdPropertyDTOListFreshAir? freshAir = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListFreshAir>(json['freshAir']);
+	if (freshAir != null) {
+		homluxDeviceMzgdPropertyDTOList.freshAir = freshAir;
+	}
+	final HomluxDeviceMzgdPropertyDTOListFloorHeating? floorHeating = homluxJsonConvert.convert<HomluxDeviceMzgdPropertyDTOListFloorHeating>(json['floorHeating']);
+	if (floorHeating != null) {
+		homluxDeviceMzgdPropertyDTOList.floorHeating = floorHeating;
 	}
 	return homluxDeviceMzgdPropertyDTOList;
 }
@@ -221,6 +243,9 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListToJson(HomluxDeviceMzgdProp
 	data['bathHeat'] = entity.bathHeat?.toJson();
 	data['airConditioner'] = entity.airCondition?.toJson();
 	data['clothesDryingRack'] = entity.clothesDryingRack?.toJson();
+	data['floorHeating'] = entity.floorHeating?.toJson();
+	data['airConditioner'] = entity.air485Conditioner?.toJson();
+	data['freshAir'] = entity.freshAir?.toJson();
 	return data;
 }
 
@@ -944,6 +969,76 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListClothesDryingRackToJson(Hom
 		"location_status": entity.locationStatus,
 		"set_to_top": entity.setToTop
 	};
+}
+
+HomluxDeviceMzgdPropertyDTOListFloorHeating $HomluxDeviceMzgdPropertyDTOListFloorHeatingFromJson(Map<String, dynamic> json) {
+	HomluxDeviceMzgdPropertyDTOListFloorHeating entity = HomluxDeviceMzgdPropertyDTOListFloorHeating();
+	entity.mode = json["mode"];
+	entity.power = json["power"];
+	entity.windSpeed = json['windSpeed'];
+	entity.OnOff = json['OnOff'];
+	entity.currentTemperature = json['currentTemperature'];
+	entity.targetTemperature = json['targetTemperature'];
+	return entity;
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListFloorHeatingToJson(HomluxDeviceMzgdPropertyDTOListFloorHeating entity) {
+
+	return {
+		"mode": entity.mode,
+		"power": entity.power,
+		"OnOff": entity.OnOff,
+		"currentTemperature": entity.currentTemperature,
+		"targetTemperature": entity.targetTemperature,
+		"windSpeed": entity.windSpeed
+	};
+
+}
+
+
+HomluxDeviceMzgdPropertyDTOListAir $HomluxDeviceMzgdPropertyDTOListAirFromJson(Map<String, dynamic> json) {
+	HomluxDeviceMzgdPropertyDTOListAir entity = HomluxDeviceMzgdPropertyDTOListAir();
+	entity.mode = json["mode"];
+	entity.power = json["power"];
+	entity.windSpeed = json['windSpeed'];
+	entity.OnOff = json['OnOff'];
+	entity.currentTemperature = json['currentTemperature'];
+	entity.targetTemperature = json['targetTemperature'];
+	return entity;
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListAirToJson(HomluxDeviceMzgdPropertyDTOListAir entity) {
+
+	return {
+		"mode": entity.mode,
+		"power": entity.power,
+		"OnOff": entity.OnOff,
+		"currentTemperature": entity.currentTemperature,
+		"targetTemperature": entity.targetTemperature,
+		"windSpeed": entity.windSpeed
+	};
+
+}
+
+
+HomluxDeviceMzgdPropertyDTOListFreshAir $HomluxDeviceMzgdPropertyDTOListFreshAirFromJson(Map<String, dynamic> json) {
+	HomluxDeviceMzgdPropertyDTOListFreshAir entity = HomluxDeviceMzgdPropertyDTOListFreshAir();
+	entity.mode = json["mode"];
+	entity.power = json["power"];
+	entity.windSpeed = json['windSpeed'];
+	entity.OnOff = json['OnOff'];
+	return entity;
+}
+
+Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListFreshAirToJson(HomluxDeviceMzgdPropertyDTOListFreshAir entity) {
+
+	return {
+		"mode": entity.mode,
+		"power": entity.power,
+		"OnOff": entity.OnOff,
+		"windSpeed": entity.windSpeed
+	};
+
 }
 
 RemainingTime $RemainingTimeFromJson(Map<String, dynamic> json) {

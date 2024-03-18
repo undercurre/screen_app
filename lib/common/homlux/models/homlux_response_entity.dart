@@ -6,14 +6,16 @@ class HomluxResponseEntity<T> {
   String msg = '未知错误';
   int timestamp = -1;
   T? result;
-  bool success = true;
+  bool _success = true;
 
   /// 增加别名
   T? get data {
     return result;
   }
 
-  get isSuccess => code == 0 && success;
+  get isSuccess => code == 0 && _success;
+
+  set success(bool result) => _success = result;
 
   HomluxResponseEntity();
 
@@ -41,6 +43,6 @@ HomluxResponseEntity<T> $HomluxResponseEntityFromJson<T>(Map<String, dynamic>? j
   entity.msg = json?['msg'] ?? "网络错误";
   entity.timestamp = json?['timestamp'] ?? DateTime.now().millisecondsSinceEpoch;
   entity.result = HomluxJsonConvert.fromJsonAsT(json?['result']);
-  entity.success = json?['success'] ?? true;
+  entity._success = json?['success'] ?? true;
   return entity;
 }

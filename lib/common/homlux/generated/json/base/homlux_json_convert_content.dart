@@ -58,6 +58,9 @@ class HomluxJsonConvert {
     (Homlux485DeviceListNameValuePairs).toString(): Homlux485DeviceListNameValuePairs.fromJson,
     (Homlux485DeviceListNameValuePairsAirConditionList).toString(): Homlux485DeviceListNameValuePairsAirConditionList.fromJson,
     (Homlux485DeviceListNameValuePairsFreshAirList).toString(): Homlux485DeviceListNameValuePairsFreshAirList.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListFreshAir).toString(): HomluxDeviceMzgdPropertyDTOListFreshAir.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListAir).toString(): HomluxDeviceMzgdPropertyDTOListAir.fromJson,
+    (HomluxDeviceMzgdPropertyDTOListFloorHeating).toString(): HomluxDeviceMzgdPropertyDTOListFloorHeating.fromJson,
     (Homlux485DeviceListNameValuePairsFloorHotList).toString(): Homlux485DeviceListNameValuePairsFloorHotList.fromJson,
     (HomluxPanelAssociateSceneEntity).toString(): HomluxPanelAssociateSceneEntity.fromJson,
     (HomluxPanelAssociateSceneEntitySceneList).toString(): HomluxPanelAssociateSceneEntitySceneList.fromJson,
@@ -128,6 +131,15 @@ class HomluxJsonConvert {
     }
     if(<HomluxDeviceMzgdPropertyDTOList1>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOList1>((e) => HomluxDeviceMzgdPropertyDTOList1.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListFreshAir>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListFreshAir>((e) => HomluxDeviceMzgdPropertyDTOListFreshAir.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListAir>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListAir>((e) => HomluxDeviceMzgdPropertyDTOListAir.fromJson(e)).toList() as M;
+    }
+    if(<HomluxDeviceMzgdPropertyDTOListFloorHeating>[] is M) {
+      return data.map<HomluxDeviceMzgdPropertyDTOListFloorHeating>((e) => HomluxDeviceMzgdPropertyDTOListFloorHeating.fromJson(e)).toList() as M;
     }
     if(<HomluxDeviceMzgdPropertyDTOList2>[] is M) {
       return data.map<HomluxDeviceMzgdPropertyDTOList2>((e) => HomluxDeviceMzgdPropertyDTOList2.fromJson(e)).toList() as M;
