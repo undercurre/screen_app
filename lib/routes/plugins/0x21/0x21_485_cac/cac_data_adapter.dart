@@ -1,9 +1,15 @@
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+
 import '../../../../channel/index.dart';
 import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
 import '../../../../common/global.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -27,7 +33,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     nodeId: '',
     status: 0,
   );
-  dynamic _homluxData;
+  HomluxDeviceEntity? _homluxData;
   String name;
   String applianceCode;
   String masterId;
@@ -48,31 +54,30 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   String localDeviceCode = "0000";
 
-  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+  CACDataAdapter(super.platform, this.name, this.applianceCode, this.masterId,
+      this.modelNumber) {
     type = AdapterType.CRC485;
   }
 
   // Method to retrieve data from both platforms and construct PanelData object
   @override
   Future<void> fetchData() async {
-    logger.i("485空调初始化调用");
     if (isLocalDevice == false) {
       try {
         dataState = DataState.LOADING;
         if (platform.inMeiju()) {
-          logger.i("485空调获取美居数据");
           _meijuData = await fetchMeijuData();
+          if(_meijuData != null) {
+            data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
+          }
         } else {
           _homluxData = await fetchHomluxData();
+          if (_homluxData != null) {
+            data = CAC485Data.fromHomlux(_homluxData!, modelNumber);
+          }
         }
-        if (_meijuData != null) {
-          logger.i("485空调去拿美居数据");
-          data = CAC485Data.fromMeiJu(_meijuData, modelNumber);
-        } else if (_homluxData != null) {
-          data = CAC485Data.fromHomlux(_homluxData, modelNumber);
-        } else {
-          logger.i("485空调去拿美居数据出错,只能是初始值");
-          // If both platforms return null data, consider it an error state
+        dataState = DataState.SUCCESS;
+        if(data == null) {
           dataState = DataState.ERROR;
           data = CAC485Data(
               name: name,
@@ -82,11 +87,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
               operationMode: 4,
               OnOff: true,
               windSpeed: 1);
-          updateUI();
-          return;
         }
-        // Data retrieval success
-        dataState = DataState.SUCCESS;
         updateUI();
       } catch (e) {
         logger.i("485空调获取美居数据出错:${e.toString()}");
@@ -104,129 +105,69 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
       }
     } else {
       logger.i("485空调获取本地数据:$localDeviceCode");
-      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.cac.002");
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(
+          localDeviceCode, "zhonghong.cac.002");
     }
   }
 
   Future<void> orderPower(int onOff) async {
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
+    if (localDeviceCode.isNotEmpty && isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionPower(
           onOff.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485AirConditionPower(
-          onOff.toString(), applianceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485AirConditionPower(
-            onOff.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderPowerMeiju(onOff);
-        }
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderPowerMeiju(onOff);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderPowerMeiju(onOff);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485AirConditionPower(
-              onOff.toString(), applianceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderPowerHomlux(onOff);
       }
     }
   }
 
   Future<void> orderMode(int mode) async {
-
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
+    if (localDeviceCode.isNotEmpty && isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionModel(
           mode.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485AirConditionModel(
-          mode.toString(), localDeviceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485AirConditionModel(
-            mode.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderModeMeiju(mode);
-        }
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderModeMeiju(mode);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderModeMeiju(mode);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485AirConditionModel(
-              mode.toString(), localDeviceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderModeHomlux(mode);
       }
     }
-
   }
 
   Future<void> orderTemp(int temp) async {
-
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
+    if (isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
           temp.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
-          temp.toString(), localDeviceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
-            temp.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderTempMeiju(temp);
-        }
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderTempMeiju(temp);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderTempMeiju(temp);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485AirConditionTemper(
-              temp.toString(), localDeviceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderTempHomlux(temp);
       }
     }
-
   }
 
   Future<void> orderSpeed(int speed) async {
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
+    if (isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
           speed.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
-          speed.toString(), localDeviceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
-            speed.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderSpeedMeiju(speed);
-        }
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderSpeedMeiju(speed);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderSpeedMeiju(speed);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485AirConditionWindSpeed(
-              speed.toString(), localDeviceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderSpeedHomlux(speed);
       }
     }
-
   }
 
   Future<MeiJuResponseEntity> fetchOrderModeMeiju(int mode) async {
@@ -308,9 +249,25 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     return MeijuRes;
   }
 
+  Future<HomluxResponseEntity> fetchOrderSpeedHomlux(int speed) async {
+    return HomluxDeviceApi.control485AirWindSpeed(
+        masterId, applianceCode, speed);
+  }
+
+  Future<HomluxResponseEntity> fetchOrderTempHomlux(int temp) async {
+    return HomluxDeviceApi.control485AirTemp(masterId, applianceCode, temp);
+  }
+
+  Future<HomluxResponseEntity> fetchOrderModeHomlux(int mode) async {
+    return HomluxDeviceApi.control485AirMode(masterId, applianceCode, mode);
+  }
+
+  Future<HomluxResponseEntity> fetchOrderPowerHomlux(int power) async {
+    return HomluxDeviceApi.control485AirPower(masterId, applianceCode, power);
+  }
+
   @override
   void init() {
-    // Initialize the adapter and fetch data
     deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
@@ -322,37 +279,38 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     }
   }
 
+  void homluxPush(HomluxDevicePropertyChangeEvent args) {
+    if(!isLocalDevice && applianceCode == args.deviceInfo.eventData?.deviceId) {
+      fetchData();
+    }
+  }
+
   void _startPushListen() {
     if (platform.inMeiju()) {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
     }
   }
 
   void _stopPushListen() {
     if (platform.inMeiju()) {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    } else {
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
     }
   }
 
   void _local485StateCallback(Local485DeviceState state) {
-    if (state.modelId == "zhonghong.cac.002" && localDeviceCode == state.address) {
+    if (state.modelId == "zhonghong.cac.002" &&
+        localDeviceCode == state.address) {
       data = CAC485Data(
           name: name,
-          online: state.online==1?true:false,
+          online: state.online == 1 ? true : false,
           currTemp: state.currTemperature,
           targetTemp: state.temper,
           operationMode: state.mode,
-          OnOff: state.onOff==1?true:false,
-          windSpeed: state.speed);
-      updateUI();
-    } else if (state.modelId == "zhonghong.cac.002" && applianceCode == state.address) {
-      data = CAC485Data(
-          name: name,
-          online: state.online==1?true:false,
-          currTemp: state.currTemperature,
-          targetTemp: state.temper,
-          operationMode: state.mode,
-          OnOff: state.onOff==1?true:false,
+          OnOff: state.onOff == 1 ? true : false,
           windSpeed: state.speed);
       updateUI();
     }
@@ -360,7 +318,8 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   @override
   void destroy() {
-    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    deviceLocal485ControlChannel
+        .unregisterLocal485CallBack(_local485StateCallback);
     _stopPushListen();
   }
 
@@ -396,21 +355,27 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
     }
   }
 
-  Future<dynamic> fetchHomluxData() async {
-    dynamic HomluxRes = {};
-    return HomluxRes;
-  }
-
-  Future<void> fetchOrderPowerHomlux() async {
-    dynamic HomluxRes = {};
-    return HomluxRes;
+  Future<HomluxDeviceEntity?> fetchHomluxData() async {
+    try {
+      // 请求云端数据
+      HomluxResponseEntity<HomluxDeviceEntity> response = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+      if(response.isSuccess && response.result != null) {
+        return response.result;
+      }
+    } catch (e) {
+      Log.e("485空调状态请求", e);
+    }
+    return null;
   }
 
   Future<void> getLocalDeviceCode() async {
-    nodeId = await LocalStorage.getItem(applianceCode) ?? "";
-    String macAddr = await aboutSystemChannel.getMacAddress();
-    System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
-    if (applianceCode.length != 4) {
+    if(StrUtils.isNullOrEmpty(System.macAddress)) {
+      String macAddr = await aboutSystemChannel.getMacAddress();
+      System.macAddress = macAddr.replaceAll(":", "").toUpperCase();
+    }
+    if(platform.inMeiju()) {
+      nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+      // "nodeId": "F43C3BD9001C-4204"
       if (nodeId.isNotEmpty) {
         localDeviceCode = nodeId.split('-')[1];
         if (nodeId.split('-')[0] == System.macAddress) {
@@ -418,12 +383,21 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         } else {
           isLocalDevice = false;
         }
-      }else{
+      } else {
         isLocalDevice = false;
       }
-    } else {
-      isLocalDevice = true;
-      localDeviceCode=applianceCode;
+    } else if(platform.inHomlux()) {
+      // "deviceId": "F43C3BD9001C-4204"
+      if(StrUtils.isNotNullAndEmpty(applianceCode)) {
+        bool containResult = applianceCode.contains('-');
+        assert(containResult, "云端设备id规则出错，需包含 -，当前设备id为$applianceCode");
+        Log.e("wnp 当前设备 $applianceCode 为本地设备 $isLocalDevice");
+        if(containResult) {
+          var ids = applianceCode.split('-');
+          localDeviceCode = ids[1];
+          isLocalDevice = ids[0] == System.macAddress;
+        }
+      }
     }
   }
 }
@@ -461,17 +435,28 @@ class CAC485Data {
 
   CAC485Data.fromMeiJu(
       NodeInfo<Endpoint<CAC485Event>> data, String modelNumber) {
-    logger.i("485空调获取美居数据开关状态:${data.endList[0].event.OnOff}---名称:${data.endList[0].name}---当前温度:${data.endList[0].event.currTemp}---模式:${data.endList[0].event.operationMode}---目标温度:${data.endList[0].event.targetTemp}---风速:${data.endList[0].event.windSpeed}");
+    logger.i(
+        "485空调获取美居数据开关状态:${data.endList[0].event.OnOff}---名称:${data.endList[0].name}---当前温度:${data.endList[0].event.currTemp}---模式:${data.endList[0].event.operationMode}---目标温度:${data.endList[0].event.targetTemp}---风速:${data.endList[0].event.windSpeed}");
     name = data.endList[0].name ?? "空调";
     currTemp = int.parse(data.endList[0].event.currTemp);
-    targetTemp =int.parse(data.endList[0].event.targetTemp=="2600"?"26":data.endList[0].event.targetTemp);
+    targetTemp = int.parse(data.endList[0].event.targetTemp == "2600"
+        ? "26"
+        : data.endList[0].event.targetTemp);
     operationMode = int.parse(data.endList[0].event.operationMode);
-    OnOff = data.endList[0].event.OnOff=="1"?true:false;
+    OnOff = data.endList[0].event.OnOff == "1" ? true : false;
     windSpeed = int.parse(data.endList[0].event.windSpeed);
     online = true;
   }
 
-  CAC485Data.fromHomlux(dynamic data, String modelNumber) {}
+  CAC485Data.fromHomlux(HomluxDeviceEntity data, String modelNumber) {
+    name = data.deviceName ?? "空调";
+    operationMode = data.mzgdPropertyDTOList?.air485Conditioner?.mode ?? 0;
+    OnOff = data.mzgdPropertyDTOList?.air485Conditioner?.OnOff == 1;
+    windSpeed = data.mzgdPropertyDTOList?.air485Conditioner?.windSpeed ?? 0;
+    online = data.onLineStatus == 1;
+    currTemp = data.mzgdPropertyDTOList?.air485Conditioner?.windSpeed ?? 0;
+    targetTemp = data.mzgdPropertyDTOList?.air485Conditioner?.targetTemperature ?? 0;
+  }
 }
 
 class CAC485Event extends Event {

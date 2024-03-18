@@ -219,8 +219,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       // 换房间，重新初始布局该房间
       await layoutModel.removeLayouts();
       if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-        var res = await HomluxDeviceApi.queryDeviceListByRoomId(
-            System.roomInfo!.id!);
+        var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
         List<HomluxDeviceEntity>? devices = res.data;
         if (devices != null) {
           List<DeviceEntity> devicesReal = [];
@@ -235,15 +234,12 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             deviceObj.roomId = System.roomInfo?.id;
             deviceObj.masterId = e.gatewayId ?? '';
             deviceObj.onlineStatus = e.onLineStatus.toString();
-            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                deviceObj.type, deviceObj.modelNumber) !=
-                DeviceEntityTypeInP4.Default) {
+            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) != DeviceEntityTypeInP4.Default) {
               devicesReal.add(deviceObj);
             }
           });
           if (devicesReal.isNotEmpty) {
-            List<Layout> layoutData = deviceInfoListModel
-                .transformLayoutFromDeviceList(devicesReal);
+            List<Layout> layoutData = deviceInfoListModel.transformLayoutFromDeviceList(devicesReal);
             await layoutModel.setLayouts(layoutData);
           } else {
             await layoutModel.loadLayouts();

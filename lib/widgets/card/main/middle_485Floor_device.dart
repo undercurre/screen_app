@@ -13,7 +13,6 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   final bool isFault;
-  bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
@@ -36,30 +35,30 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
     this.onTap,
     this.onMoreTap,
     required this.isFault,
-    required this.isNative
   });
 
   @override
-  _Middle485FloorDeviceCardWidgetState createState() => _Middle485FloorDeviceCardWidgetState();
+  _Middle485FloorDeviceCardWidgetState createState() =>
+      _Middle485FloorDeviceCardWidgetState();
 }
 
-class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCardWidget> {
+class _Middle485FloorDeviceCardWidgetState
+    extends State<Middle485FloorDeviceCardWidget> {
   late FloorDataAdapter adapter;
-  
+
   @override
   void initState() {
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disable){
+    if (!widget.disable) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
 
   void updateData() {
     if (mounted) {
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -85,7 +84,8 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -96,15 +96,15 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'地暖${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
+        return '加载中';
       }
 
       return nameInModel;
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel =
+          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -116,12 +116,12 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
 
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
+        if (adapter.isLocalDevice && adapter.data!.online) {
           return "${adapter.data!.targetTemp}℃";
         }
         return '离线';
       } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
+        if (adapter.isLocalDevice && !adapter.data!.online) {
           return '离线';
         }
         return "${adapter.data!.targetTemp}℃";
@@ -168,8 +168,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
               child: Row(
                 children: [
                   ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 110 : 160),
+                    constraints: BoxConstraints(maxWidth: 160),
                     child: Text(
                       NameFormatter.formatName(getDeviceName(), 5),
                       maxLines: 1,
@@ -183,7 +182,7 @@ class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCar
                       ),
                     ),
                   ),
-                  if (widget.isNative||adapter.isLocalDevice)
+                  if (adapter.isLocalDevice)
                     Container(
                       alignment: Alignment.center,
                       width: 48,

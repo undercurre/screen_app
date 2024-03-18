@@ -5,7 +5,10 @@ import '../../../../channel/models/local_485_device_state.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
 import '../../../../common/api/api.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
 import '../../../../common/homlux/models/homlux_response_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/models/meiju_response_entity.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
@@ -29,7 +32,7 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     nodeId: '',
     status: 0,
   );
-  dynamic _homluxData;
+  HomluxDeviceEntity? _homluxData;
   String name;
   String applianceCode;
   String masterId;
@@ -37,11 +40,11 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   String modelNumber = '';
   bool isLocalDevice = false;
 
-  Floor485Data? data= Floor485Data(
+  Floor485Data? data = Floor485Data(
     name: "地暖",
     online: true,
     targetTemp: 26,
-    currentTemp:30,
+    currentTemp: 30,
     OnOff: true,
   );
 
@@ -49,7 +52,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   String localDeviceCode = "0000";
 
-  FloorDataAdapter(super.platform, this.name, this.applianceCode, this.masterId, this.modelNumber) {
+  FloorDataAdapter(super.platform, this.name, this.applianceCode, this.masterId,
+      this.modelNumber) {
     type = AdapterType.floor485;
   }
 
@@ -61,103 +65,69 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         dataState = DataState.LOADING;
         if (platform.inMeiju()) {
           _meijuData = await fetchMeijuData();
+          if(_meijuData != null) {
+            data = Floor485Data.fromMeiJu(_meijuData, modelNumber);
+          }
         } else {
           _homluxData = await fetchHomluxData();
+          if(_homluxData != null) {
+            data = Floor485Data.fromHomlux(_homluxData!, modelNumber);
+          }
         }
-        if (_meijuData != null) {
-          data = Floor485Data.fromMeiJu(_meijuData, modelNumber);
-        } else if (_homluxData != null) {
-          data = Floor485Data.fromHomlux(_homluxData, modelNumber);
-        } else {
-          // If both platforms return null data, consider it an error state
+        dataState = DataState.SUCCESS;
+        if(data == null) {
           dataState = DataState.ERROR;
           data = Floor485Data(
             name: name,
             online: true,
-            targetTemp: 26,
+            targetTemp: 30,
             OnOff: true,
             currentTemp: 30,
           );
-          return;
         }
-        // Data retrieval success
-        dataState = DataState.SUCCESS;
         updateUI();
-      } catch (e) {
-        // Error occurred while fetching data
+      } catch (e, stack) {
+        Log.e("485地暖错误", e, stack);
         dataState = DataState.ERROR;
         data = Floor485Data(
           name: name,
           online: true,
-          targetTemp: 26,
+          targetTemp: 31,
           currentTemp: 30,
           OnOff: true,
         );
       }
-    }else {
-      deviceLocal485ControlChannel.get485DeviceStateByAddr(localDeviceCode,"zhonghong.heat.001");
+    } else {
+      deviceLocal485ControlChannel.get485DeviceStateByAddr(
+          localDeviceCode, "zhonghong.heat.001");
     }
   }
 
   Future<void> orderPower(int onOff) async {
-
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
+    if (isLocalDevice) {
       deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
           onOff.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
-          onOff.toString(), localDeviceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
-            onOff.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderPowerMeiju(onOff);
-        }
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderPowerMeiju(onOff);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderPowerMeiju(onOff);
-          } else {
-            fetchOrderPowerHomlux(onOff);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485FloorHeatPower(
-              onOff.toString(), localDeviceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderPowerHomlux(onOff);
       }
     }
   }
 
   Future<void> orderTemp(int temp) async {
-    if (localDeviceCode.isNotEmpty&&isLocalDevice) {
-      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-          temp.toString(), localDeviceCode);
-    } else if (applianceCode.length == 4) {
-      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-          temp.toString(), localDeviceCode);
-    } else if (nodeId.isNotEmpty) {
-      bus.emit('operateDevice', nodeId);
-      if (nodeId.split('-')[0] == System.macAddress) {
-        localDeviceCode = nodeId.split('-')[1];
-        deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-            temp.toString(), localDeviceCode);
-        if (platform.inMeiju()) {
-          fetchOrderTempMeiju(temp);
-        }
+    if (isLocalDevice) {
+      deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(temp.toString(), localDeviceCode);
+    } else {
+      if (platform.inMeiju()) {
+        bus.emit('operateDevice', nodeId);
+        fetchOrderTempMeiju(temp);
       } else {
-        if (isLocalDevice == false) {
-          if (platform.inMeiju()) {
-            fetchOrderTempMeiju(temp);
-          } else {
-            fetchOrderTempHomlux(temp);
-          }
-        } else {
-          deviceLocal485ControlChannel.controlLocal485FloorHeatTemper(
-              temp.toString(), localDeviceCode);
-        }
+        bus.emit('operateDevice', applianceCode);
+        fetchOrderTempHomlux(temp);
       }
     }
   }
@@ -242,23 +212,31 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   }
 
   Future<HomluxResponseEntity> fetchOrderPowerHomlux(int onOff) async {
-    return HomluxDeviceApi.control485HeatFloorPower(masterId, applianceCode, onOff);
+    return HomluxDeviceApi.control485HeatFloorPower(
+        masterId, applianceCode, onOff);
   }
 
   Future<HomluxResponseEntity> fetchOrderTempHomlux(int temp) async {
-    return HomluxDeviceApi.control485HeatFloorTemp(masterId, applianceCode, temp);
+    return HomluxDeviceApi.control485HeatFloorTemp(
+        masterId, applianceCode, temp);
   }
-
 
   @override
   void init() {
-    deviceLocal485ControlChannel.registerLocal485CallBack(_local485StateCallback);
+    deviceLocal485ControlChannel
+        .registerLocal485CallBack(_local485StateCallback);
     getLocalDeviceCode();
     _startPushListen();
   }
 
   void meijuPush(MeiJuSubDevicePropertyChangeEvent args) {
-    if (nodeId==args.nodeId) {
+    if (nodeId == args.nodeId) {
+      fetchData();
+    }
+  }
+
+  void homluxPush(HomluxDevicePropertyChangeEvent args) {
+    if(!isLocalDevice && applianceCode == args.deviceInfo.eventData?.deviceId) {
       fetchData();
     }
   }
@@ -266,33 +244,38 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
   void _startPushListen() {
     if (platform.inMeiju()) {
       bus.typeOn<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    } else {
+      bus.typeOn<HomluxDevicePropertyChangeEvent>(homluxPush);
     }
   }
 
   void _stopPushListen() {
     if (platform.inMeiju()) {
       bus.typeOff<MeiJuSubDevicePropertyChangeEvent>(meijuPush);
+    } else {
+      bus.typeOff<HomluxDevicePropertyChangeEvent>(homluxPush);
     }
   }
 
   void _local485StateCallback(Local485DeviceState state) {
-    if (state.modelId == "zhonghong.heat.001" && localDeviceCode == state.address) {
+    if (state.modelId == "zhonghong.heat.001" &&
+        localDeviceCode == state.address) {
       data = Floor485Data(
         name: name,
-        online: state.online==1?true:false,
+        online: state.online == 1 ? true : false,
         targetTemp: state.temper,
-        OnOff: state.onOff==1?true:false,
+        OnOff: state.onOff == 1 ? true : false,
         currentTemp: state.currTemperature,
       );
       updateUI();
-    }else if(state.modelId=="zhonghong.heat.001"&&applianceCode==state.address){
+    } else if (state.modelId == "zhonghong.heat.001" &&
+        applianceCode == state.address) {
       data = Floor485Data(
         name: name,
-        online: state.online==1?true:false,
+        online: state.online == 1 ? true : false,
         targetTemp: state.temper,
-        OnOff: state.onOff==1?true:false,
+        OnOff: state.onOff == 1 ? true : false,
         currentTemp: state.currTemperature,
-
       );
       updateUI();
     }
@@ -300,7 +283,8 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   @override
   void destroy() {
-    deviceLocal485ControlChannel.unregisterLocal485CallBack(_local485StateCallback);
+    deviceLocal485ControlChannel
+        .unregisterLocal485CallBack(_local485StateCallback);
     _stopPushListen();
   }
 
@@ -335,16 +319,28 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
     }
   }
 
-  Future<dynamic> fetchHomluxData() async {
-    dynamic HomluxRes = {};
-    return HomluxRes;
+  Future<HomluxDeviceEntity?> fetchHomluxData() async {
+    try {
+      // 请求云端数据
+      HomluxResponseEntity<HomluxDeviceEntity> response =
+          await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+      if (response.isSuccess && response.result != null) {
+        return response.result;
+      }
+    } catch (e, stack) {
+      Log.e("485空调状态请求", e, stack);
+    }
+    return null;
   }
 
   Future<void> getLocalDeviceCode() async {
-    nodeId = await LocalStorage.getItem(applianceCode) ?? "";
-    String macAddr = await aboutSystemChannel.getMacAddress();
-    System.macAddress=macAddr.replaceAll(":", "").toUpperCase();
-    if (applianceCode.length != 4) {
+    if (StrUtils.isNullOrEmpty(System.macAddress)) {
+      String macAddr = await aboutSystemChannel.getMacAddress();
+      System.macAddress = macAddr.replaceAll(":", "").toUpperCase();
+    }
+    if (platform.inMeiju()) {
+      nodeId = await LocalStorage.getItem(applianceCode) ?? "";
+      // "nodeId": "F43C3BD9001C-4204"
       if (nodeId.isNotEmpty) {
         localDeviceCode = nodeId.split('-')[1];
         if (nodeId.split('-')[0] == System.macAddress) {
@@ -352,15 +348,23 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         } else {
           isLocalDevice = false;
         }
-      }else{
+      } else {
         isLocalDevice = false;
       }
-    } else {
-      isLocalDevice = true;
-      localDeviceCode=applianceCode;
+    } else if (platform.inHomlux()) {
+      // "deviceId": "F43C3BD9001C-4204"
+      if (StrUtils.isNotNullAndEmpty(applianceCode)) {
+        bool containResult = applianceCode.contains('-');
+        assert(containResult, "云端设备id规则出错，需包含 -，当前设备id为$applianceCode");
+        Log.e("wnp 当前设备 $applianceCode 为本地设备 $isLocalDevice");
+        if (containResult) {
+          var ids = applianceCode.split('-');
+          localDeviceCode = ids[1];
+          isLocalDevice = ids[0] == System.macAddress;
+        }
+      }
     }
   }
-
 }
 
 // The rest of the code for PanelData class remains the same as before
@@ -371,13 +375,12 @@ class Floor485Data {
   // 设定温度
   int targetTemp = 26;
 
-  int currentTemp=20;
+  int currentTemp = 20;
 
   // 开关状态
   bool OnOff = false;
 
   bool online = true;
-
 
   Floor485Data({
     required this.name,
@@ -392,10 +395,15 @@ class Floor485Data {
     name = data.endList[0].name ?? "地暖";
     targetTemp = int.parse(data.endList[0].event.targetTemp);
     currentTemp = int.parse(data.endList[0].event.currTemp);
-    OnOff = data.endList[0].event.OnOff=="1"?true:false;
+    OnOff = data.endList[0].event.OnOff == "1" ? true : false;
   }
 
-  Floor485Data.fromHomlux(dynamic data, String modelNumber) {}
+  Floor485Data.fromHomlux(HomluxDeviceEntity data, String modelNumber) {
+    name = data.deviceName ?? "地暖";
+    currentTemp = data.mzgdPropertyDTOList?.floorHeating?.currentTemperature ?? 0;
+    targetTemp = data.mzgdPropertyDTOList?.floorHeating?.targetTemperature ?? 0;
+    OnOff = data.mzgdPropertyDTOList?.floorHeating?.OnOff == 1;
+  }
 }
 
 class Floor485Event extends Event {
@@ -418,7 +426,6 @@ class Floor485Event extends Event {
       OnOff: json['OnOff'].toString(),
       targetTemp: json['targetTemp'].toString(),
       currTemp: json['currTemp'].toString(),
-
     );
   }
 

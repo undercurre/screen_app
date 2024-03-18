@@ -12,7 +12,6 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
   final String name;
   final bool localOnline = false;
   final bool isFault;
-  final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
@@ -37,7 +36,6 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       required this.adapterGenerateFunction,
       this.onMoreTap,
       required this.isFault,
-      required this.isNative,
       this.onChanging,
       this.onChanged,
       required this.min,
@@ -122,9 +120,7 @@ class _Big485CACDeviceAirCardWidgetState
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative
-            ? '空调${adapter.localDeviceCode.isNotEmpty ? adapter.localDeviceCode.substring(2, 4) : ""}'
-            : '加载中';
+        return '加载中';
       }
 
       return nameInModel;
@@ -214,7 +210,7 @@ class _Big485CACDeviceAirCardWidgetState
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
+                        BoxConstraints(maxWidth: 140),
                     child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -256,7 +252,7 @@ class _Big485CACDeviceAirCardWidgetState
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative || adapter.isLocalDevice)
+                if (adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,

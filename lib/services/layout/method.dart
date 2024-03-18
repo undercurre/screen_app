@@ -13,6 +13,7 @@ import '../../routes/home/device/layout_data.dart';
 import '../../states/device_list_notifier.dart';
 import '../../states/layout_notifier.dart';
 import '../../states/scene_list_notifier.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 Future<bool> auto2Layout(BuildContext context) async {
   try {
@@ -146,7 +147,7 @@ Future<bool> auto2Layout(BuildContext context) async {
         .toList();
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(groupItem.type, groupItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
         CardType.Big,
         -1,
         [],
@@ -166,7 +167,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> panelNeed = deviceNeed.where((e) => panelCardTypeList.containsKey(e.modelNumber)).toList();
     tempLayoutList.addAll(panelNeed.map((panelItem) => Layout(
         panelItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(panelItem.type, panelItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(panelItem.type, panelItem.modelNumber),
         panelCardTypeList[panelItem.modelNumber] ?? CardType.Small,
         -1,
         [],
@@ -195,7 +196,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     }
     tempLayoutList.addAll(singleLightNeed.map((singleLightItem) => Layout(
         singleLightItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(singleLightItem.type, singleLightItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(singleLightItem.type, singleLightItem.modelNumber),
         CardType.Small,
         -1,
         [],
@@ -215,7 +216,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> curtainNeed = deviceNeed.where((e) => e.type == '0x14').toList();
     tempLayoutList.addAll(curtainNeed.map((curtainItem) => Layout(
         curtainItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(curtainItem.type, curtainItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(curtainItem.type, curtainItem.modelNumber),
         CardType.Big,
         -1,
         [],
@@ -235,7 +236,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017')).toList();
     tempLayoutList.addAll(airConditionNeed.map((airConditionItem) => Layout(
         airConditionItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(airConditionItem.type, airConditionItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(airConditionItem.type, airConditionItem.modelNumber),
         CardType.Small,
         -1,
         [],
@@ -255,7 +256,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3018').toList();
     tempLayoutList.addAll(freshAirNeed.map((freshAirItem) => Layout(
         freshAirItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(freshAirItem.type, freshAirItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(freshAirItem.type, freshAirItem.modelNumber),
         CardType.Small,
         -1,
         [],
@@ -275,7 +276,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3019').toList();
     tempLayoutList.addAll(floorHeatNeed.map((floorHeatItem) => Layout(
         floorHeatItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(floorHeatItem.type, floorHeatItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(floorHeatItem.type, floorHeatItem.modelNumber),
         CardType.Small,
         -1,
         [],
@@ -295,7 +296,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> yubaNeed = deviceNeed.where((e) => e.type == '0x26').toList();
     tempLayoutList.addAll(yubaNeed.map((yubaItem) => Layout(
         yubaItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(yubaItem.type, yubaItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(yubaItem.type, yubaItem.modelNumber),
         CardType.Big,
         -1,
         [],
@@ -315,7 +316,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> liangyijiaNeed = deviceNeed.where((e) => e.type == '0x17').toList();
     tempLayoutList.addAll(liangyijiaNeed.map((liangyijiaItem) => Layout(
         liangyijiaItem.applianceCode,
-        getDeviceEntityTypeByTypeOrModelNumber(liangyijiaItem.type, liangyijiaItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(liangyijiaItem.type, liangyijiaItem.modelNumber),
         CardType.Big,
         -1,
         [],
@@ -411,48 +412,6 @@ Future<bool> auto2Layout(BuildContext context) async {
   } catch (e) {
     return false;
   }
-}
-
-DeviceEntityTypeInP4 getDeviceEntityTypeByTypeOrModelNumber(String type, String? modelNum) {
-  for (var deviceType in DeviceEntityTypeInP4.values) {
-    if (type == '0x21') {
-      List<String> shuidianqi = ['1114', '1113', '82', '83', '23'];
-      if (shuidianqi.contains(modelNum)) {
-        return DeviceEntityTypeInP4.Default;
-      }
-      if (deviceType.toString() == 'DeviceEntityTypeInP4.Zigbee_$modelNum') {
-        return deviceType;
-      }
-      if (deviceType.name == modelNum) {
-        return deviceType;
-      }
-    } else if (type.contains('localPanel1')) {
-      return DeviceEntityTypeInP4.LocalPanel1;
-    } else if (type.contains('localPanel2')) {
-      return DeviceEntityTypeInP4.LocalPanel2;
-    } else if (type == '0x13' && modelNum == 'homluxZigbeeLight') {
-      return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
-    } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
-      return DeviceEntityTypeInP4.homlux_lightGroup;
-    } else if (type == '3017') {
-      return DeviceEntityTypeInP4.Zigbee_3017;
-    } else if (type == '3018') {
-      return DeviceEntityTypeInP4.Zigbee_3018;
-    } else if (type == '3018') {
-      return DeviceEntityTypeInP4.Zigbee_3019;
-    } else if (type == 'clock') {
-      return DeviceEntityTypeInP4.Clock;
-    } else if (type == 'weather') {
-      return DeviceEntityTypeInP4.Weather;
-    } else if (type == 'scene') {
-      return DeviceEntityTypeInP4.Scene;
-    } else {
-      if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
-        return deviceType;
-      }
-    }
-  }
-  return DeviceEntityTypeInP4.Default;
 }
 
 int getMaxPageIndexOfLayoutList(List<Layout> layouts) {

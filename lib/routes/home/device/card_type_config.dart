@@ -17,8 +17,6 @@ import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
 import '../../../common/adapter/knob_panel_data_adapter.dart';
-import '../../../common/logcat_helper.dart';
-import '../../../common/system.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
 import '../../../widgets/card/main/big_485CAC_device.dart';
@@ -168,12 +166,6 @@ enum DeviceEntityTypeInP4 {
   Zigbee_80,
   Zigbee_81,
   Zigbee_22,
-  // 485空调
-  Zigbee_3017,
-  // 485新风
-  Zigbee_3018,
-  // 485地暖
-  Zigbee_3019,
   // homlux面板
   Zigbee_homlux1,
   Zigbee_homlux2,
@@ -184,7 +176,14 @@ enum DeviceEntityTypeInP4 {
   // homluxZigbee灯
   Zigbee_homluxZigbeeLight,
   // homlux灯组
-  homlux_lightGroup
+  homlux_lightGroup,
+  // 485空调
+  Zigbee_3017,
+  // 485新风
+  Zigbee_3018,
+  // 485地暖
+  Zigbee_3019,
+
 }
 
 class DataInputCard {
@@ -1528,15 +1527,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCC.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1555,15 +1553,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCC.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1573,7 +1570,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
                       params.name,
                       params.applianceCode,
                       params.masterId,
-                      params.modelNumber,
+                      params.modelNumber
                     ));
           },
         ),
@@ -1581,7 +1578,6 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           name: params.name,
           roomName: params.roomName,
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           min: 16,
           max: 30,
           applianceCode: params.applianceCode,
@@ -1594,7 +1590,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
                       params.name,
                       params.applianceCode,
                       params.masterId,
-                      params.modelNumber,
+                      params.modelNumber
                     ));
           },
         ),
@@ -1605,15 +1601,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCE.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1632,15 +1627,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCE.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1658,7 +1652,6 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           name: params.name,
           roomName: params.roomName,
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           applianceCode: params.applianceCode,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
@@ -1668,8 +1661,8 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
                       MideaRuntimePlatform.platform,
                       params.name,
                       params.applianceCode,
-                      params.masterId!,
-                      params.modelNumber!,
+                      params.masterId,
+                      params.modelNumber,
                     ));
           },
         ),
@@ -1680,15 +1673,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCF.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1707,15 +1699,14 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           applianceCode: params.applianceCode,
           modelNumber: params.modelNumber,
           masterId: params.masterId,
-          icon: Image(
-            image: AssetImage('assets/newUI/device/0x21_${params.modelNumber}.png'),
+          icon: const Image(
+            image: AssetImage('assets/newUI/device/0xCF.png'),
           ),
           roomName: params.roomName,
           characteristic: '',
           onTap: () => {},
           onMoreTap: () => {},
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           disable: params.disabled ?? false,
           adapterGenerateFunction: (id) {
             return MideaDataAdapter.getOrCreateAdapter(
@@ -1733,7 +1724,6 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
           name: params.name,
           roomName: params.roomName,
           isFault: false,
-          isNative: System.inMeiJuPlatform() ? false : true,
           min: 5,
           max: 90,
           applianceCode: params.applianceCode,

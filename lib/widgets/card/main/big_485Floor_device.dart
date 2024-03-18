@@ -10,7 +10,6 @@ import '../../util/nameFormatter.dart';
 class Big485FloorDeviceAirCardWidget extends StatefulWidget {
   final String name;
   final bool isFault;
-  final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   final String applianceCode;
@@ -36,7 +35,6 @@ class Big485FloorDeviceAirCardWidget extends StatefulWidget {
       required this.roomName,
       this.onMoreTap,
       required this.isFault,
-      required this.isNative,
       this.onChanging,
       this.onChanged,
       required this.min,
@@ -117,7 +115,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'地暖${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
+        return '加载中';
       }
 
       return nameInModel;
@@ -207,7 +205,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
+                        BoxConstraints(maxWidth: 140),
                     child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -249,7 +247,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative||adapter.isLocalDevice)
+                if (adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,

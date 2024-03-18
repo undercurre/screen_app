@@ -221,80 +221,10 @@ class DeviceInfoListModel extends ChangeNotifier {
       if(familyInfo==null){
         return [];
       }
-      HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes =
-          await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo!.familyId);
+      HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes = await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo.familyId);
       if (HomluxRes.isSuccess) {
         deviceListHomlux = HomluxRes.data!;
         notifyListeners();
-
-        ///homlux添加本地485设备
-        Homlux485DeviceListEntity? deviceList =
-            HomluxGlobal.getHomlux485DeviceList;
-
-        ///homlux添加本地485空调设备
-        if(deviceList!.nameValuePairs!=null&&deviceList.nameValuePairs!.airConditionList!=null){
-          for (int i = 0; i < deviceList!.nameValuePairs!.airConditionList!.length; i++) {
-            HomluxDeviceEntity device = HomluxDeviceEntity();
-            device.deviceName =
-            "空调${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
-            device.deviceId =
-            "${(deviceList!.nameValuePairs!.airConditionList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.airConditionList![i].inSideAddress)!}";
-            device.proType = "0x21";
-            device.deviceType = 3017;
-            device.roomName = System.roomInfo?.name;
-            device.roomId = System.roomInfo?.id;
-            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-            String? online =
-                deviceList!.nameValuePairs!.airConditionList![i].onlineState;
-            device.onLineStatus = int.parse(online!);
-            deviceListHomlux.add(device);
-          }
-        }
-
-        ///homlux添加本地485新风设备
-        if(deviceList.nameValuePairs!=null&&deviceList.nameValuePairs!.freshAirList!=null){
-          for (int i = 0;
-          i < deviceList!.nameValuePairs!.freshAirList!.length;
-          i++) {
-            HomluxDeviceEntity device = HomluxDeviceEntity();
-            device.deviceName =
-            "新风${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
-            device.deviceId =
-            "${(deviceList!.nameValuePairs!.freshAirList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.freshAirList![i].inSideAddress)!}";
-            device.proType = "0x21";
-            device.deviceType = 3018;
-            device.roomName = System.roomInfo?.name;
-            device.roomId = System.roomInfo?.id;
-            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-            String? online =
-                deviceList!.nameValuePairs!.freshAirList![i].onlineState;
-            device.onLineStatus = int.parse(online!);
-            deviceListHomlux.add(device);
-          }
-        }
-
-        ///homlux添加本地485地暖设备
-        if(deviceList.nameValuePairs!=null&&deviceList.nameValuePairs!.floorHotList!=null){
-          for (int i = 0;
-          i < deviceList!.nameValuePairs!.floorHotList!.length;
-          i++) {
-            HomluxDeviceEntity device = HomluxDeviceEntity();
-            device.deviceName =
-            "地暖${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
-            device.deviceId =
-            "${(deviceList!.nameValuePairs!.floorHotList![i].outSideAddress)!}${(deviceList!.nameValuePairs!.floorHotList![i].inSideAddress)!}";
-            device.proType = "0x21";
-            device.deviceType = 3019;
-            device.roomName = System.roomInfo?.name;
-            device.roomId = System.roomInfo?.id;
-            device.gatewayId = HomluxGlobal.gatewayApplianceCode;
-            String? online =
-                deviceList!.nameValuePairs!.floorHotList![i].onlineState;
-            device.onLineStatus = int.parse(online!);
-            deviceListHomlux.add(device);
-          }
-        }
-
 
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -748,10 +678,7 @@ class DeviceInfoListModel extends ChangeNotifier {
 }
 
 String getModelNumber(HomluxDeviceEntity e) {
-  List<int> ac485List = [3017, 3018, 3019];
-  if (e.proType == '0x21' && ac485List.contains(e.deviceType)) {
-    return e.deviceType.toString();
-  } else if (e.proType == '0x21') {
+  if (e.proType == '0x21') {
     if(e.productId == "midea.knob.001.003") {
       return "homluxKonbDimmingPanel";
     } else {
@@ -765,6 +692,18 @@ String getModelNumber(HomluxDeviceEntity e) {
 
   if (e.proType == '0x13' && e.deviceType == 4) {
     return 'homluxLightGroup';
+  }
+
+  if(e.proType == '0xCF' && e.deviceType == 2) {
+    return '3019';
+  }
+
+  if(e.proType == '0xCE' && e.deviceType == 2) {
+    return '3018';
+  }
+
+  if(e.proType == '0xCC' && e.deviceType == 2) {
+    return '3017';
   }
 
   return e.deviceType.toString();

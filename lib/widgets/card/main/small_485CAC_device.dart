@@ -15,7 +15,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   final bool isFault;
-  final bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
@@ -39,7 +38,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
     this.onTap,
     this.onMoreTap,
     required this.isFault,
-    required this.isNative,
   });
 
   @override
@@ -104,7 +102,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative?'空调${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}':'加载中';
+        return '加载中';
       }
 
       return nameInModel;
@@ -169,7 +167,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
                       ),
                     ),
                   ),
-                  if (widget.isNative||adapter.isLocalDevice)
+                  if (adapter.isLocalDevice)
                     Container(
                       margin: const EdgeInsets.only(left: 0),
                       width: 36,

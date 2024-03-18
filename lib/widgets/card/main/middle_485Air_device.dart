@@ -14,7 +14,6 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
   final String? masterId;
   final Widget icon;
   final bool isFault;
-  final bool isNative;
   final String roomName;
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
@@ -37,7 +36,6 @@ class Middle485AirDeviceCardWidget extends StatefulWidget {
     this.onTap,
     this.onMoreTap,
     required this.isFault,
-    required this.isNative,
     required this.adapterGenerateFunction,
   });
 
@@ -102,9 +100,7 @@ class _Middle485AirDeviceCardWidgetState
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return  widget.isNative
-            ? '新风${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}'
-            : '加载中';
+        return '加载中';
       }
 
       return nameInModel;
@@ -198,7 +194,7 @@ class _Middle485AirDeviceCardWidgetState
                 children: [
                   ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 110 : 160),
+                        BoxConstraints(maxWidth: 160),
                     child: Text(
                       NameFormatter.formatName(getDeviceName(), 5),
                       maxLines: 1,
@@ -212,7 +208,7 @@ class _Middle485AirDeviceCardWidgetState
                       ),
                     ),
                   ),
-                  if (widget.isNative||adapter.isLocalDevice)
+                  if (adapter.isLocalDevice)
                     Container(
                       alignment: Alignment.center,
                       width: 48,

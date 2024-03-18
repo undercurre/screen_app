@@ -10,7 +10,6 @@ import '../../util/nameFormatter.dart';
 class Big485AirDeviceAirCardWidget extends StatefulWidget {
   final String name;
   final bool isFault;
-  final bool isNative;
   final String roomName;
   final Function? onMoreTap; // 右边的三点图标的点击事件
   //----
@@ -30,7 +29,6 @@ class Big485AirDeviceAirCardWidget extends StatefulWidget {
       required this.roomName,
       this.onMoreTap,
       required this.isFault,
-      required this.isNative,
       this.onChanging,
       this.onChanged,
       required this.disable,
@@ -134,9 +132,7 @@ class _Big485AirDeviceAirCardWidgetState
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
-        return widget.isNative
-            ? '新风${adapter.localDeviceCode.isNotEmpty?adapter.localDeviceCode.substring(2,4):""}'
-            : '加载中';
+        return '加载中';
       }
 
       return nameInModel;
@@ -226,7 +222,7 @@ class _Big485AirDeviceAirCardWidgetState
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
+                        BoxConstraints(maxWidth: 140),
                     child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -268,7 +264,7 @@ class _Big485AirDeviceAirCardWidgetState
                             decoration: TextDecoration.none)),
                   ),
                 ),
-                if (widget.isNative||adapter.isLocalDevice)
+                if (adapter.isLocalDevice)
                   Container(
                     alignment: Alignment.center,
                     width: 48,

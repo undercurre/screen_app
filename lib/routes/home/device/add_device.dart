@@ -97,7 +97,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
     try {
       SelectRoomDataAdapter roomDataAd =
           SelectRoomDataAdapter(MideaRuntimePlatform.platform);
-      await roomDataAd?.queryRoomList(System.familyInfo!);
+      await roomDataAd.queryRoomList(System.familyInfo!);
       homluxRoomList = roomDataAd.homluxRoomList;
       meijuRoomList = roomDataAd.meijuRoomList;
 
@@ -167,49 +167,6 @@ class _AddDevicePageState extends State<AddDevicePage> {
                   e.type, e.modelNumber) !=
               DeviceEntityTypeInP4.Default)
           .toList();
-      // List<SceneInfoEntity> sceneRes = sceneListModel.getCacheSceneList();
-      // if (deviceRes
-      //         .where((element) => element.roomId == roomID)
-      //         .toList()
-      //         .length >
-      //     8) {
-      //   devicesAll = deviceRes
-      //       .where((element) => element.roomId == roomID)
-      //       .toList()
-      //       .where((e) =>
-      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
-      //               e.type, e.modelNumber) !=
-      //           DeviceEntityTypeInP4.Default)
-      //       .toList()
-      //       .sublist(0, 8);
-      // } else {
-      //   devicesAll = deviceRes
-      //       .where((element) => element.roomId == roomID)
-      //       .toList()
-      //       .where((e) =>
-      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
-      //               e.type, e.modelNumber) !=
-      //           DeviceEntityTypeInP4.Default)
-      //       .toList();
-      // }
-      // if (sceneRes.length > 8) {
-      //   scenesAll = sceneRes.sublist(0, 8);
-      // } else {
-      //   scenesAll = sceneRes;
-      // }
-      // await Future.delayed(const Duration(milliseconds: 500));
-      // if (sceneRes.length > 8) {
-      //   scenesAll.addAll(sceneRes.sublist(8));
-      // }
-      // if (deviceRes.length > 8) {
-      //   devicesAll.addAll(deviceRes
-      //       .sublist(8)
-      //       .where((e) =>
-      //           DeviceEntityTypeInP4Handle.getDeviceEntityType(
-      //               e.type, e.modelNumber) !=
-      //           DeviceEntityTypeInP4.Default)
-      //       .toList());
-      // }
       selectRoom(roomID);
     } catch (e) {
       Log.i('设备、场景数据加载失败');
