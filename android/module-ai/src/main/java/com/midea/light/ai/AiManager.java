@@ -52,7 +52,7 @@ public class AiManager {
         return Instance;
     }
 
-    private void addService(IMideaLightAIdlInterface s) {
+    private void addService(IMideaLightAIdlInterface s,boolean isBind) {
         sever = s;
         try {
             sever.setServerInitialBack(new IMideaLightServerInitialCallBack.Stub() {
@@ -70,7 +70,7 @@ public class AiManager {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        BindCallBack.isServerBind(true);
+        BindCallBack.isServerBind(isBind);
     }
 
     public void setDeviceInfor(String sn, String deviceType, String deviceCode, String mac) {
@@ -92,13 +92,14 @@ public class AiManager {
     }
 
 
-
+    boolean isBind=false;
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.e("sky", "MideaAiService已启动");
             IMideaLightAIdlInterface.Stub.asInterface(binder);
-            addService(IMideaLightAIdlInterface.Stub.asInterface(binder));
+            addService(IMideaLightAIdlInterface.Stub.asInterface(binder),!isBind);
+            isBind=true;
         }
 
         @Override
@@ -107,6 +108,7 @@ public class AiManager {
             sever = null;
             //ServiceConnection.onServiceDisconnected() 方法是在 Service 和客户端之间的连接意外中断时调用的。
             // 这种情况通常是由于 Service 崩溃或被系统杀死导致的。
+            isBind=false;
             MainThread.postDelayed(() -> {
                 try {
                     intent = new Intent(context, MideaAiService.class);
