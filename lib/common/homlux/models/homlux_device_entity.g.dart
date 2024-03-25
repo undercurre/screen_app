@@ -846,7 +846,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(HomluxDevice
 
 HomluxDeviceMzgdPropertyDTOListAirCondition $HomluxDeviceMzgdPropertyDTOListAirConditionFromJson(Map<String, dynamic> json) {
 	return HomluxDeviceMzgdPropertyDTOListAirCondition(
-		smallTemperature: double.parse(json["small_temperature"].toString()),
+		smallTemperature: json["small_temperature"]!=null?double.parse(json["small_temperature"].toString()):0,
 		indoorTemperature: json['indoor_temperature'],
 		windSwingLrUnder: json['wind_swing_lr_under'],
 		windSwingLr: json['wind_swing_lr'],
@@ -854,7 +854,7 @@ HomluxDeviceMzgdPropertyDTOListAirCondition $HomluxDeviceMzgdPropertyDTOListAirC
 		powerOffTimeValue: json['power_off_time_value'],
 		kickQuilt: json['kick_quilt'],
 		dustFullTime: json['dust_full_time'],
-		mode: json['mode'],
+		mode: json['mode'].toString(),
 		eco: json['eco'],
 		purifier: json['purifier'],
 		naturalWind: json['natural_wind'],

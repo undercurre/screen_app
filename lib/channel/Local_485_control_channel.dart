@@ -5,7 +5,10 @@ import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/common/homlux/models/homlux_485_device_list_entity.dart';
 
 import '../common/gateway_platform.dart';
+import '../common/homlux/api/homlux_device_api.dart';
 import '../common/homlux/homlux_global.dart';
+import '../common/homlux/models/homlux_device_entity.dart';
+import '../common/homlux/models/homlux_response_entity.dart';
 import '../common/meiju/api/meiju_device_api.dart';
 import '../common/meiju/meiju_global.dart';
 import '../common/meiju/models/meiju_device_info_entity.dart';
@@ -18,7 +21,7 @@ import '../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../routes/plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import 'models/local_485_device_state.dart';
-
+import 'dart:developer';
 class DeviceLocal485ControlChannel extends AbstractChannel {
   DeviceLocal485ControlChannel.fromName(super.channelName) : super.fromName();
   late final local485ChangeCallbacks = <void Function(Local485DeviceState)>[];
@@ -123,9 +126,7 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
       MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> MeijuRes =
           await MeiJuDeviceApi.queryDeviceListByHomeId(
               MeiJuGlobal.token!.uid, familyInfo!.familyId);
-      MeiJuResponseEntity<Map<String, dynamic>> MeijuGroups =
-          await MeiJuDeviceApi.getGroupList();
-      if (MeijuRes.isSuccess && MeijuGroups.isSuccess) {
+      if (MeijuRes.isSuccess) {
         List<MeiJuDeviceInfoEntity> deviceListMeiju = MeijuRes.data!;
         List<DeviceEntity> tempList = deviceListMeiju.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -155,6 +156,25 @@ class DeviceLocal485ControlChannel extends AbstractChannel {
         }
         send485DeviceList(device485NodeId);
       }
+    }else {
+      final familyInfo = System.familyInfo;
+      List<String> device485NodeId = [];
+      if(familyInfo!=null){
+        HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes = await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo.familyId);
+        for (HomluxDeviceEntity device in HomluxRes.result!) {
+          if(device.proType=="0xCC"&&device.deviceId!.contains("-")){
+            device485NodeId.add(device.deviceId!);
+          }
+          if(device.proType=="0xCE"&&device.deviceId!.contains("-")){
+            device485NodeId.add(device.deviceId!);
+          }
+          if(device.proType=="0xCF"&&device.deviceId!.contains("-")){
+            device485NodeId.add(device.deviceId!);
+          }
+        }
+        send485DeviceList(device485NodeId);
+      }
+
     }
   }
 
