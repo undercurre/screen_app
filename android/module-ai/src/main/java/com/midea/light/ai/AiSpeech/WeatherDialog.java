@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import com.midea.light.ai.R;
 import com.midea.light.ai.services.MideaAiService;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class WeatherDialog extends Dialog {
 
     private RelativeLayout llParent;
@@ -87,17 +89,16 @@ public class WeatherDialog extends Dialog {
     }
 
     public void timeOut() {
-        new Thread(() -> {
+        Schedulers.computation().scheduleDirect(() -> {
             try {
                 Thread.sleep(3000);
                 Message msg = new Message();
                 msg.arg1 = 1;
                 mHandler.sendMessage(msg);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
-
+        });
     }
 
     private Handler mHandler = new Handler(message -> {

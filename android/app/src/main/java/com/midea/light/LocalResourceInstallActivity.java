@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 
 import com.midea.light.setting.ota.OTAUpgradeHelper;
+
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LocalResourceInstallActivity extends Activity {
 
@@ -45,12 +46,15 @@ public class LocalResourceInstallActivity extends Activity {
             @Override
             public void onFinish() {
                 Log.i("upgrade", "倒计时超时");
-                new Thread(() -> {
-                    if (OTAUpgradeHelper.checkInstallResourceExistLocally()) {
-                        OTAUpgradeHelper.deleteInstallResource();
+                Schedulers.computation().scheduleDirect(() -> {
+                    try {
+                        if (OTAUpgradeHelper.checkInstallResourceExistLocally()) {
+                            OTAUpgradeHelper.deleteInstallResource();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }).start();
-                finish();
+                });
             }
         };
         timer2.start();

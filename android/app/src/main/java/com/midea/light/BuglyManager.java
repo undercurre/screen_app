@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class BuglyManager {
 
     @FunctionalInterface
@@ -119,14 +121,14 @@ public class BuglyManager {
             if (wrapThrowable != null && mDefaultExceptionHandler != null) {
                 mDefaultExceptionHandler.uncaughtException(wrapThrowable.getThread(), wrapThrowable.getThrowable());
                 if(killProcess) {
-                    new Thread(() -> {
+                    Schedulers.computation().scheduleDirect(() -> {
                         try {
                             Thread.sleep(3000);
-                        } catch (InterruptedException e) {
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        android.os.Process.killProcess(android.os.Process.myPid());
-                    }).start();
+                    });
                 }
             }
 

@@ -55,6 +55,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 
@@ -200,9 +201,8 @@ public class MideaAiService extends Service {
             mAiDialog = new AiDialog(Acontext, this);
             mWeatherDialog = new WeatherDialog(Acontext, this);
         });
-
-        Thread thread = new Thread() {
-            public void run() {
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
                 synchronized (MideaAiService.this) {
                     mMediaMwEngine.init(deviceInfo);
                     Log.e(TAG, "CRC mMediaMwEngine created");
@@ -221,10 +221,10 @@ public class MideaAiService extends Service {
                         e.printStackTrace();
                     }
                 }
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
-        thread.start();
+        });
     }
 
     public void startRecord() {

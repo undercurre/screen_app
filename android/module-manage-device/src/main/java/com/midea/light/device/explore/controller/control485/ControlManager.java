@@ -1,8 +1,10 @@
 package com.midea.light.device.explore.controller.control485;
 
+import android.os.Handler;
 import android.serialport.SerialPort;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
 import com.midea.light.RxBus;
 import com.midea.light.bean.OnlineState485Bean;
 import com.midea.light.device.explore.controller.control485.controller.AirConditionController;
@@ -11,10 +13,14 @@ import com.midea.light.device.explore.controller.control485.controller.FreshAirC
 import com.midea.light.device.explore.controller.control485.controller.GetWayController;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Observer;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Subject;
+import com.midea.light.device.explore.controller.control485.deviceModel.AirConditionModel;
+import com.midea.light.device.explore.controller.control485.deviceModel.FloorHotModel;
+import com.midea.light.device.explore.controller.control485.deviceModel.FreshAirModel;
 import com.midea.light.device.explore.controller.control485.event.AirConditionChangeEvent;
 import com.midea.light.device.explore.controller.control485.event.FloorHotChangeEvent;
 import com.midea.light.device.explore.controller.control485.event.FreshAirChangeEvent;
 import com.midea.light.gateway.GateWayUtils;
+import com.midea.light.thread.MainThread;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +56,7 @@ public class ControlManager implements Data485Subject {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
     private static final int BAUD_RATE = 9600;
-    private boolean running = true, isFirstFrame = false, commandFinish = true;
+    public boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
     private String[] commandStrArry;
     private int totalSize = 0, resetTime = 0;
@@ -59,7 +65,7 @@ public class ControlManager implements Data485Subject {
     private byte[] buffer = new byte[1024];
     private Timer timer, heatBet;
     private Integer cacheTime = 700;
-    private ExecutorService service, readService;
+    private ExecutorService writeService, readService;
 
 
     public static ControlManager Instance = new ControlManager();
@@ -68,7 +74,7 @@ public class ControlManager implements Data485Subject {
         return Instance;
     }
 
-    public static void regestOber() {
+    public void registeOber() {
         observers.add(GetWayController.getInstance());
         observers.add(AirConditionController.getInstance());
         observers.add(FreshAirController.getInstance());
@@ -88,15 +94,23 @@ public class ControlManager implements Data485Subject {
                     .build();
             mInputStream = mSerialPort.getInputStream();
             mOutputStream = mSerialPort.getOutputStream();
+            startReadRunnable();
+            startConsumerRunnable();
+            startFresh();
+            MainThread.run(() -> new Handler().postDelayed(() -> {
+                int AirConditionNum=AirConditionController.getInstance().AirConditionList.size();
+                int FreshAirNum=FreshAirController.getInstance().FreshAirList.size();
+                int FloorHotNum=FloorHotController.getInstance().FloorHotList.size();
+                if(AirConditionNum==0&&FreshAirNum==0&&FloorHotNum==0){
+                    ControlManager.getInstance().stopFresh();
+                }
+            },180000));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        startReadRunnable();
     }
 
     BlockingQueue<String> queue = new LinkedBlockingQueue<>(100);
-    boolean firstIn = true;
-    long firstInTime = 0;
 
     public void write(String str) {
         //生产者生产数据
@@ -105,18 +119,6 @@ public class ControlManager implements Data485Subject {
         }
         queue.offer(str);
 //        Log.e("sky", "放进去的数据:" + str);
-        if (firstIn) {
-            firstInTime = System.currentTimeMillis();
-            firstIn = false;
-            startConsumer();
-        }
-//        if (System.currentTimeMillis() - firstInTime > 10000) {//10秒内没有任何设备就停止刷新查找设备
-//            if (AirConditionController.getInstance().AirConditionList.size() == 0 && FreshAirController.getInstance().FreshAirList.size() == 0 && FloorHotController.getInstance().FloorHotList.size() == 0) {
-//                queue.clear();
-//                stopFresh();
-//                running = false;
-//            }
-//        }
     }
 
     public void clearFlashCommand() {
@@ -134,22 +136,18 @@ public class ControlManager implements Data485Subject {
         if (readService != null) {
             readService.shutdownNow();
         }
-        readService = Executors.newCachedThreadPool();
-        Reader reader = new Reader();
-        readService.execute(reader);
+        readService = Executors.newSingleThreadExecutor(r -> new Thread(r,"read485"));
     }
 
-    private void startConsumer() {
-        if (service != null) {
-            service.shutdownNow();
+    private void startConsumerRunnable() {
+        if (writeService != null) {
+            writeService.shutdownNow();
         }
-        service = Executors.newCachedThreadPool();
-        Consumer consumer = new Consumer(queue);
-        service.execute(consumer);
+        writeService = Executors.newSingleThreadExecutor(r -> new Thread(r,"write485"));
     }
 
     public class Reader implements Runnable {
-
+        StringBuffer sb = new StringBuffer();
         public void run() {
             while (running) {
                 if (mInputStream != null) {
@@ -214,11 +212,11 @@ public class ControlManager implements Data485Subject {
                                 }
                                 isFirstFrame = false;
                             }
-                            StringBuffer sb = new StringBuffer();
+                            sb.setLength(0);
                             for (int i = 0; i < size; i++) {
                                 byte b = buffer[i];
                                 if (Integer.toHexString(b & 0xFF).length() == 1) {
-                                    sb.append("0" + Integer.toHexString(b & 0xFF).toUpperCase());
+                                    sb.append("0").append(Integer.toHexString(b & 0xFF).toUpperCase());
                                 } else {
                                     sb.append(Integer.toHexString(b & 0xFF).toUpperCase());
                                 }
@@ -404,6 +402,193 @@ public class ControlManager implements Data485Subject {
         total.delete(0, total.length());
     }
 
+    public void findDeviceControl(String nodeId, String uri, String value) {
+        String add = nodeId.split("-")[1].replaceAll("\"","");
+        for (AirConditionModel device : AirConditionController.getInstance().AirConditionList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                if (uri.contains("subDeviceControl")) {
+                    if (value.equals("1")) {
+                        AirConditionController.getInstance().open(device);
+                    } else {
+                        AirConditionController.getInstance().close(device);
+                    }
+                } else if (uri.contains("subWindSpeedControl")) {
+                    String WindSpeed = Integer.toHexString(Integer.parseInt(value));
+                    if (WindSpeed.length() == 1) {
+                        WindSpeed = "0" + WindSpeed;
+                    }
+                    AirConditionController.getInstance().setWindSpeedLevl(device, WindSpeed);
+                } else if (uri.contains("subTargetTempControl")) {
+                    String TargetTemp = Integer.toHexString(Integer.parseInt(value));
+                    AirConditionController.getInstance().setTemp(device, TargetTemp);
+                } else if (uri.contains("airOperationModeControl")) {
+                    String Mode = Integer.toHexString(Integer.parseInt(value));
+                    if (Mode.length() == 1) {
+                        Mode = "0" + Mode;
+                    }
+                    AirConditionController.getInstance().setModel(device, Mode);
+                }
+            }
+        }
+
+        for (FreshAirModel device : FreshAirController.getInstance().FreshAirList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                if (uri.contains("subDeviceControl")) {
+                    if (value.equals("1")) {
+                        FreshAirController.getInstance().open(device);
+                    } else {
+                        FreshAirController.getInstance().close(device);
+                    }
+                } else if (uri.contains("subWindSpeedControl")) {
+                    String WindSpeed = Integer.toHexString(Integer.parseInt(value));
+                    if (WindSpeed.length() == 1) {
+                        WindSpeed = "0" + WindSpeed;
+                    }
+                    FreshAirController.getInstance().setWindSpeedLevl(device, WindSpeed);
+                }
+            }
+        }
+
+        for (FloorHotModel device : FloorHotController.getInstance().FloorHotList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                if (uri.contains("subDeviceControl")) {
+                    if (value.equals("1")) {
+                        FloorHotController.getInstance().open(device);
+                    } else {
+                        FloorHotController.getInstance().close(device);
+                    }
+                } else if (uri.contains("subTargetTempControl")) {
+                    String TargetTemp = Integer.toHexString(Integer.parseInt(value));
+                    if (TargetTemp.length() == 1) {
+                        TargetTemp = "0" + TargetTemp;
+                    }
+                    FloorHotController.getInstance().setTemp(device, TargetTemp);
+                }
+            }
+        }
+
+    }
+
+
+    public JsonObject getLocal485DeviceByID(String nodeId) {
+
+        String add = nodeId.split("-")[1];
+        for (AirConditionModel device : AirConditionController.getInstance().AirConditionList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                JsonObject hashMap = new JsonObject();
+                hashMap.addProperty("modelId", "zhonghong.cac.002");
+                hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                hashMap.addProperty("mode", Integer.parseInt(device.getWorkModel(), 16));
+                hashMap.addProperty("windSpeed", Integer.parseInt(device.getWindSpeed(),16));
+                hashMap.addProperty("targetTemperature", Integer.parseInt(device.getTemperature(),16));
+                hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                hashMap.addProperty("currTemperature", Integer.parseInt(device.getCurrTemperature(),16));
+                return hashMap;
+            }
+        }
+
+        for (FreshAirModel device : FreshAirController.getInstance().FreshAirList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                JsonObject hashMap = new JsonObject();
+                hashMap.addProperty("modelId", "zhonghong.air.001");
+                hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                hashMap.addProperty("mode", Integer.parseInt(device.getWorkModel(), 16));
+                hashMap.addProperty("windSpeed", Integer.parseInt(device.getWindSpeed(),16));
+                hashMap.addProperty("targetTemperature", "");
+                hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                hashMap.addProperty("currTemperature", "");
+                return hashMap;
+            }
+        }
+
+        for (FloorHotModel device : FloorHotController.getInstance().FloorHotList) {
+            String addr = device.getOutSideAddress() + device.getInSideAddress();
+            if (add.equals(addr)) {
+                JsonObject hashMap = new JsonObject();
+                hashMap.addProperty("modelId", "zhonghong.heat.001");
+                hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                hashMap.addProperty("mode", "");
+                hashMap.addProperty("windSpeed", "");
+                hashMap.addProperty("targetTemperature", Integer.parseInt(device.getTemperature(),16));
+                hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                hashMap.addProperty("currTemperature", Integer.parseInt(device.getCurrTemperature(),16));
+                return hashMap;
+            }
+        }
+
+        return null;
+
+    }
+
+    public JsonObject getLocal485DeviceByID(String nodeId, String type) {
+
+        String add = nodeId.split("-")[1];
+        switch (type) {
+            case "3017":
+                for (AirConditionModel device : AirConditionController.getInstance().AirConditionList) {
+                    String addr = device.getOutSideAddress() + device.getInSideAddress();
+                    if (add.equals(addr)) {
+                        JsonObject hashMap = new JsonObject();
+                        hashMap.addProperty("modelId", "zhonghong.cac.002");
+                        hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                        hashMap.addProperty("mode", Integer.parseInt(device.getWorkModel(), 16));
+                        hashMap.addProperty("windSpeed", Integer.parseInt(device.getWindSpeed(),16));
+                        hashMap.addProperty("targetTemperature", Integer.parseInt(device.getTemperature(),16));
+                        hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                        hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                        hashMap.addProperty("currTemperature", Integer.parseInt(device.getCurrTemperature(),16));
+                        return hashMap;
+                    }
+                }
+                break;
+            case "3018":
+                for (FreshAirModel device : FreshAirController.getInstance().FreshAirList) {
+                    String addr = device.getOutSideAddress() + device.getInSideAddress();
+                    if (add.equals(addr)) {
+                        JsonObject hashMap = new JsonObject();
+                        hashMap.addProperty("modelId", "zhonghong.air.001");
+                        hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                        hashMap.addProperty("mode", Integer.parseInt(device.getWorkModel(), 16));
+                        hashMap.addProperty("windSpeed", Integer.parseInt(device.getWindSpeed(),16));
+                        hashMap.addProperty("targetTemperature", "");
+                        hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                        hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                        hashMap.addProperty("currTemperature", "");
+                        return hashMap;
+                    }
+                }
+                break;
+            case "3019":
+                for (FloorHotModel device : FloorHotController.getInstance().FloorHotList) {
+                    String addr = device.getOutSideAddress() + device.getInSideAddress();
+                    if (add.equals(addr)) {
+                        JsonObject hashMap = new JsonObject();
+                        hashMap.addProperty("modelId", "zhonghong.heat.001");
+                        hashMap.addProperty("address", device.getOutSideAddress() + device.getInSideAddress());
+                        hashMap.addProperty("mode", "");
+                        hashMap.addProperty("windSpeed", "");
+                        hashMap.addProperty("targetTemperature", Integer.parseInt(device.getTemperature(),16));
+                        hashMap.addProperty("power",  Integer.parseInt(device.getOnOff(),16));
+                        hashMap.addProperty("onLineStatus", Integer.parseInt(device.getOnlineState(),16));
+                        hashMap.addProperty("currTemperature", Integer.parseInt(device.getCurrTemperature(),16));
+                        return hashMap;
+                    }
+                }
+                break;
+        }
+        return null;
+
+    }
+
+
     private void upDataAllDeviceOnlineState() {
         if (AirConditionController.getInstance().AirConditionList.size() > 0) {
             ArrayList<OnlineState485Bean.PLC.OnlineState> diffStatelsit = new ArrayList<>();
@@ -414,6 +599,7 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.cac.002");
                 diffStatelsit.add(state);
+//                RxBus.getInstance().post(new Device485OnlineChangeEvent(address,state.getStatus()));
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
@@ -427,7 +613,7 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.heat.001");
                 diffStatelsit.add(state);
-
+//                RxBus.getInstance().post(new Device485OnlineChangeEvent(address,state.getStatus()));
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
         }
@@ -441,6 +627,7 @@ public class ControlManager implements Data485Subject {
                 state.setAddr(address);
                 state.setModelId("zhonghong.air.001");
                 diffStatelsit.add(state);
+//                RxBus.getInstance().post(new Device485OnlineChangeEvent(address,state.getStatus()));
 
             }
             GateWayUtils.updateOnlineState485(diffStatelsit);
@@ -448,14 +635,24 @@ public class ControlManager implements Data485Subject {
     }
 
     public void startFresh() {
-        if (task != null) {
-            task.cancel();
-        }
+        running=true;
         if (timer != null) {
             timer.cancel();
         }
+        if(readService!=null){
+            readService.shutdownNow();
+            Reader reader = new Reader();
+            readService = Executors.newSingleThreadExecutor(r -> new Thread(r,"read485"));
+            readService.submit(reader);
+        }
+        if(writeService!=null){
+            writeService.shutdownNow();
+            Consumer consumer = new Consumer(queue);
+            writeService = Executors.newSingleThreadExecutor(r -> new Thread(r,"write485"));
+            writeService.submit(consumer);
+        }
         timer = new Timer();
-        task = new TimerTask() {
+        TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 GetWayController.getInstance().getAllAirConditionParamete();
@@ -478,31 +675,30 @@ public class ControlManager implements Data485Subject {
                 upDataAllDeviceOnlineState();
             }
         };
-        heatBet.schedule(heatBetTask, 10000, 60000);
+        heatBet.schedule(heatBetTask, 30000, 60000);
     }
 
     public void stopFresh() {
+        running=false;
         if (timer != null) {
             timer.cancel();
         }
         if (heatBet != null) {
             heatBet.cancel();
         }
-        if (task != null) {
-            task.cancel();
-        }
         commandFinish = true;
         totalSize = 0;
         total = new StringBuffer();
         queue.clear();
+        if(writeService!=null){
+            writeService.shutdownNow();
+        }
+        if(readService!=null){
+            readService.shutdownNow();
+        }
+
     }
 
-    TimerTask task = new TimerTask() {
-        @Override
-        public void run() {
-
-        }
-    };
 
 
 }

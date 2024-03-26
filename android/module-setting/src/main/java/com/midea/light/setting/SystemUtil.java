@@ -42,6 +42,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 import static android.content.Context.AUDIO_SERVICE;
 
 class JHSystemUtil {
@@ -310,12 +312,13 @@ class JHSystemUtil {
 
     public static void clickScreen(int x, int y) {
         String command = "input tap " + x + " " + y;
-        new Thread() {
-            public void run() {
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
                 CommandExecution.execCommand(command, false);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }.start();
-
+        });
     }
 
     public static void wakeupScreenAndClickScreen(int x, int y) {
@@ -509,12 +512,13 @@ class LDSystemUtil {
 
     public static void clickScreen(int x, int y) {
         String command = "input tap " + x + " " + y;
-        new Thread() {
-            public void run() {
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
                 CommandExecution.execCommand(command, false);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }.start();
-
+        });
     }
 
     public static void wakeupScreenAndClickScreen(int x, int y) {

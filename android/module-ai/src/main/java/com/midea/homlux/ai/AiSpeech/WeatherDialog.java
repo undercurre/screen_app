@@ -7,8 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +17,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.aispeech.dui.dds.DDS;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 import com.midea.homlux.ai.services.MideaAiService;
 import com.midea.light.ai.R;
-
-import androidx.annotation.NonNull;
 
 public class WeatherDialog extends Dialog {
 
@@ -92,30 +90,6 @@ public class WeatherDialog extends Dialog {
     public void dismissDialog() {
         dismiss();
     }
-
-    public void timeOut() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(3100);
-                Message msg = new Message();
-                msg.arg1 = 1;
-                mHandler.sendMessage(msg);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-    }
-
-    private Handler mHandler = new Handler(message -> {
-        switch (message.arg1) {
-            case 1:
-                dismissDialog();
-                break;
-
-        }
-        return true;
-    });
 
     public void setWeatherDetail(String place, String low, String high, String weather, String level) {
         tvPlace.setText(place);

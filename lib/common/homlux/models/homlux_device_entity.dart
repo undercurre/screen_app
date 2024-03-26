@@ -128,7 +128,7 @@ class HomluxDeviceMzgdPropertyDTOListFloorHeating {
 
 class HomluxDeviceMzgdPropertyDTOListAir {
 
-  int? mode;
+  String? mode;
   int? power;
   int? OnOff;
   int? windSpeed;

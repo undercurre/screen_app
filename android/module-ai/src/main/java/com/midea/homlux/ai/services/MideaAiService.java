@@ -1,14 +1,11 @@
 package com.midea.homlux.ai.services;
 
-import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -56,6 +53,10 @@ import com.midea.light.thread.MainThread;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
+
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
 
 
 public class MideaAiService extends Service implements DuiUpdateObserver.UpdateCallback, DuiMessageObserver.MessageCallback {
@@ -309,11 +310,13 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void startDDSService() {
         startService(DDSService.newDDSServiceIntent(MideaAiService.this, "start"));
-        new Thread() {
-            public void run() {
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
                 checkDDSReady();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }.start();
+        });
         IntentFilter filter = new IntentFilter();
         filter.addAction("ddsdemo.intent.action.init_complete");
         mInitReceiver = new MyReceiver();

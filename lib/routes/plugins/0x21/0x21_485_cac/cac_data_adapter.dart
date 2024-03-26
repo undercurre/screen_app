@@ -450,7 +450,7 @@ class CAC485Data {
 
   CAC485Data.fromHomlux(HomluxDeviceEntity data, String modelNumber) {
     name = data.deviceName ?? "空调";
-    operationMode = data.mzgdPropertyDTOList?.air485Conditioner?.mode ?? 0;
+    operationMode = int.parse(data.mzgdPropertyDTOList!.air485Conditioner!.mode!);
     OnOff = data.mzgdPropertyDTOList?.air485Conditioner?.OnOff == 1;
     windSpeed = data.mzgdPropertyDTOList?.air485Conditioner?.windSpeed ?? 0;
     online = data.onLineStatus == 1;

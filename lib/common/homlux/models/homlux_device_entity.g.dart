@@ -998,7 +998,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListFloorHeatingToJson(HomluxDe
 
 HomluxDeviceMzgdPropertyDTOListAir $HomluxDeviceMzgdPropertyDTOListAirFromJson(Map<String, dynamic> json) {
 	HomluxDeviceMzgdPropertyDTOListAir entity = HomluxDeviceMzgdPropertyDTOListAir();
-	entity.mode = json["mode"];
+	entity.mode = json["mode"].toString();
 	entity.power = json["power"];
 	entity.windSpeed = json['windSpeed'];
 	entity.OnOff = json['OnOff'];

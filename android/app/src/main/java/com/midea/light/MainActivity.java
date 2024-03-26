@@ -55,6 +55,9 @@ import java.util.TimerTask;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+import static java.lang.Thread.sleep;
 
 public class MainActivity extends FlutterActivity {
     // 与Flutter通信通道
@@ -131,29 +134,29 @@ public class MainActivity extends FlutterActivity {
      */
     @SuppressLint("CheckResult")
     private void ZH485Device() {
-        new Thread() {
-            public void run() {
-                try {
-                    sleep(10000);
-                    ControlManager.getInstance().initial();
-                    ControlManager.getInstance().regestOber();
-                    ControlManager.getInstance().startFresh();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }.start();
+        ControlManager.getInstance().initial();
+        ControlManager.getInstance().registeOber();
         //485设备配网新增
         RxBus.getInstance().toObservableOnMain(this, GateWayDistributionEvent.class)
                 .subscribe(mGateWayDistributionEvent -> {
-                    new Thread() {
-                        public void run() {
-                            if (mGateWayDistributionEvent.getState() == 60) {
-                                runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId", null));
-                            }
+                    if (mGateWayDistributionEvent.getState() == 60) {
+                        //找出设备列表中已经添加过的485设备,然后把没有添加过的传给网关
+                        Log.e("sky", "添加设备");
+                        if (!ControlManager.getInstance().running) {
+                            ControlManager.getInstance().startFresh();
+                            sleep(5000);//等待485模块启动
+                            runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId", null));
+                        } else {
+                            runOnUiThread(() -> mChannels.local485DeviceControlChannel.cMethodChannel.invokeMethod("query485DeviceListByHomeId", null));
                         }
-                    }.start();
-
+                    } else if (mGateWayDistributionEvent.getState() == 0) {
+                        int AirConditionNum = AirConditionController.getInstance().AirConditionList.size();
+                        int FreshAirNum = FreshAirController.getInstance().FreshAirList.size();
+                        int FloorHotNum = FloorHotController.getInstance().FloorHotList.size();
+                        if (AirConditionNum == 0 && FreshAirNum == 0 && FloorHotNum == 0) {
+                            ControlManager.getInstance().stopFresh();
+                        }
+                    }
                 }, throwable -> Log.e("sky", "rxBus错误", throwable));
 
         //云端下发控制指令
@@ -408,11 +411,15 @@ public class MainActivity extends FlutterActivity {
     }
 
     public void initialMeiJuAi(String sn, String deviceId, String mac, boolean aiEnable) {
-        new Thread(() -> {
-            //复制assets/xiaomei文件夹中的文件到SD卡
-            FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
-            runOnUiThread(() -> startMeiJuAiService(sn, deviceId, mac, aiEnable));
-        }).start();
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
+                //复制assets/xiaomei文件夹中的文件到SD卡
+                FileUtils.copyAssetsFilesAndDelete(MainActivity.this, "xiaomei", Environment.getExternalStorageDirectory().getPath());
+                runOnUiThread(() -> startMeiJuAiService(sn, deviceId, mac, aiEnable));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void startMeiJuAiService(String sn, String deviceId, String mac, boolean aiEnable) {
@@ -533,14 +540,14 @@ public class MainActivity extends FlutterActivity {
 
     public void sendKeyEvent(final int KeyCode) {
         //不可在主线程中调用
-        new Thread(() -> {
+        Schedulers.computation().scheduleDirect(() -> {
             try {
                 Instrumentation inst = new Instrumentation();
                 inst.sendKeyDownUpSync(KeyCode);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     private final class MySensorEventListener implements SensorEventListener {
@@ -673,16 +680,14 @@ public class MainActivity extends FlutterActivity {
                             }
                             MainApplication.standbyState = false;
                             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
-                            new Thread() {
-                                public void run() {
-                                    try {
-                                        sleep(1000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
+                            Schedulers.computation().scheduleDirect(() -> {
+                                try {
+                                    sleep(1000);
                                     runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 0));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            }.start();
+                            });
                         }
                     }
                 }
@@ -718,16 +723,14 @@ public class MainActivity extends FlutterActivity {
                         sendKeyEvent(KeyEvent.KEYCODE_BACK);
                     }
                     runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 1));
-                    new Thread() {
-                        public void run() {
-                            try {
-                                sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                    Schedulers.computation().scheduleDirect(() -> {
+                        try {
+                            Thread.sleep(1000);
                             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("aiWakeUpState", 0));
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }.start();
+                    });
                     SensorArry.clear();
                 }
             }
@@ -753,18 +756,12 @@ public class MainActivity extends FlutterActivity {
     };
 
     private void SLKClear() {
-        try {
-            Thread thread = new Thread() {
-                public void run() {
-                    FileUtils.deleteAllFile(Environment.getExternalStorageDirectory().getPath() + "/SLK");
-                }
-            };
-            thread.start();
-        } catch (Exception e) {
-
-        }
-
+        Schedulers.computation().scheduleDirect(() -> {
+            try {
+                FileUtils.deleteAllFile(Environment.getExternalStorageDirectory().getPath() + "/SLK");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
-
-
 }
