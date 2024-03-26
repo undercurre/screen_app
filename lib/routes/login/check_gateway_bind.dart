@@ -49,7 +49,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     }
     var adapter = CheckAuthAdapter(MideaRuntimePlatform.platform);
     var result = await adapter.check();
-    if(result == false) {
+    if(result == false && System.isLogin()) {
       System.logout('当前用户身份无权限登录，强制登出');
     }
   }
