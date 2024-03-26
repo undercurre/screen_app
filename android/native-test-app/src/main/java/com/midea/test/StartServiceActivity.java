@@ -25,6 +25,8 @@ import com.midea.test.widget.FreshAirDialog;
 
 import java.util.ArrayList;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class StartServiceActivity extends Activity {
 
     private Button send, fresh, sendFreshAir, freshFreshAir, sendFloor, freshFloor;
@@ -36,8 +38,7 @@ public class StartServiceActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_service_layout);
-        ControlManager.getInstance().initial();
-        ControlManager.getInstance().regestOber();
+        ControlManager.getInstance().registeOber();
         ControlManager.getInstance().startFresh();
 
         ArrayList mData = new ArrayList<>();
@@ -87,36 +88,37 @@ public class StartServiceActivity extends Activity {
 
         freshFreshAir.setOnClickListener(v -> {
             GetWayController.getInstance().getAllFreshAirParamete();
-            new Thread(() -> {
+
+            Schedulers.computation().scheduleDirect(() -> {
                 try {
                     Thread.sleep(2000);
-                } catch (InterruptedException e) {
+                    Log.e("sky", "新风设备列表详情:" + new Gson().toJson(FreshAirController.getInstance().FreshAirList));
+                    mDataFreshAir.clear();
+                    for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+                        mDataFreshAir.add("新风" + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
+                        runOnUiThread(() -> mAdapterFreshAir.notifyDataSetChanged());
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Log.e("sky", "新风设备列表详情:" + new Gson().toJson(FreshAirController.getInstance().FreshAirList));
-                mDataFreshAir.clear();
-                for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
-                    mDataFreshAir.add("新风" + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
-                    runOnUiThread(() -> mAdapterFreshAir.notifyDataSetChanged());
-                }
-            }).start();
+            });
         });
 
         freshFloor.setOnClickListener(v -> {
             GetWayController.getInstance().getAllFloorHotParamete();
-            new Thread(() -> {
+            Schedulers.computation().scheduleDirect(() -> {
                 try {
                     Thread.sleep(2000);
-                } catch (InterruptedException e) {
+                    Log.e("sky", "地暖设备列表详情:" + new Gson().toJson(FloorHotController.getInstance().FloorHotList));
+                    mDataFloor.clear();
+                    for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+                        mDataFloor.add("地暖" + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
+                        runOnUiThread(() -> mAdapterFloor.notifyDataSetChanged());
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Log.e("sky", "地暖设备列表详情:" + new Gson().toJson(FloorHotController.getInstance().FloorHotList));
-                mDataFloor.clear();
-                for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
-                    mDataFloor.add("地暖" + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
-                    runOnUiThread(() -> mAdapterFloor.notifyDataSetChanged());
-                }
-            }).start();
+            });
         });
 
         GridDevice.setNumColumns(3);
@@ -143,42 +145,32 @@ public class StartServiceActivity extends Activity {
 
         RxBus.getInstance().toObservableInSingle(AirConditionChangeEvent.class)
                 .subscribe(AirConditionChangeEvent -> {
-                    new Thread(() -> {
-                        Log.e("sky", "空调设备列表详情:" + new Gson().toJson(AirConditionController.getInstance().AirConditionList));
-                        mData.clear();
-                        for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
-                            mData.add("空调" + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress());
-                            runOnUiThread(() -> mAdapter.notifyDataSetChanged());
-                        }
-//                        ControlManager.getInstance().startFresh();
-                    }).start();
+                    Log.e("sky", "空调设备列表详情:" + new Gson().toJson(AirConditionController.getInstance().AirConditionList));
+                    mData.clear();
+                    for (int i = 0; i < AirConditionController.getInstance().AirConditionList.size(); i++) {
+                        mData.add("空调" + AirConditionController.getInstance().AirConditionList.get(i).getInSideAddress());
+                        runOnUiThread(() -> mAdapter.notifyDataSetChanged());
+                    }
                 },throwable -> Log.e("sky","rxbus错误" ,throwable));
 
         RxBus.getInstance().toObservableInSingle(FreshAirChangeEvent.class)
                 .subscribe(FreshAirChangeEvent -> {
-                    new Thread(() -> {
-                        Log.e("sky", "新风设备列表详情:" + new Gson().toJson(FreshAirController.getInstance().FreshAirList));
-                        mDataFreshAir.clear();
-                        for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
-                            mDataFreshAir.add("新风" + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
-                        }
-                        runOnUiThread(() -> mAdapterFreshAir.notifyDataSetChanged());
-//                        ControlManager.getInstance().startFresh();
-                    }).start();
+                    Log.e("sky", "新风设备列表详情:" + new Gson().toJson(FreshAirController.getInstance().FreshAirList));
+                    mDataFreshAir.clear();
+                    for (int i = 0; i < FreshAirController.getInstance().FreshAirList.size(); i++) {
+                        mDataFreshAir.add("新风" + FreshAirController.getInstance().FreshAirList.get(i).getInSideAddress());
+                    }
+                    runOnUiThread(() -> mAdapterFreshAir.notifyDataSetChanged());
                 },throwable -> Log.e("sky","rxbus错误" ,throwable));
 
         RxBus.getInstance().toObservableInSingle(FloorHotChangeEvent.class)
                 .subscribe(FloorHotChangeEvent -> {
-                    new Thread(() -> {
-                        Log.e("sky", "地暖设备列表详情:" + new Gson().toJson(FloorHotController.getInstance().FloorHotList));
-                        mDataFloor.clear();
-                        for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
-                            mDataFloor.add("地暖" + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
-                        }
-                        runOnUiThread(() -> mAdapterFloor.notifyDataSetChanged());
-
-//                        ControlManager.getInstance().startFresh();
-                    }).start();
+                    Log.e("sky", "地暖设备列表详情:" + new Gson().toJson(FloorHotController.getInstance().FloorHotList));
+                    mDataFloor.clear();
+                    for (int i = 0; i < FloorHotController.getInstance().FloorHotList.size(); i++) {
+                        mDataFloor.add("地暖" + FloorHotController.getInstance().FloorHotList.get(i).getInSideAddress());
+                    }
+                    runOnUiThread(() -> mAdapterFloor.notifyDataSetChanged());
                 },throwable -> Log.e("sky","rxbus错误" ,throwable));
 
     }

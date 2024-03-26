@@ -858,7 +858,7 @@ HomluxDeviceMzgdPropertyDTOListAirCondition $HomluxDeviceMzgdPropertyDTOListAirC
 		powerOffTimeValue: json['power_off_time_value'],
 		kickQuilt: json['kick_quilt'],
 		dustFullTime: json['dust_full_time'],
-		mode: json['mode'],
+		mode: json['mode'].toString(),
 		eco: json['eco'],
 		purifier: json['purifier'],
 		naturalWind: json['natural_wind'],
@@ -1002,7 +1002,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListFloorHeatingToJson(HomluxDe
 
 HomluxDeviceMzgdPropertyDTOListAir $HomluxDeviceMzgdPropertyDTOListAirFromJson(Map<String, dynamic> json) {
 	HomluxDeviceMzgdPropertyDTOListAir entity = HomluxDeviceMzgdPropertyDTOListAir();
-	entity.mode = json["mode"];
+	entity.mode = json["mode"].toString();
 	entity.power = json["power"];
 	entity.windSpeed = json['windSpeed'];
 	entity.OnOff = json['OnOff'];

@@ -21,12 +21,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.github.penfeizhou.animation.apng.APNGDrawable;
 import com.github.penfeizhou.animation.loader.ResourceStreamLoader;
 import com.midea.light.ai.R;
 import com.midea.light.ai.services.MideaAiService;
 
-import androidx.annotation.NonNull;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AiDialog extends Dialog {
 
@@ -168,17 +170,16 @@ public class AiDialog extends Dialog {
     }
 
     public void timeOut() {
-        new Thread(() -> {
+        Schedulers.computation().scheduleDirect(() -> {
             try {
                 Thread.sleep(3000);
                 Message msg = new Message();
                 msg.arg1 = 1;
                 mHandler.sendMessage(msg);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
-
+        });
     }
 
     public void dismissDialog() {

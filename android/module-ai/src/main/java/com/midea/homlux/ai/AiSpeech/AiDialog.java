@@ -6,8 +6,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +18,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.aispeech.dui.dds.DDS;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 import com.github.penfeizhou.animation.apng.APNGDrawable;
 import com.github.penfeizhou.animation.loader.ResourceStreamLoader;
 import com.midea.homlux.ai.services.MideaAiService;
 import com.midea.light.ai.R;
-
-import androidx.annotation.NonNull;
 
 public class AiDialog extends Dialog {
 
@@ -129,19 +127,6 @@ public class AiDialog extends Dialog {
         });
     }
 
-    private Handler mHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            switch (message.arg1) {
-                case 1:
-                    dismissDialog();
-                    break;
-
-            }
-            return true;
-        }
-    });
-
     public void think() {
 
     }
@@ -184,19 +169,6 @@ public class AiDialog extends Dialog {
 
     }
 
-    public void timeOut() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-                Message msg = new Message();
-                msg.arg1 = 1;
-                mHandler.sendMessage(msg);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-    }
 
     public void dismissDialog() {
 //        if(sever.mWakUpStateCallBack!=null){
