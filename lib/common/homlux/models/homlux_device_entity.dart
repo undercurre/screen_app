@@ -25,6 +25,7 @@ class HomluxDeviceEntity {
   String? lightRelId;
   String? productId;
   int? updateStamp;
+  int? authStatus;
 
   HomluxDeviceEntity();
 

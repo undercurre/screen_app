@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/common/homlux/models/homlux_device_auth_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_family_entity.dart';
 
 import '../../../models/homlux_485_device_list_entity.dart';
@@ -28,6 +29,7 @@ class HomluxJsonConvert {
 
   static final Map<String, JsonConvertFunction> convertFuncMap = {
     (HomluxUserInfoEntity).toString(): HomluxUserInfoEntity.fromJson,
+    (HomluxDeviceAuthEntity).toString(): HomluxDeviceAuthEntity.fromJson,
     (HomluxFamilyEntity).toString(): HomluxFamilyEntity.fromJson,
     (HomluxRoomListEntity).toString(): HomluxRoomListEntity.fromJson,
     (HomluxQrCodeEntity).toString(): HomluxQrCodeEntity.fromJson,
@@ -72,6 +74,9 @@ class HomluxJsonConvert {
   };
 
   static M? _getListChildType<M>(List<Map<String, dynamic>> data) {
+    if(<HomluxDeviceAuthEntity>[] is M) {
+      return data.map<HomluxDeviceAuthEntity>((e) => HomluxDeviceAuthEntity.fromJson(e)).toList() as M;
+    }
     if(<HomluxColorTempRange>[] is M) {
       return data.map<HomluxColorTempRange>((e) => HomluxColorTempRange.fromJson(e)).toList() as M;
     }

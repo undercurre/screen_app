@@ -1,4 +1,7 @@
 
+import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
+import 'package:screen_app/common/homlux/models/homlux_device_auth_entity.dart';
+import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/common/meiju/models/auth_device_bath_entity.dart';
@@ -21,12 +24,11 @@ enum AdapterType {
   wifiLiangyi
 }
 
-/// 美居配置
+/// 美居OrHomlux配置
 ///       添加需要确权的设备类型 （一般普通的wifi设备都需判断确权）
-const MeiJuNeedCheckWaitLockAuthTypes = [
+const NeedCheckWaitLockAuthTypes = [
   AdapterType.wifiLight,
   AdapterType.wifiCurtain,
-  AdapterType.air485,
   AdapterType.wifiAir,
   AdapterType.wifiYuba,
   AdapterType.wifiLiangyi
@@ -41,9 +43,14 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   T? data;
 
   Future<void> fetchDataAndCheckWaitLockAuth(String deviceId) async {
+    // 只有确切知道未确权，才会去拦截设备详情请求
+    // 在断网的情况下，并不会命中此处的逻辑
     bool? result = await checkWaitLockAuth(deviceId);
     if(result == false) {
-      TipsUtils.toast(content: "设备未确权，请在APP端进行设备确权");
+      const meijuTip = "设备未确权，请在APP端进行设备确权";
+      const homluxTip = "设备未确权，请在小程序端进行设备确权";
+      TipsUtils.toast(content: platform.inMeiju() ? meijuTip : homluxTip);
+      return;
     }
     fetchData();
   }
@@ -54,13 +61,23 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   ///      false 未解锁
   ///      true  已解锁
   Future<bool?> checkWaitLockAuth(String deviceId) async {
-    if(platform.inMeiju()) {
-      final need = MeiJuNeedCheckWaitLockAuthTypes.any((element) => element == type);
-      if(need) {
+
+    final need = NeedCheckWaitLockAuthTypes.any((element) => element == type);
+    if(need) {
+      if(platform.inMeiju()) {
         MeiJuResponseEntity<MeiJuAuthDeviceBatchEntity> response = await MeiJuDeviceApi.getAuthBatchStatus([deviceId]);
         if(response.isSuccess) {
-          bool? auth = response.data?.applianceAuthList?.any((e) => e.status != 2);
+          bool? auth = response.data?.applianceAuthList?.any((e) => e.status != 1 && e.status != 2);
           return auth;
+        }
+      } else {
+        final familyItem = System.familyInfo;
+        if(familyItem != null) {
+          HomluxResponseEntity<HomluxDeviceAuthEntity> response = await HomluxDeviceApi.getDeviceIsNeedCheck(deviceId, familyItem.familyId);
+          if(response.isSuccess) {
+            bool auth = response.data?.status != 1 && response.data?.status != 2;
+            return auth;
+          }
         }
       }
     }

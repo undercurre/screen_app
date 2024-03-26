@@ -226,13 +226,13 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
     }
   }
 
-  Future<HomluxDeviceEntity> fetchHomluxData() async {
+  Future<HomluxDeviceEntity?> fetchHomluxData() async {
     HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
       return nodeInfo;
     } else {
-      return HomluxDeviceEntity();
+      return null;
     }
   }
 

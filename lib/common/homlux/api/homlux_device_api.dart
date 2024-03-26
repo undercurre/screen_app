@@ -9,6 +9,7 @@ import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
 import 'package:screen_app/common/index.dart';
 
 import '../../logcat_helper.dart';
+import '../models/homlux_device_auth_entity.dart';
 import '../models/homlux_device_entity.dart';
 import '../models/homlux_group_entity.dart';
 
@@ -92,6 +93,16 @@ class HomluxDeviceApi {
     groups.clear();
     roomDeviceList.clear();
     homeDeviceList.clear();
+  }
+  /// *****************
+  /// *****************
+  /// 设备确权接口（目前只有WIFI设备有）
+  static Future<HomluxResponseEntity<HomluxDeviceAuthEntity>> getDeviceIsNeedCheck(String deviceId, String houseId, {CancelToken? cancelToken}) {
+    return HomluxApi.request<HomluxDeviceAuthEntity>(
+        '/v1/thirdparty/midea/device/queryAuthGetStatus',
+        cancelToken: cancelToken,
+        options: Options(method: 'POST'),
+        data: {'deviceId': deviceId, 'houseId': houseId});
   }
 
   /// ******************
@@ -210,6 +221,11 @@ class HomluxDeviceApi {
         }
 
         Log.file('[device-api] 云端 设备状态返回 ${entity.toJson()}');
+        /// 待确权设备统一处理方式。令到界面显示设备异常
+        if(entity.isSuccess && entity.data != null) {
+          entity.success = entity.data?.authStatus != 1 && entity.data?.authStatus != 2;
+          entity.result = entity.isSuccess ? entity.result : null;
+        }
         return entity;
       } catch (e) {
         /// 从本地缓存中，还原设备状态

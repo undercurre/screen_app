@@ -62,6 +62,10 @@ HomluxDeviceEntity $HomluxDeviceEntityFromJson(Map<String, dynamic> json) {
 	if (methodList != null) {
 		homluxDeviceEntity.methodList = methodList;
 	}
+	final int? authStatus = homluxJsonConvert.convert<int>(json['authStatus']);
+	if(authStatus != null) {
+		homluxDeviceEntity.authStatus = authStatus;
+	}
 	final int? onLineStatus = homluxJsonConvert.convert<int>(json['onLineStatus']);
 	if (onLineStatus != null) {
 		homluxDeviceEntity.onLineStatus = onLineStatus;
@@ -846,7 +850,7 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOListBathHeatToJson(HomluxDevice
 
 HomluxDeviceMzgdPropertyDTOListAirCondition $HomluxDeviceMzgdPropertyDTOListAirConditionFromJson(Map<String, dynamic> json) {
 	return HomluxDeviceMzgdPropertyDTOListAirCondition(
-		smallTemperature: double.parse(json["small_temperature"].toString()),
+		smallTemperature: json["small_temperature"] != null ? double.parse(json["small_temperature"].toString()) : null,
 		indoorTemperature: json['indoor_temperature'],
 		windSwingLrUnder: json['wind_swing_lr_under'],
 		windSwingLr: json['wind_swing_lr'],
