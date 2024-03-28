@@ -233,7 +233,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.proType!;
           deviceObj.modelNumber = getModelNumber(e);
           deviceObj.roomName = e.roomName!;
-          deviceObj.roomId = System.roomInfo?.id;
+          deviceObj.roomId = e.roomId ?? System.roomInfo?.id;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
           return deviceObj;

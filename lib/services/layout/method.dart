@@ -39,7 +39,18 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
     // 过滤出需要的设备
     List<DeviceEntity> deviceNeed =
-        deviceHave.where((e) => !currDeviceIds.contains(e.applianceCode) && e.roomId == System.roomInfo?.id && e.applianceCode != 'G-${System.gatewayApplianceCode}').toList();
+        deviceHave.where((e) {
+          // Log.i('数据本身', e);
+          // Log.i('房间', System.roomInfo?.id);
+          // Log.i('智慧屏网关id', System.gatewayApplianceCode);
+          bool isHad = currDeviceIds.contains(e.applianceCode);
+          // Log.i('是否已有', isHad);
+          bool isInRoom = e.roomId == System.roomInfo?.id;
+          // Log.i('是否在房间', isInRoom);
+          bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
+          // Log.i('是否本身', isSelf);
+          return !isHad && isInRoom && !isSelf;
+        }).toList();
     // 过滤出需要的场景
     List<SceneInfoEntity> sceneNeed = [];
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
@@ -233,7 +244,7 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: curtainItem.onlineStatus,
         ))));
     // 空调
-    List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017')).toList();
+    List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017') || (e.type == '0xCC' && e.modelNumber == '3017')).toList();
     tempLayoutList.addAll(airConditionNeed.map((airConditionItem) => Layout(
         airConditionItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(airConditionItem.type, airConditionItem.modelNumber),
@@ -253,7 +264,7 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: airConditionItem.onlineStatus,
         ))));
     // 新风
-    List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3018').toList();
+    List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3018') || (e.type == '0xCE' && e.modelNumber == '3018')).toList();
     tempLayoutList.addAll(freshAirNeed.map((freshAirItem) => Layout(
         freshAirItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(freshAirItem.type, freshAirItem.modelNumber),
@@ -273,7 +284,7 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: freshAirItem.onlineStatus,
         ))));
     // 地暖
-    List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => e.type == '0x21' && e.modelNumber == '3019').toList();
+    List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3019') || (e.type == '0xCF' && e.modelNumber == '3019')).toList();
     tempLayoutList.addAll(floorHeatNeed.map((floorHeatItem) => Layout(
         floorHeatItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(floorHeatItem.type, floorHeatItem.modelNumber),
