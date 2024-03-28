@@ -15,6 +15,8 @@ class HomluxDeleteHouseUser{
   late final String? uid;
   HomluxDeleteHouseUser.of(String? uid);
 }
+// 家庭成员数量发生变化
+class HomluxUserCountChangeEvent{}
 // 更新房间名
 class HomluxChangeRoomNameEven{
   late final String roomId;

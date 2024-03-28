@@ -90,6 +90,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     if(MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       bus.typeOn<HomluxDeleteHouseUser>(notifyHomluxLogout);
       bus.typeOn<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
+      bus.typeOn<HomluxUserCountChangeEvent>(apiCheckUserAuth);
       bus.typeOn<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
     } else if(MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       bus.typeOn<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
@@ -111,6 +112,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
     bus.typeOff<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
+    bus.typeOff<HomluxUserCountChangeEvent>(apiCheckUserAuth);
     checkGatewayTimer?.cancel();
   }
 

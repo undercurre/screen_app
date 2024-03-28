@@ -23,7 +23,7 @@ class CheckAuthAdapter extends MideaDataAdapter {
     if(familyId == null) return null;
     if(platform.inHomlux()) {
       var res = await HomluxUserApi.queryHouseAuth(familyId);
-      return !(res.isSuccess && (res.data?.isTourist() == true || res.data?.isNoRelationship() == true));
+      return !(res.isSuccess && res.data?.isNoRelationship() == true);
     } else if(platform.inMeiju()) {
       var res = await MeiJuUserApi.getHomeListFromMidea();
       if (res.isSuccess && res.data != null && res.data!.homeList != null) {

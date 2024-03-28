@@ -42,6 +42,7 @@ const TypeProjectChangeHouse = 'project_change_house';
 const TypeDeleteHouseUser = 'del_house_user';
 const TypeDeviceDel = 'device_del';
 const TypeChangeUserAuth = 'change_house_user_auth';
+const TypeQuitHouseUser = 'quit_house_user';
 
 
 
@@ -365,6 +366,8 @@ class HomluxPushManager {
       bus.typeEmit(HomluxDeleteHouseUser.of(entity.result?.eventData?.userId));
     } else if(TypeChangeUserAuth == eventType) {
       bus.typeEmit(HomluxChangeUserAuthEvent());
+    } else if(TypeQuitHouseUser == eventType) {
+      bus.typeEmit(HomluxUserCountChangeEvent());
     } else {
       Log.file('[WebSocket]homlux 此消息类型无法处理：$json');
     }
