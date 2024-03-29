@@ -258,44 +258,45 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
       //   _screens = [];
       // }
     }
-    return Stack(
-      children: [
-        if (layoutModel.layouts.isNotEmpty)
-          PageView.builder(
-            key: const ValueKey("123456"),
-            controller: _pageController,
-            scrollDirection: Axis.horizontal,
-            onPageChanged: (index) {
-              context.read<PageCounter>().currentPage = index;
-              indicatorState.currentState?.updateIndicator(index);
-            },
-            allowImplicitScrolling: true,
-            itemCount: _screens.length,
-            itemBuilder: (context, index) {
-              return KeepAliveWrapper(child: _screens[index]);
-            },
-          ),
-        if (layoutModel.layouts.isEmpty)
-          const SizedBox(
-            width: 480,
-            height: 480,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image(image: AssetImage('assets/newUI/empty.png')),
-                  // Padding(
-                  //   padding: EdgeInsets.only(top: 21),
-                  //   child: EditCardWidget(),
-                  // )
-                ],
+    return GestureDetector(
+      onLongPress: () {
+        Navigator.of(context).pushNamed('Custom');
+      },
+      child: Stack(
+        children: [
+          if (layoutModel.layouts.isNotEmpty)
+            PageView.builder(
+              key: const ValueKey("123456"),
+              controller: _pageController,
+              scrollDirection: Axis.horizontal,
+              onPageChanged: (index) {
+                context.read<PageCounter>().currentPage = index;
+                indicatorState.currentState?.updateIndicator(index);
+              },
+              allowImplicitScrolling: true,
+              itemCount: _screens.length,
+              itemBuilder: (context, index) {
+                return KeepAliveWrapper(child: _screens[index]);
+              },
+            ),
+          if (layoutModel.layouts.isEmpty)
+            const SizedBox(
+              width: 480,
+              height: 480,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image(image: AssetImage('assets/newUI/empty.png')),
+                  ],
+                ),
               ),
             ),
-          ),
-        if (layoutModel.layouts.isNotEmpty && layoutModel.getMaxPageIndex() > 1)
-          Indicator(key: indicatorState, defaultPosition: context.read<PageCounter>().currentPage, itemCount: _screens.length)
-      ],
+          if (layoutModel.layouts.isNotEmpty && layoutModel.getMaxPageIndex() > 1)
+            Indicator(key: indicatorState, defaultPosition: context.read<PageCounter>().currentPage, itemCount: _screens.length)
+        ],
+      ),
     );
   }
 
