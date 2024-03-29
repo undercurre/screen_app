@@ -81,7 +81,7 @@ class RelayModel extends ChangeNotifier {
         'reqId': Uuid().v4(),
         'applianceCode': System.gatewayApplianceCode!
       });
-      if (nodeInfo.isSuccess && nodeInfo.data != null) {
+      if (nodeInfo.isSuccess && nodeInfo.data != null && nodeInfo.data["data"] != null && nodeInfo.data["data"]["endlist"] != null) {
         localRelay1Name = (nodeInfo.data["data"]["endlist"][0]["name"] as String).isEmpty ? '按键1' : nodeInfo.data["data"]["endlist"][0]["name"];
         localRelay2Name = (nodeInfo.data["data"]["endlist"][1]["name"] as String).isEmpty ? '按键2' : nodeInfo.data["data"]["endlist"][1]["name"];
         notifyListeners();
