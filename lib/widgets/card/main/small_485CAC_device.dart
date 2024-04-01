@@ -20,7 +20,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
 
-
   bool disable;
   AdapterGenerateFunction<CACDataAdapter> adapterGenerateFunction;
 
@@ -45,7 +44,6 @@ class Small485CACDeviceCardWidget extends StatefulWidget {
 }
 
 class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
-
   late CACDataAdapter adapter;
 
   @override
@@ -53,7 +51,7 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disable){
+    if (!widget.disable) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
@@ -69,7 +67,6 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
       if (adapter.data!.targetTemp < 35) {
         setState(() {});
       }
-     
     }
   }
 
@@ -91,7 +88,8 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceName(
@@ -109,8 +107,8 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel =
+          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
       if (deviceListModel.deviceListHomlux.isEmpty &&
           deviceListModel.deviceListMeiju.isEmpty) {
@@ -119,14 +117,15 @@ class _Small485CACDeviceCardWidget extends State<Small485CACDeviceCardWidget> {
 
       return nameInModel;
     }
+
     String getRightText() {
       if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
+        if (adapter.isLocalDevice && adapter.data!.online) {
           return "${adapter.data!.targetTemp}℃";
         }
         return '离线';
       } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
+        if (adapter.isLocalDevice && !adapter.data!.online) {
           return '离线';
         }
         return "${adapter.data!.targetTemp}℃";
