@@ -34,8 +34,9 @@ class AiDataAdapter extends MideaDataAdapter {
   void initAiVoice() async {
     if (platform.inMeiju()) {
       Log.file('正在初始化美居AI语音');
-      Future.delayed(const Duration(milliseconds: 4000), () {
+      Future.delayed(const Duration(milliseconds: 20000), () {
         MeiJuAiAuthorApi.AiAuthor(deviceId: MeiJuGlobal.gatewayApplianceCode);
+        MeiJuAiAuthorApi.aiCustomDeviceName(true);
       });
       int count = 5;
       String? deviceSn;

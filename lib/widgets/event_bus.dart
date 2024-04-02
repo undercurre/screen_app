@@ -105,7 +105,7 @@ class EventBus {
       type = type.replaceAll("?", '');
     }
     emit(type, d, limitTime);
-    Log.file('[ bus ]发送事件类型 ${d.runtimeType} ${d.toString()}');
+    // Log.file('[ bus ]发送事件类型 ${d.runtimeType} ${d.toString()}');
   }
 
   void clearAllListener() {

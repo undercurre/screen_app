@@ -239,7 +239,7 @@ class MeiJuPushManager {
 
   static void _onData(event) {
     Map<String,dynamic> eventMap = json.decode(event);
-    Log.file('[ WebSocket ] 接收到的Push消息: $eventMap');
+    // Log.file('[ WebSocket ] 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
         Log.file('[ WebSocket ] recv beat heart');
@@ -405,7 +405,7 @@ class MeiJuPushManager {
                 }
               }
             } else {
-              Log.file('[WebSocket ] 该推送类型不进行处理 $type');
+              // Log.file('[WebSocket ] 该推送类型不进行处理 $type');
             }
           }
         }
