@@ -43,7 +43,7 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
 
   CAC485Data? data = CAC485Data(
       name: "空调",
-      online: true,
+      online: false,
       currTemp: 28,
       targetTemp: 26,
       operationMode: 1,
@@ -81,11 +81,11 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
           dataState = DataState.ERROR;
           data = CAC485Data(
               name: name,
-              online: true,
+              online: false,
               currTemp: 28,
               targetTemp: 26,
               operationMode: 4,
-              OnOff: true,
+              OnOff: false,
               windSpeed: 1);
         }
         updateUI();
@@ -95,11 +95,11 @@ class CACDataAdapter extends DeviceCardDataAdapter<CAC485Data> {
         dataState = DataState.ERROR;
         data = CAC485Data(
             name: name,
-            online: true,
+            online: false,
             currTemp: 28,
             targetTemp: 26,
             operationMode: 4,
-            OnOff: true,
+            OnOff: false,
             windSpeed: 1);
         updateUI();
       }
@@ -419,7 +419,7 @@ class CAC485Data {
   // 开关状态
   bool OnOff = false;
 
-  bool online = true;
+  bool online = false;
 
   //风速
   int windSpeed = 1;

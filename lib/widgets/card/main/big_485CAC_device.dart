@@ -77,6 +77,7 @@ class _Big485CACDeviceAirCardWidgetState
 
   void powerHandle(bool state) async {
     if (!adapter.data!.online) {
+      adapter.fetchData();
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
@@ -139,16 +140,10 @@ class _Big485CACDeviceAirCardWidgetState
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if (adapter.isLocalDevice && adapter.data!.online) {
-          return '在线';
-        }
-        return '离线';
+      if (adapter.data?.online == true) {
+        return "在线";
       } else {
-        if (adapter.isLocalDevice && !adapter.data!.online) {
-          return '离线';
-        }
-        return '在线';
+        return '离线';
       }
     }
 

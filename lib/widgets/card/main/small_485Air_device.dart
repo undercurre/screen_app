@@ -74,6 +74,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
 
   void powerHandle(bool state) async {
     if (!adapter.data!.online) {
+      adapter.fetchData();
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
@@ -124,25 +125,7 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
-          int windSpeed = 1;
-          if (adapter.data!.windSpeed == 1) {
-            windSpeed = 3;
-          } else if (adapter.data!.windSpeed == 2) {
-            windSpeed = 2;
-          } else if (adapter.data!.windSpeed == 4) {
-            windSpeed = 1;
-          } else {
-            windSpeed = 3;
-          }
-          return "$windSpeed档";
-        }
-        return '离线';
-      } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
-          return '离线';
-        }
+      if(adapter.data?.online == true) {
         int windSpeed = 1;
         if (adapter.data!.windSpeed == 1) {
           windSpeed = 3;
@@ -154,6 +137,8 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
           windSpeed = 3;
         }
         return "$windSpeed档";
+      } else {
+        return "离线";
       }
     }
 

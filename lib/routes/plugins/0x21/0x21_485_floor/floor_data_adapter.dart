@@ -42,10 +42,10 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
 
   Floor485Data? data = Floor485Data(
     name: "地暖",
-    online: true,
+    online: false,
     targetTemp: 26,
     currentTemp: 30,
-    OnOff: true,
+    OnOff: false,
   );
 
   DataState dataState = DataState.NONE;
@@ -79,9 +79,9 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
           dataState = DataState.ERROR;
           data = Floor485Data(
             name: name,
-            online: true,
+            online: false,
             targetTemp: 30,
-            OnOff: true,
+            OnOff: false,
             currentTemp: 30,
           );
         }
@@ -91,10 +91,10 @@ class FloorDataAdapter extends DeviceCardDataAdapter<Floor485Data> {
         dataState = DataState.ERROR;
         data = Floor485Data(
           name: name,
-          online: true,
+          online: false,
           targetTemp: 31,
           currentTemp: 30,
-          OnOff: true,
+          OnOff: false,
         );
       }
     } else {
@@ -396,6 +396,7 @@ class Floor485Data {
     targetTemp = int.parse(data.endList[0].event.targetTemp);
     currentTemp = int.parse(data.endList[0].event.currTemp);
     OnOff = data.endList[0].event.OnOff == "1" ? true : false;
+    online = true;
   }
 
   Floor485Data.fromHomlux(HomluxDeviceEntity data, String modelNumber) {
@@ -403,6 +404,7 @@ class Floor485Data {
     currentTemp = data.mzgdPropertyDTOList?.floorHeating?.currentTemperature ?? 0;
     targetTemp = data.mzgdPropertyDTOList?.floorHeating?.targetTemperature ?? 0;
     OnOff = data.mzgdPropertyDTOList?.floorHeating?.OnOff == 1;
+    online = data.onLineStatus == 1;
   }
 }
 

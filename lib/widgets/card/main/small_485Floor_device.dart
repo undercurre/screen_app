@@ -75,6 +75,7 @@ class _Small485FloorDeviceCardWidget
 
   void powerHandle(bool state) async {
     if (!adapter.data!.online) {
+      adapter.fetchData();
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
@@ -124,16 +125,10 @@ class _Small485FloorDeviceCardWidget
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
-          return "${adapter.data!.targetTemp}℃";
-        }
-        return '离线';
-      } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
-          return '离线';
-        }
+      if (adapter.data?.online == true) {
         return "${adapter.data!.targetTemp}℃";
+      } else {
+        return '离线';
       }
     }
 
