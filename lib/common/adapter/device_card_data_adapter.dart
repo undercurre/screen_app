@@ -21,7 +21,10 @@ enum AdapterType {
   panel,
   wifiAir,
   wifiYuba,
-  wifiLiangyi
+  wifiLiangyi,
+  wifiDianre,
+  wifiRanre,
+
 }
 
 /// 美居OrHomlux配置
@@ -31,7 +34,11 @@ const NeedCheckWaitLockAuthTypes = [
   AdapterType.wifiCurtain,
   AdapterType.wifiAir,
   AdapterType.wifiYuba,
-  AdapterType.wifiLiangyi
+  AdapterType.wifiLiangyi,
+  AdapterType.wifiDianre,
+  AdapterType.wifiRanre
+
+
 ];
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口

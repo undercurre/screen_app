@@ -414,6 +414,16 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                 "name": widget.name,
                                 "adapter": adapter
                               });
+                            }else if (adapter?.type == AdapterType.wifiDianre) {
+                              Navigator.pushNamed(context, '0xE2', arguments: {
+                                "name": widget.name,
+                                "adapter": adapter
+                              });
+                            }else if (adapter?.type == AdapterType.wifiRanre) {
+                              Navigator.pushNamed(context, '0xE3', arguments: {
+                                "name": widget.name,
+                                "adapter": adapter
+                              });
                             }
                           }
                         },

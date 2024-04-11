@@ -6,6 +6,8 @@ import 'package:screen_app/routes/plugins/0x21/0x21_485_cac/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_floor/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
+import 'package:screen_app/routes/plugins/0xE2/index.dart';
+import 'package:screen_app/routes/plugins/0xE3/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';
 import 'package:screen_app/routes/setting/engineering_mode.dart';
 import 'package:screen_app/routes/setting/homlux_ai_setting.dart';
@@ -87,6 +89,8 @@ var routes = <String, WidgetBuilder>{
   "0x21_485CAC": (context) => const AirCondition485Page(),
   "0x21_485Air": (context) => const FreshAir485Page(),
   "0x21_485Floor": (context) => const FloorHeating485Page(),
+  "0xE2": (context) => const ElectricWaterHeaterPage(),
+  "0xE3": (context) => const GasWaterHeaterPage(),
   "0xAC": (context) => const AirConditionPage(),
   "0xAC_newWind": (context) => const NewWindPage(),
   "0xAC_floorHeating": (context) => const FloorHeatingPage()
