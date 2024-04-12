@@ -23,8 +23,8 @@ class GasWaterHeaterDataEntity {
   int curTemperature=0;//
 
 
-  num minTemperature = 30; //可设置的最小温度
-  num maxTemperature = 75; //可设置的最大温度
+  num minTemperature = 32; //可设置的最小温度
+  num maxTemperature = 65; //可设置的最大温度
 
   GasWaterHeaterDataEntity({
     required power,
