@@ -6,6 +6,7 @@ import 'package:screen_app/routes/plugins/0x21/0x21_485_cac/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_floor/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
+import 'package:screen_app/routes/plugins/0xB6/index.dart';
 import 'package:screen_app/routes/plugins/0xE2/index.dart';
 import 'package:screen_app/routes/plugins/0xE3/index.dart';
 import 'package:screen_app/routes/setting/account_setting.dart';

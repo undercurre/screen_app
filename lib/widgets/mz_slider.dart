@@ -390,7 +390,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
     setState(() {
       value = temp;
       toValue = temp;
+      widget.onChanged?.call(toValue, activeColor[1]);
     });
-    widget.onChanged?.call(toValue, activeColor[1]);
   }
 }
