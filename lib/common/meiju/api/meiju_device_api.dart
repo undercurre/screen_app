@@ -71,6 +71,15 @@ class MeiJuDeviceApi {
     return applianceList;
   }
 
+  /// 设备lua控制
+  static Future<MeiJuResponseEntity> sendLuaOrderByIOT(
+      Map<String, dynamic> data) async {
+    return await MeiJuApi.requestMideaIot(
+        "/mas/v5/app/proxy?alias=/v1/device/lua/control",
+        data: data,
+        options: Options(method: 'POST'));
+  }
+
   /// 获取设备详情（lua）
   static Future<MeiJuResponseEntity> getDeviceDetail(String type,
       String applianceCode) async {

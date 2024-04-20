@@ -221,7 +221,6 @@ class Log {
 
   static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.i(message, error, stackTrace);
-    _fileLogger.i(message, error, stackTrace);
   }
 
   static void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
@@ -231,12 +230,10 @@ class Log {
 
   static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.d(message, error, stackTrace);
-    _fileLogger.d(message, error, stackTrace);
   }
 
   static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.v(message, error, stackTrace);
-    _fileLogger.v(message, error, stackTrace);
   }
 
   static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {

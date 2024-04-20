@@ -130,17 +130,13 @@ class _CardDialogState extends State<CardDialog> {
                       controller: _pageController,
                       scrollDirection: Axis.horizontal,
                       allowImplicitScrolling: true,
-                      children: [
-                        if (buildMap[
-                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                            widget.type,
-                            widget.modelNumber)]![CardType.Small] !=
-                            null)
-                          KeepAliveWrapper(
+                      children: getPageCardsTypeList().map((type) {
+                        if (type == CardType.Small) {
+                          return KeepAliveWrapper(
                             child: UnconstrainedBox(
                               child: buildMap[DeviceEntityTypeInP4Handle
                                   .getDeviceEntityType(widget.type,
-                                  widget.modelNumber)]![CardType.Small]!(
+                                      widget.modelNumber)]![CardType.Small]!(
                                 DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -158,19 +154,16 @@ class _CardDialogState extends State<CardDialog> {
                                     onlineStatus: '1'),
                               ),
                             ),
-                          ),
-                        if (buildMap[
-                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                            widget.type,
-                            widget.modelNumber)]![CardType.Middle] !=
-                            null)
-                          KeepAliveWrapper(
+                          );
+                        }
+                        if (type == CardType.Middle) {
+                          return KeepAliveWrapper(
                             child: Transform.scale(
                               scale: 0.75,
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                    widget.modelNumber)]![CardType.Middle]!(
+                                        widget.modelNumber)]![CardType.Middle]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -189,19 +182,16 @@ class _CardDialogState extends State<CardDialog> {
                                 ),
                               ),
                             ),
-                          ),
-                        if (buildMap[
-                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                            widget.type,
-                            widget.modelNumber)]![CardType.Other] !=
-                            null)
-                          KeepAliveWrapper(
+                          );
+                        }
+                        if (type == CardType.Other) {
+                          return KeepAliveWrapper(
                             child: Transform.scale(
                               scale: 0.75,
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                    widget.modelNumber)]![CardType.Other]!(
+                                        widget.modelNumber)]![CardType.Other]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -220,13 +210,10 @@ class _CardDialogState extends State<CardDialog> {
                                 ),
                               ),
                             ),
-                          ),
-                        if (buildMap[
-                        DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                            widget.type,
-                            widget.modelNumber)]![CardType.Big] !=
-                            null)
-                          KeepAliveWrapper(
+                          );
+                        }
+                        if (type == CardType.Big) {
+                          return KeepAliveWrapper(
                             child: Stack(
                               children: [
                                 Positioned(
@@ -237,9 +224,9 @@ class _CardDialogState extends State<CardDialog> {
                                     child: Transform.scale(
                                       scale: 0.75,
                                       child: buildMap[DeviceEntityTypeInP4Handle
-                                          .getDeviceEntityType(widget.type,
-                                          widget.modelNumber)]![
-                                      CardType.Big]!(
+                                              .getDeviceEntityType(widget.type,
+                                                  widget.modelNumber)]![
+                                          CardType.Big]!(
                                         DataInputCard(
                                           name: widget.name,
                                           applianceCode: widget.applianceCode,
@@ -261,8 +248,10 @@ class _CardDialogState extends State<CardDialog> {
                                 ),
                               ],
                             ),
-                          ),
-                      ],
+                          );
+                        }
+                        throw Exception("布局错误, 请检查布局类型是否在预设的布局类型范围内");
+                      }).toList(),
                       onPageChanged: (index) {
                         _handlePageChange(index);
                       },
@@ -281,22 +270,29 @@ class _CardDialogState extends State<CardDialog> {
     );
   }
 
-  int _getItemCount() {
-    int lang = 0;
+  List<CardType> getPageCardsTypeList() {
+    List<CardType> list = [];
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        widget.type, widget.modelNumber)]![CardType.Small] !=
-        null) lang ++;
+            widget.type, widget.modelNumber)]![CardType.Small] != null) {
+      list.add(CardType.Small);
+    }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        widget.type, widget.modelNumber)]![CardType.Middle] !=
-        null) lang ++;
+            widget.type, widget.modelNumber)]![CardType.Middle] != null) {
+      list.add(CardType.Middle);
+    }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        widget.type, widget.modelNumber)]![CardType.Other] !=
-        null) lang ++;
+            widget.type, widget.modelNumber)]![CardType.Other] != null) {
+      list.add(CardType.Other);
+    }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-        widget.type, widget.modelNumber)]![CardType.Big] !=
-        null) lang ++;
+            widget.type, widget.modelNumber)]![CardType.Big] != null) {
+      list.add(CardType.Big);
+    }
+    return list;
+  }
 
-    return lang;
+  int _getItemCount() {
+    return getPageCardsTypeList().length;
   }
 
   String _getTitle(CardType cardType) {
@@ -320,13 +316,7 @@ class _CardDialogState extends State<CardDialog> {
     if (type == 'weather' || type == 'clock') {
       return CardType.Other;
     }
-    ;
-    Map<int, CardType> cardTypeMap = {
-      0: CardType.Small,
-      1: CardType.Middle,
-      2: CardType.Big
-    };
-    return cardTypeMap[_currentIndex] ?? CardType.Small;
+    return getPageCardsTypeList()[_currentIndex];
   }
 
   CardType _getPanelCardType(String modelNum, String? type) {

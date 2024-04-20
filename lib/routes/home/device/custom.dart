@@ -170,7 +170,10 @@ class _CustomPageState extends State<CustomPage> {
         layout.data.context = context;
         layout.data.applianceCode = layout.deviceId;
         // 映射出对应的Card
-        if (buildMap[layout.type] == null) continue;
+        if (buildMap[layout.type]?[layout.cardType] == null) {
+          Log.e("异常布局类型 ${layout.type} ${layout.cardType} ");
+          continue;
+        }
         Widget cardWidget = buildMap[layout.type]![layout.cardType]!(layout.data);
 
         // 映射点击（用于置换）

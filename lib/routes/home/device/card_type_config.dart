@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/adapter/range_hood_device_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/routes/plugins/lightGroup/data_adapter.dart';
@@ -24,6 +25,7 @@ import '../../../widgets/card/main/big_485Floor_device.dart';
 import '../../../widgets/card/main/big_device_electric_water_heater.dart';
 import '../../../widgets/card/main/big_device_gas_water_heater.dart';
 import '../../../widgets/card/main/big_device_liangyi.dart';
+import '../../../widgets/card/main/big_range_hood_device.dart';
 import '../../../widgets/card/main/big_scene_panel_three.dart';
 import '../../../widgets/card/main/middle_485Air_device.dart';
 import '../../../widgets/card/main/middle_485CAC_device.dart';
@@ -83,6 +85,8 @@ enum DeviceEntityTypeInP4 {
   Device0x26,
   // 晾衣机
   Device0x17,
+  // 抽油烟机
+  Device0xB6,
   // 灯组
   Zigbee_lightGroup,
   // zigbee灯
@@ -296,6 +300,26 @@ class DataInputCard {
 }
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> buildMap = {
+  // 抽油烟机
+  DeviceEntityTypeInP4.Device0xB6: {
+    CardType.Big: (params) => BigRangeHoodDeviceCardWidget(
+      disabled: params.disabled ?? false,
+      discriminative: params.discriminative ?? false,
+      applianceCode: params.applianceCode,
+      name: params.name,
+      adapterGenerateFunction: (id) {
+        return MideaDataAdapter.getOrCreateAdapter(
+            id,
+                (id) => RangeHoodDeviceDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+      },
+      online: params.isOnline == '1',
+      roomName: params.roomName,
+    ),
+  },
   // 其他组件
   DeviceEntityTypeInP4.Clock: {
     CardType.Other: (params) => DigitalClockWidget(

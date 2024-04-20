@@ -375,7 +375,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         layoutAfterSort.data.disabled = false;
         layoutAfterSort.data.context = context;
         Log.i('layoutAfterSort', layoutAfterSort.type);
-        if (buildMap[layoutAfterSort.type] == null) continue;
+        if (buildMap[layoutAfterSort.type]?[layoutAfterSort.cardType] == null) {
+          Log.e("异常布局类型 ${layoutAfterSort.type} ${layoutAfterSort.cardType} ");
+          continue;
+        }
         Widget cardWidget = buildMap[layoutAfterSort.type]![layoutAfterSort.cardType]!(layoutAfterSort.data);
         // 映射布局占格
         Widget cardWithPosition = StaggeredGridTile.fit(
