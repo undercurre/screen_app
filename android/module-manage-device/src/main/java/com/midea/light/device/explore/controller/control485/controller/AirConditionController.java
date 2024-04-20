@@ -268,7 +268,7 @@ public class AirConditionController implements Data485Observer {
         AirConditionAgr type = AirConditionAgr.parseWorkModel(arrayDatum);
         airConditionModel.setWorkModel(type.data);
     }
-
+    List<Byte> dataList = new ArrayList<>();
     private void controlDataCombination(AirConditionModel device, String commandCode, String data) {
         StringBuffer sb = new StringBuffer();
         sb.append("01");
@@ -285,7 +285,16 @@ public class AirConditionController implements Data485Observer {
         sb.append(" ");
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
         ControlManager.getInstance().clearFlashCommand();
-        ControlManager.getInstance().write(sb.toString());
+        dataList.clear();
+        String[] strArry = sb.toString().split(" ");
+        for (int i = 0; i < strArry.length; i++) {
+            dataList.add(hexToByte(strArry[i]));
+        }
+        byte[] destinationArray = new byte[dataList.size()];
+        for (int i = 0; i < dataList.size(); i++) {
+            destinationArray[i] = dataList.get(i);
+        }
+        ControlManager.getInstance().write(destinationArray);
 //        Log.e("sky","空调放进去的数据:"+sb);
 
     }
@@ -324,8 +333,24 @@ public class AirConditionController implements Data485Observer {
         sb.append(" ");
         sb.append(SumUtil.sum(sb.toString().toUpperCase()));
         ControlManager.getInstance().clearFlashCommand();
-        ControlManager.getInstance().write(sb.toString());
+
+        dataList.clear();
+        String[] strArry = sb.toString().split(" ");
+        for (int i = 0; i < strArry.length; i++) {
+            dataList.add(hexToByte(strArry[i]));
+        }
+        byte[] destinationArray = new byte[dataList.size()];
+        for (int i = 0; i < dataList.size(); i++) {
+            destinationArray[i] = dataList.get(i);
+        }
+        ControlManager.getInstance().write(destinationArray);
 //        Log.e("sky","多属性控制发出去的指令:"+sb);
+    }
+
+    public byte hexToByte(String arg) {
+        int val = Integer.valueOf(arg, 16).intValue();
+        byte c = (byte) (val & 0xff);
+        return c;
     }
 
 }

@@ -58,7 +58,7 @@ public class ControlManager implements Data485Subject {
     private static final int BAUD_RATE = 9600;
     public boolean running = true, isFirstFrame = false, commandFinish = true;
     private StringBuffer total = new StringBuffer();
-    private String[] commandStrArry;
+    private byte[] commandStrArry;
     private int totalSize = 0, resetTime = 0;
     private long read0Times = 0;
     private static List<Data485Observer> observers = new ArrayList<>();
@@ -110,9 +110,9 @@ public class ControlManager implements Data485Subject {
         }
     }
 
-    BlockingQueue<String> queue = new LinkedBlockingQueue<>(100);
+    BlockingQueue<byte[]> queue = new LinkedBlockingQueue<>(100);
 
-    public void write(String str) {
+    public void write(byte[] str) {
         //生产者生产数据
         if (queue.contains(str)) {
             return;
@@ -122,7 +122,7 @@ public class ControlManager implements Data485Subject {
     }
 
     public void clearFlashCommand() {
-        List<String> removeList = new ArrayList<>();
+        List<byte[]> removeList = new ArrayList<>();
         removeList.add(GET_ALL_AIR_CONDITION_ONLINE_STATE.data);
         removeList.add(GET_ALL_AIR_CONDITION_PARAMETE.data);
         removeList.add(GET_ALL_FRESH_AIR_ONLINE_STATE.data);
@@ -177,32 +177,32 @@ public class ControlManager implements Data485Subject {
 //                            Log.e("sky", "读到数据量:" + size);
 //                                //判断请求指令,根据请求指令来判断是否数据完整
                             if (isFirstFrame) {
-                                if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE.data)) {
+                                if (commandStrArry[1]==((byte) Integer.parseInt(AIR_CONDITION_QUERY_CODE.data, 16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_AIR_CONDITION_QUERY_ONLINE_STATE_CODE.data, 16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
                                     totalSize = num * 3 + 5;
 //                                        Log.e("sky", "数量需要数据量:" + totalSize);
-                                } else if (commandStrArry[1].equals(AIR_CONDITION_QUERY_CODE.data) && commandStrArry[2].equals(ALL_AIR_CONDITION_QUERY_PARELETE_CODE.data)) {
+                                } else if (commandStrArry[1]==((byte) Integer.parseInt(AIR_CONDITION_QUERY_CODE.data,16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_AIR_CONDITION_QUERY_PARELETE_CODE.data,16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到空调数量
                                     totalSize = num * 10 + 5;
 //                                        Log.e("sky", "属性需要数据量:" + totalSize);
-                                } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE.data)) {
+                                } else if (commandStrArry[1]==((byte) Integer.parseInt(FRESH_AIR_QUERY_CODE.data,16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_FRESH_AIR_QUERY_ONLINE_STATE_CODE.data,16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
                                     totalSize = num * 3 + 5;
 //                                        Log.e("sky", "需要数据量:" + totalSize);
-                                } else if (commandStrArry[1].equals(FRESH_AIR_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FRESH_AIR_QUERY_PARELETE_CODE.data)) {
+                                } else if (commandStrArry[1]==((byte) Integer.parseInt(FRESH_AIR_QUERY_CODE.data,16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_FRESH_AIR_QUERY_PARELETE_CODE.data,16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到新风数量
                                     totalSize = num * 10 + 5;
 //                                        Log.e("sky", "需要数据量:" + totalSize);
-                                } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data)) {
+                                } else if (commandStrArry[1]==((byte) Integer.parseInt(FLOOR_HOT_QUERY_CODE.data,16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_FLOOR_HOT_QUERY_ONLINE_STATE_CODE.data,16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
                                     totalSize = num * 3 + 5;
 //                                        Log.e("sky", "需要数据量:" + totalSize);
-                                } else if (commandStrArry[1].equals(FLOOR_HOT_QUERY_CODE.data) && commandStrArry[2].equals(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data)) {
+                                } else if (commandStrArry[1]==((byte) Integer.parseInt(FLOOR_HOT_QUERY_CODE.data,16)) && commandStrArry[2]==((byte) Integer.parseInt(ALL_FLOOR_HOT_QUERY_PARELETE_CODE.data,16))) {
                                     byte b = buffer[3];
                                     int num = Integer.parseInt(Integer.toHexString(b & 0xFF).toUpperCase(), 16);//num为拿到地暖数量
                                     totalSize = num * 10 + 5;
@@ -258,11 +258,11 @@ public class ControlManager implements Data485Subject {
 
     public class Consumer implements Runnable {
 
-        private BlockingQueue<String> queue;
-        List<Byte> data = new ArrayList<>();
+        private BlockingQueue<byte[]> queue;
+        private byte[] str;
 
         //构造函数
-        public Consumer(BlockingQueue<String> queue) {
+        public Consumer(BlockingQueue<byte[]> queue) {
             this.queue = queue;
         }
 
@@ -270,24 +270,15 @@ public class ControlManager implements Data485Subject {
             while (running) {
                 //消费者消费数据,消费结束的标志是commandFinish为true
                 if (commandFinish == true) {
-                    String str = queue.poll();
+                    str = queue.poll();
                     isFirstFrame = true;
                     commandFinish = false;
                     if (null != str) {
 //                      Log.e("sky", "拿到要执行的数据:"+str+"---queue大小:"+queue.size());
-                        commandStrArry = str.split(" ");
+                        commandStrArry = str;
                         if (mOutputStream != null) {
-                            data.clear();
-                            String[] strArry = str.split(" ");
-                            for (int i = 0; i < strArry.length; i++) {
-                                data.add(hexToByte(strArry[i]));
-                            }
-                            byte[] destinationArray = new byte[data.size()];
-                            for (int i = 0; i < data.size(); i++) {
-                                destinationArray[i] = data.get(i);
-                            }
                             try {
-                                mOutputStream.write(destinationArray);
+                                mOutputStream.write(str);
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 Log.e("sky", "mOutputStream报错:" + e.getMessage());
@@ -373,12 +364,6 @@ public class ControlManager implements Data485Subject {
             mSerialPort = null;
             observers.clear();
         }
-    }
-
-    public byte hexToByte(String arg) {
-        int val = Integer.valueOf(arg, 16).intValue();
-        byte c = (byte) (val & 0xff);
-        return c;
     }
 
     @Override

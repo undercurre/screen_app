@@ -5,7 +5,6 @@ import android.util.Log;
 import com.midea.light.device.explore.controller.control485.ControlManager;
 import com.midea.light.device.explore.controller.control485.agreement.AirConditionAgr;
 import com.midea.light.device.explore.controller.control485.dataInterface.Data485Observer;
-import com.midea.light.device.explore.controller.control485.util.SumUtil;
 
 import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.COMMAND_CHANGE_AIR_CONDITION_TYPE_CODE;
 import static com.midea.light.device.explore.controller.control485.agreement.GetWayAgr.GET_ALL_AIR_CONDITION_ONLINE_STATE;
@@ -48,28 +47,28 @@ public class GetWayController implements Data485Observer {
       ControlManager.getInstance().write(GET_ALL_FLOOR_HOT_PARAMETE.data);
    }
 
-   public void changeAirConditionType(String airType){
-      AirConditionAgr type=AirConditionAgr.parseAirConditionType(airType);
-      controlDataCombination(COMMAND_CHANGE_AIR_CONDITION_TYPE_CODE.data,type.data);
-   }
-
-   private void controlDataCombination(String commandCode, String data){
-      StringBuffer sb = new StringBuffer();
-      sb.append("01");
-      sb.append(" ");
-      sb.append(commandCode);
-      sb.append(" ");
-      sb.append(data);
-      sb.append(" ");
-      sb.append("FF");
-      sb.append(" ");
-      sb.append("FF");
-      sb.append(" ");
-      sb.append("FF");
-      sb.append(" ");
-      sb.append(SumUtil.sum(sb.toString()));
-      ControlManager.getInstance().write(sb.toString());
-   }
+//   public void changeAirConditionType(String airType){
+//      AirConditionAgr type=AirConditionAgr.parseAirConditionType(airType);
+//      controlDataCombination(COMMAND_CHANGE_AIR_CONDITION_TYPE_CODE.data,type.data);
+//   }
+//
+//   private void controlDataCombination(String commandCode, String data){
+//      StringBuffer sb = new StringBuffer();
+//      sb.append("01");
+//      sb.append(" ");
+//      sb.append(commandCode);
+//      sb.append(" ");
+//      sb.append(data);
+//      sb.append(" ");
+//      sb.append("FF");
+//      sb.append(" ");
+//      sb.append("FF");
+//      sb.append(" ");
+//      sb.append("FF");
+//      sb.append(" ");
+//      sb.append(SumUtil.sum(sb.toString()));
+//      ControlManager.getInstance().write(sb.toString());
+//   }
 
 
    @Override

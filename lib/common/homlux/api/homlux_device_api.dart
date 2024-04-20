@@ -662,7 +662,7 @@ class HomluxDeviceApi {
     var lanActions = [
       <String, dynamic>{
         'modelName': 'light',
-        'deviceProperty': {'power': onOff == 1 ? 'on' : 'off'}
+        'deviceProperty': {'power': onOff == 1 ? 1 : 0}
       }
     ];
 
