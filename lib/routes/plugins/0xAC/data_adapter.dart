@@ -36,7 +36,7 @@ class AirDataEntity {
     power = data["power"] == "on";
     mode = data["mode"];
     temperature = data["temperature"];
-    indoorTemperature= data["indoor_temperature"];
+    indoorTemperature= data["indoor_temperature"]??26;
     smallTemperature = double.parse(data["small_temperature"].toString());
     wind = data["wind_speed"];
   }
@@ -202,7 +202,7 @@ class WIFIAirDataAdapter extends DeviceCardDataAdapter<AirDataEntity> {
   Future<dynamic> fetchMeijuData() async {
     try {
       var nodeInfo =
-          await MeiJuDeviceApi.getDeviceDetail('0x13', applianceCode);
+          await MeiJuDeviceApi.getDeviceDetail('0xAC', applianceCode);
       return nodeInfo.data;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
