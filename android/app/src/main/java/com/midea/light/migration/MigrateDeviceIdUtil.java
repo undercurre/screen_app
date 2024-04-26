@@ -88,6 +88,9 @@ public class MigrateDeviceIdUtil extends AbstractMMKVSetting {
 
     public String getGatewayApplicationCode(){
         ApplianceBean mApplianceBean= get("gateway_bind_detail", ApplianceBean.class);
+        if(mApplianceBean==null){
+        return "";
+        }
         return mApplianceBean.getApplianceCode();
 
     }

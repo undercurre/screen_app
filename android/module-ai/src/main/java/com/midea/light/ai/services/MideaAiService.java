@@ -7,12 +7,9 @@ import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -47,7 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -285,58 +281,10 @@ public class MideaAiService extends Service {
             player.cleanPlayList();
         }
         int wakeupnum = new Random().nextInt(7) + 1;
-        Uri playUri = Uri.parse("/sdcard/tts/greeting" + wakeupnum + ".mp3");
-        MediaPlayer mm = new MediaPlayer();
-        try {
-            mm.setDataSource(this, playUri);
-            mm.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mm.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mm.start();
-            }
-        });
-        mm.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mm.reset();
-                mm.release();
-            }
-        });
-        String wkString = "你好";
-        switch (wakeupnum) {
-            case 1://你好
-                wkString = "你好";
-                break;
-            case 2://你说
-                wkString = "你说";
-
-                break;
-            case 3://唉
-                wkString = "唉";
-
-                break;
-            case 4://在呢
-                wkString = "在呢";
-
-                break;
-            case 5://我在
-                wkString = "我在";
-
-                break;
-            case 6://来了
-                wkString = "来了";
-
-                break;
-            case 7://请吩咐
-                wkString = "请吩咐";
-                break;
-        }
-        Bundle bundle = new Bundle();
-        bundle.putString("wk", wkString);
+        String path = "/sdcard/tts/greeting" + wakeupnum + ".mp3";
+        player = Player.getInstance();
+        TTSItem m = new TTSItem(path);
+        player.playItem(m);
         dismissWeatherDialog();
     }
 
@@ -598,16 +546,6 @@ public class MideaAiService extends Service {
         }
 
         if (ttsList != null && ttsList.size() > 0) {
-            player.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(IMediaPlayer mp) {
-                    if (mp != null) {
-                        if (wakeUpState == false) {
-                            mp.start();
-                        }
-                    }
-                }
-            });
             player.setOnFinishListener(new Player.OnFinishListener() {
                 @Override
                 public void onAllFinish() {
@@ -683,50 +621,47 @@ public class MideaAiService extends Service {
         return;
     }
 
-    private Mw.Callback func = new Mw.Callback() {
-        @Override
-        public void function(final int type, final String eventName, final String data) throws InterruptedException {
-            Log.e(TAG, "mwCallback type:" + "0x" + Integer.toHexString(type) + " ,eventName:" + eventName + " , data:" + data);
+    private Mw.Callback func = (type, eventName, data) -> {
+        Log.e(TAG, "mwCallback type:" + "0x" + Integer.toHexString(type) + " ,eventName:" + eventName + " , data:" + data);
 
-            switch (type) {
-                case 0x61160200:    //唤醒阶段
-                    wakeUpSession();
-                    break;
-                case 0x61160201:    //MCRC_EV_OUTER_REQ_ANDROID_USER_VAD_TIMEOUT
-                    break;
-                case 0x61160202:    //MCRC_EV_OUTER_REQ_ANDROID_USER_DOA
-                    break;
-                case 0x61130009:    //AICLOUD_RESULT_STATE
-                    break;
-                case 0x61130008:    //思考阶段
-                    thinkSession(data);
-                    break;
-                case 0x61130003:    //提的问题云端识别后返回阶段
-                case 0x6113001c:    //实时识别问的内容
-                    askSession(data);
-                    break;
-                case 0x61160501://闹铃功能
-                    AlermSession(data);
-                    break;
-                case 0x61130002:    //识别后回答阶段
-                    answerSession(data);
-                    break;
-                case 0x61130006:    //技能
-                    skillType(data);
-                    break;
-                case 0x61130001:    //MCRC_EV_OUTER_REQ_USER_QUERY_DEVICE
-                    break;
-                case 0x61130000:    //MCRC_EV_OUTER_REQ_USER_DEVICE_CONTROL
-                    break;
-                case 0x6113000b:    //音量调节
-                    AudioChangeSession(data);
-                    break;
-                case 0x61160502:    //继续/停止播放
-                    PauseResumeSession(data);
-                    break;
-                default:
-                    break;
-            }
+        switch (type) {
+            case 0x61160200:    //唤醒阶段
+                wakeUpSession();
+                break;
+            case 0x61160201:    //MCRC_EV_OUTER_REQ_ANDROID_USER_VAD_TIMEOUT
+                break;
+            case 0x61160202:    //MCRC_EV_OUTER_REQ_ANDROID_USER_DOA
+                break;
+            case 0x61130009:    //AICLOUD_RESULT_STATE
+                break;
+            case 0x61130008:    //思考阶段
+                thinkSession(data);
+                break;
+            case 0x61130003:    //提的问题云端识别后返回阶段
+            case 0x6113001c:    //实时识别问的内容
+                askSession(data);
+                break;
+            case 0x61160501://闹铃功能
+                AlermSession(data);
+                break;
+            case 0x61130002:    //识别后回答阶段
+                answerSession(data);
+                break;
+            case 0x61130006:    //技能
+                skillType(data);
+                break;
+            case 0x61130001:    //MCRC_EV_OUTER_REQ_USER_QUERY_DEVICE
+                break;
+            case 0x61130000:    //MCRC_EV_OUTER_REQ_USER_DEVICE_CONTROL
+                break;
+            case 0x6113000b:    //音量调节
+                AudioChangeSession(data);
+                break;
+            case 0x61160502:    //继续/停止播放
+                PauseResumeSession(data);
+                break;
+            default:
+                break;
         }
     };
 
@@ -768,8 +703,6 @@ public class MideaAiService extends Service {
             mAiDialog.create();
             mAiDialog.wakeupInitialData();
             mAiDialog.show();
-
-//        GateWayLightControlUtil.aiLightShow();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -808,14 +741,6 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/unknowinputbye.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        player.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(IMediaPlayer mp) {
-                if (mp != null) {
-                    mp.start();
-                }
-            }
-        });
         mAiDialog.addAnsAskItem("小美没有听懂再见!");
         sayOver();
 
@@ -827,14 +752,6 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/timeout.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        player.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(IMediaPlayer mp) {
-                if (mp != null) {
-                    mp.start();
-                }
-            }
-        });
         mAiDialog.addAnsAskItem("抱歉,刚刚有和我说话吗?请再呼唤小美吧!");
         sayOver();
 
@@ -1194,14 +1111,6 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/network_config_fail.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        player.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(IMediaPlayer mp) {
-                if (mp != null) {
-                    mp.start();
-                }
-            }
-        });
         alarm110("请检查网络!");
         Message message = new Message();
         message.arg1 = 1;
@@ -1364,7 +1273,7 @@ public class MideaAiService extends Service {
             player_meta.put("status", str_status);
             player_meta.put("resource", play_element);
             root.put("player", player_meta);
-            Log.d(TAG, "report_playerStatus_to_cloud: " + root.toString());
+            Log.d(TAG, "report_playerStatus_to_cloud: " + root);
 
             boolean isgreeting = false;
             if (tar_item.getUrlType().isEmpty()) {

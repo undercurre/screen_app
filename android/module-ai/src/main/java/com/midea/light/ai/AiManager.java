@@ -148,7 +148,7 @@ public class AiManager {
             try {
                 sever.addWakUpStateCallBack(new IMideaLightWakUpStateCallBack.Stub() {
                     @Override
-                    public void wakUpState(boolean isWakUp) throws RemoteException {
+                    public void wakUpState(boolean isWakUp) {
                         mWakUpStateCallBack.wakUpState(isWakUp);
                     }
                 });
@@ -164,7 +164,7 @@ public class AiManager {
             try {
                 sever.addMusicPlayControlCallBack(new IMideaLightMusicPlayControlBack.Stub() {
                     @Override
-                    public void playControl(String Control) throws RemoteException {
+                    public void playControl(String Control) {
                         MusicPlayControl.playControl(Control);
                     }
                 });
@@ -180,7 +180,7 @@ public class AiManager {
             try {
                 sever.addAISetVoiceCallBack(new IMideaLightAISetVoiceCallBack.Stub() {
                     @Override
-                    public void SetVoice(int Voice) throws RemoteException {
+                    public void SetVoice(int Voice) {
                         SetVoiceCallBack.SetVoice(Voice);
                     }
                 });
@@ -196,7 +196,7 @@ public class AiManager {
             try {
                 sever.addAIControlDeviceErrorCallBack(new IMideaLightAiControlDeviceErrorCallBack.Stub() {
                     @Override
-                    public void ControlDeviceError() throws RemoteException {
+                    public void ControlDeviceError() {
                         ControlDeviceErrorCallBack.ControlDeviceError();
                     }
                 });
