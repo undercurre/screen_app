@@ -206,10 +206,8 @@ class Log {
         ConsoleOutput(),
         FileOutput(
             overrideExisting: true,
-            fileLimit: 10 * 1024* 1024,
+            fileLimit: 10 * 1024 * 1024,
             filePath: '/data/data/com.midea.light/cache/DevelopLog.txt'
-            // file: File.fromUri(Uri.file(
-            //     '/data/data/com.midea.light/cache/DevelopLog.txt'))
         )]),
       level: Level.verbose
   );

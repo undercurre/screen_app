@@ -59,10 +59,10 @@ class EventBus {
     var lastPushTime = _limitEventTime[eventName];
     var curTime = DateTime.now().millisecondsSinceEpoch;
     if(lastPushTime != null && curTime - lastPushTime < limitTime) {
-      Log.file('[ bus ]推送事件类型：$eventName 发送太频繁，已被忽略 记录的事件数量${_limitEventTime.length}');
+      Log.develop('[ bus ]推送事件类型：$eventName 发送太频繁，已被忽略 记录的事件数量${_limitEventTime.length}');
       return;
     }
-    Log.file('[ bus ]推送事件类型：$eventName 监听者数量：${list.length}');
+    Log.develop('[ bus ]推送事件类型：$eventName 监听者数量：${list.length}');
     // 反向遍历，防止订阅者在回调中移除自身带来的下标错位
     for (int i = list.length - 1; i > -1; --i) {
       await Future.delayed(const Duration(milliseconds: 500));

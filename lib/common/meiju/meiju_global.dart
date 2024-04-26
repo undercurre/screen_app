@@ -139,10 +139,10 @@ class MeiJuGlobal {
     /// 之后间隔3小时刷新一次
     refreshTokenTimer = Timer(const Duration(minutes: 1), () {
       if (token == null) return;
-      MeiJuApi.tryToRefreshToken();
+      MeiJuApi.tryToRefreshToken("系统启动刷新Token");
       refreshTokenTimer = Timer.periodic(const Duration(hours: 3), (timer) {
         if (token == null) return;
-        MeiJuApi.tryToRefreshToken();
+        MeiJuApi.tryToRefreshToken("定时刷新Token");
       });
     });
   }

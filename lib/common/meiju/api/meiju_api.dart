@@ -31,6 +31,15 @@ class MeiJuApiHelper {
 
 }
 
+//美居&美智Token 联合状态
+enum TokenCombineState {
+  ALL_EXPIRED,   // 美居&美智过期
+  ONLY_MEIZHI_EXPIRED,// 只有美智过期
+  NORMAL         // 都正常
+}
+
+
+
 class MeiJuApi {
   // 单例实例
   static final MeiJuApi _instance = MeiJuApi._internal();
@@ -40,6 +49,9 @@ class MeiJuApi {
   factory MeiJuApi() {
     return _instance;
   }
+
+  /// token状态
+  static TokenCombineState tokenState = TokenCombineState.NORMAL;
 
   /// 密钥
   static var secret = dotenv.get('SECRET');
@@ -75,11 +87,11 @@ class MeiJuApi {
           'queryParameters: ${options.queryParameters}  \n');
       return handler.next(options);
     }, onResponse: (response, handler) {
-      Log.file('${response.requestOptions.path} \n '
+      Log.file('【onResponse】: ${response.requestOptions.path} \n '
           'onResponse: $response.');
       return handler.next(response);
     }, onError: (e, handler) {
-      Log.file('onError:\n'
+      Log.file('【onResponse】: onError:\n'
           '${e.toString()} \n '
           '${e.requestOptions.path} \n'
           '${e.response}');
@@ -267,11 +279,20 @@ class MeiJuApi {
     return true;
   }
 
-  static tryToRefreshToken() async {
+  static tryToRefreshToken(String msg) async {
+    Log.file("[刷新Token]原因：$msg}");
     if(!refreshTokenActive) {
       try {
         refreshTokenActive = true;
-        await iotAutoLogin() && await mzAutoLogin();
+        tokenState = TokenCombineState.ALL_EXPIRED;
+        bool meijuResult = await iotAutoLogin();
+        if(meijuResult) {
+          tokenState = TokenCombineState.ONLY_MEIZHI_EXPIRED;
+        }
+        bool mzResult = await mzAutoLogin();
+        if(mzResult && meijuResult) {
+          tokenState = TokenCombineState.NORMAL;
+        }
       } finally {
         refreshTokenActive = false;
       }
@@ -386,7 +407,9 @@ class MeiJuApi {
 
     var entity =  MeiJuResponseEntity<T>.fromJson(res.data);
     if(isIOTLogoutCode(entity.code)) {
-      tryToRefreshToken();
+      tryToRefreshToken("IOT后台提示Token过期");
+    } else if(tokenState != TokenCombineState.NORMAL) {
+      tryToRefreshToken("本地Token刷新状态未成功。当前状态：$tokenState");
     }
 
     return entity;
@@ -466,13 +489,15 @@ class MeiJuApi {
     var entity = MeiJuResponseEntity<T>.fromJson(res.data);
     // 多增加[isIOTLogoutCode] 已防止美智平台接口直接将iot的错误码返回到客户端
     if (isMZLogoutCode(entity.code) || isIOTLogoutCode(entity.code)) {
-      tryToRefreshToken();
+      tryToRefreshToken("美智后台提示Token失效");
     } else if(res.data['result'] != null && res.data['result'] is String
         && res.data['result'].toString().contains('invalid_token')) {
       // 特殊处理 美智中台接口会返回下面报错数据
       // {"result":"{\"error_description\":\"The access token is invalid or has expired\",\"error\":\"invalid_token\"}\n",
       // "code":0,"msg":"成功!","success":true,"timestamp":1697439277668}
-      tryToRefreshToken();
+      tryToRefreshToken("美智后台提示Token失效");
+    } else if(tokenState != TokenCombineState.NORMAL) {
+      tryToRefreshToken("本地Token刷新状态未成功。当前状态：$tokenState");
     }
     return entity;
   }
