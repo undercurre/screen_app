@@ -1,6 +1,7 @@
 package com.midea.light.ai.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -9,10 +10,12 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,7 +36,6 @@ import com.midea.light.ai.IMideaLightServerBindCallBack;
 import com.midea.light.ai.IMideaLightServerInitialCallBack;
 import com.midea.light.ai.IMideaLightWakUpStateCallBack;
 import com.midea.light.ai.MideaLightMusicInfo;
-import com.midea.light.ai.brocast.NetWorkStateReceiver;
 import com.midea.light.ai.music.MusicBean;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
@@ -57,7 +59,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class MideaAiService extends Service {
     private Context Acontext;
-    boolean wakeUpState = false, isManLoadMusic = false;
+    boolean wakeUpState = false, isManLoadMusic = false,isWifiLink = true,hasReportDisconnect=false,hasReportConnect=false;
     private static final String TAG = "sky";
     public Mw mMediaMwEngine=Mw.getInstance();
     public static final int SAMPLE_RATE_IN_HZ = 32000;//采样率，线mic：32000，环mic：48000
@@ -216,6 +218,11 @@ public class MideaAiService extends Service {
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
+                    isWifiLink=true;
+                    String linkstatus = "{\"link_status\":1}";
+                    if (mMediaMwEngine != null) {
+                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -259,7 +266,6 @@ public class MideaAiService extends Service {
         } catch (Exception d) {
             Log.e(TAG, "语音异常:" + d.getMessage());
         }
-
     }
 
     public void stopRecord() {
@@ -500,7 +506,7 @@ public class MideaAiService extends Service {
             return;
         }
 
-        if (!NetWorkStateReceiver.getInstant().netWorkAvailable()) {
+        if (!isWifiLink) {
             Message message = new Message();
             message.arg1 = 9;
             mHandler.sendMessage(message);
@@ -515,8 +521,12 @@ public class MideaAiService extends Service {
             object = new JSONObject(data);
             lastSessionid = object.getJSONObject("nlu").getString("sessionId");
             lastEndSession = object.getJSONObject("nlu").getBoolean("endSession");
-            timeout = object.getJSONObject("nlu").getString("timeout");
-            asr = object.getJSONObject("nlu").getString("asr");
+            if(object.getJSONObject("nlu").has("timeout")){
+                timeout = object.getJSONObject("nlu").getString("timeout");
+            }
+            if(object.getJSONObject("nlu").has("asr")){
+                asr = object.getJSONObject("nlu").getString("asr");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1302,16 +1312,65 @@ public class MideaAiService extends Service {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(NetWorkStateReceiver.getInstant(), filter);
+        registerReceiver(receiver, filter);
     }
 
     public void unreregisterNetworkReceiver() {
         try {
-            unregisterReceiver(NetWorkStateReceiver.getInstant());
-        } catch (RuntimeException e){
-            e.printStackTrace();
-        }
+            unregisterReceiver(receiver);
+        }catch (RuntimeException e){
 
+        }
     }
 
+    private final NetWorkStateReceiver receiver = new NetWorkStateReceiver();
+
+    private class NetWorkStateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+                Parcelable parcelableExtra = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (null != parcelableExtra) {
+                    //获取联网状态的NetWorkInfo对象
+                    NetworkInfo networkInfo = (NetworkInfo) parcelableExtra;
+                    //获取的State对象则代表着连接成功与否等状态
+                    NetworkInfo.State state = networkInfo.getState();
+                    //判断网络是否已经连接
+                    boolean isConnected = state == NetworkInfo.State.CONNECTED;
+                    if (isConnected) {
+                        isWifiLink=true;
+                        String linkstatus = "{\"link_status\":1}";
+                        if (mMediaMwEngine != null&&!hasReportConnect) {
+                            Schedulers.computation().scheduleDirect(() -> {
+                                try {
+                                    Thread.sleep(1000);
+                                    hasReportDisconnect=false;
+                                    hasReportConnect=true;
+                                    mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
+                                } catch (InterruptedException e) {
+
+                                }
+                            });
+                        }
+                    }else{
+                        isWifiLink=false;
+                        String linkstatus2 = "{\"link_status\":0}";
+                        if (mMediaMwEngine != null&&!hasReportDisconnect) {
+                            hasReportDisconnect=true;
+                            hasReportConnect=false;
+                            mMediaMwEngine.routerLinkStatusUpdate(linkstatus2);
+                        }
+                    }
+                }else{
+                    isWifiLink=false;
+                    String linkstatus2 = "{\"link_status\":0}";
+                    if (mMediaMwEngine != null&&!hasReportDisconnect) {
+                        hasReportDisconnect=true;
+                        hasReportConnect=false;
+                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus2);
+                    }
+                }
+            }
+        }
+    }
 }

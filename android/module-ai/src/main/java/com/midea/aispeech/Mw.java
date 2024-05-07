@@ -110,5 +110,7 @@ public class Mw
     public static native int createSession();
     public static native int registerLicense(String deviceInfo);
     public static native int getLicense();
+    public static native int routerLinkStatusUpdate(String linkStatus);
+
 
 }
