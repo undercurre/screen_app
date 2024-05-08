@@ -16,9 +16,7 @@ class _Boot extends State<Boot> {
     super.initState();
 
     bus.on("logout", (arg) {
-      PushDataAdapter(MideaRuntimePlatform.platform).stopConnect();
-      Navigator.pushNamedAndRemoveUntil(
-          context, 'Login', (route) => route.settings.name == "/");
+      changePageToLogin();
     });
 
     bus.on('change_platform', (arg) {
@@ -34,6 +32,28 @@ class _Boot extends State<Boot> {
     () async {
       bootFinish();
     }.call();
+  }
+
+  // 防止Login页面重入
+  void changePageToLogin() {
+    bool isNewRouteSameAsCurrent = false;
+    bool isNewRouteSameAsContain = false;
+    Navigator.popUntil(context, (route) {
+      if(route.isCurrent && route.settings.name == "Login") {
+        isNewRouteSameAsCurrent = true;
+      } else if(route.settings.name == "Login") {
+        isNewRouteSameAsContain = true;
+      }
+      return true;
+    });
+    if(isNewRouteSameAsCurrent) {
+      Log.i("当前页面为Login, 拦截重入跳入");
+      return;
+    } else if(isNewRouteSameAsContain) {
+      Log.i("当前页面栈中包含Login");
+    }
+    Navigator.pushNamedAndRemoveUntil(
+        context, "Login", (route) => route.settings.name == "/");
   }
 
   void checkGetWay() async {
@@ -144,7 +164,7 @@ class _Boot extends State<Boot> {
       isFinishLogin ? 'Home' : 'Login',
     );
     if (isFinishLogin) {
-      System.login();
+      System.login(true);
     } else {
       System.logout("数据迁移失败", false);
     }
