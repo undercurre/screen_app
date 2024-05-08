@@ -7,7 +7,6 @@ import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
-import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
 import '../../util/nameFormatter.dart';
@@ -391,7 +390,7 @@ class _BigDeviceGasWaterHeaterWidgetState extends State<BigDeviceGasWaterHeaterW
                               deviceListModel.getOnlineStatus(
                                   deviceId: widget.applianceCode) &&
                               (adapter.getPowerStatus() ?? false)) {
-                            int value = adapter!.getCardStatus()?["temperature"]-5;
+                            int value = adapter!.getCardStatus()?["temperature"]-1;
                             if (value < 32) {
                               return;
                             }
@@ -437,7 +436,7 @@ class _BigDeviceGasWaterHeaterWidgetState extends State<BigDeviceGasWaterHeaterW
                               deviceListModel.getOnlineStatus(
                                   deviceId: widget.applianceCode) &&
                               (adapter.getPowerStatus() ?? false)) {
-                            int value = adapter!.getCardStatus()?["temperature"]+5;
+                            int value = adapter!.getCardStatus()?["temperature"]+1;
                             if (value > 65) {
                               return;
                             }

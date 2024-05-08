@@ -171,27 +171,6 @@ class ElectricWaterHeaterPageState extends State<ElectricWaterHeaterPage> {
                                       onChanged: dataAdapter?.controlTemperature,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: ModeCard(
-                                      hasHeightlight: true,
-                                      modeList: electricWaterHeaterModes,
-                                      selectedKeys: getSelectedKeys(),
-                                      onTap: (mode) {
-                                        setState(() {
-                                          modeTap = mode.key;
-                                          log("选择的模式:$modeTap");
-                                        });
-                                        Timer(const Duration(milliseconds: 500), () {
-                                          setState(() {
-                                            modeTap = "";
-                                          });
-                                        });
-                                        dataAdapter?.controlMode(mode.key);
-                                      },
-                                      disabled: dataAdapter?.data!.power ?? true ? false : true,
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),

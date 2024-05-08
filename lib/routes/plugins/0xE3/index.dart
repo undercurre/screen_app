@@ -1,5 +1,3 @@
-
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:easy_refresh/easy_refresh.dart';
@@ -7,17 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
-import '../../../common/gateway_platform.dart';
 import '../../../states/device_list_notifier.dart';
-import '../../../widgets/business/dropdown_menu.dart' as ui;
-import '../../../widgets/plugins/electric_water_heater.dart';
 import '../../../widgets/plugins/gas_water_heater.dart';
 import 'data_adapter.dart';
-import 'mode_list.dart';
 
 class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
   GasWaterHeaterDataAdapter? dataAdapter;
-  String modeTap="";
+  String modeTap = "";
 
   void goBack() {
     Navigator.pop(context);
@@ -37,7 +31,8 @@ class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
+      Map<dynamic, dynamic>? args =
+          ModalRoute.of(context)?.settings.arguments as Map?;
       setState(() {
         dataAdapter = args?['adapter'];
       });
@@ -53,17 +48,14 @@ class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
 
   void updateCallback() {
     if (mounted) {
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
-
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       String nameInModel = deviceListModel.getDeviceNameNormal(
@@ -76,7 +68,6 @@ class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
 
       return nameInModel;
     }
-
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -93,13 +84,7 @@ class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
       ),
       child: Stack(
         children: [
-          Positioned(
-              left: 0,
-              top: 0,
-              child: GasWaterHeater(
-
-              )
-          ),
+          const Positioned(left: 0, top: 0, child: GasWaterHeater()),
           Flex(
             direction: Axis.vertical,
             children: <Widget>[
@@ -160,33 +145,74 @@ class GasWaterHeaterPageState extends State<GasWaterHeaterPage> {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 16),
                                     child: SliderButtonCard(
-                                      disabled: dataAdapter?.data!.power == false,
-                                      min: dataAdapter?.data!.minTemperature ?? 32,
-                                      max: dataAdapter?.data!.maxTemperature ?? 65,
+                                      disabled:
+                                          dataAdapter?.data!.power == false,
+                                      min: dataAdapter?.data!.minTemperature ??
+                                          32,
+                                      max: dataAdapter?.data!.maxTemperature ??
+                                          65,
                                       step: 1,
-                                      value: (dataAdapter?.data!.temperature ?? 40),
-                                      onChanged: dataAdapter?.controlTemperature,
+                                      value: (dataAdapter?.data!.temperature ??
+                                          40),
+                                      onChanged:
+                                          dataAdapter?.controlTemperature,
                                     ),
                                   ),
                                   Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: ModeCard(
-                                      hasHeightlight: true,
-                                      modeList: gasWaterHeaterModes,
-                                      selectedKeys: getSelectedKeys(),
-                                      onTap: (mode) {
-                                        setState(() {
-                                          modeTap = mode.key;
-                                          log("选择的模式:$modeTap");
-                                        });
-                                        Timer(const Duration(milliseconds: 500), () {
-                                          setState(() {
-                                            modeTap = "";
-                                          });
-                                        });
-                                        dataAdapter?.controlMode(mode.key);
-                                      },
-                                      disabled: dataAdapter?.data!.power ?? true ? false : true,
+                                    margin: const EdgeInsets.fromLTRB(7, 0, 7, 16),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        20, 15, 20, 15),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0x19FFFFFF),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(16)),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                         Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(
+                                                width: 30,
+                                                height: 30,
+                                                child: Image(
+                                                  image: AssetImage(
+                                                      'assets/imgs/plugins/0xE2/cold_water_master.png'),
+                                                ),
+                                              ),
+                                              Container(
+                                                margin: const EdgeInsets.only(left: 11),
+                                                child:  const Text("零冷水",
+                                                    style: TextStyle(
+                                                      color: Color(0XFFFFFFFF),
+                                                      fontSize: 18.0,
+                                                      fontFamily: "MideaType",
+                                                      fontWeight:
+                                                      FontWeight.normal,
+                                                      decoration:
+                                                      TextDecoration.none,
+                                                    )),
+                                              )
+                                            ]),
+                                        MzSwitch(
+                                          activeColor: const Color(0xFF3C92D6),
+                                          inactiveColor: const Color(0x33DCDCDC),
+                                          pointActiveColor: const Color(0xFFDCDCDC),
+                                          pointInactiveColor: const Color(0xFFDCDCDC),
+                                          disabled:  dataAdapter?.data!.power == false,
+                                          value: dataAdapter!.data!.coldWater,
+                                          onTap: (bool value) {
+                                            dataAdapter!.controlColdWater(value);
+                                            setState(() {
+                                              dataAdapter!.data!.coldWater=value;
+                                            });
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

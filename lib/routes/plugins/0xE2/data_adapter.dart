@@ -45,7 +45,15 @@ class ElectricWaterHeaterDataEntity {
     endTimeHour= data["end_time_hour"]??0;
     endTimeMinute= data["end_time_minute"]??0;
     curTemperature=data["cur_temperature"]??30;
-    workState=data["hot_power"] == "on"? "hot":"warm";
+    workState=getWorkStateFromData(data);
+  }
+
+  String getWorkStateFromData(dynamic data){
+    if(data.containsKey("hot_power")){
+      return data["hot_power"] == "on"? "hot":"warm";
+    }else{
+      return "warm";
+    }
   }
 
   ElectricWaterHeaterDataEntity.fromHomlux(HomluxDeviceEntity data) {
