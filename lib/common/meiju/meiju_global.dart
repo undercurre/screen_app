@@ -131,22 +131,22 @@ class MeiJuGlobal {
     LocalStorage.removeItem(MEIJU_AI_TOKEN);
     LocalStorage.removeItem(MEIJU_GATEWAY_DEVICE_ID);
     LocalStorage.removeItem(MEIJU_GATEWAY_SN);
+    MeiJuApi.tokenState = TokenCombineState.INVAILD;
   }
 
-  static void setLogin() {
+  static void setLogin([bool refreshToken = false]) {
+    MeiJuApi.tokenState = TokenCombineState.NORMAL;
+    if (refreshToken) {
+      MeiJuApi.tryToRefreshToken("上电强制刷新Token");
+    }
     refreshTokenTimer?.cancel();
-    /// 设置登录方法一分钟之后，主动刷新token。
+
     /// 之后间隔3小时刷新一次
-    refreshTokenTimer = Timer(const Duration(minutes: 1), () {
+    refreshTokenTimer = Timer.periodic(const Duration(hours: 3), (timer) {
       if (token == null) return;
-      MeiJuApi.tryToRefreshToken("系统启动刷新Token");
-      refreshTokenTimer = Timer.periodic(const Duration(hours: 3), (timer) {
-        if (token == null) return;
-        MeiJuApi.tryToRefreshToken("定时刷新Token");
-      });
+      MeiJuApi.tryToRefreshToken("定时刷新Token");
     });
   }
-
 }
 
 /// 使用注意 ** 使用此方法解析的对象类型，一定是注册在homluxJsonConvert中，不然报错

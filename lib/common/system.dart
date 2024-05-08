@@ -211,11 +211,11 @@ class System {
     }
   }
 
-  static login() {
+  static login([bool refreshCurrent = false]) {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogin();
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      MeiJuGlobal.setLogin();
+      MeiJuGlobal.setLogin(refreshCurrent);
     } else {
       Log.file("No No No 运行环境为NONE 请勿调用此方法");
     }
