@@ -2,6 +2,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/range_hood_device_data_adapter.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../states/device_list_notifier.dart';
@@ -52,7 +53,8 @@ class _RangeHoodPageState extends State<RangeHoodPage> {
     for (var mode in modes) {
       selectKeys[mode.key] = false;
     }
-    modeTapKey ??= widget.adapter.getData().lightOnOff == 1 ? "light_on" : "light_off";
+    modeTapKey = widget.adapter.getData().lightOnOff == 1 ? "light_on" : "light_off";
+    Log.file("烟机 开关状态  $modeTapKey");
     selectKeys[modeTapKey!] = true;
     return selectKeys;
   }
@@ -78,8 +80,7 @@ class _RangeHoodPageState extends State<RangeHoodPage> {
       onTap: (mode) {
         modeTapKey = mode.key;
         widget.adapter.lightPower(mode.key == 'light_on');
-      },
-      disabled: !widget.adapter.getData().onOff,
+      }
     );
   }
 

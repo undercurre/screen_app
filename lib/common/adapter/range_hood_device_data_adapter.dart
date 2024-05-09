@@ -246,6 +246,7 @@ class RangeHoodData {
   }
 
   RangeHoodData.fromMeiJu(meijuData) {
+    Log.file('烟机数据更新 ${meijuData["light"]} 照明：${meijuData["light"] == "off" ? 0 : 1}');
     this.name = "抽油烟机";
     this.currentSpeed = meijuData["gear"];
     this.minSpeed = 0;
