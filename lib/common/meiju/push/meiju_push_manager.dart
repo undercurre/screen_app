@@ -111,7 +111,7 @@ class MeiJuPushManager {
   }
 
   static void _operateDevice(String deviceId) {
-    Log.file('[ WebSocket ] 操作设备 设备id$deviceId');
+    Log.develop('[ WebSocket ] 操作设备 设备id$deviceId');
     if(operatePushRecord.containsKey(deviceId)) {
       var pair = operatePushRecord[deviceId]!;
       pair.value1 = DateTime.now().millisecondsSinceEpoch + initiativeDelayPush;
@@ -123,7 +123,7 @@ class MeiJuPushManager {
 
   static void _netConnectState(NetState? state) {
     if(state?.wifiState == 2 || state?.ethernetState == 2) {
-      Log.file('[ WebSocket ] 检测到已连接网络');
+      Log.develop('[ WebSocket ] 检测到已连接网络');
       if(_isConnect == 0) {
         retryCount = 0;
         _startConnect('检测到网络已连接');
@@ -144,7 +144,7 @@ class MeiJuPushManager {
 
   static void _stopConnect(String reason) {
     if(_isConnect == 2) {
-      Log.file('[ WebSocket ] 关闭连接，原因：$reason');
+      Log.develop('[ WebSocket ] 关闭连接，原因：$reason');
       _isConnect = 0;
 
       _globalTimer?.cancel();
@@ -170,7 +170,7 @@ class MeiJuPushManager {
     }
 
     if (MeiJuGlobal.isLogin && _isConnect == 0) {
-      Log.file('[ WebSocket ] 即将建立连接, 原因$reason 尝试次数$retryCount');
+      Log.develop('[ WebSocket ] 即将建立连接, 原因$reason 尝试次数$retryCount');
       retryCount++;
       _isConnect = 1;
 
@@ -233,22 +233,22 @@ class MeiJuPushManager {
     map['event_type'] = 5;
     map['sign'] = null;
     map['data'] = null;
-    Log.file('[ WebSocket ] send beat heart ${convert.jsonEncode(map)}');
+    Log.develop('[ WebSocket ] send beat heart ${convert.jsonEncode(map)}');
     _channel?.sink.add(convert.jsonEncode(map));
   }
 
   static void _onData(event) {
     Map<String,dynamic> eventMap = json.decode(event);
-    // Log.file('[ WebSocket ] 接收到的Push消息: $eventMap');
+    // Log.develop('[ WebSocket ] 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
-        Log.file('[ WebSocket ] recv beat heart');
+        Log.develop('[ WebSocket ] recv beat heart');
         break;
       case 1:
         String data = eventMap['data'];
         Map<String,dynamic> dataMap = json.decode(data);
         _sendHearTimerInterval = dataMap['heatbeat_interval'];
-        Log.file('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
+        Log.develop('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
         break;
       case 2:
         retryCount = 0;
@@ -405,7 +405,7 @@ class MeiJuPushManager {
                 }
               }
             } else {
-              // Log.file('[WebSocket ] 该推送类型不进行处理 $type');
+              // Log.develop('[WebSocket ] 该推送类型不进行处理 $type');
             }
           }
         }
@@ -414,7 +414,7 @@ class MeiJuPushManager {
   }
   // ALI 推送通知
   static notifyPushMessage(String title) {
-    Log.file('[ WebSocket ] 啊里推送 $title');
+    Log.develop('[ WebSocket ] 啊里推送 $title');
     if(title == '添加设备') {
       bus.typeEmit(MeiJuDeviceAddEvent());
     } else if(title == '删除设备') {
@@ -425,7 +425,7 @@ class MeiJuPushManager {
   }
 
   static void _onError(err) {
-    Log.file('[ WebSocket ] onError $err');
+    Log.develop('[ WebSocket ] onError $err');
   }
 
   static void _onDone() async {
@@ -457,7 +457,7 @@ class MeiJuPushManager {
   static _aliPushBind() async {
     String deviceId = await aliPushChannel.getDeviceId();
     if(StrUtils.isNullOrEmpty(deviceId)) {
-      Log.file("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
+      Log.develop("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
       return;
     }
     MeiJuApi.requestMideaIot(
@@ -476,16 +476,16 @@ class MeiJuPushManager {
             method: 'POST',
             headers: {'Authorization' : "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}"}
         )).then((value) {
-          Log.file("[ WebSocket ] 绑定阿里推送成功");
+          Log.develop("[ WebSocket ] 绑定阿里推送成功");
         }, onError: (e) {
-          Log.file("[ WebSocket ] 绑定阿里推送失败");
+          Log.develop("[ WebSocket ] 绑定阿里推送失败");
         });
   }
 
   static _aliPushUnBind() async {
     String deviceId = await aliPushChannel.getDeviceId();
     if(StrUtils.isNullOrEmpty(deviceId)) {
-      Log.file("[ WebSocket ] 解绑阿里推送失败 deviceId为空");
+      Log.develop("[ WebSocket ] 解绑阿里推送失败 deviceId为空");
       return;
     }
     MeiJuApi.requestMideaIot(
@@ -504,16 +504,16 @@ class MeiJuPushManager {
             method: 'POST',
             headers: {'Authorization': "Basic ${base64Encode(utf8.encode('${dotenv.get('ALI_PUSH_USER_NAME')}:${dotenv.get('ALI_PUSH_PASSWORD')}'))}" }
         )).then((value) {
-          Log.file("[ WebSocket ] 解绑阿里推送成功");
+          Log.develop("[ WebSocket ] 解绑阿里推送成功");
         }, onError: (e) {
-          Log.file("[ WebSocket ] 解绑阿里推送失败");
+          Log.develop("[ WebSocket ] 解绑阿里推送失败");
         });
   }
 
   static _updatePushToken() async {
     String deviceId = await aliPushChannel.getDeviceId();
     if(StrUtils.isNullOrEmpty(deviceId)) {
-      Log.file("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
+      Log.develop("[ WebSocket ] 绑定阿里推送失败 deviceId为空");
       return;
     }
     await MeiJuApi.requestMideaIot(

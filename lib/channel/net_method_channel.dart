@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -40,22 +41,17 @@ class NetMethodChannel extends AbstractChannel {
         transmitDataToNearbyWiFiCallBack(wifis);
         break;
       case "replyConnectChange":
-        debugPrint("接收到replyConnectChange");
+        Log.develop("[网络] 接收到replyConnectChange");
+        // Log.develop("[网络] 接收到replyConnectChange ${jsonEncode(args)} ${jsonEncode(currentNetState.toJson())}");
         NetState netState = NetState.fromJson(args);
         if(currentNetState.ethernetState == netState.ethernetState
             && currentNetState.wifiState == netState.wifiState
             && currentNetState.wiFiScanResult == netState.wiFiScanResult) {
-          Log.i('[网络] 网络状态无变化，无需通知网络状态更改');
+          Log.develop('[网络] 网络状态无变化');
         } else {
-          Log.i('[网络] 网络状态发生变化，通知更改');
+          Log.develop('[网络] 通知网络发生更改');
           _currentNetState = netState;
           transmitDataToNetChangeCallBack(netState);
-          debugPrint(
-              """
-                  以太网状态：${netState.ethernetState == 2 ? "连接成功" : "连接失败" }
-                        WiFi状态: ${ netState.wifiState == 2 ? "连接成功" : "连接失败" }  ${netState.wiFiScanResult?.ssid}
-                  """
-          );
         }
         break;
       default:
@@ -66,7 +62,11 @@ class NetMethodChannel extends AbstractChannel {
 
   void transmitDataToNetChangeCallBack(NetState state) {
     for (var callback in _netChangeCallbacks) {
-      callback.call(state);
+      try {
+        callback.call(state);
+      } catch (e) {
+        Log.e("Caught exception $e");
+      }
     }
   }
 
@@ -145,11 +145,6 @@ class NetMethodChannel extends AbstractChannel {
   // 忘记掉已经连接的WiFi
   Future<bool> forgetWiFi(String ssid, String bssid) async {
     bool result = await methodChannel.invokeMethod('forgetWiFi', {'ssid': ssid, 'bssid': bssid});
-    debugPrint("忘记wifi密码是否成功 = $result");
-    if(result && currentNetState.wiFiScanResult?.ssid == ssid && currentNetState.wiFiScanResult?.bssid == bssid) {
-      currentNetState.wifiState = 0;
-      currentNetState.wiFiScanResult = null;
-    }
     return result;
   }
 
@@ -175,11 +170,8 @@ class NetMethodChannel extends AbstractChannel {
   }
 
   Future<bool> enableWiFi(bool enable) async {
+    Log.develop("[网络] enable = $enable");
     bool result =  await methodChannel.invokeMethod('enableWiFi', {'enable': enable});
-    if(result && enable == false) {
-      _currentNetState.wifiState = 0;
-      _currentNetState.wiFiScanResult = null;
-    }
     return result;
   }
 
