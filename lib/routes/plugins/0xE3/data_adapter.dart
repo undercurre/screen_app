@@ -15,8 +15,8 @@ import '../../../../widgets/event_bus.dart';
 
 class GasWaterHeaterDataEntity {
   bool power = false; //开关
+  bool coldWater = false; //零冷水
   String mode = ""; //模式
-  String workState="";
   int temperature = 0; //温度
   int endTimeHour = 0; //加热剩余小时
   int endTimeMinute=0;//加热剩余分钟
@@ -28,6 +28,7 @@ class GasWaterHeaterDataEntity {
 
   GasWaterHeaterDataEntity({
     required power,
+    required coldWater,
     required mode,
     required temperature,
     required endTimeHour,
@@ -39,11 +40,19 @@ class GasWaterHeaterDataEntity {
 
   GasWaterHeaterDataEntity.fromMeiJu(dynamic data) {
     power = data["power"] == "on";
+    coldWater = getColdWaterFromData(data);
     temperature = data["temperature"]??35;
     endTimeHour= data["end_time_hour"]??0;
     endTimeMinute= data["end_time_minute"]??0;
     curTemperature=data["cur_temperature"]??30;
-    workState=data["hot_power"] == "on"? "hot":"warm";
+  }
+
+  bool getColdWaterFromData(dynamic data){
+    if(data.containsKey("cold_water_master")){
+      return data["cold_water_master"]== "on";
+    }else{
+      return false;
+    }
   }
 
   GasWaterHeaterDataEntity.fromHomlux(HomluxDeviceEntity data) {
@@ -53,12 +62,12 @@ class GasWaterHeaterDataEntity {
   Map<String, dynamic> toJson() {
     return {
       "power": power,
+      "coldWater": coldWater,
       "mode": mode,
       "temperature": temperature,
       "endTimeHour": endTimeHour,
       "endTimeMinute": endTimeMinute,
       "curTemperature": curTemperature,
-      "workState": workState,
     };
   }
 }
@@ -73,6 +82,7 @@ class GasWaterHeaterDataAdapter extends DeviceCardDataAdapter<GasWaterHeaterData
 
   GasWaterHeaterDataEntity? data = GasWaterHeaterDataEntity(
     power: false,
+    coldWater:false,
     mode: "",
     temperature: 35,
     endTimeHour : 0,
@@ -95,17 +105,17 @@ class GasWaterHeaterDataAdapter extends DeviceCardDataAdapter<GasWaterHeaterData
   Map<String, dynamic>? getCardStatus() {
     return {
       "power": data!.power,
+      "coldWater":data!.coldWater,
       "mode": data!.mode,
       "temperature": data!.temperature,
       "endTimeHour": data!.endTimeHour,
       "endTimeMinute": data!.endTimeMinute,
-      "workState": data!.workState,
     };
   }
 
   @override
   bool getPowerStatus() {
-    Log.i('获取电热开关状态', data!.power);
+    Log.i('获取燃热开关状态', data!.power);
     return data!.power;
   }
 
@@ -172,6 +182,7 @@ class GasWaterHeaterDataAdapter extends DeviceCardDataAdapter<GasWaterHeaterData
         dataState = DataState.ERROR;
         data = GasWaterHeaterDataEntity(
           power: false,
+          coldWater:false,
           //开关
           mode: "",
           //模式
@@ -228,7 +239,7 @@ class GasWaterHeaterDataAdapter extends DeviceCardDataAdapter<GasWaterHeaterData
     updateUI();
     if (platform.inMeiju()) {
       var res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0xE2',
+          categoryCode: '0xE3',
           applianceCode: applianceCode,
           command: {"power": data!.power ? 'on' : 'off'});
       if (res.isSuccess) {
@@ -274,6 +285,25 @@ class GasWaterHeaterDataAdapter extends DeviceCardDataAdapter<GasWaterHeaterData
       if (res.isSuccess) {
       } else {
         data!.mode = lastMode;
+      }
+    } else if (platform.inHomlux()) {
+    }
+  }
+
+  /// 控制零冷水
+  Future<void> controlColdWater(bool coldWater) async {
+    data!.coldWater = coldWater;
+    updateUI();
+    if (platform.inMeiju()) {
+      var res = await MeiJuDeviceApi.sendLuaOrder(
+          categoryCode: '0xE3',
+          applianceCode: applianceCode,
+          command: {
+            "cold_water_master": coldWater ? 'on' : 'off'
+          });
+      if (res.isSuccess) {
+      } else {
+        data!.coldWater = coldWater;
       }
     } else if (platform.inHomlux()) {
     }
