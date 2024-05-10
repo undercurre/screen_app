@@ -22,8 +22,6 @@ class ElectricWaterHeaterPageState extends State<ElectricWaterHeaterPage> {
     Navigator.pop(context);
   }
 
-  List<Map<String, dynamic>> modeList = [];
-
   Map<String, bool?> getSelectedKeys() {
     final selectKeys = <String, bool?>{};
     if (modeTap != null) {
@@ -170,6 +168,10 @@ class ElectricWaterHeaterPageState extends State<ElectricWaterHeaterPage> {
                                       value: (dataAdapter?.data!.temperature ?? 35),
                                       onChanged: dataAdapter?.controlTemperature,
                                     ),
+                                  ),
+                                  const SizedBox(
+                                    width: 200,
+                                    height: 100,
                                   ),
                                 ],
                               ),
