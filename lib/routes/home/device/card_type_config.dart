@@ -819,7 +819,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         applianceCode: params.applianceCode,
         name: params.name,
         icon: const Image(
-          image: AssetImage('assets/newUI/device/0xAC.png'),
+          image: AssetImage('assets/newUI/device/0xE2.png'),
         ),
         roomName: params.roomName,
         onTap: () => params.onTap,
@@ -838,7 +838,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         applianceCode: params.applianceCode,
         name: params.name,
         icon: const Image(
-          image: AssetImage('assets/newUI/device/0xAC.png'),
+          image: AssetImage('assets/newUI/device/0xE2.png'),
         ),
         roomName: params.roomName,
         online: params.isOnline == '1',
@@ -874,7 +874,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         applianceCode: params.applianceCode,
         name: params.name,
         icon: const Image(
-          image: AssetImage('assets/newUI/device/0xAC.png'),
+          image: AssetImage('assets/newUI/device/0xE3.png'),
         ),
         roomName: params.roomName,
         onTap: () => params.onTap,
@@ -893,7 +893,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         applianceCode: params.applianceCode,
         name: params.name,
         icon: const Image(
-          image: AssetImage('assets/newUI/device/0xAC.png'),
+          image: AssetImage('assets/newUI/device/0xE3.png'),
         ),
         roomName: params.roomName,
         online: params.isOnline == '1',
