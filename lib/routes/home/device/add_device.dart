@@ -355,7 +355,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
     Log.i('选房间$roomID后的${scenesAll.map((e) => e.roomId)}scenes$deleteDevices',
         scenesTemp);
     scenes.addAll(scenesTemp);
-    setState(() {});
+    if(mounted) {
+      setState(() {});
+    }
     settingMethodChannel.dismissLoading();
     _timer.cancel();
     stopwatch3.stop(); // 结束第二段时间
