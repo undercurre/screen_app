@@ -23,13 +23,12 @@ class NameFormatter {
   /// 名称长度限制格式
   /// [<-----------maxLength----------->]
   /// [<-startLength->]...[<-endLength->]
+  ///
+  ///
+  /// test-case: [testNameFormatCase]
   static String formLimitString(String str, int maxLength, int startLength, int endLength) {
     if (str.length <= maxLength) {
-      if(startLength + endLength >= str.length) {
-        return str;
-      } else {
-        return '${str.substring(0, startLength)}...${str.substring(str.length - endLength)}';
-      }
+      return str;
     } else {
       if (startLength + endLength >= maxLength) {
         return str.substring(0, maxLength);

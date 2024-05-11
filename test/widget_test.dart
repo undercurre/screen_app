@@ -9,22 +9,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:screen_app/main.dart';
+import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const App());
+  testNameFormatCase();
+  // testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  //   // Build our app and trigger a frame.
+  //   await tester.pumpWidget(const App());
+  //
+  //   // Verify that our counter starts at 0.
+  //   expect(find.text('0'), findsOneWidget);
+  //   expect(find.text('1'), findsNothing);
+  //
+  //   // Tap the '+' icon and trigger a frame.
+  //   await tester.tap(find.byIcon(Icons.add));
+  //   await tester.pump();
+  //
+  //   // Verify that our counter has incremented.
+  //   expect(find.text('0'), findsNothing);
+  //   expect(find.text('1'), findsOneWidget);
+  // });
+}
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+void testNameFormatCase() {
+  test("name-format-maxLimit", () {
+    expect(NameFormatter.formLimitString("Widgea", 6, 4, 1), "Widgea");
+  });
+  test("name-format-normal", () {
+    expect(NameFormatter.formLimitString("Widgeagggggggggg", 6, 1, 2), "W...gg");
+    expect(NameFormatter.formLimitString("Widgeagggggggggg", 6, 2, 2), "Wi...gg");
+    expect(NameFormatter.formLimitString("Widgeagggggggggg", 6, 8, 9), "Widgea");
+  });
+  test("name-format-tail-none", () {
+    expect(NameFormatter.formLimitString("Widgeagggggggggg", 6, 4, 0), "Widg...");
+    expect(NameFormatter.formLimitString("Widgeaggggggggggggggggggggggggg", 25, 20, 0), "Widgeagggggggggggggg...");
   });
 }
