@@ -22,23 +22,27 @@ class CurtainDataEntity {
   int curtainPosition = 0;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
+  int onlineState = 0;
 
   CurtainDataEntity({
     required this.curtainPosition,
     required this.curtainDirection,
     required this.curtainStatus,
+    required this.onlineState
   });
 
   CurtainDataEntity.fromMeiJu(dynamic data) {
     curtainPosition = int.parse(data['curtain_position']);
     curtainStatus = data['curtain_status'];
     curtainDirection = data['curtain_direction'];
+    onlineState = 1;
   }
 
   CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
     curtainPosition = int.parse(data.mzgdPropertyDTOList?.curtain?.curtainPosition ?? "0");
     curtainStatus = data.mzgdPropertyDTOList?.curtain?.curtainStatus ?? "stop";
     curtainDirection = data.mzgdPropertyDTOList?.curtain?.curtainDirection ?? "positive";
+    onlineState = data.onLineStatus ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +67,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     curtainPosition: 0,
     curtainStatus: 'stop',
     curtainDirection: 'positive',
+    onlineState: 0
   );
 
 
@@ -107,6 +112,15 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     }
     // 开
     return controlMode(openMode);
+  }
+
+  @override
+  bool fetchOnlineState(BuildContext context, String deviceId) {
+    if(platform.inMeiju()) {
+      return super.fetchOnlineState(context, deviceId);
+    } else {
+      return data?.onlineState == 1;
+    }
   }
 
   @override
@@ -192,6 +206,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
           curtainPosition: 0,
           curtainStatus: 'stop',
           curtainDirection: 'positive',
+          onlineState: 0
         );
         updateUI();
         return;

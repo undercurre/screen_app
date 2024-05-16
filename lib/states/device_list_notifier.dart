@@ -343,6 +343,8 @@ class DeviceInfoListModel extends ChangeNotifier {
     }
   }
 
+  @Deprecated("此方法已经过期，请勿再使用。后续不再保证此方法的返回状态正确性。"
+      "查询设备的离在线状态请使用[DeviceCardDataAdapter的fetchOnlineState方法]")
   bool getOnlineStatus({String? deviceId}) {
     if (deviceId != null) {
       List<DeviceEntity> curOne = deviceCacheList

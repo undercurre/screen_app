@@ -47,12 +47,15 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       _BigDeviceCurtainCardWidgetState();
 }
 
-class _BigDeviceCurtainCardWidgetState
-    extends State<BigDeviceCurtainCardWidget> {
+class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
   late DeviceCardDataAdapter adapter;
+
+  bool isOnlineState() {
+    return adapter.fetchOnlineState(context, widget.applianceCode);
+  }
 
   void _throttledFetchData() async {
     if (!_isFetching) {
@@ -116,7 +119,7 @@ class _BigDeviceCurtainCardWidgetState
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+      if (!isOnlineState()) {
         return '离线';
       }
       //
@@ -182,8 +185,7 @@ class _BigDeviceCurtainCardWidgetState
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = adapter.getPowerStatus() ?? false;
-      bool online =
-          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online = isOnlineState();
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -238,19 +240,16 @@ class _BigDeviceCurtainCardWidgetState
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
           adapter.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
-          // TipsUtils.toast(content: '数据缺失，控制设备失败');
+          TipsUtils.toast(content: '网络服务异常，控制设备失败');
           return;
         }
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
-            !widget.disabled) {
+        if (!isOnlineState() && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing:
-            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
-                adapter.dataState != DataState.SUCCESS),
+        absorbing: (!isOnlineState() || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -275,8 +274,7 @@ class _BigDeviceCurtainCardWidgetState
                       // TipsUtils.toast(content: '数据缺失，控制设备失败');
                       return;
                     }
-                    if (!deviceListModel.getOnlineStatus(
-                        deviceId: widget.applianceCode)) {
+                    if (!isOnlineState()) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
                       return;
                     }
@@ -449,9 +447,7 @@ class _BigDeviceCurtainCardWidgetState
                   },
                   groupValue: _getGroupIndex(),
                   onValueChanged: (int? value) {
-                    if (adapter.getPowerStatus() != null &&
-                        deviceListModel.getOnlineStatus(
-                            deviceId: widget.applianceCode)) {
+                    if (adapter.getPowerStatus() != null && isOnlineState()) {
                       adapter.tabTo(value);
                       if (value == 1) {
                         _throttledFetchData();
@@ -465,14 +461,12 @@ class _BigDeviceCurtainCardWidgetState
                 top: 140,
                 left: 4,
                 child: MzSlider(
-                  value: adapter!.getCardStatus()?['curtainPosition'],
+                  value: adapter.getCardStatus()?['curtainPosition'],
                   width: 390,
                   height: 16,
                   min: 0,
                   max: 100,
-                  disabled: widget.disabled ||
-                      !deviceListModel.getOnlineStatus(
-                          deviceId: widget.applianceCode),
+                  disabled: widget.disabled || !isOnlineState(),
                   activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
                   onChanging: (val, color) {
                     adapter.slider1ToFaker(val.toInt());
@@ -495,13 +489,13 @@ class _BigDeviceCurtainCardWidgetState
       return 2;
     }
 
-    if (adapter!.getCardStatus()?['curtainStatus'] == 'close') {
+    if (adapter.getCardStatus()?['curtainStatus'] == 'close') {
       return 2;
     }
-    if (adapter!.getCardStatus()?['curtainStatus'] == 'stop') {
+    if (adapter.getCardStatus()?['curtainStatus'] == 'stop') {
       return 1;
     }
-    if (adapter!.getCardStatus()?['curtainStatus'] == 'open') {
+    if (adapter.getCardStatus()?['curtainStatus'] == 'open') {
       return 0;
     }
     return 2;

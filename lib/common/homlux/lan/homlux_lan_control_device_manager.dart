@@ -20,8 +20,6 @@ import '../push/event/homlux_push_event.dart';
 import '../push/homlux_push_manager.dart';
 import '../push/homlux_push_message_model.dart';
 
-
-
 /// 请求成功
 final _successResponseEntity = HomluxResponseEntity()
   ..code = 0
@@ -33,7 +31,8 @@ final _errorResponseEntity = HomluxResponseEntity()
   ..msg = '请求失败';
 
 class HomluxLanControlDeviceManager {
-  static final HomluxLanControlDeviceManager _instant = HomluxLanControlDeviceManager._();
+  static final HomluxLanControlDeviceManager _instant =
+      HomluxLanControlDeviceManager._();
 
   HomluxLanControlDeviceManager._();
 
@@ -49,6 +48,7 @@ class HomluxLanControlDeviceManager {
 
   /// 是否成功订阅
   bool sucSubscribe = false;
+
   /// 是否连接
   bool connectOk = false;
 
@@ -113,7 +113,6 @@ class HomluxLanControlDeviceManager {
   }
 
   void _handleMqttMsg(String mTopic, String msg) {
-
     try {
       var curHouseId = HomluxGlobal.homluxHomeInfo!.houseId;
 
@@ -123,13 +122,13 @@ class HomluxLanControlDeviceManager {
       var topic = json['topic'] as String?;
       var data = json['data'];
       // 已经处理该消息
-      if(handledMessageQueue.contains(reqId)) {
+      if (handledMessageQueue.contains(reqId)) {
         Log.develop("[homeos] 重复消息去重 $reqId");
         return;
-      } else if(reqId != null) {
+      } else if (reqId != null) {
         Log.develop("[homeos] 处理消息 $reqId");
         handledMessageQueue.add(reqId);
-        if(handledMessageQueue.length >= 100) {
+        if (handledMessageQueue.length >= 100) {
           handledMessageQueue.removeAt(0);
         }
       }
@@ -144,10 +143,10 @@ class HomluxLanControlDeviceManager {
       //     "reqId":"8ae04988-617e-409f-b904-5c2198079c45",
       //     "ts":"20231107095706"
       // }
-      if('/local/subdeviceControl/ack' == topic) {
+      if ('/local/subdeviceControl/ack' == topic) {
         var hangUpTask = findTask(reqId!);
-        if(hangUpTask != null) {
-          if(data['errorCode'] == 'fail') {
+        if (hangUpTask != null) {
+          if (data['errorCode'] == 'fail') {
             /// 控制失败
             hangUpTask.handle.suc(_errorResponseEntity);
           } else {
@@ -158,7 +157,7 @@ class HomluxLanControlDeviceManager {
       }
 
       /// host被解绑
-      if('/local/host/leave' == topic) {
+      if ('/local/host/leave' == topic) {
         logout();
         Future.delayed(const Duration(seconds: 3), () {
           login();
@@ -166,7 +165,7 @@ class HomluxLanControlDeviceManager {
       }
 
       /// host通知control重新获取数据
-      if('/local/synchronize' == topic) {
+      if ('/local/synchronize' == topic) {
         Log.file('[homeos] getDeviceInfo()');
         lanDeviceControlChannel.getDeviceInfo(uuid.v4());
         Log.file('[homeos] getSceneInfo()');
@@ -190,7 +189,7 @@ class HomluxLanControlDeviceManager {
             deviceMap[devId] = device;
           }
         }
-        if(deviceMap.values.isNotEmpty) {
+        if (deviceMap.values.isNotEmpty) {
           Log.i('homlux 局域网 设备列表数据处理成功 第一个数据为 ${deviceMap.values.first}');
         } else {
           Log.i('homlux 局域网 设备列表数据处理成功 数据为空');
@@ -213,6 +212,16 @@ class HomluxLanControlDeviceManager {
           if (deviceMap.containsKey(devId)) {
             deviceMap.remove(devId);
           }
+          HomluxDeviceEntity? entity = HomluxDeviceApi.devices[devId];
+          if (entity != null) {
+            HomluxPushResultEntity pushResult = HomluxPushResultEntity();
+            HomluxEventDataEntity eventData = HomluxEventDataEntity();
+            eventData.deviceId = device['devId'] as String;
+            pushResult.eventType = TypeDeviceProperty;
+            pushResult.eventData = eventData;
+            HomluxPushManager.deviceStatusChange(device['devId'] as String, pushResult);
+            Log.file('homlux 局域网 设备${device['devId'] as String} 发生删除');
+          }
         }
       }
 
@@ -222,26 +231,37 @@ class HomluxLanControlDeviceManager {
         var deviceList = data['deviceList'] as List<dynamic>;
         for (var device in deviceList) {
           deviceMap[device['devId'] as String] = device;
+          HomluxDeviceEntity? entity =
+              HomluxDeviceApi.devices[device['devId'] as String];
+          if (entity != null) {
+            HomluxPushResultEntity pushResult = HomluxPushResultEntity();
+            HomluxEventDataEntity eventData = HomluxEventDataEntity();
+            eventData.deviceId = device['devId'] as String;
+            pushResult.eventType = TypeDeviceProperty;
+            pushResult.eventData = eventData;
+            HomluxPushManager.deviceStatusChange(device['devId'] as String, pushResult);
+            Log.file('homlux 局域网 设备${device['devId'] as String} 发生添加');
+          }
         }
       }
 
       /// 设备状态信息
       if ('/local/getDeviceStatus/ack' == topic) {
-
         var houseId = data['houseId'] as String;
         var deviceStatusInfoList =
             data['deviceStatusInfoList'] as List<dynamic>;
         if (houseId == curHouseId) {
-
           for (var statu in deviceStatusInfoList) {
             var devId = statu['devId'];
             if (deviceMap.containsKey(devId)) {
               var device = deviceMap[devId] as Map<String, dynamic>;
-              var status = device['status'] as List<Map<String, dynamic>>? ?? <Map<String, dynamic>>[];
+              var status = device['status'] as List<Map<String, dynamic>>? ??
+                  <Map<String, dynamic>>[];
               if (status.isEmpty) {
                 status.add(statu);
               } else {
-                status.removeWhere((element) => element['modelName'] == statu['modelName']);
+                status.removeWhere(
+                    (element) => element['modelName'] == statu['modelName']);
                 status.add(statu);
               }
               device['status'] = status;
@@ -249,9 +269,9 @@ class HomluxLanControlDeviceManager {
           }
 
           var hangUpTask = findTask(reqId!);
-          if(hangUpTask != null) {
+          if (hangUpTask != null) {
             var status = deviceMap[hangUpTask.handle.data as String]?['status'];
-            if(status == null) {
+            if (status == null) {
               hangUpTask.handle.suc(_errorResponseEntity);
             } else {
               HomluxResponseEntity entity = HomluxResponseEntity();
@@ -267,8 +287,9 @@ class HomluxLanControlDeviceManager {
       /// 设备状态更新
       if ('/local/subDeviceStatus' == topic) {
         var houseId = data['houseId'] as String;
-        if(houseId == curHouseId) {
-          var deviceStatusInfoList = data['deviceStatusInfoList'] as List<dynamic>;
+        if (houseId == curHouseId) {
+          var deviceStatusInfoList =
+              data['deviceStatusInfoList'] as List<dynamic>;
           bool needQueryDeviceList = false;
           for (var rStatu in deviceStatusInfoList) {
             var devId = rStatu['devId'] as String;
@@ -279,8 +300,9 @@ class HomluxLanControlDeviceManager {
 
                 for (var i = 0; i < curStatus.length; i++) {
                   var cStatu = curStatus[i];
-                  if(cStatu['modelName'] == rStatu['modelName']) {
-                    curStatus[i] = LanUtils.mapDeepMerge(cStatu, rStatu) as Map<String, dynamic>;
+                  if (cStatu['modelName'] == rStatu['modelName']) {
+                    curStatus[i] = LanUtils.mapDeepMerge(cStatu, rStatu)
+                        as Map<String, dynamic>;
                   }
                 }
 
@@ -295,10 +317,11 @@ class HomluxLanControlDeviceManager {
                   eventData.event = rStatu['deviceProperty'];
                   pushResult.eventType = TypeDeviceProperty;
                   pushResult.eventData = eventData;
-                  HomluxPushManager.deviceStatusChange(rStatu['devId'], pushResult);
-                  Log.file('homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
+                  HomluxPushManager.deviceStatusChange(
+                      rStatu['devId'], pushResult);
+                  Log.file(
+                      'homlux 局域网 设备$devId状态发生变化 ${rStatu['deviceProperty']}');
                 }
-
               } else {
                 lanDeviceControlChannel.getDeviceStatus(uuid.v4(), devId);
               }
@@ -310,9 +333,7 @@ class HomluxLanControlDeviceManager {
           if (needQueryDeviceList) {
             lanDeviceControlChannel.getDeviceInfo(uuid.v4());
           }
-
         }
-
       }
 
       /// 场景列表
@@ -337,7 +358,7 @@ class HomluxLanControlDeviceManager {
             var sceneId = scene['sceneId'] as String;
             sceneMap[sceneId] = scene;
           }
-          if(sceneMap.values.isNotEmpty) {
+          if (sceneMap.values.isNotEmpty) {
             Log.i('[homeos] 场景列表数据处理成功 第一个数据为 ${sceneMap.values.first}');
           } else {
             Log.i('[homeos] 场景列表数据处理成功 数据为空');
@@ -411,16 +432,17 @@ class HomluxLanControlDeviceManager {
       //            }
       //         ]
       //     }
-      if('/local/scene/update/stamp' == topic) {
+      if ('/local/scene/update/stamp' == topic) {
         var houseId = data['houseId'] as String;
         var scenes = data['sceneList'] as List<dynamic>;
-        if(houseId == curHouseId) {
-          for(var scene in scenes) {
+        if (houseId == curHouseId) {
+          for (var scene in scenes) {
             var sceneId = scene['sceneId'] as String;
             sceneMap[sceneId] = scene;
           }
         }
       }
+
       /// 场景执行
       /// {
       //     "data":{
@@ -469,11 +491,11 @@ class HomluxLanControlDeviceManager {
       }
 
       /// 灯组状态更新
-      if('/local/group/update/stamp' == topic) {
+      if ('/local/group/update/stamp' == topic) {
         var houseId = data['houseId'] as String;
-        if(houseId == curHouseId) {
+        if (houseId == curHouseId) {
           var groupList = data['groupList'] as List<dynamic>;
-          for(var group in groupList) {
+          for (var group in groupList) {
             var groupId = group['webGroupId'] as String;
             groupMap[groupId] = group;
           }
@@ -538,7 +560,7 @@ class HomluxLanControlDeviceManager {
   }
 
   listenerEventStandbyActive(result) {
-    if(result) {
+    if (result) {
       lanDeviceControlChannel.adjustSpeedToLow();
     } else {
       lanDeviceControlChannel.adjustSpeedToNormal();
@@ -555,7 +577,7 @@ class HomluxLanControlDeviceManager {
   }
 
   void login() async {
-    if(!enable) return;
+    if (!enable) return;
 
     if (_lock != null && !_lock!.isCompleted) {
       _lock!.future.then((value) => login());
@@ -577,13 +599,13 @@ class HomluxLanControlDeviceManager {
 
       String? _key;
       try {
-         _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
-      } catch(e) {
+        _key = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+      } catch (e) {
         Log.file(e);
       }
       if (_key == null) {
         _key = await LocalStorage.getItem('homlux_lan_control_key');
-        if(_key == null) {
+        if (_key == null) {
           Log.e('请求到的key为空');
           sucSubscribe = false;
           return;
@@ -603,8 +625,9 @@ class HomluxLanControlDeviceManager {
           /// key过期
           if (System.inHomluxPlatform() && System.isLogin()) {
             sucSubscribe = false;
-            String? _newKey = (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
-            if(_newKey != key) {
+            String? _newKey =
+                (await HomluxLanDeviceApi.queryLocalKey(houseId)).result;
+            if (_newKey != key) {
               login();
             }
           }
@@ -620,7 +643,7 @@ class HomluxLanControlDeviceManager {
           requestDataTimer = Timer(const Duration(seconds: 3), () {
             bus.typeEmit(HomluxLanDeviceChange(), 1000);
           });
-        } else if(args == 'connectLost') {
+        } else if (args == 'connectLost') {
           connectOk = false;
           requestDataTimer?.cancel();
         }
@@ -642,14 +665,18 @@ class HomluxLanControlDeviceManager {
       if (deviceMap.containsKey(deviceID)) {
         Log.file('homlux 局域网控制 设备 \n ${deviceMap[deviceID]}');
         String reqId = uuid.v4();
+
         /// 1. 发送控制指令
         lanDeviceControlChannel.deviceControl(reqId, deviceID, actions);
+
         /// 2. 等待处理结果返回
-        HomluxResponseEntity result = await hangUp(HangUpTask<HomluxResponseEntity>.create(
-            id: reqId,
-            handle: HangUpHandle(),
-            timeoutComputation: () => _errorResponseEntity));
-        Log.file('homlux 局域网控制 设备 \n $deviceID ${result.isSuccess? '控制成功': '控制失败'}');
+        HomluxResponseEntity result = await hangUp(
+            HangUpTask<HomluxResponseEntity>.create(
+                id: reqId,
+                handle: HangUpHandle(),
+                timeoutComputation: () => _errorResponseEntity));
+        Log.file(
+            'homlux 局域网控制 设备 \n $deviceID ${result.isSuccess ? '控制成功' : '控制失败'}');
         return result;
       } else {
         Log.file('homlux 局域网控制 本地设备列表不包含此设备 $deviceID');
@@ -661,12 +688,14 @@ class HomluxLanControlDeviceManager {
     return _errorResponseEntity;
   }
 
-  Future<HomluxResponseEntity> executeScene(String sceneID, int updateStamp) async {
+  Future<HomluxResponseEntity> executeScene(
+      String sceneID, int updateStamp) async {
     if (sucSubscribe && connectOk) {
       if (sceneMap.containsKey(sceneID)) {
         // 1. 查询本地场景能否控制
         dynamic scene = sceneMap[sceneID];
-        if(scene['updateStamp'] == null || int.parse(scene['updateStamp']) < updateStamp) {
+        if (scene['updateStamp'] == null ||
+            int.parse(scene['updateStamp']) < updateStamp) {
           Log.i('homlux 局域网控制 \n 场景 ${scene['updateStamp']} 太小，跳出局域网控制');
           return _errorResponseEntity; // 局域网能控制的设备
         }
@@ -675,11 +704,13 @@ class HomluxLanControlDeviceManager {
         final requestId = uuid.v4();
         lanDeviceControlChannel.sceneExcute(requestId, sceneID);
         // 3.等待执行结果并返回
-        HomluxResponseEntity entity =  await hangUp(HangUpTask<HomluxResponseEntity>.create(
-            id: requestId,
-            handle: HangUpHandle(),
-            timeoutComputation: () => _errorResponseEntity));
-        Log.file('homlux 局域网控制 场景 \n ${sceneMap[sceneID]} ${entity.isSuccess? '控制成功': '控制失败'}');
+        HomluxResponseEntity entity = await hangUp(
+            HangUpTask<HomluxResponseEntity>.create(
+                id: requestId,
+                handle: HangUpHandle(),
+                timeoutComputation: () => _errorResponseEntity));
+        Log.file(
+            'homlux 局域网控制 场景 \n ${sceneMap[sceneID]} ${entity.isSuccess ? '控制成功' : '控制失败'}');
         return entity;
       }
     } else {
@@ -689,13 +720,14 @@ class HomluxLanControlDeviceManager {
     return _errorResponseEntity;
   }
 
-  Future<HomluxResponseEntity> executeGroup(
-      String groupID, int updateStamp, List<Map<String, dynamic>> actions) async {
+  Future<HomluxResponseEntity> executeGroup(String groupID, int updateStamp,
+      List<Map<String, dynamic>> actions) async {
     if (sucSubscribe && connectOk) {
       if (groupMap.containsKey(groupID)) {
         // 1. 查询本地灯组能否控制
         dynamic group = groupMap[groupID];
-        if(group['updateStamp'] == null || int.parse(group['updateStamp']) < updateStamp) {
+        if (group['updateStamp'] == null ||
+            int.parse(group['updateStamp']) < updateStamp) {
           Log.file('homlux 局域网控制 \n 灯组 ${group['updateStamp']} 太小，跳出局域网控制');
           return _errorResponseEntity; // 局域网能控制的设备
         }
@@ -722,9 +754,8 @@ class HomluxLanControlDeviceManager {
   Future<HomluxResponseEntity> getDeviceStatus(String devId) async {
     Log.file('局域网 getDeviceStatus(devId=$devId)');
     if (sucSubscribe && connectOk) {
-
       // 1.查询设备是否存在本地
-      if(!deviceMap.containsKey(devId)) {
+      if (!deviceMap.containsKey(devId)) {
         return _errorResponseEntity;
       }
 
@@ -733,17 +764,16 @@ class HomluxLanControlDeviceManager {
       lanDeviceControlChannel.getDeviceStatus(requestId, devId);
 
       // 3.等待执行结果并返回
-      HomluxResponseEntity entity =  await hangUp(HangUpTask<HomluxResponseEntity>.create(
-          id: requestId,
-          handle: HangUpHandle(devId),
-          timeoutComputation: () => _errorResponseEntity));
+      HomluxResponseEntity entity = await hangUp(
+          HangUpTask<HomluxResponseEntity>.create(
+              id: requestId,
+              handle: HangUpHandle(devId),
+              timeoutComputation: () => _errorResponseEntity));
       return entity;
-
     } else {
       login();
       Log.file('homlux 局域网控制 场景 \n 异常 订阅：$sucSubscribe 连接：$connectOk');
     }
     return _errorResponseEntity;
   }
-
 }

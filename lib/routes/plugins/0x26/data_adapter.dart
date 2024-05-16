@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
@@ -26,11 +27,13 @@ class YubaDataEntity {
   String heating_temp = '50';
   List<String> huchi = ['bath', 'blowing', 'heating', 'drying'];
   String gongcun = 'ventilation';
+  int onlineState = 0;
 
   YubaDataEntity({
-    required mode,
-    required light_mode,
-    required delay_enable,
+    required this.mode,
+    required this.light_mode,
+    required this.delay_enable,
+    required this.onlineState,
   });
 
   YubaDataEntity.fromMeiJu(dynamic data, String sn8) {
@@ -38,6 +41,7 @@ class YubaDataEntity {
     light_mode = data["light_mode"];
     delay_enable = data["delay_enable"];
     heating_temp = data["heating_temperature"] ?? '42';
+    onlineState = 1;
   }
 
   YubaDataEntity.fromHomlux(HomluxDeviceEntity data) {
@@ -45,6 +49,8 @@ class YubaDataEntity {
     light_mode = data.mzgdPropertyDTOList?.bathHeat?.lightMode ?? 'close_all';
     delay_enable = data.mzgdPropertyDTOList?.bathHeat?.delayEnable ?? 'off';
     heating_temp = data.mzgdPropertyDTOList?.bathHeat?.heatingTemperature ?? '42';
+    onlineState = data.onLineStatus ?? 0;
+    Log.develop("浴霸离在线状态 : $onlineState");
   }
 
   Map<String, dynamic> toJson() {
@@ -64,7 +70,7 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
   dynamic _meijuData = null;
   HomluxDeviceEntity? _homluxData = null;
 
-  YubaDataEntity? data = YubaDataEntity(mode: 'close_all', light_mode: 'close_all', delay_enable: 'off');
+  YubaDataEntity? data = YubaDataEntity(mode: 'close_all', light_mode: 'close_all', delay_enable: 'off', onlineState: 0);
 
   WIFIYubaDataAdapter(super.platform, this.sn8, this.applianceCode) {
     Log.i('获取到当前浴霸的sn8', this.sn8);
@@ -200,7 +206,7 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
         data = YubaDataEntity.fromHomlux(_homluxData!);
       } else {
         dataState = DataState.ERROR;
-        data = YubaDataEntity(mode: 'close_all', light_mode: 'close_all', delay_enable: 'off');
+        data = YubaDataEntity(mode: 'close_all', light_mode: 'close_all', delay_enable: 'off', onlineState: 0);
         updateUI();
         return;
       }
@@ -229,6 +235,7 @@ class WIFIYubaDataAdapter extends DeviceCardDataAdapter<YubaDataEntity> {
   Future<HomluxDeviceEntity?> fetchHomluxData() async {
     HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
+    Log.develop("返回的设备状态 ${nodeInfo != null ? jsonEncode(nodeInfo.toJson()) : null}");
     if (nodeInfo != null) {
       return nodeInfo;
     } else {
