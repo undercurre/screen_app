@@ -32,10 +32,19 @@ class CurtainDataEntity {
   });
 
   CurtainDataEntity.fromMeiJu(dynamic data) {
-    curtainPosition = int.parse(data['curtain_position']);
+    curtainPosition = getCurtainPosition(data);
     curtainStatus = data['curtain_status'];
     curtainDirection = data['curtain_direction'];
     onlineState = 1;
+  }
+
+ int getCurtainPosition(dynamic data){
+    if(data.containsKey("curtain_position")){
+      return int.parse(data['curtain_position']);
+    }else{
+      return 0;
+    }
+
   }
 
   CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
@@ -188,7 +197,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   @override
   /// 查询状态
   Future<void> fetchData() async {
-    try {
+    // try {
       dataState = DataState.LOADING;
       updateUI();
       if (platform.inMeiju()) {
@@ -213,12 +222,12 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
       }
       dataState = DataState.SUCCESS;
       updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      updateUI();
-      Log.i(e.toString());
-    }
+    // } catch (e) {
+    //   // Error occurred while fetching data
+    //   dataState = DataState.ERROR;
+    //   updateUI();
+    //   Log.i(e.toString());
+    // }
   }
 
   Future<dynamic> fetchMeijuData() async {

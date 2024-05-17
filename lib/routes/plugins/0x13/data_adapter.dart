@@ -40,11 +40,11 @@ class LightDataEntity {
   LightDataEntity.fromMeiJu(dynamic data, String sn8) {
     onlineState = 1;
     if (sn8.isNotEmpty&&sn8 == "79009833") {
-      brightness = int.parse(data["brightValue"]) < 1 ? 1 : data["brightValue"];
+      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
       colorTemp = int.parse(data["color_temperature"]);
-      power = data["power"];
-      screenModel = data["screenModel"];
-      timeOff = int.parse(data["timeOff"]);
+      power = data["power"] == 'on';
+      screenModel = data["scene_light"];
+      timeOff = int.parse(data["delay_light_off"]);
     } else if (sn8.isNotEmpty&&sn8 == "7909AC81") {
       brightness = int.parse(data["brightness"]);
       if (brightness < 100) {

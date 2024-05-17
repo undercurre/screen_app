@@ -139,7 +139,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
 
   /// 查询状态
   Future<void> fetchData() async {
-    try {
+    // try {
       dataState = DataState.LOADING;
       updateUI();
       if (platform.inMeiju()) {
@@ -165,12 +165,12 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
       }
       dataState = DataState.SUCCESS;
       updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      updateUI();
-      Log.i(e.toString());
-    }
+    // } catch (e) {
+    //   // Error occurred while fetching data
+    //   dataState = DataState.ERROR;
+    //   updateUI();
+    //   Log.i(e.toString());
+    // }
   }
 
   Future<dynamic> fetchMeijuData() async {
@@ -310,7 +310,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
         }));
 
     if (res.isSuccess) {
-      Log.i('情景数据', (res.result["result"]["sceneList"] as List<dynamic>)[0].keys.toList());
+      // Log.i('情景数据', (res.result["result"]["sceneList"] as List<dynamic>)[0].keys.toList());
       return (res.result["result"]["sceneList"] as List<dynamic>)
           .map((e) => Mode(e["sceneId"], e["sceneName"], 'assets/newUI/lightGroupScene/${e["icon"]}_on.png',
               'assets/newUI/lightGroupScene/${e["icon"]}_on.png'))
