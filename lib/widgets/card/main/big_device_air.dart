@@ -448,6 +448,11 @@ class _BigDeviceAirCardWidgetState extends State<BigDeviceAirCardWidget> {
                             if (value > 30) {
                               return;
                             }
+                            String model = adapter!.getCardStatus()?["mode"];
+                            if (model == "fan") {
+                              TipsUtils.toast(content: '送风模式温度不可调');
+                              return;
+                            }
                             adapter.increaseTo(value.toInt());
                             bus.emit('operateDevice', widget.applianceCode);
                           }
