@@ -503,7 +503,7 @@ class LayoutModel extends ChangeNotifier {
         for (int layoutInMaxPageIndex = 0; layoutInMaxPageIndex < maxLayouts.length; layoutInMaxPageIndex++) {
           if (maxLayouts[layoutInMaxPageIndex].deviceId != layout.deviceId && maxLayouts[layoutInMaxPageIndex].cardType != CardType.Null) {
             // 取出当前布局的grids
-            for (int gridsIndexInMaxPage = 0; gridsIndexInMaxPage < curLayouts[layoutInMaxPageIndex].grids.length; gridsIndexInMaxPage++) {
+            for (int gridsIndexInMaxPage = 0; gridsIndexInMaxPage < maxLayouts[layoutInMaxPageIndex].grids.length; gridsIndexInMaxPage ++) {
               // 把已经布局的数据在布局器中占位
               int grid = maxLayouts[layoutInMaxPageIndex].grids[gridsIndexInMaxPage];
               int row = (grid - 1) ~/ 4;
