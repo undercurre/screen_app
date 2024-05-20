@@ -154,13 +154,13 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
 
   @override
   bool getPowerStatus() {
-    Log.i('获取开关状态', data!.curtainPosition > 0);
+    // Log.i('获取开关状态', data!.curtainPosition > 0);
     return data!.curtainPosition > 0;
   }
 
   @override
   String? getCharacteristic() {
-    Log.i('获取特征状态', data!.curtainPosition);
+    // Log.i('获取特征状态', data!.curtainPosition);
     return "${data!.curtainPosition}%";
   }
 

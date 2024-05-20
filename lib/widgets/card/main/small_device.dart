@@ -69,7 +69,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   }
 
   void updateCallback() {
-    Log.i('小卡片状态更新');
+    // Log.i('小卡片状态更新');
     if (mounted) {
       setState(() {
         adapter?.data = adapter?.data;
@@ -238,15 +238,14 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           TipsUtils.toast(content: '网络服务异常，控制设备失败');
           return;
         }
-        Log.i('点击卡片', isOnlineState());
+        
         if (!isOnlineState() && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing:
-            (!isOnlineState() || adapter?.dataState != DataState.SUCCESS),
+        absorbing: (!isOnlineState() || adapter?.dataState != DataState.SUCCESS),
         child: GestureDetector(
           onTap: () {
             if (!widget.disabled && isOnlineState()) {

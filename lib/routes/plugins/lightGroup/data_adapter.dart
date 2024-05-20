@@ -103,7 +103,7 @@ class LightGroupDataAdapter extends DeviceCardDataAdapter<GroupDataEntity> {
 
   @override
   bool getPowerStatus() {
-    Log.i('获取开关状态', data!.power);
+    // Log.i('获取开关状态', data!.power);
     return data!.power;
   }
 

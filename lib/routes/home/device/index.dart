@@ -374,7 +374,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         // 映射出对应的Card
         layoutAfterSort.data.disabled = false;
         layoutAfterSort.data.context = context;
-        Log.i('layoutAfterSort', layoutAfterSort.type);
+        // Log.i('layoutAfterSort', layoutAfterSort.type);
         if (buildMap[layoutAfterSort.type]?[layoutAfterSort.cardType] == null) {
           Log.e("异常布局类型 ${layoutAfterSort.type} ${layoutAfterSort.cardType} ");
           continue;

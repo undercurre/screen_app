@@ -14,7 +14,6 @@ Future<void> _openAndWriteFile(SendPort p) async {
   bool overrideExisting;
   RandomAccessFile? randomAccessFile;
   await for(final message in receivePort2) {
-    debugPrint("receive message=$message");
     switch(message['topic']) {
       case 'destroy':
         Isolate.exit();
@@ -44,7 +43,7 @@ Future<void> _openAndWriteFile(SendPort p) async {
         }
         break;
       case 'data':
-        debugPrint("out put");
+        // debugPrint("out put");
         if(randomAccessFile == null) return;
         List<String> lines = message['messages'];
 
@@ -118,7 +117,7 @@ class FileOutput extends LogOutput {
 
   @override
   void output(OutputEvent event) {
-    debugPrint('out put ${sendPort}');
+    // debugPrint('out put ${sendPort}');
     sendPort?.send({
       'topic': 'data',
       'messages': event.lines
