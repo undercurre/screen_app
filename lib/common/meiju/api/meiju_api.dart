@@ -16,8 +16,6 @@ import '../meiju_global.dart';
 
 const uuid = Uuid();
 
-bool refreshTokenActive = false;
-
 class MeiJuApiHelper {
   static Future<MeiJuResponseEntity<T>> wrap<T>(
       Future<MeiJuResponseEntity<T>> future) async {
@@ -48,6 +46,8 @@ class MeiJuApi {
   factory MeiJuApi() {
     return _instance;
   }
+
+  static bool refreshTokenActive = false;
 
   /// token状态
   static TokenCombineState tokenState = TokenCombineState.INVAILD;
@@ -90,16 +90,31 @@ class MeiJuApi {
               'headers: ${options.headers} \n '
               'data: ${options.data} \n '
               'queryParameters: ${options.queryParameters}  \n');
-          final bool isRefreshTokenUrl = options.uri.path == '/v1/openApi/auth/midea/token' || options.uri.path == '/muc/v5/app/mj/user/autoLogin';
+          final bool isRefreshTokenUrl = options.uri.path.endsWith('/v1/openApi/auth/midea/token') || options.uri.path.endsWith('/muc/v5/app/mj/user/autoLogin');
           if(isRefreshTokenUrl) {
             return handler.next(options);
+          }
+          if (refreshTokenActive) {
+              do {
+                await Future.delayed(const Duration(seconds: 3));
+                if(refreshTokenActive) {
+                  Log.develop('[刷新Token] 等待Token刷新结束 ${options.path}');
+                }
+              } while (refreshTokenActive);
+              // 更改请求的Token变量
+              options.headers['Authorization'] = 'Bearer ${MeiJuGlobal.token?.mzAccessToken}';
+              options.headers['accessToken'] = MeiJuGlobal.token?.accessToken;
           }
           if(tokenState != TokenCombineState.INVAILD && tokenState != TokenCombineState.NORMAL) {
             tryToRefreshToken("检测到本地Token状态异常，准备重新刷新Token状态");
             if (refreshTokenActive) {
+              int count = 10;
               do {
-                Log.file("[刷新Token]检测到Token正在刷新，尝试睡眠等待");
                 await Future.delayed(const Duration(seconds: 3));
+                if(count-- <= 0) {
+                  Log.develop("[刷新Token] 注意！！！ 超时刷新Token");
+                  refreshTokenActive = false;
+                }
               } while (refreshTokenActive);
               // 更改请求的Token变量
               options.headers['Authorization'] = 'Bearer ${MeiJuGlobal.token?.mzAccessToken}';
@@ -108,8 +123,8 @@ class MeiJuApi {
           }
           return handler.next(options);
         }, onResponse: (response, handler) {
-          Log.file('【onResponse】: ${response.requestOptions.path} \n ''onResponse: $response.');
-          final bool isRefreshTokenUrl = response.requestOptions.path == '/v1/openApi/auth/midea/token' || response.requestOptions.path == '/muc/v5/app/mj/user/autoLogin';
+          Log.file('【onResponse】: ${response.requestOptions.path} \n ''onResponse: $response');
+          final bool isRefreshTokenUrl = response.requestOptions.path.endsWith('/v1/openApi/auth/midea/token') || response.requestOptions.path.endsWith('/muc/v5/app/mj/user/autoLogin');
           if (isRefreshTokenUrl) {
             return handler.next(response);
           }
@@ -117,14 +132,14 @@ class MeiJuApi {
           if (dataCode == null) {
             return handler.next(response);
           }
-          final String url = response.requestOptions.baseUrl;
-          if (dotenv.get('IOT_URL') == url) {
+          final String url = response.requestOptions.path;
+          if (url.startsWith(dotenv.get('IOT_URL'))) {
             if(tokenState != TokenCombineState.INVAILD) {
               if (isIOTLogoutCode(dataCode)) {
                 tryToRefreshToken("IOT后台提示Token过期");
               }
             }
-          } else if (dotenv.get('MZ_URL') == url) {
+          } else if (url.startsWith(dotenv.get('MZ_URL'))) {
             if (tokenState != TokenCombineState.INVAILD)
             {
               if (isMZLogoutCode(dataCode) || isIOTLogoutCode(dataCode))
@@ -318,7 +333,7 @@ class MeiJuApi {
 
   static tryToRefreshToken(String msg) async {
     if (!refreshTokenActive) {
-      Log.file("[刷新Token]原因：$msg}");
+      Log.develop("[刷新Token] 原因：$msg");
       try {
         refreshTokenActive = true;
         tokenState = TokenCombineState.ALL_EXPIRED;
@@ -330,7 +345,10 @@ class MeiJuApi {
         if (mzResult && meijuResult) {
           tokenState = TokenCombineState.NORMAL;
         }
+      } on Exception catch(e, stackTrace) {
+        Log.develop('[刷新Token] 异常', e, stackTrace);
       } finally {
+        Log.develop("[刷新Token] 结束 : $tokenState");
         refreshTokenActive = false;
       }
     }
