@@ -167,7 +167,7 @@ class MeiJuApi {
         }));
   }
 
-  static Future<bool> mzAutoLogin() async {
+  static Future<String?> mzAutoLogin() async {
     var options = Options();
     options.extra ??= {};
     options.headers ??= {};
@@ -241,17 +241,16 @@ class MeiJuApi {
       throw DioException(requestOptions: res.requestOptions, response: res);
     }
 
-    if (!entity.isSuccess) {
-      throw DioException(requestOptions: res.requestOptions, response: res);
+    String? mzToken = entity.data?['accessToken'];
+    if(entity.isSuccess && mzToken != null) {
+      MeiJuGlobal.token?.mzAccessToken = mzToken;
+      MeiJuGlobal.token = MeiJuGlobal.token;
     }
 
-    String? mzToken = entity.data['accessToken'];
-    MeiJuGlobal.token?.mzAccessToken = mzToken;
-    MeiJuGlobal.token = MeiJuGlobal.token;
-    return entity.isSuccess;
+    return mzToken;
   }
 
-  static Future<bool> iotAutoLogin() async {
+  static Future<String?> iotAutoLogin() async {
     Map<String, dynamic>? queryParameters = {};
     Options options = Options();
     options.extra ??= {};
@@ -304,31 +303,31 @@ class MeiJuApi {
       throw DioException(requestOptions: res.requestOptions, response: res);
     }
 
-    if (!entity.isSuccess) {
-      throw DioException(requestOptions: res.requestOptions, response: res);
+
+    if(entity.isSuccess) {
+      // 刷新Global.user.accessToken
+      String? accessToken = entity.data?['accessToken'];
+      if (accessToken != null) {
+      MeiJuGlobal.token?.accessToken = accessToken;
+      }
+      String? tokenPwd = entity.data?['tokenPwd'];
+      if (tokenPwd != null) {
+        MeiJuGlobal.token?.tokenPwd = tokenPwd;
+      }
+      int? expired = entity.data?['expired'];
+      if (expired != null) {
+        MeiJuGlobal.token?.expired = expired;
+        Log.file("it token 过期时间 ${DateTime.fromMillisecondsSinceEpoch(expired)}");
+      }
+      int? expiredDate = entity.data?['expiredDate'];
+      if (expiredDate != null) {
+        MeiJuGlobal.token?.pwdExpired = expiredDate;
+        Log.file("it refresh_token 过期时间 ${DateTime.fromMillisecondsSinceEpoch(expiredDate)}");
+      }
+      MeiJuGlobal.token = MeiJuGlobal.token;
     }
 
-    // 刷新Global.user.accessToken
-    if (entity.data['accessToken'] != null) {
-      MeiJuGlobal.token?.accessToken = entity.data['accessToken'];
-    }
-    if (entity.data['tokenPwd'] != null) {
-      MeiJuGlobal.token?.tokenPwd = entity.data['tokenPwd'];
-    }
-    if (entity.data['expired'] != null) {
-      MeiJuGlobal.token?.expired = entity.data['expired'];
-      Log.file(
-          "it token 过期时间 ${DateTime.fromMillisecondsSinceEpoch(entity.data['expired'])}");
-    }
-    if (entity.data['expiredDate'] != null) {
-      MeiJuGlobal.token?.pwdExpired = entity.data['expiredDate'];
-      Log.file(
-          "it refresh_token 过期时间 ${DateTime.fromMillisecondsSinceEpoch(entity.data['expiredDate'])}");
-    }
-
-    MeiJuGlobal.token = MeiJuGlobal.token;
-
-    return true;
+    return entity.data?['accessToken'];
   }
 
   static tryToRefreshToken(String msg) async {
@@ -337,12 +336,14 @@ class MeiJuApi {
       try {
         refreshTokenActive = true;
         tokenState = TokenCombineState.ALL_EXPIRED;
-        bool meijuResult = await iotAutoLogin();
-        if (meijuResult) {
+        String? iotToken = await iotAutoLogin();
+        Log.develop('[刷新Token] iot-token $iotToken');
+        if (iotToken != null) {
           tokenState = TokenCombineState.ONLY_MEIZHI_EXPIRED;
         }
-        bool mzResult = await mzAutoLogin();
-        if (mzResult && meijuResult) {
+        String? mzToken = await mzAutoLogin();
+        Log.develop('[刷新Token] mz-token $mzToken');
+        if (iotToken != null && mzToken != null) {
           tokenState = TokenCombineState.NORMAL;
         }
       } on Exception catch(e, stackTrace) {
