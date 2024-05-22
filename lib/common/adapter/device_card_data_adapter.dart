@@ -52,6 +52,12 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
 
   T? data;
 
+  /// 设备确权状态
+  /// true      已确权
+  /// false     未确权
+  bool? _auth;
+
+
   bool fetchOnlineState(BuildContext context, String deviceId) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     return deviceListModel.getOnlineStatus(deviceId: deviceId);
@@ -78,20 +84,20 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   Future<bool?> checkWaitLockAuth(String deviceId) async {
 
     final need = NeedCheckWaitLockAuthTypes.any((element) => element == type);
-    if(need) {
+    if(need && (_auth == null || _auth == false)) {
       if(platform.inMeiju()) {
         MeiJuResponseEntity<MeiJuAuthDeviceBatchEntity> response = await MeiJuDeviceApi.getAuthBatchStatus([deviceId]);
         if(response.isSuccess) {
-          bool? auth = response.data?.applianceAuthList?.any((e) => e.status != 1 && e.status != 2);
-          return auth;
+          _auth = response.data?.applianceAuthList?.any((e) => e.status != 1 && e.status != 2);
+          return _auth;
         }
       } else {
         final familyItem = System.familyInfo;
         if(familyItem != null) {
           HomluxResponseEntity<HomluxDeviceAuthEntity> response = await HomluxDeviceApi.getDeviceIsNeedCheck(deviceId, familyItem.familyId);
           if(response.isSuccess) {
-            bool auth = response.data?.status != 1 && response.data?.status != 2;
-            return auth;
+            _auth = response.data?.status != 1 && response.data?.status != 2;
+            return _auth;
           }
         }
       }
