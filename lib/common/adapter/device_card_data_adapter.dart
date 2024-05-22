@@ -1,4 +1,6 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/homlux/models/homlux_device_auth_entity.dart';
 import 'package:screen_app/common/homlux/models/homlux_response_entity.dart';
@@ -6,6 +8,7 @@ import 'package:screen_app/common/index.dart';
 import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/common/meiju/models/auth_device_bath_entity.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
+import 'package:screen_app/states/device_list_notifier.dart';
 import 'midea_data_adapter.dart';
 
 enum AdapterType {
@@ -21,7 +24,10 @@ enum AdapterType {
   panel,
   wifiAir,
   wifiYuba,
-  wifiLiangyi
+  wifiLiangyi,
+  wifiDianre,
+  wifiRanre,
+
 }
 
 /// 美居OrHomlux配置
@@ -31,7 +37,11 @@ const NeedCheckWaitLockAuthTypes = [
   AdapterType.wifiCurtain,
   AdapterType.wifiAir,
   AdapterType.wifiYuba,
-  AdapterType.wifiLiangyi
+  AdapterType.wifiLiangyi,
+  AdapterType.wifiDianre,
+  AdapterType.wifiRanre
+
+
 ];
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
@@ -41,6 +51,11 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   DeviceCardDataAdapter(super.platform);
 
   T? data;
+
+  bool fetchOnlineState(BuildContext context, String deviceId) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    return deviceListModel.getOnlineStatus(deviceId: deviceId);
+  }
 
   Future<void> fetchDataAndCheckWaitLockAuth(String deviceId) async {
     // 只有确切知道未确权，才会去拦截设备详情请求

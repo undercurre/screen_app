@@ -63,6 +63,10 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     adapter.unBindDataUpdateFunction(updateCallback);
   }
 
+  bool onlineState() {
+    return adapter.fetchOnlineState(context, widget.applianceCode);
+  }
+
   void updateCallback() {
     setState(() {
       Log.i('大卡片状态更新');
@@ -93,7 +97,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+      if (!onlineState()) {
         return '离线';
       }
       //
@@ -160,8 +164,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = adapter.getPowerStatus() ?? false;
-      bool online =
-          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online = onlineState();
       if (widget.disabled) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -254,7 +257,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
+        if (!onlineState() &&
             !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
@@ -262,7 +265,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       },
       child: AbsorbPointer(
         absorbing:
-            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
+            (!onlineState() || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -275,9 +278,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 child: GestureDetector(
                   onTap: () {
                     Log.i('disabled: ${widget.disabled}');
-                    if (!widget.disabled &&
-                        deviceListModel.getOnlineStatus(
-                            deviceId: widget.applianceCode)) {
+                    if (!widget.disabled && onlineState()) {
                       adapter.power(
                         adapter.getPowerStatus(),
                       );
@@ -306,8 +307,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       // TipsUtils.toast(content: '数据缺失，控制设备失败');
                       return;
                     }
-                    if (!deviceListModel.getOnlineStatus(
-                        deviceId: widget.applianceCode)) {
+                    if (!onlineState()) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
                       return;
                     }
@@ -438,10 +438,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   height: 16,
                   min: 0,
                   max: 100,
-                  disabled: !(adapter.getPowerStatus() ?? false) ||
-                      widget.disabled ||
-                      !deviceListModel.getOnlineStatus(
-                          deviceId: widget.applianceCode),
+                  disabled: !(adapter.getPowerStatus() ?? false) || widget.disabled || !onlineState(),
                   activeColors: const [Color(0xFFCE8F31), Color(0xFFFFFFFF)],
                   onChanging: (val, color) {
                     adapter.slider1ToFaker(val.toInt());
@@ -472,17 +469,12 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                 top: 140,
                 left: 4,
                 child: MzSlider(
-                  value: widget.disabled
-                      ? 0
-                      : adapter.getCardStatus()?['colorTemp'] ?? '',
+                  value: widget.disabled ? 0 : adapter.getCardStatus()?['colorTemp'] ?? '',
                   width: 390,
                   height: 16,
                   min: 0,
                   max: 100,
-                  disabled: !(adapter.getPowerStatus() ?? false) ||
-                      widget.disabled ||
-                      !deviceListModel.getOnlineStatus(
-                          deviceId: widget.applianceCode),
+                  disabled: !(adapter.getPowerStatus() ?? false) || widget.disabled || !onlineState(),
                   activeColors: const [Color(0xFFFFCC71), Color(0xFF55A2FA)],
                   isBarColorKeepFull: false,
                   onChanging: (val, color) {

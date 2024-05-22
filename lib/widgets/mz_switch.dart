@@ -65,8 +65,8 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
             height: 28,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(999)),
-              color: railBgc,
-              border: Border.all(color: borderBgc, width: 1),
+              color: widget.disabled?widget.inactiveColor:railBgc,
+              border: Border.all(color:widget.disabled? widget.borderInactiveColor: borderBgc, width: 1),
             ),
           ),
           Positioned(
@@ -77,7 +77,7 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
               height: 22,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(999)),
-                color: pointBgc,
+                color: widget.disabled?widget.pointInactiveColor:pointBgc,
               ),
             ),
           ),

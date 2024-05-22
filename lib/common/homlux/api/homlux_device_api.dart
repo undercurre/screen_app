@@ -231,6 +231,7 @@ class HomluxDeviceApi {
         /// 从本地缓存中，还原设备状态
         await _recoverForDevices(deviceId);
         if (devices[deviceId] != null) {
+          devices[deviceId]?.onLineStatus = 0;
           HomluxResponseEntity<HomluxDeviceEntity> response =
               HomluxResponseEntity()
                 ..code = 0
@@ -662,7 +663,7 @@ class HomluxDeviceApi {
     var lanActions = [
       <String, dynamic>{
         'modelName': 'light',
-        'deviceProperty': {'power': onOff == 1 ? 'on' : 'off'}
+        'deviceProperty': {'power': onOff == 1 ? 1 : 0}
       }
     ];
 

@@ -41,7 +41,7 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   bool isLocalDevice = false;
 
   Air485Data? data = Air485Data(
-      name: "新风", online: true, operationMode: 1, OnOff: true, windSpeed: 1);
+      name: "新风", online: false, operationMode: 1, OnOff: false, windSpeed: 1);
 
   DataState dataState = DataState.NONE;
 
@@ -74,9 +74,9 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
           dataState = DataState.ERROR;
           data = Air485Data(
               name: name,
-              online: true,
+              online: false,
               operationMode: 4,
-              OnOff: true,
+              OnOff: false,
               windSpeed: 1);
         }
         updateUI();
@@ -85,9 +85,9 @@ class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
         dataState = DataState.ERROR;
         data = Air485Data(
             name: name,
-            online: true,
+            online: false,
             operationMode: 4,
-            OnOff: true,
+            OnOff: false,
             windSpeed: 1);
         updateUI();
       }

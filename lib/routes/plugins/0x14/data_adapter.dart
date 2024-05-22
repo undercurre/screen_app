@@ -22,23 +22,36 @@ class CurtainDataEntity {
   int curtainPosition = 0;
   String curtainStatus = 'stop';
   String curtainDirection = 'positive';
+  int onlineState = 0;
 
   CurtainDataEntity({
     required this.curtainPosition,
     required this.curtainDirection,
     required this.curtainStatus,
+    required this.onlineState
   });
 
   CurtainDataEntity.fromMeiJu(dynamic data) {
-    curtainPosition = int.parse(data['curtain_position']);
+    curtainPosition = getCurtainPosition(data);
     curtainStatus = data['curtain_status'];
     curtainDirection = data['curtain_direction'];
+    onlineState = 1;
+  }
+
+ int getCurtainPosition(dynamic data){
+    if(data.containsKey("curtain_position")){
+      return int.parse(data['curtain_position']);
+    }else{
+      return 0;
+    }
+
   }
 
   CurtainDataEntity.fromHomlux(HomluxDeviceEntity data) {
     curtainPosition = int.parse(data.mzgdPropertyDTOList?.curtain?.curtainPosition ?? "0");
     curtainStatus = data.mzgdPropertyDTOList?.curtain?.curtainStatus ?? "stop";
     curtainDirection = data.mzgdPropertyDTOList?.curtain?.curtainDirection ?? "positive";
+    onlineState = data.onLineStatus ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +76,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
     curtainPosition: 0,
     curtainStatus: 'stop',
     curtainDirection: 'positive',
+    onlineState: 0
   );
 
 
@@ -110,6 +124,15 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   }
 
   @override
+  bool fetchOnlineState(BuildContext context, String deviceId) {
+    if(platform.inMeiju()) {
+      return super.fetchOnlineState(context, deviceId);
+    } else {
+      return data?.onlineState == 1;
+    }
+  }
+
+  @override
   Future<void> tryOnce() async {
     var openMode = Mode(
         'open',
@@ -131,13 +154,13 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
 
   @override
   bool getPowerStatus() {
-    Log.i('获取开关状态', data!.curtainPosition > 0);
+    // Log.i('获取开关状态', data!.curtainPosition > 0);
     return data!.curtainPosition > 0;
   }
 
   @override
   String? getCharacteristic() {
-    Log.i('获取特征状态', data!.curtainPosition);
+    // Log.i('获取特征状态', data!.curtainPosition);
     return "${data!.curtainPosition}%";
   }
 
@@ -174,7 +197,7 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
   @override
   /// 查询状态
   Future<void> fetchData() async {
-    try {
+    // try {
       dataState = DataState.LOADING;
       updateUI();
       if (platform.inMeiju()) {
@@ -192,18 +215,19 @@ class WIFICurtainDataAdapter extends DeviceCardDataAdapter<CurtainDataEntity> {
           curtainPosition: 0,
           curtainStatus: 'stop',
           curtainDirection: 'positive',
+          onlineState: 0
         );
         updateUI();
         return;
       }
       dataState = DataState.SUCCESS;
       updateUI();
-    } catch (e) {
-      // Error occurred while fetching data
-      dataState = DataState.ERROR;
-      updateUI();
-      Log.i(e.toString());
-    }
+    // } catch (e) {
+    //   // Error occurred while fetching data
+    //   dataState = DataState.ERROR;
+    //   updateUI();
+    //   Log.i(e.toString());
+    // }
   }
 
   Future<dynamic> fetchMeijuData() async {

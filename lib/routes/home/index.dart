@@ -35,7 +35,13 @@ class Home extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleState, Ota, CheckGatewayBind , WidgetNetState{
+class HomeState extends State<Home>
+    with
+        DeviceManagerSDKInitialize,
+        LifeCycleState,
+        Ota,
+        CheckGatewayBind,
+        WidgetNetState {
   late double po;
   var children = <Widget>[];
 
@@ -187,11 +193,10 @@ class HomeState extends State<Home> with DeviceManagerSDKInitialize, LifeCycleSt
 
   @override
   void netChange(MZNetState? state) {
-    if(state!=null){
-      final weatherModel = Provider.of<WeatherModel>(navigatorKey.currentContext!);
+    if (isConnected() && mounted) {
+      final weatherModel = Provider.of<WeatherModel>(context, listen: false);
       weatherModel.fetchWeatherData();
     }
-
-    // TODO: implement netChange
   }
+
 }

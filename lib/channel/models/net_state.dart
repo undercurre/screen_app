@@ -21,7 +21,7 @@ _$NetStateToJson(NetState instance) =>
     <String, dynamic>{
       'ethernetState': instance.ethernetState,
       'wifiState': instance.wifiState,
-      'wifiInfo': instance.toJson()
+      'wifiInfo': instance.wiFiScanResult?.toJson()
     };
 
 _$NetStateFromJson(Map<dynamic, dynamic> map) {

@@ -135,15 +135,19 @@ class HomluxMovWifiDeviceEvent {
 }
 // 设备在线状态更改
 class HomluxDeviceOnlineStatusChangeEvent {
-  late final HomluxPushResultEntity deviceInfo;
+  late final String deviceId;
 
   HomluxDeviceOnlineStatusChangeEvent.of(HomluxPushResultEntity entity) {
-    deviceInfo = entity;
+    deviceId = entity.eventData?.deviceId ?? "未知设备Id";
+  }
+
+  HomluxDeviceOnlineStatusChangeEvent.fromDeviceId(String id) {
+    deviceId = id;
   }
 
   @override
   String toString() {
-    return jsonEncode(deviceInfo.toJson());
+    return "设备Id = $deviceId";
   }
 
 }

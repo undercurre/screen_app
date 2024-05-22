@@ -14,7 +14,6 @@ Future<void> _openAndWriteFile(SendPort p) async {
   bool overrideExisting;
   RandomAccessFile? randomAccessFile;
   await for(final message in receivePort2) {
-    debugPrint("receive message=$message");
     switch(message['topic']) {
       case 'destroy':
         Isolate.exit();
@@ -44,7 +43,7 @@ Future<void> _openAndWriteFile(SendPort p) async {
         }
         break;
       case 'data':
-        debugPrint("out put");
+        // debugPrint("out put");
         if(randomAccessFile == null) return;
         List<String> lines = message['messages'];
 
@@ -118,7 +117,7 @@ class FileOutput extends LogOutput {
 
   @override
   void output(OutputEvent event) {
-    debugPrint('out put ${sendPort}');
+    // debugPrint('out put ${sendPort}');
     sendPort?.send({
       'topic': 'data',
       'messages': event.lines
@@ -206,10 +205,8 @@ class Log {
         ConsoleOutput(),
         FileOutput(
             overrideExisting: true,
-            fileLimit: 10 * 1024* 1024,
+            fileLimit: 10 * 1024 * 1024,
             filePath: '/data/data/com.midea.light/cache/DevelopLog.txt'
-            // file: File.fromUri(Uri.file(
-            //     '/data/data/com.midea.light/cache/DevelopLog.txt'))
         )]),
       level: Level.verbose
   );
@@ -221,7 +218,6 @@ class Log {
 
   static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.i(message, error, stackTrace);
-    _fileLogger.i(message, error, stackTrace);
   }
 
   static void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
@@ -231,12 +227,10 @@ class Log {
 
   static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.d(message, error, stackTrace);
-    _fileLogger.d(message, error, stackTrace);
   }
 
   static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _consoleLogger.v(message, error, stackTrace);
-    _fileLogger.v(message, error, stackTrace);
   }
 
   static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {

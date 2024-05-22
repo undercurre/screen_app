@@ -143,6 +143,14 @@ JNIEXPORT jint JNICALL Java_com_midea_aispeech_Mw_registerLicense
 JNIEXPORT jint JNICALL Java_com_midea_aispeech_Mw_getLicense
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_midea_aispeech_Mw
+ * Method:    routerLinkStatusUpdate
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_midea_aispeech_Mw_routerLinkStatusUpdate
+  (JNIEnv *, jclass, jstring);
+
 #ifdef __cplusplus
 }
 #endif

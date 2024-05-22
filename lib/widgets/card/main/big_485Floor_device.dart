@@ -76,29 +76,30 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
 
   void powerHandle(bool state) async {
     if (!adapter.data!.online) {
+      adapter.fetchData();
       TipsUtils.toast(content: '设备已离线,请检查设备');
       return;
     }
-    if (adapter!.data!.OnOff == true) {
-      adapter!.data!.OnOff = false;
+    if (adapter.data!.OnOff == true) {
+      adapter.data!.OnOff = false;
       setState(() {});
       adapter.orderPower(0);
     } else {
-      adapter!.data!.OnOff = true;
+      adapter.data!.OnOff = true;
       setState(() {});
       adapter.orderPower(1);
     }
   }
 
   Future<void> temperatureHandle(num value) async {
-    if (!adapter!.data!.OnOff) {
+    if (!adapter.data!.OnOff) {
       return;
     }
     if (!adapter.data!.online) {
       return;
     }
     adapter.orderTemp(value.toInt());
-    adapter!.data!.targetTemp = value.toInt();
+    adapter.data!.targetTemp = value.toInt();
     setState(() {});
   }
 
@@ -134,16 +135,10 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
     }
 
     String getRightText() {
-      if (!deviceListModel.getOnlineStatus(deviceId: adapter.applianceCode)) {
-        if(adapter.isLocalDevice&&adapter.data!.online){
-          return '在线';
-        }
-        return '离线';
+      if(adapter.data?.online == true) {
+        return "在线";
       } else {
-        if(adapter.isLocalDevice&&!adapter.data!.online){
-          return '离线';
-        }
-        return '在线';
+        return "离线";
       }
     }
 
@@ -152,7 +147,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
         return "assets/newUI/card_power_on.png";
       } else if (!adapter.data!.online) {
         return "assets/newUI/card_power_off.png";
-      } else if (!adapter!.data!.OnOff) {
+      } else if (!adapter.data!.OnOff) {
         return "assets/newUI/card_power_off.png";
       } else {
         return "assets/newUI/card_power_on.png";
@@ -169,7 +164,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
             top: 14,
             left: 24,
             child: GestureDetector(
-              onTap: () => powerHandle(adapter!.data!.OnOff),
+              onTap: () => powerHandle(adapter.data!.OnOff),
               child: Image(
                   width: 40, height: 40, image: AssetImage(getPowerIcon())),
             ),
@@ -301,7 +296,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                       Text("${adapter.data!.targetTemp>90?26:adapter.data!.targetTemp}",
                           style: TextStyle(
                               height: 1.5,
-                              color: adapter!.data!.OnOff&&adapter.data!.online
+                              color: adapter.data!.OnOff&&adapter.data!.online
                                   ? const Color(0XFFFFFFFF)
                                   : const Color(0XA3FFFFFF),
                               fontSize: 60,
@@ -312,7 +307,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
                         child:Text("℃",
                             style: TextStyle(
                                 height: 1.5,
-                                color: adapter!.data!.OnOff&&adapter.data!.online
+                                color: adapter.data!.OnOff&&adapter.data!.online
                                     ? const Color(0XFFFFFFFF)
                                     : const Color(0XA3FFFFFF),
                                 fontSize: 18,
@@ -349,7 +344,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !adapter!.data!.OnOff || !adapter.data!.online,
+              disabled: !adapter.data!.OnOff || !adapter.data!.online,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},

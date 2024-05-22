@@ -69,18 +69,21 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
   }
 
   void updateCallback() {
-    Log.i('小卡片状态更新');
+    // Log.i('小卡片状态更新');
     if (mounted) {
       setState(() {
         adapter?.data = adapter?.data;
       });
     }
   }
+  
+  bool isOnlineState() {
+    return adapter?.fetchOnlineState(context, widget.applianceCode) == true;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -104,7 +107,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+      if (!isOnlineState()) {
         return '离线';
       }
 
@@ -161,8 +164,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = adapter?.getPowerStatus() ?? false;
-      bool online =
-          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online = isOnlineState();
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -233,26 +235,20 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
         if (widget.disabled) return;
         if (adapter?.dataState != DataState.SUCCESS) {
           adapter?.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
-          // TipsUtils.toast(content: '数据缺失，控制设备失败');
+          TipsUtils.toast(content: '网络服务异常，控制设备失败');
           return;
         }
-        Log.i('点击卡片',
-            deviceListModel.getOnlineStatus(deviceId: widget.applianceCode));
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
-            !widget.disabled) {
+        
+        if (!isOnlineState() && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing:
-            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
-                adapter?.dataState != DataState.SUCCESS),
+        absorbing: (!isOnlineState() || adapter?.dataState != DataState.SUCCESS),
         child: GestureDetector(
           onTap: () {
-            if (!widget.disabled &&
-                deviceListModel.getOnlineStatus(
-                    deviceId: widget.applianceCode)) {
+            if (!widget.disabled && isOnlineState()) {
               // widget.onTap?.call();
               adapter?.power(adapter?.getPowerStatus());
               bus.emit('operateDevice',
@@ -378,8 +374,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                             // TipsUtils.toast(content: '数据缺失，控制设备');
                           }
                           Log.i('点击进入插件', adapter?.type);
-                          if (!deviceListModel.getOnlineStatus(
-                              deviceId: widget.applianceCode)) {
+                          if (!isOnlineState()) {
                             TipsUtils.toast(content: '设备已离线，请检查连接状态');
                             return;
                           }
@@ -411,6 +406,16 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                                   });
                             } else if (adapter?.type == AdapterType.wifiAir) {
                               Navigator.pushNamed(context, '0xAC', arguments: {
+                                "name": widget.name,
+                                "adapter": adapter
+                              });
+                            }else if (adapter?.type == AdapterType.wifiDianre) {
+                              Navigator.pushNamed(context, '0xE2', arguments: {
+                                "name": widget.name,
+                                "adapter": adapter
+                              });
+                            }else if (adapter?.type == AdapterType.wifiRanre) {
+                              Navigator.pushNamed(context, '0xE3', arguments: {
                                 "name": widget.name,
                                 "adapter": adapter
                               });

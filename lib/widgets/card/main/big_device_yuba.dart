@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/gateway_platform.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
+import '../../../routes/plugins/0x26/data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
@@ -23,7 +25,7 @@ class BigDeviceYubaCardWidget extends StatefulWidget {
   final bool hasMore;
   final bool disabled;
 
-  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
+  AdapterGenerateFunction<WIFIYubaDataAdapter> adapterGenerateFunction;
 
   BigDeviceYubaCardWidget(
       {super.key,
@@ -44,7 +46,8 @@ class BigDeviceYubaCardWidget extends StatefulWidget {
 }
 
 class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
-  late DeviceCardDataAdapter adapter;
+
+  late WIFIYubaDataAdapter adapter;
 
   @override
   void initState() {
@@ -71,6 +74,14 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
     });
   }
 
+  bool getOnline(DeviceInfoListModel deviceListModel) {
+    if(MideaRuntimePlatform.platform.inHomlux()) {
+      return adapter.data?.onlineState == 1;
+    } else {
+      return deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
@@ -91,7 +102,7 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+      if (!getOnline(deviceListModel)) {
         return '离线';
       }
       //
@@ -145,10 +156,8 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
 
       return nameInModel;
     }
-
     BoxDecoration _getBoxDecoration() {
-      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
-      if (!online) {
+      if (!getOnline(deviceListModel)) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: const LinearGradient(
@@ -187,13 +196,13 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && !widget.disabled) {
+        if (!getOnline(deviceListModel) && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing: (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
+        absorbing: (!getOnline(deviceListModel) || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -215,7 +224,7 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
                       // TipsUtils.toast(content: '数据缺失，控制设备失败');
                       return;
                     }
-                    if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+                    if (!getOnline(deviceListModel)) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
                       return;
                     }
@@ -340,7 +349,7 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
                     // 调整圆角半径
                     color: (adapter.getCardStatus()?['mode'].contains(key))
                         ? const Color.fromRGBO(255, 255, 255, 1)
-                        : deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)
+                        : getOnline(deviceListModel)
                             ? const Color.fromRGBO(32, 32, 32, 0.20)
                             : const Color.fromRGBO(255, 255, 255, 0.12)),
                 child: Center(
@@ -382,7 +391,7 @@ class _BigDeviceYubaCardWidgetState extends State<BigDeviceYubaCardWidget> {
                     // 调整圆角半径
                     color: (adapter.getCardStatus()?['light_mode'] == 'main_light')
                         ? const Color.fromRGBO(255, 255, 255, 1)
-                        : deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)
+                        : getOnline(deviceListModel)
                         ? const Color.fromRGBO(32, 32, 32, 0.20)
                         : const Color.fromRGBO(255, 255, 255, 0.12)),
                 child: Center(

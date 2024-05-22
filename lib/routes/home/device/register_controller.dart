@@ -14,6 +14,7 @@ import 'package:screen_app/routes/plugins/smartControl/api.dart';
 
 import '../../../models/device_entity.dart';
 import '../../plugins/0x21/0x21_panel/api.dart';
+import '../../plugins/0xE2/api.dart';
 import '../../plugins/singlePanel/api.dart';
 
 // 智慧屏实现线控器拆分和面板实现案件拆分通过定义屏端虚拟设备(既无法从接口获取到数据模型的设备)实现：
@@ -36,6 +37,7 @@ Map<String, DeviceInterface> controllerList = {
   "0x40": cate0x40.DeviceListApiImpl(),
   "0x16": WrapGateway(),
   "0xAC": WrapAirCondition(),
+  "0xE2":WrapElectricWaterHeater(),
   "lightGroup": WrapLightGroup(),
   "smartControl-1": WrapSmartControl(),
   "smartControl-2": WrapSmartControl(),

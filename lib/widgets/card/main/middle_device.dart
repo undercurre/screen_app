@@ -60,6 +60,10 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
     }
   }
 
+  bool onlineState() {
+    return adapter.fetchOnlineState(context, widget.applianceCode);
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -96,8 +100,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(
-          deviceId: widget.applianceCode)) {
+      if (!onlineState()) {
         return '离线';
       }
       //
@@ -153,7 +156,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = adapter.getPowerStatus() ?? false;
-      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online = onlineState();
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -216,18 +219,17 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
         onTap: () {
           if (adapter.dataState != DataState.SUCCESS) {
             adapter.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
-            // TipsUtils.toast(content: '数据缺失，控制设备失败');
+            TipsUtils.toast(content: '网络服务异常，控制设备失败');
           }
-          if (!deviceListModel.getOnlineStatus(
-              deviceId: widget.applianceCode) && !widget.disabled) {
+          if (!onlineState() && !widget.disabled) {
             TipsUtils.toast(content: '设备已离线，请检查连接状态');
             return;
           }
         },
-        child: AbsorbPointer(absorbing: (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS), child: GestureDetector(
+        child: AbsorbPointer(absorbing: (!onlineState() || adapter.dataState != DataState.SUCCESS), child: GestureDetector(
       onTap: () {
         Log.i('disabled: ${widget.disabled}');
-        if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
+        if (!widget.disabled && onlineState()) {
           widget.onTap?.call();
           adapter.power(
             adapter.getPowerStatus(),
@@ -252,7 +254,7 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                     return;
                   }
                   Log.i('点击进入插件', adapter.type);
-                  if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)){
+                  if (!onlineState()){
                     TipsUtils.toast(content: '设备已离线，请检查连接状态');
                     return;
                   }
@@ -285,6 +287,18 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                     } else if (adapter.type ==
                         AdapterType.wifiAir) {
                       Navigator.pushNamed(context, '0xAC', arguments: {
+                        "name": widget.name,
+                        "adapter": adapter
+                      });
+                    } else if (adapter.type ==
+                        AdapterType.wifiDianre) {
+                      Navigator.pushNamed(context, '0xE2', arguments: {
+                        "name": widget.name,
+                        "adapter": adapter
+                      });
+                    }else if (adapter.type ==
+                        AdapterType.wifiRanre) {
+                      Navigator.pushNamed(context, '0xE3', arguments: {
                         "name": widget.name,
                         "adapter": adapter
                       });

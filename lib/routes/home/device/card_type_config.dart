@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
 import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/common/adapter/range_hood_device_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/routes/plugins/lightGroup/data_adapter.dart';
@@ -21,7 +22,10 @@ import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
 import '../../../widgets/card/main/big_485CAC_device.dart';
 import '../../../widgets/card/main/big_485Floor_device.dart';
+import '../../../widgets/card/main/big_device_electric_water_heater.dart';
+import '../../../widgets/card/main/big_device_gas_water_heater.dart';
 import '../../../widgets/card/main/big_device_liangyi.dart';
+import '../../../widgets/card/main/big_range_hood_device.dart';
 import '../../../widgets/card/main/big_scene_panel_three.dart';
 import '../../../widgets/card/main/middle_485Air_device.dart';
 import '../../../widgets/card/main/middle_485CAC_device.dart';
@@ -46,6 +50,8 @@ import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../plugins/0x21/0x21_light/data_adapter.dart';
 import '../../plugins/0x26/data_adapter.dart';
 import '../../plugins/0xAC/data_adapter.dart';
+import '../../plugins/0xE2/data_adapter.dart';
+import '../../plugins/0xE3/data_adapter.dart';
 import 'grid_container.dart';
 
 enum DeviceEntityTypeInP4 {
@@ -67,6 +73,10 @@ enum DeviceEntityTypeInP4 {
   LocalPanel2,
   // 空调组件
   Device0xAC,
+  // 电热水器组件
+  Device0xE2,
+  // 燃热水器组件
+  Device0xE3,
   // wifi灯
   Device0x13,
   // wifi窗帘
@@ -75,6 +85,8 @@ enum DeviceEntityTypeInP4 {
   Device0x26,
   // 晾衣机
   Device0x17,
+  // 抽油烟机
+  Device0xB6,
   // 灯组
   Zigbee_lightGroup,
   // zigbee灯
@@ -288,6 +300,26 @@ class DataInputCard {
 }
 
 Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> buildMap = {
+  // 抽油烟机
+  DeviceEntityTypeInP4.Device0xB6: {
+    CardType.Big: (params) => BigRangeHoodDeviceCardWidget(
+      disabled: params.disabled ?? false,
+      discriminative: params.discriminative ?? false,
+      applianceCode: params.applianceCode,
+      name: params.name,
+      adapterGenerateFunction: (id) {
+        return MideaDataAdapter.getOrCreateAdapter(
+            id,
+                (id) => RangeHoodDeviceDataAdapter.create(
+              params.applianceCode,
+              params.masterId ?? '',
+              params.modelNumber,
+            ));
+      },
+      online: params.isOnline == '1',
+      roomName: params.roomName,
+    ),
+  },
   // 其他组件
   DeviceEntityTypeInP4.Clock: {
     CardType.Other: (params) => DigitalClockWidget(
@@ -779,6 +811,116 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id, (id) => WIFIAirDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+  },
+  // 电热水器
+  DeviceEntityTypeInP4.Device0xE2: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0xE2.png'),
+        ),
+        roomName: params.roomName,
+        onTap: () => params.onTap,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => ElectricWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0xE2.png'),
+        ),
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => ElectricWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+    CardType.Big: (params) => BigDeviceElectricWaterHeaterWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => ElectricWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+  },
+  // 燃热水器
+  DeviceEntityTypeInP4.Device0xE3: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0xE3.png'),
+        ),
+        roomName: params.roomName,
+        onTap: () => params.onTap,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => GasWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0xE3.png'),
+        ),
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => GasWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
+        }),
+    CardType.Big: (params) => BigDeviceGasWaterHeaterWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => GasWaterHeaterDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
         }),
   },
   // 浴霸

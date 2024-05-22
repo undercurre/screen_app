@@ -26,22 +26,25 @@ class LightDataEntity {
   int timeOff = 0; //延时关
   int maxColorTemp = 5700;
   int minColorTemp = 3000;
+  int onlineState = 0;
 
   LightDataEntity({
-    required brightness,
-    required colorTemp,
-    required power,
-    required screenModel,
-    required timeOff,
+    required this.brightness,
+    required this.colorTemp,
+    required this.power,
+    required this.screenModel,
+    required this.timeOff,
+    required this.onlineState
   });
 
   LightDataEntity.fromMeiJu(dynamic data, String sn8) {
+    onlineState = 1;
     if (sn8.isNotEmpty&&sn8 == "79009833") {
-      brightness = int.parse(data["brightValue"]) < 1 ? 1 : data["brightValue"];
+      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
       colorTemp = int.parse(data["color_temperature"]);
-      power = data["power"];
-      screenModel = data["screenModel"];
-      timeOff = int.parse(data["timeOff"]);
+      power = data["power"] == 'on';
+      screenModel = data["scene_light"];
+      timeOff = int.parse(data["delay_light_off"]);
     } else if (sn8.isNotEmpty&&sn8 == "7909AC81") {
       brightness = int.parse(data["brightness"]);
       if (brightness < 100) {
@@ -68,6 +71,7 @@ class LightDataEntity {
   }
 
   LightDataEntity.fromHomlux(HomluxDeviceEntity data) {
+    onlineState = data.onLineStatus ?? 0;
     brightness = data.mzgdPropertyDTOList?.light?.brightness ?? 0;
     colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
     power = data.mzgdPropertyDTOList?.light?.wifiLightPower == "on"
@@ -99,7 +103,18 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
       colorTemp: 0,
       power: false,
       timeOff: 0,
-      screenModel: 'manual');
+      screenModel: 'manual',
+      onlineState: 0
+  );
+
+  @override
+  bool fetchOnlineState(BuildContext context, String deviceId) {
+    if(platform.inMeiju()) {
+      return super.fetchOnlineState(context, deviceId);
+    } else {
+      return data?.onlineState == 1;
+    }
+  }
 
 
   WIFILightDataAdapter(super.platform, this.sn8, this.applianceCode) {
@@ -220,6 +235,7 @@ class WIFILightDataAdapter extends DeviceCardDataAdapter<LightDataEntity> {
             colorTemp: 0,
             power: false,
             timeOff: 0,
+            onlineState: 0,
             screenModel: 'manual');
         updateUI();
         return;
