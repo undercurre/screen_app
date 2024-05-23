@@ -25,6 +25,9 @@ class SmallDeviceCardWidget extends StatefulWidget {
   final bool hasMore;
   final Function? onTap; // 整卡点击事件
 
+  final void Function(BuildContext, DeviceCardDataAdapter)?
+      goToPageDetailFunction;
+
   final AdapterGenerateFunction<DeviceCardDataAdapter>? adapterGenerateFunction;
 
   SmallDeviceCardWidget(
@@ -37,6 +40,7 @@ class SmallDeviceCardWidget extends StatefulWidget {
       required this.isFault,
       required this.isNative,
       required this.adapterGenerateFunction,
+      this.goToPageDetailFunction,
       this.hasMore = true,
       this.disableOnOff = true,
       this.discriminative = false,
@@ -76,14 +80,15 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       });
     }
   }
-  
+
   bool isOnlineState() {
     return adapter?.fetchOnlineState(context, widget.applianceCode) == true;
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel =
+        Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -238,14 +243,15 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
           TipsUtils.toast(content: '网络服务异常，控制设备失败');
           return;
         }
-        
+
         if (!isOnlineState() && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing: (!isOnlineState() || adapter?.dataState != DataState.SUCCESS),
+        absorbing:
+            (!isOnlineState() || adapter?.dataState != DataState.SUCCESS),
         child: GestureDetector(
           onTap: () {
             if (!widget.disabled && isOnlineState()) {
@@ -379,46 +385,53 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
                             return;
                           }
                           if (!widget.disabled) {
-                            if (adapter?.type == AdapterType.wifiLight) {
-                              Navigator.pushNamed(context, '0x13', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
-                            } else if (adapter?.type ==
-                                AdapterType.wifiCurtain) {
-                              Navigator.pushNamed(context, '0x14', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
-                            } else if (adapter?.type ==
-                                AdapterType.zigbeeLight) {
-                              Navigator.pushNamed(
-                                  context, '0x21_light_colorful', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
-                            } else if (adapter?.type ==
-                                AdapterType.lightGroup) {
-                              Navigator.pushNamed(context, 'lightGroup',
-                                  arguments: {
-                                    "name": widget.name,
-                                    "adapter": adapter
-                                  });
-                            } else if (adapter?.type == AdapterType.wifiAir) {
-                              Navigator.pushNamed(context, '0xAC', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
-                            }else if (adapter?.type == AdapterType.wifiDianre) {
-                              Navigator.pushNamed(context, '0xE2', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
-                            }else if (adapter?.type == AdapterType.wifiRanre) {
-                              Navigator.pushNamed(context, '0xE3', arguments: {
-                                "name": widget.name,
-                                "adapter": adapter
-                              });
+                            // 2024/5/23 新增加一种跳入详情页的方式
+                            if (widget.goToPageDetailFunction != null) {
+                              widget.goToPageDetailFunction!(context, adapter!);
+                            } else {
+                              if (adapter?.type == AdapterType.wifiLight) {
+                                Navigator.pushNamed(context, '0x13',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              } else if (adapter?.type == AdapterType.wifiCurtain) {
+                                Navigator.pushNamed(context, '0x14',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              } else if (adapter?.type == AdapterType.zigbeeLight) {
+                                Navigator.pushNamed(
+                                    context, '0x21_light_colorful', arguments: {
+                                  "name": widget.name,
+                                  "adapter": adapter
+                                });
+                              } else if (adapter?.type == AdapterType.lightGroup) {
+                                Navigator.pushNamed(context, 'lightGroup',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              } else if (adapter?.type == AdapterType.wifiAir) {
+                                Navigator.pushNamed(context, '0xAC',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              } else if (adapter?.type == AdapterType.wifiDianre) {
+                                Navigator.pushNamed(context, '0xE2',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              } else if (adapter?.type == AdapterType.wifiRanre) {
+                                Navigator.pushNamed(context, '0xE3',
+                                    arguments: {
+                                      "name": widget.name,
+                                      "adapter": adapter
+                                    });
+                              }
                             }
                           }
                         },

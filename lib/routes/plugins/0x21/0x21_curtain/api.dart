@@ -21,7 +21,7 @@ class WrapZigbeeCurtain implements DeviceInterface {
       return {};
     }
   }
-
+  
   @override
   Future<MzResponseEntity> setPower(DeviceEntity deviceInfo, bool onOff) async {
     MzResponseEntity<String> gatewayInfo = await DeviceApi.getGatewayInfo(

@@ -10,7 +10,6 @@ import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
-import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
 
@@ -26,9 +25,11 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final bool disableOnOff;
   final bool discriminative;
 
-  AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
+  final void Function(BuildContext, DeviceCardDataAdapter)? goToPageDetailFunction;
 
-  BigDeviceCurtainCardWidget(
+  final AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
+
+  const BigDeviceCurtainCardWidget(
       {super.key,
       required this.name,
       required this.roomName,
@@ -36,6 +37,7 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       required this.isFault,
       required this.isNative,
       required this.adapterGenerateFunction,
+      this.goToPageDetailFunction,
       this.hasMore = true,
       this.disabled = false,
       this.disableOnOff = true,
@@ -43,11 +45,11 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       required this.applianceCode});
 
   @override
-  _BigDeviceCurtainCardWidgetState createState() =>
-      _BigDeviceCurtainCardWidgetState();
+  _BigDeviceCurtainCardWidgetState createState() => _BigDeviceCurtainCardWidgetState();
 }
 
-class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget> {
+class _BigDeviceCurtainCardWidgetState
+    extends State<BigDeviceCurtainCardWidget> {
   bool _isFetching = false;
   Timer? _debounceTimer;
 
@@ -278,12 +280,16 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
                       return;
                     }
-
                     if (!widget.disabled) {
-                      Navigator.pushNamed(context, '0x14', arguments: {
-                        "name": getDeviceName(),
-                        "adapter": adapter
-                      });
+                      // 2024/5/23 新增加一种跳入详情页的方式。针对wifi窗帘与zigbee窗帘
+                      if (widget.goToPageDetailFunction != null) {
+                        widget.goToPageDetailFunction!(context, adapter);
+                      } else {
+                        Navigator.pushNamed(context, '0x14', arguments: {
+                          "name": getDeviceName(),
+                          "adapter": adapter
+                        });
+                      }
                     }
                   },
                   child: widget.hasMore
@@ -384,7 +390,7 @@ class _BigDeviceCurtainCardWidgetState extends State<BigDeviceCurtainCardWidget>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("${adapter!.getCardStatus()?['curtainPosition']}",
+                      Text("${adapter.getCardStatus()?['curtainPosition']}",
                           style: const TextStyle(
                               color: Color(0XFFFFFFFF),
                               fontSize: 60,

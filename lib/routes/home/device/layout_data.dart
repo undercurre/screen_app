@@ -118,7 +118,7 @@ class Layout {
   static List<Layout> filledLayout(List<Layout> layouts) {
     if (layouts.isEmpty) return [];
     List<Layout> clone = List<Layout>.from(layouts);
-    Log.i('克隆', clone.map((e) => e.grids));
+    // Log.i('克隆', clone.map((e) => e.grids));
     clone.removeWhere((element) => element.cardType == CardType.Null);
     List<Layout> newList = [...clone];
     Screen screenLayer = Screen();
@@ -199,14 +199,14 @@ class Layout {
         );
       }
     }
-    Log.i('最后新表', newList.map((e) => e.grids));
+    // Log.i('最后新表', newList.map((e) => e.grids));
     return newList;
   }
 
   static List<Layout> flexLayout(List<Layout> layouts) {
     List<Layout> valid = layouts.where((element) => element.cardType != CardType.Null).toList();
     List<Layout> sorted = sortLayoutList(valid);
-    Log.i('要flex的合法数据', sorted.map((e) => e.grids));
+    // Log.i('要flex的合法数据', sorted.map((e) => e.grids));
     List<Layout> newList = [];
     Screen screenLayer = Screen();
     for(int i = 0; i < sorted.length; i++) {

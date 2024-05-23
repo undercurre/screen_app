@@ -164,7 +164,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 找到需要删除的设备
-    Log.i('找到要删除的设备', compareDevice[1]);
+    // Log.i('找到要删除的设备', compareDevice[1]);
     compareDevice[1].forEach((compare) {
       // 想要安全删除目标设备的布局数据：1.确认是否因为删除该布局造成空页，2.流式布局：重新编排该页其他布局的grids，3.确保待定区补充
       // 获取到provider中当前id的Layout数据
@@ -203,7 +203,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 启动首页页数重置bus监听（主要用户custom中造成的页面滑动返回后首页同步这个pageIndex）
     bus.on("mainToRecoverState", changeToTargetPage);
     bus.on("eventStandbyActive", standbyChange);
-    Log.develop("DevicePageState initState");
+    // Log.develop("DevicePageState initState");
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     // 拉取设备列表数据
     deviceListModel.getDeviceList("查询设备列表: 首页instate");
@@ -227,7 +227,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   void dispose() {
     // 关闭推送
     _stopPushListen();
-    Log.develop("DevicePageState dispose");
+    // Log.develop("DevicePageState dispose");
     // 关闭custom页数更改bus
     bus.off("eventStandbyActive", standbyChange);
     bus.off("mainToRecoverState", changeToTargetPage);
