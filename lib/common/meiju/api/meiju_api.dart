@@ -85,37 +85,35 @@ class MeiJuApi {
         ._dio
         .interceptors
         .add(InterceptorsWrapper(onRequest: (options, handler) async {
-          Log.file('【onRequest】: ${options.path} \n '
-              'method: ${options.method} \n'
-              'headers: ${options.headers} \n '
-              'data: ${options.data} \n '
-              'queryParameters: ${options.queryParameters}  \n');
-          final bool isRefreshTokenUrl = options.uri.path.endsWith('/v1/openApi/auth/midea/token') || options.uri.path.endsWith('/muc/v5/app/mj/user/autoLogin');
-          if(isRefreshTokenUrl) {
+          Log.file('【onRequest】: ${options.path} \n'
+              '\$method: ${options.method} \n'
+              '\$headers: ${options.headers} \n'
+              '\$data: ${options.data} \n'
+              '\$queryParameters: ${options.queryParameters}  \n');
+          final bool isRefreshTokenUrl =
+              options.uri.path.endsWith('/v1/openApi/auth/midea/token') ||
+                  options.uri.path.endsWith('/muc/v5/app/mj/user/autoLogin');
+          if (isRefreshTokenUrl) {
             return handler.next(options);
           }
+
           if (refreshTokenActive) {
-              do {
-                await Future.delayed(const Duration(seconds: 3));
-                if(refreshTokenActive) {
-                  Log.develop('[刷新Token] 等待Token刷新结束 ${options.path}');
-                }
-              } while (refreshTokenActive);
-              // 更改请求的Token变量
-              options.headers['Authorization'] = 'Bearer ${MeiJuGlobal.token?.mzAccessToken}';
-              options.headers['accessToken'] = MeiJuGlobal.token?.accessToken;
+            do {
+              await Future.delayed(const Duration(seconds: 3));
+              if (refreshTokenActive) {
+                Log.develop('[刷新Token] 等待Token刷新结束 ${options.path}');
+              }
+            } while (refreshTokenActive);
+            // 更改请求的Token变量
+            options.headers['Authorization'] = 'Bearer ${MeiJuGlobal.token?.mzAccessToken}';
+            options.headers['accessToken'] = MeiJuGlobal.token?.accessToken;
           }
-          if(tokenState != TokenCombineState.INVAILD && tokenState != TokenCombineState.NORMAL) {
-            tryToRefreshToken("检测到本地Token状态异常，准备重新刷新Token状态");
-            if (refreshTokenActive) {
-              int count = 10;
-              do {
-                await Future.delayed(const Duration(seconds: 3));
-                if(count-- <= 0) {
-                  Log.develop("[刷新Token] 注意！！！ 超时刷新Token");
-                  refreshTokenActive = false;
-                }
-              } while (refreshTokenActive);
+          if (tokenState != TokenCombineState.INVAILD && tokenState != TokenCombineState.NORMAL) {
+            await syncTryToRefreshToken("检测到本地Token状态异常，准备重新刷新Token状态");
+            if(tokenState == TokenCombineState.INVAILD) {
+              /// 刷新失败，接口拒绝请求
+              return handler.reject(DioException(requestOptions: options));
+            } else {
               // 更改请求的Token变量
               options.headers['Authorization'] = 'Bearer ${MeiJuGlobal.token?.mzAccessToken}';
               options.headers['accessToken'] = MeiJuGlobal.token?.accessToken;
@@ -123,7 +121,10 @@ class MeiJuApi {
           }
           return handler.next(options);
         }, onResponse: (response, handler) {
-          Log.file('【onResponse】: ${response.requestOptions.path} \n ''onResponse: $response');
+          Log.file('【onResponse】: ${response.requestOptions.path} \n'
+              '\$requestHeaders: ${response.requestOptions.headers} \n'
+              '\$requestData: ${response.requestOptions.data} \n'
+              '\$onResponse: $response  \n');
           final bool isRefreshTokenUrl = response.requestOptions.path.endsWith('/v1/openApi/auth/midea/token') || response.requestOptions.path.endsWith('/muc/v5/app/mj/user/autoLogin');
           if (isRefreshTokenUrl) {
             return handler.next(response);
@@ -134,25 +135,24 @@ class MeiJuApi {
           }
           final String url = response.requestOptions.path;
           if (url.startsWith(dotenv.get('IOT_URL'))) {
-            if(tokenState != TokenCombineState.INVAILD) {
+            if (tokenState != TokenCombineState.INVAILD) {
               if (isIOTLogoutCode(dataCode)) {
-                tryToRefreshToken("IOT后台提示Token过期");
+                asyncTryToRefreshToken("IOT后台提示Token过期");
               }
             }
           } else if (url.startsWith(dotenv.get('MZ_URL'))) {
-            if (tokenState != TokenCombineState.INVAILD)
-            {
-              if (isMZLogoutCode(dataCode) || isIOTLogoutCode(dataCode))
-              {
-                tryToRefreshToken("美智后台提示Token失效");
+            if (tokenState != TokenCombineState.INVAILD) {
+              if (isMZLogoutCode(dataCode) || isIOTLogoutCode(dataCode)) {
+                asyncTryToRefreshToken("美智后台提示Token失效");
               } else if (response.data['result'] != null &&
                   response.data['result'] is String &&
-                  response.data['result'].toString().contains('invalid_token'))
-              {
+                  response.data['result']
+                      .toString()
+                      .contains('invalid_token')) {
                 // 特殊处理 美智中台接口会返回下面报错数据
                 // {"result":"{\"error_description\":\"The access token is invalid or has expired\",\"error\":\"invalid_token\"}\n",
                 // "code":0,"msg":"成功!","success":true,"timestamp":1697439277668}
-                tryToRefreshToken("美智后台提示Token失效");
+                asyncTryToRefreshToken("美智后台提示Token失效");
               }
             }
           }
@@ -226,7 +226,7 @@ class MeiJuApi {
           cancelToken: null,
           onSendProgress: null,
           onReceiveProgress: null,
-    );
+        );
 
     if (res.statusCode != 200) {
       throw DioException(requestOptions: res.requestOptions, response: res);
@@ -242,7 +242,7 @@ class MeiJuApi {
     }
 
     String? mzToken = entity.data?['accessToken'];
-    if(entity.isSuccess && mzToken != null) {
+    if (entity.isSuccess && mzToken != null) {
       MeiJuGlobal.token?.mzAccessToken = mzToken;
       MeiJuGlobal.token = MeiJuGlobal.token;
     }
@@ -303,12 +303,11 @@ class MeiJuApi {
       throw DioException(requestOptions: res.requestOptions, response: res);
     }
 
-
-    if(entity.isSuccess) {
+    if (entity.isSuccess) {
       // 刷新Global.user.accessToken
       String? accessToken = entity.data?['accessToken'];
       if (accessToken != null) {
-      MeiJuGlobal.token?.accessToken = accessToken;
+        MeiJuGlobal.token?.accessToken = accessToken;
       }
       String? tokenPwd = entity.data?['tokenPwd'];
       if (tokenPwd != null) {
@@ -330,7 +329,22 @@ class MeiJuApi {
     return entity.data?['accessToken'];
   }
 
-  static tryToRefreshToken(String msg) async {
+  static syncTryToRefreshToken(String msg) async {
+    await asyncTryToRefreshToken(msg);
+    if (refreshTokenActive) {
+      /// 设置三十秒的超时等待时间
+      int count = 10;
+      do {
+        await Future.delayed(const Duration(seconds: 3));
+        if(count-- <= 0) {
+          Log.develop("[刷新Token] 注意！！！ 超时刷新Token");
+          refreshTokenActive = false;
+        }
+      } while (refreshTokenActive);
+    }
+  }
+
+  static asyncTryToRefreshToken(String msg) async {
     if (!refreshTokenActive) {
       Log.develop("[刷新Token] 原因：$msg");
       try {
@@ -346,7 +360,7 @@ class MeiJuApi {
         if (iotToken != null && mzToken != null) {
           tokenState = TokenCombineState.NORMAL;
         }
-      } on Exception catch(e, stackTrace) {
+      } on Exception catch (e, stackTrace) {
         Log.develop('[刷新Token] 异常', e, stackTrace);
       } finally {
         Log.develop("[刷新Token] 结束 : $tokenState");

@@ -137,14 +137,14 @@ class MeiJuGlobal {
   static void setLogin([bool refreshToken = false]) {
     MeiJuApi.tokenState = TokenCombineState.NORMAL;
     if (refreshToken) {
-      MeiJuApi.tryToRefreshToken("上电强制刷新Token");
+      MeiJuApi.asyncTryToRefreshToken("上电强制刷新Token");
     }
     refreshTokenTimer?.cancel();
 
     /// 之后间隔3小时刷新一次
     refreshTokenTimer = Timer.periodic(const Duration(hours: 3), (timer) {
       if (token == null) return;
-      MeiJuApi.tryToRefreshToken("定时刷新Token");
+      MeiJuApi.asyncTryToRefreshToken("定时刷新Token");
     });
   }
 }

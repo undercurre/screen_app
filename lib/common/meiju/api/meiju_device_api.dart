@@ -147,7 +147,7 @@ class MeiJuDeviceApi {
     return res;
   }
 
-  /// 获取智慧屏继电器详情
+  /// 获取Zigbee网关子设备状态详情
   static Future<NodeInfo<Endpoint<T>>> getGatewayInfo<T extends Event>(
       String deviceId, String masterId, T Function(Map<String, dynamic>) eventFromJson) async {
     var res = await MeiJuApi.requestMzIot<String>(
@@ -164,7 +164,7 @@ class MeiJuDeviceApi {
       Map<String, dynamic> jsonMap = json.decode(res.data!);
       NodeInfo<Endpoint<T>> nodeInfo = NodeInfo.fromJson(
         jsonMap,
-            (json) => Endpoint<T>.fromJson(json, eventFromJson),
+        (json) => Endpoint<T>.fromJson(json, eventFromJson),
       );
       return nodeInfo;
     }
