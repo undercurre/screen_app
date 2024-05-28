@@ -63,7 +63,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
     return deviceListModel.getOnlineStatus(deviceId: deviceId);
   }
 
-  Future<void> fetchDataAndCheckWaitLockAuth(String deviceId) async {
+  Future<void> fetchDataInSafety(String deviceId) async {
     // 只有确切知道未确权，才会去拦截设备详情请求
     // 在断网的情况下，并不会命中此处的逻辑
     bool? result = await checkWaitLockAuth(deviceId);
