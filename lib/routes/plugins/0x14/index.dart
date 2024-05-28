@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/widgets/index.dart';
 
+import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
 import '../../../widgets/event_bus.dart';
 import './mode_list.dart';
-import 'data_adapter.dart';
 
-class WifiCurtainPageState extends State<WifiCurtainPage> {
-  WIFICurtainDataAdapter? dataAdapter;
+class EleMachineCurtainPageState extends State<EleMachineCurtainPage> {
+  DeviceCardDataAdapter? dataAdapter;
   Mode? modeTap;
   Timer? clickTimer;
 
@@ -77,7 +77,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
               left: -32, // 向左偏移
               top: 0,
               child: AnimationCurtain(
-                position: dataAdapter?.data?.curtainPosition ?? 0,
+                position: dataAdapter?.getCardStatus()?['curtainPosition'] ?? 0,
               )
           ),
           Column(
@@ -122,11 +122,13 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                                 child: SliderButtonCard(
                                   title: '开合度',
                                   unit: '%',
-                                  value: dataAdapter?.data?.curtainPosition ?? 0,
+                                  value: dataAdapter?.getCardStatus()?['curtainPosition'] ?? 0,
                                   min: 0,
                                   max: 100,
                                   isOnlySlide: true,
-                                  onChanged: dataAdapter?.controlCurtain,
+                                  onChanged: (value) {
+                                    dataAdapter?.slider1To(value as int);
+                                  },
                                 ),
                               ),
                               ModeCard(
@@ -144,7 +146,7 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
                                       modeTap = null;
                                     });
                                   });
-                                  dataAdapter?.controlMode(mode);
+                                  dataAdapter?.tabTo(curtainModes.indexOf(mode));
                                 },
                               ),
                             ],
@@ -163,9 +165,9 @@ class WifiCurtainPageState extends State<WifiCurtainPage> {
   }
 }
 
-class WifiCurtainPage extends StatefulWidget {
-  const WifiCurtainPage({super.key});
+class EleMachineCurtainPage extends StatefulWidget {
+  const EleMachineCurtainPage({super.key});
 
   @override
-  State<WifiCurtainPage> createState() => WifiCurtainPageState();
+  State<EleMachineCurtainPage> createState() => EleMachineCurtainPageState();
 }

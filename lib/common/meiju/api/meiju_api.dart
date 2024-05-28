@@ -88,7 +88,7 @@ class MeiJuApi {
           Log.file('【onRequest】: ${options.path} \n'
               '\$method: ${options.method} \n'
               '\$headers: ${options.headers} \n'
-              '\$data: ${options.data} \n'
+              '\$data: ${jsonEncode(options.data)} \n'
               '\$queryParameters: ${options.queryParameters}  \n');
           final bool isRefreshTokenUrl =
               options.uri.path.endsWith('/v1/openApi/auth/midea/token') ||
@@ -123,7 +123,7 @@ class MeiJuApi {
         }, onResponse: (response, handler) {
           Log.file('【onResponse】: ${response.requestOptions.path} \n'
               '\$requestHeaders: ${response.requestOptions.headers} \n'
-              '\$requestData: ${response.requestOptions.data} \n'
+              '\$requestData: ${jsonEncode(response.requestOptions.data)} \n'
               '\$onResponse: $response  \n');
           final bool isRefreshTokenUrl = response.requestOptions.path.endsWith('/v1/openApi/auth/midea/token') || response.requestOptions.path.endsWith('/muc/v5/app/mj/user/autoLogin');
           if (isRefreshTokenUrl) {

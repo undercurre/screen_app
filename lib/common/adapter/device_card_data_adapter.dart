@@ -102,7 +102,7 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
         }
       }
     }
-    return null;
+    return _auth;
   }
 
   @override
