@@ -134,7 +134,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
           // final layoutModel = context.read<LayoutModel>();
           // Log.i('目前的布局数据', layoutModel.layouts.where((element) => element.cardType != CardType.Null).map((e) => '${e.cardType}${e.pageIndex}${e.grids}'));
           // await layoutModel.removeLayouts();
-          bool autoRes = await auto2Layout(context);
+          bool autoRes = await auto2LayoutNew(context);
           if (autoRes) {
             await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
           } else {
