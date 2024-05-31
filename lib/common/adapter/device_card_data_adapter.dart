@@ -27,6 +27,8 @@ enum AdapterType {
   wifiLiangyi,
   wifiDianre,
   wifiRanre,
+  wifiLightFun
+
 
 }
 
@@ -39,7 +41,8 @@ const NeedCheckWaitLockAuthTypes = [
   AdapterType.wifiYuba,
   AdapterType.wifiLiangyi,
   AdapterType.wifiDianre,
-  AdapterType.wifiRanre
+  AdapterType.wifiRanre,
+  AdapterType.wifiLightFun
 
 
 ];

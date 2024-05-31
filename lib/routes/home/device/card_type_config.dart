@@ -25,6 +25,7 @@ import '../../../widgets/card/main/big_485Floor_device.dart';
 import '../../../widgets/card/main/big_device_electric_water_heater.dart';
 import '../../../widgets/card/main/big_device_gas_water_heater.dart';
 import '../../../widgets/card/main/big_device_liangyi.dart';
+import '../../../widgets/card/main/big_device_light_fun.dart';
 import '../../../widgets/card/main/big_range_hood_device.dart';
 import '../../../widgets/card/main/big_scene_panel_three.dart';
 import '../../../widgets/card/main/middle_485Air_device.dart';
@@ -42,6 +43,7 @@ import '../../../widgets/card/main/small_scene.dart';
 import '../../../widgets/card/other/clock.dart';
 import '../../../widgets/card/other/weather.dart';
 import '../../plugins/0x13/data_adapter.dart';
+import '../../plugins/0x13_fan/data_adapter.dart';
 import '../../plugins/0x14/data_adapter.dart';
 import '../../plugins/0x17/data_adapter.dart';
 import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
@@ -214,6 +216,8 @@ enum DeviceEntityTypeInP4 {
   Device0xE3,
   // wifi灯
   Device0x13,
+  // 风扇灯
+  Device0x13_fun,
   // wifi窗帘
   Device0x14,
   // 浴霸
@@ -870,6 +874,66 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
               id,
               (id) => WIFILightDataAdapter(MideaRuntimePlatform.platform,
                   params.sn8 ?? '', params.applianceCode ?? ''));
+        }),
+  },
+  // WIFI风扇灯
+  DeviceEntityTypeInP4.Device0x13_fun: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0x13_fan.png'),
+        ),
+        roomName: params.roomName,
+        onTap: () => params.onTap,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
+                  params.sn8 ?? '', params.applianceCode));
+        }),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          width: 65,
+          height: 65,
+          image: AssetImage('assets/newUI/device/0x13_fan.png'),
+        ),
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
+                  params.sn8 ?? '', params.applianceCode));
+        }),
+    CardType.Big: (params) => BigDeviceLightFunCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
+                  params.sn8 ?? '', params.applianceCode));
         }),
   },
   // Zigbee窗帘

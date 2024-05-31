@@ -16,7 +16,7 @@ class DeviceEntityTypeInP4Handle {
     }
   }
 
-  static DeviceEntityTypeInP4 getDeviceEntityType(String type, String? modelNum) {
+  static DeviceEntityTypeInP4 getDeviceEntityType(String type, String? modelNum,String? sn8) {
     for (var deviceType in DeviceEntityTypeInP4.values) {
       if (type == '0x21') {
         List<String> shuidianqi = ['1114', '1113', '82', '83', '23'];
@@ -49,7 +49,12 @@ class DeviceEntityTypeInP4Handle {
         return DeviceEntityTypeInP4.Weather;
       } else if (type == 'scene') {
         return DeviceEntityTypeInP4.Scene;
-      } else {
+      } else if(type == '0x13'){
+        List<String> funLight = ['M0200004', 'M0200005', '79010863'];
+        if (funLight.contains(sn8)) {
+          return DeviceEntityTypeInP4.Device0x13_fun;
+        }
+      }else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;
         }

@@ -234,7 +234,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
             deviceObj.roomId = System.roomInfo?.id;
             deviceObj.masterId = e.gatewayId ?? '';
             deviceObj.onlineStatus = e.onLineStatus.toString();
-            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) != DeviceEntityTypeInP4.Default) {
+            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(deviceObj.type, deviceObj.modelNumber,deviceObj.sn8) != DeviceEntityTypeInP4.Default) {
               devicesReal.add(deviceObj);
             }
           });
@@ -264,7 +264,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
           deviceObj.masterId = e["masterId"];
           deviceObj.onlineStatus = e["onlineStatus"];
           if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-              e["type"], e["modelNumber"]) !=
+              e["type"], e["modelNumber"],e["sn8"]) !=
               DeviceEntityTypeInP4.Default) {
             devicesReal.add(deviceObj);
           }

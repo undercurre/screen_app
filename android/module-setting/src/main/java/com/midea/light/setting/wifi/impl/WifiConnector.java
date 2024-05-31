@@ -1,8 +1,5 @@
 package com.midea.light.setting.wifi.impl;
 
-import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
-import static android.net.wifi.WifiManager.WIFI_STATE_UNKNOWN;
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +28,9 @@ import com.midea.light.setting.wifi.impl.repositories.WiFiRecordRepositories;
 import com.midea.light.setting.wifi.util.WifiUtil;
 
 import java.util.List;
+
+import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static android.net.wifi.WifiManager.WIFI_STATE_UNKNOWN;
 
 public class WifiConnector {
     private final static int CONNECTED_WIFI_SUC = 1;
@@ -224,7 +224,7 @@ public class WifiConnector {
         connectedState.setConnectType(VerifyConnectedState.TYPE_CONNECT_NEW_WIFI);
         WifiConnector.this.mConnectedCallback = connectedCallback;
         WifiConnector.this.pwd = pwd;
-        WifiConfiguration wifiConfigs = createWifiConfigs(mScanResult.SSID, pwd, getCapabilities(mScanResult.capabilities));
+        WifiConfiguration wifiConfigs = createWifiConfigs(mScanResult.SSID,mScanResult.BSSID, pwd, getCapabilities(mScanResult.capabilities));
         if (wifiConfigs != null) {
             int netWorkId = mWifiManager.addNetwork(wifiConfigs);//真正添加WIFI连接的方法
             if (netWorkId == -1 || !mWifiManager.enableNetwork(netWorkId, true) || !mWifiManager.reconnect()) {
@@ -335,7 +335,7 @@ public class WifiConnector {
         return 0;
     }
 
-    public WifiConfiguration createWifiConfigs(String ssid, String password, int type) {
+    public WifiConfiguration createWifiConfigs(String ssid,String bssid ,String password, int type) {
         WifiConfiguration config = new WifiConfiguration();
         config.allowedAuthAlgorithms.clear();
         config.allowedGroupCiphers.clear();
@@ -343,6 +343,7 @@ public class WifiConnector {
         config.allowedPairwiseCiphers.clear();
         config.allowedProtocols.clear();
         config.SSID = "\"" + ssid + "\"";
+        config.BSSID=bssid;
 
         WifiConfiguration tempConfig = isExist(ssid);
         if (tempConfig != null) {

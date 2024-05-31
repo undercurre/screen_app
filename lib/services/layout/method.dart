@@ -158,7 +158,7 @@ Future<bool> auto2Layout(BuildContext context) async {
         .toList();
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber,groupItem.sn8),
         CardType.Big,
         -1,
         [],
@@ -178,7 +178,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> panelNeed = deviceNeed.where((e) => panelCardTypeList.containsKey(e.modelNumber)).toList();
     tempLayoutList.addAll(panelNeed.map((panelItem) => Layout(
         panelItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(panelItem.type, panelItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(panelItem.type, panelItem.modelNumber,panelItem.sn8),
         panelCardTypeList[panelItem.modelNumber] ?? CardType.Small,
         -1,
         [],
@@ -207,7 +207,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     }
     tempLayoutList.addAll(singleLightNeed.map((singleLightItem) => Layout(
         singleLightItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(singleLightItem.type, singleLightItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(singleLightItem.type, singleLightItem.modelNumber,singleLightItem.sn8),
         CardType.Small,
         -1,
         [],
@@ -227,7 +227,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> curtainNeed = deviceNeed.where((e) => e.type == '0x14').toList();
     tempLayoutList.addAll(curtainNeed.map((curtainItem) => Layout(
         curtainItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(curtainItem.type, curtainItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(curtainItem.type, curtainItem.modelNumber,curtainItem.sn8),
         CardType.Big,
         -1,
         [],
@@ -247,7 +247,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017') || (e.type == '0xCC' && e.modelNumber == '3017')).toList();
     tempLayoutList.addAll(airConditionNeed.map((airConditionItem) => Layout(
         airConditionItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(airConditionItem.type, airConditionItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(airConditionItem.type, airConditionItem.modelNumber,airConditionItem.sn8),
         CardType.Small,
         -1,
         [],
@@ -267,7 +267,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3018') || (e.type == '0xCE' && e.modelNumber == '3018')).toList();
     tempLayoutList.addAll(freshAirNeed.map((freshAirItem) => Layout(
         freshAirItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(freshAirItem.type, freshAirItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(freshAirItem.type, freshAirItem.modelNumber,freshAirItem.sn8),
         CardType.Small,
         -1,
         [],
@@ -287,7 +287,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3019') || (e.type == '0xCF' && e.modelNumber == '3019')).toList();
     tempLayoutList.addAll(floorHeatNeed.map((floorHeatItem) => Layout(
         floorHeatItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(floorHeatItem.type, floorHeatItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(floorHeatItem.type, floorHeatItem.modelNumber,floorHeatItem.sn8),
         CardType.Small,
         -1,
         [],
@@ -307,7 +307,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> yubaNeed = deviceNeed.where((e) => e.type == '0x26').toList();
     tempLayoutList.addAll(yubaNeed.map((yubaItem) => Layout(
         yubaItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(yubaItem.type, yubaItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(yubaItem.type, yubaItem.modelNumber,yubaItem.sn8),
         CardType.Big,
         -1,
         [],
@@ -327,7 +327,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     List<DeviceEntity> liangyijiaNeed = deviceNeed.where((e) => e.type == '0x17').toList();
     tempLayoutList.addAll(liangyijiaNeed.map((liangyijiaItem) => Layout(
         liangyijiaItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(liangyijiaItem.type, liangyijiaItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(liangyijiaItem.type, liangyijiaItem.modelNumber,liangyijiaItem.sn8),
         CardType.Big,
         -1,
         [],

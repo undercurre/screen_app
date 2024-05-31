@@ -212,7 +212,7 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.masterId = e["masterId"];
         deviceObj.onlineStatus = e["onlineStatus"];
         if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            e["type"], e["modelNumber"]) !=
+            e["type"], e["modelNumber"],e["sn8"]) !=
             DeviceEntityTypeInP4.Default) {
           devicesReal.add(deviceObj);
         }
@@ -497,7 +497,7 @@ class MigrationOldVersionMeiJuDataState
         deviceObj.masterId = e.gatewayId ?? '';
         deviceObj.onlineStatus = e.onLineStatus.toString();
         if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            deviceObj.type, deviceObj.modelNumber) !=
+            deviceObj.type, deviceObj.modelNumber,deviceObj.sn8) !=
             DeviceEntityTypeInP4.Default) {
           devicesReal.add(deviceObj);
         }

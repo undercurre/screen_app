@@ -43,6 +43,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressLint("MissingPermission")
 public class Wifi {
 
     public static final ConfigurationSecurities ConfigSec = ConfigurationSecurities.newInstance();

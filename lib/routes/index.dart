@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screen_app/routes/home/device/custom.dart';
+import 'package:screen_app/routes/plugins/0x13_fan/index.dart';
 import 'package:screen_app/routes/plugins/0x17/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_air/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_cac/index.dart';
@@ -94,5 +95,7 @@ var routes = <String, WidgetBuilder>{
   "0xE3": (context) => const GasWaterHeaterPage(),
   "0xAC": (context) => const AirConditionPage(),
   "0xAC_newWind": (context) => const NewWindPage(),
-  "0xAC_floorHeating": (context) => const FloorHeatingPage()
+  "0xAC_floorHeating": (context) => const FloorHeatingPage(),
+  "0x13_fun": (context) => const WifiLightFanPage()
+
 };
