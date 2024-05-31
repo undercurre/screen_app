@@ -7,6 +7,7 @@ import '../../channel/models/music_state.dart';
 import '../../common/global.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/setting.dart';
+import '../../common/system.dart';
 import '../../common/utils.dart';
 import '../../services/layout/method.dart';
 import '../../states/layout_notifier.dart';
@@ -22,7 +23,6 @@ class DropDownPage extends StatefulWidget {
 }
 
 class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderStateMixin {
-  GlobalKey<_LoadingLayoutDialogState> loadingKey = GlobalKey<_LoadingLayoutDialogState>();
 
   late double yOffset;
 
@@ -113,61 +113,6 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
     }
   }
 
-  void showToLayout(BuildContext context) {
-    callback(int position, BuildContext context) async {
-      Log.i('调用成功', position);
-      Navigator.pop(context);
-      if (mounted) {
-        if (position == 0) {
-          Navigator.of(context).pushNamed('Custom');
-        }
-        if (position == 1) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            // false = user must tap button, true = tap outside dialog
-            builder: (BuildContext dialogContext) {
-              return LoadingLayoutDialog(key: loadingKey);
-            },
-          );
-          // 执行智能排序
-          // final layoutModel = context.read<LayoutModel>();
-          // Log.i('目前的布局数据', layoutModel.layouts.where((element) => element.cardType != CardType.Null).map((e) => '${e.cardType}${e.pageIndex}${e.grids}'));
-          // await layoutModel.removeLayouts();
-          bool autoRes = await auto2LayoutNew(context);
-          if (autoRes) {
-            await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
-          } else {
-            await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showErrorStyle()});
-          }
-          await Future.delayed(const Duration(seconds: 2), () => Navigator.pop(context));
-          await Future.delayed(const Duration(seconds: 1), () => Navigator.pop(context));
-          // await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
-        }
-      }
-    }
-
-    MzDialog(
-        title: '一键布局',
-        titleSize: 28,
-        maxWidth: 432,
-        backgroundColor: const Color(0xFF494E59),
-        contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
-        contentSlot: const Text('小美将会为您创建“当前房间”里设备和场景的最优体验布局，您也可以选择手动添加进行自定义布局',
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            style: TextStyle(
-              color: Color(0xFFB6B8BC),
-              fontSize: 24,
-              height: 1.6,
-              fontFamily: "MideaType",
-              decoration: TextDecoration.none,
-            )),
-        btns: ['手动添加', '确定'],
-        closeAble: true,
-        onPressed: (_, position, context) => callback(position, context)).show(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,7 +147,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
                 top: 32,
                 child: GestureDetector(
                   onTap: () {
-                    showToLayout(context);
+                    CustomLayoutHelper.showToLayout(context);
                   },
                   child: Container(
                     width: 130,
@@ -497,6 +442,69 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
   void didChangeDependencies() {
     super.didChangeDependencies();
   }
+}
+
+class CustomLayoutHelper {
+
+  static void showToLayout(BuildContext context) {
+    GlobalKey<_LoadingLayoutDialogState> loadingKey = GlobalKey<_LoadingLayoutDialogState>();
+    callback(int position, BuildContext context) async {
+      Navigator.pop(context);
+      if (context.mounted) {
+        if (position == 0) {
+          Navigator.of(context).pushNamed('Custom');
+        }
+        if (position == 1) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            // false = user must tap button, true = tap outside dialog
+            builder: (BuildContext dialogContext) {
+              return LoadingLayoutDialog(key: loadingKey);
+            },
+          );
+          // 执行智能排序
+          // final layoutModel = context.read<LayoutModel>();
+          // Log.i('目前的布局数据', layoutModel.layouts.where((element) => element.cardType != CardType.Null).map((e) => '${e.cardType}${e.pageIndex}${e.grids}'));
+          // await layoutModel.removeLayouts();
+          bool autoRes = await auto2LayoutNew(context);
+          if (autoRes) {
+            await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showSucStyle()});
+          } else {
+            await Future.delayed(const Duration(seconds: 5), () => {loadingKey.currentState?.showErrorStyle()});
+          }
+          await Future.delayed(const Duration(seconds: 2), () {
+            if (System.isLogin()) {
+              Navigator.popUntil(
+                  context, (route) => route.settings.name == 'Home');
+            } else {
+              Navigator.pop(context);
+            }
+          });
+        }
+      }
+    }
+    MzDialog(
+        title: '一键布局',
+        titleSize: 28,
+        maxWidth: 432,
+        backgroundColor: const Color(0xFF494E59),
+        contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
+        contentSlot: const Text('小美将会为您创建“当前房间”里设备和场景的最优体验布局，您也可以选择手动添加进行自定义布局',
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            style: TextStyle(
+              color: Color(0xFFB6B8BC),
+              fontSize: 24,
+              height: 1.6,
+              fontFamily: "MideaType",
+              decoration: TextDecoration.none,
+            )),
+        btns: ['手动添加', '确定'],
+        closeAble: true,
+        onPressed: (_, position, context) => callback(position, context)).show(context);
+  }
+
 }
 
 class LoadingLayoutDialog extends StatefulWidget {

@@ -10,15 +10,29 @@ import '../states/global_route_observer_notifier.dart';
 /// 其他常见的组件生命周期：onCreate -> onResume -> onPause -> onResume  .....   -> onDestroy
 ///
 ///
-mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware {
+
+enum LifeCycle {
+  uninitialized, destroy, pause, create, resume
+}
+
+mixin LifeCycleStateMixin<W extends StatefulWidget> on State<W> implements RouteAware {
 
   late RouteObserver _routeObserver;
+
+  LifeCycle _state = LifeCycle.uninitialized;
+
+  /// 判断当前组件状态是否大于或者等于给定的状态
+  bool isAtLastState(LifeCycle cycle) {
+    return LifeCycle.values.indexOf(_state) >= LifeCycle.values.indexOf(cycle);
+  }
 
   @override
   @mustCallSuper
   @protected
   void didPop() {
+    _state = LifeCycle.pause;
     onPause();
+    _state = LifeCycle.destroy;
     onDestroy();
   }
 
@@ -26,7 +40,9 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   @mustCallSuper
   @protected
   void didPush() {
+    _state = LifeCycle.create;
     onCreate();
+    _state = LifeCycle.resume;
     onResume();
   }
 
@@ -35,6 +51,7 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   @protected
   void didPushNext() {
     debugPrint('当前组件$this 状态暂停');
+    _state = LifeCycle.pause;
     onPause();
   }
 
@@ -43,6 +60,7 @@ mixin LifeCycleState<W extends StatefulWidget> on State<W> implements RouteAware
   @protected
   void didPopNext() {
     debugPrint('当前组件$this 状态正在前台活动');
+    _state = LifeCycle.resume;
     onResume();
   }
 

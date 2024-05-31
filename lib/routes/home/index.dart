@@ -22,6 +22,7 @@ import '../../widgets/event_bus.dart';
 import '../../widgets/standby.dart';
 import '../dropdown/drop_down_page.dart';
 import '../sniffer/device_manager_sdk_initializer.dart';
+import 'guide_layout_tip_mixin.dart';
 
 export './center_control/index.dart';
 export './device/index.dart';
@@ -38,10 +39,11 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home>
     with
         DeviceManagerSDKInitialize,
-        LifeCycleState,
+        LifeCycleStateMixin,
         Ota,
         CheckGatewayBind,
-        WidgetNetState {
+        WidgetNetState,
+        GuideLayoutTipMixin{
   late double po;
   var children = <Widget>[];
 
