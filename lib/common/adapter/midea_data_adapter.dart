@@ -18,7 +18,6 @@ abstract class MideaDataAdapter {
   static Map<String, MideaDataAdapter> adapterMap = {};
 
   static T getOrCreateAdapter<T extends MideaDataAdapter>(String id, AdapterGenerateFunction<T> function) {
-    Log.i('构造adapter', id);
     if (MideaDataAdapter.contained(id)) {
       return MideaDataAdapter.getAdapter(id);
     } else {

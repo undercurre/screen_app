@@ -78,13 +78,13 @@ var routes = <String, WidgetBuilder>{
 
 
   "0x13": (context) => const WifiLightPage(),
-  "0x14": (context) => const WifiCurtainPage(),
+  "0x14": (context) => const EleMachineCurtainPage(),
   "0x17": (context) => const WifiLiangyiPage(),
   "0x26": (context) => const BathroomMaster(),
   "0x40": (context) => const CoolMaster(),
   "0x21_light_colorful": (context) => const ZigbeeLightPage(),
   "0x21_light_noColor": (context) => const ZigbeeLightPage(),
-  "0x21_curtain": (context) => const ZigbeeCurtainPage(),
+  "0x21_curtain": (context) => const EleMachineCurtainPage(),
   "0x21_curtain_panel_one": (context) => const ZigbeeCurtainPage(),
   "0x21_curtain_panel_two": (context) => const ZigbeeCurtainPage(),
   "lightGroup": (context) => const LightGroupPage(),

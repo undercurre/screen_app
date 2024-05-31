@@ -239,7 +239,7 @@ class _SmallDeviceCardWidgetState extends State<SmallDeviceCardWidget> {
       onTap: () {
         if (widget.disabled) return;
         if (adapter?.dataState != DataState.SUCCESS) {
-          adapter?.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
+          adapter?.fetchDataInSafety(widget.applianceCode);
           TipsUtils.toast(content: '网络服务异常，控制设备失败');
           return;
         }

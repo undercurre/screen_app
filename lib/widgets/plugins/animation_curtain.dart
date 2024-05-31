@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../common/logcat_helper.dart';
+
 class AnimationCurtain extends StatefulWidget {
   final num position;
 
@@ -162,10 +164,13 @@ class _AnimatedClipState extends State<AnimatedClip> with SingleTickerProviderSt
 class Trapezoid extends CustomClipper<Path> {
   final num pos;
 
+  Path path = Path();
+
   Trapezoid({required this.pos});
 
   @override
   Path getClip(Size size) {
+    path.reset();
     const curtainWidth = 80.0;
     double wp = 0.8 * pos; // 光线单边变化
 
@@ -174,7 +179,6 @@ class Trapezoid extends CustomClipper<Path> {
     var rightEnd = curtainWidth + wp;
     var leftEnd2 = leftEnd + 140;
     var rightEnd2 = rightEnd + 400;
-    Path path = Path();
 
     if (leftEnd < rightEnd - 3) {
       path.moveTo(leftEnd, 0); // 起点

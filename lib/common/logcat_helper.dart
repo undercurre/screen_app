@@ -234,7 +234,7 @@ class Log {
   }
 
   static void file(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    _consoleLogger.v(message, error, stackTrace);
+    _consoleLogger.w(message, error, stackTrace);
     _fileLogger.i(message, error, stackTrace);
   }
 

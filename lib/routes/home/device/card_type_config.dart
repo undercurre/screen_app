@@ -77,12 +77,12 @@ Map<CardType, Widget Function(DataInputCard)> zigbeeCurtain(String icon) {
         disableOnOff: params.disableOnOff ?? false,
         hasMore: params.hasMore ?? true,
         goToPageDetailFunction: (context, adapter) {
-          Navigator.pushNamed(context, '0x14',
+          Navigator.pushNamed(context, '0x21_curtain',
               arguments: {"name": params.name, "adapter": adapter});
         },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
+              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode, params.masterId));
         }),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
         applianceCode: params.applianceCode,
@@ -99,12 +99,12 @@ Map<CardType, Widget Function(DataInputCard)> zigbeeCurtain(String icon) {
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
         goToPageDetailFunction: (context, adapter) {
-          Navigator.pushNamed(context, '0x14',
+          Navigator.pushNamed(context, '0x21_curtain',
               arguments: {"name": params.name, "adapter": adapter});
         },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
+              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode, params.masterId));
         }),
     CardType.Big: (params) => BigDeviceCurtainCardWidget(
         applianceCode: params.applianceCode,
@@ -118,12 +118,12 @@ Map<CardType, Widget Function(DataInputCard)> zigbeeCurtain(String icon) {
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
         goToPageDetailFunction: (context, adapter) {
-          Navigator.pushNamed(context, '0x14',
+          Navigator.pushNamed(context, '0x21_curtain',
               arguments: {"name": params.name, "adapter": adapter});
         },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
+              id, (id) => ZigbeeCurtainDataAdapter(MideaRuntimePlatform.platform, params.applianceCode, params.masterId));
         }),
   };
 }

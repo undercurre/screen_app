@@ -96,7 +96,7 @@ class _BigRangeHoodDeviceCardWidgetState
     return GestureDetector(
       onTap: () {
         if (!adapter.data!.online && !widget.disabled) {
-          adapter.fetchDataAndCheckWaitLockAuth(widget.applianceCode);
+          adapter.fetchDataInSafety(widget.applianceCode);
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }

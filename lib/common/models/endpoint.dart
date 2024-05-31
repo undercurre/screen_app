@@ -41,3 +41,15 @@ class Event {
     return {};
   }
 }
+
+/// 通用型网关子设备结果响应处理
+class CommonEvent extends Event {
+  Map<String, dynamic> event;
+
+  CommonEvent({required this.event});
+
+  @override
+  Map<String, dynamic> toJson() {
+    return event;
+  }
+}
