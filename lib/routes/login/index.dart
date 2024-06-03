@@ -205,7 +205,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     Timer(const Duration(seconds: 6), () {
       //导航到新路由
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, 'Home', ModalRoute.withName('/'));
+        Navigator.pushNamedAndRemoveUntil(context, 'GuidePage', ModalRoute.withName('/'));
         System.login();
       }
     });
