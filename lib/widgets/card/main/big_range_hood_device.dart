@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/range_hood_device_data_adapter.dart';
+import 'package:screen_app/widgets/card/method.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
@@ -32,12 +33,10 @@ class BigRangeHoodDeviceCardWidget extends StatefulWidget {
       required this.online});
 
   @override
-  State<BigRangeHoodDeviceCardWidget> createState() =>
-      _BigRangeHoodDeviceCardWidgetState();
+  State<BigRangeHoodDeviceCardWidget> createState() => _BigRangeHoodDeviceCardWidgetState();
 }
 
-class _BigRangeHoodDeviceCardWidgetState
-    extends State<BigRangeHoodDeviceCardWidget> {
+class _BigRangeHoodDeviceCardWidgetState extends State<BigRangeHoodDeviceCardWidget> {
   late RangeHoodDeviceDataAdapter adapter;
 
   @override
@@ -57,24 +56,17 @@ class _BigRangeHoodDeviceCardWidgetState
   void updateCallback() {
     setState(() {
       adapter.data = adapter.data;
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: adapter.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: adapter.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -82,11 +74,9 @@ class _BigRangeHoodDeviceCardWidgetState
     }
 
     String getRoomName() {
-      String nameInModel =
-          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
+      String nameInModel = deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -126,9 +116,8 @@ class _BigRangeHoodDeviceCardWidgetState
                   child: Image(
                       width: 40,
                       height: 40,
-                      image: AssetImage(adapter.getPowerStatus() ?? false
-                          ? 'assets/newUI/card_power_on.png'
-                          : 'assets/newUI/card_power_off.png')),
+                      image: AssetImage(
+                          adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
                 ),
               ),
 
@@ -139,10 +128,7 @@ class _BigRangeHoodDeviceCardWidgetState
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => RangeHoodPage(adapter: adapter)));
                     },
-                    child: const Image(
-                        width: 32,
-                        height: 32,
-                        image: AssetImage('assets/newUI/to_plugin.png'))),
+                    child: const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png'))),
               ),
               Positioned(
                 top: 10,
@@ -181,8 +167,7 @@ class _BigRangeHoodDeviceCardWidgetState
                     ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 90),
-                      child: Text(
-                          " ${getRightText().isNotEmpty ? '|' : ''} ${getRightText()}",
+                      child: Text(" ${getRightText().isNotEmpty ? '|' : ''} ${getRightText()}",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -235,8 +220,7 @@ class _BigRangeHoodDeviceCardWidgetState
                           bus.emit('operateDevice', widget.applianceCode);
                         },
                         child: Image(
-                            color: Color.fromRGBO(255, 255, 255,
-                                (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
+                            color: Color.fromRGBO(255, 255, 255, (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
                             width: 36,
                             height: 36,
                             image: const AssetImage('assets/newUI/sub.png')),
@@ -247,9 +231,7 @@ class _BigRangeHoodDeviceCardWidgetState
                           Text("${adapter.getData().currentSpeed}",
                               style: TextStyle(
                                   height: 1.5,
-                                  color: (adapter.getPowerStatus() ?? false)
-                                      ? const Color(0XFFFFFFFF)
-                                      : const Color(0XA3FFFFFF),
+                                  color: (adapter.getPowerStatus() ?? false) ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                                   fontSize: 60,
                                   fontFamily: "MideaType",
                                   fontWeight: FontWeight.normal,
@@ -257,9 +239,7 @@ class _BigRangeHoodDeviceCardWidgetState
                           Text("档",
                               style: TextStyle(
                                   height: 1.5,
-                                  color: (adapter.getPowerStatus() ?? false)
-                                      ? const Color(0XFFFFFFFF)
-                                      : const Color(0XA3FFFFFF),
+                                  color: (adapter.getPowerStatus() ?? false) ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                                   fontSize: 18,
                                   fontFamily: "MideaType",
                                   fontWeight: FontWeight.normal,
@@ -272,8 +252,7 @@ class _BigRangeHoodDeviceCardWidgetState
                           bus.emit('operateDevice', widget.applianceCode);
                         },
                         child: Image(
-                            color: Color.fromRGBO(255, 255, 255,
-                                (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
+                            color: Color.fromRGBO(255, 255, 255, (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
                             width: 36,
                             height: 36,
                             image: const AssetImage('assets/newUI/add.png')),
@@ -293,9 +272,7 @@ class _BigRangeHoodDeviceCardWidgetState
                   height: 16,
                   min: adapter.data!.minSpeed,
                   max: adapter.data!.maxSpeed,
-                  disabled: widget.disabled ||
-                      adapter.data?.onOff == false ||
-                      adapter.data?.online == false,
+                  disabled: widget.disabled || adapter.data?.onOff == false || adapter.data?.online == false,
                   activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
                   onChanged: (val, color) {
                     adapter.slider1To(val.toInt());
@@ -320,29 +297,14 @@ class _BigRangeHoodDeviceCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     if (adapter.data!.onOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
+      gradient: getBigCardColorBg('disabled'),
       border: Border.all(
         color: const Color(0x00FFFFFF),
         width: 0,

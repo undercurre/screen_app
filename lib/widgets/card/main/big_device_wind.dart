@@ -1,5 +1,5 @@
-
 import 'package:flutter/cupertino.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import '../../mz_slider.dart';
 
 class BigDeviceWindCardWidget extends StatefulWidget {
@@ -22,26 +22,25 @@ class BigDeviceWindCardWidget extends StatefulWidget {
 
   const BigDeviceWindCardWidget(
       {super.key,
-        required this.name,
-        required this.onOff,
-        required this.roomName,
-        this.onMoreTap,
-        required this.online,
-        required this.isFault,
-        required this.isNative,
-        this.onChanging,
-        this.onChanged,
-        required this.gear,
-        this.min = 1,
-        this.max = 3,
-        this.onPowerTap});
+      required this.name,
+      required this.onOff,
+      required this.roomName,
+      this.onMoreTap,
+      required this.online,
+      required this.isFault,
+      required this.isNative,
+      this.onChanging,
+      this.onChanged,
+      required this.gear,
+      this.min = 1,
+      this.max = 3,
+      this.onPowerTap});
 
   @override
   _BigDeviceWindCardWidgetState createState() => _BigDeviceWindCardWidgetState();
 }
 
 class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -68,24 +67,17 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
               child: Image(
                   width: 40,
                   height: 40,
-                  image: AssetImage(widget.onOff ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')
-              ),
+                  image: AssetImage(widget.onOff ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
             ),
           ),
-
           Positioned(
             top: 16,
             right: 16,
             child: GestureDetector(
               onTap: () => widget.onMoreTap?.call(),
-              child: const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')
-              ),
+              child: const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')),
             ),
           ),
-
           Positioned(
             top: 10,
             left: 88,
@@ -95,9 +87,7 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: widget.isNative ? 100 : 140
-                    ),
+                    constraints: BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
                     child: Text(widget.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -106,15 +96,11 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                             fontSize: 22,
                             fontFamily: "MideaType",
                             fontWeight: FontWeight.normal,
-                            decoration: TextDecoration.none)
-                    ),
+                            decoration: TextDecoration.none)),
                   ),
                 ),
-
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 90
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 90),
                   child: Text(widget.roomName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -123,13 +109,10 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 90
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 90),
                   child: Text(" | ${_getRightText()}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -138,33 +121,32 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                           fontSize: 16,
                           fontFamily: "MideaType",
                           fontWeight: FontWeight.normal,
-                          decoration: TextDecoration.none)
-                  ),
+                          decoration: TextDecoration.none)),
                 ),
-
-                if(widget.isNative) Container(
-                  alignment: Alignment.center,
-                  width: 48,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(24)),
-                    border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
-                  ),
-                  margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                  child: const Text("本地",
-                    style: TextStyle(
-                        height: 1.6,
-                        color: Color(0XFFFFFFFF),
-                        fontSize: 14,
-                        fontFamily: "MideaType",
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.none),
-                  ),
-                )
+                if (widget.isNative)
+                  Container(
+                    alignment: Alignment.center,
+                    width: 48,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(24)),
+                      border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
+                    ),
+                    margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
+                    child: const Text(
+                      "本地",
+                      style: TextStyle(
+                          height: 1.6,
+                          color: Color(0XFFFFFFFF),
+                          fontSize: 14,
+                          fontFamily: "MideaType",
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
+                    ),
+                  )
               ],
             ),
           ),
-
           Positioned(
             top: 62,
             left: 70,
@@ -183,10 +165,8 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                         color: Color.fromRGBO(255, 255, 255, widget.onOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
-                        image: const AssetImage('assets/newUI/sub.png')
-                    ),
+                        image: const AssetImage('assets/newUI/sub.png')),
                   ),
-
                   Row(
                     children: [
                       Text("${widget.gear}",
@@ -196,8 +176,7 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                               fontSize: 60,
                               fontFamily: "MideaType",
                               fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none)
-                      ),
+                              decoration: TextDecoration.none)),
                       const SizedBox(
                         width: 16,
                       ),
@@ -208,11 +187,9 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                               fontSize: 16,
                               fontFamily: "MideaType",
                               fontWeight: FontWeight.normal,
-                              decoration: TextDecoration.none)
-                      ),
+                              decoration: TextDecoration.none)),
                     ],
                   ),
-
                   GestureDetector(
                     onTap: () => {
                       widget.onChanged?.call(widget.gear < widget.max ? widget.gear + 1 : widget.max),
@@ -221,14 +198,12 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                         color: Color.fromRGBO(255, 255, 255, widget.onOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
-                        image: const AssetImage('assets/newUI/add.png')
-                    ),
+                        image: const AssetImage('assets/newUI/add.png')),
                   ),
                 ],
               ),
             ),
           ),
-
           Positioned(
             top: 140,
             left: 5,
@@ -240,15 +215,10 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
               max: widget.max,
               disabled: !widget.onOff,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              onChanging: (val, color) => {
-                widget.onChanging?.call(val)
-              },
-              onChanged: (val, color) => {
-                widget.onChanged?.call(val)
-              },
+              onChanging: (val, color) => {widget.onChanging?.call(val)},
+              onChanged: (val, color) => {widget.onChanged?.call(val)},
             ),
           ),
-
           Positioned(
             right: 28,
             top: 180,
@@ -272,8 +242,7 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
                         )
                       ],
                     );
-                  }
-              ),
+                  }),
             ),
           )
         ],
@@ -286,7 +255,11 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
   }
 
   int _getGearVal() {
-    return widget.gear < widget.min ? widget.min : widget.gear > widget.max ? widget.max : widget.gear;
+    return widget.gear < widget.min
+        ? widget.min
+        : widget.gear > widget.max
+            ? widget.max
+            : widget.gear;
   }
 
   String _getRightText() {
@@ -301,30 +274,11 @@ class _BigDeviceWindCardWidgetState extends State<BigDeviceWindCardWidget> {
 
   BoxDecoration _getBoxDecoration() {
     if (widget.onOff && widget.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
-    );
+    return BoxDecoration(borderRadius: const BorderRadius.all(Radius.circular(24)), gradient: getBigCardColorBg('disabled'));
   }
-
 }

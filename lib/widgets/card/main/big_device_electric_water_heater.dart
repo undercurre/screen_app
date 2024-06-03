@@ -11,6 +11,7 @@ import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
 import '../../util/nameFormatter.dart';
+import '../method.dart';
 
 class BigDeviceElectricWaterHeaterWidget extends StatefulWidget {
   final String applianceCode;
@@ -74,15 +75,13 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
         return '';
       }
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -114,20 +113,13 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
     }
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: widget.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: widget.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
       if (widget.disabled) {
-        return (nameInModel == '未知id' || nameInModel == '未知设备')
-            ? widget.name
-            : nameInModel;
+        return (nameInModel == '未知id' || nameInModel == '未知设备') ? widget.name : nameInModel;
       }
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -137,9 +129,8 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
     String getRoomName() {
       String BigCardName = '';
 
-      List<DeviceEntity> curOne = deviceListModel.deviceCacheList
-          .where((element) => element.applianceCode == widget.applianceCode)
-          .toList();
+      List<DeviceEntity> curOne =
+          deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
       if (curOne.isNotEmpty) {
         BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
       } else {
@@ -150,8 +141,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
         return BigCardName;
       }
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -160,70 +150,28 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
 
     BoxDecoration _getBoxDecoration() {
       bool curPower = adapter.getPowerStatus() ?? false;
-      bool online =
-          deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
+      bool online = deviceListModel.getOnlineStatus(deviceId: widget.applianceCode);
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0x77AE4C5E),
-              Color.fromRGBO(167, 78, 97, 0.32),
-            ],
-            stops: [0, 1],
-            transform: GradientRotation(222 * (3.1415926 / 360.0)),
-          ),
+          gradient: getBigCardColorBg('fault'),
         );
       }
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33616A76),
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
+          gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
         );
       }
       if ((curPower && !widget.disabled)) {
-        return const BoxDecoration(
+        return BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(24)),
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF818895),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-          ),
+          gradient: getBigCardColorBg('open'),
         );
       }
       return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33616A76),
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33434852),
-          ],
-        ),
+        gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
       );
     }
 
@@ -234,16 +182,13 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
-        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
-            !widget.disabled) {
+        if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) && !widget.disabled) {
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
       },
       child: AbsorbPointer(
-        absorbing:
-            (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) ||
-                adapter.dataState != DataState.SUCCESS),
+        absorbing: (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) || adapter.dataState != DataState.SUCCESS),
         child: Container(
           width: 440,
           height: 196,
@@ -256,9 +201,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                 child: GestureDetector(
                   onTap: () {
                     Log.i('disabled: ${widget.disabled}');
-                    if (!widget.disabled &&
-                        deviceListModel.getOnlineStatus(
-                            deviceId: widget.applianceCode)) {
+                    if (!widget.disabled && deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                       adapter.power(
                         adapter.getPowerStatus(),
                       );
@@ -268,9 +211,8 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                   child: Image(
                       width: 40,
                       height: 40,
-                      image: AssetImage(adapter.getPowerStatus() ?? false
-                          ? 'assets/newUI/card_power_on.png'
-                          : 'assets/newUI/card_power_off.png')),
+                      image: AssetImage(
+                          adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
                 ),
               ),
 
@@ -283,20 +225,14 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                       adapter.fetchData();
                       // TipsUtils.toast(content: '数据缺失，控制设备失败');
                     }
-                    if (!deviceListModel.getOnlineStatus(
-                        deviceId: widget.applianceCode)) {
+                    if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
                       TipsUtils.toast(content: '设备已离线，请检查连接状态');
                       return;
                     }
 
                     Navigator.pushNamed(context, '0xE2', arguments: {"name": widget.name, "adapter": adapter});
                   },
-                  child: widget.hasMore
-                      ? const Image(
-                          width: 32,
-                          height: 32,
-                          image: AssetImage('assets/newUI/to_plugin.png'))
-                      : Container(),
+                  child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
                 ),
               ),
               Positioned(
@@ -309,8 +245,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                     Container(
                       margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxWidth: widget.isNative ? 100 : 140),
+                        constraints: BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
                         child: Text(getDeviceName(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -337,8 +272,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                     ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 90),
-                      child: Text(
-                          " ${_getRightText().isNotEmpty ? '|' : ''} ${_getRightText()}",
+                      child: Text(" ${_getRightText().isNotEmpty ? '|' : ''} ${_getRightText()}",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -354,10 +288,8 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                         width: 48,
                         height: 24,
                         decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(24)),
-                          border: Border.all(
-                              color: const Color(0xFFFFFFFF), width: 1),
+                          borderRadius: const BorderRadius.all(Radius.circular(24)),
+                          border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
                         ),
                         margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
                         child: const Text(
@@ -388,10 +320,9 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                       GestureDetector(
                         onTap: () {
                           if (!widget.disabled &&
-                              deviceListModel.getOnlineStatus(
-                                  deviceId: widget.applianceCode) &&
+                              deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
                               (adapter.getPowerStatus() ?? false)) {
-                            int value = adapter!.getCardStatus()?["temperature"]-5;
+                            int value = adapter!.getCardStatus()?["temperature"] - 5;
                             if (value < 30) {
                               return;
                             }
@@ -400,8 +331,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                           }
                         },
                         child: Image(
-                            color: Color.fromRGBO(255, 255, 255,
-                                (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
+                            color: Color.fromRGBO(255, 255, 255, (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
                             width: 36,
                             height: 36,
                             image: const AssetImage('assets/newUI/sub.png')),
@@ -412,9 +342,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                           Text("${_getTempVal()}",
                               style: TextStyle(
                                   height: 1.5,
-                                  color: (adapter.getPowerStatus() ?? false)
-                                      ? const Color(0XFFFFFFFF)
-                                      : const Color(0XA3FFFFFF),
+                                  color: (adapter.getPowerStatus() ?? false) ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                                   fontSize: 60,
                                   fontFamily: "MideaType",
                                   fontWeight: FontWeight.normal,
@@ -422,9 +350,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                           Text("℃",
                               style: TextStyle(
                                   height: 1.5,
-                                  color: (adapter.getPowerStatus() ?? false)
-                                      ? const Color(0XFFFFFFFF)
-                                      : const Color(0XA3FFFFFF),
+                                  color: (adapter.getPowerStatus() ?? false) ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                                   fontSize: 18,
                                   fontFamily: "MideaType",
                                   fontWeight: FontWeight.normal,
@@ -434,10 +360,9 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                       GestureDetector(
                         onTap: () {
                           if (!widget.disabled &&
-                              deviceListModel.getOnlineStatus(
-                                  deviceId: widget.applianceCode) &&
+                              deviceListModel.getOnlineStatus(deviceId: widget.applianceCode) &&
                               (adapter.getPowerStatus() ?? false)) {
-                            int value = adapter!.getCardStatus()?["temperature"]+5;
+                            int value = adapter!.getCardStatus()?["temperature"] + 5;
                             if (value > 75) {
                               return;
                             }
@@ -446,8 +371,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                           }
                         },
                         child: Image(
-                            color: Color.fromRGBO(255, 255, 255,
-                                (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
+                            color: Color.fromRGBO(255, 255, 255, (adapter.getPowerStatus() ?? false) ? 1 : 0.7),
                             width: 36,
                             height: 36,
                             image: const AssetImage('assets/newUI/add.png')),
@@ -469,8 +393,7 @@ class _BigDeviceElectricWaterHeaterWidgetState extends State<BigDeviceElectricWa
                   max: 75,
                   disabled: widget.disabled ||
                       !(adapter.getPowerStatus() ?? false) ||
-                      !deviceListModel.getOnlineStatus(
-                          deviceId: widget.applianceCode),
+                      !deviceListModel.getOnlineStatus(deviceId: widget.applianceCode),
                   activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
                   onChanged: (val, color) {
                     adapter.slider1To(val.toInt());

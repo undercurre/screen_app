@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
@@ -38,12 +39,10 @@ class Middle485FloorDeviceCardWidget extends StatefulWidget {
   });
 
   @override
-  _Middle485FloorDeviceCardWidgetState createState() =>
-      _Middle485FloorDeviceCardWidgetState();
+  _Middle485FloorDeviceCardWidgetState createState() => _Middle485FloorDeviceCardWidgetState();
 }
 
-class _Middle485FloorDeviceCardWidgetState
-    extends State<Middle485FloorDeviceCardWidget> {
+class _Middle485FloorDeviceCardWidgetState extends State<Middle485FloorDeviceCardWidget> {
   late FloorDataAdapter adapter;
 
   @override
@@ -85,18 +84,12 @@ class _Middle485FloorDeviceCardWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: adapter.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: adapter.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -104,11 +97,9 @@ class _Middle485FloorDeviceCardWidgetState
     }
 
     String getRoomName() {
-      String nameInModel =
-          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
+      String nameInModel = deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -116,7 +107,7 @@ class _Middle485FloorDeviceCardWidgetState
     }
 
     String getRightText() {
-      if(adapter.data?.online == true) {
+      if (adapter.data?.online == true) {
         return "${adapter.data!.targetTemp}℃";
       } else {
         return "离线";
@@ -138,18 +129,12 @@ class _Middle485FloorDeviceCardWidgetState
                 onTap: () => {
                   if (adapter.data!.online)
                     {
-                      Navigator.pushNamed(context, '0x21_485Floor', arguments: {
-                        "name": getDeviceName(),
-                        "adapter": adapter
-                      })
+                      Navigator.pushNamed(context, '0x21_485Floor', arguments: {"name": getDeviceName(), "adapter": adapter})
                     }
                   else
                     {TipsUtils.toast(content: '设备已离线,请检查设备')}
                 },
-                child: const Image(
-                    width: 32,
-                    height: 32,
-                    image: AssetImage('assets/newUI/to_plugin.png')),
+                child: const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')),
               ),
             ),
             Positioned(
@@ -183,10 +168,8 @@ class _Middle485FloorDeviceCardWidgetState
                       width: 48,
                       height: 24,
                       decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(24)),
-                        border: Border.all(
-                            color: const Color(0xFFFFFFFF), width: 1),
+                        borderRadius: const BorderRadius.all(Radius.circular(24)),
+                        border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: const Text(
@@ -249,29 +232,14 @@ class _Middle485FloorDeviceCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
-    return const BoxDecoration(
+    return BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
+      gradient: getBigCardColorBg('disabled'),
     );
   }
 }

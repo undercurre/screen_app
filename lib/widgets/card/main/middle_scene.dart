@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
@@ -76,34 +77,11 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
         decoration: widget.onOff
             ? BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF767B86),
-                    Color(0xFF88909F),
-                    Color(0xFF516375),
-                  ],
-                  stops: [0, 0.24, 1],
-                  transform: GradientRotation(194 * (3.1415926 / 360.0)),
-                ),
+                gradient: getBigCardColorBg('open'),
               )
             : BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33616A76),
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33434852),
-                  ],
-                  stops: const [0.06, 1.0],
-                  transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-                ),
+                gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
               ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

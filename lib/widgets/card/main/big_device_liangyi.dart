@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
@@ -151,31 +152,12 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0x33616A76),
-              Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
+          gradient: getBigCardColorBg('disabled'),
         );
       } else {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF767B86),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-            stops: [0, 0.24, 1],
-            transform: GradientRotation(194 * (3.1415926 / 360.0)),
-          ),
+          gradient: getBigCardColorBg('open'),
         );
       }
     }

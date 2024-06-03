@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
@@ -160,58 +161,25 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
       if (widget.isFault) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0x77AE4C5E),
-              Color.fromRGBO(167, 78, 97, 0.32),
-            ],
-            stops: [0, 1],
-            transform: GradientRotation(222 * (3.1415926 / 360.0)),
-          ),
+          gradient: getBigCardColorBg('fault'),
 
         );
       }
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-              widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-            ],
-            stops: const [0.06, 1.0],
-            transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
+          gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
         );
       }
       if ((curPower && !widget.disabled)) {
-        return const BoxDecoration(
+        return BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(24)),
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF818895),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-          ),
+          gradient: getBigCardColorBg('open'),
         );
       }
       return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33616A76),
-            widget.discriminative ? Colors.white.withOpacity(0.12) : const Color(0x33434852),
-          ],
-        ),
+        gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
       );
     }
 

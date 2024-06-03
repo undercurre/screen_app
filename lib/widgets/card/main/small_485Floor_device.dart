@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
@@ -41,13 +42,10 @@ class Small485FloorDeviceCardWidget extends StatefulWidget {
   });
 
   @override
-  _Small485FloorDeviceCardWidget createState() =>
-      _Small485FloorDeviceCardWidget();
+  _Small485FloorDeviceCardWidget createState() => _Small485FloorDeviceCardWidget();
 }
 
-class _Small485FloorDeviceCardWidget
-    extends State<Small485FloorDeviceCardWidget> {
-
+class _Small485FloorDeviceCardWidget extends State<Small485FloorDeviceCardWidget> {
   late FloorDataAdapter adapter;
 
   @override
@@ -55,7 +53,7 @@ class _Small485FloorDeviceCardWidget
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disable){
+    if (!widget.disable) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
@@ -68,8 +66,7 @@ class _Small485FloorDeviceCardWidget
 
   void updateData() {
     if (mounted) {
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -99,11 +96,7 @@ class _Small485FloorDeviceCardWidget
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: adapter.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: adapter.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
       if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
@@ -113,11 +106,9 @@ class _Small485FloorDeviceCardWidget
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel = deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -195,10 +186,7 @@ class _Small485FloorDeviceCardWidget
                     child: Text(
                       maxLines: 1,
                       '${NameFormatter.formatName(getRoomName(), 4)} | ${getRightText()}',
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.64),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400),
+                      style: TextStyle(color: Colors.white.withOpacity(0.64), fontSize: 16, fontWeight: FontWeight.w400),
                     ),
                   )
                 ],
@@ -208,10 +196,7 @@ class _Small485FloorDeviceCardWidget
               onTap: () => {
                 if (adapter.data!.online)
                   {
-                    Navigator.pushNamed(context, '0x21_485Floor', arguments: {
-                      "name": getDeviceName(),
-                      "adapter": adapter
-                    })
+                    Navigator.pushNamed(context, '0x21_485Floor', arguments: {"name": getDeviceName(), "adapter": adapter})
                   }
                 else
                   {TipsUtils.toast(content: '设备已离线,请检查设备')}
@@ -231,60 +216,24 @@ class _Small485FloorDeviceCardWidget
     if (widget.isFault) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x77AE4C5E),
-            Color.fromRGBO(167, 78, 97, 0.32),
-          ],
-          stops: [0, 1],
-          transform: GradientRotation(222 * (3.1415926 / 360.0)),
-        ),
+        gradient: getBigCardColorBg('fault'),
       );
     }
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     if (!adapter.data!.online) {
       BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     return BoxDecoration(
       borderRadius: BorderRadius.circular(24),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-        stops: [0.06, 1.0],
-        transform: GradientRotation(213 * (3.1415926 / 360.0)),
-      ),
+      gradient: getBigCardColorBg('disabled'),
     );
   }
 }

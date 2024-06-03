@@ -18,6 +18,7 @@ import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
+import '../method.dart';
 
 class SmallPanelCardWidget extends StatefulWidget {
   final String applianceCode;
@@ -152,50 +153,18 @@ class _SmallPanelCardWidgetState extends State<SmallPanelCardWidget> {
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33616A76),
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
+          gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
         );
       }
       if ((curPower && !widget.disabled)) {
-        return const BoxDecoration(
+        return BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(24)),
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF818895),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-          ),
+          gradient: getBigCardColorBg('open'),
         );
       }
       return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33616A76),
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33434852),
-          ],
-        ),
+        gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
       );
     }
 
