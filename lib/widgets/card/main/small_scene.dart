@@ -35,7 +35,6 @@ class SmallSceneCardWidget extends StatefulWidget {
 }
 
 class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -70,120 +69,142 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
           return;
         }
       },
-      child: Container(
-        width: 210,
-        height: 88,
-        padding:
-            const EdgeInsets.only(top: 16, left: 20, right: 20, bottom: 16),
-        decoration: BoxDecoration(
+      child: Stack(children: [
+        Positioned(
+          child: Container(
+            width: 210,
+            height: 88,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: widget.discriminative ? _getBgStop('null') : _getBgStop(widget.icon),
+                colors: widget.discriminative ? _getBgColor('null') : _getBgColor(widget.icon),
+              ),
+            ),
+          ),
+        ),
+        if (widget.onOff)
+          Positioned(
+            child: Container(
+              width: 210,
+              height: 88,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.40),
                 borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                    stops: widget.discriminative ? _getBgStop('null') : _getBgStop(widget.icon),
-                    colors:
-                    widget.discriminative ? _getBgColor('null') : _getBgColor(widget.icon),
+              ),
+            ),
+          ),
+        Container(
+          width: 210,
+          height: 88,
+          padding: const EdgeInsets.only(top: 16, left: 20, right: 20, bottom: 16),
+          child: Row(
+            children: [
+              widget.onOff
+                  ? Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 40,
+                      color: Colors.transparent,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                          strokeWidth: 3.0,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 40,
+                      child: Image(image: AssetImage('assets/newUI/scene/${widget.icon}.png')),
+                    ),
+              SizedBox(
+                width: 100,
+                height: 56,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 98,
+                          maxHeight: 56,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              NameFormatter.formLimitString(sceneName, 4, 1, 2),
+                              style: const TextStyle(
+                                height: 1.2,
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontFamily: 'MideaType',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            if (System.inHomluxPlatform())
+                              Text(
+                                widget.onOff ? '执行中...' : NameFormatter.formLimitString(sceneRoomName, 4, 1, 2),
+                                style: TextStyle(
+                                  height: 1,
+                                  color: Colors.white.withOpacity(0.64),
+                                  fontSize: 16,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                          ],
+                        )),
+                  ],
                 ),
               ),
-        child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              width: 40,
-              child: Image(
-                image: AssetImage('assets/newUI/scene/${widget.icon}.png')
-              ),
-            ),
-            SizedBox(
-              width: 100,
-              height: 56,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 98,
-                        maxHeight: 56,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-                        crossAxisAlignment:  CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            NameFormatter.formLimitString(sceneName, 4, 1, 2),
-                            style: const TextStyle(
-                              height: 1.2,
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          if (System.inHomluxPlatform()) Text(
-                            NameFormatter.formLimitString(
-                                sceneRoomName, 4, 1, 2),
-                            style: TextStyle(
-                              height: 1,
-                              color: Colors.white.withOpacity(0.64),
-                              fontSize: 16,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      )),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ]),
     );
   }
 
-
-
   List<Color> _getBgColor(String key) {
-    List<Color> defaultBg = [
-      Colors.white.withOpacity(0.12),
-      Colors.white.withOpacity(0.12)
-    ];
+    List<Color> defaultBg = [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.12)];
 
     List<Color> all_on = [
-      Color(0xFF305D78),  // 新增过渡色
-      Color(0xFF33617F),  // 原始第三色
-      Color(0xFF496A83),  // 新增过渡色
-      Color(0xFF576E87),  // 原始第二色
-      Color(0xFF596D81),  // 新增过渡色
-      Color(0xFF5C747B),  // 原始第一色
+      Color(0xFF305D78), // 新增过渡色
+      Color(0xFF33617F), // 原始第三色
+      Color(0xFF496A83), // 新增过渡色
+      Color(0xFF576E87), // 原始第二色
+      Color(0xFF596D81), // 新增过渡色
+      Color(0xFF5C747B), // 原始第一色
     ];
 
     List<Color> all_off = [
-      Color(0xFF7C6A6C),  // 原始第一色
-      Color(0xFF736A76),  // 新增过渡色
-      Color(0xFF636A85),  // 原始第二色
-      Color(0xFF5C6888),  // 新增过渡色
-      Color(0xFF57638C),  // 原始第三色
-      Color(0xFF506288),  // 新增过渡色
+      Color(0xFF7C6A6C), // 原始第一色
+      Color(0xFF736A76), // 新增过渡色
+      Color(0xFF636A85), // 原始第二色
+      Color(0xFF5C6888), // 新增过渡色
+      Color(0xFF57638C), // 原始第三色
+      Color(0xFF506288), // 新增过渡色
     ];
 
     List<Color> bright = [
-      Color(0xFF80736E),  // 新增过渡色
-      Color(0xFF7B746A),  // 原始第三色
-      Color(0xFF717570),  // 新增过渡色
-      Color(0xFF657581),  // 原始第二色
-      Color(0xFF5E7287),  // 新增过渡色
-      Color(0xFF586F8A),  // 原始第一色
+      Color(0xFF80736E), // 新增过渡色
+      Color(0xFF7B746A), // 原始第三色
+      Color(0xFF717570), // 新增过渡色
+      Color(0xFF657581), // 原始第二色
+      Color(0xFF5E7287), // 新增过渡色
+      Color(0xFF586F8A), // 原始第一色
     ];
 
     List<Color> mild = [
-      Color(0xFF5F5892),  // 原始第一色
-      Color(0xFF54608F),  // 新增过渡色
-      Color(0xFF48678E),  // 原始第二色
-      Color(0xFF4D6E8A),  // 新增过渡色
-      Color(0xFF5C7885),  // 原始第三色
-      Color(0xFF587785),  // 新增过渡色
+      Color(0xFF5F5892), // 原始第一色
+      Color(0xFF54608F), // 新增过渡色
+      Color(0xFF48678E), // 原始第二色
+      Color(0xFF4D6E8A), // 新增过渡色
+      Color(0xFF5C7885), // 原始第三色
+      Color(0xFF587785), // 新增过渡色
     ];
 
     final Map<String, List<Color>> codeToColor = {
@@ -314,8 +335,6 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
 
     return codeToStop[key] ?? defaultStop;
   }
-
-
 }
 
 bool isNumeric(String str) {
