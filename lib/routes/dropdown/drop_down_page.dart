@@ -490,7 +490,7 @@ class CustomLayoutHelper {
         maxWidth: 432,
         backgroundColor: const Color(0xFF494E59),
         contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
-        contentSlot: const Text('小美将会为您创建“当前房间”里设备和场景的最优体验布局，您也可以选择手动添加进行自定义布局',
+        contentSlot: const Text('快速将当前房间的场景、灯组添加到桌面，您也可以【手动添加】进行自定义布局',
             textAlign: TextAlign.center,
             maxLines: 3,
             style: TextStyle(
@@ -556,7 +556,7 @@ class _LoadingLayoutDialogState extends State<LoadingLayoutDialog> with SingleTi
       1 => Column(children: [
           Image.asset('assets/newUI/login/binding_suc.png'),
           const Text(
-            '创建成功',
+            '完成！',
             style: TextStyle(
               color: Color.fromRGBO(255, 255, 255, 0.72),
               fontSize: 24,
@@ -582,7 +582,7 @@ class _LoadingLayoutDialogState extends State<LoadingLayoutDialog> with SingleTi
             ),
           ),
           Text(
-            '正在创建中，请稍后',
+            '布局中，请稍后',
             style: const TextStyle(
               color: Color.fromRGBO(255, 255, 255, 0.72),
               fontSize: 24,
