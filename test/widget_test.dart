@@ -12,7 +12,7 @@ import 'package:screen_app/main.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 void main() {
-  testNameFormatCase();
+  textMatch();
   // testWidgets('Counter increments smoke test', (WidgetTester tester) async {
   //   // Build our app and trigger a frame.
   //   await tester.pumpWidget(const App());
@@ -29,6 +29,28 @@ void main() {
   //   expect(find.text('0'), findsNothing);
   //   expect(find.text('1'), findsOneWidget);
   // });
+}
+
+void textMatch() {
+  var listPanel = ["midea.mfswitch.*",
+    "zk527b6c944a454e9fb15d3cc1f4d55b",
+    "ok523b6c941a454e9fb15d3cc1f4d55b",
+    "midea.knob.*"];
+  test('name1', (){
+    expect('midea.mfswitch.adads'.contains(RegExp(listPanel[0])), true);
+  });
+  test('name2', (){
+    expect(true, 'midea.mfswitc0.adads'.contains(RegExp(listPanel[0])));
+  });
+  test('name3', (){
+    expect(true, 'zk527b6c944a454e9fb15d3cc1f4d55b'.contains(RegExp(listPanel[1])));
+  });
+  test('name4', (){
+    expect(true, 'ok523b6c941a454e9fb15d3cc1f4d55b'.contains(RegExp(listPanel[2])));
+  });
+  test('name5', (){
+    expect(true, 'midea.knob'.contains(RegExp(listPanel[3])));
+  });
 }
 
 void testNameFormatCase() {

@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/common/homlux/push/event/homlux_push_event.dart';
+import 'package:screen_app/common/index.dart';
 import 'package:screen_app/widgets/event_bus.dart';
 
+import '../../common/homlux/api/homlux_device_api.dart';
+import '../../common/homlux/models/homlux_device_entity.dart';
+import '../../common/homlux/models/homlux_response_entity.dart';
+import '../../common/logcat_helper.dart';
 import '../../common/meiju/push/event/meiju_push_event.dart';
+import '../../common/system.dart';
 import '../../states/layout_notifier.dart';
 import '../../widgets/life_cycle_state.dart';
 import '../dropdown/drop_down_page.dart';
@@ -16,35 +22,64 @@ mixin GuideLayoutTipMixin<W extends StatefulWidget> on LifeCycleStateMixin<W> {
 
   bool waitToTip = false;
 
-  void meijuDeviceAdd(MeiJuDeviceAddEvent event) {
-    showGuideLayoutDialog();
-  }
+  bool currentShow = false;
 
   void homluxSubDeviceAdd(HomluxAddSubEvent event) {
+    Log.file('【guide推送】添加子设备');
     showGuideLayoutDialog();
   }
 
   void homluxWifiDeviceAdd(HomluxAddWifiEvent event) {
+    Log.file('【guide推送】添加子设备');
     showGuideLayoutDialog();
   }
 
-  void showGuideLayoutDialog() {
-    // 1. 当前路由是否正在首页中
-    bool isNiceShow = isAtLastState(LifeCycle.create);
-    if(!isNiceShow) {
-      waitToTip = true;
-      return;
-    }
-    final layoutModel = context.read<LayoutModel>();
-    // 2. 当前布局状态为空或者初始状态
-    bool layout = layoutModel.layouts.isEmpty;
-    var defaultLayout = [DeviceEntityTypeInP4.Default, DeviceEntityTypeInP4.Clock, DeviceEntityTypeInP4.Weather,
-      DeviceEntityTypeInP4.DeviceEdit, DeviceEntityTypeInP4.DeviceNull, DeviceEntityTypeInP4.LocalPanel1, DeviceEntityTypeInP4.LocalPanel2];
-    layout |= layoutModel.layouts.length == 1 && layoutModel.layouts.every((element) => defaultLayout.contains(element.type));
+  void showGuideLayoutDialog() async {
+    if(!CustomLayoutHelper.currentGuideDialogShow && System.isLogin()) {
+      Log.file('【guide】 11111');
+      // 1. 当前路由是否正在首页中
+      bool isNiceShow = isAtLastState(LifeCycle.create);
+      if(!isNiceShow) {
+        waitToTip = true;
+        return;
+      }
 
-    // 3. 一键布局弹窗还未显示
-    if(layout && isNiceShow) {
-      CustomLayoutHelper.showToLayout(context);
+      Log.file('【guide】 22222');
+      waitToTip = false;
+      final layoutModel = context.read<LayoutModel>();
+      // 2. 当前布局状态为空或者初始状态
+      bool layout = layoutModel.layouts.isEmpty;
+      var defaultLayout = [DeviceEntityTypeInP4.Default, DeviceEntityTypeInP4.Clock, DeviceEntityTypeInP4.Weather,
+        DeviceEntityTypeInP4.DeviceEdit, DeviceEntityTypeInP4.DeviceNull, DeviceEntityTypeInP4.LocalPanel1, DeviceEntityTypeInP4.LocalPanel2];
+      layout |= layoutModel.layouts.length == 1 && layoutModel.layouts.every((element) => defaultLayout.contains(element.type));
+      Log.file('【guide】 33333');
+
+      // 3. 查询云端是否有wifi灯具、zigbee灯具、开关面板等设备 -- Homlux
+      bool otherCondition = false;
+      if(MideaRuntimePlatform.platform.inHomlux() && StrUtils.isNotNullAndEmpty(System.familyInfo?.familyId)) {
+        try {
+          HomluxResponseEntity<List<HomluxDeviceEntity>> homluxRes = await HomluxDeviceApi
+              .queryDeviceListByHomeId(System.familyInfo!.familyId);
+          var listPanel = ["midea.mfswitch.*", 
+            "zk527b6c944a454e9fb15d3cc1f4d55b", 
+            "ok523b6c941a454e9fb15d3cc1f4d55b",
+            "midea.knob.*"];
+          if (homluxRes.isSuccess && homluxRes.result != null) {
+            otherCondition = homluxRes.data!.any((element) =>
+                        '0x13' == element.proType?.toLowerCase()
+                        || listPanel.any((element1) => element.productId?.contains(RegExp(element1)) ?? false)
+            );
+          }
+        } catch(e) {}
+      }
+
+      Log.file('【guide】 44444');
+
+      // 4. 一键布局弹窗还未显示
+      if(layout && isNiceShow && otherCondition && !CustomLayoutHelper.currentGuideDialogShow) {
+        CustomLayoutHelper.showToLayout(context);
+        Log.file('【guide】 55555');
+      }
     }
   }
 
@@ -61,9 +96,7 @@ mixin GuideLayoutTipMixin<W extends StatefulWidget> on LifeCycleStateMixin<W> {
   void initState() {
     super.initState();
 
-    if(MideaRuntimePlatform.platform.inMeiju()) {
-      bus.typeOn<MeiJuDeviceAddEvent>(meijuDeviceAdd);
-    } else if(MideaRuntimePlatform.platform.inHomlux()) {
+    if(MideaRuntimePlatform.platform.inHomlux()) {
       bus.typeOn<HomluxAddSubEvent>(homluxSubDeviceAdd);
       bus.typeOn<HomluxAddWifiEvent>(homluxWifiDeviceAdd);
     }
@@ -73,7 +106,6 @@ mixin GuideLayoutTipMixin<W extends StatefulWidget> on LifeCycleStateMixin<W> {
   @override
   void dispose() {
     super.dispose();
-    bus.typeOff<MeiJuDeviceAddEvent>(meijuDeviceAdd);
     bus.typeOff<HomluxAddSubEvent>(homluxSubDeviceAdd);
     bus.typeOff<HomluxAddWifiEvent>(homluxWifiDeviceAdd);
   }

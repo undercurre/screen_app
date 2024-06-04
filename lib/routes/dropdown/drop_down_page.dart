@@ -446,7 +446,17 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
 
 class CustomLayoutHelper {
 
-  static void showToLayout(BuildContext context) {
+  /// 标识一键布局弹窗是否显示
+  static bool currentGuideDialogShow = false;
+
+  static void showToLayout(BuildContext context) async {
+    currentGuideDialogShow = true;
+    await _showToLayout(context);
+    currentGuideDialogShow = false;
+  }
+
+
+  static Future<bool?> _showToLayout(BuildContext context) async {
     GlobalKey<_LoadingLayoutDialogState> loadingKey = GlobalKey<_LoadingLayoutDialogState>();
     callback(int position, BuildContext context) async {
       Navigator.pop(context);
@@ -484,7 +494,7 @@ class CustomLayoutHelper {
         }
       }
     }
-    MzDialog(
+    return MzDialog(
         title: '一键布局',
         titleSize: 28,
         maxWidth: 432,
@@ -502,7 +512,8 @@ class CustomLayoutHelper {
             )),
         btns: ['手动添加', '确定'],
         closeAble: true,
-        onPressed: (_, position, context) => callback(position, context)).show(context);
+        onPressed: (_, position, context) => callback(position, context))
+        .show(context);
   }
 
 }
