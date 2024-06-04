@@ -14,6 +14,7 @@ import 'package:screen_app/widgets/util/debouncer.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../common/api/api.dart';
+import '../../../common/homlux/api/homlux_user_api.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
@@ -114,6 +115,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
+    // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
+    var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+    String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
+    netListDeviceIds.add(curGroupId);
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 获取到diff的删除差值，并遍历每一个被删除的设备
@@ -159,6 +164,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
+    // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
+    var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+    String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
+    netListDeviceIds.add(curGroupId);
     // 再加入网络场景表映射成ids
     netListDeviceIds.addAll(sceneRes.map((e) => e.sceneId as String).toList());
     // 做diff对比上面拿到的两个ids

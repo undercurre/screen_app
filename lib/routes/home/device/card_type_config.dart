@@ -17,6 +17,8 @@ import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
+import 'package:screen_app/widgets/card/other/light_center.dart';
+import '../../../common/adapter/default_lightGroup_adapter.dart';
 import '../../../common/adapter/knob_panel_data_adapter.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
@@ -189,6 +191,8 @@ enum DeviceEntityTypeInP4 {
   Zigbee_homluxZigbeeLight,
   // homlux灯组
   homlux_lightGroup,
+  // homlux房间默认灯组
+  homlux_default_lightGroup,
   // 485空调
   Zigbee_3017,
   // 485新风
@@ -551,6 +555,19 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>> 
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id, (id) => LightGroupDataAdapter(MideaRuntimePlatform.platform, params.masterId ?? '', params.applianceCode ?? ''));
+        }),
+  },
+  // homlux默认灯组
+  DeviceEntityTypeInP4.homlux_default_lightGroup: {
+    CardType.Big: (params) => LightControl(
+        groupId: params.applianceCode,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => DefaultLightGroupDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
         }),
   },
   // 编辑条
