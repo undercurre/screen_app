@@ -5,6 +5,7 @@ import 'package:screen_app/services/layout/var.dart';
 
 import '../../common/api/api.dart';
 import '../../common/gateway_platform.dart';
+import '../../common/homlux/api/homlux_user_api.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/system.dart';
 import '../../models/device_entity.dart';
@@ -555,11 +556,36 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
                 onlineStatus: '')));
       }
     }
+    // 默认灯组-大卡片
+    if (System.inHomluxPlatform()) {
+      var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+      String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
+      tempLayoutList.add(Layout(
+          curGroupId,
+          DeviceEntityTypeInP4.homlux_default_lightGroup,
+          CardType.Big,
+          -1,
+          [],
+          DataInputCard(
+            name: '灯光管理模块',
+            applianceCode: curGroupId,
+            roomName: System.roomInfo!.name ?? '',
+            modelNumber: '',
+            masterId: '',
+            isOnline: '1',
+            sn8: '',
+            disabled: true,
+            type: '',
+            onlineStatus: '1',
+          )));
+    }
     // 灯组-大卡片
     List<DeviceEntity> groupNeed = deviceNeed
         .where((e) => (e.type == '0x21' && e.modelNumber == 'lightGroup') || (e.type == '0x13' && e.modelNumber == 'homluxLightGroup'))
         .toList();
-    Log.i('布局前灯组列表', groupNeed.map((e) => e.name));
+
+    Log.i('设备侦测', deviceNeed.map((e) => e.name).toList());
+    Log.i('灯组侦测', groupNeed.map((e) => e.name).toList());
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
@@ -654,6 +680,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
         element.type != DeviceEntityTypeInP4.Default &&
         element.type != DeviceEntityTypeInP4.DeviceNull &&
         element.type != DeviceEntityTypeInP4.DeviceEdit &&
+        element.type != DeviceEntityTypeInP4.homlux_default_lightGroup &&
         element.type != DeviceEntityTypeInP4.Clock &&
         element.type != DeviceEntityTypeInP4.Weather).toList();
     for (var layout in currentDeviceLayout) {

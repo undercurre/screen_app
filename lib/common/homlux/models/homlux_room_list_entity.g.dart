@@ -36,6 +36,7 @@ RealHomluxRoomInfo _$RealRoomInfoFromJson(Map<String, dynamic> json) => RealHoml
       roomName: json['roomName'] as String?,
       deviceLightOnNum: json['deviceLightOnNum'] as int?,
       deviceNum: json['deviceNum'] as int?,
+      groupId: json['groupId'] as String?,
     );
 
 Map<String, dynamic> _$RealRoomInfoToJson(RealHomluxRoomInfo instance) =>
@@ -44,4 +45,5 @@ Map<String, dynamic> _$RealRoomInfoToJson(RealHomluxRoomInfo instance) =>
       'roomName': instance.roomName,
       'deviceLightOnNum': instance.deviceLightOnNum,
       'deviceNum': instance.deviceNum,
+      'groupId': instance.groupId,
     };
