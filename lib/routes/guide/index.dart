@@ -26,7 +26,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
       duration: const Duration(seconds: 3)
   );
 
-  late final Animation animation = Tween(begin: 0, end: 1).animate(
+  late final Animation animation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
           parent: controller,
           curve: const Interval(0.6, 1.0, curve: Curves.ease)));
@@ -35,6 +35,12 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     controller.forward().orCancel;
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,7 +61,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
           animation: animation,
           builder: (ctx, child) {
             return Opacity(
-              opacity: animation.value,
+              opacity: animation.value as double,
               child: MzButton(
                 width: 168,
                 height: 56,
@@ -211,7 +217,7 @@ class _FirstGuidePage extends StatelessWidget {
                       const SizedBox(width: 105, height: 50),
                       Container(
                         width: 320,
-                        child: const Text("快速将当前房间的场景、灯组、设备添加到桌面",
+                        child: const Text("快速将当前房间的场景、灯组添加到桌面",
                             softWrap: true,
                             style: TextStyle(
                                 color: Colors.white,
@@ -268,6 +274,12 @@ class _SecondGuidePageState extends State<_SecondGuidePage> with SingleTickerPro
       }
     });
     _controller.forward().orCancel;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
