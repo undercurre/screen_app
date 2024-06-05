@@ -12,7 +12,7 @@ class GuidePage extends StatefulWidget {
   State<GuidePage> createState() => _GuidePageState();
 }
 
-class _GuidePageState extends State<GuidePage> {
+class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMixin {
 
   late final List<Widget> _guides = <Widget>[
     const _FirstGuidePage(),
@@ -21,6 +21,21 @@ class _GuidePageState extends State<GuidePage> {
 
   late var _pageIndex = 0;
   late PageController pageControl = PageController();
+  late final AnimationController controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3)
+  );
+
+  late final Animation animation = Tween(begin: 0, end: 1).animate(
+      CurvedAnimation(
+          parent: controller,
+          curve: const Interval(0.6, 1.0, curve: Curves.ease)));
+
+  @override
+  void initState() {
+    super.initState();
+    controller.forward().orCancel;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,23 +51,31 @@ class _GuidePageState extends State<GuidePage> {
             _pageIndex = index;
           });
         },
-        bottomSlotCenterChild: MzButton(
-          width: 168,
-          height: 56,
-          borderRadius: 29,
-          backgroundColor: const Color(0xFF949CA8),
-          borderColor: Colors.transparent,
-          borderWidth: 1,
-          text: _pageIndex == 0 ? '下一页' : '知道了',
-          onPressed: () {
-            if (_pageIndex + 1 >= _guides.length) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, 'Home', ModalRoute.withName('/'));
-            } else {
-              pageControl.nextPage(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeIn);
-            }
+        bottomSlotCenterChild: AnimatedBuilder(
+          animation: animation,
+          builder: (ctx, child) {
+            return Opacity(
+              opacity: animation.value,
+              child: MzButton(
+                width: 168,
+                height: 56,
+                borderRadius: 29,
+                backgroundColor: const Color(0xFF267AFF),
+                borderColor: Colors.transparent,
+                borderWidth: 1,
+                text: _pageIndex == 0 ? '下一页' : '知道了',
+                onPressed: () {
+                  if (_pageIndex + 1 >= _guides.length) {
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, 'Home', ModalRoute.withName('/'));
+                  } else {
+                    pageControl.nextPage(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeIn);
+                  }
+                },
+              ),
+            );
           },
         ),
       ),
