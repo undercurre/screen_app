@@ -498,6 +498,7 @@ class CustomLayoutHelper {
         title: '一键布局',
         titleSize: 28,
         maxWidth: 432,
+        barrierDismissible: false,
         backgroundColor: const Color(0xFF494E59),
         contentPadding: const EdgeInsets.fromLTRB(33, 24, 33, 0),
         contentSlot: const Text('快速将当前房间的场景、灯组添加到桌面，您也可以【手动添加】进行自定义布局',
