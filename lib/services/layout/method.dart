@@ -451,6 +451,9 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     List<DeviceEntity> deviceHave = await deviceModel.getDeviceList("查询设备列表进行自动布局");
     // 取出现有场景列表
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
+    if (System.inHomluxPlatform()) {
+      sceneHave = sceneHave.where((scene) => scene.roomId == System.roomInfo?.id).toList();
+    }
     // 过滤出需要的设备
     List<DeviceEntity> deviceNeed = deviceHave.where((e) {
       bool isHad = currDeviceIds.contains(e.applianceCode);
@@ -646,6 +649,9 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
 
     int originLength = tempLayoutList.length;
 
+    // 当前容器集中的最大页数
+    int maxPage = 0;
+
     // 页数
     for (int i = 0; i < tempLayoutList.length; i++) {
       // 躲开对屏自身的布局，因为继电器已经在默认布局中渲染
@@ -654,9 +660,6 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
 
       // 已经有布局的数据直接跳过
       if (tempLayoutList[i].grids != [] && tempLayoutList[i].pageIndex != -1) continue;
-
-      // 当前容器集中的最大页数
-      int maxPage = 0;
 
       // 尝试占位
       List<int> fillCells = screenLayer.checkAvailability(tempLayoutList[i].cardType);
