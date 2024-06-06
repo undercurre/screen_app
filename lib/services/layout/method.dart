@@ -561,8 +561,6 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     List<DeviceEntity> groupNeed = deviceNeed
         .where((e) => (e.type == '0x21' && e.modelNumber == 'lightGroup') || (e.type == '0x13' && e.modelNumber == 'homluxLightGroup'))
         .toList();
-    Log.i("一键布局查询到的普通灯组名", deviceNeed.firstWhere((element) => element.name == '灯组'));
-    Log.i("一键布局查询到的普通灯组", groupNeed.length);
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
