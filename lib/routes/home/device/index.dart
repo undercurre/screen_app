@@ -325,8 +325,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     for (int pageCount = 0; pageCount <= hadPageCount; pageCount++) {
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
-      List<Layout> layoutsInCurPage =
-          layoutModel.getLayoutsByPageIndex(pageCount).where((element) => element.cardType != CardType.Null).toList();
+      List<Layout> layoutsInCurPage = layoutModel.getLayoutsByPageIndex(pageCount).toList();
       // 防止空页被渲染
       if (layoutsInCurPage.isEmpty) continue;
       for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex++) {

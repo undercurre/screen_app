@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/routes/home/device/grid_container.dart';
 import 'package:screen_app/services/layout/var.dart';
@@ -40,19 +41,18 @@ Future<bool> auto2Layout(BuildContext context) async {
     // 取出现有场景列表
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
     // 过滤出需要的设备
-    List<DeviceEntity> deviceNeed =
-        deviceHave.where((e) {
-          // Log.i('数据本身', e);
-          // Log.i('房间', System.roomInfo?.id);
-          // Log.i('智慧屏网关id', System.gatewayApplianceCode);
-          bool isHad = currDeviceIds.contains(e.applianceCode);
-          // Log.i('是否已有', isHad);
-          bool isInRoom = e.roomId == System.roomInfo?.id;
-          // Log.i('是否在房间', isInRoom);
-          bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
-          // Log.i('是否本身', isSelf);
-          return !isHad && isInRoom && !isSelf;
-        }).toList();
+    List<DeviceEntity> deviceNeed = deviceHave.where((e) {
+      // Log.i('数据本身', e);
+      // Log.i('房间', System.roomInfo?.id);
+      // Log.i('智慧屏网关id', System.gatewayApplianceCode);
+      bool isHad = currDeviceIds.contains(e.applianceCode);
+      // Log.i('是否已有', isHad);
+      bool isInRoom = e.roomId == System.roomInfo?.id;
+      // Log.i('是否在房间', isInRoom);
+      bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
+      // Log.i('是否本身', isSelf);
+      return !isHad && isInRoom && !isSelf;
+    }).toList();
     // 过滤出需要的场景
     List<SceneInfoEntity> sceneNeed = [];
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
@@ -117,7 +117,7 @@ Future<bool> auto2Layout(BuildContext context) async {
               onlineStatus: '1')));
     }
     if (tempLayoutList.where((element) => element.type == DeviceEntityTypeInP4.LocalPanel2).isEmpty) {
-      tempLayoutList.add(  Layout(
+      tempLayoutList.add(Layout(
           'localPanel2',
           DeviceEntityTypeInP4.LocalPanel2,
           CardType.Small,
@@ -199,9 +199,7 @@ Future<bool> auto2Layout(BuildContext context) async {
     // 单灯
     List<DeviceEntity> singleLightNeed = [];
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      singleLightNeed = deviceNeed
-          .where((e) => singleLightModelNumbers.contains(e.modelNumber) || e.type == '0x13')
-          .toList();
+      singleLightNeed = deviceNeed.where((e) => singleLightModelNumbers.contains(e.modelNumber) || e.type == '0x13').toList();
     } else {
       singleLightNeed = deviceNeed
           .where((e) => (e.type == '0x13' && e.modelNumber == '3') || (e.type == '0x13' && e.modelNumber == 'homluxZigbeeLight'))
@@ -246,7 +244,9 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: curtainItem.onlineStatus,
         ))));
     // 空调
-    List<DeviceEntity> airConditionNeed = deviceNeed.where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017') || (e.type == '0xCC' && e.modelNumber == '3017')).toList();
+    List<DeviceEntity> airConditionNeed = deviceNeed
+        .where((e) => e.type == '0xAC' || (e.type == '0x21' && e.modelNumber == '3017') || (e.type == '0xCC' && e.modelNumber == '3017'))
+        .toList();
     tempLayoutList.addAll(airConditionNeed.map((airConditionItem) => Layout(
         airConditionItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(airConditionItem.type, airConditionItem.modelNumber),
@@ -266,7 +266,8 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: airConditionItem.onlineStatus,
         ))));
     // 新风
-    List<DeviceEntity> freshAirNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3018') || (e.type == '0xCE' && e.modelNumber == '3018')).toList();
+    List<DeviceEntity> freshAirNeed =
+        deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3018') || (e.type == '0xCE' && e.modelNumber == '3018')).toList();
     tempLayoutList.addAll(freshAirNeed.map((freshAirItem) => Layout(
         freshAirItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(freshAirItem.type, freshAirItem.modelNumber),
@@ -286,7 +287,8 @@ Future<bool> auto2Layout(BuildContext context) async {
           onlineStatus: freshAirItem.onlineStatus,
         ))));
     // 地暖
-    List<DeviceEntity> floorHeatNeed = deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3019') || (e.type == '0xCF' && e.modelNumber == '3019')).toList();
+    List<DeviceEntity> floorHeatNeed =
+        deviceNeed.where((e) => (e.type == '0x21' && e.modelNumber == '3019') || (e.type == '0xCF' && e.modelNumber == '3019')).toList();
     tempLayoutList.addAll(floorHeatNeed.map((floorHeatItem) => Layout(
         floorHeatItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(floorHeatItem.type, floorHeatItem.modelNumber),
@@ -435,14 +437,14 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     // 取出现有布局
     List<String> currDeviceIds = layoutModel.layouts
         .where((element) =>
-    element.type != DeviceEntityTypeInP4.Scene &&
-        element.type != DeviceEntityTypeInP4.LocalPanel1 &&
-        element.type != DeviceEntityTypeInP4.LocalPanel2 &&
-        element.type != DeviceEntityTypeInP4.Default &&
-        element.type != DeviceEntityTypeInP4.DeviceNull &&
-        element.type != DeviceEntityTypeInP4.DeviceEdit &&
-        element.type != DeviceEntityTypeInP4.Clock &&
-        element.type != DeviceEntityTypeInP4.Weather)
+            element.type != DeviceEntityTypeInP4.Scene &&
+            element.type != DeviceEntityTypeInP4.LocalPanel1 &&
+            element.type != DeviceEntityTypeInP4.LocalPanel2 &&
+            element.type != DeviceEntityTypeInP4.Default &&
+            element.type != DeviceEntityTypeInP4.DeviceNull &&
+            element.type != DeviceEntityTypeInP4.DeviceEdit &&
+            element.type != DeviceEntityTypeInP4.Clock &&
+            element.type != DeviceEntityTypeInP4.Weather)
         .map((e) => e.deviceId)
         .toList();
     // 取出现有设备列表
@@ -450,8 +452,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     // 取出现有场景列表
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
     // 过滤出需要的设备
-    List<DeviceEntity> deviceNeed =
-    deviceHave.where((e) {
+    List<DeviceEntity> deviceNeed = deviceHave.where((e) {
       bool isHad = currDeviceIds.contains(e.applianceCode);
       bool isInRoom = e.roomId == System.roomInfo?.id;
       bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
@@ -527,34 +528,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
           -1,
           [],
           DataInputCard(
-              name: '',
-              type: '',
-              applianceCode: '',
-              roomName: '',
-              masterId: '',
-              modelNumber: '',
-              isOnline: '',
-              onlineStatus: '')));
-    }
-    int quekou = 4 - ((tempLayoutList.length - 2) % 4);
-    if (quekou > 0 && quekou < 4) {
-      for (var i = 0; i < quekou; i ++) {
-        tempLayoutList.add(Layout(
-            uuid.v4(),
-            DeviceEntityTypeInP4.DeviceNull,
-            CardType.Null,
-            -1,
-            [],
-            DataInputCard(
-                name: '',
-                type: '',
-                applianceCode: '',
-                roomName: '',
-                masterId: '',
-                modelNumber: '',
-                isOnline: '',
-                onlineStatus: '')));
-      }
+              name: '', type: '', applianceCode: '', roomName: '', masterId: '', modelNumber: '', isOnline: '', onlineStatus: '')));
     }
     // 默认灯组-大卡片
     if (System.inHomluxPlatform()) {
@@ -620,7 +594,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
               onlineStatus: '1')));
     }
     if (tempLayoutList.where((element) => element.type == DeviceEntityTypeInP4.LocalPanel2).isEmpty) {
-      tempLayoutList.add(  Layout(
+      tempLayoutList.add(Layout(
           'localPanel2',
           DeviceEntityTypeInP4.LocalPanel2,
           CardType.Small,
@@ -636,50 +610,21 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
               modelNumber: '',
               onlineStatus: '1')));
     }
-    tempLayoutList.add(Layout(
-        uuid.v4(),
-        DeviceEntityTypeInP4.DeviceNull,
-        CardType.Null,
-        -1,
-        [],
-        DataInputCard(
-            name: '',
-            type: '',
-            applianceCode: '',
-            roomName: '',
-            masterId: '',
-            modelNumber: '',
-            isOnline: '',
-            onlineStatus: '')));
-    tempLayoutList.add(Layout(
-        uuid.v4(),
-        DeviceEntityTypeInP4.DeviceNull,
-        CardType.Null,
-        -1,
-        [],
-        DataInputCard(
-            name: '',
-            type: '',
-            applianceCode: '',
-            roomName: '',
-            masterId: '',
-            modelNumber: '',
-            isOnline: '',
-            onlineStatus: '')));
     // 原有设备
     List<Layout> currentDeviceLayout = layoutModel.layouts
         .where((element) =>
-    element.type != DeviceEntityTypeInP4.Scene &&
-        element.type != DeviceEntityTypeInP4.LocalPanel1 &&
-        element.type != DeviceEntityTypeInP4.LocalPanel2 &&
-        element.type != DeviceEntityTypeInP4.homlux_lightGroup &&
-        element.type != DeviceEntityTypeInP4.Zigbee_lightGroup &&
-        element.type != DeviceEntityTypeInP4.Default &&
-        element.type != DeviceEntityTypeInP4.DeviceNull &&
-        element.type != DeviceEntityTypeInP4.DeviceEdit &&
-        element.type != DeviceEntityTypeInP4.homlux_default_lightGroup &&
-        element.type != DeviceEntityTypeInP4.Clock &&
-        element.type != DeviceEntityTypeInP4.Weather).toList();
+            element.type != DeviceEntityTypeInP4.Scene &&
+            element.type != DeviceEntityTypeInP4.LocalPanel1 &&
+            element.type != DeviceEntityTypeInP4.LocalPanel2 &&
+            element.type != DeviceEntityTypeInP4.homlux_lightGroup &&
+            element.type != DeviceEntityTypeInP4.Zigbee_lightGroup &&
+            element.type != DeviceEntityTypeInP4.Default &&
+            element.type != DeviceEntityTypeInP4.DeviceNull &&
+            element.type != DeviceEntityTypeInP4.DeviceEdit &&
+            element.type != DeviceEntityTypeInP4.homlux_default_lightGroup &&
+            element.type != DeviceEntityTypeInP4.Clock &&
+            element.type != DeviceEntityTypeInP4.Weather)
+        .toList();
     for (var layout in currentDeviceLayout) {
       layout.pageIndex = -1;
       layout.grids = [];
@@ -698,6 +643,9 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     tempLayoutList.addAll(currentDeviceLayoutSmall);
 
     Screen screenLayer = Screen();
+
+    int originLength = tempLayoutList.length;
+
     // 页数
     for (int i = 0; i < tempLayoutList.length; i++) {
       // 躲开对屏自身的布局，因为继电器已经在默认布局中渲染
@@ -708,67 +656,79 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
       if (tempLayoutList[i].grids != [] && tempLayoutList[i].pageIndex != -1) continue;
 
       // 当前容器集中的最大页数
-      int maxPage = getMaxPageIndexOfLayoutList(tempLayoutList);
+      int maxPage = 0;
 
-      if (tempLayoutList[i].type != DeviceEntityTypeInP4.Default) {
-        // 当前没有页
-        if (maxPage == -1) {
-          // 直接占位
-          List<int> fillCells = screenLayer.checkAvailability(tempLayoutList[i].cardType);
-          tempLayoutList[i].pageIndex = 0;
-          tempLayoutList[i].grids = fillCells;
-        } else {
-          // 遍历每一页已有的进行补充
-          for (int k = 0; k <= maxPage; k++) {
-            // 找到当前页的布局数据并填充布局器
-            screenLayer.resetGrid();
-            List<Layout> curPageLayoutList = getLayoutsByPageIndex(k, tempLayoutList);
-            for (int j = 0; j < curPageLayoutList.length; j++) {
-              List<int> grids = curPageLayoutList[j].grids;
-              for (int l = 0; l < grids.length; l++) {
-                int grid = grids[l];
-                int row = (grid - 1) ~/ 4;
-                int col = (grid - 1) % 4;
-                screenLayer.setCellOccupied(row, col, true);
-              }
-            }
-            // 尝试占位
-            List<int> fillCells = screenLayer.checkAvailability(tempLayoutList[i].cardType);
-            Log.i('自动布局——尝试布局$k', fillCells);
-            if (fillCells.isEmpty) {
-              // 占位没有成功，说明这一页已经没有适合的位置了
-              // 如果最后一页也没有合适的位置就新增一页
-              if (k == maxPage) {
-                tempLayoutList[i].pageIndex = maxPage + 1;
-                screenLayer.resetGrid();
-                List<int> fillCellsAgain = screenLayer.checkAvailability(tempLayoutList[i].cardType);
-                tempLayoutList[i].grids = fillCellsAgain;
-              }
-            } else {
-              // 占位成功
-              tempLayoutList[i].pageIndex = k;
-              tempLayoutList[i].grids = fillCells;
-              break;
-            }
+      // 尝试占位
+      List<int> fillCells = screenLayer.checkAvailability(tempLayoutList[i].cardType);
+
+      if (fillCells.isEmpty) {
+        // 不成功，填充剩余空缺
+        List<int> fillNullCells = screenLayer.checkAvailability(CardType.Null);
+        while (fillNullCells.isNotEmpty) {
+          for (int l = 0; l < fillNullCells.length; l++) {
+            int grid = fillNullCells[l];
+            int row = (grid - 1) ~/ 4;
+            int col = (grid - 1) % 4;
+            screenLayer.setCellOccupied(row, col, true);
           }
+          tempLayoutList.add(Layout(
+              uuid.v4(),
+              DeviceEntityTypeInP4.DeviceNull,
+              CardType.Null,
+              maxPage,
+              fillNullCells,
+              DataInputCard(
+                  name: '', type: '', applianceCode: '', roomName: '', masterId: '', modelNumber: '', isOnline: '', onlineStatus: '')));
+          fillNullCells = screenLayer.checkAvailability(CardType.Null);
+          Log.i('计算空缺1', fillNullCells);
         }
-        Log.i('自动布局——生成布局${tempLayoutList[i].pageIndex}', tempLayoutList[i].grids);
+        // 待定空格无法填充后就重置布局器
+        screenLayer.resetGrid();
+        maxPage = maxPage + 1;
+        // 重新占位
+        fillCells = screenLayer.checkAvailability(tempLayoutList[i].cardType);
+        for (int l = 0; l < fillCells.length; l++) {
+          int grid = fillCells[l];
+          int row = (grid - 1) ~/ 4;
+          int col = (grid - 1) % 4;
+          screenLayer.setCellOccupied(row, col, true);
+        }
+        tempLayoutList[i].pageIndex = maxPage;
+        tempLayoutList[i].grids = fillCells;
+      } else {
+        // 成功，填充数据
+        for (int l = 0; l < fillCells.length; l++) {
+          int grid = fillCells[l];
+          int row = (grid - 1) ~/ 4;
+          int col = (grid - 1) % 4;
+          screenLayer.setCellOccupied(row, col, true);
+        }
+        tempLayoutList[i].pageIndex = maxPage;
+        tempLayoutList[i].grids = fillCells;
+      }
+      if (i + 1 == originLength) {
+        // 占位结束，最后一页填空
+        List<int> fillNullCells = screenLayer.checkAvailability(CardType.Null);
+        while (fillNullCells.isNotEmpty) {
+          tempLayoutList.add(Layout(
+              uuid.v4(),
+              DeviceEntityTypeInP4.DeviceNull,
+              CardType.Null,
+              maxPage,
+              fillNullCells,
+              DataInputCard(
+                  name: '', type: '', applianceCode: '', roomName: '', masterId: '', modelNumber: '', isOnline: '', onlineStatus: '')));
+          for (int l = 0; l < fillNullCells.length; l++) {
+            int grid = fillNullCells[l];
+            int row = (grid - 1) ~/ 4;
+            int col = (grid - 1) % 4;
+            screenLayer.setCellOccupied(row, col, true);
+          }
+          fillNullCells = screenLayer.checkAvailability(CardType.Null);
+          Log.i('计算空缺2', fillNullCells);
+        }
       }
     }
-
-    // // 轮询填充空缺
-    // int lastPageIndex = getMaxPageIndexOfLayoutList(tempLayoutList);
-    // for (int l = 0; l <= lastPageIndex; l++) {
-    //   // 取得当前页布局
-    //   List<Layout> waitForFillPageLayouts = tempLayoutList.where((element) => element.pageIndex == l).toList();
-    //   // 填充
-    //   List<Layout> lastPageLayoutsAfterFilled = Layout.filledLayout(waitForFillPageLayouts);
-    //   for (int o = 0; o < lastPageLayoutsAfterFilled.length; o++) {
-    //     if (lastPageLayoutsAfterFilled[o].cardType == CardType.Null) {
-    //       tempLayoutList.add(lastPageLayoutsAfterFilled[o]);
-    //     }
-    //   }
-    // }
 
     await layoutModel.setLayouts(tempLayoutList);
     // 完成布局，抛出
