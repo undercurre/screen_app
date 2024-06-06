@@ -460,7 +460,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
       bool isLightGroup = (e.type == '0x21' && e.modelNumber == 'lightGroup') || (e.type == '0x13' && e.modelNumber == 'homluxLightGroup');
       bool isInRoom = e.roomId == System.roomInfo?.id;
       bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
-      return (!isHad && isInRoom && !isSelf) || isLightGroup;
+      return (!isHad && isInRoom && !isSelf) || (isLightGroup && isInRoom);
     }).toList();
     // 过滤出需要的场景
     List<SceneInfoEntity> sceneNeed = sceneHave;
