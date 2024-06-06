@@ -457,9 +457,10 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     // 过滤出需要的设备
     List<DeviceEntity> deviceNeed = deviceHave.where((e) {
       bool isHad = currDeviceIds.contains(e.applianceCode);
+      bool isLightGroup = (e.type == '0x21' && e.modelNumber == 'lightGroup') || (e.type == '0x13' && e.modelNumber == 'homluxLightGroup');
       bool isInRoom = e.roomId == System.roomInfo?.id;
       bool isSelf = e.applianceCode == 'G-${System.gatewayApplianceCode}';
-      return !isHad && isInRoom && !isSelf;
+      return (!isHad && isInRoom && !isSelf) || isLightGroup;
     }).toList();
     // 过滤出需要的场景
     List<SceneInfoEntity> sceneNeed = sceneHave;
@@ -560,6 +561,8 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     List<DeviceEntity> groupNeed = deviceNeed
         .where((e) => (e.type == '0x21' && e.modelNumber == 'lightGroup') || (e.type == '0x13' && e.modelNumber == 'homluxLightGroup'))
         .toList();
+    Log.i("一键布局查询到的普通灯组名", deviceNeed.firstWhere((element) => element.name == '灯组'));
+    Log.i("一键布局查询到的普通灯组", groupNeed.length);
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
         DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
