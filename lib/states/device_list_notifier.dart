@@ -225,7 +225,7 @@ class DeviceInfoListModel extends ChangeNotifier {
       }
       HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes = await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo.familyId);
 
-      Log.i('房间设备列表数据', HomluxRes.data?.firstWhere((element) => element.deviceName == "灯组").toJson());
+      // Log.i('房间设备列表数据', HomluxRes.data?.firstWhere((element) => element.deviceName == "灯组").toJson());
 
       if (HomluxRes.isSuccess) {
         deviceListHomlux = HomluxRes.data!;
