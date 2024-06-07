@@ -454,6 +454,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 设备移动");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
@@ -466,6 +470,9 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   }
 
   void homluxPushSubDel(HomluxDelSubDeviceEvent arg) {
+    if (!mounted) {
+      return;
+    }
     autoDeleleLayout(context);
   }
 
@@ -482,16 +489,29 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 房间更新");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   void homluxWifiUpdate(HomluxEditWifiEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: wifi设备被编辑");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 设备列表发生变化");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
+    ;
   }
 
   // 推送启动中枢

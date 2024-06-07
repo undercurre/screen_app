@@ -7,6 +7,8 @@ import 'package:screen_app/services/layout/var.dart';
 import '../../common/api/api.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/homlux/api/homlux_user_api.dart';
+import '../../common/homlux/models/homlux_response_entity.dart';
+import '../../common/homlux/models/homlux_room_list_entity.dart';
 import '../../common/logcat_helper.dart';
 import '../../common/system.dart';
 import '../../models/device_entity.dart';
@@ -453,6 +455,8 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     List<SceneInfoEntity> sceneHave = await sceneModel.getSceneList();
     if (System.inHomluxPlatform()) {
       sceneHave = sceneHave.where((scene) => scene.roomId == System.roomInfo?.id).toList();
+    } else {
+      sceneHave = sceneHave.where((scene) => scene.sceneStatus != 3).toList();
     }
     // 过滤出需要的设备
     List<DeviceEntity> deviceNeed = deviceHave.where((e) {
@@ -535,10 +539,13 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
               name: '', type: '', applianceCode: '', roomName: '', masterId: '', modelNumber: '', isOnline: '', onlineStatus: '')));
     }
     // 默认灯组-大卡片
-    if (System.inHomluxPlatform() && deviceHave.where((element) => element.type == '0x13').toList().isNotEmpty) {
-      var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
-      String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
-      Log.i('当前的默认灯组', curGroupId);
+    if (System.inHomluxPlatform() &&
+        deviceHave.where((element) => element.type == '0x13').toList().isNotEmpty &&
+        System.familyInfo != null) {
+      HomluxResponseEntity<HomluxRoomListEntity> roomListRes = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+
+      String curGroupId = roomListRes.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
+
       tempLayoutList.add(Layout(
           curGroupId,
           DeviceEntityTypeInP4.homlux_default_lightGroup,
