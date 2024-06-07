@@ -535,9 +535,10 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
               name: '', type: '', applianceCode: '', roomName: '', masterId: '', modelNumber: '', isOnline: '', onlineStatus: '')));
     }
     // 默认灯组-大卡片
-    if (System.inHomluxPlatform()) {
+    if (System.inHomluxPlatform() && deviceHave.where((element) => element.type == '0x13').toList().isNotEmpty) {
       var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
       String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
+      Log.i('当前的默认灯组', curGroupId);
       tempLayoutList.add(Layout(
           curGroupId,
           DeviceEntityTypeInP4.homlux_default_lightGroup,
@@ -738,6 +739,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     // 完成布局，抛出
     return true;
   } catch (e) {
+    Log.i('一键布局抛出错误', e);
     return false;
   }
 }

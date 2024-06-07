@@ -161,54 +161,53 @@ class _LightControlState extends State<LightControl> {
               Positioned(
                 top: 14,
                 left: 24,
-                child: Container(),
-                // child: GestureDetector(
-                //   onTap: () {
-                //     Log.i('disabled: ${widget.disabled}');
-                //     if (!widget.disabled && onlineState()) {
-                //       adapter.power(
-                //         adapter.getPowerStatus(),
-                //       );
-                //       bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.groupId);
-                //     }
-                //   },
-                //   child: Image(
-                //       width: 40,
-                //       height: 40,
-                //       image: AssetImage(
-                //           adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
-                // ),
+                child: GestureDetector(
+                  onTap: () {
+                    Log.i('disabled: ${widget.disabled}');
+                    if (!widget.disabled && onlineState()) {
+                      adapter.power(
+                        adapter.getPowerStatus(),
+                      );
+                      bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.groupId);
+                    }
+                  },
+                  child: Image(
+                      width: 40,
+                      height: 40,
+                      image: AssetImage(
+                          adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
+                ),
               ),
-              // Positioned(
-              //   top: 16,
-              //   right: 16,
-              //   child: GestureDetector(
-              //     onTap: () {
-              //       if (adapter.dataState != DataState.SUCCESS) {
-              //         adapter.fetchData();
-              //         // TipsUtils.toast(content: '数据缺失，控制设备失败');
-              //         return;
-              //       }
-              //       if (!onlineState()) {
-              //         TipsUtils.toast(content: '设备已离线，请检查连接状态');
-              //         return;
-              //       }
-              //       if (!widget.disabled) {
-              //         if (adapter.type == AdapterType.wifiLight) {
-              //           Navigator.pushNamed(context, '0x13', arguments: {"name": getDeviceName(), "adapter": adapter});
-              //         } else if (adapter.type == AdapterType.zigbeeLight) {
-              //           Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": getDeviceName(), "adapter": adapter});
-              //         } else if (adapter.type == AdapterType.lightGroup) {
-              //           Navigator.pushNamed(context, 'lightGroup', arguments: {"name": getDeviceName(), "adapter": adapter});
-              //         }
-              //       }
-              //     },
-              //     child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
-              //   ),
-              // ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () {
+                    if (adapter.dataState != DataState.SUCCESS) {
+                      adapter.fetchData();
+                      // TipsUtils.toast(content: '数据缺失，控制设备失败');
+                      return;
+                    }
+                    if (!onlineState()) {
+                      TipsUtils.toast(content: '设备已离线，请检查连接状态');
+                      return;
+                    }
+                    if (!widget.disabled) {
+                      if (adapter.type == AdapterType.wifiLight) {
+                        Navigator.pushNamed(context, '0x13', arguments: {"name": getDeviceName(), "adapter": adapter});
+                      } else if (adapter.type == AdapterType.zigbeeLight) {
+                        Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": getDeviceName(), "adapter": adapter});
+                      } else if (adapter.type == AdapterType.lightGroup) {
+                        Navigator.pushNamed(context, 'lightGroup', arguments: {"name": getDeviceName(), "adapter": adapter});
+                      }
+                    }
+                  },
+                  child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
+                ),
+              ),
               Positioned(
                   top: 10,
-                  left: 24,
+                  left: 88,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
