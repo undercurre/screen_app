@@ -56,7 +56,7 @@ mixin GuideLayoutTipMixin<W extends StatefulWidget> on LifeCycleStateMixin<W> {
             "midea.knob.*"];
           if (homluxRes.isSuccess && homluxRes.result != null) {
             otherCondition = homluxRes.data!.any(
-                    (element) => element.deviceId != System.gatewayApplianceCode && element.roomId == System.roomInfo?.id
+                    (element) => element.deviceId != 'G-${System.gatewayApplianceCode}' && element.deviceId != System.gatewayApplianceCode && element.roomId == System.roomInfo?.id
                         && ('0x13' == element.proType?.toLowerCase() || listPanel.any((element1) => element.productId?.contains(RegExp(element1)) ?? false))
             );
           }
