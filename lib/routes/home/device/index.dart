@@ -115,10 +115,15 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
-    // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
-    var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
-    String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
-    netListDeviceIds.add(curGroupId);
+    if (System.inHomluxPlatform()) {
+      // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
+      var roomList = await HomluxUserApi.queryRoomList(
+          System.familyInfo!.familyId);
+      String curGroupId = roomList.data?.roomInfoWrap
+          ?.firstWhere((element) => element.roomId == System.roomInfo?.id)
+          .groupId;
+      netListDeviceIds.add(curGroupId);
+    }
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 获取到diff的删除差值，并遍历每一个被删除的设备
