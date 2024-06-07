@@ -161,22 +161,23 @@ class _LightControlState extends State<LightControl> {
               Positioned(
                 top: 14,
                 left: 24,
-                child: GestureDetector(
-                  onTap: () {
-                    Log.i('disabled: ${widget.disabled}');
-                    if (!widget.disabled && onlineState()) {
-                      adapter.power(
-                        adapter.getPowerStatus(),
-                      );
-                      bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.groupId);
-                    }
-                  },
-                  child: Image(
-                      width: 40,
-                      height: 40,
-                      image: AssetImage(
-                          adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
-                ),
+                child: Container(),
+                // child: GestureDetector(
+                //   onTap: () {
+                //     Log.i('disabled: ${widget.disabled}');
+                //     if (!widget.disabled && onlineState()) {
+                //       adapter.power(
+                //         adapter.getPowerStatus(),
+                //       );
+                //       bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.groupId);
+                //     }
+                //   },
+                //   child: Image(
+                //       width: 40,
+                //       height: 40,
+                //       image: AssetImage(
+                //           adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
+                // ),
               ),
               Positioned(
                 top: 16,
@@ -207,7 +208,7 @@ class _LightControlState extends State<LightControl> {
               ),
               Positioned(
                   top: 10,
-                  left: 88,
+                  left: 24,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
