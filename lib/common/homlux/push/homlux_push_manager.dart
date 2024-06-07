@@ -275,7 +275,7 @@ class HomluxPushManager {
   }
 
   static _message(dynamic event) {
-    Log.i('[WebSocket]homlux ws message $event');
+    Log.file('[WebSocket]homlux ws message $event');
     try {
 
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
