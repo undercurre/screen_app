@@ -540,7 +540,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     }
     // 默认灯组-大卡片
     if (System.inHomluxPlatform() &&
-        deviceHave.where((element) => element.type == '0x13').toList().isNotEmpty &&
+        deviceNeed.where((element) => element.type == '0x13').toList().isNotEmpty &&
         System.familyInfo != null) {
       HomluxResponseEntity<HomluxRoomListEntity> roomListRes = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
 

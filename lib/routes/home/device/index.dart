@@ -165,9 +165,13 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
     // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
-    var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
-    String curGroupId = roomList.data?.roomInfoWrap?.firstWhere((element) => element.roomId == System.roomInfo?.id).groupId;
-    netListDeviceIds.add(curGroupId);
+    if (System.inHomluxPlatform()) {
+      var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+      String curGroupId = roomList.data?.roomInfoWrap
+          ?.firstWhere((element) => element.roomId == System.roomInfo?.id)
+          .groupId;
+      netListDeviceIds.add(curGroupId);
+    }
     // 再加入网络场景表映射成ids
     netListDeviceIds.addAll(sceneRes.map((e) => e.sceneId as String).toList());
     // 做diff对比上面拿到的两个ids
