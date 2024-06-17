@@ -208,7 +208,7 @@ class SnifferViewModel {
 }
 
 class SnifferState extends SafeState<SnifferPage>
-    with LifeCycleState, WidgetNetState {
+    with LifeCycleStateMixin, WidgetNetState {
   double turns = 0; // 控制扫描动画圈数
   final int timeout = 90000; // 设备查找时间
   final int timePerTurn = 3; // 转一圈所需时间

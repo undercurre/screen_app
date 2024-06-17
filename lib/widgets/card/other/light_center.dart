@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/gateway_platform.dart';
 import 'package:screen_app/widgets/card/method.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
+import '../../../common/system.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../states/device_list_notifier.dart';
-import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
 import '../../util/nameFormatter.dart';
 
-class BigDeviceLightCardWidget extends StatefulWidget {
-  final String applianceCode;
-  final String name;
-  final bool online;
-  final bool isFault;
-  final bool isNative;
-  final String roomName;
+class LightControl extends StatefulWidget {
+  final String groupId;
   final bool disableOnOff;
   final bool discriminative;
   final bool hasMore;
@@ -26,31 +22,26 @@ class BigDeviceLightCardWidget extends StatefulWidget {
 
   AdapterGenerateFunction<DeviceCardDataAdapter> adapterGenerateFunction;
 
-  BigDeviceLightCardWidget(
+  LightControl(
       {super.key,
-      required this.applianceCode,
-      required this.name,
-      required this.roomName,
-      required this.online,
-      required this.isFault,
-      required this.isNative,
       required this.adapterGenerateFunction,
+      required this.groupId,
       this.hasMore = true,
       this.disabled = false,
       this.discriminative = false,
       this.disableOnOff = true});
 
   @override
-  _BigDeviceLightCardWidgetState createState() => _BigDeviceLightCardWidgetState();
+  _LightControlState createState() => _LightControlState();
 }
 
-class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
+class _LightControlState extends State<LightControl> {
   late DeviceCardDataAdapter adapter;
 
   @override
   void initState() {
     super.initState();
-    adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
+    adapter = widget.adapterGenerateFunction.call(widget.groupId);
     adapter.init();
     if (!widget.disabled) {
       adapter.bindDataUpdateFunction(updateCallback);
@@ -64,7 +55,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
   }
 
   bool onlineState() {
-    return adapter.fetchOnlineState(context, widget.applianceCode);
+    return true;
   }
 
   void updateCallback() {
@@ -116,39 +107,15 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     }
 
     String getRoomName() {
-      String BigCardName = '';
-
-      List<DeviceEntity> curOne =
-          deviceListModel.deviceCacheList.where((element) => element.applianceCode == widget.applianceCode).toList();
-      if (curOne.isNotEmpty) {
-        BigCardName = NameFormatter.formatName(curOne[0].roomName!, 6);
+      if (MideaRuntimePlatform.platform.inHomlux()) {
+        return System.roomInfo?.name ?? '未登录';
       } else {
-        BigCardName = '未知区域';
+        return '非Homlux平台';
       }
-
-      if (widget.disabled) {
-        return deviceListModel.getDeviceRoomName(deviceId: widget.applianceCode);
-      }
-
-      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
-        return '';
-      }
-
-      return BigCardName;
     }
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(deviceId: widget.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
-
-      if (widget.disabled) {
-        return (nameInModel == '未知id' || nameInModel == '未知设备') ? widget.name : nameInModel;
-      }
-
-      if (deviceListModel.deviceListHomlux.length == 0 && deviceListModel.deviceListMeiju.length == 0) {
-        return '加载中';
-      }
-
-      return nameInModel;
+      return '灯光管控中心';
     }
 
     BoxDecoration _getBoxDecoration() {
@@ -156,9 +123,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
       bool online = onlineState();
       if (widget.disabled) {
         return BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: getBigCardColorBg('disabled'));
-      }
-      if (widget.isFault) {
-        return BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: getBigCardColorBg('fault'));
       }
       if (!online) {
         return BoxDecoration(
@@ -177,7 +141,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
     return GestureDetector(
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
-          adapter.fetchDataInSafety(widget.applianceCode);
+          adapter.fetchDataAndCheckWaitLockAuth(widget.groupId);
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
@@ -204,7 +168,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       adapter.power(
                         adapter.getPowerStatus(),
                       );
-                      bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.applianceCode);
+                      bus.emit('operateDevice', adapter.getCardStatus()!["nodeId"] ?? widget.groupId);
                     }
                   },
                   child: Image(
@@ -214,33 +178,33 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                           adapter.getPowerStatus() ?? false ? 'assets/newUI/card_power_on.png' : 'assets/newUI/card_power_off.png')),
                 ),
               ),
-              Positioned(
-                top: 16,
-                right: 16,
-                child: GestureDetector(
-                  onTap: () {
-                    if (adapter.dataState != DataState.SUCCESS) {
-                      adapter.fetchData();
-                      // TipsUtils.toast(content: '数据缺失，控制设备失败');
-                      return;
-                    }
-                    if (!onlineState()) {
-                      TipsUtils.toast(content: '设备已离线，请检查连接状态');
-                      return;
-                    }
-                    if (!widget.disabled) {
-                      if (adapter.type == AdapterType.wifiLight) {
-                        Navigator.pushNamed(context, '0x13', arguments: {"name": getDeviceName(), "adapter": adapter});
-                      } else if (adapter.type == AdapterType.zigbeeLight) {
-                        Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": getDeviceName(), "adapter": adapter});
-                      } else if (adapter.type == AdapterType.lightGroup) {
-                        Navigator.pushNamed(context, 'lightGroup', arguments: {"name": getDeviceName(), "adapter": adapter});
-                      }
-                    }
-                  },
-                  child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
-                ),
-              ),
+              // Positioned(
+              //   top: 16,
+              //   right: 16,
+              //   child: GestureDetector(
+              //     onTap: () {
+              //       if (adapter.dataState != DataState.SUCCESS) {
+              //         adapter.fetchData();
+              //         // TipsUtils.toast(content: '数据缺失，控制设备失败');
+              //         return;
+              //       }
+              //       if (!onlineState()) {
+              //         TipsUtils.toast(content: '设备已离线，请检查连接状态');
+              //         return;
+              //       }
+              //       if (!widget.disabled) {
+              //         if (adapter.type == AdapterType.wifiLight) {
+              //           Navigator.pushNamed(context, '0x13', arguments: {"name": getDeviceName(), "adapter": adapter});
+              //         } else if (adapter.type == AdapterType.zigbeeLight) {
+              //           Navigator.pushNamed(context, '0x21_light_colorful', arguments: {"name": getDeviceName(), "adapter": adapter});
+              //         } else if (adapter.type == AdapterType.lightGroup) {
+              //           Navigator.pushNamed(context, 'lightGroup', arguments: {"name": getDeviceName(), "adapter": adapter});
+              //         }
+              //       }
+              //     },
+              //     child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
+              //   ),
+              // ),
               Positioned(
                   top: 10,
                   left: 88,
@@ -250,7 +214,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
+                          constraints: const BoxConstraints(maxWidth: 140),
                           child: Text(getDeviceName(),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -286,27 +250,6 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                                 fontWeight: FontWeight.normal,
                                 decoration: TextDecoration.none)),
                       ),
-                      if (widget.isNative)
-                        Container(
-                          alignment: Alignment.center,
-                          width: 48,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(Radius.circular(24)),
-                            border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
-                          ),
-                          margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
-                          child: const Text(
-                            "本地",
-                            style: TextStyle(
-                                height: 1.6,
-                                color: Color(0XFFFFFFFF),
-                                fontSize: 14,
-                                fontFamily: "MideaType",
-                                fontWeight: FontWeight.normal,
-                                decoration: TextDecoration.none),
-                          ),
-                        )
                     ],
                   )),
               Positioned(
@@ -338,7 +281,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   },
                   onChanged: (val, color) {
                     adapter.slider1To(val.toInt());
-                    bus.emit('operateDevice', adapter.getCardStatus()?["nodeId"] ?? widget.applianceCode);
+                    bus.emit('operateDevice', adapter.getCardStatus()?["nodeId"] ?? widget.groupId);
                   },
                 ),
               ),
@@ -372,7 +315,7 @@ class _BigDeviceLightCardWidgetState extends State<BigDeviceLightCardWidget> {
                   },
                   onChanged: (val, color) {
                     adapter.slider2To(val.toInt());
-                    bus.emit('operateDevice', adapter.getCardStatus()?["nodeId"] ?? widget.applianceCode);
+                    bus.emit('operateDevice', adapter.getCardStatus()?["nodeId"] ?? widget.groupId);
                   },
                 ),
               ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 import '../../../common/adapter/device_card_data_adapter.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
@@ -191,50 +192,15 @@ class _BigDeviceCurtainCardWidgetState
       if (!online) {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33616A76),
-              widget.discriminative
-                  ? Colors.white.withOpacity(0.12)
-                  : const Color(0x33434852),
-            ],
-            stops: [0.06, 1.0],
-            transform: GradientRotation(213 * (3.1415926 / 360.0)),
-          ),
+          gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
         );
       }
       if ((curPower && !widget.disabled)) {
-        return const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Color(0xFF818895),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-          ),
-        );
+        return BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(24)), gradient: getBigCardColorBg('open'));
       }
       return BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33616A76),
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33434852),
-          ],
-        ),
+        gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
       );
     }
 
@@ -261,10 +227,7 @@ class _BigDeviceCurtainCardWidgetState
               const Positioned(
                 top: 14,
                 left: 24,
-                child: Image(
-                    width: 40,
-                    height: 40,
-                    image: AssetImage('assets/newUI/device/0x14.png')),
+                child: Image(width: 40, height: 40, image: AssetImage('assets/newUI/device/0x14.png')),
               ),
               Positioned(
                 top: 16,
@@ -292,12 +255,7 @@ class _BigDeviceCurtainCardWidgetState
                       }
                     }
                   },
-                  child: widget.hasMore
-                      ? const Image(
-                          width: 32,
-                          height: 32,
-                          image: AssetImage('assets/newUI/to_plugin.png'))
-                      : Container(),
+                  child: widget.hasMore ? const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')) : Container(),
                 ),
               ),
               Positioned(
@@ -309,8 +267,7 @@ class _BigDeviceCurtainCardWidgetState
                     Container(
                       margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxWidth: widget.isNative ? 100 : 140),
+                        constraints: BoxConstraints(maxWidth: widget.isNative ? 100 : 140),
                         child: SizedBox(
                           width: 120,
                           child: Row(
@@ -347,8 +304,7 @@ class _BigDeviceCurtainCardWidgetState
                     ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 90),
-                      child: Text(
-                          "${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
+                      child: Text("${_getRightText().isNotEmpty ? ' | ' : ''}${_getRightText()}",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -364,10 +320,8 @@ class _BigDeviceCurtainCardWidgetState
                         width: 48,
                         height: 24,
                         decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(24)),
-                          border: Border.all(
-                              color: const Color(0xFFFFFFFF), width: 1),
+                          borderRadius: const BorderRadius.all(Radius.circular(24)),
+                          border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
                         ),
                         margin: const EdgeInsets.fromLTRB(12, 0, 0, 6),
                         child: const Text(
@@ -411,15 +365,12 @@ class _BigDeviceCurtainCardWidgetState
                 top: 74,
                 left: 174,
                 child: CupertinoSlidingSegmentedControl(
-                  backgroundColor: (adapter.getPowerStatus() ?? false)
-                      ? const Color(0xFF767D87)
-                      : const Color(0xFF4C525E),
+                  backgroundColor: (adapter.getPowerStatus() ?? false) ? const Color(0xFF767D87) : const Color(0xFF4C525E),
                   thumbColor: const Color(0xC1B7C4CF),
                   padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
                   children: {
                     0: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 11),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                       child: const Text('全开',
                           style: TextStyle(
                               color: Color(0XFFFFFFFF),
@@ -429,8 +380,7 @@ class _BigDeviceCurtainCardWidgetState
                               decoration: TextDecoration.none)),
                     ),
                     1: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 11),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                       child: const Text('暂停',
                           style: TextStyle(
                               color: Color(0XFFFFFFFF),
@@ -440,8 +390,7 @@ class _BigDeviceCurtainCardWidgetState
                               decoration: TextDecoration.none)),
                     ),
                     2: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 11),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 11),
                       child: const Text('全关',
                           style: TextStyle(
                               color: Color(0XFFFFFFFF),

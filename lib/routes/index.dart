@@ -24,6 +24,7 @@ import 'package:screen_app/widgets/business/area_selector.dart';
 import 'boot/index.dart';
 import 'develop/develop_helper.dart';
 import 'dropdown/drop_down_page.dart';
+import 'guide/index.dart';
 import 'home/device/add_device.dart';
 import 'home/index.dart';
 import 'login/index.dart';
@@ -52,7 +53,7 @@ var routes = <String, WidgetBuilder>{
   "SpecialBlackBgSaverScreen": (context) => const SpecialBlackBgSaverScreen(),
   "SnifferPage": (context) => const SnifferPage(),
   "DeviceConnectPage": (context) => const DeviceConnectPage(),
-
+  "GuidePage": (context) => const GuidePage(),
 
   "SettingPage": (context) => const SettingPage(),
   "SoundSettingPage": (context) => const SoundSettingPage(),

@@ -24,6 +24,7 @@ class HomluxRoomInfo {
   get roomName => _roomInfo?.roomName;
   get deviceLightOnNum => _roomInfo?.deviceLightOnNum;
   get deviceNum => _roomInfo?.deviceNum;
+  get groupId => roomInfo?.groupId;
 
   get roomInfo => _roomInfo;
 
@@ -43,12 +44,14 @@ class RealHomluxRoomInfo {
   final String? roomName;
   final int? deviceLightOnNum;
   final int? deviceNum;
+  final String? groupId;
 
   const RealHomluxRoomInfo({
     this.roomId,
     this.roomName,
     this.deviceLightOnNum,
     this.deviceNum,
+    this.groupId
   });
 
   factory RealHomluxRoomInfo.fromJson(Map<String, dynamic> json) =>

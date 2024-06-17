@@ -122,6 +122,7 @@ flutter:
     - assets/newUI/device/
     - assets/newUI/scene/
     - assets/newUI/login/
+    - assets/newUI/guide/
     - assets/
     - .sit.env
     - .prod.env

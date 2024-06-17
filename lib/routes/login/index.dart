@@ -64,7 +64,10 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       barrierDismissible: false,
       // false = user must tap button, true = tap outside dialog
       builder: (BuildContext dialogContext) {
-        return BindingDialog(key: bindingKey,tip: tip,);
+        return BindingDialog(
+          key: bindingKey,
+          tip: tip,
+        );
       },
     );
   }
@@ -142,20 +145,25 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
               });
             }
-            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindHomeId) && Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
-              showClearAlert(context,'绑定至新家庭', "智慧屏已绑定在家庭“${Setting.instant().lastBindHomeName}”，"
-                  "绑定至新家庭将清除所有本地数据，是否继续？",  () {
+
+            if (StrUtils.isNotNullAndEmpty(Setting.instant().lastBindHomeId) &&
+                Setting.instant().lastBindHomeId != System.familyInfo!.familyId) {
+              showClearAlert(
+                  context,
+                  '绑定至新家庭',
+                  "智慧屏已绑定在家庭“${Setting.instant().lastBindHomeName}”，"
+                      "绑定至新家庭将清除所有本地数据，是否继续？", () {
                 callback();
               });
             } else {
               callback();
             }
           } else {
-            assert(System.roomInfo!= null);
+            assert(System.roomInfo != null);
             callback() {
               showBindingDialog('正在登录中，请稍后');
               bindGatewayAd?.modifyDevice(System.familyInfo!, System.roomInfo!, device!).then((value) {
-                if(value) {
+                if (value) {
                   Log.i('当前网关已绑定到房间${System.roomInfo!.name}');
                   prepare2goHome(false);
                   Setting.instant().lastBindHomeName = System.familyInfo?.familyName ?? "";
@@ -169,8 +177,9 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                 }
               });
             }
-            if(StrUtils.isNotNullAndEmpty(Setting.instant().lastBindRoomId) && Setting.instant().lastBindRoomId != System.roomInfo!.id) {
-              showClearAlert(context,'迁移至新房间', "智慧屏将迁移至${System.roomInfo!.name}房间，是否继续？",  () {
+
+            if (StrUtils.isNotNullAndEmpty(Setting.instant().lastBindRoomId) && Setting.instant().lastBindRoomId != System.roomInfo!.id) {
+              showClearAlert(context, '迁移至新房间', "智慧屏将迁移至${System.roomInfo!.name}房间，是否继续？", () {
                 callback.call();
               });
             } else {
@@ -191,11 +200,11 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   }
 
   void prepare2goHome(bool needBind) {
-    prepareLayout();
+    prepareLayout(needBind);
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
         assert(bindingKey.currentState != null);
-        if(needBind) {
+        if (needBind) {
           bindingKey.currentState?.showBindSucStyle();
         } else {
           bindingKey.currentState?.showLoginSucStyle();
@@ -205,172 +214,254 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     Timer(const Duration(seconds: 6), () {
       //导航到新路由
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, 'Home', ModalRoute.withName('/'));
+        Navigator.pushNamedAndRemoveUntil(context, 'GuidePage', ModalRoute.withName('/'));
         System.login();
       }
     });
   }
 
-  void prepareLayout() async {
-    final deviceInfoListModel =
-    Provider.of<DeviceInfoListModel>(context, listen: false);
+  void prepareLayout(bool isBinding) async {
+    final deviceInfoListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
     final layoutModel = Provider.of<LayoutModel>(context, listen: false);
+    if (isBinding) {
+      List<Layout> defaultList = [
+        Layout(
+            'clock',
+            DeviceEntityTypeInP4.Clock,
+            CardType.Other,
+            0,
+            [1, 2, 5, 6],
+            DataInputCard(
+                name: '时钟',
+                applianceCode: 'clock',
+                roomName: '屏内',
+                isOnline: '',
+                type: 'clock',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
+        Layout(
+            'weather',
+            DeviceEntityTypeInP4.Weather,
+            CardType.Other,
+            0,
+            [3, 4, 7, 8],
+            DataInputCard(
+                name: '天气',
+                applianceCode: 'weather',
+                roomName: '屏内',
+                isOnline: '',
+                type: 'weather',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
+        Layout(
+            'localPanel1',
+            DeviceEntityTypeInP4.LocalPanel1,
+            CardType.Small,
+            0,
+            [9, 10],
+            DataInputCard(
+                name: '灯1',
+                applianceCode: 'localPanel1',
+                roomName: '屏内',
+                isOnline: '',
+                type: 'localPanel1',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
+        Layout(
+            'localPanel2',
+            DeviceEntityTypeInP4.LocalPanel2,
+            CardType.Small,
+            0,
+            [11, 12],
+            DataInputCard(
+                name: '灯2',
+                applianceCode: 'localPanel2',
+                roomName: '屏内',
+                isOnline: '',
+                type: 'localPanel2',
+                masterId: '',
+                modelNumber: '',
+                onlineStatus: '1')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.DeviceNull,
+            CardType.Null,
+            0,
+            [13, 14],
+            DataInputCard(
+                name: '', applianceCode: '', roomName: '', isOnline: '', type: '', masterId: '', modelNumber: '', onlineStatus: '')),
+        Layout(
+            uuid.v4(),
+            DeviceEntityTypeInP4.DeviceNull,
+            CardType.Null,
+            0,
+            [15, 16],
+            DataInputCard(
+                name: '', applianceCode: '', roomName: '', isOnline: '', type: '', masterId: '', modelNumber: '', onlineStatus: ''))
+      ];
+      await layoutModel.setLayouts(defaultList);
+      return;
+    }
     if (Setting.instant().lastBindHomeId != System.familyInfo?.familyId) {
       // 换房间，重新初始布局该房间
       await layoutModel.removeLayouts();
-      if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
-        var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
-        List<HomluxDeviceEntity>? devices = res.data;
-        if (devices != null) {
-          List<DeviceEntity> devicesReal = [];
-
-          devices.forEach((e) {
-            DeviceEntity deviceObj = DeviceEntity();
-            deviceObj.name = e.deviceName!;
-            deviceObj.applianceCode = e.deviceId!;
-            deviceObj.type = e.proType!;
-            deviceObj.modelNumber = getModelNumber(e);
-            deviceObj.roomName = e.roomName!;
-            deviceObj.roomId = System.roomInfo?.id;
-            deviceObj.masterId = e.gatewayId ?? '';
-            deviceObj.onlineStatus = e.onLineStatus.toString();
-            if (DeviceEntityTypeInP4Handle.getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) != DeviceEntityTypeInP4.Default) {
-              devicesReal.add(deviceObj);
-            }
-          });
-          if (devicesReal.isNotEmpty) {
-            List<Layout> layoutData = deviceInfoListModel.transformLayoutFromDeviceList(devicesReal);
-            await layoutModel.setLayouts(layoutData);
-          } else {
-            await layoutModel.loadLayouts();
-          }
-        }
-      } else {
-        List<dynamic> devices =
-            await MeiJuDeviceApi.queryDeviceListByRoomId(
-            MeiJuGlobal.token!.uid,
-            System.familyInfo!.familyId,
-            System.roomInfo!.id!);
-        List<DeviceEntity> devicesReal = [];
-
-        devices.forEach((e) {
-          DeviceEntity deviceObj = DeviceEntity();
-          deviceObj.name = e["name"];
-          deviceObj.applianceCode = e["applianceCode"];
-          deviceObj.type = e["type"];
-          deviceObj.modelNumber = e["modelNumber"];
-          deviceObj.sn8 = e["sn8"];
-          deviceObj.roomName = e["roomName"];
-          deviceObj.masterId = e["masterId"];
-          deviceObj.onlineStatus = e["onlineStatus"];
-          if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
-              e["type"], e["modelNumber"]) !=
-              DeviceEntityTypeInP4.Default) {
-            devicesReal.add(deviceObj);
-          }
-        });
-        Log.i('有效布局', devicesReal);
-        if (devicesReal.isNotEmpty) {
-          List<Layout> layoutData = deviceInfoListModel
-              .transformLayoutFromDeviceList(devicesReal);
-          await layoutModel.setLayouts(layoutData);
-        } else {
-          List<Layout> defaultList = [
-            Layout(
-                'clock',
-                DeviceEntityTypeInP4.Clock,
-                CardType.Other,
-                0,
-                [1, 2, 5, 6],
-                DataInputCard(
-                    name: '时钟',
-                    applianceCode: 'clock',
-                    roomName: '屏内',
-                    isOnline: '',
-                    type: 'clock',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: '1')),
-            Layout(
-                'weather',
-                DeviceEntityTypeInP4.Weather,
-                CardType.Other,
-                0,
-                [3, 4, 7, 8],
-                DataInputCard(
-                    name: '天气',
-                    applianceCode: 'weather',
-                    roomName: '屏内',
-                    isOnline: '',
-                    type: 'weather',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: '1')),
-            Layout(
-                'localPanel1',
-                DeviceEntityTypeInP4.LocalPanel1,
-                CardType.Small,
-                0,
-                [9, 10],
-                DataInputCard(
-                    name: '灯1',
-                    applianceCode: 'localPanel1',
-                    roomName: '屏内',
-                    isOnline: '',
-                    type: 'localPanel1',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: '1')),
-            Layout(
-                'localPanel2',
-                DeviceEntityTypeInP4.LocalPanel2,
-                CardType.Small,
-                0,
-                [11, 12],
-                DataInputCard(
-                    name: '灯2',
-                    applianceCode: 'localPanel2',
-                    roomName: '屏内',
-                    isOnline: '',
-                    type: 'localPanel2',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: '1')),
-            Layout(
-                uuid.v4(),
-                DeviceEntityTypeInP4.DeviceNull,
-                CardType.Null,
-                0,
-                [13, 14],
-                DataInputCard(
-                    name: '',
-                    applianceCode: '',
-                    roomName: '',
-                    isOnline: '',
-                    type: '',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: '')),
-            Layout(
-                uuid.v4(),
-                DeviceEntityTypeInP4.DeviceNull,
-                CardType.Null,
-                0,
-                [15, 16],
-                DataInputCard(
-                    name: '',
-                    applianceCode: '',
-                    roomName: '',
-                    isOnline: '',
-                    type: '',
-                    masterId: '',
-                    modelNumber: '',
-                    onlineStatus: ''))
-          ];
-          await layoutModel.setLayouts(defaultList);
-          Log.i('插入默认布局');
-        }
-      }
+      await layoutModel.loadLayouts();
+      // if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
+      // var res = await HomluxDeviceApi.queryDeviceListByRoomId(System.roomInfo!.id!);
+      // List<HomluxDeviceEntity>? devices = res.data;
+      // if (devices != null) {
+      //   List<DeviceEntity> devicesReal = [];
+      //
+      //   devices.forEach((e) {
+      //     DeviceEntity deviceObj = DeviceEntity();
+      //     deviceObj.name = e.deviceName!;
+      //     deviceObj.applianceCode = e.deviceId!;
+      //     deviceObj.type = e.proType!;
+      //     deviceObj.modelNumber = getModelNumber(e);
+      //     deviceObj.roomName = e.roomName!;
+      //     deviceObj.roomId = System.roomInfo?.id;
+      //     deviceObj.masterId = e.gatewayId ?? '';
+      //     deviceObj.onlineStatus = e.onLineStatus.toString();
+      //     if (DeviceEntityTypeInP4Handle.getDeviceEntityType(deviceObj.type, deviceObj.modelNumber) != DeviceEntityTypeInP4.Default) {
+      //       devicesReal.add(deviceObj);
+      //     }
+      //   });
+      //   if (devicesReal.isNotEmpty) {
+      //     List<Layout> layoutData = deviceInfoListModel.transformLayoutFromDeviceList(devicesReal);
+      //     await layoutModel.setLayouts(layoutData);
+      //   } else {
+      //     await layoutModel.loadLayouts();
+      //   }
+      // }
+      // } else {
+      // List<dynamic> devices =
+      //     await MeiJuDeviceApi.queryDeviceListByRoomId(
+      //     MeiJuGlobal.token!.uid,
+      //     System.familyInfo!.familyId,
+      //     System.roomInfo!.id!);
+      // List<DeviceEntity> devicesReal = [];
+      //
+      // devices.forEach((e) {
+      //   DeviceEntity deviceObj = DeviceEntity();
+      //   deviceObj.name = e["name"];
+      //   deviceObj.applianceCode = e["applianceCode"];
+      //   deviceObj.type = e["type"];
+      //   deviceObj.modelNumber = e["modelNumber"];
+      //   deviceObj.sn8 = e["sn8"];
+      //   deviceObj.roomName = e["roomName"];
+      //   deviceObj.masterId = e["masterId"];
+      //   deviceObj.onlineStatus = e["onlineStatus"];
+      //   if (DeviceEntityTypeInP4Handle.getDeviceEntityType(
+      //       e["type"], e["modelNumber"]) !=
+      //       DeviceEntityTypeInP4.Default) {
+      //     devicesReal.add(deviceObj);
+      //   }
+      // });
+      // Log.i('有效布局', devicesReal);
+      // if (devicesReal.isNotEmpty) {
+      //   List<Layout> layoutData = deviceInfoListModel
+      //       .transformLayoutFromDeviceList(devicesReal);
+      //   await layoutModel.setLayouts(layoutData);
+      // } else {
+      //   List<Layout> defaultList = [
+      //     Layout(
+      //         'clock',
+      //         DeviceEntityTypeInP4.Clock,
+      //         CardType.Other,
+      //         0,
+      //         [1, 2, 5, 6],
+      //         DataInputCard(
+      //             name: '时钟',
+      //             applianceCode: 'clock',
+      //             roomName: '屏内',
+      //             isOnline: '',
+      //             type: 'clock',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: '1')),
+      //     Layout(
+      //         'weather',
+      //         DeviceEntityTypeInP4.Weather,
+      //         CardType.Other,
+      //         0,
+      //         [3, 4, 7, 8],
+      //         DataInputCard(
+      //             name: '天气',
+      //             applianceCode: 'weather',
+      //             roomName: '屏内',
+      //             isOnline: '',
+      //             type: 'weather',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: '1')),
+      //     Layout(
+      //         'localPanel1',
+      //         DeviceEntityTypeInP4.LocalPanel1,
+      //         CardType.Small,
+      //         0,
+      //         [9, 10],
+      //         DataInputCard(
+      //             name: '灯1',
+      //             applianceCode: 'localPanel1',
+      //             roomName: '屏内',
+      //             isOnline: '',
+      //             type: 'localPanel1',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: '1')),
+      //     Layout(
+      //         'localPanel2',
+      //         DeviceEntityTypeInP4.LocalPanel2,
+      //         CardType.Small,
+      //         0,
+      //         [11, 12],
+      //         DataInputCard(
+      //             name: '灯2',
+      //             applianceCode: 'localPanel2',
+      //             roomName: '屏内',
+      //             isOnline: '',
+      //             type: 'localPanel2',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: '1')),
+      //     Layout(
+      //         uuid.v4(),
+      //         DeviceEntityTypeInP4.DeviceNull,
+      //         CardType.Null,
+      //         0,
+      //         [13, 14],
+      //         DataInputCard(
+      //             name: '',
+      //             applianceCode: '',
+      //             roomName: '',
+      //             isOnline: '',
+      //             type: '',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: '')),
+      //     Layout(
+      //         uuid.v4(),
+      //         DeviceEntityTypeInP4.DeviceNull,
+      //         CardType.Null,
+      //         0,
+      //         [15, 16],
+      //         DataInputCard(
+      //             name: '',
+      //             applianceCode: '',
+      //             roomName: '',
+      //             isOnline: '',
+      //             type: '',
+      //             masterId: '',
+      //             modelNumber: '',
+      //             onlineStatus: ''))
+      //   ];
+      //   await layoutModel.setLayouts(defaultList);
+      //   Log.i('插入默认布局');
+      // }
+      //}
     }
   }
 
@@ -389,8 +480,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
     isNeedChoosePlatform = System.inNonePlatform();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Map<dynamic, dynamic>? args =
-          ModalRoute.of(context)?.settings.arguments as Map?;
+      Map<dynamic, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map?;
       if (args != null) {
         routeFrom = args["from"] ?? "";
         if (routeFrom == "changePlatform") {
@@ -416,9 +506,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
       Step(
           '扫码登录',
           Column(children: [
-            Container(
-                margin: const EdgeInsets.only(top: 5),
-                child: ScanCode(onSuccess: nextStep)),
+            Container(margin: const EdgeInsets.only(top: 5), child: ScanCode(onSuccess: nextStep)),
           ])),
       Step(
           '选择家庭',
@@ -467,18 +555,15 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
               ),
               child: Center(
                   child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            LoginHeader(
-                                stepSum: stepList.length,
-                                stepNum: stepNum,
-                                title: stepItem?.title ?? ''),
-                            if (stepItem?.view != null)
-                              Container(
-                                child: stepItem?.view,
-                              ),
-                          ],
-                        ))),
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  LoginHeader(stepSum: stepList.length, stepNum: stepNum, title: stepItem?.title ?? ''),
+                  if (stepItem?.view != null)
+                    Container(
+                      child: stepItem?.view,
+                    ),
+                ],
+              ))),
         if (stepNum == 1 && !isNeedChoosePlatform)
           Positioned(
               bottom: 0,
@@ -534,9 +619,7 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
                                 },
                               ),
                             MzButton(
-                              width: Setting.instant().isAllowChangePlatform
-                                  ? 168
-                                  : 240,
+                              width: Setting.instant().isAllowChangePlatform ? 168 : 240,
                               height: 56,
                               borderRadius: 29,
                               backgroundColor: const Color(0xFF267AFF),
@@ -596,17 +679,13 @@ class _LoginPage extends State<LoginPage> with WidgetNetState {
   }
 
   void checkIsNeedShowClearAlert() {
-    int lenDiff = (Setting.instant().lastBindHomeId.length -
-            (System.familyInfo?.familyId.length ?? 0))
-        .abs();
-    if (Setting.instant().lastBindHomeId.isNotEmpty &&
-        Setting.instant().lastBindHomeId != System.familyInfo?.familyId &&
-        lenDiff < 3) {
+    int lenDiff = (Setting.instant().lastBindHomeId.length - (System.familyInfo?.familyId.length ?? 0)).abs();
+    if (Setting.instant().lastBindHomeId.isNotEmpty && Setting.instant().lastBindHomeId != System.familyInfo?.familyId && lenDiff < 3) {
       isNeedShowClearAlert = true;
     }
   }
 
-  void showClearAlert(BuildContext context,String title, String tip, VoidCallback callback) async {
+  void showClearAlert(BuildContext context, String title, String tip, VoidCallback callback) async {
     var name = Setting.instant().lastBindHomeName;
     MzDialog(
         title: title,
@@ -663,11 +742,7 @@ class LoginHeader extends StatelessWidget {
   /// 标题
   final String title;
 
-  const LoginHeader(
-      {super.key,
-      required this.stepSum,
-      required this.stepNum,
-      required this.title});
+  const LoginHeader({super.key, required this.stepSum, required this.stepNum, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -684,16 +759,11 @@ class LoginHeader extends StatelessWidget {
           )),
     );
 
-    const stepActiveImg =
-        Image(image: AssetImage("assets/imgs/login/step-active.png"));
-    const stepFinishedImg =
-        Image(image: AssetImage("assets/imgs/login/step-finished.png"));
-    const stepPassiveImg =
-        Image(image: AssetImage("assets/imgs/login/step-passive.png"));
-    const lineActiveImg =
-        Image(image: AssetImage("assets/imgs/login/line-active.png"));
-    const linePassiveImg =
-        Image(image: AssetImage("assets/imgs/login/line-passive.png"));
+    const stepActiveImg = Image(image: AssetImage("assets/imgs/login/step-active.png"));
+    const stepFinishedImg = Image(image: AssetImage("assets/imgs/login/step-finished.png"));
+    const stepPassiveImg = Image(image: AssetImage("assets/imgs/login/step-passive.png"));
+    const lineActiveImg = Image(image: AssetImage("assets/imgs/login/line-active.png"));
+    const linePassiveImg = Image(image: AssetImage("assets/imgs/login/line-passive.png"));
 
     var stepList = <Widget>[];
 
@@ -713,9 +783,7 @@ class LoginHeader extends StatelessWidget {
       }
     }
     num index = min(4, stepNum);
-    var stepBarView = Container(
-        margin: const EdgeInsets.all(9.0),
-        child: Image(image: AssetImage('assets/newUI/step_$index.png')));
+    var stepBarView = Container(margin: const EdgeInsets.all(9.0), child: Image(image: AssetImage('assets/newUI/step_$index.png')));
 
     var headerView = Column(
       children: [titleView, stepBarView],
@@ -734,7 +802,6 @@ class BindingDialog extends StatefulWidget {
 
   @override
   State<BindingDialog> createState() => _BindingDialogState();
-
 }
 
 class _BindingDialogState extends State<BindingDialog> with SingleTickerProviderStateMixin {
@@ -781,57 +848,53 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    var contentWidget = switch(state) {
-        4 => Column(
-            children: [
-              Image.asset('assets/newUI/login/binding_suc.png'),
-              const Text(
-                '登录成功',
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.72),
-                  fontSize: 24,
-                ),
-              ),
-            ]),
-        2 => Column(
-            children: [
-              Image.asset('assets/newUI/login/binding_suc.png'),
-              const Text(
-                '绑定成功',
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.72),
-                  fontSize: 24,
-                ),
-              ),
-            ]),
-        3 => Column(
-            children: [
-              Image.asset('assets/newUI/login/binding_err.png'),
-              const Text(
-                '失败',
-                style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.72),
-                  fontSize: 24,
-                ),
-              ),
-            ]),
-        _ => Column(
-            children: [
-              const SizedBox(
-                width: 150,
-                height: 150,
-                child: Align(
-                  child: CupertinoActivityIndicator(radius: 25),
-                ),
-              ),
-              Text(
-                widget.tip,
-                style: const TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.72),
-                  fontSize: 24,
-                ),
-              ),
-            ])
+    var contentWidget = switch (state) {
+      4 => Column(children: [
+          Image.asset('assets/newUI/login/binding_suc.png'),
+          const Text(
+            '登录成功',
+            style: TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ]),
+      2 => Column(children: [
+          Image.asset('assets/newUI/login/binding_suc.png'),
+          const Text(
+            '绑定成功',
+            style: TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ]),
+      3 => Column(children: [
+          Image.asset('assets/newUI/login/binding_err.png'),
+          const Text(
+            '失败',
+            style: TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ]),
+      _ => Column(children: [
+          const SizedBox(
+            width: 150,
+            height: 150,
+            child: Align(
+              child: CupertinoActivityIndicator(radius: 25),
+            ),
+          ),
+          Text(
+            widget.tip,
+            style: const TextStyle(
+              color: Color.fromRGBO(255, 255, 255, 0.72),
+              fontSize: 24,
+            ),
+          ),
+        ])
     };
 
     return Dialog(
@@ -848,16 +911,11 @@ class _BindingDialogState extends State<BindingDialog> with SingleTickerProvider
             ),
             child: Column(
               children: [
-                Expanded(
-                    flex: 1,
-                    child: Container(
-                        alignment: Alignment.topCenter,
-                        child: contentWidget
-                    )),
+                Expanded(flex: 1, child: Container(alignment: Alignment.topCenter, child: contentWidget)),
               ],
             ),
           ),
-          if(state == 3)
+          if (state == 3)
             Positioned(
               right: 20,
               top: 20,

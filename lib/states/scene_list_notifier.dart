@@ -65,6 +65,7 @@ class SceneListModel extends ChangeNotifier {
             sceneObj.sceneId = e.sceneId;
             sceneObj.image = e.image;
             sceneObj.roomId = e.roomId;
+            sceneObj.sceneStatus = e.sceneStatus;
             return sceneObj;
         }).toList();
       }

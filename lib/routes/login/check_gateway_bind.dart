@@ -33,7 +33,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     }
   }
 
-  void notifyHomluxGatewayDelete(HomluxDeviceDelEvent event) {
+  void notifyHomluxGatewayDelete(HomluxScreenDelGatewayEvent event) {
     Log.i("[bus] 接收到删除设备指令 待删除设备device=${event.deviceId} 网关deviceId=${HomluxGlobal.gatewayApplianceCode}");
     if(event.deviceId == HomluxGlobal.gatewayApplianceCode) {
       resetByGatewayDelete();
@@ -91,7 +91,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
       bus.typeOn<HomluxDeleteHouseUser>(notifyHomluxLogout);
       bus.typeOn<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
       bus.typeOn<HomluxUserCountChangeEvent>(apiCheckUserAuth);
-      bus.typeOn<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
+      bus.typeOn<HomluxScreenDelGatewayEvent>(notifyHomluxGatewayDelete);
     } else if(MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       bus.typeOn<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
       bus.typeOn<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
@@ -110,7 +110,7 @@ mixin CheckGatewayBind<T extends StatefulWidget> on State<T> {
     bus.typeOff<HomluxDeleteHouseUser>(notifyHomluxLogout);
     bus.typeOff<MeiJuDeviceDelEvent>(notifyMeiJuDeviceChange);
     bus.typeOff<MeiJuDeviceUnbindEvent>(notifyMeiJuDeviceChange);
-    bus.typeOff<HomluxDeviceDelEvent>(notifyHomluxGatewayDelete);
+    bus.typeOff<HomluxScreenDelGatewayEvent>(notifyHomluxGatewayDelete);
     bus.typeOff<HomluxChangeUserAuthEvent>(apiCheckUserAuth);
     bus.typeOff<HomluxUserCountChangeEvent>(apiCheckUserAuth);
     checkGatewayTimer?.cancel();
