@@ -23,6 +23,7 @@ class CardDialog extends StatefulWidget {
   final String applianceCode;
   final String masterId;
   final String onlineStatus;
+  final String? sn8;
   int? initPageNum;
 
   CardDialog({super.key,
@@ -32,6 +33,7 @@ class CardDialog extends StatefulWidget {
     required this.modelNumber,
     required this.applianceCode,
     required this.masterId,
+    required this.sn8,
     required this.onlineStatus,
     this.icon, this.initPageNum});
 
@@ -136,7 +138,7 @@ class _CardDialogState extends State<CardDialog> {
                             child: UnconstrainedBox(
                               child: buildMap[DeviceEntityTypeInP4Handle
                                   .getDeviceEntityType(widget.type,
-                                      widget.modelNumber)]![CardType.Small]!(
+                                      widget.modelNumber,widget.sn8)]![CardType.Small]!(
                                 DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -163,7 +165,7 @@ class _CardDialogState extends State<CardDialog> {
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                        widget.modelNumber)]![CardType.Middle]!(
+                                        widget.modelNumber,widget.sn8)]![CardType.Middle]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -191,7 +193,7 @@ class _CardDialogState extends State<CardDialog> {
                               child: UnconstrainedBox(
                                 child: buildMap[DeviceEntityTypeInP4Handle
                                     .getDeviceEntityType(widget.type,
-                                        widget.modelNumber)]![CardType.Other]!(
+                                        widget.modelNumber,widget.sn8)]![CardType.Other]!(
                                   DataInputCard(
                                     name: widget.name,
                                     applianceCode: widget.applianceCode,
@@ -225,7 +227,7 @@ class _CardDialogState extends State<CardDialog> {
                                       scale: 0.75,
                                       child: buildMap[DeviceEntityTypeInP4Handle
                                               .getDeviceEntityType(widget.type,
-                                                  widget.modelNumber)]![
+                                                  widget.modelNumber,widget.sn8)]![
                                           CardType.Big]!(
                                         DataInputCard(
                                           name: widget.name,
@@ -273,19 +275,19 @@ class _CardDialogState extends State<CardDialog> {
   List<CardType> getPageCardsTypeList() {
     List<CardType> list = [];
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            widget.type, widget.modelNumber)]![CardType.Small] != null) {
+            widget.type, widget.modelNumber,widget.sn8)]![CardType.Small] != null) {
       list.add(CardType.Small);
     }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            widget.type, widget.modelNumber)]![CardType.Middle] != null) {
+            widget.type, widget.modelNumber,widget.sn8)]![CardType.Middle] != null) {
       list.add(CardType.Middle);
     }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            widget.type, widget.modelNumber)]![CardType.Other] != null) {
+            widget.type, widget.modelNumber,widget.sn8)]![CardType.Other] != null) {
       list.add(CardType.Other);
     }
     if (buildMap[DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            widget.type, widget.modelNumber)]![CardType.Big] != null) {
+            widget.type, widget.modelNumber,widget.sn8)]![CardType.Big] != null) {
       list.add(CardType.Big);
     }
     return list;

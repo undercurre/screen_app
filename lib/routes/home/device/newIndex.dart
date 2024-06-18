@@ -46,13 +46,13 @@ class newPage extends StatefulWidget {
       deviceCache = deviceCache
           .where((element) =>
       DeviceEntityTypeInP4Handle.getDeviceEntityType(
-          element.type, element.modelNumber) !=
+          element.type, element.modelNumber,element.sn8) !=
           DeviceEntityTypeInP4.Default)
           .toList();
       deviceRes = deviceRes
           .where((element) =>
       DeviceEntityTypeInP4Handle.getDeviceEntityType(
-          element.type, element.modelNumber) !=
+          element.type, element.modelNumber,element.sn8) !=
           DeviceEntityTypeInP4.Default)
           .toList();
       List<List<DeviceEntity>> compareDevice =

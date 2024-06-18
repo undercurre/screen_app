@@ -164,7 +164,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
       devicesAll = deviceRes
           .where((e) =>
               DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
+                  e.type, e.modelNumber,e.sn8) !=
               DeviceEntityTypeInP4.Default)
           .toList();
       selectRoom(roomID);
@@ -216,13 +216,13 @@ class _AddDevicePageState extends State<AddDevicePage> {
       deviceCache = deviceCache
           .where((e) =>
               DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
+                  e.type, e.modelNumber,e.sn8) !=
               DeviceEntityTypeInP4.Default)
           .toList();
       deviceRes = deviceRes
           .where((e) =>
               DeviceEntityTypeInP4Handle.getDeviceEntityType(
-                  e.type, e.modelNumber) !=
+                  e.type, e.modelNumber,e.sn8) !=
               DeviceEntityTypeInP4.Default)
           .toList();
 
@@ -1099,7 +1099,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
   _getDeviceDialog(index, Layout resultData) {
     DeviceEntityTypeInP4 curDeviceEntity =
         DeviceEntityTypeInP4Handle.getDeviceEntityType(
-            devices[index].type, devices[index].modelNumber);
+            devices[index].type, devices[index].modelNumber,devices[index].sn8);
 
     if (MideaDataAdapter.getAdapter(devices[index].applianceCode) is DeviceCardDataAdapter) {
       // 普通设备Adapter
@@ -1122,6 +1122,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
           modelNumber: devices[index].modelNumber,
           roomName: devices[index].roomName!,
           masterId: devices[index].masterId,
+          sn8: devices[index].sn8,
           onlineStatus: devices[index].onlineStatus,
         );
       },

@@ -436,9 +436,8 @@ class DeviceInfoListModel extends ChangeNotifier {
       if (devices[i].applianceCode == System.gatewayApplianceCode) continue;
       if (devices[i].applianceCode == 'G-${System.gatewayApplianceCode}') continue;
       // 当前设备的映射type
-      DeviceEntityTypeInP4 curDeviceEntity =
-          DeviceEntityTypeInP4Handle.getDeviceEntityType(
-              devices[i].type, devices[i].modelNumber);
+      DeviceEntityTypeInP4 curDeviceEntity = DeviceEntityTypeInP4Handle.getDeviceEntityType(devices[i].type, devices[i].modelNumber,devices[i].sn8);
+
       // 检查当前设备是否是面板的标志
       bool isPanel = _isPanel(devices[i].modelNumber, devices[i].type);
       // 当前容器集中的最大页数

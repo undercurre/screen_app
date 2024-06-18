@@ -1,7 +1,6 @@
 package com.midea.light.setting.wifi.util;
 
-import static android.content.Context.CONNECTIVITY_SERVICE;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -10,7 +9,6 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.midea.light.log.LogUtil;
 import com.midea.light.setting.wifi.impl.Wifi;
@@ -24,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static android.content.Context.CONNECTIVITY_SERVICE;
 
 
 /**
@@ -197,6 +197,7 @@ public class WifiUtil {
         return null;
     }
 
+    @SuppressLint("MissingPermission")
     public static void removeAllConfiguration(Context context) {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         final List<WifiConfiguration> configs = wifiMgr.getConfiguredNetworks();

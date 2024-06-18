@@ -445,6 +445,7 @@ class _CustomPageState extends State<CustomPage> {
           roomName: layout.data.roomName,
           masterId: layout.data.masterId,
           onlineStatus: layout.data.onlineStatus,
+          sn8: layout.data.sn8,
           initPageNum: initPageNumMap[layout.cardType],
         );
       },

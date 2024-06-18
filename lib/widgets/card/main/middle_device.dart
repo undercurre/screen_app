@@ -274,6 +274,12 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                               "name": widget.name,
                               "adapter": adapter
                             });
+                          } else if (adapter?.type == AdapterType.wifiLightFun) {
+                            Navigator.pushNamed(context, '0x13_fun',
+                                arguments: {
+                                  "name": widget.name,
+                                  "adapter": adapter
+                                });
                           }
                         }
                       }
