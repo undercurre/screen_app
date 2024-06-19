@@ -571,7 +571,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
         .toList();
     tempLayoutList.addAll(groupNeed.map((groupItem) => Layout(
         groupItem.applianceCode,
-        DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber),
+        DeviceEntityTypeInP4Handle.getDeviceEntityType(groupItem.type, groupItem.modelNumber, groupItem.sn8),
         CardType.Big,
         -1,
         [],

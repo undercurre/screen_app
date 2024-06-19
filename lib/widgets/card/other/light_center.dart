@@ -141,7 +141,7 @@ class _LightControlState extends State<LightControl> {
     return GestureDetector(
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
-          adapter.fetchDataAndCheckWaitLockAuth(widget.groupId);
+          adapter.fetchDataInSafety(widget.groupId);
           // TipsUtils.toast(content: '数据缺失，控制设备失败');
           return;
         }
