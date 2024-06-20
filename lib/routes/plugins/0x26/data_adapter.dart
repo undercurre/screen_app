@@ -19,6 +19,7 @@ import '../../../../widgets/plugins/mode_card.dart';
 import '../../../common/meiju/meiju_global.dart';
 import '../../../common/meiju/models/meiju_device_info_entity.dart';
 import '../../../common/system.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class YubaDataEntity {
   String mode = 'close_all';

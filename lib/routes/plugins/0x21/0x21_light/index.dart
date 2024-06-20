@@ -9,6 +9,7 @@ import 'package:screen_app/widgets/index.dart';
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../states/device_list_notifier.dart';
 import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import 'data_adapter.dart';
 import 'mode_list.dart';
 

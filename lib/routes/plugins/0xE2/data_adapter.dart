@@ -14,6 +14,7 @@ import '../../../../common/logcat_helper.dart';
 import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class ElectricWaterHeaterDataEntity {
   bool power = false; //开关

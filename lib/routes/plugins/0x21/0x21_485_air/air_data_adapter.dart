@@ -17,6 +17,7 @@ import '../../../../common/models/node_info.dart';
 import '../../../../common/system.dart';
 import '../../../../common/utils.dart';
 import '../../../../widgets/event_bus.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class AirDataAdapter extends DeviceCardDataAdapter<Air485Data> {
   NodeInfo<Endpoint<Air485Event>> _meijuData = NodeInfo(

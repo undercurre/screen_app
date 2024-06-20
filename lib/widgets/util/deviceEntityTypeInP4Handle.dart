@@ -1,6 +1,39 @@
 import '../../routes/home/device/card_type_config.dart';
 
+// Adapter类型
+enum AdapterType {
+  unKnow,
+  wifiLight,
+  zigbeeLight,
+  zigbeeLightSingle, //单调光灯
+  lightGroup,
+  wifiCurtain,
+  air485,
+  CRC485,
+  floor485,
+  panel,
+  wifiAir,
+  wifiYuba,
+  wifiLiangyi,
+  wifiDianre,
+  wifiRanre,
+  wifiLightFan
+}
+
+/// 添加需要确权的设备类型 （一般普通的wifi设备都需判断确权）
+const NeedCheckWaitLockAuthTypes = [
+  AdapterType.wifiLight,
+  AdapterType.wifiCurtain,
+  AdapterType.wifiAir,
+  AdapterType.wifiYuba,
+  AdapterType.wifiLiangyi,
+  AdapterType.wifiDianre,
+  AdapterType.wifiRanre,
+  AdapterType.wifiLightFan
+];
+
 class DeviceEntityTypeInP4Handle {
+
   static String extractLowercaseEntityType(String inputString) {
     // 定义正则表达式模式，匹配DeviceEntityTypeInP4后面的单词
     final pattern = RegExp(r'DeviceEntityTypeInP4\.(\w+)');
@@ -37,6 +70,8 @@ class DeviceEntityTypeInP4Handle {
         return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
       } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
         return DeviceEntityTypeInP4.homlux_lightGroup;
+      }  else if(type == '0x13' && typeOf0x13AndFan(sn8)) {
+        return DeviceEntityTypeInP4.Device0x13_fan;
       } else if (type == "0xCC" && modelNum == '3017') {
         return DeviceEntityTypeInP4.Zigbee_3017;
       }else if (type == "0xCE" && modelNum == '3018') {
@@ -49,12 +84,7 @@ class DeviceEntityTypeInP4Handle {
         return DeviceEntityTypeInP4.Weather;
       } else if (type == 'scene') {
         return DeviceEntityTypeInP4.Scene;
-      } else if(type == '0x13'){
-        List<String> funLight = ['M0200004', 'M0200005', '79010863'];
-        if (funLight.contains(sn8)) {
-          return DeviceEntityTypeInP4.Device0x13_fun;
-        }
-      }else {
+      } else {
         if (deviceType.toString() == 'DeviceEntityTypeInP4.Device$type') {
           return deviceType;
         }
@@ -62,4 +92,11 @@ class DeviceEntityTypeInP4Handle {
     }
     return DeviceEntityTypeInP4.Default;
   }
+
+  /// 风扇灯配置
+  static bool typeOf0x13AndFan(String? sn8) {
+    const List<String> funLight = ['M0200004', 'M0200005', '79010863'];
+    return funLight.contains(sn8);
+  }
+
 }

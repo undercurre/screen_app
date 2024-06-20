@@ -208,7 +208,7 @@ class _BigDeviceCurtainCardWidgetState
       onTap: () {
         if (adapter.dataState != DataState.SUCCESS) {
           adapter.fetchDataInSafety(widget.applianceCode);
-          TipsUtils.toast(content: '网络服务异常，控制设备失败');
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
         if (!isOnlineState() && !widget.disabled) {

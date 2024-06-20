@@ -11,6 +11,7 @@ import '../../../states/layout_notifier.dart';
 import '../../event_bus.dart';
 import '../../mz_slider.dart';
 import '../../util/nameFormatter.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class BigDeviceLightCardWidget extends StatefulWidget {
   final String applianceCode;

@@ -18,6 +18,7 @@ import '../../../../widgets/plugins/mode_card.dart';
 import '../../../common/api/device_api.dart';
 import '../../../common/meiju/meiju_global.dart';
 import '../../../../common/models/endpoint.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class GroupDataEntity {
   int brightness = 1; // 亮度

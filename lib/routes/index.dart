@@ -97,6 +97,6 @@ var routes = <String, WidgetBuilder>{
   "0xAC": (context) => const AirConditionPage(),
   "0xAC_newWind": (context) => const NewWindPage(),
   "0xAC_floorHeating": (context) => const FloorHeatingPage(),
-  "0x13_fun": (context) => const WifiLightFanPage()
+  "0x13_fan": (context) => const WifiLightFanPage()
 
 };

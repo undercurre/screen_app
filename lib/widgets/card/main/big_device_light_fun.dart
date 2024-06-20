@@ -303,7 +303,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
                       return;
                     }
                     if (!widget.disabled) {
-                      Navigator.pushNamed(context, '0x13_fun', arguments: {
+                      Navigator.pushNamed(context, '0x13_fan', arguments: {
                         "name": getDeviceName(),
                         "adapter": adapter
                       });

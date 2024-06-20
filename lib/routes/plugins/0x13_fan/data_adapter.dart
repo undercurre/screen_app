@@ -17,6 +17,7 @@ import '../../../../widgets/plugins/mode_card.dart';
 import '../../../common/meiju/meiju_global.dart';
 import '../../../common/meiju/models/meiju_device_info_entity.dart';
 import '../../../common/system.dart';
+import '../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class LightFunDataEntity {
   int brightness = 1; // 亮度
@@ -101,7 +102,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   WIFILightFunDataAdapter(super.platform, this.sn8, this.applianceCode) {
     Log.i('获取到当前吸顶灯的sn8', this.sn8);
-    type = AdapterType.wifiLightFun;
+    type = AdapterType.wifiLightFan;
   }
 
   @override
