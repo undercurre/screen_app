@@ -187,3 +187,15 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 - SliderButtonCard [文档地址](./docs/plugins/slider_button_card.md)
 
 ## 设备——>插件逻辑文档[文档地址](./docs/device/device_card.md)
+
+## 布局逻辑
+
+- 目前布局主要使用第三方瀑布流组件实现flutter_staggered_grid_view
+- 该组件主要负责不定大小卡片的自动排列
+- 渲染过程，首先需要拿到layoutObject布局对象列表，然后逐个渲染到该组件上
+- 布局对象数据由布局器screenLayer计算，该布局器会将屏幕分割为16格，其中配置各个卡片在一屏中布局的所有可能性和优先级
+- layoutObject在渲染前要经过screenLayer布局计算数据，然后遍历整个布局对象数组，逐个导入flutter_staggered_grid_view形成瀑布布局
+- 因为PageView的滑动需求，每一滑动屏都分别是一个瀑布流.
+- 每个卡片本身拥有独立的LongPressDraggable处理来拖拽布局
+- 通过绝对定位右上角减号按钮实现删除功能
+- layoutObject时还需要将没有被布局的位置使用一个Null布局（实际存在的透明小卡片作为占位），让布局更好地按照我们的预想进行增删及排列
