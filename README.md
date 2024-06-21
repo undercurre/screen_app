@@ -199,3 +199,4 @@ MzResponseEntity<QrCodeEntity> res = await Api.requestMzIot<QrCodeEntity>(
 - 每个卡片本身拥有独立的LongPressDraggable处理来拖拽布局
 - 通过绝对定位右上角减号按钮实现删除功能
 - layoutObject时还需要将没有被布局的位置使用一个Null布局（实际存在的透明小卡片作为占位），让布局更好地按照我们的预想进行增删及排列
+- screenLayer算法实现[https://blog.lirh42.xyz/2023/06/23/%E7%AE%97%E6%B3%95/grid%E6%89%BE%E5%9D%91%E5%A1%AB%E5%85%85%E7%AE%97%E6%B3%95/]
