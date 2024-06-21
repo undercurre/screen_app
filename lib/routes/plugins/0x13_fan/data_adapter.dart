@@ -254,6 +254,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制风扇开关
   Future<void> controlPower() async {
+    bus.emit('operateDevice', applianceCode);
     data!.funPower = !data!.funPower;
     updateUI();
     if (platform.inMeiju()) {
@@ -276,6 +277,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制灯开关
   Future<void> controlLedPower() async {
+    bus.emit('operateDevice', applianceCode);
     data!.ledPower = !data!.ledPower;
     updateUI();
     if (platform.inMeiju()) {
@@ -298,6 +300,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制风扇正反转
   Future<void> controlArroundDir() async {
+    bus.emit('operateDevice', applianceCode);
     data!.arroundDir = data!.arroundDir==1?0:1;
     updateUI();
     if (platform.inMeiju()) {
@@ -320,6 +323,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制风扇模式
   Future<void> controlMode(String mode) async {
+    bus.emit('operateDevice', applianceCode);
     String lastModel = data!.fanScene;
     data!.fanScene = mode;
     updateUI();
@@ -343,6 +347,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制风速
   Future<void> controlWindSpeed(num speed) async {
+    bus.emit('operateDevice', applianceCode);
     int lastSpeed = data!.fanSpeed;
     String lastfanScene=data!.fanScene;
     int fanSpeed=1;
@@ -382,6 +387,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制亮度
   Future<void> controlBrightness(num value, Color? activeColor) async {
+    bus.emit('operateDevice', applianceCode);
     int lastBrightness = data!.brightness;
     data!.brightness = value.toInt();
     updateUI();
@@ -406,6 +412,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
 
   /// 控制色温
   Future<void> controlColorTemperature(num value, Color? activeColor) async {
+    bus.emit('operateDevice', applianceCode);
     int lastColorTemp = data!.colorTemp;
     data!.colorTemp = value.toInt();
     updateUI();
@@ -446,11 +453,13 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
   }
 
   Future<void> controlBrightnessFaker(num value, Color? activeColor) async {
+    bus.emit('operateDevice', applianceCode);
     data!.brightness = value.toInt();
     updateUI();
   }
 
   Future<void> controlColorTemperatureFaker(num value, Color? activeColor) async {
+    bus.emit('operateDevice', applianceCode);
     data!.colorTemp = value.toInt();
     updateUI();
   }

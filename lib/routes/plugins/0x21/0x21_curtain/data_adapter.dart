@@ -13,6 +13,7 @@ import '../../../../common/meiju/api/meiju_device_api.dart';
 import '../../../../common/meiju/push/event/meiju_push_event.dart';
 import '../../../../common/models/endpoint.dart';
 import '../../../../common/models/node_info.dart';
+import '../../../../widgets/event_bus.dart';
 
 class _CurtainDataEntity {
   int curtainPosition;
@@ -112,6 +113,7 @@ class ZigbeeCurtainDataAdapter extends DeviceCardDataAdapter<_CurtainDataEntity>
 
   @override
   Future power(bool? onOff) async {
+    bus.emit('operateDevice', applianceCode);
     if (platform.inMeiju() && _meijuData != null) {
       data!.curtainPosition = onOff == false ? 100 : 0;
       data!.curtainStatus = onOff == false ? 'open' : 'close';
@@ -150,6 +152,7 @@ class ZigbeeCurtainDataAdapter extends DeviceCardDataAdapter<_CurtainDataEntity>
 
   @override
   Future<dynamic> slider1To(int? value) async {
+    bus.emit('operateDevice', applianceCode);
     if (platform.inMeiju()) {
       data!.curtainPosition = value!;
       data!.curtainStatus = 'stop';
@@ -161,6 +164,7 @@ class ZigbeeCurtainDataAdapter extends DeviceCardDataAdapter<_CurtainDataEntity>
 
   @override
   Future<dynamic> slider1ToFaker(int? value) async {
+    bus.emit('operateDevice', applianceCode);
     if (platform.inMeiju()) {
       data!.curtainPosition = value!;
       data!.curtainStatus = 'stop';
@@ -189,6 +193,7 @@ class ZigbeeCurtainDataAdapter extends DeviceCardDataAdapter<_CurtainDataEntity>
   /// 2 ： 全关
   @override
   Future tabTo(int? index) async {
+    bus.emit('operateDevice', applianceCode);
     if (index == null) return;
     if (index < 0 || index > 3) return;
     if (platform.inMeiju() && _meijuData != null) {

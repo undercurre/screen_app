@@ -228,7 +228,6 @@ class _MiddleDeviceCardWidgetState extends State<MiddleDeviceCardWidget> {
                         // TipsUtils.toast(content: '数据缺失，控制设备失败');
                         return;
                       }
-                      Log.i('点击进入插件', adapter.type);
                       if (!onlineState()) {
                         TipsUtils.toast(content: '设备已离线，请检查连接状态');
                         return;

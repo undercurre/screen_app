@@ -123,8 +123,8 @@ class GlobalRouteObserver<R extends Route<dynamic>> extends RouteObserver<R> {
   @override
   void didPush(Route route, Route? previousRoute) {
     super.didPush(route, previousRoute);
-    debugPrint(
-        'didPush: ${route.settings.name}, from:${previousRoute?.settings.name}');
+    String log = '[路由跳转]: to:${route.settings.name}, from:${previousRoute?.settings.name}';
+    Log.file(log);
   }
 
   @override
