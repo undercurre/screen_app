@@ -110,7 +110,7 @@ class MeiJuApi {
           }
           if (tokenState != TokenCombineState.INVAILD && tokenState != TokenCombineState.NORMAL) {
             await syncTryToRefreshToken("检测到本地Token状态异常，准备重新刷新Token状态");
-            if(tokenState == TokenCombineState.INVAILD) {
+            if(tokenState != TokenCombineState.NORMAL) {
               /// 刷新失败，接口拒绝请求
               return handler.reject(DioException(requestOptions: options));
             } else {

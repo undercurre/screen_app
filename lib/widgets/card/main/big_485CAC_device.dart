@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
@@ -43,12 +44,10 @@ class Big485CACDeviceAirCardWidget extends StatefulWidget {
       this.onPowerTap});
 
   @override
-  _Big485CACDeviceAirCardWidgetState createState() =>
-      _Big485CACDeviceAirCardWidgetState();
+  _Big485CACDeviceAirCardWidgetState createState() => _Big485CACDeviceAirCardWidgetState();
 }
 
-class _Big485CACDeviceAirCardWidgetState
-    extends State<Big485CACDeviceAirCardWidget> {
+class _Big485CACDeviceAirCardWidgetState extends State<Big485CACDeviceAirCardWidget> {
   late CACDataAdapter adapter;
 
   @override
@@ -63,7 +62,7 @@ class _Big485CACDeviceAirCardWidgetState
 
   void updateData() {
     if (mounted) {
-      if(adapter.data!.targetTemp < 35){
+      if (adapter.data!.targetTemp < 35) {
         setState(() {});
       }
     }
@@ -93,7 +92,7 @@ class _Big485CACDeviceAirCardWidgetState
   }
 
   Future<void> temperatureHandle(num value) async {
-    if(adapter.data!.operationMode == 4){
+    if (adapter.data!.operationMode == 4) {
       return;
     }
     if (!adapter.data!.OnOff) {
@@ -109,18 +108,12 @@ class _Big485CACDeviceAirCardWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: true);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: adapter.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: adapter.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -128,11 +121,9 @@ class _Big485CACDeviceAirCardWidgetState
     }
 
     String getRoomName() {
-      String nameInModel =
-          deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
+      String nameInModel = deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
@@ -170,8 +161,7 @@ class _Big485CACDeviceAirCardWidgetState
             left: 24,
             child: GestureDetector(
               onTap: () => powerHandle(adapter.data!.OnOff),
-              child: Image(
-                  width: 40, height: 40, image: AssetImage(getPowerIcon())),
+              child: Image(width: 40, height: 40, image: AssetImage(getPowerIcon())),
             ),
           ),
           Positioned(
@@ -181,18 +171,12 @@ class _Big485CACDeviceAirCardWidgetState
               onTap: () => {
                 if (adapter.data!.online)
                   {
-                    Navigator.pushNamed(context, '0x21_485CAC', arguments: {
-                      "name": getDeviceName(),
-                      "adapter": adapter
-                    })
+                    Navigator.pushNamed(context, '0x21_485CAC', arguments: {"name": getDeviceName(), "adapter": adapter})
                   }
                 else
                   {TipsUtils.toast(content: '设备已离线,请检查设备')}
               },
-              child: const Image(
-                  width: 32,
-                  height: 32,
-                  image: AssetImage('assets/newUI/to_plugin.png')),
+              child: const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')),
             ),
           ),
           Positioned(
@@ -204,8 +188,7 @@ class _Big485CACDeviceAirCardWidgetState
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: 140),
+                    constraints: BoxConstraints(maxWidth: 140),
                     child: Text(NameFormatter.formatName(getDeviceName(), 5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -254,8 +237,7 @@ class _Big485CACDeviceAirCardWidgetState
                     height: 24,
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      border:
-                          Border.all(color: const Color(0xFFFFFFFF), width: 1),
+                      border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
                     ),
                     margin: const EdgeInsets.fromLTRB(10, 0, 0, 10),
                     child: const Text(
@@ -284,14 +266,10 @@ class _Big485CACDeviceAirCardWidgetState
                 children: [
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(
-                          adapter.data!.targetTemp > widget.min
-                              ? adapter.data!.targetTemp - 1
-                              : widget.min),
+                      temperatureHandle(adapter.data!.targetTemp > widget.min ? adapter.data!.targetTemp - 1 : widget.min),
                     },
                     child: Image(
-                        color: Color.fromRGBO(
-                            255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
+                        color: Color.fromRGBO(255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/sub.png')),
@@ -299,13 +277,10 @@ class _Big485CACDeviceAirCardWidgetState
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                          "${adapter.data!.targetTemp > 30 ? "26" : adapter.data!.targetTemp}",
+                      Text("${adapter.data!.targetTemp > 30 ? "26" : adapter.data!.targetTemp}",
                           style: TextStyle(
                               height: 1.5,
-                              color: adapter.data!.OnOff
-                                  ? const Color(0XFFFFFFFF)
-                                  : const Color(0XA3FFFFFF),
+                              color: adapter.data!.OnOff ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                               fontSize: 60,
                               fontFamily: "MideaType",
                               fontWeight: FontWeight.normal,
@@ -315,10 +290,7 @@ class _Big485CACDeviceAirCardWidgetState
                         child: Text("℃",
                             style: TextStyle(
                                 height: 1.5,
-                                color:
-                                    adapter!.data!.OnOff && adapter.data!.online
-                                        ? const Color(0XFFFFFFFF)
-                                        : const Color(0XA3FFFFFF),
+                                color: adapter!.data!.OnOff && adapter.data!.online ? const Color(0XFFFFFFFF) : const Color(0XA3FFFFFF),
                                 fontSize: 18,
                                 fontFamily: "MideaType",
                                 fontWeight: FontWeight.normal,
@@ -328,14 +300,10 @@ class _Big485CACDeviceAirCardWidgetState
                   ),
                   GestureDetector(
                     onTap: () => {
-                      temperatureHandle(
-                          adapter.data!.targetTemp < widget.max
-                              ? adapter.data!.targetTemp + 1
-                              : widget.max),
+                      temperatureHandle(adapter.data!.targetTemp < widget.max ? adapter.data!.targetTemp + 1 : widget.max),
                     },
                     child: Image(
-                        color: Color.fromRGBO(
-                            255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
+                        color: Color.fromRGBO(255, 255, 255, adapter.data!.OnOff ? 1 : 0.7),
                         width: 36,
                         height: 36,
                         image: const AssetImage('assets/newUI/add.png')),
@@ -353,9 +321,7 @@ class _Big485CACDeviceAirCardWidgetState
               height: 16,
               min: widget.min,
               max: widget.max,
-              disabled: !adapter.data!.OnOff ||
-                  !adapter.data!.online ||
-                  adapter.data!.operationMode == 4,
+              disabled: !adapter.data!.OnOff || !adapter.data!.online || adapter.data!.operationMode == 4,
               activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
               onChanging: (val, color) => {},
               onChanged: (val, color) => {temperatureHandle(val)},
@@ -376,29 +342,14 @@ class _Big485CACDeviceAirCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
+      gradient: getBigCardColorBg('disabled'),
       border: Border.all(
         color: const Color(0x00FFFFFF),
         width: 0,

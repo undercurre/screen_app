@@ -10,6 +10,7 @@ class MzDialog {
   Color? backgroundColor;
   EdgeInsetsGeometry? titlePadding;
   EdgeInsetsGeometry? contentPadding;
+  bool barrierDismissible;
   double maxWidth;
   ShapeBorder? shape;
   List<String>? btns; // 底部操作按钮列表
@@ -20,6 +21,7 @@ class MzDialog {
 
   MzDialog(
       {this.title,
+      this.barrierDismissible = true,
       this.titleSize = 24,
       this.desc,
       this.descSize = 14,
@@ -99,6 +101,7 @@ class MzDialog {
 
     return showDialog<bool>(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Stack(children: [
             AlertDialog(

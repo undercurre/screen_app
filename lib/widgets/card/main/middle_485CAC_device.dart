@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
@@ -18,7 +19,6 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   final String characteristic; // 特征值
   final Function? onTap; // 整卡点击事件
   final Function? onMoreTap; // 右边的三点图标的点击事件
-
 
   bool disable;
   AdapterGenerateFunction<CACDataAdapter> adapterGenerateFunction;
@@ -40,13 +40,10 @@ class Middle485CACDeviceCardWidget extends StatefulWidget {
   });
 
   @override
-  _Middle485CACDeviceCardWidgetState createState() =>
-      _Middle485CACDeviceCardWidgetState();
+  _Middle485CACDeviceCardWidgetState createState() => _Middle485CACDeviceCardWidgetState();
 }
 
-class _Middle485CACDeviceCardWidgetState
-    extends State<Middle485CACDeviceCardWidget> {
-
+class _Middle485CACDeviceCardWidgetState extends State<Middle485CACDeviceCardWidget> {
   late CACDataAdapter adapter;
 
   @override
@@ -54,15 +51,14 @@ class _Middle485CACDeviceCardWidgetState
     super.initState();
     adapter = widget.adapterGenerateFunction.call(widget.applianceCode);
     adapter.init();
-    if(!widget.disable){
+    if (!widget.disable) {
       adapter.bindDataUpdateFunction(updateData);
     }
   }
 
-
   void updateData() {
     if (mounted) {
-      if(adapter.data!.targetTemp < 35){
+      if (adapter.data!.targetTemp < 35) {
         setState(() {});
       }
     }
@@ -79,7 +75,7 @@ class _Middle485CACDeviceCardWidgetState
       setState(() {});
       adapter.orderPower(0);
     } else {
-      adapter.data!.OnOff=true;
+      adapter.data!.OnOff = true;
       setState(() {});
       adapter.orderPower(1);
     }
@@ -96,14 +92,9 @@ class _Middle485CACDeviceCardWidgetState
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: true);
 
     String getDeviceName() {
-      String nameInModel = deviceListModel.getDeviceName(
-          deviceId: adapter.applianceCode,
-          maxLength: 6,
-          startLength: 3,
-          endLength: 2);
+      String nameInModel = deviceListModel.getDeviceName(deviceId: adapter.applianceCode, maxLength: 6, startLength: 3, endLength: 2);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '加载中';
       }
 
@@ -111,17 +102,14 @@ class _Middle485CACDeviceCardWidgetState
     }
 
     String getRoomName() {
-      String nameInModel = deviceListModel.getDeviceRoomName(
-          deviceId: adapter.applianceCode);
+      String nameInModel = deviceListModel.getDeviceRoomName(deviceId: adapter.applianceCode);
 
-      if (deviceListModel.deviceListHomlux.isEmpty &&
-          deviceListModel.deviceListMeiju.isEmpty) {
+      if (deviceListModel.deviceListHomlux.isEmpty && deviceListModel.deviceListMeiju.isEmpty) {
         return '';
       }
 
       return nameInModel;
     }
-
 
     String getRightText() {
       if (!adapter.data!.online) {
@@ -146,18 +134,12 @@ class _Middle485CACDeviceCardWidgetState
                 onTap: () => {
                   if (adapter.data!.online)
                     {
-                      Navigator.pushNamed(context, '0x21_485CAC', arguments: {
-                        "name": getDeviceName(),
-                        "adapter": adapter
-                      })
+                      Navigator.pushNamed(context, '0x21_485CAC', arguments: {"name": getDeviceName(), "adapter": adapter})
                     }
                   else
                     {TipsUtils.toast(content: '设备已离线,请检查设备')}
                 },
-                child: const Image(
-                    width: 32,
-                    height: 32,
-                    image: AssetImage('assets/newUI/to_plugin.png')),
+                child: const Image(width: 32, height: 32, image: AssetImage('assets/newUI/to_plugin.png')),
               ),
             ),
             Positioned(
@@ -171,8 +153,7 @@ class _Middle485CACDeviceCardWidgetState
               child: Row(
                 children: [
                   ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: 160),
+                    constraints: BoxConstraints(maxWidth: 160),
                     child: Text(
                       NameFormatter.formatName(getDeviceName(), 5),
                       maxLines: 1,
@@ -192,10 +173,8 @@ class _Middle485CACDeviceCardWidgetState
                       width: 48,
                       height: 24,
                       decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(24)),
-                        border: Border.all(
-                            color: const Color(0xFFFFFFFF), width: 1),
+                        borderRadius: const BorderRadius.all(Radius.circular(24)),
+                        border: Border.all(color: const Color(0xFFFFFFFF), width: 1),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: const Text(
@@ -258,29 +237,14 @@ class _Middle485CACDeviceCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
-    return const BoxDecoration(
+    return BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(24)),
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
+      gradient: getBigCardColorBg('disabled'),
     );
   }
 }

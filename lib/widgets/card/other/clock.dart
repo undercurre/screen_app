@@ -45,20 +45,19 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
       width: 210,
       height: 196,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.bottomRight,
+          end: Alignment.topLeft,
           colors: [
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33616A76),
-            widget.discriminative
-                ? Colors.white.withOpacity(0.12)
-                : const Color(0x33434852),
+            Color(0xFF5C747B),
+            Color(0xFF5F7380),
+            Color(0xFF616D86),
+            Color(0xFF576E87),
+            Color(0xFF45617F),
+            Color(0xFF33617F),
           ],
-          stops: [0.06, 1.0],
-          transform: GradientRotation(213 * (3.1415926 / 360.0)),
+          stops: [0.0, 0.2, 0.4, 0.44, 0.7, 1.0]
         ),
       ),
       child: Column(
@@ -93,8 +92,7 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
                         fontWeight: FontWeight.w400,
                         fontSize: 18,
                         fontFamily: 'MideaType',
-                        color: const Color.fromRGBO(255, 255, 255, 0.80)
-                            .withOpacity(0.79)),
+                        color: const Color.fromRGBO(255, 255, 255, 0.80).withOpacity(0.79)),
                   ),
                   const SizedBox(
                     width: 10,
@@ -106,8 +104,7 @@ class _DigitalClockWidgetState extends State<DigitalClockWidget> {
                         letterSpacing: 4.0,
                         fontWeight: FontWeight.w400,
                         fontSize: 18,
-                        color: const Color.fromRGBO(255, 255, 255, 0.80)
-                            .withOpacity(0.79)),
+                        color: const Color.fromRGBO(255, 255, 255, 0.80).withOpacity(0.79)),
                   ),
                 ],
               );

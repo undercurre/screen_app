@@ -287,6 +287,7 @@ public class AiManager {
 
     public void stopAi() {
         try {
+            isBind = false;
             if (sever != null) {
                 sever.stop();
             }

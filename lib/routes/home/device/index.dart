@@ -14,6 +14,7 @@ import 'package:screen_app/widgets/util/debouncer.dart';
 import 'package:screen_app/widgets/util/net_utils.dart';
 
 import '../../../common/api/api.dart';
+import '../../../common/homlux/api/homlux_user_api.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/meiju/push/event/meiju_push_event.dart';
@@ -114,6 +115,15 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
+    if (System.inHomluxPlatform()) {
+      // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
+      var roomList = await HomluxUserApi.queryRoomList(
+          System.familyInfo!.familyId);
+      String curGroupId = roomList.data?.roomInfoWrap
+          ?.firstWhere((element) => element.roomId == System.roomInfo?.id)
+          .groupId;
+      netListDeviceIds.add(curGroupId);
+    }
     // 做diff对比上面拿到的两个ids
     List<List<String>> compareDevice = Compare.compareData<String>(layoutDeviceIds, netListDeviceIds);
     // 获取到diff的删除差值，并遍历每一个被删除的设备
@@ -159,6 +169,14 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
         .toList();
     // 再拿到网络设备列表映射成ids
     List<String> netListDeviceIds = deviceRes.map((e) => e.applianceCode).toList();
+    // 默认的房间灯组加入网络列表在ids中避免他被自动清掉
+    if (System.inHomluxPlatform()) {
+      var roomList = await HomluxUserApi.queryRoomList(System.familyInfo!.familyId);
+      String curGroupId = roomList.data?.roomInfoWrap
+          ?.firstWhere((element) => element.roomId == System.roomInfo?.id)
+          .groupId;
+      netListDeviceIds.add(curGroupId);
+    }
     // 再加入网络场景表映射成ids
     netListDeviceIds.addAll(sceneRes.map((e) => e.sceneId as String).toList());
     // 做diff对比上面拿到的两个ids
@@ -316,8 +334,7 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     for (int pageCount = 0; pageCount <= hadPageCount; pageCount++) {
       // ************布局
       // 先获取当前页的布局，设置screenLayer布局器
-      List<Layout> layoutsInCurPage =
-          layoutModel.getLayoutsByPageIndex(pageCount).where((element) => element.cardType != CardType.Null).toList();
+      List<Layout> layoutsInCurPage = layoutModel.getLayoutsByPageIndex(pageCount).toList();
       // 防止空页被渲染
       if (layoutsInCurPage.isEmpty) continue;
       for (int layoutInCurPageIndex = 0; layoutInCurPageIndex < layoutsInCurPage.length; layoutInCurPageIndex++) {
@@ -446,6 +463,10 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   void homluxPushMov(HomluxMovWifiDeviceEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 设备移动");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   void homluxPushSubMov(HomluxMovSubDeviceEvent arg) {
@@ -458,6 +479,9 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
   }
 
   void homluxPushSubDel(HomluxDelSubDeviceEvent arg) {
+    if (!mounted) {
+      return;
+    }
     autoDeleleLayout(context);
   }
 
@@ -474,16 +498,29 @@ class _DevicePageState extends State<DevicePage> with WidgetNetState {
     sceneModel.roomDataAd.queryRoomList(System.familyInfo!);
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 房间更新");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   void homluxWifiUpdate(HomluxEditWifiEvent arg) {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: wifi设备被编辑");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
   }
 
   handleHomluxDeviceListChange() {
     final deviceModel = context.read<DeviceInfoListModel>();
     deviceModel.getDeviceList("查询设备列表: 设备列表发生变化");
+    if (!mounted) {
+      return;
+    }
+    autoDeleleLayout(context);
+    ;
   }
 
   // 推送启动中枢

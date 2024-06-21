@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/device_card_data_adapter.dart';
@@ -222,9 +224,9 @@ class DeviceInfoListModel extends ChangeNotifier {
         return [];
       }
       HomluxResponseEntity<List<HomluxDeviceEntity>> HomluxRes = await HomluxDeviceApi.queryDeviceListByHomeId(familyInfo.familyId);
+
       if (HomluxRes.isSuccess) {
         deviceListHomlux = HomluxRes.data!;
-        notifyListeners();
 
         List<DeviceEntity> tempList = deviceListHomlux.map((e) {
           DeviceEntity deviceObj = DeviceEntity();
@@ -236,6 +238,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.roomId = e.roomId ?? System.roomInfo?.id;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
+          Log.i('填充临时列表', deviceObj);
           return deviceObj;
         }).toList();
 
@@ -246,6 +249,8 @@ class DeviceInfoListModel extends ChangeNotifier {
         deviceCacheList = tempList;
 
         Log.i('网表', tempList.map((e) => '${e.name}${e.onlineStatus}').toList());
+
+        notifyListeners();
 
         return tempList;
       }

@@ -10,6 +10,8 @@ import '../../../common/gateway_platform.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/system.dart';
 import '../../../states/scene_list_notifier.dart';
+import '../../../states/weather_change_notifier.dart';
+import '../method.dart';
 
 class SmallSceneCardWidget extends StatefulWidget {
   bool onOff = false;
@@ -34,7 +36,6 @@ class SmallSceneCardWidget extends StatefulWidget {
 }
 
 class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -47,6 +48,7 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final weatherModel = Provider.of<WeatherModel>(context);
     final sceneListModel = Provider.of<SceneListModel>(context);
     String sceneName = sceneListModel.getSceneName(widget.sceneId);
     String sceneRoomName = sceneListModel.getSceneRoomName(widget.sceneId);
@@ -68,97 +70,102 @@ class _SmallSceneCardWidgetState extends State<SmallSceneCardWidget> {
           return;
         }
       },
-      child: Container(
-        width: 210,
-        height: 88,
-        padding:
-            const EdgeInsets.only(top: 16, left: 20, right: 20, bottom: 16),
-        decoration: widget.onOff
-            ? BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF767B86),
-                    Color(0xFF88909F),
-                    Color(0xFF516375),
-                  ],
-                  stops: [0, 0.24, 1],
-                  transform: GradientRotation(194 * (3.1415926 / 360.0)),
-                ),
-              )
-            : BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33616A76),
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33434852),
-                  ],
-                  stops: const [0.06, 1.0],
-                  transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-                ),
-              ),
-        child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              width: 40,
-              child: Image(
-                image: AssetImage('assets/newUI/scene/${widget.icon}.png')
+      child: Stack(children: [
+        Positioned(
+          child: Container(
+            width: 210,
+            height: 88,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: getSceneBgStop(widget.icon),
+                colors: getSceneBgColor(widget.icon),
               ),
             ),
-            SizedBox(
-              width: 100,
-              height: 56,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 98,
-                        maxHeight: 56,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-                        crossAxisAlignment:  CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            NameFormatter.formLimitString(sceneName, 4, 1, 2),
-                            style: const TextStyle(
-                              height: 1.2,
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          if (System.inHomluxPlatform()) Text(
-                            NameFormatter.formLimitString(
-                                sceneRoomName, 4, 1, 2),
-                            style: TextStyle(
-                              height: 1,
-                              color: Colors.white.withOpacity(0.64),
-                              fontSize: 16,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      )),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        if (widget.onOff)
+          Positioned(
+            child: Container(
+              width: 210,
+              height: 88,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.40),
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        Container(
+          width: 210,
+          height: 88,
+          padding: const EdgeInsets.only(top: 16, left: 20, right: 20, bottom: 16),
+          child: Row(
+            children: [
+              widget.onOff
+                  ? Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 40,
+                      color: Colors.transparent,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                          strokeWidth: 3.0,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 40,
+                      child: Image(image: AssetImage('assets/newUI/scene/${widget.icon}.png')),
+                    ),
+              SizedBox(
+                width: 100,
+                height: 56,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 98,
+                          maxHeight: 56,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              NameFormatter.formLimitString(sceneName, 4, 1, 2),
+                              style: const TextStyle(
+                                height: 1.2,
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontFamily: 'MideaType',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            if (System.inHomluxPlatform())
+                              Text(
+                                widget.onOff ? '执行中...' : NameFormatter.formLimitString(sceneRoomName, 4, 1, 2),
+                                style: TextStyle(
+                                  height: 1,
+                                  color: Colors.white.withOpacity(0.64),
+                                  fontSize: 16,
+                                  fontFamily: 'MideaType',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                          ],
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }

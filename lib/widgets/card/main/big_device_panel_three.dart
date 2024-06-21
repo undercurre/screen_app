@@ -17,6 +17,7 @@ import '../../event_bus.dart';
 import '../../mz_buttion.dart';
 import '../../mz_dialog.dart';
 import '../../util/nameFormatter.dart';
+import '../method.dart';
 
 class BigDevicePanelCardWidgetThree extends StatefulWidget {
   final String applianceCode;
@@ -363,18 +364,7 @@ class _BigDevicePanelCardWidgetThreeState
   BoxDecoration _getBoxDecoration() {
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          widget.discriminative
-              ? Colors.white.withOpacity(0.12)
-              : const Color(0x33616A76),
-          widget.discriminative
-              ? Colors.white.withOpacity(0.12)
-              : const Color(0x33434852),
-        ],
-      ),
+      gradient: widget.discriminative ? getBigCardColorBg('discriminative') : getBigCardColorBg('disabled'),
     );
   }
 }

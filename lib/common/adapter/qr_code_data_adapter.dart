@@ -161,7 +161,7 @@ class QRCodeDataAdapter extends MideaDataAdapter {
   /// ### 轮询查询授权状态接口
   void _updateLoginStatus(int second) async {
     if (authTokenState) {
-      Log.file('停止二维码活动');
+      Log.file('停止二维码活动1');
       return;
     }
     int tempSecond = second;
@@ -175,6 +175,16 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         qrCodeState = DataState.ERROR;
         errorTip = qrcodeInvalidTip;
         updateUI();
+        return;
+      } else if(platform.inMeiju() && MeiJuGlobal.token != null) {
+        // 补丁 - 出现已经授权成功。但是二维码还继续轮询问题
+        Log.file('停止二维码活动2');
+        updateLoginStatusTime?.cancel();
+        return;
+      } else if(platform.inHomlux() && HomluxGlobal.homluxQrCodeAuthEntity != null) {
+        // 补丁 - 出现已经授权成功。但是二维码还继续轮询问题
+        Log.file('停止二维码活动3');
+        updateLoginStatusTime?.cancel();
         return;
       }
 

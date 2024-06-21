@@ -17,6 +17,8 @@ import 'package:screen_app/widgets/card/main/local_relay.dart';
 import 'package:screen_app/widgets/card/main/middle_device.dart';
 import 'package:screen_app/widgets/card/main/middle_device_panel.dart';
 import 'package:screen_app/widgets/card/main/small_scene_panel.dart';
+import 'package:screen_app/widgets/card/other/light_center.dart';
+import '../../../common/adapter/default_lightGroup_adapter.dart';
 import '../../../common/adapter/knob_panel_data_adapter.dart';
 import '../../../widgets/card/edit.dart';
 import '../../../widgets/card/main/big_485Air_device.dart';
@@ -165,6 +167,13 @@ Map<CardType, Widget Function(DataInputCard)> zigbeeLight(String icon) {
         disableOnOff: params.disableOnOff ?? true,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(
+              context, '0x21_light_colorful', arguments: {
+            "name": params.name,
+            "adapter": adapter
+          });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -217,7 +226,7 @@ enum DeviceEntityTypeInP4 {
   // wifi灯
   Device0x13,
   // 风扇灯
-  Device0x13_fun,
+  Device0x13_fan,
   // wifi窗帘
   Device0x14,
   // 浴霸
@@ -329,6 +338,8 @@ enum DeviceEntityTypeInP4 {
   Zigbee_homluxZigbeeLight,
   // homlux灯组
   homlux_lightGroup,
+  // homlux房间默认灯组
+  homlux_default_lightGroup,
   // 485空调
   Zigbee_3017,
   // 485新风
@@ -604,6 +615,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(
+              context, '0x21_light_colorful', arguments: {
+            "name": params.name,
+            "adapter": adapter
+          });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -624,6 +642,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? true,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(
+              context, '0x21_light_colorful', arguments: {
+            "name": params.name,
+            "adapter": adapter
+          });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -665,6 +690,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, 'lightGroup',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -685,6 +717,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, 'lightGroup',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -707,6 +746,19 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
               id,
               (id) => LightGroupDataAdapter(MideaRuntimePlatform.platform,
                   params.masterId ?? '', params.applianceCode ?? ''));
+        }),
+  },
+  // homlux默认灯组
+  DeviceEntityTypeInP4.homlux_default_lightGroup: {
+    CardType.Big: (params) => LightControl(
+        groupId: params.applianceCode,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => DefaultLightGroupDataAdapter(MideaRuntimePlatform.platform, params.applianceCode ?? ''));
         }),
   },
   // 编辑条
@@ -771,6 +823,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, 'lightGroup',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -791,6 +850,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, 'lightGroup',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -832,6 +898,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x13',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+          });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -852,6 +925,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x13',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -877,7 +957,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         }),
   },
   // WIFI风扇灯
-  DeviceEntityTypeInP4.Device0x13_fun: {
+  DeviceEntityTypeInP4.Device0x13_fan: {
     CardType.Small: (params) => SmallDeviceCardWidget(
         applianceCode: params.applianceCode,
         name: params.name,
@@ -893,6 +973,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x13_fan',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
@@ -914,6 +1001,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x13_fan',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
@@ -956,6 +1050,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         discriminative: params.discriminative ?? false,
         disableOnOff: params.disableOnOff ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x14',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -976,6 +1077,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x14',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1017,6 +1125,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xAC',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1037,6 +1152,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xAC',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1078,6 +1200,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xE2',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1098,6 +1227,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xE2',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1139,6 +1275,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xE3',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,
@@ -1159,6 +1302,13 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
         hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0xE3',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
               id,

@@ -22,6 +22,7 @@ import '../../../../widgets/plugins/mode_card.dart';
 import 'api.dart';
 import 'mode_list.dart';
 import '../../../../common/models/endpoint.dart';
+import '../../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class DeviceDataEntity {
   int brightness = 1; // 亮度

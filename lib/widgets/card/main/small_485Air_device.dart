@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
@@ -241,60 +242,24 @@ class _Small485AirDeviceCardWidget extends State<Small485AirDeviceCardWidget> {
     if (widget.isFault) {
       return BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x77AE4C5E),
-            Color.fromRGBO(167, 78, 97, 0.32),
-          ],
-          stops: [0, 1],
-          transform: GradientRotation(222 * (3.1415926 / 360.0)),
-        ),
+        gradient: getBigCardColorBg('fault'),
       );
     }
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
+      return BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     if (!adapter.data!.online) {
       BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF767B86),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-          stops: [0, 0.24, 1],
-          transform: GradientRotation(194 * (3.1415926 / 360.0)),
-        ),
+        gradient: getBigCardColorBg('open'),
       );
     }
     return BoxDecoration(
       borderRadius: BorderRadius.circular(24),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-        stops: [0.06, 1.0],
-        transform: GradientRotation(213 * (3.1415926 / 360.0)),
-      ),
+      gradient: getBigCardColorBg('disabled'),
     );
   }
 }

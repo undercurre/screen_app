@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/utils.dart';
 import '../../../routes/plugins/0x21/0x21_485_air/air_data_adapter.dart';
@@ -308,29 +309,14 @@ class _Big485AirDeviceAirCardWidgetState
 
   BoxDecoration _getBoxDecoration() {
     if (adapter.data!.OnOff && adapter.data!.online) {
-      return const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF818895),
-            Color(0xFF88909F),
-            Color(0xFF516375),
-          ],
-        ),
+      return BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+        gradient: getBigCardColorBg('open'),
       );
     }
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [
-          Color(0x33616A76),
-          Color(0x33434852),
-        ],
-      ),
+      gradient: getBigCardColorBg('disabled'),
       border: Border.all(
         color: const Color(0x00FFFFFF),
         width: 0,

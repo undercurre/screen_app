@@ -12,6 +12,7 @@ import '../../event_bus.dart';
 import '../../mz_slider.dart';
 import '../../plugins/gear_485_card.dart';
 import '../../util/nameFormatter.dart';
+import '../method.dart';
 
 class BigDeviceLightFunCardWidget extends StatefulWidget {
   final String applianceCode;
@@ -238,17 +239,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
       } else {
         return BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF767B86),
-              Color(0xFF88909F),
-              Color(0xFF516375),
-            ],
-            stops: [0, 0.24, 1],
-            transform: GradientRotation(194 * (3.1415926 / 360.0)),
-          ),
+          gradient:  getBigCardColorBg('open'),
         );
       }
     }
@@ -312,7 +303,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
                       return;
                     }
                     if (!widget.disabled) {
-                      Navigator.pushNamed(context, '0x13_fun', arguments: {
+                      Navigator.pushNamed(context, '0x13_fan', arguments: {
                         "name": getDeviceName(),
                         "adapter": adapter
                       });

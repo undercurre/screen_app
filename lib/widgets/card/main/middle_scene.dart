@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/global.dart';
+import 'package:screen_app/widgets/card/method.dart';
 import 'package:screen_app/widgets/util/nameFormatter.dart';
 
 import '../../../common/adapter/select_room_data_adapter.dart';
@@ -34,7 +35,6 @@ class MiddleSceneCardWidget extends StatefulWidget {
 }
 
 class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -51,123 +51,132 @@ class _MiddleSceneCardWidgetState extends State<MiddleSceneCardWidget> {
     String sceneName = sceneListModel.getSceneName(widget.sceneId);
     String sceneRoomName = sceneListModel.getSceneRoomName(widget.sceneId);
     return GestureDetector(
-      onTap: () {
-        if (!widget.disabled) {
-          sceneListModel.sceneExec(widget.sceneId);
-          setState(() {
-            widget.onOff = true;
-          });
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              setState(() {
-                widget.onOff = false;
-              });
-            }
-          });
-        } else {
-          return;
-        }
-      },
-      child: Container(
-        width: 210,
-        height: 196,
-        padding:
-            const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
-        decoration: widget.onOff
-            ? BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF767B86),
-                    Color(0xFF88909F),
-                    Color(0xFF516375),
-                  ],
-                  stops: [0, 0.24, 1],
-                  transform: GradientRotation(194 * (3.1415926 / 360.0)),
-                ),
-              )
-            : BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33616A76),
-                    widget.discriminative
-                        ? Colors.white.withOpacity(0.12)
-                        : const Color(0x33434852),
-                  ],
-                  stops: const [0.06, 1.0],
-                  transform: const GradientRotation(213 * (3.1415926 / 360.0)),
-                ),
-              ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        onTap: () {
+          if (!widget.disabled) {
+            sceneListModel.sceneExec(widget.sceneId);
+            setState(() {
+              widget.onOff = true;
+            });
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                setState(() {
+                  widget.onOff = false;
+                });
+              }
+            });
+          } else {
+            return;
+          }
+        },
+        child: Stack(
           children: [
-            Transform.scale(
-              scale: 1.6,
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: Image(
-                  width: 40,
-                  height: 40,
-                  image: AssetImage('assets/newUI/scene/${widget.icon}.png'),
+            Positioned(
+              child: Container(
+                width: 210,
+                height: 196,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: getSceneBgStop(widget.icon),
+                    colors: getSceneBgColor(widget.icon),
+                  ),
                 ),
               ),
             ),
-            SizedBox(
-              width: 100,
-              height: 68,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+            if (widget.onOff)
+              Positioned(
+                child: Container(
+                  width: 210,
+                  height: 196,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.40),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+              ),
+            Container(
+              width: 210,
+              height: 196,
+              padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 98,
-                        maxHeight: 68,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            NameFormatter.formLimitString(sceneName, 4, 1, 2),
-                            style: const TextStyle(
-                              height: 1.2,
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
+                  Transform.scale(
+                    scale: 1.6,
+                    alignment: Alignment.topLeft,
+                    child: widget.onOff
+                        ? Container(
+                            margin: const EdgeInsets.only(top: 6),
+                            width: 30,
+                            height: 30,
+                            color: Colors.transparent,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation(Colors.white),
+                                strokeWidth: 3.0,
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: Image(
+                              width: 40,
+                              height: 40,
+                              image: AssetImage('assets/newUI/scene/${widget.icon}.png'),
                             ),
                           ),
-                          if (System.inHomluxPlatform()) Text(
-                            NameFormatter.formLimitString(
-                                sceneRoomName, 4, 1, 2),
-                            style: TextStyle(
-                              height: 1,
-                              color: Colors.white.withOpacity(0.64),
-                              fontSize: 20,
-                              fontFamily: 'MideaType',
-                              fontWeight: FontWeight.w400,
+                  ),
+                  SizedBox(
+                    width: 100,
+                    height: 68,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 98,
+                              maxHeight: 68,
                             ),
-                          ),
-                        ],
-                      )),
+                            child: Column(
+                              mainAxisAlignment: System.inHomluxPlatform() ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  NameFormatter.formLimitString(sceneName, 4, 1, 2),
+                                  style: const TextStyle(
+                                    height: 1.2,
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontFamily: 'MideaType',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                if (System.inHomluxPlatform())
+                                  Text(
+                                    widget.onOff ? '执行中...' : NameFormatter.formLimitString(sceneRoomName, 4, 1, 2),
+                                    style: TextStyle(
+                                      height: 1,
+                                      color: Colors.white.withOpacity(0.64),
+                                      fontSize: 20,
+                                      fontFamily: 'MideaType',
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                              ],
+                            )),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }
 

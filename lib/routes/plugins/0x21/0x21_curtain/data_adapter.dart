@@ -59,7 +59,12 @@ class _ZigbeeCurtainEvent extends CommonEvent {
   _ZigbeeCurtainEvent({required super.event});
 
   int position() {
-    return max(min(int.parse(event['Level']), 100), 0);
+    if(event['Level'] is int) {
+      return max(min(event['Level'], 100), 0);
+    } else if(event['Level'] is String) {
+      return max(min(int.parse(event['Level']), 100), 0);
+    }
+    return 0;
   }
 
   String state() {

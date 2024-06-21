@@ -17,6 +17,7 @@ import '../../../../widgets/plugins/mode_card.dart';
 import '../../../common/meiju/meiju_global.dart';
 import '../../../common/meiju/models/meiju_device_info_entity.dart';
 import '../../../common/system.dart';
+import '../../../widgets/util/deviceEntityTypeInP4Handle.dart';
 
 class LightDataEntity {
   int brightness = 1; // 亮度
@@ -40,8 +41,8 @@ class LightDataEntity {
   LightDataEntity.fromMeiJu(dynamic data, String sn8) {
     onlineState = 1;
     if (sn8.isNotEmpty&&sn8 == "79009833") {
-      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
-      colorTemp = int.parse(data["color_temperature"]);
+      brightness = ((int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"])) / 255 * 100).toInt();
+      colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt();
       power = data["power"] == 'on';
       screenModel = data["scene_light"];
       timeOff = int.parse(data["delay_light_off"]);
@@ -61,7 +62,7 @@ class LightDataEntity {
       minColorTemp = int.parse(data["temperature_min"] ?? '3000');
     } else {
       brightness = ((int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"])) / 255 * 100).toInt();
-      colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt() ;
+      colorTemp = (int.parse(data["color_temperature"]) / 255 * 100).toInt();
       power = data["power"] == 'on';
       screenModel = data["scene_light"] ?? 'manual';
       timeOff = int.parse(data["delay_light_off"]);

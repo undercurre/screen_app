@@ -9,43 +9,10 @@ import 'package:screen_app/common/meiju/api/meiju_device_api.dart';
 import 'package:screen_app/common/meiju/models/auth_device_bath_entity.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
+import '../../widgets/util/deviceEntityTypeInP4Handle.dart';
 import 'midea_data_adapter.dart';
 
-enum AdapterType {
-  unKnow,
-  wifiLight,
-  zigbeeLight,
-  zigbeeLightSingle, //单调光灯
-  lightGroup,
-  wifiCurtain,
-  air485,
-  CRC485,
-  floor485,
-  panel,
-  wifiAir,
-  wifiYuba,
-  wifiLiangyi,
-  wifiDianre,
-  wifiRanre,
-  wifiLightFun
 
-
-}
-
-/// 美居OrHomlux配置
-///       添加需要确权的设备类型 （一般普通的wifi设备都需判断确权）
-const NeedCheckWaitLockAuthTypes = [
-  AdapterType.wifiLight,
-  AdapterType.wifiCurtain,
-  AdapterType.wifiAir,
-  AdapterType.wifiYuba,
-  AdapterType.wifiLiangyi,
-  AdapterType.wifiDianre,
-  AdapterType.wifiRanre,
-  AdapterType.wifiLightFun
-
-
-];
 
 /// 适配卡片功能接口类，需要在具体品类数据适配器里选择性实现接口
 abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
