@@ -83,12 +83,15 @@ class _GearCardState extends State<Gear485Card> {
                         ? value - 1
                         : widget.minGear),
                   },
-                  child: Image(
-                      color: Color.fromRGBO(
-                          255, 255, 255, widget.disabled ? 0.7 : 1),
-                      width: 36,
-                      height: 36,
-                      image: const AssetImage('assets/newUI/sub.png')),
+                  child: IgnorePointer(
+                    ignoring: widget.disabled,
+                    child: Image(
+                        color: Color.fromRGBO(
+                            255, 255, 255, widget.disabled ? 0.7 : 1),
+                        width: 36,
+                        height: 36,
+                        image: const AssetImage('assets/newUI/sub.png')),
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,12 +127,15 @@ class _GearCardState extends State<Gear485Card> {
                         ? value + 1
                         : widget.maxGear),
                   },
-                  child: Image(
-                      color: Color.fromRGBO(
-                          255, 255, 255, widget.disabled ? 0.7 : 1),
-                      width: 36,
-                      height: 36,
-                      image: const AssetImage('assets/newUI/add.png')),
+                  child: IgnorePointer(
+                    ignoring: widget.disabled,
+                    child: Image(
+                        color: Color.fromRGBO(
+                            255, 255, 255, widget.disabled ? 0.7 : 1),
+                        width: 36,
+                        height: 36,
+                        image: const AssetImage('assets/newUI/add.png')),
+                  ),
                 ),
               ],
             ),

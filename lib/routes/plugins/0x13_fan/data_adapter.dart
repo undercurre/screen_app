@@ -23,12 +23,12 @@ class LightFunDataEntity {
   int brightness = 1; // 亮度
   int colorTemp = 0; // 色温
   bool funPower = false; //风扇开关
-  bool ledPower=false;
+  bool ledPower = false;
   String fanScene = ''; //自然风模式
   int maxColorTemp = 5700;
   int minColorTemp = 3000;
-  int arroundDir=1;
-  int fanSpeed=1;
+  int arroundDir = 1;
+  int fanSpeed = 1;
   int onlineState = 0;
 
   LightFunDataEntity({
@@ -40,38 +40,42 @@ class LightFunDataEntity {
     required this.ledPower,
     required this.fanSpeed,
     required this.arroundDir,
-
-
   });
 
   LightFunDataEntity.fromMeiJu(dynamic data, String sn8) {
     onlineState = 1;
-    if (sn8.isNotEmpty&&sn8 == "79010863") {
-      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
+    if (sn8.isNotEmpty && sn8 == "79010863") {
+      brightness =
+          int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
       colorTemp = int.parse(data["color_temperature"]);
       funPower = data["fan_power"] == 'on';
-      ledPower=data["led_power"] == 'on';
+      ledPower = data["led_power"] == 'on';
       fanScene = data["fan_scene"];
       maxColorTemp = int.parse(data["temperature_max"] ?? '5700');
       minColorTemp = int.parse(data["temperature_min"] ?? '3000');
-      fanSpeed=int.parse(data["fan_speed"]);
-      arroundDir=int.parse(data["arround_dir"]);
-    } else  {
+      fanSpeed = int.parse(data["fan_speed"]);
+      arroundDir = int.parse(data["arround_dir"]);
+    } else {
       brightness = 1;
       colorTemp = 0;
       funPower = data["fan_power"] == 'on';
-      ledPower=data["led_power"] == 'on';
+      ledPower = data["led_power"] == 'on';
       fanScene = data["fan_scene"] ?? 'fanmanual';
-      fanSpeed=int.parse(data["fan_speed"]);
-      arroundDir=int.parse(data["arround_dir"]);
+      fanSpeed = int.parse(data["fan_speed"]);
+      arroundDir = int.parse(data["arround_dir"]);
     }
   }
 
   LightFunDataEntity.fromHomlux(HomluxDeviceEntity data);
 
+  @override
+  String toString() {
+    return 'brightness=$brightness colorTemp=$colorTemp fanScene=$fanScene onlineState=$onlineState ledPower=$ledPower fanSpeed=$fanSpeed arroundDir=$arroundDir funPower=$funPower';
+  }
 }
 
-class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> {
+class WIFILightFunDataAdapter
+    extends DeviceCardDataAdapter<LightFunDataEntity> {
   String deviceName = "Wifi风扇灯";
   String sn8 = "";
   String applianceCode = "";
@@ -80,25 +84,24 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
   HomluxDeviceEntity? _homluxData = null;
 
   LightFunDataEntity? data = LightFunDataEntity(
-      brightness: 1,
-      colorTemp: 1,
-      funPower: false,
-      fanScene: 'fanmanual',
-      onlineState: 0,
-      ledPower:false,
-      fanSpeed: 1,
-      arroundDir: 1,
+    brightness: 1,
+    colorTemp: 1,
+    funPower: false,
+    fanScene: 'fanmanual',
+    onlineState: 0,
+    ledPower: false,
+    fanSpeed: 1,
+    arroundDir: 1,
   );
 
   @override
   bool fetchOnlineState(BuildContext context, String deviceId) {
-    if(platform.inMeiju()) {
+    if (platform.inMeiju()) {
       return super.fetchOnlineState(context, deviceId);
     } else {
       return data?.onlineState == 1;
     }
   }
-
 
   WIFILightFunDataAdapter(super.platform, this.sn8, this.applianceCode) {
     Log.i('获取到当前吸顶灯的sn8', this.sn8);
@@ -118,8 +121,8 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
         return;
       }
       MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> res =
-      await MeiJuDeviceApi.queryDeviceListByHomeId(
-          MeiJuGlobal.token!.uid, id);
+          await MeiJuDeviceApi.queryDeviceListByHomeId(
+              MeiJuGlobal.token!.uid, id);
       if (res.isSuccess) {
         res.data?.forEach((element) {
           if (element.applianceCode == applianceCode) {
@@ -167,7 +170,11 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
     if (value == null) {
       return;
     }
-    int limitVal = value < 1 ? 1 : value > 100 ? 100 : value;
+    int limitVal = value < 1
+        ? 1
+        : value > 100
+            ? 100
+            : value;
     return controlBrightness(limitVal, null);
   }
 
@@ -197,35 +204,41 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
   }
 
   @override
+  void updateUI() {
+    super.updateUI();
+  }
+
   /// 查询状态
+  @override
   Future<void> fetchData() async {
-      dataState = DataState.LOADING;
+    dataState = DataState.LOADING;
+    updateUI();
+    if (platform.inMeiju()) {
+      _meijuData = await fetchMeijuData();
+    } else if (platform.inHomlux()) {
+      _homluxData = await fetchHomluxData();
+    }
+    if (_meijuData != null) {
+      data = LightFunDataEntity.fromMeiJu(_meijuData!, sn8);
+    } else if (_homluxData != null) {
+      data = LightFunDataEntity.fromHomlux(_homluxData!);
+    } else {
+      dataState = DataState.ERROR;
+      data = LightFunDataEntity(
+        brightness: data!.brightness,
+        colorTemp: data!.colorTemp,
+        funPower: data!.funPower,
+        fanScene: data!.fanScene,
+        onlineState: data!.onlineState,
+        ledPower: data!.ledPower,
+        fanSpeed: data!.fanSpeed,
+        arroundDir: data!.arroundDir,
+      );
       updateUI();
-      if (platform.inMeiju()) {
-        _meijuData = await fetchMeijuData();
-      } else if (platform.inHomlux()) {
-        _homluxData = await fetchHomluxData();
-      }
-      if (_meijuData != null) {
-        data = LightFunDataEntity.fromMeiJu(_meijuData!, sn8);
-      } else if (_homluxData != null) {
-        data = LightFunDataEntity.fromHomlux(_homluxData!);
-      } else {
-        dataState = DataState.ERROR;
-        data = LightFunDataEntity(
-          brightness: data!.brightness,
-          colorTemp: data!.colorTemp,
-          funPower: data!.funPower,
-          fanScene: data!.fanScene,
-          onlineState: data!.onlineState,
-          ledPower:data!.ledPower,
-          fanSpeed: data!.fanSpeed,
-          arroundDir: data!.arroundDir,);
-        updateUI();
-        return;
-      }
-      dataState = DataState.SUCCESS;
-      updateUI();
+      return;
+    }
+    dataState = DataState.SUCCESS;
+    updateUI();
   }
 
   Future<dynamic> fetchMeijuData() async {
@@ -270,9 +283,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
         data!.funPower = !data!.funPower;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制灯开关
@@ -293,19 +304,17 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
         data!.ledPower = !data!.ledPower;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制风扇正反转
   Future<void> controlArroundDir() async {
     bus.emit('operateDevice', applianceCode);
-    data!.arroundDir = data!.arroundDir==1?0:1;
+    data!.arroundDir = data!.arroundDir == 1 ? 0 : 1;
     updateUI();
     if (platform.inMeiju()) {
       /// todo: 可以优化类型限制
-      var command = {"arround_dir": data!.arroundDir==1 ? '1' : '0'};
+      var command = {"arround_dir": data!.arroundDir == 1 ? '1' : '0'};
       var res = await MeiJuDeviceApi.sendLuaOrder(
         categoryCode: '0x13',
         applianceCode: applianceCode,
@@ -313,12 +322,10 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
       );
       if (res.isSuccess) {
       } else {
-        data!.arroundDir = data!.arroundDir==1?1:0;
+        data!.arroundDir = data!.arroundDir == 1 ? 1 : 0;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制风扇模式
@@ -335,38 +342,36 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
         command: command,
       );
       if (res.isSuccess) {
-
       } else {
         data!.fanScene = lastModel;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制风速
   Future<void> controlWindSpeed(num speed) async {
     bus.emit('operateDevice', applianceCode);
     int lastSpeed = data!.fanSpeed;
-    String lastfanScene=data!.fanScene;
-    int fanSpeed=1;
-    if(speed==1){
-      fanSpeed=1;
-    }else if(speed==2){
-      fanSpeed=21;
-    }else if(speed==3){
-      fanSpeed=41;
-    }else if(speed==4){
-      fanSpeed=61;
-    }else if(speed==5){
-      fanSpeed=81;
-    }else if(speed==6){
-      fanSpeed=100;
+    String lastfanScene = data!.fanScene;
+    int fanSpeed = 1;
+    if (speed == 1) {
+      fanSpeed = 1;
+    } else if (speed == 2) {
+      fanSpeed = 21;
+    } else if (speed == 3) {
+      fanSpeed = 41;
+    } else if (speed == 4) {
+      fanSpeed = 61;
+    } else if (speed == 5) {
+      fanSpeed = 81;
+    } else if (speed == 6) {
+      fanSpeed = 100;
     }
-    data!.fanSpeed=fanSpeed;
+    data!.fanSpeed = fanSpeed;
     data!.fanScene = "fanmanual";
     updateUI();
+    await controlMode("fanmanual");
     if (platform.inMeiju()) {
       var command = {"fan_speed": fanSpeed};
       var res = await MeiJuDeviceApi.sendLuaOrder(
@@ -377,12 +382,10 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
       if (res.isSuccess) {
       } else {
         data!.fanSpeed = lastSpeed;
-        data!.fanScene=lastfanScene;
+        data!.fanScene = lastfanScene;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制亮度
@@ -405,9 +408,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
         data!.brightness = lastBrightness;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   /// 控制色温
@@ -417,21 +418,15 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
     data!.colorTemp = value.toInt();
     updateUI();
     if (platform.inMeiju()) {
-      var command = {
-        "color_temperature": data!.colorTemp
-      };
+      var command = {"color_temperature": data!.colorTemp};
       var res = await MeiJuDeviceApi.sendLuaOrder(
-          categoryCode: '0x13',
-          applianceCode: applianceCode,
-          command: command);
+          categoryCode: '0x13', applianceCode: applianceCode, command: command);
       if (res.isSuccess) {
       } else {
         data!.colorTemp = lastColorTemp;
         updateUI();
       }
-    } else if (platform.inHomlux()) {
-
-    }
+    } else if (platform.inHomlux()) {}
   }
 
   String getWindSpeed() {
@@ -458,7 +453,8 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
     updateUI();
   }
 
-  Future<void> controlColorTemperatureFaker(num value, Color? activeColor) async {
+  Future<void> controlColorTemperatureFaker(
+      num value, Color? activeColor) async {
     bus.emit('operateDevice', applianceCode);
     data!.colorTemp = value.toInt();
     updateUI();

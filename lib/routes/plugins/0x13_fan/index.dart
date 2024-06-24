@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/index.dart';
 
@@ -58,7 +59,9 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
   }
 
   void updateCallback() {
-    setState(() {});
+    setState(() {
+      // Log.i("刷新数据: ${dataAdapter?.data.toString()}");
+    });
   }
 
   @override

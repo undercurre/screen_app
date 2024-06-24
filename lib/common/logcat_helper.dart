@@ -238,6 +238,11 @@ class Log {
     _fileLogger.i(message, error, stackTrace);
   }
 
+  static void debugFile(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+    debugPrint(message);
+    _fileLogger.i(message, error, stackTrace);
+  }
+
   static void develop(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _developLogger.i(message, error, stackTrace);
   }
