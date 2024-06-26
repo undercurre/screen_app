@@ -92,19 +92,7 @@ class _BigDeviceLiangyiCardWidgetState extends State<BigDeviceLiangyiCardWidget>
       //   return '故障';
       // }
 
-      if (!deviceListModel.getOnlineStatus(deviceId: widget.applianceCode)) {
-        return '离线';
-      }
-      //
-      // if (adapter.dataState == DataState.LOADING) {
-      //   return '';
-      // }
-      //
-      // if (adapter.dataState == DataState.NONE) {
-      //   return '离线';
-      // }
-
-      if (adapter.dataState == DataState.ERROR) {
+      if(!adapter.fetchOnlineState(context, widget.applianceCode)) {
         return '离线';
       }
 
