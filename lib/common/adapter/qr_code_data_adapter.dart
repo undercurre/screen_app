@@ -176,14 +176,9 @@ class QRCodeDataAdapter extends MideaDataAdapter {
         errorTip = qrcodeInvalidTip;
         updateUI();
         return;
-      } else if(platform.inMeiju() && MeiJuGlobal.token != null) {
+      } else if(System.isLogin() && System.familyInfo != null && System.roomInfo != null) {
         // 补丁 - 出现已经授权成功。但是二维码还继续轮询问题
         Log.file('停止二维码活动2');
-        updateLoginStatusTime?.cancel();
-        return;
-      } else if(platform.inHomlux() && HomluxGlobal.homluxQrCodeAuthEntity != null) {
-        // 补丁 - 出现已经授权成功。但是二维码还继续轮询问题
-        Log.file('停止二维码活动3');
         updateLoginStatusTime?.cancel();
         return;
       }
