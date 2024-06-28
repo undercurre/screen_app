@@ -22,8 +22,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
   BindGatewayAdapter(super.platform);
 
   /// 是否已经绑定网关
-  void checkGatewayBindState(SelectFamilyItem selectFamily,
-      void Function(bool, DeviceEntity?) result, void Function() error) async {
+  void checkGatewayBindState(SelectFamilyItem selectFamily, void Function(bool, DeviceEntity?) result, void Function() e) async {
     if (platform == GatewayPlatform.MEIJU) {
       MeiJuLoginHomeEntity familyEntity = selectFamily.meijuData;
       _meijuCheck(familyEntity.homegroupId).then((value) {
@@ -33,7 +32,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
         }
         result.call(value.value1, value.value2);
       }, onError: (_) {
-        error.call();
+        e.call();
       });
     } else if (platform == GatewayPlatform.HOMLUX) {
       HomluxFamilyEntity familyEntity = selectFamily.homluxData as HomluxFamilyEntity;
@@ -43,9 +42,9 @@ class BindGatewayAdapter extends MideaDataAdapter {
           Log.file('检查设备已经绑定, 设备ID为${HomluxGlobal.gatewayApplianceCode}');
         }
         result.call(value.value1, value.value2);
-      }, onError: (e) {
+      }, onError: (_) {
         Log.i('查询绑定失败');
-        error.call();
+        e.call();
       });
     }
   }

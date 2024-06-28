@@ -246,12 +246,13 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
 
     return GestureDetector(
       onTap: () {
-        if (adapter.dataState != DataState.SUCCESS) {
+        if (!onlineState() && !widget.disabled) {
           adapter.fetchDataInSafety(widget.applianceCode);
-          // TipsUtils.toast(content: '数据缺失，控制设备失败');
+          TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
-        if (!onlineState() && !widget.disabled) {
+        if (adapter.dataState != DataState.SUCCESS) {
+          adapter.fetchDataInSafety(widget.applianceCode);
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
