@@ -373,7 +373,7 @@ class _Big485FloorDeviceAirCardWidgetState extends State<Big485FloorDeviceAirCar
     }
     return BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(24)),
-      gradient: getBigCardColorBg('disbaled'),
+      gradient: getBigCardColorBg('disabled'),
       border: Border.all(
         color: const Color(0x00FFFFFF),
         width: 0,

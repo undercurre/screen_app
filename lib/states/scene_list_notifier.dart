@@ -15,7 +15,10 @@ import '../models/scene_info_entity.dart';
 class SceneListModel extends ChangeNotifier {
   MeiJuSceneListEntity sceneListMeiju = MeiJuSceneListEntity();
   List<HomluxSceneEntity> sceneListHomlux = [];
-  SelectRoomDataAdapter roomDataAd = SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+
+  SelectRoomDataAdapter get roomDataAd {
+    return SelectRoomDataAdapter(MideaRuntimePlatform.platform);
+  }
 
   SceneListModel() {
     getSceneList();
