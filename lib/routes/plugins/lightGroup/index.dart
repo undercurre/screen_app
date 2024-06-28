@@ -157,7 +157,7 @@ class LightGroupPageState extends State<LightGroupPage> {
                                         onChanging: dataAdapter?.controlColorTemperature,
                                       ),
                                     ),
-                                    dataAdapter?.getCardStatus()?["lightModes"].length! > 0
+                                    dataAdapter?.getCardStatus()?["lightModes"] != null && dataAdapter?.getCardStatus()?["lightModes"].length > 0
                                         ? MzMetalCard(
                                             child: SingleChildScrollView(
                                               scrollDirection: Axis.horizontal,
