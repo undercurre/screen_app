@@ -693,7 +693,7 @@ class HomluxDeviceApi {
     var lanActions = [
       <String, dynamic>{
         'modelName': 'light',
-        'deviceProperty': {'brightness': '$brightness'}
+        'deviceProperty': {'brightness': brightness}
       }
     ];
 
