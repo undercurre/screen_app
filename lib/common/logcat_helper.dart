@@ -84,6 +84,7 @@ class FileOutput extends LogOutput {
 
   SendPort? sendPort;
   late Isolate isolate;
+  var tempCaches = <OutputEvent>[];
 
   FileOutput({
     required this.filePath,
@@ -106,6 +107,13 @@ class FileOutput extends LogOutput {
         sendPort?.send({
           'topic': 'init'
         });
+        for (var event in tempCaches) {
+          sendPort!.send({
+            'topic': 'data',
+            'messages': event.lines
+          });
+        }
+        tempCaches.clear();
       });
     }();
   }
@@ -117,11 +125,17 @@ class FileOutput extends LogOutput {
 
   @override
   void output(OutputEvent event) {
-    // debugPrint('out put ${sendPort}');
-    sendPort?.send({
-      'topic': 'data',
-      'messages': event.lines
-    });
+    if(sendPort != null) {
+      sendPort!.send({
+        'topic': 'data',
+        'messages': event.lines
+      });
+    } else {
+      /// 防止内存溢出，最多存放十条
+      if(tempCaches.length <= 10) {
+        tempCaches.add(event);
+      }
+    }
   }
 
   @override
