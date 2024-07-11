@@ -140,7 +140,7 @@ class HomluxPushManager {
   }
 
   static startConnect([int retrySeconds = 2]) async {
-    NetUtils.registerListenerNetState(_netConnectState);
+    NetUtils.stickRegisterListenerNetState(_netConnectState);
   }
 
   static bool isConnect() {
@@ -159,7 +159,7 @@ class HomluxPushManager {
   }
 
   static void stopConnect() async {
-    NetUtils.unregisterListenerNetState(_netConnectState);
+    NetUtils.stickUnregisterListenerNetState(_netConnectState);
     _stopConnect('切换平台断开连接');
   }
 
@@ -281,6 +281,7 @@ class HomluxPushManager {
       var jsonMap = jsonDecode(event) as Map<String, dynamic>;
       var eventType = jsonMap['result']?['eventType'] as String?;
       if (TypeConnectSuc == eventType) {
+        bus.emit('net-available', 1, 60 * 000);
         Log.file('[WebSocket]websocket 建立连接成功');
         return;
       }
@@ -387,17 +388,20 @@ class HomluxPushManager {
 
   static _done() async {
     Log.file('[WebSocket]homlux ws done');
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      var state = NetUtils.getNetState();
-      if(state != null) {
-        _stopConnect('[WebSocket]网络状态失效');
-        _startConnect('接收到done事件重连');
-      } else {
-        _stopConnect('[WebSocket]网络状态失效');
+    if(HomluxGlobal.isLogin) {
+      bus.emit('net-unavailable', 1);
+      try {
+        await Future.delayed(const Duration(seconds: 2));
+        var state = NetUtils.getNetState();
+        if (state != null) {
+          _stopConnect('[WebSocket]网络状态失效');
+          _startConnect('接收到done事件重连');
+        } else {
+          _stopConnect('[WebSocket]网络状态失效');
+        }
+      } catch (e) {
+        Log.file('[WebSocket]homlux ws done error $e');
       }
-    } catch(e) {
-      Log.file('[WebSocket]homlux ws done error $e');
     }
   }
 

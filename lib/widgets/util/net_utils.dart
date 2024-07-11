@@ -25,6 +25,7 @@ mixin WidgetNetState<T extends StatefulWidget> on State<T> {
   void initState() {
     super.initState();
     netMethodChannel.registerNetChangeCallBack(_netChange);
+    NetUtils.stickRegisterListenerNetAvailableState(netAvailable);
     // 主动查询一次网络
     if(NetUtils.getNetState() == null) {
       netMethodChannel.checkNetState();
@@ -35,6 +36,7 @@ mixin WidgetNetState<T extends StatefulWidget> on State<T> {
   void dispose() {
     super.dispose();
     netMethodChannel.unregisterNetChangeCallBack(_netChange);
+    NetUtils.stickUnregisterListenerNetAvailableState(netAvailable);
   }
 
   /// 对子类不可见
@@ -46,7 +48,10 @@ mixin WidgetNetState<T extends StatefulWidget> on State<T> {
   /// 对子类可见，可重载该方法实现对应的业务逻辑处理
   void netChange(MZNetState? state);
 
-  // 当前网络是否已连接
+  /// 对子类可见，用于判断当前的网络是否可用
+  void netAvailable(bool available) {}
+
+  /// 当前网络是否已连接
   bool isConnected() {
     return NetUtils.getNetState() != null;
   }
@@ -75,11 +80,20 @@ class NetUtils {
   }
 
   /// 监听网络状态
-  static void registerListenerNetState(void Function(NetState? state) method) {
+  static void stickRegisterListenerNetAvailableState(void Function(bool state) method) {
+    netMethodChannel.registerNetAvailableChangeCallBack(method);
+  }
+
+  static void stickUnregisterListenerNetAvailableState(void Function(bool state) method) {
+    netMethodChannel.unregisterNetAvailableChangeCallBack(method);
+  }
+
+  /// 监听网络状态
+  static void stickRegisterListenerNetState(void Function(NetState state) method) {
     netMethodChannel.registerNetChangeCallBack(method);
   }
 
-  static void unregisterListenerNetState(void Function(NetState? state) method) {
+  static void stickUnregisterListenerNetState(void Function(NetState state) method) {
     netMethodChannel.unregisterNetChangeCallBack(method);
   }
 

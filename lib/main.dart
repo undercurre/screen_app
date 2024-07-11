@@ -1,3 +1,6 @@
+import 'dart:isolate';
+import 'dart:ui' as ui;
+
 import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,29 +33,36 @@ void main() async {
   await setupConfig();
   /// 初始化intl库的日期
   await initializeDateFormatting('zh_CN');
-  System.globalInit().then((e) async {
-    /// 初始化Native配置
-    buildChannel();
-    configChannel.initNativeConfig(const String.fromEnvironment('env'));
-    netMethodChannel.checkNetState();
-    /// 初始化设置配置
-    Setting.instant().init();
-    assert((() {
-      bus.clearAllListener();
-      HomluxLanControlDeviceManager.getInstant().logout();
-      MideaDataAdapter.clearAllAdapter();
-      return true;
-    })());
-    /// 增加全局异常捕获机制
-    CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
-    CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
-    Catcher(
-        rootWidget: const App(),
-        debugConfig: debugOptions,
-        releaseConfig: releaseOptions,
-        navigatorKey: navigatorKey
-    );
-  });
+  /// 初始化系统全局属性
+  await System.globalInit();
+  /// 初始化Native配置
+  buildChannel();
+  configChannel.initNativeConfig(const String.fromEnvironment('env'));
+  /// 初始化设置配置
+  Setting.instant().init();
+  /// 调试时，去除因热重载影响。比如：内存泄漏，重复建立监听等等
+  /// 导致在调试时代码执行异常
+  assert((() {
+    bus.clearAllListener();
+    HomluxLanControlDeviceManager.getInstant().logout();
+    MideaDataAdapter.clearAllAdapter();
+    netMethodChannel.unregisterNetChangeCallBack(null);
+    netMethodChannel.unregisterNetAvailableChangeCallBack(null);
+    netMethodChannel.unregisterScanWiFiCallBack(null);
+    netMethodChannel.initChannel();
+    return true;
+  })());
+  /// 检查当前网络连接状态
+  netMethodChannel.checkNetState();
+  /// 增加全局异常捕获机制
+  CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
+  CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
+  Catcher(
+      rootWidget: const App(),
+      debugConfig: debugOptions,
+      releaseConfig: releaseOptions,
+      navigatorKey: navigatorKey
+  );
 }
 
 class App extends StatefulWidget {

@@ -40,7 +40,6 @@ class LanDeviceControlChannel extends AbstractChannel {
       case 'log':
         Map<String, dynamic>? map = call.arguments as Map<String, dynamic>?;
         String? msg = map?['msg'];
-        Log.file('[HomeOs] 接收到日志数据 msg= $msg');
         if(StrUtils.isNotNullAndEmpty(msg)) {
           logCallback?.call(msg!);
         }

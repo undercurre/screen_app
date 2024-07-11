@@ -7,6 +7,7 @@ import 'package:screen_app/channel/asb_channel.dart';
 import 'package:screen_app/channel/models/net_state.dart';
 
 import '../common/logcat_helper.dart';
+import '../widgets/event_bus.dart';
 import './models/wifi_scan_result.dart';
 
 class NetMethodChannel extends AbstractChannel {
@@ -18,16 +19,34 @@ class NetMethodChannel extends AbstractChannel {
   late final _nearbyWiFiCallbacks = <void Function(List<WiFiScanResult>)>[];
   // 存储监听网络状态变化的回调
   late final _netChangeCallbacks = <void Function(NetState)>[];
-
+  // 存储网络是否可用的回调
+  late final _netAvailableCallbacks = <void Function(bool)>[];
   // *****当前的网络状态*********
   late NetState _currentNetState = NetState();
   // 获取当前设备网络状态
   NetState get currentNetState => _currentNetState;
+  // 网络状态是否可用
+  bool netAvailable = false;
+
 
   @override
   void initChannel() {
     super.initChannel();
     startObserverNetState();
+    bus.on('net-available', (arg) {
+      Log.file('[网络] 可用');
+      if(netAvailable == false) {
+        netAvailable = true;
+        transmitDataToNetAvailableChangeCallBack(true);
+      }
+    });
+    bus.on('net-unavailable', (arg) {
+      Log.file('[网络] 不可用');
+      if(netAvailable == true) {
+        netAvailable = false;
+        transmitDataToNetAvailableChangeCallBack(false);
+      }
+    });
   }
 
   // 接收原生请求
@@ -56,6 +75,16 @@ class NetMethodChannel extends AbstractChannel {
         break;
       default:
         throw Exception("没有支持的方法");
+    }
+  }
+
+  void transmitDataToNetAvailableChangeCallBack(bool available) {
+    for(var callback in _netAvailableCallbacks) {
+      try {
+        callback.call(available);
+      } catch (e) {
+        Log.e("Caught exception $e");
+      }
     }
   }
 
@@ -93,12 +122,38 @@ class NetMethodChannel extends AbstractChannel {
     methodChannel.invokeMethod('checkNetState');
   }
 
-  // 注销回调
+  /// 注销回调
+  /// [action] action为空，则会清空所有的监听方法
   void unregisterScanWiFiCallBack(
-      void Function(List<WiFiScanResult> list) action) {
-    final position = _nearbyWiFiCallbacks.indexOf(action);
-    if (position != -1) {
-      _nearbyWiFiCallbacks.remove(action);
+      void Function(List<WiFiScanResult> list)? action) {
+    if(action == null) {
+      _nearbyWiFiCallbacks.clear();
+    } else {
+      final position = _nearbyWiFiCallbacks.indexOf(action);
+      if (position != -1) {
+        _nearbyWiFiCallbacks.remove(action);
+      }
+    }
+  }
+
+  // 注册回调
+  void registerNetAvailableChangeCallBack(void Function(bool available) action) {
+    if (!_netAvailableCallbacks.contains(action)) {
+      _netAvailableCallbacks.add(action);
+      action.call(netAvailable);
+    }
+  }
+
+  /// 注销回调
+  /// [action] action为空，则会清空所有的监听方法
+  void unregisterNetAvailableChangeCallBack(void Function(bool available)? action) {
+    if(action == null) {
+      _netAvailableCallbacks.clear();
+    } else {
+      final position = _netAvailableCallbacks.indexOf(action);
+      if (position != -1) {
+        _netAvailableCallbacks.remove(action);
+      }
     }
   }
 
@@ -110,11 +165,16 @@ class NetMethodChannel extends AbstractChannel {
     }
   }
 
-  // 注销回调
-  void unregisterNetChangeCallBack(void Function(NetState state) action) {
-    final position = _netChangeCallbacks.indexOf(action);
-    if (position != -1) {
-      _netChangeCallbacks.remove(action);
+  /// 注销回调
+  /// [action] action为空，则会清空所有的监听方法
+  void unregisterNetChangeCallBack(void Function(NetState state)? action) {
+    if(action == null) {
+      _netChangeCallbacks.clear();
+    } else {
+      final position = _netChangeCallbacks.indexOf(action);
+      if (position != -1) {
+        _netChangeCallbacks.remove(action);
+      }
     }
   }
 

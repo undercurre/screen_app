@@ -27,9 +27,9 @@ class EventBus {
     var list = _emap[eventName]!;
     if(!list.contains(callback)) {
       list.add(callback);
-      Log.i('[ bus ] buss $eventName 订阅者${identity?.hashCode} 订阅成功');
+      Log.develop('[ bus ] buss $eventName 订阅者${identity?.hashCode} 订阅成功');
     } else {
-      Log.i('[ bus ]buss $eventName 重复绑定，无需再绑定');
+      Log.develop('[ bus ]buss $eventName 重复绑定，无需再绑定');
     }
 
   }
@@ -41,12 +41,13 @@ class EventBus {
 
     // 移除事件订阅
     if (callback == null) {
+      Log.develop('[ bus ] 移除事件监听: $eventName');
       _emap.remove(eventName);
     }
     // 移除事件订阅队列指定事件处理方法
     else {
       bool result = list.remove(callback);
-      Log.i('[ bus ] buss 订阅者者${identity?.hashCode} $eventName ${result? '移除成功': '移除失败'} 监听数量为：${list.length} }');
+      Log.develop('[ bus ] buss 订阅者者${identity?.hashCode} $eventName ${result? '移除成功': '移除失败'} 监听数量为：${list.length} }');
     }
   }
 
@@ -55,7 +56,10 @@ class EventBus {
   // [limitTime] 限制发送频率时间 单位毫秒
   void emit(String eventName, [dynamic arg, int limitTime = -1]) async {
     var list = _emap[eventName];
-    if (list == null) return;
+    if (list == null) {
+      Log.develop("[ bus ] 事件名称: $eventName 暂无订阅监听");
+      return;
+    }
     var lastPushTime = _limitEventTime[eventName];
     var curTime = DateTime.now().millisecondsSinceEpoch;
     if(lastPushTime != null && curTime - lastPushTime < limitTime) {
@@ -77,7 +81,7 @@ class EventBus {
     if(type.contains('?')) {
       type = type.replaceAll("?", '');
     }
-    Log.i('[ bus ]销毁订阅的类型为$type');
+    Log.develop('[ bus ]销毁订阅的类型为$type');
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
@@ -93,7 +97,7 @@ class EventBus {
     if(type == 'Object' || type == 'dynamic') {
       throw Exception('禁止订阅类型为object | dynamic, 请指定具体的订阅类型');
     }
-    Log.i('[ bus ]订阅的类型为$type');
+    Log.develop('[ bus ]订阅的类型为$type');
     on(type, callback, identity);
   }
 
@@ -111,6 +115,7 @@ class EventBus {
   void clearAllListener() {
     _emap.clear();
     _limitEventTime.clear();
+    Log.develop('[ bus ] 移除所有的订阅事件');
   }
 
 }
