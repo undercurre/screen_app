@@ -71,7 +71,7 @@ class BindGatewayAdapter extends MideaDataAdapter {
       var houseId = selectFamily.familyId;
       var roomId = selectRoom.id;
       var deviceId = device.applianceCode;
-      var httpResult = await HomluxUserApi.modifyDevice(deviceType, type, houseId, roomId!, deviceId);
+      var httpResult = await HomluxUserApi.modifyDevice(deviceType, type, deviceId, houseId: houseId, roomId: roomId);
       if(httpResult.isSuccess) {
         HomluxGlobal.gatewayApplianceCode = device.applianceCode;
         Log.i('保存网关，设备ID为${HomluxGlobal.gatewayApplianceCode}');

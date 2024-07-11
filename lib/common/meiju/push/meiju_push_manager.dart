@@ -134,12 +134,12 @@ class MeiJuPushManager {
   }
 
   static void stopConnect() {
-    NetUtils.unregisterListenerNetState(_netConnectState);
+    NetUtils.stickUnregisterListenerNetState(_netConnectState);
     _stopConnect("切换平台，关闭连接");
   }
 
   static void startConnect() {
-    NetUtils.registerListenerNetState(_netConnectState);
+    NetUtils.stickRegisterListenerNetState(_netConnectState);
   }
 
   static void _stopConnect(String reason) {
@@ -239,16 +239,18 @@ class MeiJuPushManager {
 
   static void _onData(event) {
     Map<String,dynamic> eventMap = json.decode(event);
-    // Log.develop('[ WebSocket ] 接收到的Push消息: $eventMap');
+    Log.develop('[ WebSocket ] 接收到的Push消息: $eventMap');
     switch(eventMap['event_type']) {
       case 0:
         Log.develop('[ WebSocket ] recv beat heart');
+        bus.emit('net-available', 1, 60 * 000);
         break;
       case 1:
         String data = eventMap['data'];
         Map<String,dynamic> dataMap = json.decode(data);
         _sendHearTimerInterval = dataMap['heatbeat_interval'];
         Log.develop('[ WebSocket ] 接收到心跳发送间隔时间: $_sendHearTimerInterval');
+        bus.emit('net-available', 1, 60 * 000);
         break;
       case 2:
         retryCount = 0;
@@ -432,6 +434,7 @@ class MeiJuPushManager {
     if (MeiJuGlobal.isLogin) {
       await Future.delayed(const Duration(seconds: 2));
       var state = NetUtils.getNetState();
+      bus.emit('net-unavailable', 1);
       if(state != null) {
         _stopConnect('接收到done事件，断开连接');
         _startConnect('接收到done事件，断开连接');

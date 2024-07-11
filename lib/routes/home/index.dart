@@ -3,7 +3,8 @@ import 'package:page_animation_transition/animations/top_to_bottom_transition.da
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/push_data_adapter.dart';
-import 'package:screen_app/routes/login/check_gateway_bind.dart';
+import 'package:screen_app/routes/home/check_gateway_bind.dart';
+import 'package:screen_app/routes/home/upload_version_mixin.dart';
 import 'package:screen_app/states/index.dart';
 import 'package:screen_app/widgets/life_cycle_state.dart';
 import '../../common/adapter/select_room_data_adapter.dart';
@@ -43,7 +44,8 @@ class HomeState extends State<Home>
         Ota,
         CheckGatewayBind,
         WidgetNetState,
-        GuideLayoutTipMixin{
+        GuideLayoutTipMixin ,
+        UploadVersionMixin {
   late double po;
   var children = <Widget>[];
 

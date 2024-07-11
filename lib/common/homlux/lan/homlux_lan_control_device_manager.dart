@@ -546,7 +546,7 @@ class HomluxLanControlDeviceManager {
 
   void logout() {
     Log.file('[homeos] logout()');
-    NetUtils.unregisterListenerNetState(listenerNetState);
+    NetUtils.stickUnregisterListenerNetState(listenerNetState);
     lanDeviceControlChannel.logout();
     sucSubscribe = false;
     key = null;
@@ -589,7 +589,7 @@ class HomluxLanControlDeviceManager {
         return;
       }
       _lock = Completer();
-      NetUtils.registerListenerNetState(listenerNetState);
+      NetUtils.stickRegisterListenerNetState(listenerNetState);
       String? houseId = HomluxGlobal.homluxHomeInfo?.houseId;
       if (houseId == null) {
         Log.e('houseId 为空，请确保已经登录');
@@ -620,7 +620,6 @@ class HomluxLanControlDeviceManager {
         bus.on("eventStandbyActive", listenerEventStandbyActive);
       }
       lanDeviceControlChannel.logCallback = (args) async {
-        Log.file('[homeos] log $args');
         if (args == 'aesKeyMayBeExpire') {
           /// key过期
           if (System.inHomluxPlatform() && System.isLogin()) {
@@ -650,6 +649,7 @@ class HomluxLanControlDeviceManager {
       };
       lanDeviceControlChannel.mqttCallback = (topic, msg) {
         if (sucSubscribe && System.inHomluxPlatform() && System.isLogin()) {
+          Log.file('[HomeOs] $msg');
           _handleMqttMsg(topic, msg);
         }
       };

@@ -35,7 +35,10 @@ enum GatewayPlatform {
 class MideaRuntimePlatform extends ChangeNotifier {
   /// 默认为NONE
   static GatewayPlatform platform = GatewayPlatform.NONE;
-
+  /// 在美居平台
+  static bool inMeiJu() => platform == GatewayPlatform.MEIJU;
+  /// 在Homlux平台
+  static bool inHomlux() => platform == GatewayPlatform.HOMLUX;
 }
 
 /// 切换平台Helper

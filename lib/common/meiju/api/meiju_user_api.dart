@@ -25,7 +25,6 @@ class MeiJuUserApi {
   /// 登录接口，登录成功后返回用户信息
   static Future<MeiJuResponseEntity<MeiJuTokenEntity>> getAccessToken(
       String sessionId) async {
-
     var res = await MeiJuApi.requestMideaIot<MeiJuTokenEntity>(
         "/muc/v5/app/mj/screen/auth/pollingGetAccessToken",
         queryParameters: {
@@ -94,7 +93,8 @@ class MeiJuUserApi {
 
   /// 美智中台——美居体系鉴权请求
   /// 入参：uid，accessToken，deviceId
-  static Future<MeiJuResponseEntity> authMzPlatform(MeiJuTokenEntity entity) async {
+  static Future<MeiJuResponseEntity> authMzPlatform(
+      MeiJuTokenEntity entity) async {
     return authTokenWithParams(System.deviceId, entity.accessToken, entity.uid);
   }
 
@@ -107,7 +107,9 @@ class MeiJuUserApi {
           'appId': dotenv.get('APP_ID'),
           'appSecret': dotenv.get('APP_SECRET'),
           'itAccessToken': itAccessToken,
-          'tokenExpires': DateTime.timestamp().add(const Duration(hours: 2)).millisecondsSinceEpoch,
+          'tokenExpires': DateTime.timestamp()
+              .add(const Duration(hours: 2))
+              .millisecondsSinceEpoch,
         },
         options: Options(method: 'POST', extra: {'isSign': true}));
 
@@ -121,8 +123,7 @@ class MeiJuUserApi {
       required String homegroupId,
       required String roomId,
       required String applianceType,
-      required String modelNumber
-      }) async {
+      required String modelNumber}) async {
     var res = await MeiJuApi.requestMideaIot(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/bind",
         data: {
@@ -145,20 +146,33 @@ class MeiJuUserApi {
   }
 
   /// 修改设备的房间
-  static Future<MeiJuResponseEntity> modifyDeviceRoom(String homeGroupId, String roomId, String applianceCode) async {
+  static Future<MeiJuResponseEntity> modifyDeviceRoom(
+      String homeGroupId, String roomId, String applianceCode) async {
     var res = await MeiJuApi.requestMideaIotSafety(
         "/mas/v5/app/proxy?alias=/v1/appliance/home/modify",
         data: {
-            'applianceCode': applianceCode,
-            'homegroupId': homeGroupId,
-            'roomId': roomId,
+          'applianceCode': applianceCode,
+          'homegroupId': homeGroupId,
+          'roomId': roomId,
         },
-        options: Options(
-          method: 'POST'
-        )
-    );
+        options: Options(method: 'POST'));
     return res;
   }
 
-
+  /// 上报设备版本
+  static Future<MeiJuResponseEntity> uploadVersion(
+      String deviceId, String sn, String softVersion, String userId,
+      {CancelToken? token}) async {
+    var res = await MeiJuApi.requestMzIot(
+        '/v1/category/midea/saveDeviceVersion',
+        cancelToken: token,
+        options: Options(method: 'POST'),
+        data: {
+          'deviceId': deviceId,
+          'sn': sn,
+          'softVersion': softVersion,
+          'userId': userId,
+        });
+    return res;
+  }
 }
