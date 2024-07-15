@@ -21,7 +21,7 @@ class MeiJuSceneApi {
     /// 去除非主动场景数据
     if(res.isSuccess && res.data != null && (res.data?.list?.isNotEmpty ?? false)) {
       List<MeiJuSceneEntity> scenes = res.data!.list!;
-      scenes.removeWhere((element) => element.sceneType != 2);
+      scenes.removeWhere((element) => element.sceneType != 2 || element.sceneStatus == 3);
     }
     return res;
   }
@@ -45,9 +45,6 @@ class MeiJuSceneApi {
     } else {
       Log.i("场景执行失败");
     }
-
     return res;
   }
-
-
 }
