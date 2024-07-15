@@ -3,9 +3,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:catcher/model/platform_type.dart';
-import 'package:catcher/model/report.dart';
-import 'package:catcher/model/report_handler.dart';
+import 'package:catcher_2/model/platform_type.dart';
+import 'package:catcher_2/model/report.dart';
+import 'package:catcher_2/model/report_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/channel/index.dart';

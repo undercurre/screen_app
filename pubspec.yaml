@@ -58,12 +58,7 @@ dependencies:
   page_animation_transition : ^0.0.9
   fluttertoast: ^8.2.1
   web_socket_channel: ^2.3.0
-  catcher: ^0.8.0
-
-dependency_overrides:
-  catcher:
-    git:
-      url: https://github.com/ThexXTURBOXx/catcher.git
+  catcher_2: ^1.2.6
 
 dev_dependencies:
   flutter_test:

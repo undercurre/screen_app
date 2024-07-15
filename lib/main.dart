@@ -1,7 +1,4 @@
-import 'dart:isolate';
-import 'dart:ui' as ui;
-
-import 'package:catcher/catcher.dart';
+import 'package:catcher_2/catcher_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -55,9 +52,9 @@ void main() async {
   /// 检查当前网络连接状态
   netMethodChannel.checkNetState();
   /// 增加全局异常捕获机制
-  CatcherOptions debugOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
-  CatcherOptions releaseOptions = CatcherOptions(SilentReportMode(), [ AndroidCrashReportHandler() ]);
-  Catcher(
+  Catcher2Options debugOptions = Catcher2Options(SilentReportMode(), [ AndroidCrashReportHandler() ]);
+  Catcher2Options releaseOptions = Catcher2Options(SilentReportMode(), [ AndroidCrashReportHandler() ]);
+  Catcher2(
       rootWidget: const App(),
       debugConfig: debugOptions,
       releaseConfig: releaseOptions,
@@ -106,9 +103,9 @@ class _App extends State<App> {
             //注册路由表
             routes: routes,
             navigatorObservers: [globalRouteObserver],
-            navigatorKey: Catcher.navigatorKey,
+            navigatorKey: Catcher2.navigatorKey,
             builder: EasyLoading.init(builder: (context, widget) {
-              Catcher.addDefaultErrorWidget(
+              Catcher2.addDefaultErrorWidget(
                   showStacktrace: false,
                   title: "崩溃",
                   description: "页面开小差了~",
