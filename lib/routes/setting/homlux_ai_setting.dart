@@ -15,6 +15,7 @@ class HomluxAiSettingPage extends StatefulWidget {
 class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
   late double po;
   bool AiEnable = Setting.instant().homluxAiEnable;
+  bool FullDuplex = Setting.instant().aiDuplexModeFullDuplex;
 
   @override
   void initState() {
@@ -107,6 +108,38 @@ class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
                                 aiMethodChannel.enableAi(value);
                                 setState(() {
                                   AiEnable = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 432,
+                        height: 72,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        decoration: const BoxDecoration(
+                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text("自然对话",
+                                style: TextStyle(
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 24.0,
+                                  fontFamily: "MideaType",
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none,
+                                )),
+                            MzSwitch(
+                              value: FullDuplex,
+                              onTap: (bool value) {
+                                aiMethodChannel.setFullDuplex(value);
+                                setState(() {
+                                  FullDuplex = value;
                                 });
                               },
                             ),

@@ -232,8 +232,8 @@ ext {
             gateway     : "com.midea.light:m-smart-gateway-4ch:0.0.8-SNAPSHOT",
             mtk8365     : "com.midea.light:m-smart-mtk8365-setting:0.0.2",
             card        : "com.midea.light:m-smart-card-center:0.0.3-SNAPSHOT",
-            ota_upgrade: "com.midea.light:m-smart-upgrade:0.1.4-SNAPSHOT"
-
+            ota_upgrade: "com.midea.light:m-smart-upgrade:0.1.4-SNAPSHOT",
+            hl_server   : "com.midea.light:m-smart-homlux-api:1.1.7-SNAPSHOT"
     ]
 
     networkLibs = retrofit.values()

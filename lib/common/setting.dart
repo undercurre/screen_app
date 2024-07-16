@@ -39,6 +39,8 @@ class Setting {
 
   late bool _homluxAiEnable;
 
+  late bool _duplexModeFullDuplex;
+
   /// AI自定义设备名使能
   late bool _aiCustomNameEnable;
 
@@ -95,6 +97,7 @@ class Setting {
 
     _aiEnable = _prefs.getBool('setting_ai_enable') ?? true;
     _homluxAiEnable= _prefs.getBool('setting_homlux_ai_enable') ?? true;
+    _duplexModeFullDuplex = _prefs.getBool('setting_homlux_full_duplex') ?? false;
     _aiCustomNameEnable = _prefs.getBool('setting_ai_custom_name_enable') ?? false;
     _aiOnlyOneWakeup = _prefs.getBool('setting_ai_only_one_wakeup') ?? false;
 
@@ -264,6 +267,13 @@ class Setting {
     _prefs.setBool('setting_ai_custom_name_enable', enable);
     _aiCustomNameEnable = enable;
   }
+  
+  set aiDuplexModeFullDuplex(bool enable) {
+    _prefs.setBool('setting_homlux_full_duplex', enable);
+    _duplexModeFullDuplex = enable;
+  }
+
+  bool get aiDuplexModeFullDuplex => _duplexModeFullDuplex;
 
   /// 获取AI唯一唤醒使能
   bool get aiOnlyOneWakeup => _aiOnlyOneWakeup;

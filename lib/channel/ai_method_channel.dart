@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:screen_app/common/global.dart';
 
 import 'models/music_state.dart';
+import '../common/setting.dart';
+
 
 class AiMethodChannel {
   // 通道名称
@@ -62,6 +64,12 @@ class AiMethodChannel {
 
   Future<bool> enableAi(value) async {
     bool result =  await _AiMethodChannel.invokeMethod('EnableAi', value);
+    return result;
+  }
+
+  Future<bool> setFullDuplex(value) async {
+    bool result =  await _AiMethodChannel.invokeMethod('SetFullDuplex', value);
+    Setting.instant().aiDuplexModeFullDuplex = result;
     return result;
   }
 

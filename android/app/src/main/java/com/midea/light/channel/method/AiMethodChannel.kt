@@ -122,6 +122,25 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                         .setAiEnable(call.arguments as Boolean)
                 }
             }
+            "SetFullDuplex" ->{
+                if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    result.success(true)
+                } else if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    val isEnable = call.arguments as Boolean;
+                    if (com.midea.homlux.ai.AiManager.getInstance().setDuplexModeFullDuplex(isEnable)) {
+                        result.success(isEnable)
+                    } else{
+                        result.success(!isEnable);
+                    }
+                }
+            }
+            "GetFullDuplexState" ->{
+                if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    result.success(true);
+                } else if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    result.success(com.midea.homlux.ai.AiManager.getInstance().isDuplexModeFullDuplex())
+                }
+            }
             "GetAiEnable" -> {
 
             }
