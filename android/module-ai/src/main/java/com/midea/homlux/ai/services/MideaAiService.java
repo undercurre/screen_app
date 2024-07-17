@@ -223,6 +223,18 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             });
     }
 
+    private void cleanTokenAndInit() {
+        isIntial = false;
+        try {
+            AccountManager.getInstance().clearToken();
+            DDS.getInstance().getAgent().clearAuthCode();
+            DDS.getInstance().releaseSync();
+        } catch (DDSNotInitCompleteException e) {
+            e.printStackTrace();
+        }
+        init(uid,token,aiEnable,houseId,aiClientId);
+    }
+
     public void startDuiAi(String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable) {
         isAiEnable = aiEnable;
         if (!isIntial) {
@@ -242,8 +254,11 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
             public void onError(int i, String s) {
-                DialogUtil.closeLoadingDialog();
-                DialogUtil.showToast("语音初始化失败!");
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("语音初始化失败!");
+                    cleanTokenAndInit();
+                });
                 Log.d("sky", "linkAccountOnError : " + s);
             }
 
@@ -265,8 +280,11 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
             @Override
             public void onFailure(int i, String s) {
-                DialogUtil.closeLoadingDialog();
-                DialogUtil.showToast("获取技能失败");
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("获取技能失败");
+                    cleanTokenAndInit();
+                });
             }
         });
     }
@@ -304,8 +322,11 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
             @Override
             public void onFailure(IOException e) {
-                DialogUtil.closeLoadingDialog();
-                DialogUtil.showToast("Dca授权失败");
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("Dca授权失败");
+                    cleanTokenAndInit();
+                });
             }
         });
 
@@ -380,19 +401,22 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 } catch (DDSNotInitCompleteException e) {
                     e.printStackTrace();
                 }
-
-                ddsInitFinish();
             } else {
                 MainThread.run(()->{
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("DDS 初始化失败");
+                    cleanTokenAndInit();
                 });
             }
         }
 
         @Override
         public void onError(int what, final String msg) {
-
+            MainThread.run(()->{
+                DialogUtil.closeLoadingDialog();
+                DialogUtil.showToast("DDS 初始化失败");
+                cleanTokenAndInit();
+            });
         }
     };
 
@@ -418,15 +442,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 mAuthCount = 0;
                 MainThread.run(()->{
                     DialogUtil.closeLoadingDialog();
-                    isIntial = false;
-                    try {
-                        AccountManager.getInstance().clearToken();
-                        DDS.getInstance().getAgent().clearAuthCode();
-                        DDS.getInstance().releaseSync();
-                    } catch (DDSNotInitCompleteException e) {
-                        e.printStackTrace();
-                    }
-                    init(uid,token,aiEnable,houseId,aiClientId);
+                    cleanTokenAndInit();
                 });
             }
 
@@ -444,8 +460,11 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             @Override
             public void onError(String s) {
                 Log.e("sky", "OAuthOnError : " + s);
-                DialogUtil.showToast("语音初始化失败!");
-                DialogUtil.closeLoadingDialog();
+                MainThread.run(()-> {
+                    DialogUtil.showToast("语音初始化失败!");
+                    DialogUtil.closeLoadingDialog();
+                    cleanTokenAndInit();
+                });
             }
 
             @Override
