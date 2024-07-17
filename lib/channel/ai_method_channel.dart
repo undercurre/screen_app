@@ -16,6 +16,7 @@ class AiMethodChannel {
 
   late final _aiChangeCallbacks = <void Function(AiMusicState)>[];
   late final _aiStateCallbacks = <void Function(int)>[];
+  late final _aiInitFinishCallbacks = <void Function()>[];
   late final _aiAiSetVoiceCallbacks = <void Function(int)>[];
   late final _aiControlDeviceErrorCallbacks = <void Function()>[];
 
@@ -44,6 +45,8 @@ class AiMethodChannel {
             case "AiControlDeviceError":
               transmitDataToAiControlDeviceErrorCallBack();
               break;
+            case "AiInitFinish":
+              transmitDataToAiInitFinishCallBack();
             default:
               throw Exception("没有支持的方法");
           }
@@ -130,6 +133,19 @@ class AiMethodChannel {
     }
   }
 
+  void registerAiInitFinishCallBack(void Function() action) {
+    if (!_aiInitFinishCallbacks.contains(action)) {
+      _aiInitFinishCallbacks.add(action);
+    }
+  }
+
+  void unregisterAiInitFinishCallBack(void Function() action) {
+    final position = _aiInitFinishCallbacks.indexOf(action);
+    if (position != -1) {
+      _aiInitFinishCallbacks.remove(action);
+    }
+  }
+
   // 注册回调
   void registerAiStateCallBack(
       void Function(int) action) {
@@ -205,5 +221,10 @@ class AiMethodChannel {
     }
   }
 
+  void transmitDataToAiInitFinishCallBack() {
+    for (var callback in _aiInitFinishCallbacks) {
+      callback.call();
+    }
+  }
 
 }

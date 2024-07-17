@@ -210,5 +210,4 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
         mMethodChannel.invokeMethod("musicResult", json)
     }
 
-
 }
