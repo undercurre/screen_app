@@ -1,10 +1,12 @@
 package com.midea.homlux.ai.services;
 
+import static com.aispeech.dui.dds.utils.DeviceUtil.getMacAddress;
+import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
+
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,13 +17,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import java.util.concurrent.TimeUnit;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import static com.aispeech.dui.dds.utils.DeviceUtil.getMacAddress;
-import android.media.AudioFormat;
-import android.media.AudioManager;
 import com.aispeech.dca.Callback;
 import com.aispeech.dca.DcaConfig;
 import com.aispeech.dca.DcaListener;
@@ -33,8 +28,14 @@ import com.aispeech.dui.account.AccountManager;
 import com.aispeech.dui.account.OAuthCodeListener;
 import com.aispeech.dui.account.OAuthManager;
 import com.aispeech.dui.dds.DDS;
+import com.aispeech.dui.dds.DDSAuthListener;
+import com.aispeech.dui.dds.DDSConfig;
+import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
+import com.aispeech.dui.dds.auth.AuthInfo;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
+import com.aispeech.dui.oauth.TokenListener;
+import com.aispeech.dui.oauth.TokenResult;
 import com.midea.homlux.ai.AiSpeech.AiConfig;
 import com.midea.homlux.ai.AiSpeech.AiDialog;
 import com.midea.homlux.ai.AiSpeech.WeatherDialog;
@@ -42,39 +43,31 @@ import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.homlux.ai.bean.MessageBean;
 import com.midea.homlux.ai.bean.WeatherBean;
 import com.midea.homlux.ai.impl.AISetVoiceCallBack;
+import com.midea.homlux.ai.impl.IntialCallBack;
 import com.midea.homlux.ai.impl.WakUpStateCallBack;
 import com.midea.homlux.ai.music.MusicManager;
 import com.midea.homlux.ai.observer.DuiCommandObserver;
 import com.midea.homlux.ai.observer.DuiMessageObserver;
 import com.midea.homlux.ai.observer.DuiNativeApiObserver;
 import com.midea.homlux.ai.observer.DuiUpdateObserver;
+import com.midea.light.ai.IHomluxAICompleteIntialCallBack;
 import com.midea.light.ai.IHomluxAIInterface;
 import com.midea.light.ai.IHomluxAISetVoiceCallBack;
-import com.midea.light.ai.IHomluxAICompleteIntialCallBack;
 import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
-import com.midea.light.common.utils.NetUtil;
 import com.midea.light.thread.MainThread;
-import com.midea.homlux.ai.impl.IntialCallBack;
-
-import com.aispeech.dui.dds.DDS;
-import com.aispeech.dui.dds.DDSAuthListener;
-import com.aispeech.dui.dds.DDSConfig;
-import com.aispeech.dui.dds.DDSInitListener;
-import com.aispeech.dui.dds.auth.AuthInfo;
-import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
-import com.aispeech.dui.oauth.TokenListener;
-import com.aispeech.dui.oauth.TokenResult;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
+import com.midea.light.common.utils.AIFileLogRecord;
 
 
 public class MideaAiService extends Service implements DuiUpdateObserver.UpdateCallback, DuiMessageObserver.MessageCallback {

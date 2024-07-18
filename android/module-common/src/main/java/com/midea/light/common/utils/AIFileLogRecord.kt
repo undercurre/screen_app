@@ -1,4 +1,4 @@
-package com.midea.light.homeos
+package com.midea.light.common.utils
 
 import android.util.Log
 import org.json.JSONObject
@@ -8,19 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-
-val FindEvent = mutableMapOf<String, Long>(
-    Pair("start", 0L),
-    Pair("end", 0L),
-)
-
-val ConnectEvent = mutableMapOf<String, Long>(
-    Pair("lose", 0L),
-    Pair("connected", 0L),
-    Pair("count", 0L)
-)
-
-
 
 object AIFileLogRecord {
 
