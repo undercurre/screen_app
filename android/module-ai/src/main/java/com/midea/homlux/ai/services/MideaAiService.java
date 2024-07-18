@@ -206,6 +206,8 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .retryWhen(throwableObservable -> {
+                AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
+                Log.e("sky","syncQueryDuiToken fail");
                 return throwableObservable.map(error-> Observable.timer(10,TimeUnit.SECONDS));
             })
             .subscribe(entity -> {
@@ -279,8 +281,8 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("获取技能失败");
                 });
-                Log.e("sky", "获取技能失败");
-                AIFileLogRecord.INSTANCE.record("获取技能失败");
+                Log.e("sky", "获取技能失败 "+s);
+                AIFileLogRecord.INSTANCE.record("获取技能失败 "+s);
             }
         });
     }
@@ -472,6 +474,9 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 DDS.getInstance().stopDebug();
             }
         });
+
+        Log.e("sky", "OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
+        AIFileLogRecord.INSTANCE.record("OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
         OAuthManager.getInstance().requestAuthCode(codeChallenge, AiConfig.redirectUri, AppCommonConfig.CLIENT_ID);
     }
 
