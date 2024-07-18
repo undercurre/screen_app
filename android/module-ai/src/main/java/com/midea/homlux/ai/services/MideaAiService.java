@@ -251,15 +251,17 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
      */
     private void AccountLogin(String uid, String token, String refreshToken, int ExpiresTime) {
         //如果是使用贵司自己的账号，就调用AccountManager.linkAccount
+        AIFileLogRecord.INSTANCE.record("aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
+        Log.e("sky","aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
             public void onError(int i, String s) {
                 MainThread.run(()-> {
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("语音初始化失败!");
-                    cleanTokenAndInit();
                 });
-                Log.d("sky", "linkAccountOnError : " + s);
+                Log.e("sky", "linkAccountOnError : " + s);
+                AIFileLogRecord.INSTANCE.record("linkAccountOnError : " + s);
             }
 
             @Override
@@ -283,8 +285,9 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 MainThread.run(()-> {
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("获取技能失败");
-                    cleanTokenAndInit();
                 });
+                Log.e("sky", "获取技能失败");
+                AIFileLogRecord.INSTANCE.record("获取技能失败");
             }
         });
     }
@@ -325,8 +328,9 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 MainThread.run(()-> {
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("Dca授权失败");
-                    cleanTokenAndInit();
                 });
+                Log.e("sky", "Dca授权失败");
+                AIFileLogRecord.INSTANCE.record("Dca授权失败");
             }
         });
 
@@ -345,17 +349,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     private void ddsInitFinish()
     {
-        DcaSdk.setNeedOnLoginListener(()->{
-            isIntial = false;
-            try {
-                AccountManager.getInstance().clearToken();
-                DDS.getInstance().getAgent().clearAuthCode();
-                DDS.getInstance().releaseSync();
-            } catch (DDSNotInitCompleteException e) {
-                e.printStackTrace();
-            }
-            MideaAiService.this.init(uid,token,aiEnable,houseId,aiClientId);
-        });
+        DcaSdk.setNeedOnLoginListener(()->cleanTokenAndInit());
         start();
         setAiEnable(isAiEnable);
         MainThread.run(() -> {
@@ -396,6 +390,8 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                                 DialogUtil.closeLoadingDialog();
                                 DialogUtil.showToast("AI获取token失败");
                             });
+                            Log.e("sky", "AI获取token失败");
+                            AIFileLogRecord.INSTANCE.record("AI获取token失败");
                         }
                     });
                 } catch (DDSNotInitCompleteException e) {
@@ -405,8 +401,9 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 MainThread.run(()->{
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("DDS 初始化失败");
-                    cleanTokenAndInit();
                 });
+                Log.e("sky", "DDS 初始化失败");
+                AIFileLogRecord.INSTANCE.record("DDS 初始化失败");
             }
         }
 
@@ -415,8 +412,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             MainThread.run(()->{
                 DialogUtil.closeLoadingDialog();
                 DialogUtil.showToast("DDS 初始化失败");
-                cleanTokenAndInit();
             });
+
+            Log.e("sky", "DDS 初始化失败 "+msg);
+            AIFileLogRecord.INSTANCE.record("DDS 初始化失败 "+msg);
         }
     };
 
@@ -429,6 +428,8 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
         @Override
         public void onAuthFailed(final String errId, final String error) {
+            Log.e("sky", "onAuthFailed errId = "+errId+" err = " +error);
+            AIFileLogRecord.INSTANCE.record( "onAuthFailed errId = "+errId+" err = " +error);
             if (mAuthCount < 3) {
                 mAuthCount ++;
                 Schedulers.computation().scheduleDirect(()->{
@@ -460,10 +461,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             @Override
             public void onError(String s) {
                 Log.e("sky", "OAuthOnError : " + s);
+                AIFileLogRecord.INSTANCE.record("OAuthOnError : " + s);
                 MainThread.run(()-> {
                     DialogUtil.showToast("语音初始化失败!");
                     DialogUtil.closeLoadingDialog();
-                    cleanTokenAndInit();
                 });
             }
 
@@ -833,6 +834,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     // 停止service, 释放dds组件
     public void stopService() {
         try {
+            MusicManager.getInstance().stopService();
             AccountManager.getInstance().clearToken();
             DDS.getInstance().getAgent().clearAuthCode();
             DDS.getInstance().releaseSync();
