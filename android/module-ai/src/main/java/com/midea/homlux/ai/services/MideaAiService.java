@@ -196,7 +196,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         }
     }
 
-    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
+    public void init(String uid, final String token, boolean aiEnable, String houseId, String aiClientId) {
         this.uid = uid;
         this.token = token;
         this.aiEnable = aiEnable;
@@ -208,13 +208,21 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             .retryWhen(throwableObservable -> {
                 AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
                 Log.e("sky","syncQueryDuiToken fail");
-                return throwableObservable.map(error-> Observable.timer(10,TimeUnit.SECONDS));
+                return throwableObservable.flatMap(error-> {
+                    if (Objects.equals(this.token,"")) {
+                        return Observable.empty();
+                    } else {
+                        return Observable.timer(10,TimeUnit.SECONDS);
+                    }
+                });
             })
             .subscribe(entity -> {
                 if (entity != null) {
                     startDuiAi(uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(),
                             entity.getResult().getAccessTokenExpireTime(), aiEnable);
                 }
+            },error->{
+
             });
     }
 
@@ -832,6 +840,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     // 停止service, 释放dds组件
     public void stopService() {
         try {
+            this.uid = "";
+            this.token = "";
+            this.houseId = "";
+            this.aiClientId = "";
             MusicManager.getInstance().stopService();
             AccountManager.getInstance().clearToken();
             DDS.getInstance().getAgent().clearAuthCode();
