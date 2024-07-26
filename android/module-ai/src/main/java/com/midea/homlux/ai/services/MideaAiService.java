@@ -58,7 +58,7 @@ import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
 import com.midea.light.thread.MainThread;
-
+import java.util.Objects;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
@@ -342,8 +342,12 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void wakeupAi() {
         try {
-            if (DDS.getInstance().getAgent() != null) {
-                DDS.getInstance().getAgent().avatarClick();
+            if (isAiEnable && DDS.getInstance().getAgent() != null) {
+                if (isAiEnable) {
+                    DDS.getInstance().getAgent().avatarClick();
+                } else {
+                    DDS.getInstance().getAgent().getTTSEngine().speak("请到小美语音设置中打开语音控制", 1, "100", AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+                }
             }
         } catch (DDSNotInitCompleteException e) {
             e.printStackTrace();
