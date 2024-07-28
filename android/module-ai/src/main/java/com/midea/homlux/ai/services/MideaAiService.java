@@ -58,7 +58,7 @@ import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
 import com.midea.light.thread.MainThread;
-
+import java.util.Objects;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
@@ -196,7 +196,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         }
     }
 
-    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
+    public void init(String uid, final String token, boolean aiEnable, String houseId, String aiClientId) {
         this.uid = uid;
         this.token = token;
         this.aiEnable = aiEnable;
@@ -206,13 +206,23 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .retryWhen(throwableObservable -> {
-                return throwableObservable.map(error-> Observable.timer(10,TimeUnit.SECONDS));
+                AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
+                Log.e("sky","syncQueryDuiToken fail");
+                return throwableObservable.flatMap(error-> {
+                    if (Objects.equals(this.token,"")) {
+                        return Observable.empty();
+                    } else {
+                        return Observable.timer(10,TimeUnit.SECONDS);
+                    }
+                });
             })
             .subscribe(entity -> {
                 if (entity != null) {
                     startDuiAi(uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(),
                             entity.getResult().getAccessTokenExpireTime(), aiEnable);
                 }
+            },error->{
+
             });
     }
 
@@ -279,8 +289,8 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                     DialogUtil.closeLoadingDialog();
                     DialogUtil.showToast("获取技能失败");
                 });
-                Log.e("sky", "获取技能失败");
-                AIFileLogRecord.INSTANCE.record("获取技能失败");
+                Log.e("sky", "获取技能失败 "+s);
+                AIFileLogRecord.INSTANCE.record("获取技能失败 "+s);
             }
         });
     }
@@ -332,8 +342,12 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void wakeupAi() {
         try {
-            if (DDS.getInstance().getAgent() != null) {
-                DDS.getInstance().getAgent().avatarClick();
+            if (isAiEnable && DDS.getInstance().getAgent() != null) {
+                if (isAiEnable) {
+                    DDS.getInstance().getAgent().avatarClick();
+                } else {
+                    DDS.getInstance().getAgent().getTTSEngine().speak("请到小美语音设置中打开语音控制", 1, "100", AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+                }
             }
         } catch (DDSNotInitCompleteException e) {
             e.printStackTrace();
@@ -472,6 +486,9 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 DDS.getInstance().stopDebug();
             }
         });
+
+        Log.e("sky", "OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
+        AIFileLogRecord.INSTANCE.record("OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
         OAuthManager.getInstance().requestAuthCode(codeChallenge, AiConfig.redirectUri, AppCommonConfig.CLIENT_ID);
     }
 
@@ -827,6 +844,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     // 停止service, 释放dds组件
     public void stopService() {
         try {
+            this.uid = "";
+            this.token = "";
+            this.houseId = "";
+            this.aiClientId = "";
             MusicManager.getInstance().stopService();
             AccountManager.getInstance().clearToken();
             DDS.getInstance().getAgent().clearAuthCode();
