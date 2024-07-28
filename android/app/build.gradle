@@ -169,7 +169,7 @@ dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
     implementation(project(":module-homeos"))
-
+    implementation rootProject.other.buriedPoint
     implementation rootProject.ext.nexus.basic
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
