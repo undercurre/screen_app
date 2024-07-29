@@ -866,7 +866,7 @@ public class MideaAiService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        return true;
+        return false;
     }
 
     @Override
