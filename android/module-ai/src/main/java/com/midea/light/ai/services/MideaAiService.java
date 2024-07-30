@@ -561,6 +561,7 @@ public class MideaAiService extends Service {
         //如果是音乐就交给音乐播放器播放,此处不做音乐播放处理
         player = Player.getInstance();
         if (isMusic(data)) {
+            out();
             if (ttsList != null && ttsList.size() > 0) {
                 if (isManLoadMusic) {
                     //如果是手动拉取则提示音乐都不要
