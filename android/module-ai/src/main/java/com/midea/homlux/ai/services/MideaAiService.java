@@ -342,12 +342,20 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void wakeupAi() {
         try {
-            if (isAiEnable && DDS.getInstance().getAgent() != null) {
-                if (isAiEnable) {
+            Log.i("sky","wake up");
+            if (isAiEnable) {
+                if (DDS.getInstance().getAgent() != null) {
                     DDS.getInstance().getAgent().avatarClick();
-                } else {
-                    DDS.getInstance().getAgent().getTTSEngine().speak("请到小美语音设置中打开语音控制", 1, "100", AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
                 }
+            } else {
+                int resID = MideaAiService.this.getResources().getIdentifier("open_ai","raw",MideaAiService.this.getPackageName());
+                Log.i("sky","resId = "+resID);
+                MediaPlayer mm = MediaPlayer.create(MideaAiService.this, resID);
+                mm.setOnCompletionListener(mediaPlayer -> {
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                });
+                mm.start();
             }
         } catch (DDSNotInitCompleteException e) {
             e.printStackTrace();
