@@ -196,6 +196,14 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         }
     }
 
+    public void retryInitDelay() {
+        Schedulers.computation().scheduleDirect(()->{
+            if (!Objects.equals(token,"") && !Objects.equals(uid,"") && !Objects.equals(houseId,"") && !Objects.equals(aiClientId,"")) {
+                init(uid,token,aiEnable,houseId,aiClientId);
+            }
+        },10,TimeUnit.SECONDS);
+    }
+
     public void init(String uid, final String token, boolean aiEnable, String houseId, String aiClientId) {
         this.uid = uid;
         this.token = token;
@@ -265,6 +273,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 });
                 Log.e("sky", "linkAccountOnError : " + s);
                 AIFileLogRecord.INSTANCE.record("linkAccountOnError : " + s);
+                retryInitDelay();
             }
 
             @Override
@@ -291,6 +300,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 });
                 Log.e("sky", "获取技能失败 "+s);
                 AIFileLogRecord.INSTANCE.record("获取技能失败 "+s);
+                retryInitDelay();
             }
         });
     }
@@ -334,6 +344,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 });
                 Log.e("sky", "Dca授权失败");
                 AIFileLogRecord.INSTANCE.record("Dca授权失败");
+                retryInitDelay();
             }
         });
 
@@ -481,6 +492,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                     DialogUtil.showToast("语音初始化失败!");
                     DialogUtil.closeLoadingDialog();
                 });
+                retryInitDelay();
             }
 
             @Override
