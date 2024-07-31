@@ -91,7 +91,6 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                 }
             }
             "StopAi" -> {
-                Log.e("sky", "停止运行ai")
                 if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
                     Log.e("sky", "停止美居ai")
                     com.midea.light.ai.AiManager.getInstance().stopAi()

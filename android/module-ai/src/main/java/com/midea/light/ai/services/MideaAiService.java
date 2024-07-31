@@ -248,10 +248,12 @@ public class MideaAiService extends Service {
                         Log.e(TAG,"初始化失败");
                         initialState.set(0);
                     }
-                    try {
-                        serverInitialCallBack.isInitial(state == 0);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
+                    if(serverInitialCallBack != null) {
+                        try {
+                            serverInitialCallBack.isInitial(state == 0);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
                     }
                 } else {
                     if(initialState.get() != 2) {
@@ -732,7 +734,8 @@ public class MideaAiService extends Service {
                 wakUpStateCallBack.wakUpState(true);
             }
             if (mAiDialog == null) {
-                mAiDialog = new AiDialog(this, this);
+                Log.e(TAG, "当前AIDialog, 已退出");
+                return;
             }
             if (mAiDialog.isShowing()) {
                 mAiDialog.wakeupInitialData();
@@ -766,11 +769,15 @@ public class MideaAiService extends Service {
     }
 
     private void setAskString(String s) {
-        mAiDialog.addAnsAskItem(s);
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem(s);
+        }
     }
 
     private void setAnsString(String s) {
-        mAiDialog.addAnsAskItem(s);
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem(s);
+        }
     }
 
     private void setDialogTimeOut() {
@@ -779,7 +786,9 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/unknowinputbye.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        mAiDialog.addAnsAskItem("小美没有听懂再见!");
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem("小美没有听懂再见!");
+        }
         sayOver();
 
     }
@@ -790,7 +799,9 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/timeout.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        mAiDialog.addAnsAskItem("抱歉,刚刚有和我说话吗?请再呼唤小美吧!");
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem("抱歉,刚刚有和我说话吗?请再呼唤小美吧!");
+        }
         sayOver();
 
     }
@@ -989,13 +1000,16 @@ public class MideaAiService extends Service {
                 throw new RuntimeException(e);
             }
         }
-        if (mAiDialog.isShowing()) {
-            setAnsString(ans);
-            return;
+        if(mAiDialog != null) {
+            if (mAiDialog.isShowing()) {
+                setAnsString(ans);
+                return;
+            }
+            mAiDialog.create();
+            mAiDialog.wakeupInitialData();
+            mAiDialog.show();
         }
-        mAiDialog.create();
-        mAiDialog.wakeupInitialData();
-        mAiDialog.show();
+
         setAnsString(ans);
 
     }
@@ -1048,28 +1062,43 @@ public class MideaAiService extends Service {
     }
 
     public void stop() {
+        Log.e(TAG, "停止语音运行");
         mSn = null;
         mDeviceType = null;
         mDeviceCode = null;
         mMac = null;
         mEnv = null;
+        if(mMediaMwEngine != null) {
+            String[] type = {"Mw"};
+            mMediaMwEngine.unregisterEvent(0, type, func);
+            mMediaMwEngine = null;
+        }
         initialState.set(0);
         mIsRecording = false;
-        mMediaMwEngine = null;
         unreregisterNetworkReceiver();
+        mAiDialog = null;
+        mWeatherDialog = null;
+        wakUpStateCallBack = null;
+        serverInitialCallBack = null;
+        serverBindCallBack = null;
+        flashMusicListCallback = null;
+        aiSetVoiceCallBack = null;
+        aiControlDeviceErrorCallBack = null;
+        musicPlayControlBack = null;
         stopRecord();
     }
 
     private void alarm110(String ans) {
-        if (mAiDialog.isShowing()) {
+        if(mAiDialog != null) {
+            if (mAiDialog.isShowing()) {
+                setAnsString(ans);
+                return;
+            }
+            mAiDialog.create();
+            mAiDialog.wakeupShow110();
+            mAiDialog.show();
             setAnsString(ans);
-            return;
         }
-        mAiDialog.create();
-        mAiDialog.wakeupShow110();
-        mAiDialog.show();
-        setAnsString(ans);
-
     }
 
     private void skillType(final String data) {
