@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:screen_app/common/homlux/api/homlux_scene_api.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:screen_app/common/meiju/models/meiju_scene_list_entity.dart';
 
@@ -104,16 +105,11 @@ class SceneListModel extends ChangeNotifier {
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       return '';
     } else {
-      String sceneRoomId = sceneListHomlux.firstWhere((element) => element.sceneId == sceneId, orElse: () {
+      return sceneListHomlux.firstWhere((element) => element.sceneId == sceneId, orElse: () {
         HomluxSceneEntity defaultScene = HomluxSceneEntity();
         defaultScene.roomId = '';
         return defaultScene;
-      }).roomId ?? '';
-      return roomDataAd.roomListEntity?.roomList.firstWhere((element) => element.id == sceneRoomId, orElse: () {
-        SelectRoomItem defaultRoom = SelectRoomItem();
-        defaultRoom.name = '';
-        return defaultRoom;
-      }).name ?? '';
+      }).roomName ?? '';
     }
   }
 
