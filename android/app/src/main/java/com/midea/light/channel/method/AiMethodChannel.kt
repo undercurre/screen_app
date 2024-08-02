@@ -91,7 +91,6 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                 }
             }
             "StopAi" -> {
-                Log.e("sky", "停止运行ai")
                 if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
                     Log.e("sky", "停止美居ai")
                     com.midea.light.ai.AiManager.getInstance().stopAi()
@@ -120,6 +119,25 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
                 } else if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
                     com.midea.homlux.ai.AiManager.getInstance()
                         .setAiEnable(call.arguments as Boolean)
+                }
+            }
+            "SetFullDuplex" ->{
+                if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    result.success(true)
+                } else if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    val isEnable = call.arguments as Boolean;
+                    if (com.midea.homlux.ai.AiManager.getInstance().setDuplexModeFullDuplex(isEnable)) {
+                        result.success(isEnable)
+                    } else{
+                        result.success(!isEnable);
+                    }
+                }
+            }
+            "GetFullDuplexState" ->{
+                if (MainApplication.gatewayPlatform == GatewayPlatform.MEIJU) {
+                    result.success(true);
+                } else if (MainApplication.gatewayPlatform == GatewayPlatform.HOMLUX) {
+                    result.success(com.midea.homlux.ai.AiManager.getInstance().isDuplexModeFullDuplex())
                 }
             }
             "GetAiEnable" -> {
@@ -190,6 +208,5 @@ class AiMethodChannel constructor(override val context: Context) : AbsMZMethodCh
         }
         mMethodChannel.invokeMethod("musicResult", json)
     }
-
 
 }

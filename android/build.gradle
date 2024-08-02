@@ -14,12 +14,15 @@ buildscript {
     }
     ext.kotlin_version = '1.6.10'
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
         maven {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/nexus/content/groups/public'
         }
+        maven {url 'https://artifact.bytedance.com/repository/Volcengine/'}
     }
 
     dependencies {
@@ -31,6 +34,7 @@ buildscript {
 allprojects {
     repositories {
         maven { url localMavenAddress }
+        maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
         maven {
@@ -38,6 +42,8 @@ allprojects {
             url 'https://maven.aliyun.com/nexus/content/groups/public'
         }
         maven {url 'https://maven.aliyun.com/repository/gradle-plugin/'}
+
+        maven {url 'https://artifact.bytedance.com/repository/Volcengine/'}
 
 
         //配置nexus私服

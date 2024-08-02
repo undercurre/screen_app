@@ -1,10 +1,12 @@
 package com.midea.homlux.ai.services;
 
+import static com.aispeech.dui.dds.utils.DeviceUtil.getMacAddress;
+import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
+
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,8 +28,14 @@ import com.aispeech.dui.account.AccountManager;
 import com.aispeech.dui.account.OAuthCodeListener;
 import com.aispeech.dui.account.OAuthManager;
 import com.aispeech.dui.dds.DDS;
+import com.aispeech.dui.dds.DDSAuthListener;
+import com.aispeech.dui.dds.DDSConfig;
+import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
+import com.aispeech.dui.dds.auth.AuthInfo;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
+import com.aispeech.dui.oauth.TokenListener;
+import com.aispeech.dui.oauth.TokenResult;
 import com.midea.homlux.ai.AiSpeech.AiConfig;
 import com.midea.homlux.ai.AiSpeech.AiDialog;
 import com.midea.homlux.ai.AiSpeech.WeatherDialog;
@@ -35,28 +43,31 @@ import com.midea.homlux.ai.api.HomluxAiApi;
 import com.midea.homlux.ai.bean.MessageBean;
 import com.midea.homlux.ai.bean.WeatherBean;
 import com.midea.homlux.ai.impl.AISetVoiceCallBack;
+import com.midea.homlux.ai.impl.IntialCallBack;
 import com.midea.homlux.ai.impl.WakUpStateCallBack;
 import com.midea.homlux.ai.music.MusicManager;
 import com.midea.homlux.ai.observer.DuiCommandObserver;
 import com.midea.homlux.ai.observer.DuiMessageObserver;
 import com.midea.homlux.ai.observer.DuiNativeApiObserver;
 import com.midea.homlux.ai.observer.DuiUpdateObserver;
+import com.midea.light.ai.IHomluxAICompleteIntialCallBack;
 import com.midea.light.ai.IHomluxAIInterface;
 import com.midea.light.ai.IHomluxAISetVoiceCallBack;
 import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.common.utils.GsonUtils;
-import com.midea.light.common.utils.NetUtil;
 import com.midea.light.thread.MainThread;
-
+import java.util.Objects;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.midea.homlux.ai.bean.MessageBean.TYPE_WIDGET_WEATHER;
+import com.midea.light.common.utils.AIFileLogRecord;
 
 
 public class MideaAiService extends Service implements DuiUpdateObserver.UpdateCallback, DuiMessageObserver.MessageCallback {
@@ -72,26 +83,19 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     private MessageBean mMessageBean;
     private boolean isPlayBefore=false;
 
-    private int mAuthCount = 0;// 授权次数,用来记录自动授权
     private boolean ddsIntial = false;
     private boolean isAiEnable = true;
     private boolean isIntial = false;
+    private int mAuthCount = 0;// 授权次数,用来记录自动授权
+
+    private String uid;
+    private String token;
+    private boolean aiEnable;
+    private String houseId;
+    private String aiClientId;
 
     private static boolean sdkInit = false;
-
-    MyReceiver mInitReceiver;
-
-    class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String name = intent.getAction();
-            Log.e("sky", "DDS初始化接收广播:" + name);
-            if (!TextUtils.isEmpty(name) && name.equals("ddsdemo.intent.action.init_complete")) {
-                Log.e("sky", "DDS初始化完成");
-                ddsIntial = true;
-            }
-        }
-    }
+    private IntialCallBack mIntialCallBack;
 
     IHomluxAIInterface.Stub binder = new IHomluxAIInterface.Stub() {
         @Override
@@ -140,6 +144,39 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 }
             });
         }
+
+        @Override
+        public void addAICompleteIntialCallBack(IHomluxAICompleteIntialCallBack callback) throws RemoteException {
+            MideaAiService.this.addAISetIntialCallBack(Intial -> {
+                try {
+                    callback.CompleteIntial(Intial);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        @Override
+        public boolean isDuplexModeFullDuplex() throws RemoteException {
+            try {
+                return DDS.getInstance().getAgent().getDuplexMode() == Agent.DuplexMode.FULL_DUPLEX;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean setDuplexMode(boolean isFullDuplex) throws RemoteException {
+            try {
+                DDS.getInstance().getAgent().setDuplexMode(isFullDuplex ? Agent.DuplexMode.FULL_DUPLEX: Agent.DuplexMode.HALF_DUPLEX);
+                return true;
+            } catch (DDSNotInitCompleteException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
     };
 
     public void initSDK(String env) {
@@ -159,27 +196,46 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         }
     }
 
-    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId) {
-        new Thread() {
-            public void run() {
-                while (true) {
-                    if (NetUtil.checkNet()) {
-                        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token, entity -> {
-                            if (entity != null) {
-                                startDuiAi(uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(),
-                                        entity.getResult().getAccessTokenExpireTime(), aiEnable);
-                            }
-                        });
-                        break;
+    public void init(String uid, final String token, boolean aiEnable, String houseId, String aiClientId) {
+        this.uid = uid;
+        this.token = token;
+        this.aiEnable = aiEnable;
+        this.houseId = houseId;
+        this.aiClientId = aiClientId;
+        HomluxAiApi.syncQueryDuiToken(houseId, aiClientId, token)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .retryWhen(throwableObservable -> {
+                AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
+                Log.e("sky","syncQueryDuiToken fail");
+                return throwableObservable.flatMap(error-> {
+                    if (Objects.equals(this.token,"")) {
+                        return Observable.empty();
+                    } else {
+                        return Observable.timer(10,TimeUnit.SECONDS);
                     }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                });
+            })
+            .subscribe(entity -> {
+                if (entity != null) {
+                    startDuiAi(uid, entity.getResult().getAccessToken(), entity.getResult().getRefreshToken(),
+                            entity.getResult().getAccessTokenExpireTime(), aiEnable);
                 }
-            }
-        }.start();
+            },error->{
+
+            });
+    }
+
+    private void cleanTokenAndInit() {
+        isIntial = false;
+        try {
+            AccountManager.getInstance().clearToken();
+            DDS.getInstance().getAgent().clearAuthCode();
+            DDS.getInstance().releaseSync();
+        } catch (DDSNotInitCompleteException e) {
+            e.printStackTrace();
+        }
+        init(uid,token,aiEnable,houseId,aiClientId);
     }
 
     public void startDuiAi(String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable) {
@@ -198,12 +254,17 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
      */
     private void AccountLogin(String uid, String token, String refreshToken, int ExpiresTime) {
         //如果是使用贵司自己的账号，就调用AccountManager.linkAccount
+        AIFileLogRecord.INSTANCE.record("aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
+        Log.e("sky","aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
             public void onError(int i, String s) {
-                DialogUtil.closeLoadingDialog();
-                DialogUtil.showToast("语音初始化失败!");
-                Log.d("sky", "linkAccountOnError : " + s);
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("语音初始化失败!");
+                });
+                Log.e("sky", "linkAccountOnError : " + s);
+                AIFileLogRecord.INSTANCE.record("linkAccountOnError : " + s);
             }
 
             @Override
@@ -224,7 +285,12 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
             @Override
             public void onFailure(int i, String s) {
-
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("获取技能失败");
+                });
+                Log.e("sky", "获取技能失败 "+s);
+                AIFileLogRecord.INSTANCE.record("获取技能失败 "+s);
             }
         });
     }
@@ -262,7 +328,12 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
             @Override
             public void onFailure(IOException e) {
-
+                MainThread.run(()-> {
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("Dca授权失败");
+                });
+                Log.e("sky", "Dca授权失败");
+                AIFileLogRecord.INSTANCE.record("Dca授权失败");
             }
         });
 
@@ -271,14 +342,128 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void wakeupAi() {
         try {
-            if (DDS.getInstance().getAgent() != null) {
-                DDS.getInstance().getAgent().avatarClick();
+            Log.i("sky","wake up");
+            if (isAiEnable) {
+                if (DDS.getInstance().getAgent() != null) {
+                    DDS.getInstance().getAgent().avatarClick();
+                }
+            } else {
+                int resID = MideaAiService.this.getResources().getIdentifier("open_ai","raw",MideaAiService.this.getPackageName());
+                Log.i("sky","resId = "+resID);
+                MediaPlayer mm = MediaPlayer.create(MideaAiService.this, resID);
+                mm.setOnCompletionListener(mediaPlayer -> {
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                });
+                mm.start();
             }
         } catch (DDSNotInitCompleteException e) {
             e.printStackTrace();
         }
     }
 
+    private void ddsInitFinish()
+    {
+        DcaSdk.setNeedOnLoginListener(()->cleanTokenAndInit());
+        start();
+        setAiEnable(isAiEnable);
+        MainThread.run(() -> {
+            try {
+                MusicManager.getInstance().startMusicServer(MideaAiService.this);
+                mIntialCallBack.intialState(true);
+                DialogUtil.closeLoadingDialog();
+            }catch (Exception e){
+
+            }
+        });
+    }
+
+    // dds初始状态监听器,监听init是否成功
+    private DDSInitListener mInitListener = new DDSInitListener() {
+        @Override
+        public void onInitComplete(boolean isFull) {
+            if (isFull) {
+                ddsInitFinish();
+
+                //以下代码是 oauth 初始化的代码，必须在初始化成功后才可调用,执行账号授权
+                AuthInfo authInfo = new AuthInfo();
+                authInfo.setClientId(AppCommonConfig.CLIENT_ID);
+                authInfo.setUserId(AiConfig.userId + "");
+                authInfo.setAuthCode(AiConfig.authcode);
+                authInfo.setCodeVerifier(AiConfig.codeVerifier);
+                authInfo.setRedirectUri(AiConfig.redirectUri);//若不设置，使用默认地址值 http://dui.callback
+                try {
+                    DDS.getInstance().getAgent().setAuthCode(authInfo, new TokenListener() {
+                        @Override
+                        public void onSuccess(TokenResult tokenResult) {
+
+                        }
+
+                        @Override
+                        public void onError(int i, String s) {
+                            MainThread.run(()->{
+                                DialogUtil.closeLoadingDialog();
+                                DialogUtil.showToast("AI获取token失败");
+                            });
+                            Log.e("sky", "AI获取token失败");
+                            AIFileLogRecord.INSTANCE.record("AI获取token失败");
+                        }
+                    });
+                } catch (DDSNotInitCompleteException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                MainThread.run(()->{
+                    DialogUtil.closeLoadingDialog();
+                    DialogUtil.showToast("DDS 初始化失败");
+                });
+                Log.e("sky", "DDS 初始化失败");
+                AIFileLogRecord.INSTANCE.record("DDS 初始化失败");
+            }
+        }
+
+        @Override
+        public void onError(int what, final String msg) {
+            MainThread.run(()->{
+                DialogUtil.closeLoadingDialog();
+                DialogUtil.showToast("DDS 初始化失败");
+            });
+
+            Log.e("sky", "DDS 初始化失败 "+msg);
+            AIFileLogRecord.INSTANCE.record("DDS 初始化失败 "+msg);
+        }
+    };
+
+    // dds认证状态监听器,监听auth是否成功
+    private DDSAuthListener mAuthListener = new DDSAuthListener() {
+        @Override
+        public void onAuthSuccess() {
+
+        }
+
+        @Override
+        public void onAuthFailed(final String errId, final String error) {
+            Log.e("sky", "onAuthFailed errId = "+errId+" err = " +error);
+            AIFileLogRecord.INSTANCE.record( "onAuthFailed errId = "+errId+" err = " +error);
+            if (mAuthCount < 3) {
+                mAuthCount ++;
+                Schedulers.computation().scheduleDirect(()->{
+                    try {
+                        DDS.getInstance().doAuth();
+                    } catch (DDSNotInitCompleteException e) {
+                        e.printStackTrace();
+                    }
+                },1,TimeUnit.SECONDS);
+            } else {
+                mAuthCount = 0;
+                MainThread.run(()->{
+                    DialogUtil.closeLoadingDialog();
+                    cleanTokenAndInit();
+                });
+            }
+
+        }
+    };
 
     /**
      * 请求验证
@@ -291,8 +476,11 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             @Override
             public void onError(String s) {
                 Log.e("sky", "OAuthOnError : " + s);
-                DialogUtil.showToast("语音初始化失败!");
-                DialogUtil.closeLoadingDialog();
+                AIFileLogRecord.INSTANCE.record("OAuthOnError : " + s);
+                MainThread.run(()-> {
+                    DialogUtil.showToast("语音初始化失败!");
+                    DialogUtil.closeLoadingDialog();
+                });
             }
 
             @Override
@@ -301,92 +489,192 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 AiConfig.authcode = authcode;
                 AiConfig.codeVerifier = codeVerifier;
                 AiConfig.userId = AccountManager.getInstance().getUserId();
-                startDDSService();
+                DDS.getInstance().init(getApplicationContext(), createConfig(), mInitListener, mAuthListener);
+                DDS.getInstance().setDebugMode(6); //在调试时可以打开sdk调试日志，在发布版本时，请关闭
+                DDS.getInstance().stopDebug();
             }
         });
+
+        Log.e("sky", "OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
+        AIFileLogRecord.INSTANCE.record("OAuth codeChallenge = "+codeChallenge+" redirectUri = "+AiConfig.redirectUri);
         OAuthManager.getInstance().requestAuthCode(codeChallenge, AiConfig.redirectUri, AppCommonConfig.CLIENT_ID);
     }
 
+    // 创建dds配置信息
+    private DDSConfig createConfig() {
+        // 用户设置自己实现的单个功能，目前支持 wakeup 和 vad。WakeupII.class 是一个使用示例
+        // DDS.getInstance().setOutsideEngine(IEngine.Name.WAKEUP_SINGLE_MIC, WakeupII.class);
+        DDSConfig config = new DDSConfig();
+        // 基础配置项
+        config.addConfig(DDSConfig.K_PRODUCT_ID, AppCommonConfig.PRODUCT_ID); // 产品ID -- 必填
+        //        if(HomluxService.getInstance().getUserInfo()!=null){
+        //            config.addConfig(DDSConfig.K_USER_ID, HomluxService.getInstance().getUserInfo().getUserId());  // 用户ID -- 必填
+        //        }else{
+        //            config.addConfig(DDSConfig.K_USER_ID, "xiaomei");  // 用户ID -- 必填
+        //        }
+        config.addConfig(DDSConfig.K_USER_ID, "xiaomei");  // 用户ID -- 必填
+        config.addConfig(DDSConfig.K_ALIAS_KEY, AppCommonConfig.isDevelop?"test":"prod");   // 产品的发布分支 -- 必填
+        config.addConfig(DDSConfig.K_PRODUCT_KEY, AppCommonConfig.PRODUCT_KEY);// Product Key -- 必填
+        config.addConfig(DDSConfig.K_PRODUCT_SECRET, AppCommonConfig.PRODUCT_SECRET);// Product Secre -- 必填
+        config.addConfig(DDSConfig.K_API_KEY, AppCommonConfig.API_KEY);  // 产品授权秘钥，服务端生成，用于产品授权 -- 必填
+        config.addConfig(DDSConfig.K_DEVICE_NAME, getMacAddress(getApplicationContext()));//填入唯一的deviceId -- 选填
+        config.addConfig("USE_LOCAL_DEVICE_NAME", "true");
+        config.addConfig(DDSConfig.K_MIC_TYPE, "5");
+        config.addConfig(DDSConfig.K_AEC_MODE, "internal");
+        config.addConfig(DDSConfig.K_USE_SSPE, "true");
+        config.addConfig(DDSConfig.K_MIC_ARRAY_SSPE_BIN, "sspe_aec_uda_wkp_30mm_ch4_2mic_1ref_release-v2.0.0.130.bin");
+        config.addConfig(DDSConfig.K_AUDIO_CHANNEL_COUNT, "4");
+        config.addConfig(DDSConfig.K_AUDIO_SAMPLERATE, "32000");
+        config.addConfig(DDSConfig.K_AUDIO_CHANNEL_CONF, AudioFormat.CHANNEL_IN_MONO);
+        config.addConfig(DDSConfig.K_WAKEUP_BIN, "wkp_aihome_mzgd_20221202_pre.bin");
+        config.addConfig(DDSConfig.K_USE_DUAL_WAKEUP, "true");
+        config.addConfig(DDSConfig.K_DUAL_WAKEUP_INIT_ENV,"{\n" +
+                "    \"xiao_mei_xiao_mei\":{\n" +
+                "        \"customNet\":1,\n" +
+                "        \"enableNet\":1,\n" +
+                //                "        \"greeting\":[\n" +
+                //                "            \"叫我干啥\"\n" +
+                //                "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiao_mei_xiao_mei\",\n" +
+                "        \"threshHigh\":\"0.9\",\n" +
+                "        \"threshLow\":\"0.01\",\n" +
+                "        \"threshold\":0.75,\n" +
+                "        \"type\":\"major\"\n" +
+                "    },\n" +
+                "    \"xiao mei xiu mei\":{\n" +
+                "        \"customNet\":0,\n" +
+                "        \"enableNet\":1,\n" +
+                //             "        \"greeting\":[\n" +
+                //             "            \"我是小美秀美\"\n" +
+                //             "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiao mei xiu mei\",\n" +
+                "        \"threshHigh\":\"10\",\n" +
+                "        \"threshLow\":\"0.01\",\n" +
+                "        \"threshold\":0.54,\n" +
+                "        \"type\":\"major\"\n" +
+                "    },\n" +
+                "    \"xiu mei xiu mei\":{\n" +
+                "        \"customNet\":0,\n" +
+                "        \"enableNet\":1,\n" +
+                //             "        \"greeting\":[\n" +
+                //             "            \"我是修眉修眉\"\n" +
+                //             "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiu mei xiu mei\",\n" +
+                "        \"threshHigh\":\"10\",\n" +
+                "        \"threshLow\":\"0.25\",\n" +
+                "        \"threshold\":0.45,\n" +
+                "        \"type\":\"major\"\n" +
+                "    },\n" +
+                "    \"xiao mei xiao mei\":{\n" +
+                "        \"customNet\":0,\n" +
+                "        \"enableNet\":1,\n" +
+                //              "        \"greeting\":[\n" +
+                //              "            \"表叫我小美\"\n" +
+                //              "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiao mei xiao mei\",\n" +
+                "        \"threshHigh\":\"10\",\n" +
+                "        \"threshLow\":\"0.3\",\n" +
+                "        \"threshold\":0.6,\n" +
+                "        \"type\":\"major\"\n" +
+                "    },\n" +
+                "    \"xiu_mei_xiu_mei\":{\n" +
+                "        \"customNet\":1,\n" +
+                "        \"enableNet\":1,\n" +
+                //           "        \"greeting\":[\n" +
+                //           "            \"我是修眉修眉e2e\"\n" +
+                //           "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiu_mei_xiu_mei\",\n" +
+                "        \"threshHigh\":\"0.5\",\n" +
+                "        \"threshLow\":\"0.01\",\n" +
+                "        \"threshold\":0.4,\n" +
+                "        \"type\":\"major\"\n" +
+                "    },\n" +
+                "    \"xiu mei xiao mei\":{\n" +
+                "        \"customNet\":0,\n" +
+                "        \"enableNet\":1,\n" +
+                //          "        \"greeting\":[\n" +
+                //          "            \"我是小美\"\n" +
+                //          "        ],\n" +
+                "        \"major\":0,\n" +
+                "        \"name\":\"小美小美\",\n" +
+                "        \"pinyin\":\"xiu mei xiao mei\",\n" +
+                "        \"threshHigh\":\"10\",\n" +
+                "        \"threshLow\":\"0.01\",\n" +
+                "        \"threshold\":0.66,\n" +
+                "        \"type\":\"major\"\n" +
+                "    }\n" +
+                "}");
 
-    public void startDDSService() {
-        startService(DDSService.newDDSServiceIntent(MideaAiService.this, "start"));
-        Schedulers.computation().scheduleDirect(() -> {
-            try {
-                checkDDSReady();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("ddsdemo.intent.action.init_complete");
-        mInitReceiver = new MyReceiver();
-        MideaAiService.this.registerReceiver(mInitReceiver, filter);
+
+
+
+        // 更多高级配置项,请参考文档: https://www.dui.ai/docs/ct_common_Andriod_SDK 中的 --> 四.高级配置项
+
+        config.addConfig(DDSConfig.K_DUICORE_ZIP, "duicore.zip"); // 预置在指定目录下的DUI内核资源包名, 避免在线下载内核消耗流量, 推荐使用
+        config.addConfig(DDSConfig.K_USE_UPDATE_DUICORE, "false"); //设置为false可以关闭dui内核的热更新功能，可以配合内置dui内核资源使用
+
+        // 资源更新配置项
+        config.addConfig(DDSConfig.K_CUSTOM_ZIP, "product.zip"); // 预置在指定目录下的DUI产品配置资源包名, 避免在线下载产品配置消耗流量, 推荐使用
+        config.addConfig(DDSConfig.K_USE_UPDATE_NOTIFICATION, "false"); // 是否使用内置的资源更新通知栏
+
+        // 录音配置项
+        // config.addConfig(DDSConfig.K_RECORDER_MODE, "internal"); //录音机模式：external（使用外置录音机，需主动调用拾音接口）、internal（使用内置录音机，DDS自动录音）
+        // config.addConfig(DDSConfig.K_IS_REVERSE_AUDIO_CHANNEL, "false"); // 录音机通道是否反转，默认不反转
+        // config.addConfig(DDSConfig.K_AUDIO_SOURCE, AudioSource.DEFAULT); // 内置录音机数据源类型
+        // config.addConfig(DDSConfig.K_AUDIO_BUFFER_SIZE, (16000 * 1 * 16 * 100 / 1000)); // 内置录音机读buffer的大小
+
+        // TTS配置项
+        config.addConfig(DDSConfig.K_STREAM_TYPE, AudioManager.STREAM_MUSIC); // 内置播放器的STREAM类型
+        config.addConfig(DDSConfig.K_TTS_MODE, "internal"); // TTS模式：external（使用外置TTS引擎，需主动注册TTS请求监听器）、internal（使用内置DUI TTS引擎）
+        // config.addConfig(DDSConfig.K_CUSTOM_TIPS, "{\"71304\":\"请讲话\",\"71305\":\"不知道你在说什么\",\"71308\":\"咱俩还是聊聊天吧\"}"); // 指定对话错误码的TTS播报。若未指定，则使用产品配置。
+
+        //唤醒配置项
+        // config.addConfig(DDSConfig.K_WAKEUP_ROUTER, "dialog"); //唤醒路由：partner（将唤醒结果传递给partner，不会主动进入对话）、dialog（将唤醒结果传递给dui，会主动进入对话）
+        // config.addConfig(DDSConfig.K_WAKEUP_BIN, "/sdcard/wakeup.bin"); //商务定制版唤醒资源的路径。如果开发者对唤醒率有更高的要求，请联系商务申请定制唤醒资源。
+        // config.addConfig(DDSConfig.K_ONESHOT_MIDTIME, "500");// OneShot配置：
+        // config.addConfig(DDSConfig.K_ONESHOT_ENDTIME, "2000");// OneShot配置：
+
+        //识别配置项
+        // config.addConfig(DDSConfig.K_ASR_ENABLE_PUNCTUATION, "false"); //识别是否开启标点
+        // config.addConfig(DDSConfig.K_ASR_ROUTER, "dialog"); //识别路由：partner（将识别结果传递给partner，不会主动进入语义）、dialog（将识别结果传递给dui，会主动进入语义）
+        // config.addConfig(DDSConfig.K_VAD_TIMEOUT, 5000); // VAD静音检测超时时间，默认8000毫秒
+        // config.addConfig(DDSConfig.K_ASR_ENABLE_TONE, "true"); // 识别结果的拼音是否带音调
+        // config.addConfig(DDSConfig.K_ASR_TIPS, "true"); // 识别完成是否播报提示音
+        // config.addConfig(DDSConfig.K_VAD_BIN, "/sdcard/vad.bin"); // 商务定制版VAD资源的路径。如果开发者对VAD有更高的要求，请联系商务申请定制VAD资源。
+
+        // 麦克风阵列配置项
+        // config.addConfig(DDSConfig.K_MIC_TYPE, 0); // 设置硬件采集模组的类型 0：无。默认值。 1：单麦回消 2：线性四麦 3：环形六麦 4：车载双麦 5：家具双麦 6: 环形四麦  7: 新车载双麦 8: 线性6麦
+
+
+        // config.addConfig(DDSConfig.K_MIC_ARRAY_AEC_CFG, "/data/aec.bin"); // 麦克风阵列aec资源的磁盘绝对路径,需要开发者确保在这个路径下这个资源存在
+        // config.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, "/data/beamforming.bin"); // 麦克风阵列beamforming资源的磁盘绝对路径，需要开发者确保在这个路径下这个资源存在
+
+        // 全双工/半双工配置项
+        // config.addConfig(DDSConfig.K_DUPLEX_MODE, "HALF_DUPLEX");// 半双工模式
+        // config.addConfig(DDSConfig.K_DUPLEX_MODE, "FULL_DUPLEX");// 全双工模式
+
+        // 声纹配置项
+        // config.addConfig(DDSConfig.K_VPRINT_ENABLE, "true");// 是否使用声纹
+        // config.addConfig(DDSConfig.K_USE_VPRINT_IN_WAKEUP, "true");// 是否与唤醒结合使用声纹
+        // config.addConfig(DDSConfig.K_VPRINT_BIN, "/sdcard/vprint.bin");// 声纹资源的绝对路径
+
+        // asrpp配置荐
+        // config.addConfig(DDSConfig.K_USE_GENDER, "true");// 使用性别识别
+        // config.addConfig(DDSConfig.K_USE_AGE, "true");// 使用年龄识别
+
+        return config;
     }
 
-
-    // 检查dds是否初始成功
-    public void checkDDSReady() {
-        while (true) {
-            if (DDS.getInstance().getInitStatus() == DDS.INIT_COMPLETE_FULL || DDS.getInstance().getInitStatus() == DDS.INIT_COMPLETE_NOT_FULL) {
-                Log.e("sky", "DDS初始化");
-                try {
-                    if (DDS.getInstance().isAuthSuccess()) {
-                        //开启DDS服务成功
-                        Log.e("sky", "开启DDS服务成功");
-                        if (ddsIntial) {
-                            start();
-                            setAiEnable(isAiEnable);
-                            try {
-                                DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.HALF_DUPLEX);
-                            } catch (DDSNotInitCompleteException e) {
-                                e.printStackTrace();
-                            }
-                            MainThread.run(() -> {
-                                MusicManager.getInstance().startMusicServer(MideaAiService.this);
-                                DialogUtil.closeLoadingDialog();
-                            });
-                            break;
-                        }
-                    } else {
-                        // 自动授权
-                        Log.e("sky", "自动授权");
-                        doAutoAuth();
-                        if (mAuthCount == 5) {
-                            DialogUtil.closeLoadingDialog();
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    DialogUtil.closeLoadingDialog();
-                    Log.e("sky", "DDS错误:" + e.getMessage());
-                }
-            } else {
-                Log.e("sky", "waiting  init complete finish..." + DDS.getInstance().getInitStatus());
-            }
-            try {
-                Thread.sleep(800);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // 执行自动授权,这次只是语音证书授权并不是账号打通授权
-    private void doAutoAuth() {
-        // 自动执行授权5次,如果5次授权失败之后,给用户弹提示框
-        if (mAuthCount < 5) {
-            try {
-                Log.e("sky", "DDS授权");
-                DDS.getInstance().doAuth();
-                mAuthCount++;
-            } catch (DDSNotInitCompleteException e) {
-                e.printStackTrace();
-            }
-        } else {
-            DialogUtil.closeLoadingDialog();
-            DialogUtil.showToast("语音授权失败!");
-        }
-    }
 
     public void setAiEnable(boolean enable) {
         try {
@@ -418,7 +706,6 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             mWeatherDialog=new WeatherDialog(MideaAiService.this,this);
         });
         registMsg();
-        enableWakeup();
     }
 
     @Override
@@ -564,12 +851,20 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     // 停止service, 释放dds组件
     public void stopService() {
-        AccountManager.getInstance().clearToken();
-        MideaAiService.this.unregisterReceiver(mInitReceiver);
-        MusicManager.getInstance().stopService();
-        stopService(new Intent(MideaAiService.this, DDSService.class));
-        mCommandObserver.unregist();
-        mMessageObserver.unregist();
+        try {
+            this.uid = "";
+            this.token = "";
+            this.houseId = "";
+            this.aiClientId = "";
+            MusicManager.getInstance().stopService();
+            AccountManager.getInstance().clearToken();
+            DDS.getInstance().getAgent().clearAuthCode();
+            DDS.getInstance().releaseSync();
+            mCommandObserver.unregist();
+            mMessageObserver.unregist();
+        }catch (Exception e){
+
+        }
     }
 
     // 打开唤醒，调用后才能语音唤醒
@@ -606,5 +901,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         mCommandObserver.addAISetVoiceCallBack(CallBack);
     }
 
-
+    public void addAISetIntialCallBack(IntialCallBack CallBack){
+        mIntialCallBack=CallBack;
+    }
 }

@@ -72,6 +72,8 @@ public class AppCommonConfig {
     //用于设备绑定中的RequestHeaderDataKEY
     public static String HTTP_REQUEST_HEADER_DATA_KEY;
 
+    public static String BURIED_POINT_ID;//埋点appid
+
 
     public static boolean IS_LOGIN_DIRECT() {
         //直接进入登录不判断是否需要绑定 | System.getProperty("bind-gateway", "null") 用于控制登录是否可以绕开绑定网关，可以到开发者界面中进行设置
@@ -177,8 +179,10 @@ public class AppCommonConfig {
             DCA_PUB_KEY="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCN4resv1TBLzqo47TklFbrLHoPmjhClTs1I02ius+1Ve6ijWAS3LipshnhWPC" +
                     "+lL1bayP32Tz79Wam5prGGYfwzKURgWix1/pu4807AVv" +
                     "/mGysHW3XL4fi5svO6CjyE3NFOx767w+sRRvVNsNQU8/E0mOtLNqncE7lZP+QpJlCmQIDAQAB";
+
             isDevelop=true;
 
+            BURIED_POINT_ID = "10000627";
 
         }
     }
@@ -214,6 +218,7 @@ public class AppCommonConfig {
             DCA_API_SECRET="2c29d1e9180b46819da28cfe089f561f";
             DCA_PUB_KEY="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAmqNTv22gQFryha5EofKWkUMVtKQYArzlMGSZ6/A95ObalXr/iJkb12WpJIGxfsizpNMhf6NgsrOFJ+uQJJMpFOR0P7LIKUubM0+HRUCcu91+iG2HpmphwmuhRJa3EXhhGqE94+xN9v+9L2+aPCjtOmAtMSr4d3Ww4EIHyqNhtQIDAQAB";
             isDevelop=false;
+            BURIED_POINT_ID = "10000626";
         }
     }
 

@@ -16,22 +16,26 @@ import com.midea.homlux.ai.services.MideaAiService;
 import com.midea.light.BaseApplication;
 import com.midea.light.ai.IHomluxAIInterface;
 import com.midea.light.ai.IHomluxAISetVoiceCallBack;
+import com.midea.light.ai.IHomluxAICompleteIntialCallBack;
 import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.ai.IMideaLightWakUpStateCallBack;
 import com.midea.light.thread.MainThread;
-
+import com.midea.homlux.ai.impl.IntialCallBack;
 
 public class AiManager {
     private boolean isAiEnable = true;
     Context context;
     WakUpStateCallBack mWakUpStateCallBack;
     AISetVoiceCallBack mAISetVoiceCallBack;
+    IntialCallBack mIntialCallBack;
+    public boolean isAiWork=false;
 
     private String env;
     private String uid;
     private String token;
     private String houseId;
     private String aiClientId;
+    private boolean isInit = false;
 
     IHomluxAIInterface mMyBinder;
 
@@ -84,6 +88,18 @@ public class AiManager {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+
+            try {
+                mMyBinder.addAICompleteIntialCallBack(new IHomluxAICompleteIntialCallBack.Stub() {
+                    @Override
+                    public void CompleteIntial(boolean Intial) throws RemoteException {
+                        isInit = Intial;
+                        mIntialCallBack.intialState(Intial);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -101,7 +117,7 @@ public class AiManager {
         }
     };
 
-    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack) {
+    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack,IntialCallBack intialCallBack) {
         this.context = BaseApplication.getContext();
         this.uid = uid;
         this.token = token;
@@ -110,6 +126,7 @@ public class AiManager {
         this.aiClientId = aiClientId;
         this.mWakUpStateCallBack = mCallBack;
         this.mAISetVoiceCallBack = VoiceCallBack;
+        this.mIntialCallBack=intialCallBack;
         try {
             Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
             AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
@@ -154,5 +171,23 @@ public class AiManager {
         }
     }
 
+    public boolean isDuplexModeFullDuplex()
+    {
+        return true;
+    }
 
+    public boolean setDuplexModeFullDuplex(boolean isEnable) {
+        if(mMyBinder != null && isInit) {
+            try {
+                if (mMyBinder.setDuplexMode(isEnable)){
+
+                    return true;
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
+    }
 }

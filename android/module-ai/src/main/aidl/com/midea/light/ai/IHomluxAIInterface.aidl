@@ -2,6 +2,7 @@
 package com.midea.light.ai;
 import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.ai.IHomluxAISetVoiceCallBack;
+import com.midea.light.ai.IHomluxAICompleteIntialCallBack;
 // Declare any non-default types here with import statements
 
 interface IHomluxAIInterface {
@@ -12,4 +13,7 @@ interface IHomluxAIInterface {
     void stopAi();
     void addWakUpStateCallBack(IHomluxWakeUpStateCallback callback);
     void addAISetVoiceCallBack(IHomluxAISetVoiceCallBack callback);
+    void addAICompleteIntialCallBack(IHomluxAICompleteIntialCallBack callback);
+    boolean isDuplexModeFullDuplex();
+    boolean setDuplexMode(boolean isFullDuplex);
 }

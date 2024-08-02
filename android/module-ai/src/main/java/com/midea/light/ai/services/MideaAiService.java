@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +59,6 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 
 public class MideaAiService extends Service {
-    private Context Acontext;
     boolean wakeUpState = false, isManLoadMusic = false,isWifiLink = true,hasReportDisconnect=false,hasReportConnect=false;
     private static final String TAG = "sky";
     public Mw mMediaMwEngine=Mw.getInstance();
@@ -91,6 +91,10 @@ public class MideaAiService extends Service {
     public IMideaLightWakUpStateCallBack wakUpStateCallBack;
 
     IMideaLightMusicPlayControlBack musicPlayControlBack;
+
+    AtomicInteger initialState = new AtomicInteger(0);
+
+    String mSn, mDeviceType, mDeviceCode, mMac, mEnv;
 
     private final IBinder binder = new IMideaLightAIdlInterface.Stub() {
 
@@ -159,7 +163,6 @@ public class MideaAiService extends Service {
         @Override
         public void startRecord() throws RemoteException {
             synchronized (binder) {
-                MideaAiService.this.stopRecord();
                 MideaAiService.this.startRecord();
             }
         }
@@ -171,59 +174,93 @@ public class MideaAiService extends Service {
 
         @Override
         public void start(String sn, String deviceType, String deviceCode, String mac,String env) throws RemoteException {
-            MideaAiService.this.start(MideaAiService.this, sn, deviceType, deviceCode, mac,env);
+            MideaAiService.this.start(sn, deviceType, deviceCode, mac,env);
         }
 
     };
+    void retryStart(String reason) {
+        if (TextUtils.isEmpty(mSn)
+                || TextUtils.isEmpty(mDeviceType)
+                || TextUtils.isEmpty(mDeviceCode)
+                || TextUtils.isEmpty(mMac)
+                || TextUtils.isEmpty(mEnv)) {
+            Log.e("sky",String.format("检查初始化参数不完整，sn(%s) dt(%s) dc(%s) mac(%s) env(%s) ", mSn, mDeviceType, mDeviceCode, mMac, mEnv));
+            return;
+        }
+        Log.e("sky", "重试原因：" + reason);
+        start(mSn, mDeviceType, mDeviceCode, mMac, mEnv);
+    }
 
-    public synchronized void start(Context context, String sn, String deviceType, String deviceCode, String mac, String env) {
-        this.Acontext = context;
-        Player.getInstance().setmContext(Acontext);
-        AIDeviceInfo mAIDeviceInfo = new AIDeviceInfo();
-        mAIDeviceInfo.setSn(sn);
-        mAIDeviceInfo.setModel("172");
-        mAIDeviceInfo.setCategory(deviceType.replace("0x", ""));
-        mAIDeviceInfo.setIot_id(deviceCode);
-        mAIDeviceInfo.setMac(mac);
-        mAIDeviceInfo.setEnv(env);
-        mAIDeviceInfo.setLink_status(1);
-        mAIDeviceInfo.setCfg_path("/sdcard/res/config.json");
+    public synchronized void start(String sn, String deviceType, String deviceCode, String mac, String env) {
+        this.mSn = sn;
+        this.mDeviceType = deviceType;
+        this.mDeviceCode = deviceCode;
+        this.mMac = mac;
+        this.mEnv = env;
 
-        String json = mGson.toJson(mAIDeviceInfo);
-
-        String deviceInfo = json;
-
-        Log.e(TAG, "deviceInfo:" + deviceInfo);
+        player = Player.getInstance();
+        player.setmContext(this);
 
         MainThread.run(() -> {
-            mAiDialog = new AiDialog(Acontext, this);
-            mWeatherDialog = new WeatherDialog(Acontext, this);
+            if(mAiDialog == null) {
+                mAiDialog = new AiDialog(this, this);
+            }
+
+            if(mWeatherDialog == null) {
+                mWeatherDialog = new WeatherDialog(this, this);
+            }
         });
+
         Schedulers.computation().scheduleDirect(() -> {
             try {
-                synchronized (MideaAiService.this) {
-                    mMediaMwEngine.init(deviceInfo);
+                if (initialState.compareAndSet(0, 1)) {
+                    AIDeviceInfo aiDeviceInfo = new AIDeviceInfo();
+                    aiDeviceInfo.setSn(sn);
+                    aiDeviceInfo.setModel("172");
+                    aiDeviceInfo.setCategory(deviceType.replace("0x", ""));
+                    aiDeviceInfo.setIot_id(deviceCode);
+                    aiDeviceInfo.setMac(mac);
+                    aiDeviceInfo.setEnv(env);
+                    aiDeviceInfo.setLink_status(1);
+                    aiDeviceInfo.setCfg_path("/sdcard/res/config.json");
+
+                    String json = mGson.toJson(aiDeviceInfo);
+
+                    Log.e(TAG, "deviceInfo:" + json);
+                    mMediaMwEngine.init(json);
                     Log.e(TAG, "CRC mMediaMwEngine created");
                     if (mMediaMwEngine.getLicense() != 0) {
                         Log.e(TAG, "license not exist!!!");
-                        mMediaMwEngine.registerLicense(mAIDeviceInfo.getMac());
-                        return;
+                        mMediaMwEngine.registerLicense(aiDeviceInfo.getMac());
                     }
                     String[] type = {"Mw"};
                     int state = mMediaMwEngine.registerEvent(0, type, func);
                     Log.e(TAG, "获取语音证书状态:" + state);
-                    player = Player.getInstance();
-                    try {
-                        serverInitialCallBack.isInitial(true);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
+                    if(state == 0) {
+                        Log.e(TAG,"初始化成功");
+                        initialState.set(2);
+                        isWifiLink = true;
+                        String linkstatus = "{\"link_status\":1}";
+                        if (mMediaMwEngine != null) {
+                            mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
+                        }
+                    } else {
+                        Log.e(TAG,"初始化失败");
+                        initialState.set(0);
                     }
-                    isWifiLink=true;
-                    String linkstatus = "{\"link_status\":1}";
-                    if (mMediaMwEngine != null) {
-                        mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
+                    if(serverInitialCallBack != null) {
+                        try {
+                            serverInitialCallBack.isInitial(state == 0);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    if(initialState.get() != 2) {
+                        Log.e(TAG, "语音正在初始化中...");
                     }
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -231,21 +268,14 @@ public class MideaAiService extends Service {
     }
 
     public void startRecord() {
-        Log.e("sky", "开始录音");
-        final int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT);
+        retryStart("开始录音");
         try {
-            if (mAudioRecord == null) {
-                mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT, minBufferSize);
-            }
-            if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-                Log.e(TAG, "AudioRecord 初始化失败");
-                stopRecord();
-                serverInitialCallBack.isInitial(false);
-                return;
-            }
+            MideaAiService.this.stopRecord();
+            Log.e(TAG, "开始录音");
+            final int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT);
+            mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT, minBufferSize);
             mAudioRecord.startRecording();
             mIsRecording = true;
-            Log.e(TAG, "开启录音");
             final byte data[] = new byte[6144];
             Thread thread = new Thread() {
                 public void run() {
@@ -256,7 +286,6 @@ public class MideaAiService extends Service {
                                 mMediaMwEngine.audioDataToSpeech(data, data.length);
                             }
                         }
-
                     }
                 }
             };
@@ -534,6 +563,7 @@ public class MideaAiService extends Service {
         //如果是音乐就交给音乐播放器播放,此处不做音乐播放处理
         player = Player.getInstance();
         if (isMusic(data)) {
+            out();
             if (ttsList != null && ttsList.size() > 0) {
                 if (isManLoadMusic) {
                     //如果是手动拉取则提示音乐都不要
@@ -704,7 +734,8 @@ public class MideaAiService extends Service {
                 wakUpStateCallBack.wakUpState(true);
             }
             if (mAiDialog == null) {
-                mAiDialog = new AiDialog(Acontext, this);
+                Log.e(TAG, "当前AIDialog, 已退出");
+                return;
             }
             if (mAiDialog.isShowing()) {
                 mAiDialog.wakeupInitialData();
@@ -738,11 +769,15 @@ public class MideaAiService extends Service {
     }
 
     private void setAskString(String s) {
-        mAiDialog.addAnsAskItem(s);
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem(s);
+        }
     }
 
     private void setAnsString(String s) {
-        mAiDialog.addAnsAskItem(s);
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem(s);
+        }
     }
 
     private void setDialogTimeOut() {
@@ -751,7 +786,9 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/unknowinputbye.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        mAiDialog.addAnsAskItem("小美没有听懂再见!");
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem("小美没有听懂再见!");
+        }
         sayOver();
 
     }
@@ -762,7 +799,9 @@ public class MideaAiService extends Service {
         String path = "/sdcard/tts/timeout.mp3";
         TTSItem m = new TTSItem(path);
         player.playItem(m);
-        mAiDialog.addAnsAskItem("抱歉,刚刚有和我说话吗?请再呼唤小美吧!");
+        if(mAiDialog != null) {
+            mAiDialog.addAnsAskItem("抱歉,刚刚有和我说话吗?请再呼唤小美吧!");
+        }
         sayOver();
 
     }
@@ -839,16 +878,13 @@ public class MideaAiService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        return true;
+        return false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mIsRecording = false;
-        mMediaMwEngine = null;
-        unreregisterNetworkReceiver();
-        stopRecord();
+        stop();
     }
 
     private static String getWakeupInfo() {
@@ -869,7 +905,7 @@ public class MideaAiService extends Service {
     private void setSystemAudio(String Audio) {
         int toCloud = 0;
         int voice = 0;//调整系统声音的等级0-63
-        AudioManager am = (AudioManager) Acontext.getSystemService(AUDIO_SERVICE);
+        AudioManager am = (AudioManager) this.getSystemService(AUDIO_SERVICE);
         int maxValue = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         switch (Audio) {
             case "L1":
@@ -964,13 +1000,16 @@ public class MideaAiService extends Service {
                 throw new RuntimeException(e);
             }
         }
-        if (mAiDialog.isShowing()) {
-            setAnsString(ans);
-            return;
+        if(mAiDialog != null) {
+            if (mAiDialog.isShowing()) {
+                setAnsString(ans);
+                return;
+            }
+            mAiDialog.create();
+            mAiDialog.wakeupInitialData();
+            mAiDialog.show();
         }
-        mAiDialog.create();
-        mAiDialog.wakeupInitialData();
-        mAiDialog.show();
+
         setAnsString(ans);
 
     }
@@ -996,7 +1035,7 @@ public class MideaAiService extends Service {
     }
 
     private int getSystemAudio() {
-        AudioManager am = (AudioManager) Acontext.getSystemService(AUDIO_SERVICE);
+        AudioManager am = (AudioManager) this.getSystemService(AUDIO_SERVICE);
         int current = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         return current;
     }
@@ -1023,22 +1062,43 @@ public class MideaAiService extends Service {
     }
 
     public void stop() {
+        Log.e(TAG, "停止语音运行");
+        mSn = null;
+        mDeviceType = null;
+        mDeviceCode = null;
+        mMac = null;
+        mEnv = null;
+        if(mMediaMwEngine != null) {
+            String[] type = {"Mw"};
+            mMediaMwEngine.unregisterEvent(0, type, func);
+            mMediaMwEngine = null;
+        }
+        initialState.set(0);
         mIsRecording = false;
-        mMediaMwEngine = null;
         unreregisterNetworkReceiver();
+        mAiDialog = null;
+        mWeatherDialog = null;
+        wakUpStateCallBack = null;
+        serverInitialCallBack = null;
+        serverBindCallBack = null;
+        flashMusicListCallback = null;
+        aiSetVoiceCallBack = null;
+        aiControlDeviceErrorCallBack = null;
+        musicPlayControlBack = null;
         stopRecord();
     }
 
     private void alarm110(String ans) {
-        if (mAiDialog.isShowing()) {
+        if(mAiDialog != null) {
+            if (mAiDialog.isShowing()) {
+                setAnsString(ans);
+                return;
+            }
+            mAiDialog.create();
+            mAiDialog.wakeupShow110();
+            mAiDialog.show();
             setAnsString(ans);
-            return;
         }
-        mAiDialog.create();
-        mAiDialog.wakeupShow110();
-        mAiDialog.show();
-        setAnsString(ans);
-
     }
 
     private void skillType(final String data) {
@@ -1341,16 +1401,12 @@ public class MideaAiService extends Service {
                         isWifiLink=true;
                         String linkstatus = "{\"link_status\":1}";
                         if (mMediaMwEngine != null&&!hasReportConnect) {
-                            Schedulers.computation().scheduleDirect(() -> {
-                                try {
-                                    Thread.sleep(1000);
-                                    hasReportDisconnect=false;
-                                    hasReportConnect=true;
-                                    mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
-                                } catch (InterruptedException e) {
-
-                                }
-                            });
+                            try {
+                                Thread.sleep(1000);
+                                hasReportDisconnect=false;
+                                hasReportConnect=true;
+                                mMediaMwEngine.routerLinkStatusUpdate(linkstatus);
+                            } catch (InterruptedException e) {}
                         }
                     }else{
                         isWifiLink=false;

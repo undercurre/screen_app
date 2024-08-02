@@ -81,9 +81,12 @@ class HomeState extends State<Home>
       roomDataAd?.queryRoomList(System.familyInfo!);
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
+      aiMethodChannel.registerAiInitFinishCallBack(_aiInitFinishCallback);
+
       if (System.isLogin()) {
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
       }
+
       deviceLocal485ControlChannel.find485Device();
       // 初始化推送
       PushDataAdapter(MideaRuntimePlatform.platform).startConnect();
@@ -95,6 +98,11 @@ class HomeState extends State<Home>
   void _aiSetVoiceCallback(int voice) {
     Global.soundValue = voice;
     Setting.instant().showVolume = (voice / 15 * 100).toInt();
+  }
+
+  void _aiInitFinishCallback()
+  {
+    aiMethodChannel.setFullDuplex(Setting.instant().aiDuplexModeFullDuplex);
   }
 
   @override
@@ -180,6 +188,7 @@ class HomeState extends State<Home>
   void dispose() {
     super.dispose();
     aiMethodChannel.unregisterAiSetVoiceCallBack(_aiSetVoiceCallback);
+    aiMethodChannel.unregisterAiInitFinishCallBack(_aiInitFinishCallback);
     debugPrint("dispose");
   }
 

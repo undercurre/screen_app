@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 
 try {
     project.setProperty('target-platform', 'android-arm')
-} catch(MissingPropertyException e) {
+} catch(Exception e) {
     e.printStackTrace()
 }
 
@@ -169,7 +169,7 @@ dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-ai"))
     implementation(project(":module-homeos"))
-
+    implementation rootProject.other.buriedPoint
     implementation rootProject.ext.nexus.basic
     implementation rootProject.ext.nexus.log
     implementation rootProject.ext.nexus.repositories
@@ -179,7 +179,7 @@ dependencies {
     implementation project(":aar-midea-sdk")
     implementation rootProject.ext.nexus.rxbus
     implementation rootProject.ext.bugglyLibs
-
+    implementation rootProject.ext.nexus.hl_server
 
 }
 

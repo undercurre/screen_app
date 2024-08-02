@@ -443,6 +443,9 @@ public class MainActivity extends FlutterActivity {
         }, Voice -> {
             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetVoice", Voice));
             LogUtil.i("Homlux语音大小 " + Voice);
+        }, intial -> {
+            com.midea.homlux.ai.AiManager.getInstance().isAiWork = intial;
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiInitFinish",null));
         });
     }
 

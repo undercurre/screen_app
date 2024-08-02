@@ -115,6 +115,7 @@ ext {
             "ijkplayer_exo"     : "0.8.8",
             "aria"              : "3.8.16",
             "ariacompiler"      : "3.8.16",
+            "buriedPoint"       : "6.16.9"
     ]
 
     other = [
@@ -138,6 +139,7 @@ ext {
             ijkplayer_exo    : "tv.danmaku.ijk.media:ijkplayer-exo:${version["ijkplayer_exo"]}",
             aria             : "me.laoyuyu.aria:core:${version["aria"]}",
             ariacompiler     : "me.laoyuyu.aria:compiler:${version["ariacompiler"]}",
+            buriedPoint      : "com.bytedance.applog:RangersAppLog-All-cn:${version["buriedPoint"]}"
 
     ]
 
@@ -232,8 +234,8 @@ ext {
             gateway     : "com.midea.light:m-smart-gateway-4ch:0.0.8-SNAPSHOT",
             mtk8365     : "com.midea.light:m-smart-mtk8365-setting:0.0.2",
             card        : "com.midea.light:m-smart-card-center:0.0.3-SNAPSHOT",
-            ota_upgrade: "com.midea.light:m-smart-upgrade:0.1.4-SNAPSHOT"
-
+            ota_upgrade: "com.midea.light:m-smart-upgrade:0.1.4-SNAPSHOT",
+            hl_server   : "com.midea.light:m-smart-homlux-api:1.1.7-SNAPSHOT"
     ]
 
     networkLibs = retrofit.values()
