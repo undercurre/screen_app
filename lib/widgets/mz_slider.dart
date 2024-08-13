@@ -4,6 +4,61 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/global.dart';
 
+/// MzSlider的装饰类
+/// 封装思想：  组合【复合】
+///    效果：  为滑条底部增加虚点
+class MzSliderMarkDecoration extends StatelessWidget {
+
+  final MzSlider slider;
+
+  final Color markActiveColor;
+
+  final Color markDisableColor;
+
+  final double markWidth;
+
+  final double markHeight;
+
+  final EdgeInsetsGeometry padding;
+
+  const MzSliderMarkDecoration({
+    super.key,
+    required this.slider,
+    this.markActiveColor = const Color(0xFFFFFFFF),
+    this.markDisableColor = const Color(0xFFFFFFFF),
+    this.markWidth = 3,
+    this.markHeight = 3,
+    this.padding = const EdgeInsets.fromLTRB(10, 10, 10, 10),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final markList = <Widget>[];
+    for (int i = 0; i < slider.max - slider.min + 1; i++) {
+      markList.add(
+        Container(
+          width: markWidth,
+          height: markHeight,
+          color: slider.disabled ? markDisableColor : markActiveColor,
+        ),
+      );
+    }
+    return Column(
+      children: [
+        slider,
+        Padding(
+          padding: padding,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [...markList],
+          ),
+        )
+      ],
+    );
+  }
+
+}
+
 class MzSlider extends StatefulWidget {
   // 渐变色数组
   final List<Color> activeColors;
@@ -49,26 +104,68 @@ class MzSlider extends StatefulWidget {
   // 滑条颜色是否一直填满
   final bool isBarColorKeepFull;
 
-  const MzSlider({
+  const MzSlider._internal({
     super.key,
     required this.value,
     this.duration,
     this.onChanged,
     this.onChanging,
-    this.activeColors = const [Color(0xFF267AFF), Color(0xFF267AFF)],
-    this.max = 100,
-    this.min = 0,
-    this.width = 100,
-    this.height = 20,
-    this.rounded = false,
-    this.radius = 10,
-    this.ballRadius = 6,
-    this.step = 1,
-    this.disabled = false,
-    this.padding = const EdgeInsets.all(20),
-    this.isBarColorKeepFull = false,
-    this.seekbarBgColor = const Color(0xFF000000)
+    required this.activeColors,
+    required this.max,
+    required this.min,
+    required this.width,
+    required this.height,
+    required this.rounded,
+    required this.radius,
+    required this.ballRadius,
+    required this.step,
+    required this.disabled,
+    required this.padding,
+    required this.isBarColorKeepFull,
+    required this.seekbarBgColor
   });
+
+  factory MzSlider({
+    Key? key,
+    required num value,
+    Duration? duration,
+    void Function(num, Color)? onChanged,
+    void Function(num, Color)? onChanging,
+    Color? seekbarBgColor,
+    List<Color>? activeColors,
+    bool? isBarColorKeepFull,
+    EdgeInsetsGeometry? padding,
+    bool? disabled,
+    num? step,
+    double? ballRadius,
+    bool? rounded,
+    double? radius,
+    num? max,
+    num? min,
+    double? width,
+    double? height,
+  }) {
+    return MzSlider._internal(
+      key: key,
+      value: value,
+      activeColors: activeColors ?? const [Color(0xFF267AFF), Color(0xFF267AFF)],
+      min: min ?? 0,
+      max: max ?? 100,
+      width: width ?? 100,
+      height: height ?? 20,
+      rounded: rounded ?? false,
+      radius: radius ?? 10,
+      ballRadius: ballRadius ?? 6,
+      step: step ?? 1,
+      disabled: disabled ?? false,
+      padding: padding ?? const EdgeInsets.all(20),
+      isBarColorKeepFull: isBarColorKeepFull ?? false,
+      seekbarBgColor: seekbarBgColor ?? const Color(0xFF000000),
+      duration: duration,
+      onChanged: onChanged,
+      onChanging: onChanging,
+    );
+  }
 
   @override
   State<MzSlider> createState() => _MzSliderState();

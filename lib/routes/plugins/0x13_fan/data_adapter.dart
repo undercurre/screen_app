@@ -152,7 +152,7 @@ class WIFILightFunDataAdapter
 
   @override
   bool getPowerStatus() {
-    return data!.funPower;
+    return data!.funPower || data!.ledPower;
   }
 
   @override

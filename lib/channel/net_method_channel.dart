@@ -34,7 +34,6 @@ class NetMethodChannel extends AbstractChannel {
     super.initChannel();
     startObserverNetState();
     bus.on('net-available', (arg) {
-      Log.file('[网络] 可用');
       if(netAvailable == false) {
         netAvailable = true;
         transmitDataToNetAvailableChangeCallBack(true);
