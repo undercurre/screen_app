@@ -300,7 +300,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
   /// 控制灯开关
   Future<void> controlLedPower(bool power) async {
     bus.emit('operateDevice', applianceCode);
-    data!.ledPower = !data!.ledPower;
+    data!.ledPower = power;
     updateUI();
     if (platform.inMeiju()) {
       /// todo: 可以优化类型限制
@@ -312,7 +312,7 @@ class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> 
       );
       if (res.isSuccess) {
       } else {
-        data!.ledPower = !data!.ledPower;
+        data!.ledPower = !power;
         updateUI();
       }
     } else if (platform.inHomlux()) {

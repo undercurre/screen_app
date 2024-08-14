@@ -47,7 +47,7 @@ class FanLightBall extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                       color: Color.fromRGBO(
-                          255, 209, 133, (100 - colorTemperature) / 300), // 阴影颜色
+                          255, 209, 133, (100 - colorTemperature) / 300 * brightness / 120), // 阴影颜色
                       offset: const Offset(0, 0), // 阴影位置
                       blurRadius: 40, // 模糊程度
                       spreadRadius: 60), // 模糊大小
@@ -90,7 +90,7 @@ class FanLightBall extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                     color: Color.fromRGBO(
-                        255, 209, 133, (100 - colorTemperature) / 120),
+                        255, 209, 133, (100 - colorTemperature) / 120 * brightness / 120),
                     // 阴影颜色
                     offset: const Offset(0, 0),
                     // 阴影位置
