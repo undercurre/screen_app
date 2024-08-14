@@ -40,15 +40,18 @@ public class DuiCommandObserver implements CommandObserver {
 
     // 注册当前更新消息
     public void regist() {
-        DDS.getInstance().getAgent().subscribe(new String[]{COMMAND_SET_VOLUME, COMMAND_STE_BRIGHTNESS, COMMAND_MEDIA_PREV, COMMAND_MEDIA_NEXT, COMMAND_MEDIA_PAUSE,
-                        COMMAND_MEDIA_STOP, COMMAND_MEDIA_PLAY},
-                this);
-
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().subscribe(new String[]{COMMAND_SET_VOLUME, COMMAND_STE_BRIGHTNESS, COMMAND_MEDIA_PREV, COMMAND_MEDIA_NEXT, COMMAND_MEDIA_PAUSE,
+                            COMMAND_MEDIA_STOP, COMMAND_MEDIA_PLAY},
+                    this);
+        }
     }
 
     // 注销当前更新消息
     public void unregist() {
-        DDS.getInstance().getAgent().unSubscribe(this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().unSubscribe(this);
+        }
     }
 
     @Override

@@ -209,10 +209,12 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
                 Log.e("sky","syncQueryDuiToken fail");
                 return throwableObservable.flatMap(error-> {
-                    if (Objects.equals(this.token,"")) {
+                    if (Objects.equals(MideaAiService.this.token,"")) {
+                        Log.i("sky","token is null");
                         return Observable.empty();
                     } else {
-                        return Observable.timer(10,TimeUnit.SECONDS);
+                        Log.i("sky","token is not null");
+                        return Observable.timer(6,TimeUnit.SECONDS);
                     }
                 });
             })
@@ -229,9 +231,13 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     private void cleanTokenAndInit() {
         isIntial = false;
         try {
-            AccountManager.getInstance().clearToken();
-            DDS.getInstance().getAgent().clearAuthCode();
-            DDS.getInstance().releaseSync();
+            if (DDS.getInstance() != null) {
+                if (DDS.getInstance().getAgent() != null) {
+                    DDS.getInstance().getAgent().clearAuthCode();
+                }
+                AccountManager.getInstance().clearToken();
+                DDS.getInstance().releaseSync();
+            }
         } catch (DDSNotInitCompleteException e) {
             e.printStackTrace();
         }
@@ -240,13 +246,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void startDuiAi(String uid, String token, String refreshToken, int ExpiresTime, boolean aiEnable) {
         isAiEnable = aiEnable;
-        if (!isIntial) {
-            MainThread.run(() -> {
-                isIntial = true;
-                DialogUtil.showLoadingMessage(MideaAiService.this, "同步家庭数据中");
-                AccountLogin(uid, token, refreshToken, ExpiresTime);
-            });
-        }
+        MainThread.run(() -> {
+            DialogUtil.showLoadingMessage(MideaAiService.this, "同步家庭数据中");
+            AccountLogin(uid, token, refreshToken, ExpiresTime);
+        });
     }
 
     /**
@@ -856,14 +859,19 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             this.token = "";
             this.houseId = "";
             this.aiClientId = "";
-            MusicManager.getInstance().stopService();
-            AccountManager.getInstance().clearToken();
-            DDS.getInstance().getAgent().clearAuthCode();
-            DDS.getInstance().releaseSync();
+            if (DDS.getInstance() != null) {
+                if (DDS.getInstance().getAgent() != null) {
+                    DDS.getInstance().getAgent().clearAuthCode();
+                }
+                AccountManager.getInstance().clearToken();
+                DDS.getInstance().releaseSync();
+            }
+
             mCommandObserver.unregist();
             mMessageObserver.unregist();
+            MusicManager.getInstance().stopService();
         }catch (Exception e){
-
+            e.printStackTrace();
         }
     }
 
