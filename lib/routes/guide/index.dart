@@ -12,8 +12,8 @@ class GuidePage extends StatefulWidget {
   State<GuidePage> createState() => _GuidePageState();
 }
 
-class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMixin {
-
+class _GuidePageState extends State<GuidePage>
+    with SingleTickerProviderStateMixin {
   late final List<Widget> _guides = <Widget>[
     const _FirstGuidePage(),
     const _SecondGuidePage()
@@ -21,10 +21,8 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
 
   late var _pageIndex = 0;
   late PageController pageControl = PageController();
-  late final AnimationController controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3)
-  );
+  late final AnimationController controller =
+      AnimationController(vsync: this, duration: const Duration(seconds: 3));
 
   late final Animation animation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -146,7 +144,7 @@ class _FirstGuidePage extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: Color(0xFF267AFF),
                             borderRadius:
-                            BorderRadius.all(Radius.circular(30))),
+                                BorderRadius.all(Radius.circular(30))),
                       ),
                       const SizedBox(width: 24),
                       const Text(
@@ -193,7 +191,7 @@ class _FirstGuidePage extends StatelessWidget {
                         decoration: const BoxDecoration(
                             color: Color(0xFF267AFF),
                             borderRadius:
-                            BorderRadius.all(Radius.circular(30))),
+                                BorderRadius.all(Radius.circular(30))),
                         child: const Text(
                           "2",
                           style: TextStyle(
@@ -236,58 +234,60 @@ class _FirstGuidePage extends StatelessWidget {
   }
 }
 
-class _SecondGuidePage extends StatefulWidget  {
+class _SecondGuidePage extends StatefulWidget {
   const _SecondGuidePage({super.key});
 
   @override
   State<_SecondGuidePage> createState() => _SecondGuidePageState();
 }
 
-class _SecondGuidePageState extends State<_SecondGuidePage> with SingleTickerProviderStateMixin {
+class _SecondGuidePageState extends State<_SecondGuidePage>
+    with SingleTickerProviderStateMixin {
 
-  late final AnimationController _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3)
-  );
+  AnimationController? _controller;
+  Animation<double>? _positionAnimation;
+  Animation<double>? _circleAnimation;
+  Animation<double>? _opacityAnimation;
 
-  late final Animation<double> _positionAnimation = Tween<double>(begin: -30, end: 50)
-      .animate(CurvedAnimation(
-          parent: _controller,
-          curve: Curves.ease
-      ));
-
-  late final Animation<double> _circleAnimation = Tween<double>(begin: 0, end: 80)
-      .animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.ease
-  ));
-
-  late final Animation<double> _opacityAnimation = Tween<double>(begin:0, end:1)
-      .animate(_controller);
 
   @override
   void initState() {
     super.initState();
-    _controller.addStatusListener((status) {
-      if(status == AnimationStatus.completed) {
-        _controller.forward(from: 0);
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 3));
+
+    _positionAnimation = Tween<double>(begin: -30, end: 50)
+        .animate(CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.ease
+    ));
+
+    _circleAnimation = Tween<double>(begin: 0, end: 80)
+        .animate(CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.ease
+    ));
+
+    _opacityAnimation = Tween<double>(begin:0, end:1)
+        .animate(_controller!);
+
+    _controller?.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller?.forward(from: 0);
       }
     });
-    _controller.forward().orCancel;
+    _controller?.forward().orCancel;
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => secondGuide()
-    );
+    return AnimatedBuilder(animation: _controller!, builder: (context, _) => secondGuide());
   }
 
   Widget secondGuide() {
@@ -304,22 +304,20 @@ class _SecondGuidePageState extends State<_SecondGuidePage> with SingleTickerPro
         ),
         Positioned(
             left: 230,
-            top: _circleAnimation.value,
+            top: _circleAnimation!.value,
             child: Container(
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                border: Border.all(
-                  color: Colors.red,
-                  width: 2,
-                )
-              ),
-            )
-        ),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  border: Border.all(
+                    color: Colors.red,
+                    width: 2,
+                  )),
+            )),
         Positioned(
           left: 210,
-          top: _positionAnimation.value,
+          top: _positionAnimation!.value,
           child: Image.asset(
             'assets/newUI/guide/guide_2_down.png',
             height: 142,
@@ -341,4 +339,3 @@ class _SecondGuidePageState extends State<_SecondGuidePage> with SingleTickerPro
     );
   }
 }
-
