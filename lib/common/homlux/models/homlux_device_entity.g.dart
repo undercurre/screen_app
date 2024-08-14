@@ -609,7 +609,34 @@ Map<String, dynamic> $HomluxDeviceMzgdPropertyDTOList4ToJson(HomluxDeviceMzgdPro
 
 HomluxDeviceMzgdPropertyDTOListLight $HomluxDeviceMzgdPropertyDTOListLightFromJson(Map<String, dynamic> json) {
 	final HomluxDeviceMzgdPropertyDTOListLight homluxDeviceMzgdPropertyDTOListLight = HomluxDeviceMzgdPropertyDTOListLight();
-
+	final String? fanPower = homluxJsonConvert.convert<String>(json['fan_power']);
+	if (fanPower != null) {
+		homluxDeviceMzgdPropertyDTOListLight.fanPower = fanPower;
+	}
+	final String? ledPower = homluxJsonConvert.convert<String>(json['led_power']);
+	if (ledPower != null) {
+		homluxDeviceMzgdPropertyDTOListLight.ledPower = ledPower;
+	}
+	final String? fanScene = homluxJsonConvert.convert<String>(json['fan_scene']);
+	if (fanScene != null) {
+		homluxDeviceMzgdPropertyDTOListLight.fanScene = fanScene;
+	}
+	final String? temperatureMax = homluxJsonConvert.convert<String>(json['temperature_max']);
+	if (temperatureMax != null) {
+		homluxDeviceMzgdPropertyDTOListLight.temperatureMax = temperatureMax;
+	}
+	final String? temperatureMin = homluxJsonConvert.convert<String>(json['temperature_min']);
+	if (temperatureMin != null) {
+		homluxDeviceMzgdPropertyDTOListLight.temperatureMin = temperatureMin;
+	}
+	final String? fanSpeed = homluxJsonConvert.convert<String>(json['fan_speed']);
+	if (fanSpeed != null) {
+		homluxDeviceMzgdPropertyDTOListLight.fanSpeed = fanSpeed;
+	}
+	final String? arroundDir = homluxJsonConvert.convert<String>(json['arround_dir']);
+	if (arroundDir != null) {
+		homluxDeviceMzgdPropertyDTOListLight.arroundDir = arroundDir;
+	}
 	final HomluxColorTempRange? colorTempRange = homluxJsonConvert.convert<HomluxColorTempRange>(json['colorTempRange']);
 	if (colorTempRange != null) {
 		homluxDeviceMzgdPropertyDTOListLight.colorTempRange = colorTempRange;

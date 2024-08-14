@@ -110,10 +110,9 @@ class _MzSwitchState extends State<MzSwitch> with TickerProviderStateMixin {
       vsync: this,
       duration: widget.duration,
     );
-    CurvedAnimation railCurve =
-    CurvedAnimation(parent: railController!, curve: Curves.easeInOut);
-    Animation<Color?> rainAnimation =
-    ColorTween(begin: railBgc, end: railEndColor).animate(railCurve);
+    CurvedAnimation railCurve = CurvedAnimation(parent: railController!, curve: Curves.easeInOut);
+
+    Animation<Color?> rainAnimation = ColorTween(begin: railBgc, end: railEndColor).animate(railCurve);
     rainAnimation.addListener(() {
       setState(() {
         if (rainAnimation.value != null) {

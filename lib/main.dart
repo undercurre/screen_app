@@ -25,6 +25,9 @@ import 'widgets/pointer_listener.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+/// 全局获取buildContext类型参数
+BuildContext get globalContext => navigatorKey.currentContext!;
+
 void main() async {
   /// 加载环境配置
   await setupConfig();

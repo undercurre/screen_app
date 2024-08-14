@@ -982,8 +982,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
-                  params.sn8 ?? '', params.applianceCode));
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
         }),
     CardType.Middle: (params) => MiddleDeviceCardWidget(
         applianceCode: params.applianceCode,
@@ -1010,8 +1009,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         },
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
-                  params.sn8 ?? '', params.applianceCode));
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
         }),
     CardType.Big: (params) => BigDeviceLightFunCardWidget(
         applianceCode: params.applianceCode,
@@ -1026,8 +1024,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         hasMore: params.hasMore ?? true,
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
-              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform,
-                  params.sn8 ?? '', params.applianceCode));
+              id, (id) => WIFILightFunDataAdapter(MideaRuntimePlatform.platform, params.applianceCode));
         }),
   },
   // Zigbee窗帘

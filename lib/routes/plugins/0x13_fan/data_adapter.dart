@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/meiju/models/meiju_response_entity.dart';
+import 'package:screen_app/main.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
 import '../../../../common/adapter/midea_data_adapter.dart';
@@ -45,8 +47,7 @@ class LightFunDataEntity {
   LightFunDataEntity.fromMeiJu(dynamic data, String sn8) {
     onlineState = 1;
     if (sn8.isNotEmpty && sn8 == "79010863") {
-      brightness =
-          int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
+      brightness = int.parse(data["brightness"]) < 1 ? 1 : int.parse(data["brightness"]);
       colorTemp = int.parse(data["color_temperature"]);
       funPower = data["fan_power"] == 'on';
       ledPower = data["led_power"] == 'on';
@@ -66,7 +67,28 @@ class LightFunDataEntity {
     }
   }
 
-  LightFunDataEntity.fromHomlux(HomluxDeviceEntity data);
+  LightFunDataEntity.fromHomlux(HomluxDeviceEntity data, String sn8) {
+    onlineState = data.onLineStatus ?? 0;
+    if (sn8.isNotEmpty && sn8 == "79010863") {
+      maxColorTemp = data.mzgdPropertyDTOList?.light?.colorTempRange?.maxColorTemp ?? 5700;
+      minColorTemp = data.mzgdPropertyDTOList?.light?.colorTempRange?.minColorTemp ?? 3000;
+      brightness = (data.mzgdPropertyDTOList?.light?.brightness ?? 0) < 1 ? 1 : (data.mzgdPropertyDTOList?.light?.brightness ?? 0);
+      colorTemp = data.mzgdPropertyDTOList?.light?.colorTemperature ?? 0;
+      funPower = data.mzgdPropertyDTOList?.light?.fanPower == 'on';
+      ledPower = data.mzgdPropertyDTOList?.light?.ledPower == 'on';
+      fanScene = data.mzgdPropertyDTOList?.light?.fanScene ?? 'fanmanual';
+      fanSpeed = int.parse(data.mzgdPropertyDTOList?.light?.fanSpeed ?? '0');
+      arroundDir = int.parse(data.mzgdPropertyDTOList?.light?.arroundDir ?? '1');
+    } else {
+      brightness = 1;
+      colorTemp = 0;
+      funPower = data.mzgdPropertyDTOList?.light?.fanPower == 'on';
+      ledPower = data.mzgdPropertyDTOList?.light?.ledPower == 'on';
+      fanScene = data.mzgdPropertyDTOList?.light?.fanScene ?? 'fanmanual';
+      fanSpeed = int.parse(data.mzgdPropertyDTOList?.light?.fanSpeed ?? '0');
+      arroundDir = int.parse(data.mzgdPropertyDTOList?.light?.arroundDir ?? '1');
+    }
+  }
 
   @override
   String toString() {
@@ -74,8 +96,7 @@ class LightFunDataEntity {
   }
 }
 
-class WIFILightFunDataAdapter
-    extends DeviceCardDataAdapter<LightFunDataEntity> {
+class WIFILightFunDataAdapter extends DeviceCardDataAdapter<LightFunDataEntity> {
   String deviceName = "Wifi风扇灯";
   String sn8 = "";
   String applianceCode = "";
@@ -84,14 +105,14 @@ class WIFILightFunDataAdapter
   HomluxDeviceEntity? _homluxData = null;
 
   LightFunDataEntity? data = LightFunDataEntity(
-    brightness: 1,
-    colorTemp: 1,
-    funPower: false,
-    fanScene: 'fanmanual',
-    onlineState: 0,
-    ledPower: false,
-    fanSpeed: 1,
-    arroundDir: 1,
+    brightness: 1,        // 灯光亮度
+    colorTemp: 1,         // 灯光色温
+    funPower: false,      // 风扇开关
+    fanScene: 'fanmanual',// fanmanual 自然风
+    onlineState: 0,      // 设备离在线状态
+    ledPower: false,     // 灯光开关
+    fanSpeed: 1,         // 风扇风速大小。
+    arroundDir: 1,       // 风扇转向。正、逆
   );
 
   @override
@@ -103,34 +124,19 @@ class WIFILightFunDataAdapter
     }
   }
 
-  WIFILightFunDataAdapter(super.platform, this.sn8, this.applianceCode) {
-    Log.i('获取到当前吸顶灯的sn8', this.sn8);
+  WIFILightFunDataAdapter(super.platform, this.applianceCode) {
     type = AdapterType.wifiLightFan;
   }
 
   @override
   void init() {
     _startPushListen();
-    getSN8();
   }
 
-  Future<void> getSN8() async {
-    if (platform.inMeiju() && sn8.isEmpty) {
-      String id = System.familyInfo?.familyId ?? "";
-      if (id.isEmpty) {
-        return;
-      }
-      MeiJuResponseEntity<List<MeiJuDeviceInfoEntity>> res =
-          await MeiJuDeviceApi.queryDeviceListByHomeId(
-              MeiJuGlobal.token!.uid, id);
-      if (res.isSuccess) {
-        res.data?.forEach((element) {
-          if (element.applianceCode == applianceCode) {
-            sn8 = element.sn8;
-            return;
-          }
-        });
-      }
+  Future<void> initSN8(BuildContext context) async {
+    if(sn8.isEmpty) {
+      sn8 = fetchDeviceSn8(context, applianceCode) ?? '';
+      Log.d("获取到的sn8=$sn8");
     }
   }
 
@@ -162,7 +168,7 @@ class WIFILightFunDataAdapter
 
   @override
   Future<void> power(bool? onOff) async {
-    return controlPower();
+    return controlFanPower(onOff ?? false);
   }
 
   @override
@@ -200,7 +206,7 @@ class WIFILightFunDataAdapter
 
   @override
   Future<void> tryOnce() async {
-    controlPower();
+    controlFanPower(!(data?.funPower ?? true));
   }
 
   @override
@@ -213,6 +219,7 @@ class WIFILightFunDataAdapter
   Future<void> fetchData() async {
     dataState = DataState.LOADING;
     updateUI();
+    initSN8(globalContext);
     if (platform.inMeiju()) {
       _meijuData = await fetchMeijuData();
     } else if (platform.inHomlux()) {
@@ -221,7 +228,7 @@ class WIFILightFunDataAdapter
     if (_meijuData != null) {
       data = LightFunDataEntity.fromMeiJu(_meijuData!, sn8);
     } else if (_homluxData != null) {
-      data = LightFunDataEntity.fromHomlux(_homluxData!);
+      data = LightFunDataEntity.fromHomlux(_homluxData!, sn8);
     } else {
       dataState = DataState.ERROR;
       data = LightFunDataEntity(
@@ -243,8 +250,7 @@ class WIFILightFunDataAdapter
 
   Future<dynamic> fetchMeijuData() async {
     try {
-      var nodeInfo =
-          await MeiJuDeviceApi.getDeviceDetail('0x13', applianceCode);
+      var nodeInfo = await MeiJuDeviceApi.getDeviceDetail('0x13', applianceCode);
       return nodeInfo.data;
     } catch (e) {
       Log.i('getNodeInfo Error', e);
@@ -255,8 +261,7 @@ class WIFILightFunDataAdapter
   }
 
   Future<HomluxDeviceEntity?> fetchHomluxData() async {
-    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes =
-        await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
+    HomluxResponseEntity<HomluxDeviceEntity> nodeInfoRes = await HomluxDeviceApi.queryDeviceStatusByDeviceId(applianceCode);
     HomluxDeviceEntity? nodeInfo = nodeInfoRes.result;
     if (nodeInfo != null) {
       return nodeInfo;
@@ -266,12 +271,11 @@ class WIFILightFunDataAdapter
   }
 
   /// 控制风扇开关
-  Future<void> controlPower() async {
+  Future<void> controlFanPower(bool power) async {
     bus.emit('operateDevice', applianceCode);
-    data!.funPower = !data!.funPower;
+    data!.funPower = power;
     updateUI();
     if (platform.inMeiju()) {
-      /// todo: 可以优化类型限制
       var command = {"fan_power": data!.funPower ? 'on' : 'off'};
       var res = await MeiJuDeviceApi.sendLuaOrder(
         categoryCode: '0x13',
@@ -283,11 +287,18 @@ class WIFILightFunDataAdapter
         data!.funPower = !data!.funPower;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightFanOnOff(applianceCode, '3', power ? 1 : 0);
+      if (res.isSuccess) {
+      } else {
+        data!.funPower = !power;
+        updateUI();
+      }
+    }
   }
 
   /// 控制灯开关
-  Future<void> controlLedPower() async {
+  Future<void> controlLedPower(bool power) async {
     bus.emit('operateDevice', applianceCode);
     data!.ledPower = !data!.ledPower;
     updateUI();
@@ -304,7 +315,14 @@ class WIFILightFunDataAdapter
         data!.ledPower = !data!.ledPower;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightLedOnOff(applianceCode, '3', power ? 1 : 0);
+      if (res.isSuccess) {
+      } else {
+        data!.ledPower = !power;
+        updateUI();
+      }
+    }
   }
 
   /// 控制风扇正反转
@@ -325,7 +343,14 @@ class WIFILightFunDataAdapter
         data!.arroundDir = data!.arroundDir == 1 ? 1 : 0;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightFanDir(applianceCode, "3", data!.arroundDir == 1 ? '1' : '0');
+      if (res.isSuccess) {
+      } else {
+        data!.arroundDir = data!.arroundDir == 1 ? 1 : 0;
+        updateUI();
+      }
+    }
   }
 
   /// 控制风扇模式
@@ -346,7 +371,14 @@ class WIFILightFunDataAdapter
         data!.fanScene = lastModel;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightFanScene(applianceCode, '3', mode);
+      if (res.isSuccess) {
+      } else {
+        data!.fanScene = lastModel;
+        updateUI();
+      }
+    }
   }
 
   /// 控制风速
@@ -385,7 +417,15 @@ class WIFILightFunDataAdapter
         data!.fanScene = lastfanScene;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightFanGear(applianceCode, '3', fanSpeed);
+      if (res.isSuccess) {
+      } else {
+        data!.fanSpeed = lastSpeed;
+        data!.fanScene = lastfanScene;
+        updateUI();
+      }
+    }
   }
 
   /// 控制亮度
@@ -408,7 +448,14 @@ class WIFILightFunDataAdapter
         data!.brightness = lastBrightness;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightLedBright(applianceCode, '3', int.parse((data!.brightness).toStringAsFixed(0)));
+      if (res.isSuccess) {
+      } else {
+        data!.brightness = lastBrightness;
+        updateUI();
+      }
+    }
   }
 
   /// 控制色温
@@ -426,7 +473,14 @@ class WIFILightFunDataAdapter
         data!.colorTemp = lastColorTemp;
         updateUI();
       }
-    } else if (platform.inHomlux()) {}
+    } else if (platform.inHomlux()) {
+      var res = await HomluxDeviceApi.controlFanLightLedTemp(applianceCode, '3', data!.colorTemp);
+      if (res.isSuccess) {
+      } else {
+        data!.colorTemp = lastColorTemp;
+        updateUI();
+      }
+    }
   }
 
   String getWindSpeed() {

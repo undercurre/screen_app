@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -78,8 +80,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -374,10 +375,10 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
                     gear: getWindSpeed(),
                     onGearChanged: adapter.controlWindSpeed,
                     onFanOnOffChange: (onOff) {
-                      adapter.controlPower();
+                      adapter.controlFanPower(onOff);
                     },
                     onLightOnOffChange: (onOff) {
-                      adapter.controlLedPower();
+                      adapter.controlLedPower(onOff);
                     }
                 ),
               ),

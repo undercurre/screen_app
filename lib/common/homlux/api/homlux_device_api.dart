@@ -647,6 +647,171 @@ class HomluxDeviceApi {
         extraMap: {'deviceType': deviceType});
   }
 
+  static Future<HomluxResponseEntity> controlFanLightFanOnOff(String deviceId, String deviceType, int onOff) {
+
+    var cloudActions = [
+      <String, dynamic>{'fan_power': onOff == 1 ? "on" : "off"}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'fan_power': onOff == 1 ? 1 : 0}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightFanGear(String deviceId, String deviceType, int gear) {
+    var cloudActions = [
+      <String, dynamic>{'fan_speed': gear}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'fan_speed': gear}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightFanDir(String deviceId, String deviceType, String dir) {
+    var cloudActions = [
+      <String, dynamic>{'arround_dir': dir}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'arround_dir': dir}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightFanScene(String deviceId, String deviceType, String scene) {
+    var cloudActions = [
+      <String, dynamic>{'fan_scene': scene}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'fan_scene': scene}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightLedOnOff(String deviceId, String deviceType, int onOff) {
+    var cloudActions = [
+      <String, dynamic>{'power': onOff == 1 ? "on" : "off"}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'power': onOff == 1 ? 1 : 0}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightLedTemp(String deviceId, String deviceType, int temperature) {
+
+    var cloudActions = [
+      <String, dynamic>{'colorTemperature': temperature}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'colorTemperature': temperature}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+  static Future<HomluxResponseEntity> controlFanLightLedBright(String deviceId, String deviceType, int brightness) {
+    var cloudActions = [
+      <String, dynamic>{'brightness': brightness}
+    ];
+
+    /// 局域网 设备执行的action
+    var lanActions = [
+      <String, dynamic>{
+        'modelName': 'light',
+        'deviceProperty': {'brightness': brightness}
+      }
+    ];
+
+    return _controlDevice(
+        topic: '/subdevice/control',
+        deviceId: deviceId,
+        method: 'wifiLampControl',
+        cloudInputData: cloudActions,
+        lanInputData: lanActions,
+        lanDeviceId: deviceId,
+        extraMap: {'deviceType': deviceType});
+  }
+
+
+
   /// ******************
   /// 控制wifi调光调色灯的开和关
   /// [deviceId] 设备Id

@@ -40,48 +40,7 @@ class DeviceInfoListModel extends ChangeNotifier {
   DeviceListModel() {}
 
   List<DeviceEntity> getCacheDeviceList() {
-    if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
-      List<DeviceEntity> tempList = deviceListMeiju.map((e) {
-        DeviceEntity deviceObj = DeviceEntity();
-        deviceObj.name = e.name!;
-        deviceObj.applianceCode = e.applianceCode!;
-        deviceObj.type = e.type!;
-        deviceObj.modelNumber = e.modelNumber!;
-        deviceObj.sn8 = e.sn8;
-        deviceObj.roomName = e.roomName!;
-        deviceObj.roomId = e.roomId!;
-        deviceObj.masterId = e.masterId!;
-        deviceObj.onlineStatus = e.onlineStatus!;
-        return deviceObj;
-      }).toList();
-
-      tempList.addAll(MeijuGroup);
-
-      tempList.addAll(getMeiJuLocalPanelDevices(deviceListMeiju));
-
-      deviceCacheList = tempList;
-
-      return tempList;
-    } else {
-      List<DeviceEntity> tempList = deviceListHomlux.map((e) {
-        DeviceEntity deviceObj = DeviceEntity();
-        deviceObj.name = e.deviceName!;
-        deviceObj.applianceCode = e.deviceId!;
-        deviceObj.type = e.proType!;
-        deviceObj.modelNumber = getModelNumber(e);
-        deviceObj.roomName = e.roomName!;
-        deviceObj.roomId = e.roomId!;
-        deviceObj.masterId = e.gatewayId ?? '';
-        deviceObj.onlineStatus = e.onLineStatus.toString();
-        return deviceObj;
-      }).toList();
-
-      tempList.addAll(getHomluxLocalPanelDevices(deviceListHomlux));
-
-      deviceCacheList = tempList;
-
-      return tempList;
-    }
+    return deviceCacheList;
   }
 
   List<DeviceEntity> getMeiJuLocalPanelDevices(List<MeiJuDeviceInfoEntity> deviceList) {
@@ -161,7 +120,7 @@ class DeviceInfoListModel extends ChangeNotifier {
   }
 
   Future<List<DeviceEntity>> getDeviceList(String reason) async {
-    Log.d(reason);
+    Log.file(reason);
     if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       final familyInfo = System.familyInfo;
       if(MeiJuGlobal.token==null||familyInfo==null){
@@ -235,6 +194,7 @@ class DeviceInfoListModel extends ChangeNotifier {
           deviceObj.type = e.proType!;
           deviceObj.modelNumber = getModelNumber(e);
           deviceObj.roomName = e.roomName!;
+          deviceObj.sn8 = e.productId;
           deviceObj.roomId = e.roomId ?? System.roomInfo?.id;
           deviceObj.masterId = e.gatewayId ?? '';
           deviceObj.onlineStatus = e.onLineStatus.toString();
@@ -285,6 +245,36 @@ class DeviceInfoListModel extends ChangeNotifier {
     compareDevice[1].forEach((element) {
       MideaDataAdapter.removeAdapter(element);
     });
+  }
+
+  String? getDeviceSn8({required String deviceId}) {
+    List<DeviceEntity> curOne = deviceCacheList
+        .where((element) => element.applianceCode == deviceId)
+        .toList();
+    if(curOne.isNotEmpty) {
+      return curOne[0].sn8;
+    }
+    return null;
+  }
+
+  String? getDeviceModelNumber({required String deviceId}) {
+    List<DeviceEntity> curOne = deviceCacheList
+        .where((element) => element.applianceCode == deviceId)
+        .toList();
+    if(curOne.isNotEmpty) {
+      return curOne[0].modelNumber;
+    }
+    return null;
+  }
+
+  String? getDeviceType({required String deviceId}) {
+    List<DeviceEntity> curOne = deviceCacheList
+        .where((element) => element.applianceCode == deviceId)
+        .toList();
+    if(curOne.isNotEmpty) {
+      return curOne[0].type;
+    }
+    return null;
   }
 
   String getDeviceName(
@@ -574,6 +564,7 @@ class DeviceInfoListModel extends ChangeNotifier {
                 type: 'localPanel1',
                 masterId: '',
                 modelNumber: '',
+                sn8: null,
                 onlineStatus: '1')),
         Layout(
             'localPanel2',
@@ -589,6 +580,7 @@ class DeviceInfoListModel extends ChangeNotifier {
                 type: 'localPanel2',
                 masterId: '',
                 modelNumber: '',
+                sn8: null,
                 onlineStatus: '1')),
         Layout(
             uuid.v4(),
@@ -604,6 +596,7 @@ class DeviceInfoListModel extends ChangeNotifier {
                 type: '',
                 masterId: '',
                 modelNumber: '',
+                sn8: null,
                 onlineStatus: '')),
         Layout(
             uuid.v4(),
@@ -619,6 +612,7 @@ class DeviceInfoListModel extends ChangeNotifier {
                 type: '',
                 masterId: '',
                 modelNumber: '',
+                sn8: null,
                 onlineStatus: ''))
       ];
       transformList.addAll(defaultList);

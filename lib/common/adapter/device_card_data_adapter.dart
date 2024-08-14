@@ -27,6 +27,21 @@ abstract class DeviceCardDataAdapter<T> extends MideaDataAdapter {
   /// false     未确权
   bool? _auth;
 
+  String? fetchDeviceType(BuildContext context, String deviceId) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    return deviceListModel.getDeviceType(deviceId: deviceId);
+  }
+
+  String? fetchDeviceModelNumber(BuildContext context, String deviceId) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    return deviceListModel.getDeviceModelNumber(deviceId: deviceId);
+  }
+
+  String? fetchDeviceSn8(BuildContext context, String deviceId) {
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
+    return deviceListModel.getDeviceSn8(deviceId: deviceId);
+  }
+
 
   bool fetchOnlineState(BuildContext context, String deviceId) {
     final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
