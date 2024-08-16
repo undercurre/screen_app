@@ -21,6 +21,7 @@ import com.midea.light.ai.IHomluxWakeUpStateCallback;
 import com.midea.light.ai.IMideaLightWakUpStateCallBack;
 import com.midea.light.thread.MainThread;
 import com.midea.homlux.ai.impl.IntialCallBack;
+import java.util.Objects;
 
 public class AiManager {
     private boolean isAiEnable = true;
@@ -108,8 +109,11 @@ public class AiManager {
             Log.i("sky", "语音异常连接断开");
             MainThread.postDelayed(() -> {
                 try {
-                    Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
-                    AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
+                    if (!Objects.equals(token,"")) {
+                        Log.i("sky", "重启语音服务");
+                        Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
+                        AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -128,6 +132,7 @@ public class AiManager {
         this.mAISetVoiceCallBack = VoiceCallBack;
         this.mIntialCallBack=intialCallBack;
         try {
+            Log.i("sky", "初始化语音服务");
             Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
             AiManager.this.context.bindService(intent2, conn, BIND_AUTO_CREATE);
         } catch (Exception e) {
@@ -159,9 +164,14 @@ public class AiManager {
     public void stopAi() {
         if (context != null) {
             try {
+                uid = "";
+                token = "";
+                houseId = "";
+                aiClientId = "";
                 if(mMyBinder != null) {
                     mMyBinder.stopAi();
                 }
+
                 context.unbindService(conn);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();

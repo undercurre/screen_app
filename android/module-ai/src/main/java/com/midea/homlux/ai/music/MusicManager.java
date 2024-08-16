@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
+import android.util.Log;
+import android.os.Looper;
 import com.midea.light.RxBus;
 
 import java.util.ArrayList;
@@ -242,7 +244,7 @@ public class MusicManager {
         }
     }
 
-    private Handler mHandler = new Handler(new Handler.Callback() {
+    private Handler mHandler = new Handler(Looper.getMainLooper(),new Handler.Callback() {
         @Override
         public boolean handleMessage(Message message) {
             switch (message.arg1) {
@@ -262,8 +264,11 @@ public class MusicManager {
 
     public void stopService(){
         Intent intent = new Intent(activity, MusicPlayerService.class);
+        Log.i("sky","222222222233333333");
         activity.unbindService(conn);
+        Log.i("sky","44444444333333");
         activity.stopService(intent);
+        Log.i("sky","2222222555555555555");
     }
 
 

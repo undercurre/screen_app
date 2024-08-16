@@ -57,14 +57,18 @@ public class DuiMessageObserver implements MessageObserver {
 
     // 注册当前更新消息
     public void regist(MessageCallback messageCallback, LinkedList<MessageBean> msgList) {
-        mMessageCallback = messageCallback;
-        mMessageList = msgList;
-        DDS.getInstance().getAgent().subscribe(mSubscribeKeys, this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            mMessageCallback = messageCallback;
+            mMessageList = msgList;
+            DDS.getInstance().getAgent().subscribe(mSubscribeKeys, this);
+        }
     }
 
     // 注销当前更新消息
     public void unregist() {
-        DDS.getInstance().getAgent().unSubscribe(this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().unSubscribe(this);
+        }
     }
 
     private void clearVar() {

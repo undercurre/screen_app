@@ -29,12 +29,16 @@ public class DuiNativeApiObserver implements NativeApiObserver {
 
     // 注册当前更新消息
     public void regist() {
-        DDS.getInstance().getAgent().subscribe(new String[]{NATIVE_API_GET_INFOR, NATIVE_API_SET_ALERT, NATIVE_API_QUERY_ALERT, NATIVE_API_DELETE_ALERT}, this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().subscribe(new String[]{NATIVE_API_GET_INFOR, NATIVE_API_SET_ALERT, NATIVE_API_QUERY_ALERT, NATIVE_API_DELETE_ALERT}, this);
+        }
     }
 
     // 注销当前更新消息
     public void unregist() {
-        DDS.getInstance().getAgent().unSubscribe(this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().unSubscribe(this);
+        }
     }
 
     /*

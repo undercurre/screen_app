@@ -26,14 +26,18 @@ public class DuiUpdateObserver implements MessageObserver {
 
     // 注册当前更新消息
     public void regist(UpdateCallback updateCallback) {
-        mUpdateCallback = updateCallback;
-        DDS.getInstance().getAgent().subscribe("sys.resource.updated", this);
-        initUpdate();
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            mUpdateCallback = updateCallback;
+            DDS.getInstance().getAgent().subscribe("sys.resource.updated", this);
+            initUpdate();
+        }
     }
 
     // 注销当前更新消息
     public void unregist() {
-        DDS.getInstance().getAgent().unSubscribe(this);
+        if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
+            DDS.getInstance().getAgent().unSubscribe(this);
+        }
     }
 
     // 初始化更新
