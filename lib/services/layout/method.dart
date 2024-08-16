@@ -746,7 +746,7 @@ Future<bool> auto2LayoutNew(BuildContext context) async {
     // 完成布局，抛出
     return true;
   } catch (e) {
-    Log.i('一键布局抛出错误', e);
+    Log.e('一键布局抛出错误', e);
     return false;
   }
 }
