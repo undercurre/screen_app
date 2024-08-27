@@ -4,11 +4,34 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/global.dart';
 
+import '../common/logcat_helper.dart';
+
+/// # MzSliderMarkDecoration 配置
+const _MARK_ACTIVE_COLOR = Color(0xFFFFFFFF);
+const _MARK_DISABLE_COLOR = Color(0xFFFFFFFF);
+const _MARK_WIDTH = 3.0;
+const _MARK_HEIGHT = 3.0;
+const _MARK_PADDING = EdgeInsets.fromLTRB(10, 10, 10, 10);
+
+/// # MzSlider 配置
+const _SLIDER_ACTIVE_COLOR = [Color(0xFF267AFF), Color(0xFF267AFF)];
+const _SLIDER_MAX = 100;
+const _SLIDER_MIN = 0;
+const _SLIDER_WIDTH = 390.0;
+const _SLIDER_HEIGHT = 16.0;
+const _SLIDER_ROUNDED = false;
+const _SLIDER_RADIUS = 10.0;
+const _SLIDER_BALL_RADIUS = 6.0;
+const _SLIDER_STEP = 1;
+const _SLIDER_DISABLED = false;
+const _SLIDER_PADDING = EdgeInsets.all(20);
+const _SLIDER_IS_BAR_COLOR_KEEF_FULL = false;
+const _SLIDER_SEEKBAR_BG_COLOR = Color(0xFF000000);
+
 /// MzSlider的装饰类
 /// 封装思想：  组合【复合】
 ///    效果：  为滑条底部增加虚点
 class MzSliderMarkDecoration extends StatelessWidget {
-
   final MzSlider slider;
 
   final Color markActiveColor;
@@ -24,17 +47,17 @@ class MzSliderMarkDecoration extends StatelessWidget {
   const MzSliderMarkDecoration({
     super.key,
     required this.slider,
-    this.markActiveColor = const Color(0xFFFFFFFF),
-    this.markDisableColor = const Color(0xFFFFFFFF),
-    this.markWidth = 3,
-    this.markHeight = 3,
-    this.padding = const EdgeInsets.fromLTRB(10, 10, 10, 10),
+    this.markActiveColor = _MARK_ACTIVE_COLOR,
+    this.markDisableColor = _MARK_DISABLE_COLOR,
+    this.markWidth = _MARK_WIDTH,
+    this.markHeight = _MARK_HEIGHT,
+    this.padding = _MARK_PADDING,
   });
 
   @override
   Widget build(BuildContext context) {
     final markList = <Widget>[];
-    for (int i = 0; i < slider.max - slider.min + 1; i++) {
+    for (num i = 0; i < slider.max - slider.min + 1; i += slider.step) {
       markList.add(
         Container(
           width: markWidth,
@@ -46,17 +69,23 @@ class MzSliderMarkDecoration extends StatelessWidget {
     return Column(
       children: [
         slider,
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [...markList],
+        Align(
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: slider.width,
+            height: slider.height,
+            child: Padding(
+              padding: padding,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [...markList],
+              ),
+            ),
           ),
         )
       ],
     );
   }
-
 }
 
 class MzSlider extends StatefulWidget {
@@ -104,67 +133,79 @@ class MzSlider extends StatefulWidget {
   // 滑条颜色是否一直填满
   final bool isBarColorKeepFull;
 
-  const MzSlider._internal({
-    super.key,
-    required this.value,
-    this.duration,
-    this.onChanged,
-    this.onChanging,
-    required this.activeColors,
-    required this.max,
-    required this.min,
-    required this.width,
-    required this.height,
-    required this.rounded,
-    required this.radius,
-    required this.ballRadius,
-    required this.step,
-    required this.disabled,
-    required this.padding,
-    required this.isBarColorKeepFull,
-    required this.seekbarBgColor
-  });
+  const MzSlider(
+      {super.key,
+      required this.value,
+      this.duration,
+      this.onChanged,
+      this.onChanging,
+      this.activeColors = _SLIDER_ACTIVE_COLOR,
+      this.max = _SLIDER_MAX,
+      this.min = _SLIDER_MIN,
+      this.width = _SLIDER_WIDTH,
+      this.height = _SLIDER_HEIGHT,
+      this.rounded = _SLIDER_ROUNDED,
+      this.radius = _SLIDER_RADIUS,
+      this.ballRadius = _SLIDER_BALL_RADIUS,
+      this.step = _SLIDER_STEP,
+      this.disabled = _SLIDER_DISABLED,
+      this.padding = _SLIDER_PADDING,
+      this.isBarColorKeepFull = _SLIDER_IS_BAR_COLOR_KEEF_FULL,
+      this.seekbarBgColor = _SLIDER_SEEKBAR_BG_COLOR});
 
-  factory MzSlider({
-    Key? key,
-    required num value,
-    Duration? duration,
-    void Function(num, Color)? onChanged,
-    void Function(num, Color)? onChanging,
-    Color? seekbarBgColor,
-    List<Color>? activeColors,
-    bool? isBarColorKeepFull,
-    EdgeInsetsGeometry? padding,
-    bool? disabled,
-    num? step,
-    double? ballRadius,
-    bool? rounded,
-    double? radius,
-    num? max,
-    num? min,
-    double? width,
-    double? height,
-  }) {
-    return MzSlider._internal(
+  static MzSliderMarkDecoration createDottedLineSlider(
+      {Key? key,
+      required num value,
+      Duration? duration,
+      void Function(num, Color)? onChanged,
+      void Function(num, Color)? onChanging,
+      Color? seekbarBgColor,
+      List<Color>? activeColors,
+      bool? isBarColorKeepFull,
+      EdgeInsetsGeometry? padding,
+      bool? disabled,
+      num? step,
+      double? ballRadius,
+      bool? rounded,
+      double? radius,
+      num? max,
+      num? min,
+      double? width,
+      double? height,
+      Color? markActiveColor,
+      Color? markDisableColor,
+      double? markWidth,
+      double? markHeight}) {
+
+    var slider = MzSlider(
       key: key,
       value: value,
-      activeColors: activeColors ?? const [Color(0xFF267AFF), Color(0xFF267AFF)],
-      min: min ?? 0,
-      max: max ?? 100,
-      width: width ?? 100,
-      height: height ?? 20,
-      rounded: rounded ?? false,
-      radius: radius ?? 10,
-      ballRadius: ballRadius ?? 6,
-      step: step ?? 1,
-      disabled: disabled ?? false,
-      padding: padding ?? const EdgeInsets.all(20),
-      isBarColorKeepFull: isBarColorKeepFull ?? false,
-      seekbarBgColor: seekbarBgColor ?? const Color(0xFF000000),
       duration: duration,
       onChanged: onChanged,
       onChanging: onChanging,
+      activeColors: activeColors ?? _SLIDER_ACTIVE_COLOR,
+      max: max ?? _SLIDER_MAX,
+      min: min ?? _SLIDER_MIN,
+      width: width ?? _SLIDER_WIDTH,
+      height: height ?? _SLIDER_HEIGHT,
+      rounded: rounded ?? _SLIDER_ROUNDED,
+      radius: radius ?? _SLIDER_RADIUS,
+      ballRadius: ballRadius ?? _SLIDER_BALL_RADIUS,
+      step: step ?? _SLIDER_STEP,
+      disabled: disabled ?? _SLIDER_DISABLED,
+      padding: padding ?? _SLIDER_PADDING,
+      isBarColorKeepFull: isBarColorKeepFull ?? _SLIDER_IS_BAR_COLOR_KEEF_FULL,
+      seekbarBgColor: seekbarBgColor ?? _SLIDER_SEEKBAR_BG_COLOR,
     );
+
+    return MzSliderMarkDecoration(
+      markActiveColor: markActiveColor ?? _MARK_ACTIVE_COLOR,
+      markDisableColor: markDisableColor ?? _MARK_DISABLE_COLOR,
+      markWidth: markWidth ?? _MARK_WIDTH,
+      markHeight: markHeight ?? _MARK_HEIGHT,
+      slider: slider,
+    );
+
   }
 
   @override
@@ -227,8 +268,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       onPanDown: (e) => onPanDown(e),
       //手指滑动时会触发此回调
       onHorizontalDragUpdate: (e) => onPanUpdate(e),
-      //onHorizontalDragEnd: (e) => onPanUp(),
-      //onPanEnd: (e) => onPanUp(),
+      onHorizontalDragEnd: (e) => onPanUp(),
+      onHorizontalDragCancel: () => onPanUp(),
       onTap: () => onPanUp(),
       child: Container(
         padding: widget.padding,
@@ -259,7 +300,11 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
               DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                      colors: widget.disabled ? disableColor : widget.isBarColorKeepFull ? widget.activeColors : activeColor),
+                      colors: widget.disabled
+                          ? disableColor
+                          : widget.isBarColorKeepFull
+                              ? widget.activeColors
+                              : activeColor),
                   borderRadius: widget.rounded
                       ? BorderRadius.circular(widget.height / 2)
                       : BorderRadius.circular(widget.radius),
@@ -267,7 +312,9 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tightFor(
                     height: widget.height,
-                    width: widget.isBarColorKeepFull ? widget.width : activeRailWidth,
+                    width: widget.isBarColorKeepFull
+                        ? widget.width
+                        : activeRailWidth,
                   ),
                 ),
               ),
@@ -437,10 +484,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
   /// 事件处理
   void onPanDown(DragDownDetails e) {
     if (widget.disabled) return;
-    RenderBox railRenderObject =
-        _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx /
-        railRenderObject.paintBounds.width);
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(e.globalPosition).dx / railRenderObject.paintBounds.width);
     latestPosition = e.globalPosition;
     isPanning = true;
     isPanUpdate = false;
@@ -453,10 +498,8 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
     isPanUpdate = true;
     latestPosition = e.globalPosition;
     //用户手指滑动时，更新偏移，重新构建
-    RenderBox railRenderObject =
-        _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(latestPosition).dx /
-        railRenderObject.paintBounds.width);
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
     final percentageValue = percentageToValue(percentage);
     final emitValue = clampValue(steppingValue(percentageValue));
     setState(() {
@@ -464,30 +507,35 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
       toValue = clampValue(percentageValue);
     });
     widget.onChanging?.call(emitValue, activeColor[1]);
-
     timeDrag = DateTime.now().millisecondsSinceEpoch;
-    feedTimer ??= Timer.periodic(const Duration(milliseconds: 300), (timer) {
-      int now = DateTime.now().millisecondsSinceEpoch;
-      if (now - timeDrag > 300) {
-        feedTimer?.cancel();
-        feedTimer = null;
-        onPanUp();
-      }
+    if (feedTimer?.isActive == false) {
+      feedTimer?.cancel();
+      feedTimer = null;
+    }
+    feedTimer ??= Timer(const Duration(milliseconds: 2000), () {
+      Log.i("End Time");
+      feedTimer?.cancel();
+      feedTimer = null;
+      RenderBox _railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+      final _percentage = (railRenderObject.globalToLocal(latestPosition).dx / _railRenderObject.paintBounds.width);
+      final _temp = clampValue(steppingValue(percentageToValue(_percentage)));
+      widget.onChanged?.call(_temp, activeColor[1]);
     });
   }
 
   void onPanUp() {
     if (widget.disabled) return;
-    RenderBox railRenderObject =
-        _railKey.currentContext?.findRenderObject() as RenderBox;
-    final percentage = (railRenderObject.globalToLocal(latestPosition).dx /
-        railRenderObject.paintBounds.width);
+    RenderBox railRenderObject = _railKey.currentContext?.findRenderObject() as RenderBox;
+    final percentage = (railRenderObject.globalToLocal(latestPosition).dx / railRenderObject.paintBounds.width);
     final temp = clampValue(steppingValue(percentageToValue(percentage)));
     isPanning = false;
+    feedTimer?.cancel();
+    feedTimer = null;
     setState(() {
       value = temp;
       toValue = temp;
       widget.onChanged?.call(toValue, activeColor[1]);
     });
   }
+
 }

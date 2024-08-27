@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:screen_app/routes/develop/relay_page.dart';
 import 'package:screen_app/routes/develop/screen_on_off.dart';
 import 'package:screen_app/routes/develop/test_page_view.dart';
+import 'package:screen_app/routes/develop/widget_list_page.dart';
 import 'package:screen_app/routes/develop/wifi_manager.dart';
 import 'package:screen_app/routes/develop/zigbee_manager.dart';
 
@@ -23,21 +24,27 @@ class DeveloperHelperPage extends StatelessWidget {
         ),
         title: const Text("Flutter开发者页面"),
       ),
-      body: Column(
-          children: [
-            item("进入PageView调试", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => const TestPageView()))),
-            item("进入添加Zigbee子设备", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => ZigbeeDeviceManager()))),
-            item("进入添加WiFi子设备", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => const WiFiDeviceManager()))),
-            item("息屏亮屏测试", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => const ScreenOnOffPage()))),
-            item("继电器测试", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => const RelayPage()))),
-            item("HomeOs测试页面", () => Navigator
-                .push(context, MaterialPageRoute(builder: (context) => const HomeOsHelperPage()))),
-          ]),
+      body: GridView.count(
+          crossAxisCount: 4,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        children: [
+                item("进入PageView调试", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => const TestPageView()))),
+                item("进入添加Zigbee子设备", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => ZigbeeDeviceManager()))),
+                item("进入添加WiFi子设备", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => const WiFiDeviceManager()))),
+                item("息屏亮屏测试", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => const ScreenOnOffPage()))),
+                item("继电器测试", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => const RelayPage()))),
+                item("HomeOs测试页面", () => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => const HomeOsHelperPage()))),
+                item("widget组件调试",() => Navigator
+                    .push(context, MaterialPageRoute(builder: (context) => WidgetListPage()))),
+        ],
+      ),
     );
   }
 
