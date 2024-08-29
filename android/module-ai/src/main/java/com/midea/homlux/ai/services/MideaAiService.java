@@ -207,7 +207,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             .observeOn(AndroidSchedulers.mainThread())
             .retryWhen(throwableObservable -> {
                 AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
-                Log.e("sky","syncQueryDuiToken fail");
+                Log.e("sky","syncQueryDuiToken fail "+throwableObservable);
                 return throwableObservable.flatMap(error-> {
                     if (Objects.equals(MideaAiService.this.token,"")) {
                         Log.i("sky","token is null");
@@ -258,7 +258,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
     private void AccountLogin(String uid, String token, String refreshToken, int ExpiresTime) {
         //如果是使用贵司自己的账号，就调用AccountManager.linkAccount
         AIFileLogRecord.INSTANCE.record("aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
-        Log.e("sky","aiTest linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
+        Log.e("sky","aiTest1 linkAccount uid = "+uid+" token = "+token+" refreshToken = "+refreshToken+" ExpiresTime " +ExpiresTime);
         AccountManager.getInstance().linkAccount(uid, token, AppCommonConfig.MANUFACTURE, new AccountListener() {
             @Override
             public void onError(int i, String s) {
@@ -326,7 +326,13 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         DcaSdk.getSmartHomeManager().updateSmartHomeTokenInfo(request, new DcaListener() {
             @Override
             public void onResult(int httpResponseCode, String httpResponseBody) {
-                OAuth();
+                AIFileLogRecord.INSTANCE.record("httpResponseCode = "+httpResponseCode + " httpResponseBody "+httpResponseBody);
+                Log.i("sky","httpResponseCode = "+httpResponseCode + " httpResponseBody "+httpResponseBody);
+                if (httpResponseCode == 200) {
+                    OAuth();
+                } else {
+                    init(uid,token,aiEnable,houseId,aiClientId)
+                }
             }
 
             @Override
