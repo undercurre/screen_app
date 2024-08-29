@@ -331,7 +331,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 if (httpResponseCode == 200) {
                     OAuth();
                 } else {
-                    init(uid,token,aiEnable,houseId,aiClientId)
+                    init(uid,token,aiEnable,houseId,aiClientId);
                 }
             }
 
