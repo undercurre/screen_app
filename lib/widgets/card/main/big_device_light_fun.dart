@@ -1,16 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../common/adapter/device_card_data_adapter.dart';
+
 import '../../../common/adapter/midea_data_adapter.dart';
 import '../../../common/logcat_helper.dart';
 import '../../../common/utils.dart';
 import '../../../models/device_entity.dart';
 import '../../../routes/plugins/0x13_fan/data_adapter.dart';
 import '../../../states/device_list_notifier.dart';
-import '../../../states/layout_notifier.dart';
-import '../../event_bus.dart';
-import '../../mz_slider.dart';
-import '../../plugins/gear_485_card.dart';
+import '../../business/fan_control_pannel.dart';
 import '../../util/nameFormatter.dart';
 import '../method.dart';
 
@@ -81,8 +80,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
 
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String _getRightText() {
       if (widget.discriminative) {
@@ -97,21 +95,9 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
         return '';
       }
 
-      // if (widget.isFault) {
-      //   return '故障';
-      // }
-
       if (!onlineState()) {
         return '离线';
       }
-      //
-      // if (adapter.dataState == DataState.LOADING) {
-      //   return '';
-      // }
-      //
-      // if (adapter.dataState == DataState.NONE) {
-      //   return '离线';
-      // }
 
       if (adapter.dataState == DataState.ERROR) {
         return '离线';
@@ -265,28 +251,13 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
           decoration: _getBoxDecoration(),
           child: Stack(
             children: [
-              Positioned(
+              const Positioned(
                 top: 14,
                 left: 24,
-                child: GestureDetector(
-                  onTap: () {
-                    Log.i('disabled: ${widget.disabled}');
-                    if (!widget.disabled && onlineState()) {
-                      adapter.power(
-                        adapter.getPowerStatus(),
-                      );
-                      bus.emit(
-                          'operateDevice',
-                          adapter.getCardStatus()!["nodeId"] ??
-                              widget.applianceCode);
-                    }
-                  },
-                  child: Image(
-                      width: 40,
-                      height: 40,
-                      image: AssetImage(adapter.getPowerStatus() ?? false
-                          ? 'assets/newUI/card_power_on.png'
-                          : 'assets/newUI/card_power_off.png')),
+                child: Image(
+                  width: 35,
+                  height: 35,
+                  image: AssetImage('assets/newUI/device/0x13_fan.png'),
                 ),
               ),
               Positioned(
@@ -393,19 +364,22 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
               Positioned(
                 top: 62,
                 left: 20,
-                child: SizedBox(
-                  width: 400,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 0),
-                    child: Gear485Card(
-                      disabled: adapter.data!.funPower == false ||
-                          adapter.data!.onlineState == 0,
-                      value: getWindSpeed(),
-                      maxGear: 6,
-                      minGear: 1,
-                      onChanged: adapter.controlWindSpeed,
-                    ),
-                  ),
+                bottom: 5,
+                right: 20,
+                child: FanControlPanel(
+                    minGear: 1,
+                    maxGear: 6,
+                    disable: adapter.data == null || adapter.data?.onlineState == 0,
+                    fanOnOff: adapter.data?.funPower ?? false,
+                    lightOnOff: adapter.data?.ledPower ?? false,
+                    gear: getWindSpeed(),
+                    onGearChanged: adapter.controlWindSpeed,
+                    onFanOnOffChange: (onOff) {
+                      adapter.controlFanPower(onOff);
+                    },
+                    onLightOnOffChange: (onOff) {
+                      adapter.controlLedPower(onOff);
+                    }
                 ),
               ),
             ],

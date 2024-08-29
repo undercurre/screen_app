@@ -8,7 +8,9 @@ import 'package:screen_app/mixins/throttle.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../states/device_list_notifier.dart';
+import '../../../widgets/business/mz_tab_bar.dart';
 import '../../../widgets/event_bus.dart';
+import '../../../widgets/fan_light_ball.dart';
 import 'data_adapter.dart';
 
 class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
@@ -64,10 +66,338 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
     });
   }
 
+
+  Widget buildLed() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          decoration: const BoxDecoration(color: Color(0x19FFFFFF), borderRadius: BorderRadius.all(Radius.circular(16)),),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Image(
+                        image: AssetImage(
+                            'assets/imgs/plugins/0x13/led.png'),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                          left: 11),
+                      child: const Text("照明",
+                          style: TextStyle(
+                            color:
+                            Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight:
+                            FontWeight.normal,
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                    )
+                  ]),
+              MzSwitch(
+                activeColor:
+                const Color(0xFF3C92D6),
+                inactiveColor:
+                const Color(0x33DCDCDC),
+                pointActiveColor:
+                const Color(0xFFDCDCDC),
+                pointInactiveColor:
+                const Color(0xFFDCDCDC),
+                disabled: false,
+                value: dataAdapter?.data?.ledPower ?? false,
+                onTap: (bool value) {
+                  dataAdapter?.controlLedPower(!(dataAdapter?.data?.ledPower ?? false));
+                },
+              ),
+            ],
+          ),
+        ),
+        if (dataAdapter?.sn8 == "79010863")
+          Container(
+            margin:
+            const EdgeInsets.only(bottom: 16),
+            child: ParamCard(
+              minValue: 1,
+              maxValue: 100,
+              title: '亮度',
+              disabled:
+              dataAdapter?.data!.ledPower ??
+                  true
+                  ? false
+                  : true,
+              value: max(
+                  1,
+                  dataAdapter?.data!.brightness ??
+                      1),
+              activeColors: const [
+                Color(0xFFFFD185),
+                Color(0xFFFFD185)
+              ],
+              onChanged:
+              dataAdapter?.controlBrightness,
+              onChanging:
+              dataAdapter?.controlBrightness,
+            ),
+          ),
+        if (dataAdapter?.sn8 == "79010863")
+          Container(
+            margin:
+            const EdgeInsets.only(bottom: 16),
+            child: ParamCard(
+              title: '色温',
+              unit: "K",
+              customMin:
+              dataAdapter?.data?.minColorTemp ??
+                  3000,
+              customMax:
+              dataAdapter?.data?.maxColorTemp ??
+                  5700,
+              disabled:
+              dataAdapter?.data!.ledPower ??
+                  true
+                  ? false
+                  : true,
+              value:
+              dataAdapter?.data!.colorTemp ?? 0,
+              activeColors: const [
+                Color(0xFFFFD39F),
+                Color(0xFF55A2FA)
+              ],
+              onChanged: dataAdapter
+                  ?.controlColorTemperature,
+              onChanging: dataAdapter
+                  ?.controlColorTemperature,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildFan() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          decoration: const BoxDecoration(color: Color(0x19FFFFFF), borderRadius: BorderRadius.all(Radius.circular(16)),),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Image(
+                        image: AssetImage('assets/imgs/plugins/0x13/fan.png'),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 11),
+                      child: const Text("风扇",
+                          style: TextStyle(
+                            color:
+                            Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight:
+                            FontWeight.normal,
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                    )
+                  ]),
+              MzSwitch(
+                activeColor:
+                const Color(0xFF3C92D6),
+                inactiveColor:
+                const Color(0x33DCDCDC),
+                pointActiveColor:
+                const Color(0xFFDCDCDC),
+                pointInactiveColor:
+                const Color(0xFFDCDCDC),
+                disabled: false,
+                value: dataAdapter?.data?.funPower ?? false,
+                onTap: (bool value) {
+                  dataAdapter?.controlFanPower(!(dataAdapter?.data?.funPower ?? false));
+                },
+              ),
+            ],
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: GearCard(
+            disabled: dataAdapter?.data!.funPower ==
+                false,
+            value: getWindSpeed(),
+            maxGear: 6,
+            minGear: 1,
+            onChanged:
+            dataAdapter?.controlWindSpeed,
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.fromLTRB(
+              20, 15, 20, 15),
+          decoration: const BoxDecoration(
+            color: Color(0x19FFFFFF),
+            borderRadius: BorderRadius.all(
+                Radius.circular(16)),
+          ),
+          child: Row(
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
+            crossAxisAlignment:
+            CrossAxisAlignment.center,
+            children: [
+              Row(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Image(
+                        image: AssetImage(
+                            'assets/imgs/plugins/0x13/arround_dir.png'),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                          left: 11),
+                      child: const Text("反转",
+                          style: TextStyle(
+                            color:
+                            Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight:
+                            FontWeight.normal,
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                    )
+                  ]),
+              MzSwitch(
+                activeColor:
+                const Color(0xFF3C92D6),
+                inactiveColor:
+                const Color(0x33DCDCDC),
+                pointActiveColor:
+                const Color(0xFFDCDCDC),
+                pointInactiveColor:
+                const Color(0xFFDCDCDC),
+                disabled:
+                dataAdapter?.data!.funPower ==
+                    false,
+                value:
+                dataAdapter?.data!.arroundDir !=
+                    1,
+                onTap: (bool value) {
+                  dataAdapter?.controlArroundDir();
+                },
+              ),
+            ],
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.fromLTRB(
+              20, 15, 20, 15),
+          decoration: const BoxDecoration(
+            color: Color(0x19FFFFFF),
+            borderRadius: BorderRadius.all(
+                Radius.circular(16)),
+          ),
+          child: Row(
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
+            crossAxisAlignment:
+            CrossAxisAlignment.center,
+            children: [
+              Row(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Image(
+                        image: AssetImage(
+                            'assets/imgs/plugins/0x13/fan_nature.png'),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                          left: 11),
+                      child: const Text("自然风",
+                          style: TextStyle(
+                            color:
+                            Color(0XFFFFFFFF),
+                            fontSize: 18.0,
+                            fontFamily: "MideaType",
+                            fontWeight:
+                            FontWeight.normal,
+                            decoration:
+                            TextDecoration.none,
+                          )),
+                    )
+                  ]),
+              MzSwitch(
+                activeColor:
+                const Color(0xFF3C92D6),
+                inactiveColor:
+                const Color(0x33DCDCDC),
+                pointActiveColor:
+                const Color(0xFFDCDCDC),
+                pointInactiveColor:
+                const Color(0xFFDCDCDC),
+                disabled: dataAdapter?.data!.funPower == false,
+                value: dataAdapter?.data?.fanScene == "breathing_wind",
+                onTap: (bool value) {
+                  if (value) {
+                    dataAdapter?.controlMode("breathing_wind");
+                  } else {
+                    dataAdapter?.controlMode("fanmanual");
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  CrossFadeState _crossFadeState = CrossFadeState.showFirst;
+
+  bool get isFirst => _crossFadeState == CrossFadeState.showSecond;
+
+  int get brightness => dataAdapter?.data?.onlineState == 1 && dataAdapter?.data?.ledPower == true ? dataAdapter?.data?.brightness ?? 0 : 0;
+
+  int get colorTemperature => dataAdapter?.data?.onlineState == 1 && dataAdapter?.data?.ledPower == true ? dataAdapter?.data?.colorTemp ?? 0 : 0;
+
   @override
   Widget build(BuildContext context) {
-    final deviceListModel =
-        Provider.of<DeviceInfoListModel>(context, listen: false);
+    final deviceListModel = Provider.of<DeviceInfoListModel>(context, listen: false);
 
     String getDeviceName() {
       if (deviceListModel.deviceListHomlux.isEmpty &&
@@ -97,13 +427,12 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
       ),
       child: Stack(
         children: [
-          const Positioned(
+          Positioned(
             top: 137,
             left: 0,
-            child: Image(
-              width: 140,
-              height: 246,
-              image: AssetImage("assets/imgs/plugins/0x13/light_fan.png"),
+            child: FanLightBall(
+              brightness: brightness,
+              colorTemperature: colorTemperature,
             ),
           ),
           Flex(
@@ -119,12 +448,8 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
                   ),
                   child: MzNavigationBar(
                     onLeftBtnTap: goBack,
-                    onRightBtnTap: () {
-                      dataAdapter?.controlPower();
-                    },
                     title: getDeviceName(),
-                    power: dataAdapter?.data!.funPower ?? false,
-                    hasPower: true,
+                    hasPower: false,
                   ),
                 ),
               ),
@@ -163,278 +488,25 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                               child: ScrollConfiguration(
-                                behavior: ScrollConfiguration.of(context)
-                                    .copyWith(scrollbars: false),
+                                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 15, 20, 15),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0x19FFFFFF),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(16)),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const SizedBox(
-                                                  width: 30,
-                                                  height: 30,
-                                                  child: Image(
-                                                    image: AssetImage(
-                                                        'assets/imgs/plugins/0x13/led.png'),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                      left: 11),
-                                                  child: const Text("照明",
-                                                      style: TextStyle(
-                                                        color:
-                                                            Color(0XFFFFFFFF),
-                                                        fontSize: 18.0,
-                                                        fontFamily: "MideaType",
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        decoration:
-                                                            TextDecoration.none,
-                                                      )),
-                                                )
-                                              ]),
-                                          MzSwitch(
-                                            activeColor:
-                                                const Color(0xFF3C92D6),
-                                            inactiveColor:
-                                                const Color(0x33DCDCDC),
-                                            pointActiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            pointInactiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            disabled: false,
-                                            value:
-                                                dataAdapter?.data?.ledPower ??
-                                                    false,
-                                            onTap: (bool value) {
-                                              dataAdapter?.controlLedPower();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (dataAdapter?.sn8 == "79010863")
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: ParamCard(
-                                          minValue: 1,
-                                          maxValue: 100,
-                                          title: '亮度',
-                                          disabled:
-                                              dataAdapter?.data!.ledPower ??
-                                                      true
-                                                  ? false
-                                                  : true,
-                                          value: max(
-                                              1,
-                                              dataAdapter?.data!.brightness ??
-                                                  1),
-                                          activeColors: const [
-                                            Color(0xFFFFD185),
-                                            Color(0xFFFFD185)
-                                          ],
-                                          onChanged:
-                                              dataAdapter?.controlBrightness,
-                                          onChanging:
-                                              dataAdapter?.controlBrightness,
-                                        ),
-                                      ),
-                                    if (dataAdapter?.sn8 == "79010863")
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: ParamCard(
-                                          title: '色温',
-                                          unit: "K",
-                                          customMin:
-                                              dataAdapter?.data?.minColorTemp ??
-                                                  3000,
-                                          customMax:
-                                              dataAdapter?.data?.maxColorTemp ??
-                                                  5700,
-                                          disabled:
-                                              dataAdapter?.data!.ledPower ??
-                                                      true
-                                                  ? false
-                                                  : true,
-                                          value:
-                                              dataAdapter?.data!.colorTemp ?? 0,
-                                          activeColors: const [
-                                            Color(0xFFFFD39F),
-                                            Color(0xFF55A2FA)
-                                          ],
-                                          onChanged: dataAdapter
-                                              ?.controlColorTemperature,
-                                          onChanging: dataAdapter
-                                              ?.controlColorTemperature,
-                                        ),
-                                      ),
-                                    Container(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      child: GearCard(
-                                        disabled: dataAdapter?.data!.funPower ==
-                                            false,
-                                        value: getWindSpeed(),
-                                        maxGear: 6,
-                                        minGear: 1,
-                                        onChanged:
-                                            dataAdapter?.controlWindSpeed,
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 15, 20, 15),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0x19FFFFFF),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(16)),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const SizedBox(
-                                                  width: 30,
-                                                  height: 30,
-                                                  child: Image(
-                                                    image: AssetImage(
-                                                        'assets/imgs/plugins/0x13/arround_dir.png'),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                      left: 11),
-                                                  child: const Text("反转",
-                                                      style: TextStyle(
-                                                        color:
-                                                            Color(0XFFFFFFFF),
-                                                        fontSize: 18.0,
-                                                        fontFamily: "MideaType",
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        decoration:
-                                                            TextDecoration.none,
-                                                      )),
-                                                )
-                                              ]),
-                                          MzSwitch(
-                                            activeColor:
-                                                const Color(0xFF3C92D6),
-                                            inactiveColor:
-                                                const Color(0x33DCDCDC),
-                                            pointActiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            pointInactiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            disabled:
-                                                dataAdapter?.data!.funPower ==
-                                                    false,
-                                            value:
-                                                dataAdapter?.data!.arroundDir !=
-                                                    1,
-                                            onTap: (bool value) {
-                                              dataAdapter?.controlArroundDir();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 15, 20, 15),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0x19FFFFFF),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(16)),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const SizedBox(
-                                                  width: 30,
-                                                  height: 30,
-                                                  child: Image(
-                                                    image: AssetImage(
-                                                        'assets/imgs/plugins/0x13/fan_nature.png'),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                      left: 11),
-                                                  child: const Text("自然风",
-                                                      style: TextStyle(
-                                                        color:
-                                                            Color(0XFFFFFFFF),
-                                                        fontSize: 18.0,
-                                                        fontFamily: "MideaType",
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        decoration:
-                                                            TextDecoration.none,
-                                                      )),
-                                                )
-                                              ]),
-                                          MzSwitch(
-                                            activeColor:
-                                                const Color(0xFF3C92D6),
-                                            inactiveColor:
-                                                const Color(0x33DCDCDC),
-                                            pointActiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            pointInactiveColor:
-                                                const Color(0xFFDCDCDC),
-                                            disabled:
-                                                dataAdapter?.data!.funPower ==
-                                                    false,
-                                            value:
-                                                dataAdapter?.data?.fanScene ==
-                                                    "breathing_wind",
-                                            onTap: (bool value) {
-                                              if (value) {
-                                                dataAdapter?.controlMode(
-                                                    "breathing_wind");
-                                              } else {
-                                                dataAdapter
-                                                    ?.controlMode("fanmanual");
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 15),
+                                      child: MzTabBar(
+                                        tabs: const [Tab(text: "风扇", height: 56), Tab(text:  "照明", height: 56,)],
+                                        tap: (index) {
+                                          setState(() {
+                                            _crossFadeState = index == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond;
+                                          });
+                                        },
+                                    ),),
+                                    AnimatedCrossFade(
+                                      firstChild: buildFan(),
+                                      secondChild: buildLed(),
+                                      duration: const Duration(milliseconds: 300),
+                                      crossFadeState: _crossFadeState,
+                                    )
                                   ],
                                 ),
                               ),
@@ -453,6 +525,8 @@ class WifiLightFanPageState extends State<WifiLightFanPage> with Throttle {
     );
   }
 }
+
+
 
 class WifiLightFanPage extends StatefulWidget {
   const WifiLightFanPage({super.key});

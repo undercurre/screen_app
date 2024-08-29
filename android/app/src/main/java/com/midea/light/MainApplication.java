@@ -10,6 +10,7 @@ import androidx.multidex.MultiDex;
 import com.midea.light.bean.GatewayPlatform;
 import com.midea.light.channel.method.AliPushChannel;
 import com.midea.light.common.config.AppCommonConfig;
+import com.midea.light.common.record.MideaBuriedPoint;
 import com.midea.light.config.GatewayConfig;
 import com.midea.light.gateway.GateWayUtils;
 import com.midea.light.issued.IssuedManager;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -136,6 +138,8 @@ public class MainApplication extends BaseApplication {
 
         // #上报继电器状态
         GatewayConfig.relayControl.reportRelayStateChange();
+        // #延迟初始化
+        MideaBuriedPoint.init((Supplier<com.midea.light.common.record.BuriedPointService>) () -> new ByteDanceBuriedPointService());
 
 
 

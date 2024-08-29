@@ -22,6 +22,7 @@ import com.midea.light.ai.services.MideaAiService;
 import com.midea.light.common.config.AppCommonConfig;
 import com.midea.light.common.utils.DialogUtil;
 import com.midea.light.thread.MainThread;
+import com.midea.light.common.record.MideaBuriedPoint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,8 +59,12 @@ public class AiManager {
             sever.setServerInitialBack(new IMideaLightServerInitialCallBack.Stub() {
                 @Override
                 public void isInitial(boolean isInitial) throws RemoteException {
-                    Log.e("sky", "语音初始化完成");
                     InitialBack.isInitial(isInitial);
+                    if(isInitial) {
+                        MideaBuriedPoint.reportEvent("meiju_ai", "error", "初始化成功, 初始化参数 " + String.format("初始化参数，sn(%s) dt(%s) dc(%s) mac(%s) ", sn, deviceType, deviceCode, mac));
+                    } else {
+                        MideaBuriedPoint.reportEvent("meiju_ai", "error", "初始化失敗, 初始化参数 " + String.format("检查初始化参数，sn(%s) dt(%s) dc(%s) mac(%s) ", sn, deviceType, deviceCode, mac));
+                    }
                 }
             }, new IMideaLightServerBindCallBack.Stub() {
                 @Override

@@ -70,7 +70,7 @@ class DeviceEntityTypeInP4Handle {
         return DeviceEntityTypeInP4.Zigbee_homluxZigbeeLight;
       } else if (type == '0x13' && modelNum == 'homluxLightGroup') {
         return DeviceEntityTypeInP4.homlux_lightGroup;
-      }  else if(type == '0x13' && typeOf0x13AndFan(sn8)) {
+      }  else if(type == '0x13' && typeOf0x13AndFan(sn8: sn8)) {
         return DeviceEntityTypeInP4.Device0x13_fan;
       } else if (type == "0xCC" && modelNum == '3017') {
         return DeviceEntityTypeInP4.Zigbee_3017;
@@ -94,9 +94,12 @@ class DeviceEntityTypeInP4Handle {
   }
 
   /// 风扇灯配置
-  static bool typeOf0x13AndFan(String? sn8) {
+  static bool typeOf0x13AndFan({String? sn8}) {
     const List<String> funLight = ['M0200004', 'M0200005', '79010863'];
-    return funLight.contains(sn8);
+    if(sn8 != null) {
+      return funLight.contains(sn8);
+    }
+    return false;
   }
 
 }

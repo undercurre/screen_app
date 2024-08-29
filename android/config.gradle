@@ -115,6 +115,7 @@ ext {
             "ijkplayer_exo"     : "0.8.8",
             "aria"              : "3.8.16",
             "ariacompiler"      : "3.8.16",
+            "buriedPoint"       : "6.16.9"
     ]
 
     other = [
@@ -138,6 +139,7 @@ ext {
             ijkplayer_exo    : "tv.danmaku.ijk.media:ijkplayer-exo:${version["ijkplayer_exo"]}",
             aria             : "me.laoyuyu.aria:core:${version["aria"]}",
             ariacompiler     : "me.laoyuyu.aria:compiler:${version["ariacompiler"]}",
+            buriedPoint      : "com.bytedance.applog:RangersAppLog-All-cn:${version["buriedPoint"]}"
 
     ]
 

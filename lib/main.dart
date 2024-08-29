@@ -25,6 +25,9 @@ import 'widgets/pointer_listener.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+/// 全局获取buildContext类型参数
+BuildContext get globalContext => navigatorKey.currentContext!;
+
 void main() async {
   /// 加载环境配置
   await setupConfig();
@@ -99,7 +102,7 @@ class _App extends State<App> {
             themeMode: ThemeMode.dark,
             theme: ThemeData.dark(),
             darkTheme: ThemeData.dark(),
-            initialRoute: "/", //名为"/"的路由作为应用的home(首页)
+            initialRoute: "developer", //名为"/"的路由作为应用的home(首页)
             //注册路由表
             routes: routes,
             navigatorObservers: [globalRouteObserver],

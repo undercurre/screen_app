@@ -401,6 +401,21 @@ class HomluxDeviceMzgdPropertyDTOListLight {
   String? wifiLightScene;
   @JSONField(name: "colorTempRange")
   HomluxColorTempRange? colorTempRange;
+  @JSONField(name: "fan_power")
+  String? fanPower;
+  @JSONField(name: "led_power")
+  String? ledPower;
+  @JSONField(name: "fan_scene")
+  String? fanScene;
+  @JSONField(name: "temperature_max")
+  String? temperatureMax;
+  @JSONField(name: "temperature_min")
+  String? temperatureMin;
+  @JSONField(name: "fan_speed")
+  String? fanSpeed;
+  @JSONField(name: "arround_dir")
+  String? arroundDir;
+
 
   HomluxDeviceMzgdPropertyDTOListLight();
 

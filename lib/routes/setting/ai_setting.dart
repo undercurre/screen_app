@@ -116,9 +116,6 @@ class _AiSettingPageState extends State<AiSettingPage> {
                                 setState(() {
                                   AiEnable = value;
                                 });
-                                if (value) {
-                                  AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
-                                }
                               },
                             ),
                           ],

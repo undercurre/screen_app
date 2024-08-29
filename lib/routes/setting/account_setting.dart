@@ -147,7 +147,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                       onPressed: (_, index, context) {
                         if (index == 1) {
                           Setting.instant().isAllowChangePlatform = false;
-                          aiMethodChannel.stopAi();
                           System.logout("账号管理，手动退出登录");
                         } else {
                           Navigator.pop(context);

@@ -9,6 +9,7 @@ import 'package:screen_app/common/homlux/lan/homlux_lan_control_device_manager.d
 import 'package:screen_app/common/meiju/meiju_global.dart';
 import 'package:uuid/uuid.dart';
 
+import '../channel/index.dart';
 import '../widgets/event_bus.dart';
 import 'adapter/push_data_adapter.dart';
 import 'adapter/select_family_data_adapter.dart';
@@ -227,12 +228,14 @@ class System {
     if (MideaRuntimePlatform.platform == GatewayPlatform.HOMLUX) {
       HomluxGlobal.setLogout(reason);
       HomluxPushManager.stopConnect();
+      aiMethodChannel.stopAi();
       if(judgeToLogoutPage) {
         bus.emit('logout');
       }
     } else if (MideaRuntimePlatform.platform == GatewayPlatform.MEIJU) {
       MeiJuGlobal.setLogout(reason);
       MeiJuPushManager.stopConnect();
+      aiMethodChannel.stopAi();
       if(judgeToLogoutPage) {
         bus.emit('logout');
       }
