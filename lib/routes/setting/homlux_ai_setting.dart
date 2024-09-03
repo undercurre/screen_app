@@ -4,6 +4,7 @@ import 'package:screen_app/widgets/index.dart';
 import '../../channel/index.dart';
 import '../../common/gateway_platform.dart';
 import '../../common/setting.dart';
+import '../../widgets/event_bus.dart';
 
 class HomluxAiSettingPage extends StatefulWidget {
   const HomluxAiSettingPage({Key? key});
@@ -22,6 +23,11 @@ class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
     super.initState();
     //初始化状态
     print("initState");
+    bus.on("duplex",(arg) {
+      setState(() {
+        FullDuplex = arg as bool;
+      });
+    });
   }
 
   @override
@@ -247,6 +253,7 @@ class _HomluxAiSettingPage extends State<HomluxAiSettingPage> {
   void dispose() {
     super.dispose();
     print("dispose");
+    bus.off("duplex");
   }
 
   @override

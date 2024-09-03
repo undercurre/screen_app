@@ -63,6 +63,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import com.midea.homlux.ai.impl.AISetDuplexModeCallBack;
+import com.midea.light.ai.IHomluxAISetDuplexModeCallBack;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -128,6 +130,17 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             MideaAiService.this.addWakUpStateCallBack(isWakUp -> {
                 try {
                     callback.wakUpState(isWakUp);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        @Override
+        public void addAISetDuplexModeCallBack(IHomluxAISetDuplexModeCallBack callback) throws RemoteException {
+            MideaAiService.this.addAiSetDuplexModeCallBack(isFullDuplex -> {
+                try {
+                    callback.isFullDuplexMode(isFullDuplex);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -207,7 +220,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
             .observeOn(AndroidSchedulers.mainThread())
             .retryWhen(throwableObservable -> {
                 AIFileLogRecord.INSTANCE.record("syncQueryDuiToken fail");
-                Log.e("sky","syncQueryDuiToken fail "+throwableObservable);
+                Log.e("sky","syncQueryDuiToken fail");
                 return throwableObservable.flatMap(error-> {
                     if (Objects.equals(MideaAiService.this.token,"")) {
                         Log.i("sky","token is null");
@@ -284,6 +297,7 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
                 smartHomeSkillDetail.getSkillDirection();
                 AiConfig.skillVersion = smartHomeSkillDetail.getVersion();
                 UpdateTokenInfo(token, refreshToken, ExpiresTime);
+                updateDuplexTokenInfo(token, refreshToken, ExpiresTime);
             }
 
             @Override
@@ -298,6 +312,39 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
         });
     }
 
+    private void updateDuplexTokenInfo(String token, String refreshToken, int ExpiresTime) {
+        SmartHomeTokenRequest request = new SmartHomeTokenRequest();
+        request.setProductId(AppCommonConfig.PRODUCT_ID);
+        request.setSkillId("2024082900000057");
+        //设置智能家居技能id，技能id写死，在dui平台的技能页面可以看到
+        request.setSkillVersion("1");
+        //设置技能版本号，版本号可以通过 13.11 智能家居技能详情接口动态获取
+        request.setSmartHomeAccessToken(token);
+        //这个token是第三方智能家居厂商自己的token，用来访问智能家居厂商的后台服务
+
+
+        if (ExpiresTime != -1) {
+            request.setSmartHomeRefreshToken(refreshToken);
+            //除非AccessToken永久有效，否则需要传入refreshtoken、ExpiresIn相关参数以保证思必驰定时刷token
+            //思必驰后台会在ExpiresIn的时间后刷新token，如果开发者想要自己维护token，
+            //那么请确保在使用智能家居相关功能前，调用updateSmartHomeTokenInfo，确保AccessToken有效
+            //请注意：一旦更新某个用户的token(永久token)，那么该用户历史设置的token立即失效，无法在其他接口中使用
+            request.setAccessTokenExpiresIn(ExpiresTime);
+            //如果没有refreshtoken，那么可以不用调用该接口
+        }
+
+        DcaSdk.getSmartHomeManager().updateSmartHomeTokenInfo(request, new DcaListener() {
+            @Override
+            public void onResult(int httpResponseCode, String httpResponseBody) {
+
+            }
+
+            @Override
+            public void onFailure(IOException e) {
+                Log.e("sky","Duplex授权失败");
+            }
+        });
+    }
 
     /**
      * 跳过二次登录
@@ -913,6 +960,10 @@ public class MideaAiService extends Service implements DuiUpdateObserver.UpdateC
 
     public void addAISetVoiceCallBack(AISetVoiceCallBack CallBack){
         mCommandObserver.addAISetVoiceCallBack(CallBack);
+    }
+
+    public void addAiSetDuplexModeCallBack(AISetDuplexModeCallBack callBack) {
+        mCommandObserver.addAISetDuplexModeCallBack(callBack);
     }
 
     public void addAISetIntialCallBack(IntialCallBack CallBack){

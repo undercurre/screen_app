@@ -446,6 +446,8 @@ public class MainActivity extends FlutterActivity {
         }, intial -> {
             com.midea.homlux.ai.AiManager.getInstance().isAiWork = intial;
             runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AiInitFinish",null));
+        }, isFull -> {
+            runOnUiThread(() -> mChannels.aiMethodChannel.cMethodChannel.invokeMethod("AISetDuplex", isFull));
         });
     }
 

@@ -22,12 +22,15 @@ import com.midea.light.ai.IMideaLightWakUpStateCallBack;
 import com.midea.light.thread.MainThread;
 import com.midea.homlux.ai.impl.IntialCallBack;
 import java.util.Objects;
+import com.midea.light.ai.IHomluxAISetDuplexModeCallBack;
+import com.midea.homlux.ai.impl.AISetDuplexModeCallBack;
 
 public class AiManager {
     private boolean isAiEnable = true;
     Context context;
     WakUpStateCallBack mWakUpStateCallBack;
     AISetVoiceCallBack mAISetVoiceCallBack;
+    AISetDuplexModeCallBack mAISetDuplexModeCallBack;
     IntialCallBack mIntialCallBack;
     public boolean isAiWork=false;
 
@@ -91,6 +94,18 @@ public class AiManager {
             }
 
             try {
+                mMyBinder.addAISetDuplexModeCallBack(new IHomluxAISetDuplexModeCallBack.Stub() {
+
+                    @Override
+                    public void isFullDuplexMode(boolean isFullDuplex) throws RemoteException {
+                        mAISetDuplexModeCallBack.isFullDuplexMode(isFullDuplex);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
+            try {
                 mMyBinder.addAICompleteIntialCallBack(new IHomluxAICompleteIntialCallBack.Stub() {
                     @Override
                     public void CompleteIntial(boolean Intial) throws RemoteException {
@@ -121,7 +136,7 @@ public class AiManager {
         }
     };
 
-    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack,IntialCallBack intialCallBack) {
+    public void init(String uid, String token, boolean aiEnable, String houseId, String aiClientId, WakUpStateCallBack mCallBack, AISetVoiceCallBack VoiceCallBack,IntialCallBack intialCallBack,AISetDuplexModeCallBack duplexModeCallBack) {
         this.context = BaseApplication.getContext();
         this.uid = uid;
         this.token = token;
@@ -131,6 +146,7 @@ public class AiManager {
         this.mWakUpStateCallBack = mCallBack;
         this.mAISetVoiceCallBack = VoiceCallBack;
         this.mIntialCallBack=intialCallBack;
+        this.mAISetDuplexModeCallBack = duplexModeCallBack;
         try {
             Log.i("sky", "初始化语音服务");
             Intent intent2 = new Intent(AiManager.this.context, MideaAiService.class);
