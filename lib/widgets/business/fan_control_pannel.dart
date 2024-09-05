@@ -5,7 +5,6 @@ import 'package:screen_app/widgets/mz_buttion.dart';
 import '../../common/logcat_helper.dart';
 
 class FanControlPanel extends StatefulWidget {
-
   final num minGear;
   final num maxGear;
   final bool disable;
@@ -16,27 +15,23 @@ class FanControlPanel extends StatefulWidget {
   final void Function(bool onOff) onFanOnOffChange;
   final void Function(bool onOff) onLightOnOffChange;
 
-  const FanControlPanel({
-    super.key,
-    required this.minGear,
-    required this.maxGear,
-    required this.disable,
-    required this.fanOnOff,
-    required this.lightOnOff,
-    required this.gear,
-    required this.onGearChanged,
-    required this.onFanOnOffChange,
-    required this.onLightOnOffChange
-  });
+  const FanControlPanel(
+      {super.key,
+      required this.minGear,
+      required this.maxGear,
+      required this.disable,
+      required this.fanOnOff,
+      required this.lightOnOff,
+      required this.gear,
+      required this.onGearChanged,
+      required this.onFanOnOffChange,
+      required this.onLightOnOffChange});
 
   @override
   State<FanControlPanel> createState() => _FanControlPanelState();
-
-
 }
 
 class _FanControlPanelState extends State<FanControlPanel> {
-
   late num gear;
 
   ValueNotifier<MaterialState> fanState = ValueNotifier(MaterialState.focused);
@@ -55,7 +50,6 @@ class _FanControlPanelState extends State<FanControlPanel> {
   @override
   void didUpdateWidget(covariant FanControlPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    Log.i("fanOnOff = ${widget.fanOnOff} lightOnOff = ${widget.lightOnOff} gear = ${widget.gear}");
     if (oldWidget.lightOnOff != widget.lightOnOff ||
         oldWidget.fanOnOff != widget.fanOnOff ||
         oldWidget.gear != widget.gear) {
@@ -69,7 +63,6 @@ class _FanControlPanelState extends State<FanControlPanel> {
 
   @override
   Widget build(BuildContext context) {
-
     gearTextWidget() {
       return RichText(text: TextSpan(
         children: [
@@ -114,7 +107,7 @@ class _FanControlPanelState extends State<FanControlPanel> {
               borderRadius: 15.0,
               text: '风扇',
               onPressed: () {
-                if(fanState.value == MaterialState.selected) {
+                if (fanState.value == MaterialState.selected) {
                   fanState.value = MaterialState.focused;
                   widget.onFanOnOffChange(false);
                 } else {
@@ -122,7 +115,6 @@ class _FanControlPanelState extends State<FanControlPanel> {
                   widget.onFanOnOffChange(true);
                 }
               }),
-
           MzButton.state(
               state: lightState,
               backgroundStateColor: MaterialStateProperty.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.white: const Color(0xff202020).withOpacity(0.2)),
@@ -136,7 +128,7 @@ class _FanControlPanelState extends State<FanControlPanel> {
               borderRadius: 15.0,
               text: '照明',
               onPressed: () {
-                if(lightState.value == MaterialState.selected) {
+                if (lightState.value == MaterialState.selected) {
                   lightState.value = MaterialState.focused;
                   widget.onLightOnOffChange(false);
                 } else {
@@ -155,37 +147,28 @@ class _FanControlPanelState extends State<FanControlPanel> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(child: gearTextWidget()),
-                Expanded(
-                    flex: 2,
-                    child: getRightButtonWidget()
-                ),
+                Expanded(flex: 2, child: getRightButtonWidget()),
               ],
-            )
-        ),
-        MzSliderMarkDecoration(
-            slider: MzSlider(
-              value: gear,
-              min: widget.minGear,
-              max: widget.maxGear,
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              step: 1,
-              duration: const Duration(milliseconds: 100),
-              activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
-              width: 400,
-              disabled: widget.disable || fanState.value != MaterialState.selected,
-              onChanged: (value, _) {
-                setState(() {
-                  gear = value;
-                  widget.onGearChanged(value);
-                });
-              },
-            )
-        )
+        )),
+        MzSlider.createDottedLineSlider(
+            value: gear,
+            min: widget.minGear,
+            max: widget.maxGear,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            step: 1,
+            duration: const Duration(milliseconds: 100),
+            activeColors: const [Color(0xFF56A2FA), Color(0xFF6FC0FF)],
+            width: 400,
+            disabled: widget.disable || fanState.value != MaterialState.selected,
+            onChanged: (value, _) {
+              setState(() {
+                gear = value;
+                widget.onGearChanged(value);
+              });
+            }),
       ],
     );
-
   }
-
 
   @override
   void dispose() {
@@ -193,6 +176,4 @@ class _FanControlPanelState extends State<FanControlPanel> {
     lightState.dispose();
     super.dispose();
   }
-
 }
-

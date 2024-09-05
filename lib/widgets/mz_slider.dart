@@ -11,7 +11,7 @@ const _MARK_ACTIVE_COLOR = Color(0xFFFFFFFF);
 const _MARK_DISABLE_COLOR = Color(0xFFFFFFFF);
 const _MARK_WIDTH = 3.0;
 const _MARK_HEIGHT = 3.0;
-const _MARK_PADDING = EdgeInsets.fromLTRB(10, 10, 10, 10);
+const _MARK_PADDING = EdgeInsets.fromLTRB(10, 0, 10, 0);
 
 /// # MzSlider 配置
 const _SLIDER_ACTIVE_COLOR = [Color(0xFF267AFF), Color(0xFF267AFF)];

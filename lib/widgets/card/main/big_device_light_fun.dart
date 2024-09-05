@@ -237,7 +237,7 @@ class _BigDeviceLightFunCardWidgetState extends State<BigDeviceLightFunCardWidge
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;
         }
-        if (adapter.dataState != DataState.SUCCESS) {
+        if (adapter.dataState == DataState.ERROR) {
           adapter.fetchDataInSafety(widget.applianceCode);
           TipsUtils.toast(content: '设备已离线，请检查连接状态');
           return;

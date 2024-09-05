@@ -102,7 +102,7 @@ class _App extends State<App> {
             themeMode: ThemeMode.dark,
             theme: ThemeData.dark(),
             darkTheme: ThemeData.dark(),
-            initialRoute: "developer", //名为"/"的路由作为应用的home(首页)
+            initialRoute: "/", //名为"/"的路由作为应用的home(首页)
             //注册路由表
             routes: routes,
             navigatorObservers: [globalRouteObserver],
