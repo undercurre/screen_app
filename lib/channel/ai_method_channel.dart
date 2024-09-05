@@ -19,7 +19,7 @@ class AiMethodChannel {
   late final _aiInitFinishCallbacks = <void Function()>[];
   late final _aiAiSetVoiceCallbacks = <void Function(int)>[];
   late final _aiControlDeviceErrorCallbacks = <void Function()>[];
-
+  late final _aiDuplexCallBacks = <void Function(bool)>[];
 
 
 
@@ -47,6 +47,8 @@ class AiMethodChannel {
               break;
             case "AiInitFinish":
               transmitDataToAiInitFinishCallBack();
+            case "AISetDuplex":
+              transmitDataToAiDuplexModeCallBack(args);
             default:
               throw Exception("没有支持的方法");
           }
@@ -180,6 +182,20 @@ class AiMethodChannel {
     }
   }
 
+  void registerAiDuplexCallBack(void Function(bool) action) {
+    if (!_aiDuplexCallBacks.contains(action)) {
+      _aiDuplexCallBacks.add(action);
+    }
+  }
+
+  void unregisterAiDuplexCallBack(
+      void Function(bool) action) {
+    final position = _aiDuplexCallBacks.indexOf(action);
+    if (position != -1) {
+      _aiDuplexCallBacks.remove(action);
+    }
+  }
+
   // 注册回调
   void registerAiControlDeviceErrorCallBack (
       void Function() action) {
@@ -212,6 +228,12 @@ class AiMethodChannel {
   void transmitDataToAiSetVoiceCallBack(int voice) {
     for (var callback in _aiAiSetVoiceCallbacks) {
       callback.call(voice);
+    }
+  }
+
+  void transmitDataToAiDuplexModeCallBack(bool isFull) {
+    for (var callback in _aiDuplexCallBacks) {
+      callback.call(isFull);
     }
   }
 

@@ -9,8 +9,11 @@ import com.midea.homlux.ai.impl.AISetVoiceCallBack;
 import com.midea.homlux.ai.music.MusicManager;
 import com.midea.light.BaseApplication;
 import com.midea.light.setting.SystemUtil;
+import com.midea.homlux.ai.AiManager;
 
 import org.json.JSONObject;
+import java.util.Objects;
+import com.midea.homlux.ai.impl.AISetDuplexModeCallBack;
 
 import static android.content.Context.AUDIO_SERVICE;
 
@@ -25,6 +28,7 @@ public class DuiCommandObserver implements CommandObserver {
     public  boolean mediaControlResult=false;
     public  boolean hasMediaControlResult=false;
     private AISetVoiceCallBack mAISetVoiceCallBack;
+    private AISetDuplexModeCallBack mAISetDuplexModeCallBack;
 
     private static final String COMMAND_SET_VOLUME = "DUI.MediaController.SetVolume";
     private static final String COMMAND_STE_BRIGHTNESS = "DUI.System.Display.SetBrightness";
@@ -33,6 +37,7 @@ public class DuiCommandObserver implements CommandObserver {
     private static final String COMMAND_MEDIA_PAUSE = "DUI.MediaController.Pause";
     private static final String COMMAND_MEDIA_STOP = "DUI.MediaController.Stop";
     private static final String COMMAND_MEDIA_PLAY = "DUI.MediaController.Play";
+    private static final String COMMAND_DUPLEX_MODE = "midea.action.control";
 
 
     public DuiCommandObserver() {
@@ -42,7 +47,7 @@ public class DuiCommandObserver implements CommandObserver {
     public void regist() {
         if (DDS.getInstance() != null && DDS.getInstance().getAgent() != null) {
             DDS.getInstance().getAgent().subscribe(new String[]{COMMAND_SET_VOLUME, COMMAND_STE_BRIGHTNESS, COMMAND_MEDIA_PREV, COMMAND_MEDIA_NEXT, COMMAND_MEDIA_PAUSE,
-                            COMMAND_MEDIA_STOP, COMMAND_MEDIA_PLAY},
+                            COMMAND_MEDIA_STOP, COMMAND_MEDIA_PLAY,COMMAND_DUPLEX_MODE},
                     this);
         }
     }
@@ -116,6 +121,13 @@ public class DuiCommandObserver implements CommandObserver {
                 MusicManager.getInstance().startMusic();
                 mediaControlResult=true;
                 hasMediaControlResult=true;
+            } else if (COMMAND_DUPLEX_MODE.equals(command)) {
+                JSONObject dataObject = new JSONObject(data);
+                if (dataObject.has("ctrl")) {
+                    if (mAISetDuplexModeCallBack != null) {
+                        mAISetDuplexModeCallBack.isFullDuplexMode(Objects.equals(dataObject.getString("ctrl"),"打开"));
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,5 +144,7 @@ public class DuiCommandObserver implements CommandObserver {
         return max;
     }
 
-
+    public void addAISetDuplexModeCallBack(AISetDuplexModeCallBack callBack) {
+        mAISetDuplexModeCallBack = callBack;
+    }
 }

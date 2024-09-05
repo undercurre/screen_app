@@ -82,6 +82,7 @@ class HomeState extends State<Home>
       // 初始化AI语音
       aiMethodChannel.registerAiSetVoiceCallBack(_aiSetVoiceCallback);
       aiMethodChannel.registerAiInitFinishCallBack(_aiInitFinishCallback);
+      aiMethodChannel.registerAiDuplexCallBack(_aiSetDuplexCallback);
 
       if (System.isLogin()) {
         AiDataAdapter(MideaRuntimePlatform.platform).initAiVoice();
@@ -103,6 +104,11 @@ class HomeState extends State<Home>
   void _aiInitFinishCallback()
   {
     aiMethodChannel.setFullDuplex(Setting.instant().aiDuplexModeFullDuplex);
+  }
+
+  void _aiSetDuplexCallback(bool isFull) {
+    Setting.instant().aiDuplexModeFullDuplex = isFull;
+    bus.emit('duplex', isFull);
   }
 
   @override
