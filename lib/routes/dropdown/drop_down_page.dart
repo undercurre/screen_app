@@ -404,6 +404,7 @@ class _DropDownPageState extends State<DropDownPage> with SingleTickerProviderSt
     int now = DateTime.now().millisecondsSinceEpoch;
     if (now - lastTimeSetBrightness > 500) {
       lastTimeSetBrightness = now;
+      settingMethodChannel.setAutoLight(false);
       settingMethodChannel.setSystemLight(lightValue.toInt());
       Setting.instant().screenBrightness = lightValue.toInt();
     }

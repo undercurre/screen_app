@@ -159,12 +159,7 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                               padding: const EdgeInsets.all(0),
                               hasSwitch: true,
                               initSwitchValue: autoLight,
-                              onSwitch: (valueChange) {
-                                setState(() {
-                                  autoLight = valueChange;
-                                  Setting.instant().screenAutoEnable = valueChange;
-                                });
-                              },
+                              onSwitch: onAutoLightClick,
                             ),
                           SizedBox(
                               width: 432,
