@@ -14,10 +14,13 @@ import com.midea.light.common.utils.DialogUtil
 import com.midea.light.common.utils.SoundPoolManager
 import com.midea.light.log.LogUtil
 import com.midea.light.setting.SystemUtil
+import com.midea.light.setting.SystemScreenBrightnessUtil
+import com.midea.light.setting.SystemNearWakeupUtil
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
+import java.util.function.Consumer
 
 
 private const val TAG = "Setting"
@@ -66,10 +69,23 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
         LogUtil.tag(TAG).msg("系统设置通道启动")
     }
 
+    val nearWakeupCallback = object : Consumer<Boolean> {
+        override fun accept(result: Boolean) {
+            mMethodChannel.invokeMethod("NearWakeupState", true)
+        }
+    }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         LogUtil.tag(TAG).msg("flutter -> method: ${call.method}")
         when (call.method) {
+            "registerNearWakeup" -> {
+                SystemNearWakeupUtil.open(nearWakeupCallback)
+                result.success(true)
+            }
+            "unregisterNearWakeup" -> {
+                SystemNearWakeupUtil.close()
+                result.success(true)
+            }
             "registerScreenBroadcast" -> {
                 if (!screenReceiverRegister) {
                     screenReceiverRegister = true
@@ -102,14 +118,17 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
                 result.success(SystemUtil.getSystemAudio())
             }
             "SettingLightValue" -> {
-                SystemUtil.lightSet(call.arguments as Int)
+//                SystemUtil.lightSet(call.arguments as Int)
+                SystemScreenBrightnessUtil.setBrightness(call.arguments as Int)
                 result.success(SystemUtil.lightGet())
             }
             "GettingLightValue" -> {
-                result.success(SystemUtil.lightGet())
+//                result.success(SystemUtil.lightGet())
+                result.success(SystemScreenBrightnessUtil.getBrightness())
             }
             "SettingAutoLight" -> {
-                SystemUtil.setScreenAutoMode(call.arguments as Boolean)
+                SystemScreenBrightnessUtil.setBrightnessAutoMode(call.arguments as Boolean)
+                result.success(true)
             }
             "SettingNearWakeup" -> {
                 SystemUtil.setNearWakeup(call.arguments as Boolean)
@@ -137,7 +156,7 @@ class SettingMethodChannel constructor(override val context: Context) : AbsMZMet
                 result.success(SystemUtil.isNearWakeup())
             }
             "GettingAutoLight" -> {
-                result.success(SystemUtil.isScreenAutoMode())
+                result.success(SystemScreenBrightnessUtil.isBrightnessAutoMode())
             }
             "showLoading" -> {
                 DialogUtil.showLoadingMessage(context,call.arguments as String)

@@ -567,6 +567,14 @@ public class SystemUtil {
         }
     }
 
+    /**
+     *
+     * 设置自动亮度
+     * @param isAutoMode
+     * true 开启自动亮度模式
+     * false 关闭自动亮度模式
+     *
+     */
     public static void setScreenAutoMode(boolean isAutoMode) {
         if (AppCommonConfig.getChannel().equals("JH")) {
             JHSystemUtil.setScreenAutoMode(isAutoMode);

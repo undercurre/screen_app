@@ -35,13 +35,18 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
 
   initial() async {
     num lightVal = await settingMethodChannel.getSystemLight();
+    bool screenAutoEnable = await settingMethodChannel.getAutoLight();
     Setting.instant().screenBrightness = lightVal.toInt();
+    Setting.instant().screenAutoEnable = screenAutoEnable;
     lightValue = lightVal;
+    autoLight = screenAutoEnable;
 
     setState(() {
       duration = Setting.instant().getScreedDurationDetail();
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -136,107 +141,83 @@ class DisplaySettingPageState extends State<DisplaySettingPage> {
                     // ),
 
                     Container(
-                      width: 432,
-                      height: 144,
                       margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                       decoration: const BoxDecoration(
                           color: Color(0x0DFFFFFF),
                           borderRadius: BorderRadius.all(Radius.circular(16))
                       ),
-                      child: Stack(
+                      child: Column(
                         children: [
-                          Positioned(
-                            left: 20,
-                            top: 12,
-                            child: Text("屏幕亮度 | ${(lightValue / 255 * 100).toInt()==0?1:(lightValue / 255 * 100).toInt()}%",
-                                style: const TextStyle(
-                                    color: Color(0XFFFFFFFF),
-                                    fontSize: 24,
-                                    fontFamily: "MideaType",
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none)
+                            MzCell(
+                              title: "自动亮度",
+                              desc: "开启自动亮度之后，屏幕亮度会根据环境亮度自适应调整",
+                              titleSize: 24,
+                              hasArrow: false,
+                              hasBottomBorder: false,
+                              bgColor: Colors.transparent,
+                              padding: const EdgeInsets.all(0),
+                              hasSwitch: true,
+                              initSwitchValue: autoLight,
+                              onSwitch: (valueChange) {
+                                setState(() {
+                                  autoLight = valueChange;
+                                  Setting.instant().screenAutoEnable = valueChange;
+                                });
+                              },
                             ),
-                          ),
-                          Positioned(
-                            top: 72,
-                            left: 20,
-                            child: Container(
-                              width: 392,
-                              height: 1,
-                              decoration: const BoxDecoration(
-                                  color: Color(0x19FFFFFF)
-                              ),
-                            ),
-                          ),
-
-                          Positioned(
-                            top: 80,
-                            left: 0,
-                            child: SizedBox(
+                          SizedBox(
                               width: 432,
                               height: 50,
                               child: SliderTheme(
-                                data: SliderThemeData(
-                                  trackHeight: 3,
-                                  activeTrackColor: Colors.white,
-                                  inactiveTrackColor: const Color(0xFF51555E),
-                                  thumbColor: Colors.white,
-                                  thumbShape: CustomThumbShape(12, Colors.white),
+                                data: const SliderThemeData(
+                                    trackHeight: 3,
+                                    activeTrackColor: Colors.white,
+                                    inactiveTrackColor: const Color(0xFF51555E),
+                                    thumbColor: Colors.white,
+                                    disabledThumbColor: const Color(0xFF51555E),
+                                    disabledActiveTrackColor: const Color(0xFF51555E),
+                                    disabledInactiveTrackColor: const Color(0xFF51555E)
                                 ),
                                 child: Slider(
-                                    min: 0,
-                                    max: 255,
-                                    value: lightValue.toDouble(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        lightValue = value.toInt();
-                                      });
-                                      sliderToSetLight();
-                                    },
-                                    onChangeEnd: (value) {
-                                      sliderToSetLightEnd();
-                                    },
-                                  ),
+                                  min: 0,
+                                  max: 255,
+                                  value: lightValue.toDouble(),
+                                  // The slider will be disabled if onChanged is null or if the range given by min..max is empty (i.e. if min is equal to max).
+                                  onChanged: autoLight ? null : (value) {
+                                    setState(() {
+                                      lightValue = value.toInt();
+                                    });
+                                    sliderToSetLight();
+                                  },
+                                  onChangeEnd: (value) {
+                                    sliderToSetLightEnd();
+                                  },
+                                ),
                               )
-                            )
                           )
                         ],
                       ),
                     ),
 
-                    // Container(
-                    //   width: 432,
-                    //   height: 72,
-                    //   margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                    //   decoration: const BoxDecoration(
-                    //       color: Color(0x0DFFFFFF),
-                    //       borderRadius: BorderRadius.all(Radius.circular(16))
-                    //   ),
-                    //   child: Stack(
-                    //     children: [
-                    //       const Positioned(
-                    //         left: 20,
-                    //         top: 12,
-                    //         child: Text("靠近唤醒",
-                    //             style: TextStyle(
-                    //                 color: Color(0XFFFFFFFF),
-                    //                 fontSize: 24,
-                    //                 fontFamily: "MideaType",
-                    //                 fontWeight: FontWeight.normal,
-                    //                 decoration: TextDecoration.none)
-                    //         ),
-                    //       ),
-                    //       Positioned(
-                    //         right: 20,
-                    //         top: 20,
-                    //         child: MzSwitch(
-                    //           value: nearWakeup,
-                    //           onTap: (e) => onNearWakeupClick(!nearWakeup),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+                    Container(
+                      width: 432,
+                      height: 72,
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                      decoration: const BoxDecoration(
+                          color: Color(0x0DFFFFFF),
+                          borderRadius: BorderRadius.all(Radius.circular(16))
+                      ),
+                      child: MzCell(
+                        title: '靠近唤醒',
+                        hasSwitch: true,
+                        bgColor: Colors.transparent,
+                        padding: const EdgeInsets.all(0),
+                        initSwitchValue: nearWakeup,
+                        onSwitch: onNearWakeupClick,
+                      ),
+                    ),
 
                     Container(
                       width: 432,

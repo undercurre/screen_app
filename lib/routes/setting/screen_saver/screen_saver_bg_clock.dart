@@ -26,7 +26,7 @@ abstract class ScreenSaverBgClock extends AbstractSaverScreen {
 
 }
 
-class ScreenSaverBgClockState extends State<ScreenSaverBgClock> with AiWakeUPScreenSaverState {
+class ScreenSaverBgClockState extends State<ScreenSaverBgClock> with AiWakeUPScreenSaverState, NeaWakeUpState {
 
   late Timer _timer;
   late String clock;

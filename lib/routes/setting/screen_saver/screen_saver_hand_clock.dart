@@ -61,7 +61,7 @@ abstract class ScreenSaverHandClock extends AbstractSaverScreen {
   HandClockConfig buildConfig();
 }
 
-class ScreenSaverHandClockState extends State<ScreenSaverHandClock> with AiWakeUPScreenSaverState {
+class ScreenSaverHandClockState extends State<ScreenSaverHandClock> with AiWakeUPScreenSaverState, NeaWakeUpState {
 
   late Timer _timer;
 

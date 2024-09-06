@@ -13,7 +13,7 @@ import 'show_datetime.dart';
 
 // 页面定义
 class WeatherPageState extends State<WeatherPage>
-    with AiWakeUPScreenSaverState {
+    with AiWakeUPScreenSaverState, NeaWakeUpState {
   String temperature = '--';
   String weatherString = '--';
   String weatherBg = '';

@@ -166,7 +166,7 @@ class SpecialBlackBgSaverScreen extends StatefulWidget {
 
 }
 
-class SpecialBlackBgSaverScreenState extends State<SpecialBlackBgSaverScreen> with AiWakeUPScreenSaverState {
+class SpecialBlackBgSaverScreenState extends State<SpecialBlackBgSaverScreen> with AiWakeUPScreenSaverState, NeaWakeUpState {
   late Timer _timer;
   late bool inClose;
 

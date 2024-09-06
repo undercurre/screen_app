@@ -1,18 +1,26 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../common/utils.dart';
 import 'asb_channel.dart';
 
 typedef ScreenStateCallback = void Function(bool);
+typedef NearWakeupCallback = void Function(bool);
 
 class SettingMethodChannel extends AbstractChannel{
 
   ScreenStateCallback? _screenStateCallback;
+  NearWakeupCallback? _nearWakeupCallback;
 
   SettingMethodChannel.fromName(super.channelName) : super.fromName();
   
   set screenStateCallback(ScreenStateCallback? callback) {
     _screenStateCallback = callback;
+  }
+
+  set nearWakeupCallback(NearWakeupCallback? callback) {
+    _nearWakeupCallback = callback;
   }
   
   @override
@@ -24,7 +32,18 @@ class SettingMethodChannel extends AbstractChannel{
       case "broadcastScreenState":
         _screenStateCallback?.call(argument as bool);
         break;
+      case "NearWakeupState":
+        _nearWakeupCallback?.call(argument as bool);
+        break;
     }
+  }
+
+  void registerNearWakeup() async {
+    methodChannel.invokeListMethod("registerNearWakeup");
+  }
+
+  void unregisterNearWakeup() async {
+    methodChannel.invokeListMethod("unregisterNearWakeup");
   }
   
   void registerScreenBroadcast() async {
@@ -66,8 +85,8 @@ class SettingMethodChannel extends AbstractChannel{
   }
 
   Future<bool> setNearWakeup(bool value) async {
-    bool result =  await methodChannel.invokeMethod('SettingNearWakeup', value);
-    return result;
+    LocalStorage.setItem("near_wake_up", value.toString());
+    return true;
   }
 
   Future<bool> noticeNativeStandbySate(bool value) async {
@@ -76,8 +95,11 @@ class SettingMethodChannel extends AbstractChannel{
   }
 
   Future<bool> getNearWakeup() async {
-    bool result =  await methodChannel.invokeMethod('GettingNearWakeup');
-    return result;
+    String? result = await LocalStorage.getItem("near_wake_up");
+    if (result != null) {
+      return bool.parse(result);
+    }
+    return false;
   }
 
   Future<bool> setScreenClose(bool close) async {

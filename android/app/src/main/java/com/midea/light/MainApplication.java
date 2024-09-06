@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainApplication extends BaseApplication {
-    public static final Boolean DEBUG = false;
+    public static final Boolean DEBUG = true;
     public static final String MMKV_CRYPT_KEY = "16a62e2997ae0dda";
     public static MainActivity mMainActivity;
     public static boolean standbyState=false;
