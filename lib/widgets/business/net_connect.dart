@@ -161,7 +161,7 @@ class _LinkNetworkModel with ChangeNotifier {
     _data.currentConnect = UpdateState.loading(result);
     notifyListeners();
     bool connect =
-    await netMethodChannel.connectedWiFi(result.ssid, password, true);
+    await netMethodChannel.connectedWiFi(result.ssid,result.bssid, password, true);
     if (connect) {
       _data.currentConnect = UpdateState.success(result);
       callback.call(true);

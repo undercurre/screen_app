@@ -177,10 +177,11 @@ class NetMethodChannel extends AbstractChannel {
     }
   }
 
-  Future<bool> connectedWiFi(String ssid, String? pwd, bool changePwd) async {
+  Future<bool> connectedWiFi(String ssid,String bssid, String? pwd, bool changePwd) async {
     try {
      bool connected = await methodChannel.invokeMethod('connectWiFi',
          {'ssid': ssid,
+           'bssid': bssid,
            if(pwd != null) 'pwd': pwd,
            'changePwd': changePwd
          });

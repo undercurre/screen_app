@@ -16,7 +16,7 @@ import android.os.Message;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.Toast;
-
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
@@ -345,7 +345,7 @@ public class WifiConnector {
         config.SSID = "\"" + ssid + "\"";
         config.BSSID=bssid;
 
-        WifiConfiguration tempConfig = isExist(ssid);
+        WifiConfiguration tempConfig = isExist(ssid,bssid);
         if (tempConfig != null) {
             mWifiManager.removeNetwork(tempConfig.networkId);
         }
@@ -374,11 +374,11 @@ public class WifiConnector {
         return config;
     }
 
-    private WifiConfiguration isExist(String ssid) {
+    private WifiConfiguration isExist(String ssid,String bssid) {
         @SuppressLint("MissingPermission") List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
 
         for (WifiConfiguration config : configs) {
-            if (config.SSID.equals("\"" + ssid + "\"")) {
+            if (config.SSID.equals("\"" + ssid + "\"") && config.BSSID.equals(bssid)) {
                 return config;
             }
         }
