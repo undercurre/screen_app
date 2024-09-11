@@ -130,11 +130,12 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             "connectWiFi" -> {
                 LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求11111")
                 assert(call.hasArgument("ssid"))// wifi名
-                assert(wifiList?.get(call.argument<String>("ssid")) != null)
+                assert(call.hasArgument("bssid"))
+                assert(wifiList?.get(call.argument<String>("ssid") + call.argument<String>("bssid")) != null)
                 LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求222222")
                 WiFiConnectHandler.connect(
                     context,
-                    wifiList!![call.argument<String>("ssid")]!!,
+                    wifiList!![call.argument<String>("ssid") + call.argument<String>("bssid")]!!,
                     call.argument<String?>("pwd") ?: "" ,
                     object : IConnectedCallback {
                         override fun invalidConnect(pwd: String?, scanResult: ScanResult?) {
@@ -209,7 +210,7 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
         wifiList = wifiList ?: hashMapOf()
         if(CollectionUtil.isNotEmpty(result)) {
             for (scanResult in result) {
-                wifiList?.put(scanResult.SSID, scanResult)
+                wifiList?.put(scanResult.SSID + scanResult.BSSID, scanResult)
             }
         }
 //        LogUtil.tag(TAG).array(result)
