@@ -130,8 +130,9 @@ class NetMethodChannel constructor(override val context: Context) : AbsMZMethodC
             "connectWiFi" -> {
                 LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求11111")
                 assert(call.hasArgument("ssid"))// wifi名
-                assert(call.hasArgument("bssid"))
-                assert(wifiList?.get(call.argument<String>("ssid") + call.argument<String>("bssid")) != null)
+                val bssid = call.argument<String?>("bssid")
+                val ssid = call.argument<String>("ssid")
+                assert(wifiList?.get(ssid + (bssid ?: "")) != null)
                 LogUtil.tag("wifi-connect").msg("接收到Flutter连接wifi的请求222222")
                 WiFiConnectHandler.connect(
                     context,
