@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
-import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import '../../../common/adapter/scene_panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';

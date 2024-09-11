@@ -127,7 +127,15 @@ class MeiJuDeviceApi {
     return res;
   }
 
+
   /// 设备物模型控制
+  /// 物模型输入参数，参考iot平台设备的物模型配置
+  /// https://mis.midea.com/#/a/products-list?urlSearch=%7B%22name%22%3A%22%22,%22accessMethod%22%3A%22%22,%22productStatus%22%3A%22%22,%22ownerGroupId%22%3A%22%22,%22catCode%22%3A%22%22,%22brandCode%22%3A%22%22,%22tagId%22%3A%22%22,%22controlTerminal%22%3Anull,%22pageNo%22%3A1,%22pageSize%22%3A10%7D
+  ///
+  /// 网关子设备物模型输入参数，这里以D3网关[MSGWZ002]为例子解释
+  /// 智能产品->D3网关详情页->物模型->操作 -> 查看API列表
+  /// 操作一栏定义了各种设备控制的动作。比如 lightControl 灯光设备控制接口(/subdevice/control)
+  ///
   static Future<MeiJuResponseEntity<T>> sendPDMControlOrder<T>({required String categoryCode,
     required String uri,
     required String applianceCode,

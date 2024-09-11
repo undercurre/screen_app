@@ -6,7 +6,7 @@ import 'package:screen_app/common/index.dart';
 import 'package:uuid/uuid.dart';
 
 import '../channel/index.dart';
-import '../common/adapter/panel_data_adapter.dart';
+import '../routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import '../common/gateway_platform.dart';
 import '../common/homlux/api/homlux_device_api.dart';
 import '../common/homlux/models/homlux_device_entity.dart';

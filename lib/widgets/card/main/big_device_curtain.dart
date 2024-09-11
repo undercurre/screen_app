@@ -25,6 +25,7 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
   final bool hasMore;
   final bool disableOnOff;
   final bool discriminative;
+  final String icon;
 
   final void Function(BuildContext, DeviceCardDataAdapter)? goToPageDetailFunction;
 
@@ -38,6 +39,7 @@ class BigDeviceCurtainCardWidget extends StatefulWidget {
       required this.isFault,
       required this.isNative,
       required this.adapterGenerateFunction,
+      required this.icon,
       this.goToPageDetailFunction,
       this.hasMore = true,
       this.disabled = false,
@@ -224,10 +226,10 @@ class _BigDeviceCurtainCardWidgetState
           decoration: _getBoxDecoration(),
           child: Stack(
             children: [
-              const Positioned(
+              Positioned(
                 top: 14,
                 left: 24,
-                child: Image(width: 40, height: 40, image: AssetImage('assets/newUI/device/0x14.png')),
+                child: Image.asset(widget.icon, width: 40, height: 40),
               ),
               Positioned(
                 top: 16,

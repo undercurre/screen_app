@@ -5,18 +5,18 @@ import 'package:screen_app/common/homlux/api/homlux_device_api.dart';
 import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/states/device_list_notifier.dart';
 
-import '../../widgets/event_bus.dart';
-import '../gateway_platform.dart';
-import '../global.dart';
-import '../homlux/models/homlux_device_entity.dart';
-import '../homlux/models/homlux_response_entity.dart';
-import '../homlux/push/event/homlux_push_event.dart';
-import '../meiju/api/meiju_device_api.dart';
-import '../meiju/models/meiju_response_entity.dart';
-import '../meiju/push/event/meiju_push_event.dart';
-import '../models/endpoint.dart';
-import '../models/node_info.dart';
-import 'midea_data_adapter.dart';
+import '../../../../widgets/event_bus.dart';
+import '../../../../common/gateway_platform.dart';
+import '../../../../common/global.dart';
+import '../../../../common/homlux/models/homlux_device_entity.dart';
+import '../../../../common/homlux/models/homlux_response_entity.dart';
+import '../../../../common/homlux/push/event/homlux_push_event.dart';
+import '../../../../common/meiju/api/meiju_device_api.dart';
+import '../../../../common/meiju/models/meiju_response_entity.dart';
+import '../../../../common/meiju/push/event/meiju_push_event.dart';
+import '../../../../common/models/endpoint.dart';
+import '../../../../common/models/node_info.dart';
+import '../../../../common/adapter/midea_data_adapter.dart';
 
 class PanelDataAdapter extends MideaDataAdapter {
   NodeInfo<Endpoint<PanelEvent>>? _meijuData = null;

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/device_card_data_adapter.dart';
-import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/api/api.dart';
 import 'package:screen_app/common/homlux/api/homlux_device_api.dart';

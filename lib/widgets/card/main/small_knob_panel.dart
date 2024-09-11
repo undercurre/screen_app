@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_app/common/adapter/knob_panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import 'package:screen_app/common/global.dart';
 import 'package:screen_app/models/device_entity.dart';
 

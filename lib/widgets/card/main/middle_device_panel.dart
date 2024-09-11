@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../common/adapter/midea_data_adapter.dart';
-import '../../../common/adapter/panel_data_adapter.dart';
+import '../../../routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import '../../../common/gateway_platform.dart';
 import '../../../common/homlux/push/event/homlux_push_event.dart';
 import '../../../common/logcat_helper.dart';

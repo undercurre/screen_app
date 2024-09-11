@@ -5,6 +5,7 @@ import 'package:screen_app/routes/plugins/0x17/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_air/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_cac/index.dart';
 import 'package:screen_app/routes/plugins/0x21/0x21_485_floor/index.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_curtain_elemachine/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_floorHeating/index.dart';
 import 'package:screen_app/routes/plugins/0xAC_newWind/index.dart';
 import 'package:screen_app/routes/plugins/0xB6/index.dart';
@@ -97,6 +98,7 @@ var routes = <String, WidgetBuilder>{
   "0xAC": (context) => const AirConditionPage(),
   "0xAC_newWind": (context) => const NewWindPage(),
   "0xAC_floorHeating": (context) => const FloorHeatingPage(),
-  "0x13_fan": (context) => const WifiLightFanPage()
+  "0x13_fan": (context) => const WifiLightFanPage(),
+  "0x21_curtain_ele_machine": (context) => const ZigbeeEleMachineCurtainPage(),
 
 };

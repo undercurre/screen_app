@@ -39,11 +39,11 @@ class SettingMethodChannel extends AbstractChannel{
   }
 
   void registerNearWakeup() async {
-    methodChannel.invokeListMethod("registerNearWakeup");
+    methodChannel.invokeMethod("registerNearWakeup");
   }
 
   void unregisterNearWakeup() async {
-    methodChannel.invokeListMethod("unregisterNearWakeup");
+    methodChannel.invokeMethod("unregisterNearWakeup");
   }
   
   void registerScreenBroadcast() async {

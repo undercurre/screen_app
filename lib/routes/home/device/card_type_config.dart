@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_app/common/adapter/midea_data_adapter.dart';
-import 'package:screen_app/common/adapter/panel_data_adapter.dart';
+import 'package:screen_app/routes/plugins/0x21/0x21_panel/panel_data_adapter.dart';
 import 'package:screen_app/common/adapter/range_hood_device_data_adapter.dart';
 import 'package:screen_app/common/adapter/scene_panel_data_adapter.dart';
 import 'package:screen_app/common/gateway_platform.dart';
@@ -52,6 +52,7 @@ import '../../plugins/0x21/0x21_485_air/air_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_cac/cac_data_adapter.dart';
 import '../../plugins/0x21/0x21_485_floor/floor_data_adapter.dart';
 import '../../plugins/0x21/0x21_curtain/data_adapter.dart';
+import '../../plugins/0x21/0x21_curtain_elemachine/data_adapter.dart';
 import '../../plugins/0x21/0x21_light/data_adapter.dart';
 import '../../plugins/0x26/data_adapter.dart';
 import '../../plugins/0xAC/data_adapter.dart';
@@ -118,6 +119,7 @@ Map<CardType, Widget Function(DataInputCard)> zigbeeCurtain(String icon) {
         disabled: params.disabled ?? false,
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
+        icon: icon,
         hasMore: params.hasMore ?? true,
         goToPageDetailFunction: (context, adapter) {
           Navigator.pushNamed(context, '0x21_curtain',
@@ -229,6 +231,8 @@ enum DeviceEntityTypeInP4 {
   Device0x13_fan,
   // wifi窗帘
   Device0x14,
+  // Zigbee窗帘
+  Zigbee_3057,
   // 浴霸
   Device0x26,
   // 晾衣机
@@ -1030,6 +1034,91 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
   // Zigbee窗帘
   DeviceEntityTypeInP4.Zigbee_47: zigbeeCurtain('assets/newUI/device/0x21_47.png'),
   DeviceEntityTypeInP4.Zigbee_51: zigbeeCurtain('assets/newUI/device/0x21_51.png'),
+  DeviceEntityTypeInP4.Zigbee_3057: {
+    CardType.Small: (params) => SmallDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0x21_3057.png'),
+        ),
+        roomName: params.roomName,
+        onTap: () => params.onTap,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        discriminative: params.discriminative ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x21_curtain_ele_machine',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => ZigbeeEleMachineCurtainDataAdapter(
+              MideaRuntimePlatform.platform,
+              params.applianceCode ?? '',
+              params.masterId));
+        }),
+    CardType.Middle: (params) => MiddleDeviceCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        icon: const Image(
+          image: AssetImage('assets/newUI/device/0x21_3057.png'),
+        ),
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x21_curtain_ele_machine',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id,(id) => ZigbeeEleMachineCurtainDataAdapter(
+                      MideaRuntimePlatform.platform,
+                      params.applianceCode ?? '',
+                      params.masterId));
+        }),
+    CardType.Big: (params) => BigDeviceCurtainCardWidget(
+        applianceCode: params.applianceCode,
+        name: params.name,
+        roomName: params.roomName,
+        online: params.isOnline == '1',
+        isFault: params.isFault ?? false,
+        isNative: params.isNative ?? false,
+        disabled: params.disabled ?? false,
+        disableOnOff: params.disableOnOff ?? false,
+        discriminative: params.discriminative ?? false,
+        icon: "assets/newUI/device/0x21_3057.png",
+        hasMore: params.hasMore ?? true,
+        goToPageDetailFunction: (context, adapter) {
+          Navigator.pushNamed(context, '0x21_curtain_ele_machine',
+              arguments: {
+                "name": params.name,
+                "adapter": adapter
+              });
+        },
+        adapterGenerateFunction: (id) {
+          return MideaDataAdapter.getOrCreateAdapter(
+              id, (id) => ZigbeeEleMachineCurtainDataAdapter(
+                      MideaRuntimePlatform.platform,
+                      params.applianceCode ?? '',
+                      params.masterId));
+        }),
+  },
   // WIFI窗帘
   DeviceEntityTypeInP4.Device0x14: {
     CardType.Small: (params) => SmallDeviceCardWidget(
@@ -1097,6 +1186,7 @@ Map<DeviceEntityTypeInP4, Map<CardType, Widget Function(DataInputCard params)>>
         disabled: params.disabled ?? false,
         disableOnOff: params.disableOnOff ?? false,
         discriminative: params.discriminative ?? false,
+        icon: "assets/newUI/device/0x14.png",
         hasMore: params.hasMore ?? true,
         adapterGenerateFunction: (id) {
           return MideaDataAdapter.getOrCreateAdapter(
