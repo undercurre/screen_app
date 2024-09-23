@@ -113,6 +113,11 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   }
 
   @override
+  String? getDeviceId() {
+    return applianceCode;
+  }
+
+  @override
   void init() {
     super.init();
     _startPushListen();
