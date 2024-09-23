@@ -94,6 +94,7 @@ mixin NeaWakeUpState<T extends StatefulWidget> on State<T> {
     _dispose = true;
     _timer.cancel();
     settingMethodChannel.unregisterNearWakeup();
+    settingMethodChannel.nearWakeupCallback = null;
     super.dispose();
   }
 

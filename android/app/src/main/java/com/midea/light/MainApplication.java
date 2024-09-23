@@ -60,6 +60,9 @@ public class MainApplication extends BaseApplication {
         MSmartLogger.init(LogConfiguration.LogConfigurationBuilder.create()
                 .withEnable(DEBUG)
                 .withStackFrom(0)
+                .withFilePath(this.getCacheDir().getPath() + "/")
+                .withFileName("androidLog.txt")
+                .withFileMaxSize(10 * 1024 * 1024)
                 .withStackTo(4)
                 .withTag("M-Smart")
                 .build());

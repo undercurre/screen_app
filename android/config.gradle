@@ -220,7 +220,7 @@ ext {
             picker      : "com.midea.light:android-picker:${version["picker"]}",
             //gateway     : "com.midea.light:android-gateway:${version["gateway"]}",
 
-            log         : "com.midea.light:m-smart-log:0.0.6",
+            log         : "com.midea.light:m-smart-log:0.0.9-SNAPSHOT",
             repositories: "com.midea.light:m-smart-repositories:0.0.1",
             rxbus       : "com.midea.light:m-smart-rxbus:0.0.2",
             basic       : "com.midea.light:m-smart-basic:1.0.2-SNAPSHOT",

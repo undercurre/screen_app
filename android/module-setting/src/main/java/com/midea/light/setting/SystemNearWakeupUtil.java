@@ -56,8 +56,8 @@ public class SystemNearWakeupUtil {
 
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
                 float value = event.values[0];
+                LogUtil.file().msg("距离传感器值:" + (value));
                 if (value == 0) {
-                    LogUtil.e("距离传感器值:" + (value));
                     if(CALLBACK != null && CALLBACK.get() != null) {
                         CALLBACK.get().accept(true);
                     } else {

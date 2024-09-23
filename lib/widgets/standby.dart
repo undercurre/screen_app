@@ -11,7 +11,6 @@ class ShowStandby {
   static void startTimer() async {
     debugPrint('[ShowStandby]standbyTimer begin');
     settingMethodChannel.noticeNativeStandbySate(false);
-    settingMethodChannel.setNearWakeup(false);
     await Future.delayed(const Duration(seconds: 0));
 
     var standbyNotifier = Provider.of<StandbyChangeNotifier>(
