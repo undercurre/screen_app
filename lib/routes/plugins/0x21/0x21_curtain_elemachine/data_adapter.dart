@@ -172,14 +172,15 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   Future<void> controlMode(Mode mode) async {
     String lastModel = data!.curtainStatus;
     data!.curtainStatus = mode.key;
-    if (mode.key == 'open') {
-      data!.curtainPosition = 100;
-    } else if (mode.key == 'close') {
-      data!.curtainPosition = 0;
-    }
+    // if (mode.key == 'open') {
+    //   data!.curtainPosition = 100;
+    // } else if (mode.key == 'close') {
+    //   data!.curtainPosition = 0;
+    // }
     var ctr = mode.key == 'open' ? 0 : mode.key == 'close' ? 1 : 2;
-    updateUI();
+    // updateUI();
     // delayFetchData();
+    Log.i("hjl",'hjl curr1 open');
     var command = {
       "msgId": uuid.v4(),
       "deviceId": masterId,
