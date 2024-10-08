@@ -178,9 +178,8 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
     //   data!.curtainPosition = 0;
     // }
     var ctr = mode.key == 'open' ? 0 : mode.key == 'close' ? 1 : 2;
-    // updateUI();
+    updateUI();
     // delayFetchData();
-    Log.i("hjl",'hjl curr1 open');
     var command = {
       "msgId": uuid.v4(),
       "deviceId": masterId,
@@ -285,7 +284,7 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   /// 控制位置
   Future<void> controlCurtain(num value) async {
     int lastPosition = data!.curtainPosition;
-    data!.curtainPosition = value.toInt();
+    // data!.curtainPosition = value.toInt();
     data!.curtainStatus = 'stop';
     updateUI();
     // delayFetchData();
@@ -296,7 +295,7 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
         "nodeId": _meijuData?.nodeId,
         "actionType": "movePercentage",
         "deviceControlList": [
-          {"endPoint": 1, "attribute": data!.curtainPosition}
+          {"endPoint": 1, "attribute": value.toInt()}
         ]
       };
       var res = await MeiJuDeviceApi.sendPDMControlOrder(
