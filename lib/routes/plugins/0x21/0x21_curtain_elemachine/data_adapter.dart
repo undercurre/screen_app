@@ -120,13 +120,13 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   @override
   void init() {
     super.init();
-    _startPushListen();
+    // _startPushListen();
   }
 
   @override
   void destroy() {
     super.destroy();
-    _stopPushListen();
+    // _stopPushListen();
   }
 
   // 开发、关闭
@@ -172,14 +172,14 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   Future<void> controlMode(Mode mode) async {
     String lastModel = data!.curtainStatus;
     data!.curtainStatus = mode.key;
-    // if (mode.key == 'open') {
-    //   data!.curtainPosition = 100;
-    // } else if (mode.key == 'close') {
-    //   data!.curtainPosition = 0;
-    // }
+    if (mode.key == 'open') {
+      data!.curtainPosition = 100;
+    } else if (mode.key == 'close') {
+      data!.curtainPosition = 0;
+    }
     var ctr = mode.key == 'open' ? 0 : mode.key == 'close' ? 1 : 2;
     updateUI();
-    // delayFetchData();
+    delayFetchData();
     var command = {
       "msgId": uuid.v4(),
       "deviceId": masterId,
@@ -209,7 +209,7 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
 
   void delayFetchData() {
     delayTimer?.cancel();
-    delayTimer = Timer(const Duration(seconds: 5), () {
+    delayTimer = Timer(const Duration(seconds: 10), () {
       fetchData();
     });
   }
@@ -284,10 +284,10 @@ class ZigbeeEleMachineCurtainDataAdapter extends DeviceCardDataAdapter<CurtainDa
   /// 控制位置
   Future<void> controlCurtain(num value) async {
     int lastPosition = data!.curtainPosition;
-    // data!.curtainPosition = value.toInt();
+    data!.curtainPosition = value.toInt();
     data!.curtainStatus = 'stop';
     updateUI();
-    // delayFetchData();
+    delayFetchData();
     if (platform.inMeiju()) {
       var command = {
         "msgId": uuid.v4(),
