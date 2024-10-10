@@ -247,7 +247,7 @@ class _MzSliderState extends State<MzSlider> with TickerProviderStateMixin {
     if (controller != null && controller!.status == AnimationStatus.forward) {
       return;
     }
-    Log.i("hjl ${oldWidget.value} ${widget.value} ${value}");
+
     if (oldWidget.value == widget.value) return;
     var oldValue = value;
     var newValue = clampValue(widget.value);

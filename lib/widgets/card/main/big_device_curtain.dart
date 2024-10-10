@@ -430,7 +430,7 @@ class _BigDeviceCurtainCardWidgetState
                   },
                   onChanged: (val, color) {
                     adapter.slider1To(val.toInt());
-                    // bus.emit('operateDevice', widget.applianceCode);
+                    bus.emit('operateDevice', widget.applianceCode);
                   },
                 ),
               ),
