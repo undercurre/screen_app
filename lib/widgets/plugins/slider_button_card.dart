@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/mz_metal_card.dart';
 import 'package:screen_app/widgets/mz_slider.dart';
 

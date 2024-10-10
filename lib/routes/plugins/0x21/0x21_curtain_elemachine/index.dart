@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screen_app/common/logcat_helper.dart';
 import 'package:screen_app/widgets/index.dart';
 
 import '../../../../common/adapter/device_card_data_adapter.dart';
