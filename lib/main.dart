@@ -23,6 +23,8 @@ import 'routes/index.dart';
 import 'states/index.dart';
 import 'widgets/pointer_listener.dart';
 
+
+/// 全局导航Key
 final navigatorKey = GlobalKey<NavigatorState>();
 
 /// 全局获取buildContext类型参数
